@@ -47,6 +47,12 @@
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
   --radius: .5rem;
+  --success: 145 84% 39%;
+  --success-foreground: 0 0% 100%;
+  --warning: 28 100% 50%;
+  --warning-foreground: 0 0% 100%;
+  --quiz-purple: 291 64% 42%;
+  --quiz-orange: 28 100% 50%;
   --shadow-2xs: 0px 2px 0px 0px hsl(240 6% 10% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(240 6% 10% / 0.00);
   --shadow-sm: 0px 2px 0px 0px hsl(240 6% 10% / 0.00), 0px 1px 2px -1px hsl(240 6% 10% / 0.00);
@@ -127,6 +133,12 @@
   --chart-3: 142 76% 60%;
   --chart-4: 28 100% 65%;
   --chart-5: 340 82% 68%;
+  --success: 145 84% 39%;
+  --success-foreground: 0 0% 100%;
+  --warning: 28 100% 65%;
+  --warning-foreground: 0 0% 10%;
+  --quiz-purple: 291 64% 55%;
+  --quiz-orange: 28 100% 55%;
   --shadow-2xs: 0px 2px 0px 0px hsl(240 4% 8% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(240 4% 8% / 0.00);
   --shadow-sm: 0px 2px 0px 0px hsl(240 4% 8% / 0.00), 0px 1px 2px -1px hsl(240 4% 8% / 0.00);
