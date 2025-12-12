@@ -100,9 +100,12 @@ export default function HistoryPage() {
               <p className="text-muted-foreground">Your saved quizzes</p>
             </div>
           </div>
-          <Link href="/generate">
-            <Button data-testid="button-new-quiz">Create New Quiz</Button>
-          </Link>
+          <Button 
+            data-testid="button-new-quiz"
+            onClick={() => setLocation("/")}
+          >
+            Create New Quiz
+          </Button>
         </div>
 
         {!quizzes || quizzes.length === 0 ? (
@@ -113,9 +116,12 @@ export default function HistoryPage() {
               <p className="text-muted-foreground mb-4">
                 Generate your first quiz to see it here
               </p>
-              <Link href="/generate">
-                <Button data-testid="button-create-first-quiz">Create Your First Quiz</Button>
-              </Link>
+              <Button 
+                data-testid="button-create-first-quiz"
+                onClick={() => setLocation("/")}
+              >
+                Create Your First Quiz
+              </Button>
             </CardContent>
           </Card>
         ) : (

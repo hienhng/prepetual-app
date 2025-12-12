@@ -153,7 +153,7 @@ export default function Home() {
             </p>
             <Button
               size="lg"
-              onClick={() => setLocation("/generate")}
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               className="gap-2"
               data-testid="button-get-started"
             >

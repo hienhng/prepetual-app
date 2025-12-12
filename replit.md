@@ -4,6 +4,27 @@
 
 QuizAI is a full-stack web application that transforms study materials into interactive quizzes using AI. Users can upload documents (PDFs, images) to extract text via OCR, then generate custom quizzes with multiple question types (multiple choice, true/false, short answer). The app provides an interactive quiz-taking experience with detailed results and explanations.
 
+## Recent Changes (Dec 2025)
+
+- **Database Persistence**: Migrated from in-memory storage to PostgreSQL with Drizzle ORM for persistent quiz storage
+- **Quiz History**: Added history page to view, retake, study, edit, share, and delete saved quizzes
+- **Difficulty Levels**: Quiz generation now supports easy/medium/hard difficulty selection that modifies AI prompts
+- **Study Mode**: Added flashcard-style study interface with card flip and known/learning tracking
+- **Quiz Sharing**: Implemented shareable links at /share/:id for quiz access
+- **Quiz Editing**: Added edit interface to modify AI-generated questions before taking a quiz
+- **Navigation Fixes**: Corrected routing logic - Create New Quiz goes to home (upload required first)
+
+## Application Flow
+
+1. User uploads document (PDF/image) on home page
+2. OCR extracts text via Tesseract.js (images) or pdf.js (PDFs)
+3. "Continue to Generate Quiz" button appears after extraction
+4. User configures quiz settings (question count, types, difficulty)
+5. AI generates quiz via OpenAI-compatible API
+6. User takes interactive quiz with immediate feedback
+7. Results page shows score and explanations
+8. Quiz is saved to database and appears in History
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -32,7 +53,7 @@ Preferred communication style: Simple, everyday language.
 ### Data Layer
 - **Schema Definition**: Drizzle ORM with PostgreSQL dialect
 - **Validation**: Zod schemas with drizzle-zod integration
-- **Current Storage**: In-memory storage (MemStorage class) - designed for easy migration to PostgreSQL
+- **Current Storage**: PostgreSQL via DatabaseStorage class with Drizzle ORM
 - **Data Models**: Users, Quizzes, Questions, QuizResults
 
 ### Key Design Patterns
