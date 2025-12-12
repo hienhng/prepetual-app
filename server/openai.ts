@@ -1,11 +1,9 @@
 import OpenAI from "openai";
 import pLimit from "p-limit";
 import pRetry from "p-retry";
-import type { Question, QuestionType } from "@shared/schema";
+import type { Question, QuestionType, DifficultyLevel } from "@shared/schema";
 import { randomUUID } from "crypto";
 
-// This is using Replit's AI Integrations service, which provides OpenAI-compatible API access
-// without requiring your own OpenAI API key.
 const openai = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -25,11 +23,11 @@ interface QuizGenerationParams {
   text: string;
   questionCount: number;
   questionTypes: QuestionType[];
+  difficulty?: DifficultyLevel;
 }
 
 export async function generateQuizQuestions(params: QuizGenerationParams): Promise<Question[]> {
-  const { text, questionCount, questionTypes } = params;
-  const limit = pLimit(2);
+  const { text, questionCount, questionTypes, difficulty = "medium" } = params;
 
   const truncatedText = text.length > 8000 ? text.substring(0, 8000) + "..." : text;
 
@@ -44,7 +42,13 @@ export async function generateQuizQuestions(params: QuizGenerationParams): Promi
     }
   }).join(", ");
 
-  const prompt = `You are an expert educator. Based on the following content, generate ${questionCount} quiz questions to help students study and learn the material.
+  const difficultyDescriptions: Record<DifficultyLevel, string> = {
+    easy: "simple recall and basic understanding questions that test fundamental concepts",
+    medium: "moderate complexity questions requiring comprehension and application",
+    hard: "challenging questions requiring analysis, synthesis, and deep understanding with tricky distractors",
+  };
+
+  const prompt = `You are an expert educator. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material.
 
 CONTENT:
 ${truncatedText}
@@ -53,7 +57,7 @@ REQUIREMENTS:
 1. Generate exactly ${questionCount} questions
 2. Use these question types: ${questionTypeDescriptions}
 3. Distribute question types roughly evenly among the selected types
-4. Questions should test understanding, not just memorization
+4. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
 5. Include an explanation for each answer
 6. For multiple choice, always provide exactly 4 options labeled A, B, C, D
 

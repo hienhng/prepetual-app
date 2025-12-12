@@ -5,12 +5,17 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QuizProvider } from "@/lib/quiz-context";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Sparkles } from "lucide-react";
+import { Sparkles, History as HistoryIcon } from "lucide-react";
 import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 import Home from "@/pages/home";
 import Generate from "@/pages/generate";
 import Quiz from "@/pages/quiz";
 import Results from "@/pages/results";
+import HistoryPage from "@/pages/history";
+import Study from "@/pages/study";
+import Share from "@/pages/share";
+import EditQuiz from "@/pages/edit-quiz";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -20,6 +25,10 @@ function Router() {
       <Route path="/generate" component={Generate} />
       <Route path="/quiz" component={Quiz} />
       <Route path="/results" component={Results} />
+      <Route path="/history" component={HistoryPage} />
+      <Route path="/study" component={Study} />
+      <Route path="/share/:id" component={Share} />
+      <Route path="/edit-quiz" component={EditQuiz} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -35,7 +44,15 @@ function Header() {
           </div>
           <span className="text-xl font-bold text-foreground">QuizAI</span>
         </Link>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <Link href="/history">
+            <Button variant="ghost" size="sm" data-testid="link-history">
+              <HistoryIcon className="h-4 w-4 mr-1" />
+              History
+            </Button>
+          </Link>
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

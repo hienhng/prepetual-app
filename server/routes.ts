@@ -6,14 +6,12 @@ import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { generateQuizQuestions, generateQuizTitle } from "./openai";
 import { generateQuizRequestSchema, submitQuizRequestSchema } from "@shared/schema";
-import type { Quiz, QuizResult } from "@shared/schema";
-import { randomUUID } from "crypto";
+import type { Question, DifficultyLevel } from "@shared/schema";
 
-// Configure multer for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 10 * 1024 * 1024,
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
@@ -25,7 +23,6 @@ const upload = multer({
   },
 });
 
-// Extract text from PDF using pdf.js with proper text normalization
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
     const data = new Uint8Array(buffer);
@@ -38,13 +35,11 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
       
-      // Better text extraction with proper spacing
       let lastY: number | null = null;
       const pageTextParts: string[] = [];
       
       for (const item of content.items as any[]) {
         if (item.str) {
-          // Check if we need a line break (different Y position)
           if (lastY !== null && Math.abs(item.transform[5] - lastY) > 5) {
             pageTextParts.push("\n");
           } else if (pageTextParts.length > 0 && !pageTextParts[pageTextParts.length - 1].endsWith(" ")) {
@@ -58,7 +53,6 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
       fullText += pageTextParts.join("") + "\n\n";
     }
     
-    // Normalize whitespace and remove artifacts
     return fullText
       .replace(/\s+/g, " ")
       .replace(/\n\s*\n/g, "\n\n")
@@ -69,7 +63,6 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   }
 }
 
-// Singleton Tesseract worker for OCR
 let tesseractWorker: Awaited<ReturnType<typeof createWorker>> | null = null;
 
 async function getOCRWorker() {
@@ -79,7 +72,6 @@ async function getOCRWorker() {
   return tesseractWorker;
 }
 
-// Extract text from image using Tesseract OCR
 async function extractTextFromImage(buffer: Buffer): Promise<string> {
   try {
     const worker = await getOCRWorker();
@@ -87,7 +79,6 @@ async function extractTextFromImage(buffer: Buffer): Promise<string> {
     return text.trim();
   } catch (error) {
     console.error("OCR error:", error);
-    // Reset worker on error
     if (tesseractWorker) {
       try { await tesseractWorker.terminate(); } catch {}
       tesseractWorker = null;
@@ -100,7 +91,6 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // File upload and text extraction endpoint
   app.post("/api/extract-text", upload.single("file"), async (req, res) => {
     try {
       if (!req.file) {
@@ -133,7 +123,6 @@ export async function registerRoutes(
     }
   });
 
-  // Quiz generation endpoint
   app.post("/api/generate-quiz", async (req, res) => {
     try {
       const validation = generateQuizRequestSchema.safeParse(req.body);
@@ -144,30 +133,29 @@ export async function registerRoutes(
         });
       }
 
-      const { text, questionCount, questionTypes } = validation.data;
+      const { text, questionCount, questionTypes, difficulty } = validation.data;
 
-      // Generate quiz questions using AI
       const questions = await generateQuizQuestions({
         text,
         questionCount,
         questionTypes,
+        difficulty: difficulty as DifficultyLevel,
       });
 
-      // Generate a title for the quiz
       const title = await generateQuizTitle(text);
 
-      const quiz: Quiz = {
-        id: randomUUID(),
+      const quiz = await storage.saveQuiz({
         title,
         sourceText: text,
-        questions,
-        createdAt: new Date().toISOString(),
-      };
+        questions: questions as Question[],
+        difficulty: difficulty || "medium",
+        isPublic: 0,
+      });
 
-      // Save quiz to storage
-      await storage.saveQuiz(quiz);
-
-      res.json(quiz);
+      res.json({
+        ...quiz,
+        createdAt: quiz.createdAt.toISOString(),
+      });
     } catch (error) {
       console.error("Quiz generation error:", error);
       res.status(500).json({
@@ -176,7 +164,6 @@ export async function registerRoutes(
     }
   });
 
-  // Quiz submission endpoint
   app.post("/api/submit-quiz", async (req, res) => {
     try {
       const validation = submitQuizRequestSchema.safeParse(req.body);
@@ -189,18 +176,17 @@ export async function registerRoutes(
 
       const { quizId, answers } = validation.data;
 
-      // Get the quiz
       const quiz = await storage.getQuiz(quizId);
       if (!quiz) {
         return res.status(404).json({ message: "Quiz not found" });
       }
 
-      // Calculate score
       let correctAnswers = 0;
-      for (const question of quiz.questions) {
+      const questions = quiz.questions as Question[];
+      
+      for (const question of questions) {
         const userAnswer = answers[question.id];
         if (userAnswer) {
-          // Normalize answers for comparison
           const normalizedUserAnswer = userAnswer.toLowerCase().trim();
           const normalizedCorrectAnswer = question.correctAnswer.toLowerCase().trim();
           
@@ -210,19 +196,18 @@ export async function registerRoutes(
         }
       }
 
-      const result: QuizResult = {
+      const result = await storage.saveQuizResult({
         quizId,
         answers,
-        score: Math.round((correctAnswers / quiz.questions.length) * 100),
-        totalQuestions: quiz.questions.length,
+        score: Math.round((correctAnswers / questions.length) * 100),
+        totalQuestions: questions.length,
         correctAnswers,
-        completedAt: new Date().toISOString(),
-      };
+      });
 
-      // Save result
-      await storage.saveQuizResult(result);
-
-      res.json(result);
+      res.json({
+        ...result,
+        completedAt: result.completedAt.toISOString(),
+      });
     } catch (error) {
       console.error("Quiz submission error:", error);
       res.status(500).json({
@@ -231,16 +216,90 @@ export async function registerRoutes(
     }
   });
 
-  // Get quiz by ID
   app.get("/api/quiz/:id", async (req, res) => {
     try {
       const quiz = await storage.getQuiz(req.params.id);
       if (!quiz) {
         return res.status(404).json({ message: "Quiz not found" });
       }
-      res.json(quiz);
+      res.json({
+        ...quiz,
+        createdAt: quiz.createdAt.toISOString(),
+      });
     } catch (error) {
       res.status(500).json({ message: "Failed to get quiz" });
+    }
+  });
+
+  app.get("/api/quizzes", async (req, res) => {
+    try {
+      const quizzes = await storage.getAllQuizzes();
+      res.json(quizzes.map(q => ({
+        ...q,
+        createdAt: q.createdAt.toISOString(),
+      })));
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get quizzes" });
+    }
+  });
+
+  app.put("/api/quiz/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title, questions, isPublic } = req.body;
+      
+      const updates: any = {};
+      if (title !== undefined) updates.title = title;
+      if (questions !== undefined) updates.questions = questions;
+      if (isPublic !== undefined) updates.isPublic = isPublic ? 1 : 0;
+
+      const quiz = await storage.updateQuiz(id, updates);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      
+      res.json({
+        ...quiz,
+        createdAt: quiz.createdAt.toISOString(),
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update quiz" });
+    }
+  });
+
+  app.delete("/api/quiz/:id", async (req, res) => {
+    try {
+      await storage.deleteQuiz(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete quiz" });
+    }
+  });
+
+  app.get("/api/quiz/:id/results", async (req, res) => {
+    try {
+      const results = await storage.getQuizResultsByQuizId(req.params.id);
+      res.json(results.map(r => ({
+        ...r,
+        completedAt: r.completedAt.toISOString(),
+      })));
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get quiz results" });
+    }
+  });
+
+  app.get("/api/share/:id", async (req, res) => {
+    try {
+      const quiz = await storage.getQuiz(req.params.id);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      res.json({
+        ...quiz,
+        createdAt: quiz.createdAt.toISOString(),
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get shared quiz" });
     }
   });
 

@@ -19,6 +19,7 @@ export type User = typeof users.$inferSelect;
 
 // Question types
 export type QuestionType = "multiple_choice" | "true_false" | "short_answer";
+export type DifficultyLevel = "easy" | "medium" | "hard";
 
 // Question schema for validation
 export const questionSchema = z.object({
@@ -32,34 +33,75 @@ export const questionSchema = z.object({
 
 export type Question = z.infer<typeof questionSchema>;
 
-// Quiz schema for validation
-export const quizSchema = z.object({
+// Quizzes table
+export const quizzes = pgTable("quizzes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  sourceText: text("source_text").notNull(),
+  questions: jsonb("questions").notNull().$type<Question[]>(),
+  difficulty: text("difficulty").default("medium"),
+  isPublic: integer("is_public").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertQuizSchema = createInsertSchema(quizzes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertQuiz = z.infer<typeof insertQuizSchema>;
+export type Quiz = typeof quizzes.$inferSelect;
+
+// Quiz results table
+export const quizResults = pgTable("quiz_results", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  quizId: varchar("quiz_id").notNull().references(() => quizzes.id),
+  answers: jsonb("answers").notNull().$type<Record<string, string>>(),
+  score: integer("score").notNull(),
+  totalQuestions: integer("total_questions").notNull(),
+  correctAnswers: integer("correct_answers").notNull(),
+  completedAt: timestamp("completed_at").defaultNow().notNull(),
+});
+
+export const insertQuizResultSchema = createInsertSchema(quizResults).omit({
+  id: true,
+  completedAt: true,
+});
+
+export type InsertQuizResult = z.infer<typeof insertQuizResultSchema>;
+export type QuizResult = typeof quizResults.$inferSelect;
+
+// Legacy types for backward compatibility with frontend
+export const quizSchemaLegacy = z.object({
   id: z.string(),
   title: z.string(),
   sourceText: z.string(),
   questions: z.array(questionSchema),
-  createdAt: z.string(),
+  difficulty: z.string().optional(),
+  isPublic: z.number().optional(),
+  createdAt: z.union([z.string(), z.date()]),
 });
 
-export type Quiz = z.infer<typeof quizSchema>;
+export type QuizLegacy = z.infer<typeof quizSchemaLegacy>;
 
-// Quiz result schema
-export const quizResultSchema = z.object({
+export const quizResultSchemaLegacy = z.object({
+  id: z.string().optional(),
   quizId: z.string(),
   answers: z.record(z.string(), z.string()),
   score: z.number(),
   totalQuestions: z.number(),
   correctAnswers: z.number(),
-  completedAt: z.string(),
+  completedAt: z.union([z.string(), z.date()]),
 });
 
-export type QuizResult = z.infer<typeof quizResultSchema>;
+export type QuizResultLegacy = z.infer<typeof quizResultSchemaLegacy>;
 
 // API request schemas
 export const generateQuizRequestSchema = z.object({
   text: z.string().min(50, "Text must be at least 50 characters"),
   questionCount: z.number().min(3).max(20).default(10),
   questionTypes: z.array(z.enum(["multiple_choice", "true_false", "short_answer"])).min(1),
+  difficulty: z.enum(["easy", "medium", "hard"]).default("medium"),
 });
 
 export type GenerateQuizRequest = z.infer<typeof generateQuizRequestSchema>;

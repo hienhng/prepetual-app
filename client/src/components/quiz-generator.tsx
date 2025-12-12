@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare } from "lucide-react";
+import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useQuiz } from "@/lib/quiz-context";
 import { motion, AnimatePresence } from "framer-motion";
-import type { QuestionType } from "@shared/schema";
+import type { QuestionType, DifficultyLevel } from "@shared/schema";
 
 export function QuizGenerator() {
   const [, setLocation] = useLocation();
@@ -16,6 +16,7 @@ export function QuizGenerator() {
   const [showFullText, setShowFullText] = useState(false);
   const [questionCount, setQuestionCount] = useState(10);
   const [questionTypes, setQuestionTypes] = useState<QuestionType[]>(["multiple_choice", "true_false"]);
+  const [difficulty, setDifficulty] = useState<DifficultyLevel>("medium");
   const [error, setError] = useState<string | null>(null);
 
   const toggleQuestionType = (type: QuestionType) => {
@@ -43,6 +44,7 @@ export function QuizGenerator() {
           text: extractedText,
           questionCount,
           questionTypes,
+          difficulty,
         }),
       });
 
@@ -146,6 +148,24 @@ export function QuizGenerator() {
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>3</span>
                 <span>20</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Difficulty Level</Label>
+              <div className="grid grid-cols-3 gap-3">
+                {(["easy", "medium", "hard"] as DifficultyLevel[]).map((level) => (
+                  <Button
+                    key={level}
+                    variant={difficulty === level ? "default" : "outline"}
+                    className={`capitalize toggle-elevate ${difficulty === level ? "toggle-elevated" : ""}`}
+                    onClick={() => setDifficulty(level)}
+                    data-testid={`button-difficulty-${level}`}
+                  >
+                    <Gauge className="h-4 w-4 mr-2" />
+                    {level}
+                  </Button>
+                ))}
               </div>
             </div>
 

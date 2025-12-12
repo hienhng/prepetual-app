@@ -1,61 +1,101 @@
-import { type User, type InsertUser, type Quiz, type QuizResult } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { eq, desc } from "drizzle-orm";
+import { db } from "./db";
+import { 
+  users, 
+  quizzes, 
+  quizResults,
+  type User, 
+  type InsertUser, 
+  type Quiz, 
+  type QuizResult,
+  type InsertQuiz,
+  type InsertQuizResult,
+  type Question
+} from "@shared/schema";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  saveQuiz(quiz: Quiz): Promise<Quiz>;
+  saveQuiz(quiz: InsertQuiz & { id?: string }): Promise<Quiz>;
   getQuiz(id: string): Promise<Quiz | undefined>;
-  saveQuizResult(result: QuizResult): Promise<QuizResult>;
+  getAllQuizzes(): Promise<Quiz[]>;
+  updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined>;
+  deleteQuiz(id: string): Promise<boolean>;
+  saveQuizResult(result: InsertQuizResult): Promise<QuizResult>;
   getQuizResult(quizId: string): Promise<QuizResult | undefined>;
+  getQuizResultsByQuizId(quizId: string): Promise<QuizResult[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private quizzes: Map<string, Quiz>;
-  private quizResults: Map<string, QuizResult>;
-
-  constructor() {
-    this.users = new Map();
-    this.quizzes = new Map();
-    this.quizResults = new Map();
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
-  async saveQuiz(quiz: Quiz): Promise<Quiz> {
-    this.quizzes.set(quiz.id, quiz);
-    return quiz;
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
+  async saveQuiz(quiz: InsertQuiz & { id?: string }): Promise<Quiz> {
+    const [savedQuiz] = await db.insert(quizzes).values({
+      title: quiz.title,
+      sourceText: quiz.sourceText,
+      questions: quiz.questions as Question[],
+      difficulty: quiz.difficulty || "medium",
+      isPublic: quiz.isPublic || 0,
+    }).returning();
+    return savedQuiz;
   }
 
   async getQuiz(id: string): Promise<Quiz | undefined> {
-    return this.quizzes.get(id);
+    const [quiz] = await db.select().from(quizzes).where(eq(quizzes.id, id));
+    return quiz;
   }
 
-  async saveQuizResult(result: QuizResult): Promise<QuizResult> {
-    this.quizResults.set(result.quizId, result);
-    return result;
+  async getAllQuizzes(): Promise<Quiz[]> {
+    return await db.select().from(quizzes).orderBy(desc(quizzes.createdAt));
+  }
+
+  async updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined> {
+    const [updated] = await db.update(quizzes)
+      .set(updates)
+      .where(eq(quizzes.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteQuiz(id: string): Promise<boolean> {
+    const result = await db.delete(quizzes).where(eq(quizzes.id, id));
+    return true;
+  }
+
+  async saveQuizResult(result: InsertQuizResult): Promise<QuizResult> {
+    const [savedResult] = await db.insert(quizResults).values(result).returning();
+    return savedResult;
   }
 
   async getQuizResult(quizId: string): Promise<QuizResult | undefined> {
-    return this.quizResults.get(quizId);
+    const [result] = await db.select()
+      .from(quizResults)
+      .where(eq(quizResults.quizId, quizId))
+      .orderBy(desc(quizResults.completedAt))
+      .limit(1);
+    return result;
+  }
+
+  async getQuizResultsByQuizId(quizId: string): Promise<QuizResult[]> {
+    return await db.select()
+      .from(quizResults)
+      .where(eq(quizResults.quizId, quizId))
+      .orderBy(desc(quizResults.completedAt));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
