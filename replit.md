@@ -6,6 +6,7 @@ QuizAI is a full-stack web application that transforms study materials into inte
 
 ## Recent Changes (Dec 2025)
 
+- **Custom Email/Password Authentication**: Replaced Replit Auth with custom auth system featuring email/password registration and login, email verification, password reset via email, and Google OAuth support. Uses bcrypt for password hashing and PostgreSQL-backed sessions.
 - **Vietnamese Language Support**: AI auto-detects Vietnamese content and generates questions/explanations in Vietnamese. OCR supports Vietnamese text extraction.
 - **Redirect After Quiz Creation**: After creating a quiz, user is redirected to the Archive page with fresh data
 - **Import Existing Quiz**: New mode to parse questions from exam papers/worksheets - AI identifies correct answers using its knowledge
