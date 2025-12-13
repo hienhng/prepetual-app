@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { VerificationPrompt } from "@/components/verification-prompt";
 import Home from "@/pages/home";
 import Generate from "@/pages/generate";
 import Quiz from "@/pages/quiz";
@@ -126,17 +127,30 @@ function Header() {
   );
 }
 
+function AppContent() {
+  const { user, isAuthenticated } = useAuth();
+
+  return (
+    <>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1">
+          <Router />
+        </main>
+      </div>
+      {isAuthenticated && user && !user.emailVerified && (
+        <VerificationPrompt email={user.email} open={true} />
+      )}
+    </>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <QuizProvider>
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-1">
-              <Router />
-            </main>
-          </div>
+          <AppContent />
           <Toaster />
         </QuizProvider>
       </TooltipProvider>

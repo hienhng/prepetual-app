@@ -315,6 +315,39 @@ export function setupAuth(app: Express): void {
       res.status(500).json({ message: "Failed to get user" });
     }
   });
+
+  app.post("/api/auth/resend-verification", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (user.emailVerified) {
+        return res.status(400).json({ message: "Email is already verified" });
+      }
+
+      const token = cryptoRandomString({ length: 64, type: "url-safe" });
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
+
+      try {
+        await sendVerificationEmail(email, token, user.firstName || undefined);
+      } catch (emailError) {
+        console.error("Failed to send verification email:", emailError);
+      }
+
+      res.json({ message: "Verification email sent successfully" });
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      res.status(500).json({ message: "Failed to resend verification email" });
+    }
+  });
 }
 
 export const isAuthenticated: RequestHandler = (req, res, next) => {
