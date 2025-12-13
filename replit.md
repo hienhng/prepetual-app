@@ -7,6 +7,7 @@ QuizAI is a full-stack web application that transforms study materials into inte
 ## Recent Changes (Dec 2025)
 
 - **Import Existing Quiz**: New mode to parse questions from exam papers/worksheets - AI identifies correct answers using its knowledge
+- **Results Page Improvement**: Switched from custom SVG to lucide-react icons for easier maintenance and modification
 - **Database Persistence**: Migrated from in-memory storage to PostgreSQL with Drizzle ORM for persistent quiz storage
 - **Quiz History**: Added history page to view, retake, study, edit, share, and delete saved quizzes
 - **Difficulty Levels**: Quiz generation now supports easy/medium/hard difficulty selection that modifies AI prompts

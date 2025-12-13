@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Trophy, Check, X, ChevronDown, ChevronUp, RotateCcw, Home, Sparkles } from "lucide-react";
+import { Trophy, Check, X, ChevronDown, ChevronUp, RotateCcw, Home, Sparkles, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -70,45 +70,14 @@ export function QuizResults() {
         <Card className={`${getScoreBg()} border-0`}>
           <CardContent className="p-8 md:p-12 text-center">
             <div className="flex justify-center mb-6">
-              <div className="relative">
-                <svg className="w-40 h-40 transform -rotate-90" viewBox="0 0 100 100">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    className="text-muted/30"
-                  />
-                  <motion.circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                    className={getScoreColor()}
-                    strokeDasharray={`${2 * Math.PI * 45}`}
-                    initial={{ strokeDashoffset: 2 * Math.PI * 45 }}
-                    animate={{ strokeDashoffset: 2 * Math.PI * 45 * (1 - percentage / 100) }}
-                    transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <motion.span
-                    className={`text-4xl font-bold ${getScoreColor()}`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    data-testid="text-score-percentage"
-                  >
-                    {percentage}%
-                  </motion.span>
-                  <span className="text-sm text-muted-foreground">Score</span>
-                </div>
-              </div>
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+                className="relative"
+              >
+                <Award className={`w-32 h-32 ${getScoreColor()}`} strokeWidth={1.5} />
+              </motion.div>
             </div>
 
             <motion.div
@@ -116,12 +85,22 @@ export function QuizResults() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mb-4"
+              >
+                <span className={`text-5xl font-bold ${getScoreColor()}`} data-testid="text-score-percentage">
+                  {percentage}%
+                </span>
+              </motion.div>
               <div className="flex items-center justify-center gap-2 mb-4">
                 <Trophy className={`h-6 w-6 ${getScoreColor()}`} />
                 <h2 className={`text-2xl font-bold ${getScoreColor()}`}>{getScoreMessage()}</h2>
               </div>
               <p className="text-muted-foreground">
-                You answered {quizResult.correctAnswers} out of {quizResult.totalQuestions} questions correctly
+                You answered <span className="font-semibold text-foreground">{quizResult.correctAnswers}</span> out of <span className="font-semibold text-foreground">{quizResult.totalQuestions}</span> questions correctly
               </p>
             </motion.div>
           </CardContent>

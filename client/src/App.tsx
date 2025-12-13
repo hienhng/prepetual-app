@@ -48,7 +48,7 @@ function Header() {
           <Link href="/history">
             <Button variant="ghost" size="sm" data-testid="link-history">
               <HistoryIcon className="h-4 w-4 mr-1" />
-              History
+              Archive
             </Button>
           </Link>
           <ThemeToggle />
