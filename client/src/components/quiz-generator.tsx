@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge } from "lucide-react";
+import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,6 +10,8 @@ import { useQuiz } from "@/lib/quiz-context";
 import { motion, AnimatePresence } from "framer-motion";
 import type { QuestionType, DifficultyLevel } from "@shared/schema";
 
+type QuizMode = "generate" | "import";
+
 export function QuizGenerator() {
   const [, setLocation] = useLocation();
   const { extractedText, setCurrentQuiz, setIsLoading, isLoading, setLoadingMessage, loadingMessage } = useQuiz();
@@ -18,6 +20,7 @@ export function QuizGenerator() {
   const [questionTypes, setQuestionTypes] = useState<QuestionType[]>(["multiple_choice", "true_false"]);
   const [difficulty, setDifficulty] = useState<DifficultyLevel>("medium");
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<QuizMode>("generate");
 
   const toggleQuestionType = (type: QuestionType) => {
     setQuestionTypes((prev) => {
@@ -34,30 +37,35 @@ export function QuizGenerator() {
 
     setError(null);
     setIsLoading(true);
-    setLoadingMessage("AI is analyzing your content...");
+    
+    if (mode === "import") {
+      setLoadingMessage("AI is parsing your questions and finding answers...");
+    } else {
+      setLoadingMessage("AI is analyzing your content...");
+    }
 
     try {
-      const response = await fetch("/api/generate-quiz", {
+      const endpoint = mode === "import" ? "/api/import-quiz" : "/api/generate-quiz";
+      const body = mode === "import" 
+        ? { text: extractedText }
+        : { text: extractedText, questionCount, questionTypes, difficulty };
+
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: extractedText,
-          questionCount,
-          questionTypes,
-          difficulty,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to generate quiz");
+        throw new Error(errorData.message || "Failed to process quiz");
       }
 
       const quiz = await response.json();
       setCurrentQuiz(quiz);
       setLocation("/quiz");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred while generating the quiz");
+      setError(err instanceof Error ? err.message : "An error occurred while processing the quiz");
     } finally {
       setIsLoading(false);
       setLoadingMessage("");
@@ -116,6 +124,61 @@ export function QuizGenerator() {
         </Card>
       </motion.div>
 
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+      >
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Sparkles className="h-5 w-5 text-quiz-purple" />
+              Quiz Mode
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              <div
+                className={`
+                  flex flex-col items-center gap-2 p-4 rounded-md border-2 cursor-pointer transition-all text-center
+                  ${mode === "generate" 
+                    ? "border-primary bg-primary/5" 
+                    : "border-muted hover:border-muted-foreground/30"
+                  }
+                `}
+                onClick={() => setMode("generate")}
+                data-testid="mode-generate"
+              >
+                <Sparkles className="h-6 w-6 text-quiz-purple" />
+                <div>
+                  <p className="text-sm font-medium">Generate New Quiz</p>
+                  <p className="text-xs text-muted-foreground">Create new questions from your study material</p>
+                </div>
+              </div>
+
+              <div
+                className={`
+                  flex flex-col items-center gap-2 p-4 rounded-md border-2 cursor-pointer transition-all text-center
+                  ${mode === "import" 
+                    ? "border-primary bg-primary/5" 
+                    : "border-muted hover:border-muted-foreground/30"
+                  }
+                `}
+                onClick={() => setMode("import")}
+                data-testid="mode-import"
+              >
+                <Import className="h-6 w-6 text-primary" />
+                <div>
+                  <p className="text-sm font-medium">Import Existing Quiz</p>
+                  <p className="text-xs text-muted-foreground">Parse questions from an exam or worksheet</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {mode === "generate" && (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -255,7 +318,7 @@ export function QuizGenerator() {
 
             <Button
               onClick={generateQuiz}
-              disabled={isLoading || questionTypes.length === 0}
+              disabled={isLoading || (mode === "generate" && questionTypes.length === 0)}
               className="w-full py-6 text-lg font-semibold"
               data-testid="button-generate-quiz"
             >
@@ -274,6 +337,73 @@ export function QuizGenerator() {
           </CardContent>
         </Card>
       </motion.div>
+      )}
+
+      {mode === "import" && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Import className="h-5 w-5 text-primary" />
+                Import Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                The AI will scan your document to find existing questions and answer options.
+                It will use its knowledge to identify the correct answer for each question.
+              </p>
+              
+              <div className="bg-muted/50 rounded-md p-4">
+                <p className="text-xs text-muted-foreground">
+                  Works best with:
+                </p>
+                <ul className="text-xs text-muted-foreground mt-2 space-y-1 list-disc list-inside">
+                  <li>Multiple choice exams and worksheets</li>
+                  <li>Quiz papers with labeled options (A, B, C, D)</li>
+                  <li>Practice tests and assessment materials</li>
+                </ul>
+              </div>
+
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="p-4 bg-destructive/10 border border-destructive/30 rounded-md"
+                  >
+                    <p className="text-sm text-destructive">{error}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <Button
+                onClick={generateQuiz}
+                disabled={isLoading}
+                className="w-full py-6 text-lg font-semibold"
+                data-testid="button-import-quiz"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    {loadingMessage || "Importing..."}
+                  </>
+                ) : (
+                  <>
+                    <Import className="h-5 w-5 mr-2" />
+                    Import Quiz
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
     </div>
   );
 }

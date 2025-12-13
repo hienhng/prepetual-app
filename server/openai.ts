@@ -101,7 +101,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
         factor: 2,
         onFailedAttempt: (error) => {
           if (!isRateLimitError(error)) {
-            throw new pRetry.AbortError(error);
+            throw error;
           }
         },
       }
@@ -150,6 +150,121 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
   } catch (error) {
     console.error("Error generating quiz:", error);
     throw new Error("Failed to generate quiz questions. Please try again.");
+  }
+}
+
+interface ImportQuizParams {
+  text: string;
+}
+
+export async function importExistingQuiz(params: ImportQuizParams): Promise<Question[]> {
+  const { text } = params;
+
+  const truncatedText = text.length > 8000 ? text.substring(0, 8000) + "..." : text;
+
+  const prompt = `You are an expert educator. The following text appears to be from an existing exam, quiz, or worksheet that already contains questions with answer options.
+
+Your task is to:
+1. Parse and extract ALL existing questions from the content
+2. Identify the correct answer for each question using your knowledge
+3. Provide a brief explanation for why each answer is correct
+
+CONTENT:
+${truncatedText}
+
+IMPORTANT INSTRUCTIONS:
+- Extract questions EXACTLY as they appear (preserving the original wording)
+- For multiple choice, preserve all answer options as they appear (e.g., a, b, c, d or A, B, C, D)
+- Use your knowledge to determine the correct answer - DO NOT just guess
+- If a question is unclear or you cannot determine the answer confidently, still include it but note the uncertainty in the explanation
+- Convert all questions to multiple_choice type since they appear to have options
+
+OUTPUT FORMAT (JSON):
+{
+  "questions": [
+    {
+      "type": "multiple_choice",
+      "question": "The exact question text as it appears",
+      "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"],
+      "correctAnswer": "A) The correct option with its full text",
+      "explanation": "Brief explanation of why this is the correct answer"
+    }
+  ]
+}
+
+Respond with ONLY valid JSON, no markdown or additional text.`;
+
+  try {
+    const response = await pRetry(
+      async () => {
+        const completion = await openai.chat.completions.create({
+          model: "gpt-5",
+          messages: [{ role: "user", content: prompt }],
+          response_format: { type: "json_object" },
+          max_completion_tokens: 8192,
+        });
+
+        const content = completion.choices[0]?.message?.content;
+        if (!content) {
+          throw new Error("No response from AI");
+        }
+
+        return content;
+      },
+      {
+        retries: 5,
+        minTimeout: 2000,
+        maxTimeout: 60000,
+        factor: 2,
+        onFailedAttempt: (error) => {
+          if (!isRateLimitError(error)) {
+            throw error;
+          }
+        },
+      }
+    );
+
+    const parsed = JSON.parse(response);
+    
+    if (!parsed.questions || !Array.isArray(parsed.questions)) {
+      throw new Error("Invalid AI response: missing questions array");
+    }
+
+    const questions: Question[] = [];
+    
+    for (const q of parsed.questions) {
+      if (!q.type || !q.question || !q.correctAnswer) {
+        console.warn("Skipping malformed question:", q);
+        continue;
+      }
+      
+      if (!["multiple_choice", "true_false", "short_answer"].includes(q.type)) {
+        console.warn("Skipping question with invalid type:", q.type);
+        continue;
+      }
+
+      const question: Question = {
+        id: randomUUID(),
+        type: q.type as QuestionType,
+        question: String(q.question).trim(),
+        options: q.type === "multiple_choice" && Array.isArray(q.options) 
+          ? q.options.map((o: any) => String(o).trim())
+          : undefined,
+        correctAnswer: String(q.correctAnswer).trim(),
+        explanation: q.explanation ? String(q.explanation).trim() : undefined,
+      };
+
+      questions.push(question);
+    }
+
+    if (questions.length === 0) {
+      throw new Error("No valid questions found in the document. Make sure the content contains quiz or exam questions.");
+    }
+
+    return questions;
+  } catch (error) {
+    console.error("Error importing quiz:", error);
+    throw new Error("Failed to import quiz questions. Please try again.");
   }
 }
 

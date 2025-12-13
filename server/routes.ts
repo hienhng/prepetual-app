@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import multer from "multer";
 import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
-import { generateQuizQuestions, generateQuizTitle } from "./openai";
+import { generateQuizQuestions, generateQuizTitle, importExistingQuiz } from "./openai";
 import { generateQuizRequestSchema, submitQuizRequestSchema } from "@shared/schema";
 import type { Question, DifficultyLevel } from "@shared/schema";
 
@@ -160,6 +160,45 @@ export async function registerRoutes(
       console.error("Quiz generation error:", error);
       res.status(500).json({
         message: error instanceof Error ? error.message : "Failed to generate quiz",
+      });
+    }
+  });
+
+  app.post("/api/import-quiz", async (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text || typeof text !== "string") {
+        return res.status(400).json({
+          message: "Text content is required",
+        });
+      }
+
+      if (text.length < 50) {
+        return res.status(400).json({
+          message: "Text content is too short. Please upload a document with quiz questions.",
+        });
+      }
+
+      const questions = await importExistingQuiz({ text });
+      const title = await generateQuizTitle(text);
+
+      const quiz = await storage.saveQuiz({
+        title,
+        sourceText: text,
+        questions: questions as Question[],
+        difficulty: "medium",
+        isPublic: 0,
+      });
+
+      res.json({
+        ...quiz,
+        createdAt: quiz.createdAt.toISOString(),
+      });
+    } catch (error) {
+      console.error("Quiz import error:", error);
+      res.status(500).json({
+        message: error instanceof Error ? error.message : "Failed to import quiz",
       });
     }
   });
