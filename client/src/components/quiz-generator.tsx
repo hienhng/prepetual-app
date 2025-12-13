@@ -63,7 +63,7 @@ export function QuizGenerator() {
 
       const quiz = await response.json();
       setCurrentQuiz(quiz);
-      setLocation("/quiz");
+      window.location.assign("/history");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred while processing the quiz");
     } finally {

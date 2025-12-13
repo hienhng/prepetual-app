@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
-import { History, Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2 } from "lucide-react";
+import { History, Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, Archive } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -93,11 +93,11 @@ export default function HistoryPage() {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-md bg-gradient-to-br from-primary to-quiz-purple flex items-center justify-center">
-              <History className="h-6 w-6 text-white" />
+              <Archive className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Quiz History</h1>
-              <p className="text-muted-foreground">Your saved quizzes</p>
+              <h1 className="text-2xl font-bold">Quiz Archive</h1>
+              <p className="text-muted-foreground">Your materials, as quizzes</p>
             </div>
           </div>
           <Button 

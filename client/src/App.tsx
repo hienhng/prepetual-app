@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QuizProvider } from "@/lib/quiz-context";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Sparkles, History as HistoryIcon } from "lucide-react";
+import { Sparkles, History as HistoryIcon, Archive } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import Home from "@/pages/home";
@@ -42,12 +42,12 @@ function Header() {
           <div className="w-9 h-9 rounded-md bg-gradient-to-br from-primary to-quiz-purple flex items-center justify-center">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xl font-bold text-foreground">QuizAI</span>
+          <span className="text-xl font-bold text-foreground">Prepetual</span>
         </Link>
         <div className="flex items-center gap-2">
           <Link href="/history">
             <Button variant="ghost" size="sm" data-testid="link-history">
-              <HistoryIcon className="h-4 w-4 mr-1" />
+              <Archive className="h-4 w-4 mr-1" />
               Archive
             </Button>
           </Link>
