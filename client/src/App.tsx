@@ -25,6 +25,9 @@ import Study from "@/pages/study";
 import Share from "@/pages/share";
 import EditQuiz from "@/pages/edit-quiz";
 import AuthPage from "@/pages/auth";
+import VerifyEmailPage from "@/pages/verify-email";
+import ResetPasswordPage from "@/pages/reset-password";
+import ForgotPasswordPage from "@/pages/forgot-password";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -32,6 +35,9 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/verify-email" component={VerifyEmailPage} />
+      <Route path="/reset-password" component={ResetPasswordPage} />
+      <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/generate" component={Generate} />
       <Route path="/quiz" component={Quiz} />
       <Route path="/results" component={Results} />
