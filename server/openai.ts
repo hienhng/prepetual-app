@@ -226,28 +226,33 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
 
     const parsed = JSON.parse(response);
     
+    console.log("AI import response:", JSON.stringify(parsed, null, 2));
+    
     if (!parsed.questions || !Array.isArray(parsed.questions)) {
-      throw new Error("Invalid AI response: missing questions array");
+      throw new Error("No quiz questions detected in this document. Please upload a document that contains multiple choice questions.");
+    }
+
+    if (parsed.questions.length === 0) {
+      throw new Error("No quiz questions detected in this document. Please upload a document that contains multiple choice questions.");
     }
 
     const questions: Question[] = [];
     
     for (const q of parsed.questions) {
-      if (!q.type || !q.question || !q.correctAnswer) {
-        console.warn("Skipping malformed question:", q);
+      if (!q.question || !q.correctAnswer) {
+        console.warn("Skipping malformed question (missing question or answer):", q);
         continue;
       }
       
-      if (!["multiple_choice", "true_false", "short_answer"].includes(q.type)) {
-        console.warn("Skipping question with invalid type:", q.type);
-        continue;
-      }
+      const questionType = q.type && ["multiple_choice", "true_false", "short_answer"].includes(q.type) 
+        ? q.type as QuestionType 
+        : "multiple_choice";
 
       const question: Question = {
         id: randomUUID(),
-        type: q.type as QuestionType,
+        type: questionType,
         question: String(q.question).trim(),
-        options: q.type === "multiple_choice" && Array.isArray(q.options) 
+        options: Array.isArray(q.options) && q.options.length > 0
           ? q.options.map((o: any) => String(o).trim())
           : undefined,
         correctAnswer: String(q.correctAnswer).trim(),
@@ -258,12 +263,15 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     }
 
     if (questions.length === 0) {
-      throw new Error("No valid questions found in the document. Make sure the content contains quiz or exam questions.");
+      throw new Error("No quiz questions detected in this document. Make sure you're uploading an exam paper or worksheet with multiple choice questions.");
     }
 
     return questions;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error importing quiz:", error);
+    if (error.message && error.message.includes("No quiz questions")) {
+      throw error;
+    }
     throw new Error("Failed to import quiz questions. Please try again.");
   }
 }
