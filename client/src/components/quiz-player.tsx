@@ -292,7 +292,7 @@ export function QuizPlayer() {
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4 mb-6">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4 mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-muted-foreground">
             Question {currentIndex + 1} of {questions.length}
