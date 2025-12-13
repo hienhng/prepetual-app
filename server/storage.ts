@@ -1,21 +1,31 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, gt } from "drizzle-orm";
 import { db } from "./db";
 import { 
   users, 
   quizzes, 
   quizResults,
+  verificationTokens,
   type User, 
   type UpsertUser, 
   type Quiz, 
   type QuizResult,
   type InsertQuiz,
   type InsertQuizResult,
-  type Question
+  type Question,
+  type VerificationToken
 } from "@shared/schema";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByGoogleId(googleId: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  createUser(user: Omit<UpsertUser, "id">): Promise<User>;
+  updateUser(id: string, updates: Partial<UpsertUser>): Promise<User | undefined>;
+  createVerificationToken(userId: string, token: string, type: string, expiresAt: Date): Promise<VerificationToken>;
+  getVerificationToken(token: string): Promise<VerificationToken | undefined>;
+  deleteVerificationToken(token: string): Promise<void>;
+  verifyUserEmail(userId: string): Promise<void>;
   saveQuiz(quiz: InsertQuiz & { id?: string }): Promise<Quiz>;
   getQuiz(id: string): Promise<Quiz | undefined>;
   getAllQuizzes(): Promise<Quiz[]>;
@@ -33,6 +43,16 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async getUserByGoogleId(googleId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.googleId, googleId));
+    return user;
+  }
+
   async upsertUser(userData: UpsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
@@ -46,6 +66,52 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return user;
+  }
+
+  async createUser(userData: Omit<UpsertUser, "id">): Promise<User> {
+    const [user] = await db.insert(users).values(userData).returning();
+    return user;
+  }
+
+  async updateUser(id: string, updates: Partial<UpsertUser>): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async createVerificationToken(
+    userId: string,
+    token: string,
+    type: string,
+    expiresAt: Date
+  ): Promise<VerificationToken> {
+    const [created] = await db
+      .insert(verificationTokens)
+      .values({ userId, token, type, expiresAt })
+      .returning();
+    return created;
+  }
+
+  async getVerificationToken(token: string): Promise<VerificationToken | undefined> {
+    const [found] = await db
+      .select()
+      .from(verificationTokens)
+      .where(and(eq(verificationTokens.token, token), gt(verificationTokens.expiresAt, new Date())));
+    return found;
+  }
+
+  async deleteVerificationToken(token: string): Promise<void> {
+    await db.delete(verificationTokens).where(eq(verificationTokens.token, token));
+  }
+
+  async verifyUserEmail(userId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ emailVerified: true, updatedAt: new Date() })
+      .where(eq(users.id, userId));
   }
 
   async saveQuiz(quiz: InsertQuiz & { id?: string }): Promise<Quiz> {
@@ -74,15 +140,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined> {
+    const updateData: Record<string, unknown> = {};
+    if (updates.title !== undefined) updateData.title = updates.title;
+    if (updates.sourceText !== undefined) updateData.sourceText = updates.sourceText;
+    if (updates.questions !== undefined) updateData.questions = updates.questions as Question[];
+    if (updates.difficulty !== undefined) updateData.difficulty = updates.difficulty;
+    if (updates.isPublic !== undefined) updateData.isPublic = updates.isPublic;
+    
     const [updated] = await db.update(quizzes)
-      .set(updates)
+      .set(updateData)
       .where(eq(quizzes.id, id))
       .returning();
     return updated;
   }
 
   async deleteQuiz(id: string): Promise<boolean> {
-    const result = await db.delete(quizzes).where(eq(quizzes.id, id));
+    await db.delete(quizzes).where(eq(quizzes.id, id));
     return true;
   }
 

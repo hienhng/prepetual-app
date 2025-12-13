@@ -24,12 +24,14 @@ import HistoryPage from "@/pages/history";
 import Study from "@/pages/study";
 import Share from "@/pages/share";
 import EditQuiz from "@/pages/edit-quiz";
+import AuthPage from "@/pages/auth";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/auth" component={AuthPage} />
       <Route path="/generate" component={Generate} />
       <Route path="/quiz" component={Quiz} />
       <Route path="/results" component={Results} />
@@ -90,21 +92,26 @@ function Header() {
                     <User className="h-4 w-4 mr-2" />
                     {user?.email || "User"}
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <a href="/api/logout" data-testid="button-logout">
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Sign out
-                    </a>
+                  <DropdownMenuItem 
+                    onClick={async () => {
+                      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+                      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+                      window.location.href = "/";
+                    }}
+                    data-testid="button-logout"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="default" size="sm" asChild data-testid="button-login">
-                <a href="/api/login">
+              <Link href="/auth">
+                <Button variant="default" size="sm" data-testid="button-login">
                   <LogIn className="h-4 w-4 mr-1" />
                   Sign in
-                </a>
-              </Button>
+                </Button>
+              </Link>
             )
           )}
         </div>
