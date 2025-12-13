@@ -6,6 +6,8 @@ QuizAI is a full-stack web application that transforms study materials into inte
 
 ## Recent Changes (Dec 2025)
 
+- **Vietnamese Language Support**: AI auto-detects Vietnamese content and generates questions/explanations in Vietnamese. OCR supports Vietnamese text extraction.
+- **Redirect After Quiz Creation**: After creating a quiz, user is redirected to the Archive page with fresh data
 - **Import Existing Quiz**: New mode to parse questions from exam papers/worksheets - AI identifies correct answers using its knowledge
 - **Results Page Improvement**: Switched from custom SVG to lucide-react icons for easier maintenance and modification
 - **Database Persistence**: Migrated from in-memory storage to PostgreSQL with Drizzle ORM for persistent quiz storage

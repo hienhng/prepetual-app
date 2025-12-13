@@ -53,6 +53,12 @@ export async function generateQuizQuestions(params: QuizGenerationParams): Promi
 CONTENT:
 ${truncatedText}
 
+LANGUAGE HANDLING:
+- Detect the primary language of the content above (English, Vietnamese, or other)
+- Generate ALL questions, options, correct answers, and explanations in the SAME language as the content
+- If the content is in Vietnamese, write everything in Vietnamese
+- If the content is in English, write everything in English
+
 REQUIREMENTS:
 1. Generate exactly ${questionCount} questions
 2. Use these question types: ${questionTypeDescriptions}
@@ -172,6 +178,13 @@ Your task is to:
 CONTENT:
 ${truncatedText}
 
+LANGUAGE HANDLING:
+- Detect the primary language of the content above (English, Vietnamese, or other)
+- Preserve the original language of the questions and options
+- Write explanations in the SAME language as the content
+- If the content is in Vietnamese, write explanations in Vietnamese
+- If the content is in English, write explanations in English
+
 IMPORTANT INSTRUCTIONS:
 - Extract questions EXACTLY as they appear (preserving the original wording)
 - For multiple choice, preserve all answer options as they appear (e.g., a, b, c, d or A, B, C, D)
@@ -288,7 +301,9 @@ export async function generateQuizTitle(text: string): Promise<string> {
           messages: [
             {
               role: "user",
-              content: `Based on this content, generate a short, descriptive title (max 6 words) for a study quiz:
+              content: `Based on this content, generate a short, descriptive title (max 6 words) for a study quiz.
+
+LANGUAGE: Detect the language of the content and write the title in the SAME language. If Vietnamese, write in Vietnamese. If English, write in English.
 
 ${truncatedText}
 
