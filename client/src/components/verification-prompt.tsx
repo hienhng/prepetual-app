@@ -21,6 +21,11 @@ export function VerificationPrompt({ email, open }: VerificationPromptProps) {
   const { toast } = useToast();
   const [emailSent, setEmailSent] = useState(false);
 
+  // Apply blur to body when dialog is open
+  if (open) {
+    document.body.style.pointerEvents = 'auto';
+  }
+
   const resendMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/auth/resend-verification", { email });
@@ -44,8 +49,10 @@ export function VerificationPrompt({ email, open }: VerificationPromptProps) {
   });
 
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-[425px] backdrop-blur-sm" onPointerDownOutside={(e) => e.preventDefault()}>
+    <>
+      {open && <div className="fixed inset-0 backdrop-blur-sm z-40" style={{ pointerEvents: 'none' }} />}
+      <Dialog open={open} onOpenChange={() => {}}>
+      <DialogContent className="sm:max-w-[425px]" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5 text-primary" />
@@ -85,5 +92,6 @@ export function VerificationPrompt({ email, open }: VerificationPromptProps) {
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 }
