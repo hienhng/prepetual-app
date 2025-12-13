@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, Loader2, Trophy, Sparkles } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,8 +16,7 @@ export function QuizPlayer() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shortAnswerInput, setShortAnswerInput] = useState("");
-  const [isChecked, setIsChecked] = useState(false);
-  const [correctCount, setCorrectCount] = useState(0);
+  const [checkedQuestions, setCheckedQuestions] = useState<Set<string>>(new Set());
 
   if (!currentQuiz) {
     return null;
@@ -27,6 +26,7 @@ export function QuizPlayer() {
   const currentQuestion = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
   const selectedAnswer = userAnswers[currentQuestion.id];
+  const isChecked = checkedQuestions.has(currentQuestion.id);
 
   const isCorrect = () => {
     if (!selectedAnswer) return false;
@@ -51,19 +51,21 @@ export function QuizPlayer() {
     }
     
     if (selectedAnswer || (currentQuestion.type === "short_answer" && shortAnswerInput.trim())) {
-      setIsChecked(true);
-      if (isCorrect() || (currentQuestion.type === "short_answer" && 
-          shortAnswerInput.trim().toLowerCase() === currentQuestion.correctAnswer.toLowerCase().trim())) {
-        setCorrectCount(prev => prev + 1);
-      }
+      setCheckedQuestions(prev => new Set(prev).add(currentQuestion.id));
     }
   };
 
   const goToNext = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
-      setIsChecked(false);
-      setShortAnswerInput("");
+      setShortAnswerInput(userAnswers[questions[currentIndex + 1]?.id] || "");
+    }
+  };
+
+  const goToPrevious = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+      setShortAnswerInput(userAnswers[questions[currentIndex - 1]?.id] || "");
     }
   };
 
@@ -295,12 +297,9 @@ export function QuizPlayer() {
           <span className="text-sm text-muted-foreground">
             Question {currentIndex + 1} of {questions.length}
           </span>
-          <div className="flex items-center gap-2">
-            <Trophy className="h-4 w-4 text-quiz-orange" />
-            <span className="text-sm font-medium text-foreground">
-              {correctCount} / {currentIndex + (isChecked ? 1 : 0)}
-            </span>
-          </div>
+          <span className="text-sm text-muted-foreground">
+            {checkedQuestions.size} answered
+          </span>
         </div>
         <Progress value={progress} className="h-2" data-testid="progress-quiz" />
       </div>
@@ -333,50 +332,66 @@ export function QuizPlayer() {
         </motion.div>
       </AnimatePresence>
 
-      <div className="flex items-center justify-center gap-4">
-        {!isChecked ? (
-          <Button
-            size="lg"
-            onClick={handleCheck}
-            disabled={!canCheck}
-            className="gap-2 min-w-[160px]"
-            data-testid="button-check"
-          >
-            <Sparkles className="h-5 w-5" />
-            Check Answer
-          </Button>
-        ) : isLastQuestion ? (
-          <Button
-            size="lg"
-            onClick={finishQuiz}
-            disabled={isSubmitting}
-            className="gap-2 min-w-[160px]"
-            data-testid="button-finish"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Finishing...
-              </>
-            ) : (
-              <>
-                <Trophy className="h-5 w-5" />
-                See Results
-              </>
-            )}
-          </Button>
-        ) : (
-          <Button
-            size="lg"
-            onClick={goToNext}
-            className="gap-2 min-w-[160px]"
-            data-testid="button-next"
-          >
-            Next Question
-            <ArrowRight className="h-5 w-5" />
-          </Button>
-        )}
+      <div className="flex items-center justify-between gap-4">
+        <Button
+          variant="outline"
+          onClick={goToPrevious}
+          disabled={currentIndex === 0}
+          className="gap-2"
+          data-testid="button-previous"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
+
+        <div className="flex items-center gap-3">
+          {!isChecked ? (
+            <Button
+              onClick={handleCheck}
+              disabled={!canCheck}
+              className="gap-2"
+              data-testid="button-check"
+            >
+              <Sparkles className="h-4 w-4" />
+              Check Answer
+            </Button>
+          ) : isLastQuestion ? (
+            <Button
+              onClick={finishQuiz}
+              disabled={isSubmitting || checkedQuestions.size < questions.length}
+              className="gap-2"
+              data-testid="button-finish"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Finishing...
+                </>
+              ) : (
+                <>
+                  See Results
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button
+              onClick={goToNext}
+              className="gap-2"
+              data-testid="button-next"
+            >
+              Next
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
+
+      {isLastQuestion && checkedQuestions.size < questions.length && (
+        <p className="text-center text-sm text-muted-foreground mt-4">
+          Please answer all questions before seeing results
+        </p>
+      )}
     </div>
   );
 }
