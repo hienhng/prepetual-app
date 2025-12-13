@@ -4,14 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "@/components/file-upload";
 import { useQuiz } from "@/lib/quiz-context";
+import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 
 export default function Home() {
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText } = useQuiz();
+  const { isAuthenticated } = useAuth();
 
   const handleTextExtracted = (text: string) => {
     setExtractedText(text);
+  };
+
+  const handleContinueToGenerate = () => {
+    if (isAuthenticated) {
+      setLocation("/generate");
+    } else {
+      window.location.href = "/api/login";
+    }
   };
 
   const features = [
@@ -75,7 +85,7 @@ export default function Home() {
             >
               <Button
                 size="lg"
-                onClick={() => setLocation("/generate")}
+                onClick={handleContinueToGenerate}
                 className="gap-2 text-lg py-6 px-8"
                 data-testid="button-continue-generate"
               >

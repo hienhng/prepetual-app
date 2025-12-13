@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import multer from "multer";
 import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
@@ -91,6 +92,21 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // Setup Replit Auth
+  await setupAuth(app);
+
+  // Auth user endpoint
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   app.post("/api/extract-text", upload.single("file"), async (req, res) => {
     try {
       if (!req.file) {
@@ -123,7 +139,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/generate-quiz", async (req, res) => {
+  app.post("/api/generate-quiz", isAuthenticated, async (req: any, res) => {
     try {
       const validation = generateQuizRequestSchema.safeParse(req.body);
       
@@ -134,6 +150,7 @@ export async function registerRoutes(
       }
 
       const { text, questionCount, questionTypes, difficulty } = validation.data;
+      const userId = req.user.claims.sub;
 
       const questions = await generateQuizQuestions({
         text,
@@ -145,6 +162,7 @@ export async function registerRoutes(
       const title = await generateQuizTitle(text);
 
       const quiz = await storage.saveQuiz({
+        userId,
         title,
         sourceText: text,
         questions: questions as Question[],
@@ -164,9 +182,10 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/import-quiz", async (req, res) => {
+  app.post("/api/import-quiz", isAuthenticated, async (req: any, res) => {
     try {
       const { text } = req.body;
+      const userId = req.user.claims.sub;
       
       if (!text || typeof text !== "string") {
         return res.status(400).json({
@@ -184,6 +203,7 @@ export async function registerRoutes(
       const title = await generateQuizTitle(text);
 
       const quiz = await storage.saveQuiz({
+        userId,
         title,
         sourceText: text,
         questions: questions as Question[],
@@ -270,9 +290,10 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/quizzes", async (req, res) => {
+  app.get("/api/quizzes", isAuthenticated, async (req: any, res) => {
     try {
-      const quizzes = await storage.getAllQuizzes();
+      const userId = req.user.claims.sub;
+      const quizzes = await storage.getQuizzesByUserId(userId);
       res.json(quizzes.map(q => ({
         ...q,
         createdAt: q.createdAt.toISOString(),

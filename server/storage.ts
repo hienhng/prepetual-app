@@ -5,7 +5,7 @@ import {
   quizzes, 
   quizResults,
   type User, 
-  type InsertUser, 
+  type UpsertUser, 
   type Quiz, 
   type QuizResult,
   type InsertQuiz,
@@ -15,11 +15,11 @@ import {
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  upsertUser(user: UpsertUser): Promise<User>;
   saveQuiz(quiz: InsertQuiz & { id?: string }): Promise<Quiz>;
   getQuiz(id: string): Promise<Quiz | undefined>;
   getAllQuizzes(): Promise<Quiz[]>;
+  getQuizzesByUserId(userId: string): Promise<Quiz[]>;
   updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined>;
   deleteQuiz(id: string): Promise<boolean>;
   saveQuizResult(result: InsertQuizResult): Promise<QuizResult>;
@@ -33,18 +33,24 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
     return user;
   }
 
   async saveQuiz(quiz: InsertQuiz & { id?: string }): Promise<Quiz> {
     const [savedQuiz] = await db.insert(quizzes).values({
+      userId: quiz.userId,
       title: quiz.title,
       sourceText: quiz.sourceText,
       questions: quiz.questions as Question[],
@@ -61,6 +67,10 @@ export class DatabaseStorage implements IStorage {
 
   async getAllQuizzes(): Promise<Quiz[]> {
     return await db.select().from(quizzes).orderBy(desc(quizzes.createdAt));
+  }
+
+  async getQuizzesByUserId(userId: string): Promise<Quiz[]> {
+    return await db.select().from(quizzes).where(eq(quizzes.userId, userId)).orderBy(desc(quizzes.createdAt));
   }
 
   async updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined> {

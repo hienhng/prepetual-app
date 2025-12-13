@@ -5,9 +5,17 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QuizProvider } from "@/lib/quiz-context";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Sparkles, History as HistoryIcon, Archive } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Sparkles, Archive, LogIn, LogOut, User } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Home from "@/pages/home";
 import Generate from "@/pages/generate";
 import Quiz from "@/pages/quiz";
@@ -35,6 +43,18 @@ function Router() {
 }
 
 function Header() {
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  const getInitials = () => {
+    if (user?.firstName && user?.lastName) {
+      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    }
+    if (user?.email) {
+      return user.email[0].toUpperCase();
+    }
+    return "U";
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -45,13 +65,48 @@ function Header() {
           <span className="text-xl font-bold text-foreground">Prepetual</span>
         </Link>
         <div className="flex items-center gap-2">
-          <Link href="/history">
-            <Button variant="ghost" size="sm" data-testid="link-history">
-              <Archive className="h-4 w-4 mr-1" />
-              Archive
-            </Button>
-          </Link>
+          {isAuthenticated && (
+            <Link href="/history">
+              <Button variant="ghost" size="sm" data-testid="link-history">
+                <Archive className="h-4 w-4 mr-1" />
+                Archive
+              </Button>
+            </Link>
+          )}
           <ThemeToggle />
+          {!isLoading && (
+            isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full" data-testid="button-user-menu">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} className="object-cover" />
+                      <AvatarFallback>{getInitials()}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem className="text-muted-foreground" disabled>
+                    <User className="h-4 w-4 mr-2" />
+                    {user?.email || "User"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <a href="/api/logout" data-testid="button-logout">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign out
+                    </a>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="default" size="sm" asChild data-testid="button-login">
+                <a href="/api/login">
+                  <LogIn className="h-4 w-4 mr-1" />
+                  Sign in
+                </a>
+              </Button>
+            )
+          )}
         </div>
       </div>
     </header>
