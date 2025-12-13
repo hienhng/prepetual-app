@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import } from "lucide-react";
+import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -63,7 +64,8 @@ export function QuizGenerator() {
 
       const quiz = await response.json();
       setCurrentQuiz(quiz);
-      window.location.assign("/history");
+      queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
+      setLocation("/history");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred while processing the quiz");
     } finally {
