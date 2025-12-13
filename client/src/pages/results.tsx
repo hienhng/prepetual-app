@@ -2,14 +2,35 @@ import { useLocation } from "wouter";
 import { QuizResults } from "@/components/quiz-results";
 import { useQuiz } from "@/lib/quiz-context";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function Results() {
   const [, setLocation] = useLocation();
   const { quizResult } = useQuiz();
+  const quizResultRef = useRef(quizResult);
+  const mountTimeRef = useRef(Date.now());
+
+  // Keep ref in sync with latest value
+  useEffect(() => {
+    quizResultRef.current = quizResult;
+  }, [quizResult]);
 
   useEffect(() => {
-    if (!quizResult) {
+    // On mount, wait briefly for context to update (handles race condition)
+    // Then check if there's still no result
+    const timeout = setTimeout(() => {
+      if (!quizResultRef.current) {
+        setLocation("/");
+      }
+    }, 150);
+
+    return () => clearTimeout(timeout);
+  }, [setLocation]);
+
+  // Also redirect if user navigates directly to /results without a result
+  // but only after initial mount delay has passed
+  useEffect(() => {
+    if (!quizResult && Date.now() - mountTimeRef.current > 200) {
       setLocation("/");
     }
   }, [quizResult, setLocation]);
