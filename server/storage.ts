@@ -155,6 +155,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteQuiz(id: string): Promise<boolean> {
+    // Delete quiz results first
+    await db.delete(quizResults).where(eq(quizResults.quizId, id));
+    // Then delete the quiz
     await db.delete(quizzes).where(eq(quizzes.id, id));
     return true;
   }
