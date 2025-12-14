@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { Sparkles, BookOpen, Brain, Zap, ArrowRight, FileStack } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,10 @@ export default function Home() {
   const { extractedText, setExtractedText } = useQuiz();
   const { isAuthenticated } = useAuth();
   const { openAuthDialog } = useAuthDialog();
+
+  useEffect(() => {
+    setExtractedText("");
+  }, []);
 
   const handleTextExtracted = (text: string) => {
     setExtractedText(text);

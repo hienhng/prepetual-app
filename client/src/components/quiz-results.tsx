@@ -65,7 +65,7 @@ export function QuizResults() {
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.2 }}
       >
         <Card className={`${getScoreBg()} border-0`}>
           <CardContent className="p-8 md:p-12 text-center">
@@ -73,7 +73,7 @@ export function QuizResults() {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
+                transition={{ duration: 0.2, delay: 0.2, ease: "easeIn" }}
                 className="relative w-48 h-48"
               >
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
