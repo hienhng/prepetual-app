@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, BookOpen, Brain, Zap, ArrowRight, FileStack } from "lucide-react";
+import { Sparkles, BookOpen, Brain, Zap, ArrowRight, FileStack, CheckCircle2, Upload, FileText, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "@/components/file-upload";
@@ -104,150 +104,257 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/20">
+      {/* Feature Section 1: Upload & Extract */}
+      <section className="py-20 md:py-28 bg-gradient-to-b from-background to-muted/10">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              How It Works
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Three simple steps to turn your study materials into effective quizzes
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Upload Documents */}
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0 }}
+              className="space-y-6"
             >
-              <Card className="h-full border-0 bg-gradient-to-br from-primary/5 to-background hover-elevate overflow-hidden">
-                <CardContent className="p-8 text-center flex flex-col h-full">
-                  <div className="mb-6 flex-shrink-0">
-                    <svg className="w-32 h-32 mx-auto" viewBox="0 0 160 160" fill="none">
-                      <rect x="30" y="20" width="100" height="120" rx="8" stroke="currentColor" strokeWidth="2" className="text-primary" />
-                      <path d="M80 50L80 110" stroke="currentColor" strokeWidth="2" className="text-primary" strokeLinecap="round" />
-                      <path d="M60 90L100 90" stroke="currentColor" strokeWidth="2" className="text-primary" strokeLinecap="round" />
-                      <motion.circle
-                        cx="80"
-                        cy="70"
-                        r="12"
-                        className="text-quiz-purple"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        fill="none"
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">
-                    Upload Documents
-                  </h3>
-                  <p className="text-muted-foreground text-sm flex-grow">
-                    Support for PDFs and images with automatic text extraction
-                  </p>
-                  <div className="mt-6 flex items-center justify-center gap-2 text-primary font-semibold">
-                    <span className="text-2xl">1</span>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10">
+                <Upload className="w-6 h-6 text-primary" />
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+                Effortless Document Upload
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Simply drag and drop your study materials. Our smart extraction handles PDFs, images, and scanned documents with precision.
+              </p>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">PDF documents with multi-page support</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Images with OCR text extraction</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Vietnamese and English language support</span>
+                </li>
+              </ul>
             </motion.div>
-
-            {/* AI-Powered */}
+            
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <Card className="h-full border-0 bg-gradient-to-br from-quiz-purple/5 to-background hover-elevate overflow-hidden">
-                <CardContent className="p-8 text-center flex flex-col h-full">
-                  <div className="mb-6 flex-shrink-0">
-                    <svg className="w-32 h-32 mx-auto" viewBox="0 0 160 160" fill="none">
-                      <circle cx="80" cy="80" r="50" stroke="currentColor" strokeWidth="2" className="text-quiz-purple" />
-                      <circle cx="80" cy="80" r="35" stroke="currentColor" strokeWidth="2" className="text-quiz-purple" opacity="0.5" />
-                      <motion.circle
-                        cx="80"
-                        cy="80"
-                        r="20"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        fill="none"
-                        className="text-quiz-purple"
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                      />
-                      <circle cx="80" cy="80" r="8" fill="currentColor" className="text-quiz-purple" />
-                    </svg>
+              <Card className="border shadow-lg bg-card/80 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 pb-3 border-b">
+                      <div className="w-3 h-3 rounded-full bg-red-400" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                      <div className="w-3 h-3 rounded-full bg-green-400" />
+                    </div>
+                    <div className="border-2 border-dashed border-primary/30 rounded-lg p-8 text-center bg-primary/5">
+                      <motion.div
+                        animate={{ y: [0, -8, 0] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        <FileText className="w-12 h-12 mx-auto text-primary mb-3" />
+                      </motion.div>
+                      <p className="text-sm text-muted-foreground">Drop your files here</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                        <FileText className="w-5 h-5 text-primary" />
+                        <span className="text-sm text-foreground flex-1 truncate">biology_notes.pdf</span>
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      </div>
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                        <FileText className="w-5 h-5 text-primary" />
+                        <span className="text-sm text-foreground flex-1 truncate">chapter_5_summary.png</span>
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">
-                    AI-Powered
-                  </h3>
-                  <p className="text-muted-foreground text-sm flex-grow">
-                    Smart quiz generation with multiple question types
-                  </p>
-                  <div className="mt-6 flex items-center justify-center gap-2 text-quiz-purple font-semibold">
-                    <span className="text-2xl">2</span>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Section 2: AI Generation */}
+      <section className="py-20 md:py-28 bg-muted/20">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="order-2 lg:order-1"
+            >
+              <Card className="border shadow-lg bg-card/80 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 pb-3 border-b">
+                      <div className="w-3 h-3 rounded-full bg-red-400" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                      <div className="w-3 h-3 rounded-full bg-green-400" />
+                    </div>
+                    <div className="space-y-3">
+                      <div className="p-4 rounded-lg border bg-background">
+                        <p className="text-xs text-muted-foreground mb-2">Multiple Choice</p>
+                        <p className="text-sm font-medium text-foreground mb-3">What is the primary function of mitochondria?</p>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 p-2 rounded bg-muted/50 text-sm">
+                            <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30" />
+                            <span>Protein synthesis</span>
+                          </div>
+                          <div className="flex items-center gap-2 p-2 rounded bg-primary/10 border border-primary/30 text-sm">
+                            <div className="w-4 h-4 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
+                              <div className="w-2 h-2 rounded-full bg-primary-foreground" />
+                            </div>
+                            <span className="text-primary font-medium">Energy production</span>
+                          </div>
+                          <div className="flex items-center gap-2 p-2 rounded bg-muted/50 text-sm">
+                            <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30" />
+                            <span>Cell division</span>
+                          </div>
+                        </div>
+                      </div>
+                      <motion.div 
+                        className="flex items-center gap-2 text-sm text-quiz-purple"
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        <Brain className="w-4 h-4" />
+                        <span>Generating more questions...</span>
+                      </motion.div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
 
-            {/* Instant Results */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
+              className="space-y-6 order-1 lg:order-2"
             >
-              <Card className="h-full border-0 bg-gradient-to-br from-quiz-orange/5 to-background hover-elevate overflow-hidden">
-                <CardContent className="p-8 text-center flex flex-col h-full">
-                  <div className="mb-6 flex-shrink-0">
-                    <svg className="w-32 h-32 mx-auto" viewBox="0 0 160 160" fill="none">
-                      <circle cx="80" cy="80" r="50" stroke="currentColor" strokeWidth="2" className="text-quiz-orange" />
-                      <motion.path
-                        d="M55 80 L72 95 L110 55"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-quiz-orange"
-                        initial={{ pathLength: 0 }}
-                        whileInView={{ pathLength: 1 }}
-                        transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 1 }}
-                        viewport={{ once: false }}
-                      />
-                      <motion.circle
-                        cx="80"
-                        cy="80"
-                        r="50"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        fill="none"
-                        className="text-quiz-orange"
-                        initial={{ opacity: 1, r: 50 }}
-                        animate={{ opacity: 0, r: 70 }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">
-                    Instant Results
-                  </h3>
-                  <p className="text-muted-foreground text-sm flex-grow">
-                    Get detailed feedback and explanations for each answer
-                  </p>
-                  <div className="mt-6 flex items-center justify-center gap-2 text-quiz-orange font-semibold">
-                    <span className="text-2xl">3</span>
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-quiz-purple/10">
+                <Brain className="w-6 h-6 text-quiz-purple" />
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+                AI-Powered Quiz Generation
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Our intelligent AI analyzes your content and creates meaningful questions that test understanding, not just memorization.
+              </p>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-quiz-purple mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Multiple choice, true/false, and short answer</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-quiz-purple mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Adjustable difficulty levels</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-quiz-purple mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Smart question variety for comprehensive coverage</span>
+                </li>
+              </ul>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Section 3: Results & Feedback */}
+      <section className="py-20 md:py-28 bg-gradient-to-b from-background to-muted/10">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="space-y-6"
+            >
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-quiz-orange/10">
+                <BarChart3 className="w-6 h-6 text-quiz-orange" />
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+                Instant Results & Insights
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Get immediate feedback on every answer with detailed explanations that help you understand the material, not just memorize answers.
+              </p>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-quiz-orange mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Detailed explanations for each question</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-quiz-orange mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Score tracking and progress visualization</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-quiz-orange mt-0.5 flex-shrink-0" />
+                  <span className="text-foreground">Study mode for focused review sessions</span>
+                </li>
+              </ul>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
+              <Card className="border shadow-lg bg-card/80 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 pb-3 border-b">
+                      <div className="w-3 h-3 rounded-full bg-red-400" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                      <div className="w-3 h-3 rounded-full bg-green-400" />
+                    </div>
+                    <div className="text-center py-4">
+                      <div className="relative w-24 h-24 mx-auto mb-4">
+                        <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                          <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted" />
+                          <motion.circle
+                            cx="50"
+                            cy="50"
+                            r="40"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="8"
+                            strokeLinecap="round"
+                            className="text-green-500"
+                            strokeDasharray="251.2"
+                            initial={{ strokeDashoffset: 251.2 }}
+                            whileInView={{ strokeDashoffset: 251.2 * 0.15 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 1.5, ease: "easeOut" }}
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-2xl font-bold text-foreground">85%</span>
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Great job! You scored above average.</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm p-2 rounded bg-green-500/10">
+                        <span className="text-foreground">Correct answers</span>
+                        <span className="font-medium text-green-600">17/20</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm p-2 rounded bg-red-500/10">
+                        <span className="text-foreground">Needs review</span>
+                        <span className="font-medium text-red-600">3/20</span>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
