@@ -107,15 +107,15 @@ export default function Home() {
       {/* Feature Section 1: Upload & Extract */}
       <section className="py-20 md:py-28 bg-gradient-to-b from-background to-muted/10">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="space-y-6"
+              className="space-y-5"
             >
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10">
-                <Upload className="w-6 h-6 text-primary" />
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+                <Upload className="w-5 h-5 text-primary" />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
                 Effortless Document Upload
@@ -146,32 +146,32 @@ export default function Home() {
               transition={{ delay: 0.1 }}
             >
               <Card className="border shadow-lg bg-card/80 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 pb-3 border-b">
-                      <div className="w-3 h-3 rounded-full bg-red-400" />
-                      <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                      <div className="w-3 h-3 rounded-full bg-green-400" />
+                <CardContent className="p-5">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 pb-2 border-b">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                     </div>
-                    <div className="border-2 border-dashed border-primary/30 rounded-lg p-8 text-center bg-primary/5">
+                    <div className="border-2 border-dashed border-primary/30 rounded-lg p-6 text-center bg-primary/5">
                       <motion.div
-                        animate={{ y: [0, -8, 0] }}
+                        animate={{ y: [0, -6, 0] }}
                         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                       >
-                        <FileText className="w-12 h-12 mx-auto text-primary mb-3" />
+                        <FileText className="w-10 h-10 mx-auto text-primary mb-2" />
                       </motion.div>
-                      <p className="text-sm text-muted-foreground">Drop your files here</p>
+                      <p className="text-xs text-muted-foreground">Drop your files here</p>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                        <FileText className="w-5 h-5 text-primary" />
-                        <span className="text-sm text-foreground flex-1 truncate">biology_notes.pdf</span>
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+                        <FileText className="w-4 h-4 text-primary" />
+                        <span className="text-xs text-foreground flex-1 truncate">biology_notes.pdf</span>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                       </div>
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                        <FileText className="w-5 h-5 text-primary" />
-                        <span className="text-sm text-foreground flex-1 truncate">chapter_5_summary.png</span>
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+                        <FileText className="w-4 h-4 text-primary" />
+                        <span className="text-xs text-foreground flex-1 truncate">chapter_5_summary.png</span>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                       </div>
                     </div>
                   </div>
@@ -185,49 +185,49 @@ export default function Home() {
       {/* Feature Section 2: AI Generation */}
       <section className="py-20 md:py-28 bg-muted/20">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="order-2 lg:order-1"
+              className="order-2 md:order-1"
             >
               <Card className="border shadow-lg bg-card/80 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 pb-3 border-b">
-                      <div className="w-3 h-3 rounded-full bg-red-400" />
-                      <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                      <div className="w-3 h-3 rounded-full bg-green-400" />
+                <CardContent className="p-5">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 pb-2 border-b">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                     </div>
-                    <div className="space-y-3">
-                      <div className="p-4 rounded-lg border bg-background">
-                        <p className="text-xs text-muted-foreground mb-2">Multiple Choice</p>
-                        <p className="text-sm font-medium text-foreground mb-3">What is the primary function of mitochondria?</p>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 p-2 rounded bg-muted/50 text-sm">
-                            <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30" />
+                    <div className="space-y-2">
+                      <div className="p-3 rounded-lg border bg-background">
+                        <p className="text-xs text-muted-foreground mb-1">Multiple Choice</p>
+                        <p className="text-sm font-medium text-foreground mb-2">What is the primary function of mitochondria?</p>
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-2 p-1.5 rounded bg-muted/50 text-xs">
+                            <div className="w-3 h-3 rounded-full border-2 border-muted-foreground/30" />
                             <span>Protein synthesis</span>
                           </div>
-                          <div className="flex items-center gap-2 p-2 rounded bg-primary/10 border border-primary/30 text-sm">
-                            <div className="w-4 h-4 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
-                              <div className="w-2 h-2 rounded-full bg-primary-foreground" />
+                          <div className="flex items-center gap-2 p-1.5 rounded bg-primary/10 border border-primary/30 text-xs">
+                            <div className="w-3 h-3 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
+                              <div className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />
                             </div>
                             <span className="text-primary font-medium">Energy production</span>
                           </div>
-                          <div className="flex items-center gap-2 p-2 rounded bg-muted/50 text-sm">
-                            <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30" />
+                          <div className="flex items-center gap-2 p-1.5 rounded bg-muted/50 text-xs">
+                            <div className="w-3 h-3 rounded-full border-2 border-muted-foreground/30" />
                             <span>Cell division</span>
                           </div>
                         </div>
                       </div>
                       <motion.div 
-                        className="flex items-center gap-2 text-sm text-quiz-purple"
+                        className="flex items-center gap-2 text-xs text-quiz-purple"
                         animate={{ opacity: [0.5, 1, 0.5] }}
                         transition={{ duration: 1.5, repeat: Infinity }}
                       >
-                        <Brain className="w-4 h-4" />
+                        <Brain className="w-3 h-3" />
                         <span>Generating more questions...</span>
                       </motion.div>
                     </div>
@@ -240,10 +240,10 @@ export default function Home() {
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="space-y-6 order-1 lg:order-2"
+              className="space-y-5 order-1 md:order-2"
             >
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-quiz-purple/10">
-                <Brain className="w-6 h-6 text-quiz-purple" />
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-quiz-purple/10">
+                <Brain className="w-5 h-5 text-quiz-purple" />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
                 AI-Powered Quiz Generation
@@ -273,15 +273,15 @@ export default function Home() {
       {/* Feature Section 3: Results & Feedback */}
       <section className="py-20 md:py-28 bg-gradient-to-b from-background to-muted/10">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="space-y-6"
+              className="space-y-5"
             >
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-quiz-orange/10">
-                <BarChart3 className="w-6 h-6 text-quiz-orange" />
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-quiz-orange/10">
+                <BarChart3 className="w-5 h-5 text-quiz-orange" />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
                 Instant Results & Insights
@@ -312,16 +312,16 @@ export default function Home() {
               transition={{ delay: 0.1 }}
             >
               <Card className="border shadow-lg bg-card/80 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 pb-3 border-b">
-                      <div className="w-3 h-3 rounded-full bg-red-400" />
-                      <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                      <div className="w-3 h-3 rounded-full bg-green-400" />
+                <CardContent className="p-5">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 pb-2 border-b">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                     </div>
-                    <div className="text-center py-4">
-                      <div className="relative w-24 h-24 mx-auto mb-4">
-                        <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                    <div className="text-center py-3">
+                      <div className="relative w-20 h-20 mx-auto mb-3">
+                        <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 100 100">
                           <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted" />
                           <motion.circle
                             cx="50"
@@ -340,17 +340,17 @@ export default function Home() {
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-2xl font-bold text-foreground">85%</span>
+                          <span className="text-xl font-bold text-foreground">85%</span>
                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">Great job! You scored above average.</p>
+                      <p className="text-xs text-muted-foreground">Great job! You scored above average.</p>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm p-2 rounded bg-green-500/10">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs p-1.5 rounded bg-green-500/10">
                         <span className="text-foreground">Correct answers</span>
                         <span className="font-medium text-green-600">17/20</span>
                       </div>
-                      <div className="flex items-center justify-between text-sm p-2 rounded bg-red-500/10">
+                      <div className="flex items-center justify-between text-xs p-1.5 rounded bg-red-500/10">
                         <span className="text-foreground">Needs review</span>
                         <span className="font-medium text-red-600">3/20</span>
                       </div>
