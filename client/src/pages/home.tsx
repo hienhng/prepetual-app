@@ -104,13 +104,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               How It Works
@@ -120,36 +120,138 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="h-full text-center p-6 hover:bg-muted/30 transition-colors">
-                  <CardContent className="p-0">
-                    <div className={`
-                      w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center
-                      ${index === 0 ? "bg-primary/10" : index === 1 ? "bg-quiz-purple/10" : "bg-quiz-orange/10"}
-                    `}>
-                      <feature.icon className={`
-                        h-7 w-7
-                        ${index === 0 ? "text-primary" : index === 1 ? "text-quiz-purple" : "text-quiz-orange"}
-                      `} />
-                    </div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">
-                      {feature.title}
-                    </h3>
-                    <p className="text-muted-foreground">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Upload Documents */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0 }}
+            >
+              <Card className="h-full border-0 bg-gradient-to-br from-primary/5 to-background hover-elevate overflow-hidden">
+                <CardContent className="p-8 text-center flex flex-col h-full">
+                  <div className="mb-6 flex-shrink-0">
+                    <svg className="w-32 h-32 mx-auto" viewBox="0 0 160 160" fill="none">
+                      <rect x="30" y="20" width="100" height="120" rx="8" stroke="currentColor" strokeWidth="2" className="text-primary" />
+                      <path d="M80 50L80 110" stroke="currentColor" strokeWidth="2" className="text-primary" strokeLinecap="round" />
+                      <path d="M60 90L100 90" stroke="currentColor" strokeWidth="2" className="text-primary" strokeLinecap="round" />
+                      <motion.circle
+                        cx="80"
+                        cy="70"
+                        r="12"
+                        className="text-quiz-purple"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        fill="none"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-3">
+                    Upload Documents
+                  </h3>
+                  <p className="text-muted-foreground text-sm flex-grow">
+                    Support for PDFs and images with automatic text extraction
+                  </p>
+                  <div className="mt-6 flex items-center justify-center gap-2 text-primary font-semibold">
+                    <span className="text-2xl">1</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* AI-Powered */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
+              <Card className="h-full border-0 bg-gradient-to-br from-quiz-purple/5 to-background hover-elevate overflow-hidden">
+                <CardContent className="p-8 text-center flex flex-col h-full">
+                  <div className="mb-6 flex-shrink-0">
+                    <svg className="w-32 h-32 mx-auto" viewBox="0 0 160 160" fill="none">
+                      <circle cx="80" cy="80" r="50" stroke="currentColor" strokeWidth="2" className="text-quiz-purple" />
+                      <circle cx="80" cy="80" r="35" stroke="currentColor" strokeWidth="2" className="text-quiz-purple" opacity="0.5" />
+                      <motion.circle
+                        cx="80"
+                        cy="80"
+                        r="20"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        fill="none"
+                        className="text-quiz-purple"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                      />
+                      <circle cx="80" cy="80" r="8" fill="currentColor" className="text-quiz-purple" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-3">
+                    AI-Powered
+                  </h3>
+                  <p className="text-muted-foreground text-sm flex-grow">
+                    Smart quiz generation with multiple question types
+                  </p>
+                  <div className="mt-6 flex items-center justify-center gap-2 text-quiz-purple font-semibold">
+                    <span className="text-2xl">2</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Instant Results */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="h-full border-0 bg-gradient-to-br from-quiz-orange/5 to-background hover-elevate overflow-hidden">
+                <CardContent className="p-8 text-center flex flex-col h-full">
+                  <div className="mb-6 flex-shrink-0">
+                    <svg className="w-32 h-32 mx-auto" viewBox="0 0 160 160" fill="none">
+                      <circle cx="80" cy="80" r="50" stroke="currentColor" strokeWidth="2" className="text-quiz-orange" />
+                      <motion.path
+                        d="M55 80 L72 95 L110 55"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-quiz-orange"
+                        initial={{ pathLength: 0 }}
+                        whileInView={{ pathLength: 1 }}
+                        transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 1 }}
+                        viewport={{ once: false }}
+                      />
+                      <motion.circle
+                        cx="80"
+                        cy="80"
+                        r="50"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        fill="none"
+                        className="text-quiz-orange"
+                        initial={{ opacity: 1, r: 50 }}
+                        animate={{ opacity: 0, r: 70 }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-3">
+                    Instant Results
+                  </h3>
+                  <p className="text-muted-foreground text-sm flex-grow">
+                    Get detailed feedback and explanations for each answer
+                  </p>
+                  <div className="mt-6 flex items-center justify-center gap-2 text-quiz-orange font-semibold">
+                    <span className="text-2xl">3</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </div>
       </section>
