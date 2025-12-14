@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, Image, X, Loader2 } from "lucide-react";
+import { Upload, FileText, Image, X, Loader2, } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -100,7 +100,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                 className="absolute inset-0 w-20 h-20 rounded-full border-4 border-primary border-t-transparent animate-spin"
                 style={{ animationDuration: "1s" }}
               />
-              <Loader2 className="absolute inset-0 m-auto h-8 w-8 text-primary animate-pulse" />
+              <Upload className="absolute inset-0 m-auto h-8 w-8 text-primary" />
             </div>
             <p className="text-lg font-medium text-foreground mb-2">{loadingMessage}</p>
             <div className="w-64 h-2 bg-muted rounded-full overflow-hidden">

@@ -66,8 +66,12 @@ function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2" data-testid="link-logo">
+      <div className="container mx
+         -auto px-
+         4 h-16 flex items-center justify-bet
+         ween gap-4">
+        <Li
+        nk href="/" className="flex items-center gap-2" data-testid="link-logo">
           <div className="w-9 h-9 rounded-md bg-gradient-to-br from-primary to-quiz-purple flex items-center justify-center">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
@@ -80,16 +84,25 @@ function Header() {
                 <Archive className="h-4 w-4 mr-1" />
                 Archive
               </Button>
-            </Link>
-          )}
+            Link>
+       (   )}
           <ThemeToggle />
           {!isLoading && (
             isAuthenticated ? (
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full" data-testid="button-user-menu">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} className="object-cover" />
+
+                                   
+                   <DropdownMen
+                   uTrigger asChild>
+       
+                              <Button variant="gho
+                  st" size="icon" className="rounded-full" data-testid="button-user-menu">
+            
+                               <Avatar className="h-8 w-8">
+    
+                                         <AvatarImage s
+                       rc={user?.profileImageUrl
+                      || undefined} alt={user?.firstName || "User"} className="object-cover" />
                       <AvatarFallback>{getInitials()}</AvatarFallback>
                     </Avatar>
                   </Button>
@@ -98,26 +111,33 @@ function Header() {
                   <DropdownMenuItem className="text-muted-foreground" disabled>
                     <User className="h-4 w-4 mr-2" />
                     {user?.email || "User"}
-                  </DropdownMenuItem>
+                 </DropdownMenuItem>
                   <DropdownMenuItem 
-                    onClick={async () => {
-                      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-                      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+                    onClick
+                       ={async () => {
+
+                                             a,
+                     wait fetch("/api/auth/logout", { method: "POST", credentia
+                       ls: "include" });
+           ,
+                                queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
                       window.location.href = "/";
-                    }}
-                    data-testid="button-logout"
-                  >
+                    className="h-4 w-4 mr-2"
+                                 >
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <Link href="/auth">
-                <Button variant="default" size="sm" data-testid="button-login">
+    
+                         ) : (
+    
+                           
+                 <Link href="/auth">
+       
+                  className="h-4 w-4 mr-1"        <Button v>id="button-login">
                   <LogIn className="h-4 w-4 mr-1" />
-                  Sign in
-                </Button>
+                               </Button>
               </Link>
             )
           )}

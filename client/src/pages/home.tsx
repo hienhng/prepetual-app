@@ -156,10 +156,10 @@ export default function Home() {
             className="text-center max-w-2xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Ready to Study Smarter?
+              Ready to ace your next exam? 
             </h2>
             <p className="text-muted-foreground mb-8">
-              Upload your first document and experience the power of AI-generated quizzes.
+              Upload your materials or preps and experience the power of AI-generated quizzes.
             </p>
             <Button
               size="lg"
