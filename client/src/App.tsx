@@ -114,8 +114,8 @@ function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="default" size="sm" onClick={() => openAuthDialog("login")} data-testid="button-login">
-                <LogIn className="h-4 w-4 mr-1" />
+              <Button variant="default" onClick={() => openAuthDialog("login")} data-testid="button-login" className="h-4 w-auto mr-1">
+                
                 Sign in
               </Button>
             )
