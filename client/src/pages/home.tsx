@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { Sparkles, BookOpen, Brain, Zap, ArrowRight } from "lucide-react";
+import { Sparkles, BookOpen, Brain, Zap, ArrowRight, FileStack } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "@/components/file-upload";
@@ -28,7 +28,7 @@ export default function Home() {
 
   const features = [
     {
-      icon: BookOpen,
+      icon: FileStack,
       title: "Upload Documents",
       description: "Support for PDFs and images with automatic text extraction",
     },
@@ -57,13 +57,13 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-3xl mx-auto mb-12"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 shadow-lg">
               <Sparkles className="h-4 w-4" />
               AI-Powered Study Assistant
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
-              Transform Your Study Materials Into
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-quiz-purple"> Interactive Quizzes</span>
+              Prepare better for exams with quizzes made from
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-quiz-purple">  your notes </span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Upload any document or image, and let AI create personalized study quizzes. 
@@ -88,7 +88,7 @@ export default function Home() {
               <Button
                 size="lg"
                 onClick={handleContinueToGenerate}
-                className="gap-2 text-lg py-6 px-8"
+                className="gap-2 text-lg py-6 px-8 hover:shadow-lg hover:-translate-y-1 transition-all"
                 data-testid="button-continue-generate"
               >
                 Continue to Generate Quiz

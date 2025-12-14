@@ -81,6 +81,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   const removeFile = () => {
     setUploadedFile(null);
     setError(null);
+    onTextExtracted("");
   };
 
   return (
