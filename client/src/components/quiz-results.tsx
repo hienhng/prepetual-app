@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Trophy, Check, X, ChevronDown, ChevronUp, RotateCcw, Home, Sparkles, Award } from "lucide-react";
+import { Trophy, Check, X, ChevronDown, ChevronUp, RotateCcw, Home, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -71,30 +71,55 @@ export function QuizResults() {
           <CardContent className="p-8 md:p-12 text-center">
             <div className="flex justify-center mb-6">
               <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-                className="relative"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
+                className="relative w-48 h-48"
               >
-                <Award className={`w-32 h-32 ${getScoreColor()}`} strokeWidth={1.5} />
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="70"
+                    stroke="currentColor"
+                    strokeWidth="12"
+                    fill="none"
+                    className="text-muted/30"
+                  />
+                  <motion.circle
+                    cx="80"
+                    cy="80"
+                    r="70"
+                    stroke="currentColor"
+                    strokeWidth="12"
+                    fill="none"
+                    strokeLinecap="round"
+                    className={getScoreColor()}
+                    initial={{ strokeDashoffset: 440 }}
+                    animate={{ strokeDashoffset: 440 - (440 * percentage) / 100 }}
+                    transition={{ duration: 2, delay: 0.4, ease: "easeOut" }}
+                    style={{ strokeDasharray: 440 }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <motion.div
+                    className={`text-4xl font-bold ${getScoreColor()}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    data-testid="text-score-percentage"
+                  >
+                    {percentage}%
+                  </motion.div>
+                </div>
               </motion.div>
             </div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
+              transition={{ delay: 2.4 }}
             >
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="mb-4"
-              >
-                <span className={`text-5xl font-bold ${getScoreColor()}`} data-testid="text-score-percentage">
-                  {percentage}%
-                </span>
-              </motion.div>
               <div className="flex items-center justify-center gap-2 mb-4">
                 <Trophy className={`h-6 w-6 ${getScoreColor()}`} />
                 <h2 className={`text-2xl font-bold ${getScoreColor()}`}>{getScoreMessage()}</h2>
