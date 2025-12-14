@@ -92,8 +92,8 @@ export default function HistoryPage() {
       >
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-md bg-gradient-to-br from-primary to-quiz-purple flex items-center justify-center">
-              <Archive className="h-6 w-6 text-white" />
+            <div className="w-12 h-12 rounded-md bg-white-700 flex items-center justify-center">
+              <Archive className="h-6 w-6 text-primary" />
             </div>
             <div>
               <h1 className="text-2xl font-bold">Quiz Archive</h1>

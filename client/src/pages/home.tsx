@@ -88,7 +88,7 @@ export default function Home() {
               <Button
                 size="lg"
                 onClick={handleContinueToGenerate}
-                className="gap-2 text-lg py-6 px-8 hover:shadow-lg hover:-translate-y-1 transition-all"
+                className="gap-2 text-lg py-6 px-8 hover:shadow- hover:-translate-y-1 transition-all"
                 data-testid="button-continue-generate"
               >
                 Continue to Generate Quiz
@@ -166,10 +166,8 @@ export default function Home() {
             <Button
               size="lg"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="gap-2"
               data-testid="button-get-started"
             >
-              <Sparkles className="h-5 w-5" />
               Get Started Free
             </Button>
           </motion.div>
