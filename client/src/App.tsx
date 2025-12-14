@@ -4,6 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QuizProvider } from "@/lib/quiz-context";
+import { AuthDialogProvider, useAuthDialog } from "@/lib/auth-context";
+import { AuthDialog } from "@/components/auth-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { Sparkles, Archive, LogIn, LogOut, User } from "lucide-react";
@@ -25,7 +27,6 @@ import HistoryPage from "@/pages/history";
 import Study from "@/pages/study";
 import Share from "@/pages/share";
 import EditQuiz from "@/pages/edit-quiz";
-import AuthPage from "@/pages/auth";
 import VerifyEmailPage from "@/pages/verify-email";
 import ResetPasswordPage from "@/pages/reset-password";
 import ForgotPasswordPage from "@/pages/forgot-password";
@@ -35,7 +36,6 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/auth" component={AuthPage} />
       <Route path="/verify-email" component={VerifyEmailPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
@@ -53,6 +53,7 @@ function Router() {
 
 function Header() {
   const { user, isAuthenticated, isLoading } = useAuth();
+  const { openAuthDialog } = useAuthDialog();
 
   const getInitials = () => {
     if (user?.firstName && user?.lastName) {
@@ -66,12 +67,8 @@ function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx
-         -auto px-
-         4 h-16 flex items-center justify-bet
-         ween gap-4">
-        <Li
-        nk href="/" className="flex items-center gap-2" data-testid="link-logo">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        <Link href="/" className="flex items-center gap-2" data-testid="link-logo">
           <div className="w-9 h-9 rounded-md bg-gradient-to-br from-primary to-quiz-purple flex items-center justify-center">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
@@ -84,25 +81,16 @@ function Header() {
                 <Archive className="h-4 w-4 mr-1" />
                 Archive
               </Button>
-            Link>
-       (   )}
+            </Link>
+          )}
           <ThemeToggle />
           {!isLoading && (
             isAuthenticated ? (
               <DropdownMenu>
-
-                                   
-                   <DropdownMen
-                   uTrigger asChild>
-       
-                              <Button variant="gho
-                  st" size="icon" className="rounded-full" data-testid="button-user-menu">
-            
-                               <Avatar className="h-8 w-8">
-    
-                                         <AvatarImage s
-                       rc={user?.profileImageUrl
-                      || undefined} alt={user?.firstName || "User"} className="object-cover" />
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full" data-testid="button-user-menu">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} className="object-cover" />
                       <AvatarFallback>{getInitials()}</AvatarFallback>
                     </Avatar>
                   </Button>
@@ -111,40 +99,36 @@ function Header() {
                   <DropdownMenuItem className="text-muted-foreground" disabled>
                     <User className="h-4 w-4 mr-2" />
                     {user?.email || "User"}
-                 </DropdownMenuItem>
+                  </DropdownMenuItem>
                   <DropdownMenuItem 
-                    onClick
-                       ={async () => {
-
-                                             a,
-                     wait fetch("/api/auth/logout", { method: "POST", credentia
-                       ls: "include" });
-           ,
-                                queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+                    onClick={async () => {
+                      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+                      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
                       window.location.href = "/";
-                    className="h-4 w-4 mr-2"
-                                 >
+                    }}
+                    data-testid="button-logout"
+                  >
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-    
-                         ) : (
-    
-                           
-                 <Link href="/auth">
-       
-                  className="h-4 w-4 mr-1"        <Button v>id="button-login">
-                  <LogIn className="h-4 w-4 mr-1" />
-                               </Button>
-              </Link>
+            ) : (
+              <Button variant="default" size="sm" onClick={() => openAuthDialog("login")} data-testid="button-login">
+                <LogIn className="h-4 w-4 mr-1" />
+                Sign in
+              </Button>
             )
           )}
         </div>
       </div>
     </header>
   );
+}
+
+function AuthDialogContainer() {
+  const { isOpen, defaultTab, closeAuthDialog } = useAuthDialog();
+  return <AuthDialog open={isOpen} onOpenChange={(open) => !open && closeAuthDialog()} defaultTab={defaultTab} />;
 }
 
 function AppContent() {
@@ -161,6 +145,7 @@ function AppContent() {
       {isAuthenticated && user && !user.emailVerified && (
         <VerificationPrompt email={user.email} open={true} />
       )}
+      <AuthDialogContainer />
     </>
   );
 }
@@ -169,10 +154,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <QuizProvider>
-          <AppContent />
-          <Toaster />
-        </QuizProvider>
+        <AuthDialogProvider>
+          <QuizProvider>
+            <AppContent />
+            <Toaster />
+          </QuizProvider>
+        </AuthDialogProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

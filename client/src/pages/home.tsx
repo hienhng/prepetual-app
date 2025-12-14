@@ -5,12 +5,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "@/components/file-upload";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthDialog } from "@/lib/auth-context";
 import { motion } from "framer-motion";
 
 export default function Home() {
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText } = useQuiz();
   const { isAuthenticated } = useAuth();
+  const { openAuthDialog } = useAuthDialog();
 
   const handleTextExtracted = (text: string) => {
     setExtractedText(text);
@@ -20,7 +22,7 @@ export default function Home() {
     if (isAuthenticated) {
       setLocation("/generate");
     } else {
-      window.location.href = "/api/login";
+      openAuthDialog("login");
     }
   };
 
