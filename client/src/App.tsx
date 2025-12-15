@@ -70,7 +70,7 @@ function Header() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2" data-testid="link-logo">
           <div className="w-9 h-9 rounded-md bg-gradient-to-br from-primary to-quiz-purple flex items-center justify-center">
-            <Sparkles className="h-5 w-5 text-white" />
+            <Sparkles className="h-5 w-5 text-foreground" />
           </div>
           <span className="text-xl font-brand text-foreground">Prepetual</span>
         </Link>

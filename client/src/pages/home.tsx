@@ -169,11 +169,10 @@ export default function Home() {
                         <span className="text-xs text-foreground flex-1 truncate">biology_notes.pdf</span>
                         <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                       </div>
-                      <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                        <Image className="w-4 h-4 text-primary" />
-                        <span className="text-xs text-foreground flex-1 truncate">chapter_5_summary.png</span>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                      </div>
+                      <Button size="sm" className="w-full text-xs">
+                        Continue
+                        <ArrowRight className="w-3 h-3 ml-1" />
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -213,7 +212,8 @@ export default function Home() {
                           </div>
                           <div className="flex items-center gap-2 p-1.5 rounded bg-primary/10 border border-primary/30 text-xs">
                             <div className="w-3 h-3 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
-                              <div className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
+                                
                             </div>
                             <span className="text-primary font-medium">Energy production</span>
                           </div>

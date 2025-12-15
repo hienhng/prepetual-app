@@ -209,7 +209,7 @@ export default function StudyPage() {
                 Still Learning
               </Button>
               <Button
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 border-green-800 hover:bg-green-700 hover:border-green-500"
                 onClick={handleKnown}
                 data-testid="button-known"
               >
