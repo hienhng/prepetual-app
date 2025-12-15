@@ -137,10 +137,10 @@ export default function HistoryPage() {
                   <CardContent className="p-4">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold truncate">{quiz.title}</h3>
+                        <h3 className="text-xl font-semibold truncate">{quiz.title}</h3>
                         <div className="flex items-center gap-2 flex-wrap mt-1">
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Clock className="h-3 w-3" />
+                          <div className="flex items-center gap-1 text-base text-muted-foreground">
+                            <Clock className="h-4 w-4" />
                             {formatDate(quiz.createdAt)}
                           </div>
                           <Badge variant="secondary" className="text-xs">
