@@ -169,10 +169,12 @@ export default function Home() {
                         <span className="text-xs text-foreground flex-1 truncate">biology_notes.pdf</span>
                         <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                       </div>
-                      <Button size="sm" className="w-full text-xs">
-                        Continue
-                        <ArrowRight className="w-3 h-3 ml-1" />
-                      </Button>
+                      <Card className="bg-primary hover-elevate cursor-pointer">
+                        <CardContent className="p-3 flex items-center justify-center gap-2 text-xs text-primary-foreground font-medium">
+                          Continue
+                          <ArrowRight className="w-3 h-3" />
+                        </CardContent>
+                      </Card>
                     </div>
                   </div>
                 </CardContent>
