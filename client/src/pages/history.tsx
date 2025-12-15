@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
-import { History, Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, Archive } from "lucide-react";
+import { History, Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, Archive, CirclePlus} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -96,15 +96,17 @@ export default function HistoryPage() {
               <Archive className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold">Quiz Archive</h1>
-              <p className="text-xl text-muted-foreground">Your materials, as quizzes</p>
+              <h1 className="text-2xl font-bold">Quiz Archive</h1>
+              <p className="text-sm text-muted-foreground">Your materials, as quizzes</p>
             </div>
           </div>
-          <Button 
+          <Button
+            className="text-sm group" 
             data-testid="button-new-quiz"
             onClick={() => setLocation("/")}
           >
-            Create New Quiz
+            <CirclePlus className="h-4 w-4 mr-1 transition-transform duration-300 ease-in-out group-hover:rotate-90" />
+            Create
           </Button>
         </div>
 
@@ -137,17 +139,17 @@ export default function HistoryPage() {
                   <CardContent className="p-4">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-2xl font-semibold truncate">{quiz.title}</h3>
+                        <h3 className="text-xl font-semibold truncate">{quiz.title}</h3>
                         <div className="flex items-center gap-2 flex-wrap mt-1">
                           <div className="flex items-center gap-1 text-base text-muted-foreground">
                             <Clock className="h-4 w-4" />
                             {formatDate(quiz.createdAt)}
                           </div>
-                          <Badge variant="secondary" className="text-sm">
+                          <Badge variant="secondary" className="text-xs">
                             {(quiz.questions as any[]).length} questions
                           </Badge>
                           {quiz.difficulty && (
-                            <Badge className={`text-sm capitalize ${getDifficultyColor(quiz.difficulty)}`}>
+                            <Badge className={`text-xs ${getDifficultyColor(quiz.difficulty)}`}>
                               {quiz.difficulty}
                             </Badge>
                           )}
@@ -155,7 +157,7 @@ export default function HistoryPage() {
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <Button
-                          size="lg"
+                          size="sm"
                           onClick={() => handleRetake(quiz)}
                           data-testid={`button-retake-${quiz.id}`}
                         >
@@ -163,7 +165,7 @@ export default function HistoryPage() {
                           Take
                         </Button>
                         <Button
-                          size="lg"
+                          size="sm"
                           variant="outline"
                           onClick={() => handleStudy(quiz)}
                           data-testid={`button-study-${quiz.id}`}
