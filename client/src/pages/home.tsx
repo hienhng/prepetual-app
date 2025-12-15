@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, BookOpen, Brain, Zap, ArrowRight, FileStack, CheckCircle2, Upload, FileText, BarChart3 } from "lucide-react";
+import { Sparkles, BookOpen, Brain, Zap, ArrowRight, FileStack, CheckCircle2, Upload, FileText, BarChart3, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "@/components/file-upload";
@@ -62,8 +62,13 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-3xl mx-auto mb-12"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 shadow-lg">
-              <Sparkles className="h-4 w-4" />
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/15 to-quiz-purple/15 text-primary border border-primary/30 text-sm font-semibold mb-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              >
+                <Sparkles className="h-4 w-4" />
+              </motion.div>
               AI-Powered Study Assistant
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
@@ -169,7 +174,7 @@ export default function Home() {
                         <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                       </div>
                       <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                        <FileText className="w-4 h-4 text-primary" />
+                        <Image className="w-4 h-4 text-primary" />
                         <span className="text-xs text-foreground flex-1 truncate">chapter_5_summary.png</span>
                         <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                       </div>
