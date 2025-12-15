@@ -34,6 +34,11 @@ QuizAI is a full-stack web application that transforms study materials into inte
 
 Preferred communication style: Simple, everyday language.
 
+### Typography (IMPORTANT)
+- **Brand Font**: The brand name "Prepetual" uses **BBH Hegarty** font. **NEVER change this font.**
+- **Body Font**: Bricolage Grotesque for all other text
+- The `.font-brand` CSS class applies BBH Hegarty to the brand name
+
 ## System Architecture
 
 ### Frontend Architecture
