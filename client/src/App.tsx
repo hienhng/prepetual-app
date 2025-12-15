@@ -72,7 +72,7 @@ function Header() {
           <div className="w-9 h-9 rounded-md bg-gradient-to-br from-primary to-quiz-purple flex items-center justify-center">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xl font-brand text-foreground">Prepetual</span>
+          <span className="text-xl font-semibold text-foreground">Prepetual</span>
         </Link>
         <div className="flex items-center gap-2">
           {isAuthenticated && (

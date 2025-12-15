@@ -153,8 +153,8 @@ export function QuizGenerator() {
               >
                 <Sparkles className="h-6 w-6 text-quiz-purple" />
                 <div>
-                  <p className="text-sm font-medium">Generate New Quiz</p>
-                  <p className="text-xs text-muted-foreground">Create new questions from your study material</p>
+                  <p className="text-xl font-medium">Generate New Quiz</p>
+                  <p className="text-sm text-muted-foreground">Create new questions from your study material</p>
                 </div>
               </div>
 

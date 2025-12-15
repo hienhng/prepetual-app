@@ -96,8 +96,8 @@ export default function HistoryPage() {
               <Archive className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Quiz Archive</h1>
-              <p className="text-muted-foreground">Your materials, as quizzes</p>
+              <h1 className="text-4xl font-bold">Quiz Archive</h1>
+              <p className="text-xl text-muted-foreground">Your materials, as quizzes</p>
             </div>
           </div>
           <Button 
@@ -137,17 +137,17 @@ export default function HistoryPage() {
                   <CardContent className="p-4">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-xl font-semibold truncate">{quiz.title}</h3>
+                        <h3 className="text-2xl font-semibold truncate">{quiz.title}</h3>
                         <div className="flex items-center gap-2 flex-wrap mt-1">
                           <div className="flex items-center gap-1 text-base text-muted-foreground">
                             <Clock className="h-4 w-4" />
                             {formatDate(quiz.createdAt)}
                           </div>
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-sm">
                             {(quiz.questions as any[]).length} questions
                           </Badge>
                           {quiz.difficulty && (
-                            <Badge className={`text-xs capitalize ${getDifficultyColor(quiz.difficulty)}`}>
+                            <Badge className={`text-sm capitalize ${getDifficultyColor(quiz.difficulty)}`}>
                               {quiz.difficulty}
                             </Badge>
                           )}
@@ -155,7 +155,7 @@ export default function HistoryPage() {
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <Button
-                          size="sm"
+                          size="lg"
                           onClick={() => handleRetake(quiz)}
                           data-testid={`button-retake-${quiz.id}`}
                         >
@@ -163,7 +163,7 @@ export default function HistoryPage() {
                           Take
                         </Button>
                         <Button
-                          size="sm"
+                          size="lg"
                           variant="outline"
                           onClick={() => handleStudy(quiz)}
                           data-testid={`button-study-${quiz.id}`}
