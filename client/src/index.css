@@ -5,8 +5,8 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply text-2xl;
+  html {
+    font-size: 1.5rem;
   }
 }
 
