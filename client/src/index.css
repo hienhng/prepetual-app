@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply text-lg;
+    @apply text-2xl;
   }
 }
 
