@@ -63,7 +63,7 @@ export default function Home() {
             className="text-center max-w-3xl mx-auto mb-12"
           >
             <div className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/15 to-quiz-purple/15 text-primary border border-primary/30 text-sm font-semibold mb-6 shadow-sm hover:from-primary/25 hover:to-quiz-purple/25 hover:shadow-lg hover:shadow-primary/50 transition-all duration-300 relative overflow-hidden">
-              <div className="absolute -inset-full rounded-full bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none group-hover:animate-shine" style={{ animation: 'shine 0.6s ease-in-out' }} />
+              <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: 'linear-gradient(135deg, transparent 0%, white 50%, transparent 100%)', backgroundSize: '20px 20px', animation: 'shine 0.5s ease-in-out', backgroundPosition: '-100% 0' }} />
               <Sparkles className="h-4 w-4" />
               AI-Powered Study Assistant
             </div>
