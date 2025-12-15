@@ -156,7 +156,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
 
           {activeTab === "login" ? (
             <Form {...loginForm}>
-              <form onSubmit={loginForm.handleSubmit((data) => loginMutation.mutate(data))} className="space-y-4">
+              <form onSubmit={loginForm.handleSubmit((data) => loginMutation.mutate(data))} className="space-y-4" autoComplete="off">
                 <FormField
                   control={loginForm.control}
                   name="email"
@@ -170,6 +170,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                             type="email"
                             placeholder="Email address"
                             className="pl-10 h-11"
+                            autoComplete="off"
                             data-testid="input-login-email"
                           />
                         </div>
@@ -191,6 +192,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                             type="password"
                             placeholder="Password"
                             className="pl-10 h-11"
+                            autoComplete="new-password"
                             data-testid="input-login-password"
                           />
                         </div>
@@ -227,7 +229,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
             </Form>
           ) : (
             <Form {...registerForm}>
-              <form onSubmit={registerForm.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-4">
+              <form onSubmit={registerForm.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-4" autoComplete="off">
                 <div className="grid grid-cols-2 gap-3">
                   <FormField
                     control={registerForm.control}
@@ -241,6 +243,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                               {...field}
                               placeholder="First name"
                               className="pl-10 h-11"
+                              autoComplete="off"
                               data-testid="input-register-firstname"
                             />
                           </div>
@@ -259,6 +262,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                             {...field}
                             placeholder="Last name"
                             className="h-11"
+                            autoComplete="off"
                             data-testid="input-register-lastname"
                           />
                         </FormControl>
@@ -280,6 +284,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                             type="email"
                             placeholder="Email address"
                             className="pl-10 h-11"
+                            autoComplete="off"
                             data-testid="input-register-email"
                           />
                         </div>
@@ -301,6 +306,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                             type="password"
                             placeholder="Password (min 8 characters)"
                             className="pl-10 h-11"
+                            autoComplete="new-password"
                             data-testid="input-register-password"
                           />
                         </div>
