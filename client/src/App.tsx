@@ -30,6 +30,8 @@ import EditQuiz from "@/pages/edit-quiz";
 import VerifyEmailPage from "@/pages/verify-email";
 import ResetPasswordPage from "@/pages/reset-password";
 import ForgotPasswordPage from "@/pages/forgot-password";
+import TermsOfService from "@/pages/terms";
+import PrivacyPolicy from "@/pages/privacy";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -46,6 +48,8 @@ function Router() {
       <Route path="/study" component={Study} />
       <Route path="/share/:id" component={Share} />
       <Route path="/edit-quiz" component={EditQuiz} />
+      <Route path="/terms" component={TermsOfService} />
+      <Route path="/privacy" component={PrivacyPolicy} />
       <Route component={NotFound} />
     </Switch>
   );
