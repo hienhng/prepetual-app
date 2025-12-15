@@ -163,13 +163,13 @@ export default function Home() {
                       </motion.div>
                       <p className="text-xs text-muted-foreground">Drop your files here</p>
                     </div>
-                    <div className="flex flex-col items-center space-y-1.5">
-                      <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 w-full">
+                        <div className="flex flex-col items-center space-y-1.5">
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 w-full">
                         <FileText className="w-4 h-4 text-primary" />
                         <span className="text-xs text-foreground flex-1 truncate">biology_notes.pdf</span>
                         <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                       </div>
-                      <Card className="bg-primary hover-elevate rounded-lg">
+                      <Card className="bg-primary hover-elevate w-fit rounded-lg h-fit">
                         <CardContent className="p-3 flex items-center justify-center gap-2 text-xs text-primary-foreground font-medium">
                           Continue
                           <ArrowRight className="w-3 h-3" />
