@@ -62,7 +62,8 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-3xl mx-auto mb-12"
           >
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/15 to-quiz-purple/15 text-primary border border-primary/30 text-sm font-semibold mb-6 shadow-sm hover:shadow-lg hover:shadow-primary/40 transition-shadow duration-300">
+            <div className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/15 to-quiz-purple/15 text-primary border border-primary/30 text-sm font-semibold mb-6 shadow-sm hover:from-primary/25 hover:to-quiz-purple/25 hover:shadow-lg hover:shadow-primary/50 transition-all duration-300 relative overflow-hidden">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none transform -skew-x-12 group-hover:translate-x-full" />
               <Sparkles className="h-4 w-4" />
               AI-Powered Study Assistant
             </div>
