@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QuizProvider } from "@/lib/quiz-context";
 import { AuthDialogProvider, useAuthDialog } from "@/lib/auth-context";
-import { AuthDialog } from "@/components/auth-dialog";
+import { LoginDialog, SignUpDialog } from "@/components/auth-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { Archive, LogIn, LogOut, User } from "lucide-react";
@@ -63,7 +63,7 @@ function Router() {
 
 function Header() {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const { openAuthDialog } = useAuthDialog();
+  const { openLoginDialog, openSignUpDialog } = useAuthDialog();
 
   const getInitials = () => {
     if (user?.firstName && user?.lastName) {
@@ -127,10 +127,10 @@ function Header() {
               </DropdownMenu>
             ) : (
               <>
-                <Button variant="ghost" onClick={() => openAuthDialog("login")} data-testid="button-login">
+                <Button variant="ghost" onClick={openLoginDialog} data-testid="button-login">
                   Log in
                 </Button>
-                <Button variant="default" onClick={() => openAuthDialog("register")} data-testid="button-signup">
+                <Button variant="default" onClick={openSignUpDialog} data-testid="button-signup">
                   Sign up
                 </Button>
               </>
@@ -143,8 +143,21 @@ function Header() {
 }
 
 function AuthDialogContainer() {
-  const { isOpen, defaultTab, closeAuthDialog } = useAuthDialog();
-  return <AuthDialog open={isOpen} onOpenChange={(open) => !open && closeAuthDialog()} defaultTab={defaultTab} />;
+  const { isLoginOpen, isSignUpOpen, closeLoginDialog, closeSignUpDialog, switchToSignUp, switchToLogin } = useAuthDialog();
+  return (
+    <>
+      <LoginDialog 
+        open={isLoginOpen} 
+        onOpenChange={(open) => !open && closeLoginDialog()} 
+        onSwitchToSignUp={switchToSignUp}
+      />
+      <SignUpDialog 
+        open={isSignUpOpen} 
+        onOpenChange={(open) => !open && closeSignUpDialog()} 
+        onSwitchToLogin={switchToLogin}
+      />
+    </>
+  );
 }
 
 function AppContent() {
