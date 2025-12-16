@@ -163,7 +163,7 @@ function AuthDialogContainer() {
 function AppContent() {
   const { user, isAuthenticated } = useAuth();
   const [location] = useLocation();
-  const showFooter = location === "/";
+  const showFooter = location === "/" || location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
 
   return (
     <>
