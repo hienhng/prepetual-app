@@ -9,7 +9,7 @@ import { AuthDialog } from "@/components/auth-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { Archive, LogIn, LogOut, User } from "lucide-react";
-import logoImage from "@assets/image_1765894739303.png";
+import logoImage from "@assets/image_1765894870887.png";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
