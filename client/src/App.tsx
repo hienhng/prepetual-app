@@ -33,7 +33,10 @@ import ResetPasswordPage from "@/pages/reset-password";
 import ForgotPasswordPage from "@/pages/forgot-password";
 import TermsOfService from "@/pages/terms";
 import PrivacyPolicy from "@/pages/privacy";
+import About from "@/pages/about";
+import Contact from "@/pages/contact";
 import NotFound from "@/pages/not-found";
+import { Footer } from "@/components/footer";
 
 function Router() {
   return (
@@ -51,6 +54,8 @@ function Router() {
       <Route path="/edit-quiz" component={EditQuiz} />
       <Route path="/terms" component={TermsOfService} />
       <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -152,6 +157,7 @@ function AppContent() {
         <main className="flex-1">
           <Router />
         </main>
+        <Footer />
       </div>
       {isAuthenticated && user && !user.emailVerified && (
         <VerificationPrompt email={user.email} open={true} />
