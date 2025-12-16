@@ -165,7 +165,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                     <FormItem>
                       <FormControl>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                           <Input
                             {...field}
                             type="email"
@@ -187,7 +187,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                     <FormItem>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                           <Input
                             {...field}
                             type="password"
@@ -238,7 +238,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                     <FormItem>
                       <FormControl>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                           <Input
                             {...field}
                             type="email"
@@ -259,7 +259,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                     <FormItem>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                           <Input
                             {...field}
                             type="password"
