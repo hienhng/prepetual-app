@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, User, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight } from "lucide-react";
 import logoImage from "@assets/image_1765894870887.png";
 import { SiGoogle } from "react-icons/si";
 import { Link } from "wouter";
@@ -25,8 +25,6 @@ const loginSchema = z.object({
 const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
@@ -55,7 +53,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
 
   const registerForm = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { email: "", password: "", firstName: "", lastName: "" },
+    defaultValues: { email: "", password: "" },
   });
 
   const loginMutation = useMutation({
@@ -233,47 +231,6 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
           ) : (
             <Form {...registerForm}>
               <form onSubmit={registerForm.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-4" autoComplete="off">
-                <div className="grid grid-cols-2 gap-3">
-                  <FormField
-                    control={registerForm.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="relative">
-                            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              {...field}
-                              placeholder="First name"
-                              className="pl-10 h-11"
-                              autoComplete="off"
-                              data-testid="input-register-firstname"
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={registerForm.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Last name"
-                            className="h-11"
-                            autoComplete="off"
-                            data-testid="input-register-lastname"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
                 <FormField
                   control={registerForm.control}
                   name="email"
