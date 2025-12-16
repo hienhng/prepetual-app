@@ -332,17 +332,16 @@ export function setupAuth(app: Express): void {
         return res.status(400).json({ message: "Email is already verified" });
       }
 
-      const token = cryptoRandomString({ length: 64, type: "url-safe" });
-      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-      await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
-
       try {
+        const token = cryptoRandomString({ length: 64, type: "url-safe" });
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
         await sendVerificationEmail(email, token, user.firstName || undefined);
+        res.json({ message: "Verification email sent successfully" });
       } catch (emailError) {
         console.error("Failed to send verification email:", emailError);
+        res.status(500).json({ message: "Failed to send verification email. Please try again later." });
       }
-
-      res.json({ message: "Verification email sent successfully" });
     } catch (error) {
       console.error("Resend verification error:", error);
       res.status(500).json({ message: "Failed to resend verification email" });
