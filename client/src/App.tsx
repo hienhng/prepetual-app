@@ -121,10 +121,14 @@ function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="default" onClick={() => openAuthDialog("login")} data-testid="button-login" className="h-4 w-auto mr-1">
-                
-                Sign in
-              </Button>
+              <>
+                <Button variant="ghost" onClick={() => openAuthDialog("login")} data-testid="button-login">
+                  Log in
+                </Button>
+                <Button variant="default" onClick={() => openAuthDialog("register")} data-testid="button-signup">
+                  Sign up
+                </Button>
+              </>
             )
           )}
         </div>
