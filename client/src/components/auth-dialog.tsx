@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, User, Loader2, Sparkles, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, Loader2, ArrowRight } from "lucide-react";
+import logoImage from "@assets/image_1765894870887.png";
 import { SiGoogle } from "react-icons/si";
 import { Link } from "wouter";
 
@@ -100,9 +101,11 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[440px] p-0 gap-0 overflow-hidden">
         <div className="bg-gradient-to-br from-primary/10 via-quiz-purple/10 to-quiz-orange/10 p-6 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-3">
-            <Sparkles className="w-6 h-6 text-primary" />
-          </div>
+          <img 
+            src={logoImage} 
+            alt="Prepetual Logo" 
+            className="w-12 h-12 rounded-full object-cover mx-auto mb-3"
+          />
           <h2 className="text-2xl font-bold text-foreground font-brand">Prepetual</h2>
           <p className="text-sm text-muted-foreground mt-1">
             {activeTab === "login" ? "Welcome back! Sign in to continue" : "Create an account to get started"}
