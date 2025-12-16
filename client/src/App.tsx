@@ -8,7 +8,8 @@ import { AuthDialogProvider, useAuthDialog } from "@/lib/auth-context";
 import { AuthDialog } from "@/components/auth-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
-import { Sparkles, Archive, LogIn, LogOut, User } from "lucide-react";
+import { Archive, LogIn, LogOut, User } from "lucide-react";
+import logoImage from "@assets/image_1765894739303.png";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -73,9 +74,11 @@ function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2" data-testid="link-logo">
-          <div className="w-9 h-9 rounded-md bg-gradient-to-br from-primary to-quiz-purple flex items-center justify-center">
-            <Sparkles className="h-5 w-5 text-foreground" />
-          </div>
+          <img 
+            src={logoImage} 
+            alt="Prepetual Logo" 
+            className="w-9 h-9 rounded-full object-cover"
+          />
           <span className="text-xl font-brand text-foreground">Prepetual</span>
         </Link>
         <div className="flex items-center gap-2">
