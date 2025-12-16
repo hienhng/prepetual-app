@@ -40,12 +40,6 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"login" | "register">(defaultTab);
 
-  useEffect(() => {
-    if (open) {
-      setActiveTab(defaultTab);
-    }
-  }, [open, defaultTab]);
-
   const loginForm = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
@@ -55,6 +49,20 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
     resolver: zodResolver(registerSchema),
     defaultValues: { email: "", password: "" },
   });
+
+  useEffect(() => {
+    if (open) {
+      setActiveTab(defaultTab);
+      loginForm.reset();
+      registerForm.reset();
+    }
+  }, [open, defaultTab]);
+
+  const handleTabChange = (tab: "login" | "register") => {
+    setActiveTab(tab);
+    loginForm.reset();
+    registerForm.reset();
+  };
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginForm) => {
@@ -113,7 +121,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
         <div className="p-6 space-y-5">
           <div className="flex gap-1 p-1 bg-muted/50 rounded-lg">
             <button
-              onClick={() => setActiveTab("login")}
+              onClick={() => handleTabChange("login")}
               className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all ${
                 activeTab === "login"
                   ? "bg-background text-foreground shadow-sm"
@@ -124,7 +132,7 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
               Sign In
             </button>
             <button
-              onClick={() => setActiveTab("register")}
+              onClick={() => handleTabChange("register")}
               className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all ${
                 activeTab === "register"
                   ? "bg-background text-foreground shadow-sm"
@@ -163,16 +171,19 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="email"
-                          placeholder="Email address"
-                          className="h-11"
-                          autoComplete="off"
-                          data-testid="input-login-email"
-                        />
-                      </FormControl>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="email"
+                            placeholder="Email address"
+                            className="pl-10 h-11"
+                            autoComplete="off"
+                            data-testid="input-login-email"
+                          />
+                        </FormControl>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -182,16 +193,19 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="password"
-                          placeholder="Password"
-                          className="h-11"
-                          autoComplete="new-password"
-                          data-testid="input-login-password"
-                        />
-                      </FormControl>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="password"
+                            placeholder="Password"
+                            className="pl-10 h-11"
+                            autoComplete="new-password"
+                            data-testid="input-login-password"
+                          />
+                        </FormControl>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
