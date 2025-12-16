@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Mail, Loader2, CheckCircle } from "lucide-react";
+import { Mail, Loader2, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
+import logoImage from "@assets/image_1765894870887.png";
 
 const forgotSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -54,7 +55,7 @@ export default function ForgotPasswordPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Link href="/auth">
+            <Link href="/">
               <Button variant="outline" data-testid="button-back-login">
                 Back to Login
               </Button>
@@ -70,9 +71,7 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
           <Link href="/" className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-10 h-10 rounded-md bg-gradient-to-br from-primary to-quiz-purple flex items-center justify-center">
-              <Sparkles className="h-6 w-6 text-white" />
-            </div>
+            <img src={logoImage} alt="Prepetual Logo" className="w-12 h-12 rounded-full object-cover" />
           </Link>
           <CardTitle className="text-2xl font-bold">Forgot Password</CardTitle>
           <CardDescription>Enter your email to receive reset instructions</CardDescription>

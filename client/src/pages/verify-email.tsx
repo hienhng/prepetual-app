@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Link } from "wouter";
+import logoImage from "@assets/image_1765894870887.png";
 
 export default function VerifyEmailPage() {
   const [, setLocation] = useLocation();
@@ -42,9 +43,7 @@ export default function VerifyEmailPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
           <Link href="/" className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-10 h-10 rounded-md bg-gradient-to-br from-primary to-quiz-purple flex items-center justify-center">
-              <Sparkles className="h-6 w-6 text-white" />
-            </div>
+            <img src={logoImage} alt="Prepetual Logo" className="w-12 h-12 rounded-full object-cover" />
           </Link>
           <CardTitle className="text-2xl font-bold">Email Verification</CardTitle>
           <CardDescription>Verifying your email address</CardDescription>
@@ -69,8 +68,8 @@ export default function VerifyEmailPage() {
             <div className="flex flex-col items-center gap-4">
               <XCircle className="h-12 w-12 text-destructive" />
               <p className="text-foreground">{message}</p>
-              <Button variant="outline" onClick={() => setLocation("/auth")} data-testid="button-try-again">
-                Back to Login
+              <Button variant="outline" onClick={() => setLocation("/")} data-testid="button-try-again">
+                Back to Home
               </Button>
             </div>
           )}

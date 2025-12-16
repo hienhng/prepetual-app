@@ -10,8 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Lock, Loader2, CheckCircle } from "lucide-react";
+import { Lock, Loader2, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
+import logoImage from "@assets/image_1765894870887.png";
 
 const resetSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -96,9 +97,7 @@ export default function ResetPasswordPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
           <Link href="/" className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-10 h-10 rounded-md bg-gradient-to-br from-primary to-quiz-purple flex items-center justify-center">
-              <Sparkles className="h-6 w-6 text-white" />
-            </div>
+            <img src={logoImage} alt="Prepetual Logo" className="w-12 h-12 rounded-full object-cover" />
           </Link>
           <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
           <CardDescription>Enter your new password below</CardDescription>
