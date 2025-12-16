@@ -283,12 +283,16 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
-                            {...field}
                             type="email"
                             placeholder="Email address"
                             className="pl-10 h-11"
-                            autoComplete="off"
+                            autoComplete="username"
                             data-testid="input-register-email"
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            ref={field.ref}
                           />
                         </div>
                       </FormControl>
