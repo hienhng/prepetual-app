@@ -19,7 +19,12 @@ export default function About() {
             </Button>
           </Link>
 
-          <h1 className="text-3xl font-bold text-foreground mb-6">About Prepetual</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-6">About 
+          <span className="ml-2 text-3xl font-brand text-foreground mb-6">
+             Prepetual
+          </span>
+          
+          </h1>
 
           <div className="space-y-6">
             <section>
