@@ -2,6 +2,10 @@ import nodemailer from "nodemailer";
 
 // Create transporter lazily to ensure env vars are available
 function getTransporter() {
+  console.log("[Email] Checking credentials...");
+  console.log("[Email] GMAIL_USER:", process.env.GMAIL_USER ? "SET" : "NOT SET");
+  console.log("[Email] GMAIL_APP_PASSWORD:", process.env.GMAIL_APP_PASSWORD ? `SET (${process.env.GMAIL_APP_PASSWORD.length} chars)` : "NOT SET");
+  
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     throw new Error("Email configuration missing: GMAIL_USER or GMAIL_APP_PASSWORD not set");
   }
@@ -29,6 +33,7 @@ export async function sendVerificationEmail(
   const verificationUrl = `${baseUrl}/verify-email?token=${token}`;
   const name = firstName || "there";
 
+  console.log("[Email] Sending verification email to:", to);
   const transporter = getTransporter();
   await transporter.sendMail({
     from: `"Prepetual" <${process.env.GMAIL_USER}>`,
@@ -56,6 +61,7 @@ export async function sendVerificationEmail(
       </div>
     `,
   });
+  console.log("[Email] Verification email sent successfully to:", to);
 }
 
 export async function sendPasswordResetEmail(
