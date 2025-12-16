@@ -23,7 +23,7 @@ export async function sendVerificationEmail(
   const name = firstName || "there";
 
   await transporter.sendMail({
-    from: `"Prepetual" ${process.env.GMAIL_USER}>`,
+    from: `"Prepetual" <${process.env.GMAIL_USER}>`,
     to,
     subject: "Verify your email address - Prepetual",
     html: `
