@@ -164,17 +164,14 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                          <Input
-                            {...field}
-                            type="email"
-                            placeholder="Email address"
-                            className="pl-10 h-11"
-                            autoComplete="off"
-                            data-testid="input-login-email"
-                          />
-                        </div>
+                        <Input
+                          {...field}
+                          type="email"
+                          placeholder="Email address"
+                          className="h-11"
+                          autoComplete="off"
+                          data-testid="input-login-email"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -186,17 +183,14 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                          <Input
-                            {...field}
-                            type="password"
-                            placeholder="Password"
-                            className="pl-10 h-11"
-                            autoComplete="new-password"
-                            data-testid="input-login-password"
-                          />
-                        </div>
+                        <Input
+                          {...field}
+                          type="password"
+                          placeholder="Password"
+                          className="h-11"
+                          autoComplete="new-password"
+                          data-testid="input-login-password"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -236,9 +230,9 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                        <FormControl>
                           <Input
                             {...field}
                             type="email"
@@ -246,8 +240,8 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                             className="pl-10 h-11"
                             data-testid="input-register-email"
                           />
-                        </div>
-                      </FormControl>
+                        </FormControl>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -257,9 +251,9 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormControl>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+                        <FormControl>
                           <Input
                             {...field}
                             type="password"
@@ -268,8 +262,8 @@ export function AuthDialog({ open, onOpenChange, defaultTab = "login" }: AuthDia
                             autoComplete="new-password"
                             data-testid="input-register-password"
                           />
-                        </div>
-                      </FormControl>
+                        </FormControl>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
