@@ -65,19 +65,23 @@ export function setupAuth(app: Express): void {
       });
 
       // Try to create verification token and send email, but don't fail registration if this fails
+      let emailError: string | null = null;
       try {
         const token = cryptoRandomString({ length: 64, type: "url-safe" });
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
         await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
         await sendVerificationEmail(email, token, firstName);
-      } catch (emailError) {
-        console.error("Failed to create verification token or send email:", emailError);
+      } catch (err: any) {
+        console.error("Failed to create verification token or send email:", err);
+        emailError = err?.message || "Unknown error";
       }
 
       req.session.userId = user.id;
 
       res.json({
-        message: "Registration successful. Please check your email to verify your account.",
+        message: emailError 
+          ? "Registration successful, but we couldn't send the verification email. You can request a new one later."
+          : "Registration successful. Please check your email to verify your account.",
         user: {
           id: user.id,
           email: user.email,
@@ -85,6 +89,7 @@ export function setupAuth(app: Express): void {
           lastName: user.lastName,
           emailVerified: user.emailVerified,
         },
+        ...(emailError && { emailDebug: emailError }),
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -338,9 +343,12 @@ export function setupAuth(app: Express): void {
         await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
         await sendVerificationEmail(email, token, user.firstName || undefined);
         res.json({ message: "Verification email sent successfully" });
-      } catch (emailError) {
+      } catch (emailError: any) {
         console.error("Failed to send verification email:", emailError);
-        res.status(500).json({ message: "Failed to send verification email. Please try again later." });
+        res.status(500).json({ 
+          message: "Failed to send verification email. Please try again later.",
+          debug: emailError?.message || "Unknown error"
+        });
       }
     } catch (error) {
       console.error("Resend verification error:", error);
