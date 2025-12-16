@@ -13,9 +13,11 @@ export async function sendVerificationEmail(
   token: string,
   firstName?: string
 ): Promise<void> {
-  const baseUrl = process.env.REPLIT_DEV_DOMAIN
-    ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-    : "http://localhost:5000";
+  const baseUrl = process.env.NODE_ENV === "production"
+    ? "https://prepetual.app"
+    : process.env.REPLIT_DEV_DOMAIN
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+      : "http://localhost:5000";
 
   const verificationUrl = `${baseUrl}/verify-email?token=${token}`;
   const name = firstName || "there";
@@ -53,9 +55,11 @@ export async function sendPasswordResetEmail(
   token: string,
   firstName?: string
 ): Promise<void> {
-  const baseUrl = process.env.REPLIT_DEV_DOMAIN
-    ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-    : "http://localhost:5000";
+  const baseUrl = process.env.NODE_ENV === "production"
+    ? "https://prepetual.app"
+    : process.env.REPLIT_DEV_DOMAIN
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+      : "http://localhost:5000";
 
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
   const name = firstName || "there";
