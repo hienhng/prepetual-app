@@ -64,14 +64,14 @@ export function setupAuth(app: Express): void {
         emailVerified: false,
       });
 
-      const token = cryptoRandomString({ length: 64, type: "url-safe" });
-      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-      await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
-
+      // Try to create verification token and send email, but don't fail registration if this fails
       try {
+        const token = cryptoRandomString({ length: 64, type: "url-safe" });
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
         await sendVerificationEmail(email, token, firstName);
       } catch (emailError) {
-        console.error("Failed to send verification email:", emailError);
+        console.error("Failed to create verification token or send email:", emailError);
       }
 
       req.session.userId = user.id;
