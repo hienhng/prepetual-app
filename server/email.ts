@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { createTransport } from "nodemailer";
 
 // Create transporter lazily to ensure env vars are available
 function getTransporter() {
@@ -6,7 +6,7 @@ function getTransporter() {
     throw new Error("Email configuration missing: GMAIL_USER or GMAIL_APP_PASSWORD not set");
   }
   
-  return nodemailer.createTransport({
+  return createTransport({
     service: "gmail",
     auth: {
       user: process.env.GMAIL_USER,
