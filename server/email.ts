@@ -41,25 +41,59 @@ export async function sendVerificationEmail(
     to,
     subject: "Verify your email address - Prepetual",
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #4F46E5;">Welcome to Prepetual!</h1>
-        <p>Hi ${name},</p>
-        <p>Thanks for signing up! Please verify your email address by clicking the button below:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${verificationUrl}" 
-             style="background-color: #4F46E5; color: white; padding: 12px 24px; 
-                    text-decoration: none; border-radius: 6px; display: inline-block;">
-            Verify Email
-          </a>
-        </div>
-        <p>Or copy and paste this link into your browser:</p>
-        <p style="word-break: break-all; color: #6B7280;">${verificationUrl}</p>
-        <p>This link will expire in 24 hours.</p>
-        <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 30px 0;">
-        <p style="color: #9CA3AF; font-size: 12px;">
-          If you didn't create an account with Prepetual, please ignore this email.
-        </p>
-      </div>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 40px 20px;">
+              <table role="presentation" style="max-width: 480px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
+                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">Prepetual</h1>
+                  </td>
+                </tr>
+                <!-- Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <h2 style="margin: 0 0 16px 0; color: #1e293b; font-size: 22px; font-weight: 600;">Welcome aboard, ${name}!</h2>
+                    <p style="margin: 0 0 24px 0; color: #64748b; font-size: 15px; line-height: 1.6;">
+                      You're just one step away from unlocking the power of AI-generated quizzes. Verify your email to get started.
+                    </p>
+                    <!-- Button -->
+                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="text-align: center; padding: 8px 0 32px 0;">
+                          <a href="${verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.4);">
+                            Verify My Email
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 13px;">Or copy this link:</p>
+                    <p style="margin: 0 0 24px 0; padding: 12px; background-color: #f1f5f9; border-radius: 6px; word-break: break-all; color: #6366f1; font-size: 13px;">${verificationUrl}</p>
+                    <p style="margin: 0; color: #94a3b8; font-size: 13px;">This link expires in 24 hours.</p>
+                  </td>
+                </tr>
+                <!-- Footer -->
+                <tr>
+                  <td style="padding: 24px 40px; background-color: #f8fafc; border-top: 1px solid #e2e8f0;">
+                    <p style="margin: 0; color: #94a3b8; font-size: 12px; text-align: center;">
+                      Didn't sign up for Prepetual? You can safely ignore this email.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
     `,
   });
   console.log("[Email] Verification email sent successfully to:", to);
@@ -85,25 +119,62 @@ export async function sendPasswordResetEmail(
     to,
     subject: "Reset your password - Prepetual",
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #4F46E5;">Reset Your Password</h1>
-        <p>Hi ${name},</p>
-        <p>We received a request to reset your password. Click the button below to create a new password:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetUrl}" 
-             style="background-color: #4F46E5; color: white; padding: 12px 24px; 
-                    text-decoration: none; border-radius: 6px; display: inline-block;">
-            Reset Password
-          </a>
-        </div>
-        <p>Or copy and paste this link into your browser:</p>
-        <p style="word-break: break-all; color: #6B7280;">${resetUrl}</p>
-        <p>This link will expire in 1 hour.</p>
-        <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 30px 0;">
-        <p style="color: #9CA3AF; font-size: 12px;">
-          If you didn't request a password reset, please ignore this email.
-        </p>
-      </div>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 40px 20px;">
+              <table role="presentation" style="max-width: 480px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
+                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">Prepetual</h1>
+                  </td>
+                </tr>
+                <!-- Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <h2 style="margin: 0 0 16px 0; color: #1e293b; font-size: 22px; font-weight: 600;">Reset your password</h2>
+                    <p style="margin: 0 0 8px 0; color: #64748b; font-size: 15px; line-height: 1.6;">
+                      Hi ${name},
+                    </p>
+                    <p style="margin: 0 0 24px 0; color: #64748b; font-size: 15px; line-height: 1.6;">
+                      We received a request to reset your password. Click the button below to create a new one.
+                    </p>
+                    <!-- Button -->
+                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="text-align: center; padding: 8px 0 32px 0;">
+                          <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.4);">
+                            Reset Password
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 13px;">Or copy this link:</p>
+                    <p style="margin: 0 0 24px 0; padding: 12px; background-color: #f1f5f9; border-radius: 6px; word-break: break-all; color: #6366f1; font-size: 13px;">${resetUrl}</p>
+                    <p style="margin: 0; color: #94a3b8; font-size: 13px;">This link expires in 1 hour.</p>
+                  </td>
+                </tr>
+                <!-- Footer -->
+                <tr>
+                  <td style="padding: 24px 40px; background-color: #f8fafc; border-top: 1px solid #e2e8f0;">
+                    <p style="margin: 0; color: #94a3b8; font-size: 12px; text-align: center;">
+                      Didn't request a password reset? You can safely ignore this email.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
     `,
   });
 }
