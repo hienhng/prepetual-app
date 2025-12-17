@@ -1,20 +1,36 @@
-import * as nodemailer from "nodemailer";
+// Cached nodemailer module and transporter
+let nodemailerModule: any = null;
+let cachedTransporter: any = null;
 
-function getTransporter() {
+async function getTransporter() {
+  if (cachedTransporter) return cachedTransporter;
+  
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     throw new Error("Email configuration missing: GMAIL_USER or GMAIL_APP_PASSWORD not set");
   }
   
-  // Handle both ESM default export and CJS module.exports
-  const mailer = (nodemailer as any).default || nodemailer;
+  // Load nodemailer if not cached
+  if (!nodemailerModule) {
+    // Use Function constructor to create require that esbuild won't transform
+    const dynamicRequire = new Function('modulePath', 'return require(modulePath)');
+    try {
+      nodemailerModule = dynamicRequire("nodemailer");
+    } catch {
+      // Fallback to dynamic import for ESM
+      const mod = await import("nodemailer");
+      nodemailerModule = mod.default ?? mod;
+    }
+  }
   
-  return mailer.createTransport({
+  cachedTransporter = nodemailerModule.createTransport({
     service: "gmail",
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
     },
   });
+  
+  return cachedTransporter;
 }
 
 export async function sendVerificationEmail(
@@ -32,7 +48,7 @@ export async function sendVerificationEmail(
   const name = firstName || "there";
 
   console.log("[Email] Sending verification email to:", to);
-  const transporter = getTransporter();
+  const transporter = await getTransporter();
   await transporter.sendMail({
     from: `"Prepetual" <${process.env.GMAIL_USER}>`,
     to,
@@ -76,7 +92,7 @@ export async function sendPasswordResetEmail(
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
   const name = firstName || "there";
 
-  const transporter = getTransporter();
+  const transporter = await getTransporter();
   await transporter.sendMail({
     from: `"Prepetual" <${process.env.GMAIL_USER}>`,
     to,
