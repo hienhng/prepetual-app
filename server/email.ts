@@ -1,9 +1,15 @@
-import { createTransport } from "nodemailer";
-
-// Create transporter lazily to ensure env vars are available
-function getTransporter() {
+// Dynamic import to avoid esbuild bundling issues
+async function getTransporter() {
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     throw new Error("Email configuration missing: GMAIL_USER or GMAIL_APP_PASSWORD not set");
+  }
+  
+  // Use dynamic import to load nodemailer at runtime
+  const nodemailer = await import("nodemailer");
+  const createTransport = nodemailer.createTransport || nodemailer.default?.createTransport;
+  
+  if (!createTransport) {
+    throw new Error("Could not find createTransport function in nodemailer");
   }
   
   return createTransport({
@@ -30,7 +36,7 @@ export async function sendVerificationEmail(
   const name = firstName || "there";
 
   console.log("[Email] Sending verification email to:", to);
-  const transporter = getTransporter();
+  const transporter = await getTransporter();
   await transporter.sendMail({
     from: `"Prepetual" <${process.env.GMAIL_USER}>`,
     to,
@@ -74,7 +80,7 @@ export async function sendPasswordResetEmail(
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
   const name = firstName || "there";
 
-  const transporter = getTransporter();
+  const transporter = await getTransporter();
   await transporter.sendMail({
     from: `"Prepetual" <${process.env.GMAIL_USER}>`,
     to,
