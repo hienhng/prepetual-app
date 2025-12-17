@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Trophy, Check, X, ChevronDown, ChevronUp, RotateCcw, Home, Sparkles } from "lucide-react";
+import { Trophy, Check, X, ChevronDown, ChevronUp, RotateCcw, Home, Sparkles, LucideMessageCircleQuestion } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,11 +31,11 @@ export function QuizResults() {
   };
 
   const getScoreMessage = () => {
-    if (percentage >= 90) return "Outstanding!";
-    if (percentage >= 80) return "Great job!";
-    if (percentage >= 70) return "Good work!";
-    if (percentage >= 60) return "Not bad!";
-    return "Keep practicing!";
+    if (percentage >= 90) return "give yourself a pat on the back!";
+    if (percentage >= 80) return "you are ready to ace this!";
+    if (percentage >= 70) return "you're on the right track!";
+    if (percentage >= 60) return "great effort, keep practicing!";
+    return "efforts mattter more than results!";
   };
 
   const toggleQuestion = (questionId: string) => {
@@ -121,7 +121,7 @@ export function QuizResults() {
               transition={{ delay: 2.4 }}
             >
               <div className="flex items-center justify-center gap-2 mb-4">
-                <Trophy className={`h-6 w-6 ${getScoreColor()}`} />
+                {/* <Trophy className={`h-6 w-6 ${getScoreColor()}`} /> */}
                 <h2 className={`text-2xl font-bold ${getScoreColor()}`}>{getScoreMessage()}</h2>
               </div>
               <p className="text-muted-foreground">
@@ -160,7 +160,7 @@ export function QuizResults() {
 
         <Card className="text-center p-4">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
-            <Sparkles className="h-5 w-5 text-primary" />
+            <LucideMessageCircleQuestion className="h-5 w-5 text-primary" />
           </div>
           <p className="text-2xl font-bold text-foreground" data-testid="text-total-count">
             {quizResult.totalQuestions}

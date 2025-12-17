@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Loader2, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
-import logoImage from "@assets/image_1765894870887.png";
+                                                                                import logoImage from "@assets/image_1765894870887.png";
 
 const forgotSchema = z.object({
   email: z.string().email("Invalid email address"),
