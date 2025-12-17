@@ -1,6 +1,6 @@
 import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
-import { rm, readFile } from "fs/promises";
+import { rm, readFile, writeFile } from "fs/promises";
 
 // server deps to bundle to reduce openat(2) syscalls
 // which helps cold start times
@@ -46,19 +46,32 @@ async function buildAll() {
   ];
   const externals = allDeps.filter((dep) => !allowlist.includes(dep));
 
+  // Build as ESM to support nodemailer v7 (pure ESM)
   await esbuild({
     entryPoints: ["server/index.ts"],
     platform: "node",
     bundle: true,
-    format: "cjs",
-    outfile: "dist/index.cjs",
+    format: "esm",
+    outfile: "dist/index.mjs",
     define: {
       "process.env.NODE_ENV": '"production"',
     },
     minify: true,
     external: externals,
     logLevel: "info",
+    banner: {
+      // Polyfill for __dirname and __filename in ESM
+      js: `import { createRequire } from 'module'; import { fileURLToPath } from 'url'; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = import.meta.dirname;`,
+    },
   });
+
+  // Create CJS wrapper for compatibility with existing start script
+  await writeFile(
+    "dist/index.cjs",
+    `// CJS wrapper for ESM bundle
+import("./index.mjs").catch(err => { console.error(err); process.exit(1); });
+`
+  );
 }
 
 buildAll().catch((err) => {

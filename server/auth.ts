@@ -64,28 +64,16 @@ export function setupAuth(app: Express): void {
         emailVerified: false,
       });
 
-      // Try to create verification token and send email
-      // If email fails, auto-verify the user so they can still use the app
-      let emailSent = false;
-      try {
-        const token = cryptoRandomString({ length: 64, type: "url-safe" });
-        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-        await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
-        await sendVerificationEmail(email, token, firstName);
-        emailSent = true;
-      } catch (err: any) {
-        console.error("Failed to send verification email:", err);
-        // Auto-verify user since we can't send email
-        await storage.verifyUserEmail(user.id);
-        user.emailVerified = true;
-      }
+      // Create verification token and send email
+      const token = cryptoRandomString({ length: 64, type: "url-safe" });
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
+      await sendVerificationEmail(email, token, firstName);
 
       req.session.userId = user.id;
 
       res.json({
-        message: emailSent 
-          ? "Registration successful. Please check your email to verify your account."
-          : "Registration successful! Your account is ready to use.",
+        message: "Registration successful. Please check your email to verify your account.",
         user: {
           id: user.id,
           email: user.email,

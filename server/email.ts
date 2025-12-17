@@ -1,8 +1,4 @@
-// Import nodemailer - esbuild will bundle this
-import nodemailerPkg from "nodemailer";
-
-// Get the actual module - handle both ESM default and CJS module.exports
-const nodemailer: typeof nodemailerPkg = (nodemailerPkg as any).default ?? nodemailerPkg;
+import nodemailer from "nodemailer";
 
 let cachedTransporter: ReturnType<typeof nodemailer.createTransport> | null = null;
 
