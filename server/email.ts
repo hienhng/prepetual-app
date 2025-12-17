@@ -1,18 +1,27 @@
-// Dynamic import to avoid esbuild bundling issues
+// Nodemailer import that works in both ESM (dev) and CJS (production bundle)
+let nodemailerModule: any;
+
+async function loadNodemailer() {
+  if (nodemailerModule) return nodemailerModule;
+  
+  try {
+    // Try ESM dynamic import first
+    const mod = await import("nodemailer");
+    nodemailerModule = mod.default || mod;
+  } catch {
+    // Fallback for CJS
+    nodemailerModule = eval('require')("nodemailer");
+  }
+  return nodemailerModule;
+}
+
 async function getTransporter() {
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     throw new Error("Email configuration missing: GMAIL_USER or GMAIL_APP_PASSWORD not set");
   }
   
-  // Use dynamic import to load nodemailer at runtime
-  const nodemailer = await import("nodemailer");
-  const createTransport = nodemailer.createTransport || nodemailer.default?.createTransport;
-  
-  if (!createTransport) {
-    throw new Error("Could not find createTransport function in nodemailer");
-  }
-  
-  return createTransport({
+  const nodemailer = await loadNodemailer();
+  return nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: process.env.GMAIL_USER,
