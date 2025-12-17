@@ -1,28 +1,19 @@
-// Cached nodemailer module and transporter
-let nodemailerModule: any = null;
-let cachedTransporter: any = null;
+// Import nodemailer - esbuild will bundle this
+import nodemailerPkg from "nodemailer";
 
-async function getTransporter() {
+// Get the actual module - handle both ESM default and CJS module.exports
+const nodemailer: typeof nodemailerPkg = (nodemailerPkg as any).default ?? nodemailerPkg;
+
+let cachedTransporter: ReturnType<typeof nodemailer.createTransport> | null = null;
+
+function getTransporter() {
   if (cachedTransporter) return cachedTransporter;
   
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     throw new Error("Email configuration missing: GMAIL_USER or GMAIL_APP_PASSWORD not set");
   }
   
-  // Load nodemailer if not cached
-  if (!nodemailerModule) {
-    // Use Function constructor to create require that esbuild won't transform
-    const dynamicRequire = new Function('modulePath', 'return require(modulePath)');
-    try {
-      nodemailerModule = dynamicRequire("nodemailer");
-    } catch {
-      // Fallback to dynamic import for ESM
-      const mod = await import("nodemailer");
-      nodemailerModule = mod.default ?? mod;
-    }
-  }
-  
-  cachedTransporter = nodemailerModule.createTransport({
+  cachedTransporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: process.env.GMAIL_USER,
@@ -48,7 +39,7 @@ export async function sendVerificationEmail(
   const name = firstName || "there";
 
   console.log("[Email] Sending verification email to:", to);
-  const transporter = await getTransporter();
+  const transporter = getTransporter();
   await transporter.sendMail({
     from: `"Prepetual" <${process.env.GMAIL_USER}>`,
     to,
@@ -92,7 +83,7 @@ export async function sendPasswordResetEmail(
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
   const name = firstName || "there";
 
-  const transporter = await getTransporter();
+  const transporter = getTransporter();
   await transporter.sendMail({
     from: `"Prepetual" <${process.env.GMAIL_USER}>`,
     to,

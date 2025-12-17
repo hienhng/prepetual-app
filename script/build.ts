@@ -19,7 +19,7 @@ const allowlist = [
   "memorystore",
   "multer",
   "nanoid",
-  // nodemailer excluded - esbuild mangles its CJS exports
+  "nodemailer",
   "openai",
   "passport",
   "passport-local",
