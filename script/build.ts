@@ -19,7 +19,7 @@ const allowlist = [
   "memorystore",
   "multer",
   "nanoid",
-  // "nodemailer", // Excluded - doesn't bundle well with esbuild
+  "nodemailer",
   "openai",
   "passport",
   "passport-local",

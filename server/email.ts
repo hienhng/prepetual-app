@@ -1,27 +1,14 @@
-// Nodemailer import that works in both ESM (dev) and CJS (production bundle)
-let nodemailerModule: any;
+import * as nodemailer from "nodemailer";
 
-async function loadNodemailer() {
-  if (nodemailerModule) return nodemailerModule;
-  
-  try {
-    // Try ESM dynamic import first
-    const mod = await import("nodemailer");
-    nodemailerModule = mod.default || mod;
-  } catch {
-    // Fallback for CJS
-    nodemailerModule = eval('require')("nodemailer");
-  }
-  return nodemailerModule;
-}
-
-async function getTransporter() {
+function getTransporter() {
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     throw new Error("Email configuration missing: GMAIL_USER or GMAIL_APP_PASSWORD not set");
   }
   
-  const nodemailer = await loadNodemailer();
-  return nodemailer.createTransport({
+  // Handle both ESM default export and CJS module.exports
+  const mailer = (nodemailer as any).default || nodemailer;
+  
+  return mailer.createTransport({
     service: "gmail",
     auth: {
       user: process.env.GMAIL_USER,
@@ -45,7 +32,7 @@ export async function sendVerificationEmail(
   const name = firstName || "there";
 
   console.log("[Email] Sending verification email to:", to);
-  const transporter = await getTransporter();
+  const transporter = getTransporter();
   await transporter.sendMail({
     from: `"Prepetual" <${process.env.GMAIL_USER}>`,
     to,
@@ -89,7 +76,7 @@ export async function sendPasswordResetEmail(
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
   const name = firstName || "there";
 
-  const transporter = await getTransporter();
+  const transporter = getTransporter();
   await transporter.sendMail({
     from: `"Prepetual" <${process.env.GMAIL_USER}>`,
     to,
