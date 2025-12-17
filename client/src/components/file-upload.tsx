@@ -124,7 +124,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
             <Card
               {...getRootProps()}
               className={`
-                relative p-12 border-2 border-dashed cursor-pointer transition-all duration-200
+                relative p-6 sm:p-12 border-2 border-dashed cursor-pointer transition-all duration-200
                 ${isDragActive 
                   ? "border-primary bg-primary/5 scale-[1.02]" 
                   : "border-muted hover:border-primary/50 hover:bg-muted/30"
@@ -135,33 +135,33 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
             >
               <input {...getInputProps()} data-testid="input-file" />
               
-              <div className="flex flex-col items-center text-center gap-4">
+              <div className="flex flex-col items-center text-center gap-3 sm:gap-4">
                 <div className={`
-                  w-20 h-20 rounded-full flex items-center justify-center transition-colors
+                  w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center transition-colors
                   ${isDragActive ? "bg-primary text-primary-foreground" : "bg-muted"}
                 `}>
-                  <Upload className="h-10 w-10" />
+                  <Upload className="h-8 w-8 sm:h-10 sm:w-10" />
                 </div>
                 
                 <div>
-                  <p className="text-xl font-semibold text-foreground mb-1">
+                  <p className="text-lg sm:text-xl font-semibold text-foreground mb-1">
                     {isDragActive ? "Drop your file here" : "Upload your study material"}
                   </p>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm sm:text-base text-muted-foreground">
                     Drag and drop or click to browse
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
-                  <Badge variant="secondary" className="gap-1">
+                <div className="flex flex-wrap items-center justify-center gap-2 mt-1 sm:mt-2">
+                  <Badge variant="secondary" className="gap-1 text-xs">
                     <FileText className="h-3 w-3" />
                     PDF
                   </Badge>
-                  <Badge variant="secondary" className="gap-1">
+                  <Badge variant="secondary" className="gap-1 text-xs">
                     <Image className="h-3 w-3" />
                     JPG
                   </Badge>
-                  <Badge variant="secondary" className="gap-1">
+                  <Badge variant="secondary" className="gap-1 text-xs">
                     <Image className="h-3 w-3" />
                     PNG
                   </Badge>

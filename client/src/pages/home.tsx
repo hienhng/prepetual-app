@@ -51,27 +51,27 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-quiz-purple/5 to-background pb-16">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-quiz-purple/5 to-background pb-10 sm:pb-16">
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-quiz-purple/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-quiz-purple/10 rounded-full blur-3xl" />
         
-        <div className="container relative mx-auto px-4 pt-16 md:pt-24">
+        <div className="container relative mx-auto px-4 sm:px-6 pt-10 sm:pt-16 md:pt-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-3xl mx-auto mb-12"
+            className="text-center max-w-3xl mx-auto mb-8 sm:mb-12"
           >
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/15 to-quiz-purple/15 text-primary border border-primary/30 text-sm font-semibold mb-6 shadow-sm hover:from-primary/25 hover:to-quiz-purple/25 hover:shadow-lg hover:shadow-primary/50 transition-all duration-300 relative overflow-hidden group">
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-primary/15 to-quiz-purple/15 text-primary border border-primary/30 text-xs sm:text-sm font-semibold mb-4 sm:mb-6 shadow-sm hover:from-primary/25 hover:to-quiz-purple/25 hover:shadow-lg hover:shadow-primary/50 transition-all duration-300 relative overflow-hidden group">
               <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out pointer-events-none bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-              <Sparkles className="h-4 w-4 relative z-10" />
+              <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 relative z-10" />
               <span className="relative z-10">AI-Powered Study Assistant</span>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 sm:mb-6 leading-tight px-2 sm:px-0">
               Prepare better for exams with quizzes made from
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-quiz-purple">  your notes </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-2 sm:px-0">
               Upload any document or image, and let AI create personalized study quizzes. 
               Perfect for exam prep, revision, and active learning.
             </p>
@@ -89,12 +89,12 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex justify-center mt-8"
+              className="flex justify-center mt-6 sm:mt-8 px-4 sm:px-0"
             >
               <Button
                 size="lg"
                 onClick={handleContinueToGenerate}
-                className="gap-2 text-lg py-6 px-8 hover:shadow- hover:-translate-y-1 transition-all"
+                className="gap-2 text-base sm:text-lg py-5 sm:py-6 px-6 sm:px-8 w-full sm:w-auto hover:shadow- hover:-translate-y-1 transition-all"
                 data-testid="button-continue-generate"
               >
                 Continue to Generate Quiz
@@ -106,9 +106,9 @@ export default function Home() {
       </section>
 
       {/* Feature Section 1: Upload & Extract */}
-      <section className="py-20 md:py-28 bg-gradient-to-b from-background to-muted/10">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
+      <section className="py-12 sm:py-20 md:py-28 bg-gradient-to-b from-background to-muted/10">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -118,7 +118,7 @@ export default function Home() {
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
                 <Upload className="w-5 h-5 text-primary" />
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight">
                 Effortless Document Upload
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -185,9 +185,9 @@ export default function Home() {
       </section>
 
       {/* Feature Section 2: AI Generation */}
-      <section className="py-20 md:py-28 bg-muted/20">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
+      <section className="py-12 sm:py-20 md:py-28 bg-muted/20">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -248,7 +248,7 @@ export default function Home() {
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-quiz-purple/10">
                 <Brain className="w-5 h-5 text-quiz-purple" />
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight">
                 AI-Powered Quiz Generation
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -274,9 +274,9 @@ export default function Home() {
       </section>
 
       {/* Feature Section 3: Results & Feedback */}
-      <section className="py-20 md:py-28 bg-gradient-to-b from-background to-muted/10">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
+      <section className="py-12 sm:py-20 md:py-28 bg-gradient-to-b from-background to-muted/10">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -286,7 +286,7 @@ export default function Home() {
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-quiz-orange/10">
                 <BarChart3 className="w-5 h-5 text-quiz-orange" />
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight">
                 Instant Results & Insights
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -366,23 +366,24 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
+      <section className="py-10 sm:py-16 bg-muted/30">
+        <div className="container mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center max-w-2xl mx-auto"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
               Ready to ace your next exam? 
             </h2>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base">
               Upload your materials or preps and experience the power of AI-generated quizzes.
             </p>
             <Button
               size="lg"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="w-full sm:w-auto"
               data-testid="button-get-started"
             >
               Get Started Free

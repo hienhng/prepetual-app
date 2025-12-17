@@ -84,20 +84,20 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-4xl">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-6"
       >
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-md bg-white-700 flex items-center justify-center">
-              <Archive className="h-6 w-6 text-primary" />
+        <div className="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-white-700 flex items-center justify-center">
+              <Archive className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Quiz Archive</h1>
-              <p className="text-sm text-muted-foreground">Your materials, as quizzes</p>
+              <h1 className="text-xl sm:text-2xl font-bold">Quiz Archive</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">Your materials, as quizzes</p>
             </div>
           </div>
           <Button
@@ -136,13 +136,13 @@ export default function HistoryPage() {
                 transition={{ delay: index * 0.05 }}
               >
                 <Card className="hover-elevate" data-testid={`card-quiz-${quiz.id}`}>
-                  <CardContent className="p-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex flex-col gap-3 sm:gap-4">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-xl font-semibold truncate">{quiz.title}</h3>
+                        <h3 className="text-base sm:text-xl font-semibold truncate">{quiz.title}</h3>
                         <div className="flex items-center gap-2 flex-wrap mt-1">
-                          <div className="flex items-center gap-1 text-base text-muted-foreground">
-                            <Clock className="h-4 w-4" />
+                          <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+                            <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                             {formatDate(quiz.createdAt)}
                           </div>
                           <Badge variant="secondary" className="text-xs">
@@ -159,6 +159,7 @@ export default function HistoryPage() {
                         <Button
                           size="sm"
                           onClick={() => handleRetake(quiz)}
+                          className="flex-1 sm:flex-none min-h-[44px] sm:min-h-0"
                           data-testid={`button-retake-${quiz.id}`}
                         >
                           <Play className="h-4 w-4 mr-1" />
@@ -168,6 +169,7 @@ export default function HistoryPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => handleStudy(quiz)}
+                          className="flex-1 sm:flex-none min-h-[44px] sm:min-h-0"
                           data-testid={`button-study-${quiz.id}`}
                         >
                           <BookOpen className="h-4 w-4 mr-1" />
@@ -177,6 +179,7 @@ export default function HistoryPage() {
                           size="icon"
                           variant="ghost"
                           onClick={() => handleEdit(quiz)}
+                          className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
                           data-testid={`button-edit-${quiz.id}`}
                         >
                           <Edit2 className="h-4 w-4" />
@@ -185,6 +188,7 @@ export default function HistoryPage() {
                           size="icon"
                           variant="ghost"
                           onClick={() => handleShare(quiz.id)}
+                          className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
                           data-testid={`button-share-${quiz.id}`}
                         >
                           <Share2 className="h-4 w-4" />
@@ -194,6 +198,7 @@ export default function HistoryPage() {
                           variant="ghost"
                           onClick={() => deleteMutation.mutate(quiz.id)}
                           disabled={deleteMutation.isPending}
+                          className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
                           data-testid={`button-delete-${quiz.id}`}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />

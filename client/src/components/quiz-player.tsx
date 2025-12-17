@@ -176,7 +176,7 @@ export function QuizPlayer() {
   const renderAnswerOptions = () => {
     if (currentQuestion.type === "true_false") {
       return (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {["True", "False"].map((option) => {
             const isSelected = selectedAnswer === option;
             const isCorrectAnswer = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
@@ -185,7 +185,7 @@ export function QuizPlayer() {
               <Card
                 key={option}
                 className={`
-                  p-6 transition-all
+                  p-4 sm:p-6 transition-all min-h-[56px]
                   ${!isChecked ? "cursor-pointer hover:scale-[1.02]" : ""}
                   ${getOptionStyle(option)}
                 `}
@@ -193,7 +193,7 @@ export function QuizPlayer() {
                 data-testid={`option-${option.toLowerCase()}`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-medium">{option}</span>
+                  <span className="text-base sm:text-lg font-medium">{option}</span>
                   {isChecked ? (
                     isCorrectAnswer ? (
                       <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
@@ -233,7 +233,7 @@ export function QuizPlayer() {
     }
 
     return (
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         {currentQuestion.options?.map((option, index) => {
           const isSelected = selectedAnswer === option;
           const isCorrectAnswer = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
@@ -242,16 +242,16 @@ export function QuizPlayer() {
             <Card
               key={index}
               className={`
-                p-5 transition-all
+                p-3 sm:p-5 transition-all min-h-[56px]
                 ${!isChecked ? "cursor-pointer hover:scale-[1.01]" : ""}
                 ${getOptionStyle(option)}
               `}
               onClick={() => handleSelectAnswer(option)}
               data-testid={`option-${index}`}
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <div className={`
-                  w-8 h-8 rounded-full border-2 flex items-center justify-center font-semibold text-sm
+                  w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center font-semibold text-xs sm:text-sm flex-shrink-0
                   ${isChecked && isCorrectAnswer
                     ? "border-green-500 bg-green-500 text-white"
                     : isChecked && isSelected && !isCorrectAnswer
@@ -263,7 +263,7 @@ export function QuizPlayer() {
                 `}>
                   {String.fromCharCode(65 + index)}
                 </div>
-                <span className="text-base flex-1">{option}</span>
+                <span className="text-sm sm:text-base flex-1">{option}</span>
                 {isChecked ? (
                   isCorrectAnswer ? (
                     <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
@@ -291,13 +291,13 @@ export function QuizPlayer() {
   const canCheck = !isChecked && (selectedAnswer || (currentQuestion.type === "short_answer" && shortAnswerInput.trim()));
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4 mb-6">
+    <div className="w-full max-w-3xl mx-auto pb-24 sm:pb-0">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-3 sm:pb-4 mb-4 sm:mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs sm:text-sm text-muted-foreground">
             Question {currentIndex + 1} of {questions.length}
           </span>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs sm:text-sm text-muted-foreground">
             {checkedQuestions.size} answered
           </span>
         </div>
@@ -312,16 +312,16 @@ export function QuizPlayer() {
           exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.2 }}
         >
-          <Card className="mb-6">
-            <CardContent className="p-8 md:p-12">
-              <div className="flex items-center gap-3 mb-6">
+          <Card className="mb-4 sm:mb-6">
+            <CardContent className="p-4 sm:p-8 md:p-12">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                 <Badge variant="outline" className="text-xs">
                   Q{currentIndex + 1}
                 </Badge>
                 {getQuestionTypeBadge(currentQuestion.type)}
               </div>
               
-              <h2 className="text-2xl font-semibold text-foreground mb-8" data-testid="text-question">
+              <h2 className="text-lg sm:text-2xl font-semibold text-foreground mb-5 sm:mb-8" data-testid="text-question">
                 {currentQuestion.question}
               </h2>
 
@@ -332,7 +332,8 @@ export function QuizPlayer() {
         </motion.div>
       </AnimatePresence>
 
-      <div className="flex items-center justify-between gap-4">
+      {/* Desktop navigation */}
+      <div className="hidden sm:flex items-center justify-between gap-4">
         <Button
           variant="outline"
           onClick={goToPrevious}
@@ -387,8 +388,63 @@ export function QuizPlayer() {
         </div>
       </div>
 
+      {/* Mobile fixed bottom navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-3 flex items-center justify-between gap-3 sm:hidden z-50">
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={goToPrevious}
+          disabled={currentIndex === 0}
+          className="flex-1 min-h-[48px]"
+          data-testid="button-previous-mobile"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back
+        </Button>
+
+        {!isChecked ? (
+          <Button
+            size="lg"
+            onClick={handleCheck}
+            disabled={!canCheck}
+            className="flex-1 min-h-[48px]"
+            data-testid="button-check-mobile"
+          >
+            <Sparkles className="h-4 w-4 mr-1" />
+            Check
+          </Button>
+        ) : isLastQuestion ? (
+          <Button
+            size="lg"
+            onClick={finishQuiz}
+            disabled={isSubmitting || checkedQuestions.size < questions.length}
+            className="flex-1 min-h-[48px]"
+            data-testid="button-finish-mobile"
+          >
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                Results
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </>
+            )}
+          </Button>
+        ) : (
+          <Button
+            size="lg"
+            onClick={goToNext}
+            className="flex-1 min-h-[48px]"
+            data-testid="button-next-mobile"
+          >
+            Next
+            <ArrowRight className="h-4 w-4 ml-1" />
+          </Button>
+        )}
+      </div>
+
       {isLastQuestion && checkedQuestions.size < questions.length && (
-        <p className="text-center text-sm text-muted-foreground mt-4">
+        <p className="text-center text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
           Please answer all questions before seeing results
         </p>
       )}

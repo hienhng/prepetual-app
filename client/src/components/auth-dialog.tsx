@@ -67,20 +67,20 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[440px] p-0 gap-0 overflow-hidden">
-        <div className="bg-gradient-to-br from-primary/10 via-quiz-purple/10 to-quiz-orange/10 p-6 text-center">
+      <DialogContent className="w-full max-w-full h-full max-h-full sm:max-w-[440px] sm:h-auto sm:max-h-[90vh] p-0 gap-0 overflow-auto rounded-none sm:rounded-lg">
+        <div className="bg-gradient-to-br from-primary/10 via-quiz-purple/10 to-quiz-orange/10 p-5 sm:p-6 text-center">
           <img 
             src={logoImage} 
             alt="Prepetual Logo" 
-            className="w-12 h-12 rounded-full object-cover mx-auto mb-3"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover mx-auto mb-2 sm:mb-3"
           />
-          <h2 className="text-2xl font-bold text-foreground font-brand">Prepetual</h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground font-brand">Prepetual</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Welcome back! Sign in to continue
           </p>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-5 sm:p-6 space-y-4 sm:space-y-5">
           <Form {...form}>
             <form onSubmit={form.handleSubmit((data) => loginMutation.mutate(data))} className="space-y-4">
               <FormField
@@ -95,7 +95,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
                           {...field}
                           type="email"
                           placeholder="Email address"
-                          className="pl-10 h-11"
+                          className="pl-10 h-12 sm:h-11 text-base"
                           data-testid="input-login-email"
                         />
                       </FormControl>
@@ -116,7 +116,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
                           {...field}
                           type="password"
                           placeholder="Password"
-                          className="pl-10 h-11"
+                          className="pl-10 h-12 sm:h-11 text-base"
                           data-testid="input-login-password"
                         />
                       </FormControl>
@@ -136,7 +136,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
               </div>
               <Button
                 type="submit"
-                className="w-full h-11"
+                className="w-full h-12 sm:h-11 text-base"
                 disabled={loginMutation.isPending}
                 data-testid="button-login-submit"
               >
@@ -222,20 +222,20 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[440px] p-0 gap-0 overflow-hidden">
-        <div className="bg-gradient-to-br from-primary/10 via-quiz-purple/10 to-quiz-orange/10 p-6 text-center">
+      <DialogContent className="w-full max-w-full h-full max-h-full sm:max-w-[440px] sm:h-auto sm:max-h-[90vh] p-0 gap-0 overflow-auto rounded-none sm:rounded-lg">
+        <div className="bg-gradient-to-br from-primary/10 via-quiz-purple/10 to-quiz-orange/10 p-5 sm:p-6 text-center">
           <img 
             src={logoImage} 
             alt="Prepetual Logo" 
-            className="w-12 h-12 rounded-full object-cover mx-auto mb-3"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover mx-auto mb-2 sm:mb-3"
           />
-          <h2 className="text-2xl font-bold text-foreground font-brand">Prepetual</h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground font-brand">Prepetual</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Create an account to get started
           </p>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-5 sm:p-6 space-y-4 sm:space-y-5">
           <Form {...form}>
             <form onSubmit={form.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-4">
               <FormField
@@ -250,7 +250,7 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
                           {...field}
                           type="email"
                           placeholder="Email address"
-                          className="pl-10 h-11"
+                          className="pl-10 h-12 sm:h-11 text-base"
                           data-testid="input-register-email"
                         />
                       </FormControl>
@@ -271,7 +271,7 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
                           {...field}
                           type="password"
                           placeholder="Password (min 8 characters)"
-                          className="pl-10 h-11"
+                          className="pl-10 h-12 sm:h-11 text-base"
                           data-testid="input-register-password"
                         />
                       </FormControl>
@@ -282,7 +282,7 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
               />
               <Button
                 type="submit"
-                className="w-full h-11"
+                className="w-full h-12 sm:h-11 text-base"
                 disabled={registerMutation.isPending}
                 data-testid="button-register-submit"
               >
