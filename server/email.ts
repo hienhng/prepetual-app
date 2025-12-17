@@ -46,44 +46,45 @@ export async function sendVerificationEmail(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&display=swap" rel="stylesheet">
       </head>
-      <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+      <body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <table role="presentation" style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 40px 20px;">
-              <table role="presentation" style="max-width: 480px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+              <table role="presentation" style="max-width: 480px; margin: 0 auto; background-color: #f5f5f5; border-radius: 16px; overflow: hidden; border: 1px solid #e5e5e5;">
                 <!-- Header -->
                 <tr>
-                  <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
-                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">Prepetual</h1>
+                  <td style="background-color: #FACC15; padding: 28px 40px; text-align: center;">
+                    <h1 style="margin: 0; color: #171717; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; font-family: 'Bricolage Grotesque', sans-serif;">Prepetual</h1>
                   </td>
                 </tr>
                 <!-- Content -->
                 <tr>
                   <td style="padding: 40px;">
-                    <h2 style="margin: 0 0 16px 0; color: #1e293b; font-size: 22px; font-weight: 600;">Welcome aboard, ${name}!</h2>
-                    <p style="margin: 0 0 24px 0; color: #64748b; font-size: 15px; line-height: 1.6;">
+                    <h2 style="margin: 0 0 16px 0; color: #171717; font-size: 20px; font-weight: 600; font-family: 'Bricolage Grotesque', sans-serif;">Welcome aboard, ${name}!</h2>
+                    <p style="margin: 0 0 28px 0; color: #525252; font-size: 15px; line-height: 1.7; font-family: 'Bricolage Grotesque', sans-serif;">
                       You're just one step away from unlocking the power of AI-generated quizzes. Verify your email to get started.
                     </p>
                     <!-- Button -->
                     <table role="presentation" style="width: 100%; border-collapse: collapse;">
                       <tr>
                         <td style="text-align: center; padding: 8px 0 32px 0;">
-                          <a href="${verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.4);">
+                          <a href="${verificationUrl}" style="display: inline-block; background-color: #FACC15; color: #171717; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; font-family: 'Bricolage Grotesque', sans-serif; border: 1px solid #E5B800;">
                             Verify My Email
                           </a>
                         </td>
                       </tr>
                     </table>
-                    <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 13px;">Or copy this link:</p>
-                    <p style="margin: 0 0 24px 0; padding: 12px; background-color: #f1f5f9; border-radius: 6px; word-break: break-all; color: #6366f1; font-size: 13px;">${verificationUrl}</p>
-                    <p style="margin: 0; color: #94a3b8; font-size: 13px;">This link expires in 24 hours.</p>
+                    <p style="margin: 0 0 8px 0; color: #737373; font-size: 13px; font-family: 'Bricolage Grotesque', sans-serif;">Or copy this link:</p>
+                    <p style="margin: 0 0 24px 0; padding: 12px; background-color: #e5e5e5; border-radius: 8px; word-break: break-all; color: #525252; font-size: 12px; font-family: monospace;">${verificationUrl}</p>
+                    <p style="margin: 0; color: #737373; font-size: 13px; font-family: 'Bricolage Grotesque', sans-serif;">This link expires in 24 hours.</p>
                   </td>
                 </tr>
                 <!-- Footer -->
                 <tr>
-                  <td style="padding: 24px 40px; background-color: #f8fafc; border-top: 1px solid #e2e8f0;">
-                    <p style="margin: 0; color: #94a3b8; font-size: 12px; text-align: center;">
+                  <td style="padding: 24px 40px; background-color: #ebebeb; border-top: 1px solid #e0e0e0;">
+                    <p style="margin: 0; color: #737373; font-size: 12px; text-align: center; font-family: 'Bricolage Grotesque', sans-serif;">
                       Didn't sign up for Prepetual? You can safely ignore this email.
                     </p>
                   </td>
@@ -124,47 +125,48 @@ export async function sendPasswordResetEmail(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&display=swap" rel="stylesheet">
       </head>
-      <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+      <body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <table role="presentation" style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 40px 20px;">
-              <table role="presentation" style="max-width: 480px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+              <table role="presentation" style="max-width: 480px; margin: 0 auto; background-color: #f5f5f5; border-radius: 16px; overflow: hidden; border: 1px solid #e5e5e5;">
                 <!-- Header -->
                 <tr>
-                  <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
-                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">Prepetual</h1>
+                  <td style="background-color: #FACC15; padding: 28px 40px; text-align: center;">
+                    <h1 style="margin: 0; color: #171717; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; font-family: 'Bricolage Grotesque', sans-serif;">Prepetual</h1>
                   </td>
                 </tr>
                 <!-- Content -->
                 <tr>
                   <td style="padding: 40px;">
-                    <h2 style="margin: 0 0 16px 0; color: #1e293b; font-size: 22px; font-weight: 600;">Reset your password</h2>
-                    <p style="margin: 0 0 8px 0; color: #64748b; font-size: 15px; line-height: 1.6;">
+                    <h2 style="margin: 0 0 16px 0; color: #171717; font-size: 20px; font-weight: 600; font-family: 'Bricolage Grotesque', sans-serif;">Reset your password</h2>
+                    <p style="margin: 0 0 8px 0; color: #525252; font-size: 15px; line-height: 1.7; font-family: 'Bricolage Grotesque', sans-serif;">
                       Hi ${name},
                     </p>
-                    <p style="margin: 0 0 24px 0; color: #64748b; font-size: 15px; line-height: 1.6;">
+                    <p style="margin: 0 0 28px 0; color: #525252; font-size: 15px; line-height: 1.7; font-family: 'Bricolage Grotesque', sans-serif;">
                       We received a request to reset your password. Click the button below to create a new one.
                     </p>
                     <!-- Button -->
                     <table role="presentation" style="width: 100%; border-collapse: collapse;">
                       <tr>
                         <td style="text-align: center; padding: 8px 0 32px 0;">
-                          <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.4);">
+                          <a href="${resetUrl}" style="display: inline-block; background-color: #FACC15; color: #171717; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; font-family: 'Bricolage Grotesque', sans-serif; border: 1px solid #E5B800;">
                             Reset Password
                           </a>
                         </td>
                       </tr>
                     </table>
-                    <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 13px;">Or copy this link:</p>
-                    <p style="margin: 0 0 24px 0; padding: 12px; background-color: #f1f5f9; border-radius: 6px; word-break: break-all; color: #6366f1; font-size: 13px;">${resetUrl}</p>
-                    <p style="margin: 0; color: #94a3b8; font-size: 13px;">This link expires in 1 hour.</p>
+                    <p style="margin: 0 0 8px 0; color: #737373; font-size: 13px; font-family: 'Bricolage Grotesque', sans-serif;">Or copy this link:</p>
+                    <p style="margin: 0 0 24px 0; padding: 12px; background-color: #e5e5e5; border-radius: 8px; word-break: break-all; color: #525252; font-size: 12px; font-family: monospace;">${resetUrl}</p>
+                    <p style="margin: 0; color: #737373; font-size: 13px; font-family: 'Bricolage Grotesque', sans-serif;">This link expires in 1 hour.</p>
                   </td>
                 </tr>
                 <!-- Footer -->
                 <tr>
-                  <td style="padding: 24px 40px; background-color: #f8fafc; border-top: 1px solid #e2e8f0;">
-                    <p style="margin: 0; color: #94a3b8; font-size: 12px; text-align: center;">
+                  <td style="padding: 24px 40px; background-color: #ebebeb; border-top: 1px solid #e0e0e0;">
+                    <p style="margin: 0; color: #737373; font-size: 12px; text-align: center; font-family: 'Bricolage Grotesque', sans-serif;">
                       Didn't request a password reset? You can safely ignore this email.
                     </p>
                   </td>
