@@ -136,20 +136,20 @@ export default function HistoryPage() {
                 transition={{ delay: index * 0.05 }}
               >
                 <Card className="hover-elevate" data-testid={`card-quiz-${quiz.id}`}>
-                  <CardContent className="p-3 sm:p-4">
-                    <div className="flex flex-col gap-3 sm:gap-4">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <h3 className="text-base sm:text-xl font-semibold truncate">{quiz.title}</h3>
-                        <div className="flex items-center gap-2 flex-wrap mt-1">
+                        <div className="flex items-center gap-2 flex-wrap mt-2">
                           <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
                             <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                             {formatDate(quiz.createdAt)}
                           </div>
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-xs sm:text-sm">
                             {(quiz.questions as any[]).length} questions
                           </Badge>
                           {quiz.difficulty && (
-                            <Badge className={`text-xs ${getDifficultyColor(quiz.difficulty)}`}>
+                            <Badge className={`text-xs sm:text-sm ${getDifficultyColor(quiz.difficulty)}`}>
                               {quiz.difficulty}
                             </Badge>
                           )}
@@ -157,19 +157,17 @@ export default function HistoryPage() {
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <Button
-                          size="sm"
                           onClick={() => handleRetake(quiz)}
-                          className="flex-1 sm:flex-none min-h-[44px] sm:min-h-0"
+                          className="flex-1 sm:flex-none"
                           data-testid={`button-retake-${quiz.id}`}
                         >
                           <Play className="h-4 w-4 mr-1" />
                           Take
                         </Button>
                         <Button
-                          size="sm"
                           variant="outline"
                           onClick={() => handleStudy(quiz)}
-                          className="flex-1 sm:flex-none min-h-[44px] sm:min-h-0"
+                          className="flex-1 sm:flex-none"
                           data-testid={`button-study-${quiz.id}`}
                         >
                           <BookOpen className="h-4 w-4 mr-1" />
@@ -179,7 +177,6 @@ export default function HistoryPage() {
                           size="icon"
                           variant="ghost"
                           onClick={() => handleEdit(quiz)}
-                          className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
                           data-testid={`button-edit-${quiz.id}`}
                         >
                           <Edit2 className="h-4 w-4" />
@@ -188,7 +185,6 @@ export default function HistoryPage() {
                           size="icon"
                           variant="ghost"
                           onClick={() => handleShare(quiz.id)}
-                          className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
                           data-testid={`button-share-${quiz.id}`}
                         >
                           <Share2 className="h-4 w-4" />
@@ -198,7 +194,6 @@ export default function HistoryPage() {
                           variant="ghost"
                           onClick={() => deleteMutation.mutate(quiz.id)}
                           disabled={deleteMutation.isPending}
-                          className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
                           data-testid={`button-delete-${quiz.id}`}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
