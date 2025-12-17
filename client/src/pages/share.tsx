@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuiz } from "@/lib/quiz-context";
 import type { Quiz } from "@shared/schema";
+import logoImage from "@assets/image_1765894870887.png";
 
 export default function SharePage() {
   const { id } = useParams<{ id: string }>();
@@ -72,8 +73,8 @@ export default function SharePage() {
         className="space-y-6"
       >
         <div className="text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-quiz-purple flex items-center justify-center mx-auto mb-4">
-            <Sparkles className="h-8 w-8 text-white" />
+          <div className="w-16 h-16 border-2 rounded-full  flex items-center justify-center mx-auto mb-4">
+            <img src={logoImage} alt="Prepetual Logo" className="w-12 h-12 rounded-full object-cover" />
           </div>
           <h1 className="text-2xl font-bold mb-2">Shared Quiz</h1>
           <p className="text-muted-foreground">Someone shared a quiz with you</p>
@@ -94,14 +95,14 @@ export default function SharePage() {
                 {(quiz.questions as any[]).length} questions
               </Badge>
               {quiz.difficulty && (
-                <Badge className={`capitalize ${getDifficultyColor(quiz.difficulty)}`}>
+                <Badge className={`${getDifficultyColor(quiz.difficulty)}`}>
                   {quiz.difficulty}
                 </Badge>
               )}
             </div>
 
             <Button
-              className="w-full py-6 text-lg"
+              className="w-full py-6 text-lg hover:scale-[1.03] transition-transform"
               onClick={handleStartQuiz}
               data-testid="button-start-shared-quiz"
             >

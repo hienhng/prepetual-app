@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -353,7 +353,7 @@ export function QuizPlayer() {
               className="gap-2"
               data-testid="button-check"
             >
-              <Sparkles className="h-4 w-4" />
+              <CheckCheck className="h-4 w-4" />
               Check Answer
             </Button>
           ) : isLastQuestion ? (
@@ -410,7 +410,7 @@ export function QuizPlayer() {
             className="flex-1 min-h-[48px]"
             data-testid="button-check-mobile"
           >
-            <Sparkles className="h-4 w-4 mr-1" />
+            <CheckCheck className="h-4 w-4 mr-1" />
             Check
           </Button>
         ) : isLastQuestion ? (
@@ -445,7 +445,7 @@ export function QuizPlayer() {
 
       {isLastQuestion && checkedQuestions.size < questions.length && (
         <p className="text-center text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
-          Please answer all questions before seeing results
+          Answer all questions to see results
         </p>
       )}
     </div>
