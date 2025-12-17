@@ -186,47 +186,55 @@ export default function StudyPage() {
           </AnimatePresence>
         </div>
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
           <Button
             variant="outline"
+            size="icon"
+            className="sm:w-auto sm:px-3"
             onClick={handlePrev}
             disabled={currentIndex === 0}
             data-testid="button-prev-card"
           >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Previous
+            <ChevronLeft className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Previous</span>
           </Button>
 
           {isFlipped && (
-            <div className="flex gap-2">
+            <div className="flex gap-1 sm:gap-2">
               <Button
                 variant="outline"
-                className="border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-950"
+                size="sm"
+                className="border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-950 px-2 sm:px-3"
                 onClick={handleStillLearning}
                 data-testid="button-still-learning"
               >
-                <RotateCcw className="h-4 w-4 mr-1" />
-                Still Learning
+                <RotateCcw className="h-4 w-4 sm:mr-1" />
+                <span className="hidden sm:inline">Still Learning</span>
+                <span className="sm:hidden">Learning</span>
               </Button>
               <Button
-                className="bg-green-600 border-green-800 hover:bg-green-700 hover:border-green-500"
+                size="sm"
+                className="bg-green-600 border-green-800 hover:bg-green-700 hover:border-green-500 px-2 sm:px-3"
                 onClick={handleKnown}
                 data-testid="button-known"
               >
-                <Check className="h-4 w-4 mr-1" />
-                Got It
+                <Check className="h-4 w-4 sm:mr-1" />
+                <span className="hidden sm:inline">Got It</span>
+                <span className="sm:hidden">Got It</span>
               </Button>
             </div>
           )}
 
           <Button
             variant="outline"
+            size="icon"
+            className="sm:w-auto sm:px-3"
             onClick={handleNext}
             disabled={currentIndex === questions.length - 1}
             data-testid="button-next-card"
           >
-            Next
-            <ChevronRight className="h-4 w-4 ml-1" />
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRight className="h-4 w-4 sm:ml-1" />
           </Button>
         </div>
 
