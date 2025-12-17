@@ -86,12 +86,12 @@ function Header() {
           />
           <span className="text-xl font-brand text-foreground">Prepetual</span>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {isAuthenticated && (
             <Link href="/history">
-              <Button variant="ghost" size="sm" data-testid="link-history">
-                <Archive className="h-4 w-4 mr-1" />
-                Archive
+              <Button variant="ghost" size="icon" className="sm:w-auto sm:px-3" data-testid="link-history">
+                <Archive className="h-4 w-4 sm:mr-1" />
+                <span className="hidden sm:inline">Archive</span>
               </Button>
             </Link>
           )}
@@ -127,10 +127,10 @@ function Header() {
               </DropdownMenu>
             ) : (
               <>
-                <Button variant="ghost" onClick={openLoginDialog} data-testid="button-login">
+                <Button variant="ghost" size="sm" onClick={openLoginDialog} className="px-2 sm:px-3" data-testid="button-login">
                   Log in
                 </Button>
-                <Button variant="default" onClick={openSignUpDialog} data-testid="button-signup">
+                <Button variant="default" size="sm" onClick={openSignUpDialog} className="px-2 sm:px-3" data-testid="button-signup">
                   Sign up
                 </Button>
               </>
