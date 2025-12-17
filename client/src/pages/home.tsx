@@ -13,7 +13,7 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText } = useQuiz();
   const { isAuthenticated } = useAuth();
-  const { openAuthDialog } = useAuthDialog();
+  const { openLoginDialog } = useAuthDialog();
 
   useEffect(() => {
     setExtractedText("");
@@ -27,7 +27,7 @@ export default function Home() {
     if (isAuthenticated) {
       setLocation("/generate");
     } else {
-      openAuthDialog("login");
+      openLoginDialog();
     }
   };
 
@@ -50,7 +50,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-quiz-purple/5 to-background pb-10 sm:pb-16">
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
         <div className="absolute top-1/4 left-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-primary/10 rounded-full blur-3xl" />
