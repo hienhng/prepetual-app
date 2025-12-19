@@ -35,8 +35,8 @@ function MaterialContent({
   if (materialType === "image" && imageDataUrl) {
     return (
       <div className="h-full flex flex-col">
-        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "text" | "image")} className="w-full">
-          <TabsList className="w-full mb-4">
+        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "text" | "image")} className="w-full h-full flex flex-col">
+          <TabsList className="w-full mb-4 flex-shrink-0">
             <TabsTrigger value="text" className="flex-1 gap-2" data-testid="tab-text">
               <FileText className="h-4 w-4" />
               Extracted Text
@@ -46,15 +46,15 @@ function MaterialContent({
               Original Image
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="text" className="mt-0 flex-1">
-            <ScrollArea className="h-full max-h-[60vh] sm:max-h-[calc(100vh-12rem)]">
+          <TabsContent value="text" className="mt-0 flex-1 min-h-0">
+            <ScrollArea className="h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-14rem)]">
               <div className="text-sm leading-relaxed whitespace-pre-wrap pr-4" data-testid="material-text">
                 {text}
               </div>
             </ScrollArea>
           </TabsContent>
-          <TabsContent value="image" className="mt-0 flex-1">
-            <ScrollArea className="h-full max-h-[60vh] sm:max-h-[calc(100vh-12rem)]">
+          <TabsContent value="image" className="mt-0 flex-1 min-h-0">
+            <ScrollArea className="h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-14rem)]">
               <img 
                 src={imageDataUrl} 
                 alt="Uploaded material" 
@@ -69,7 +69,7 @@ function MaterialContent({
   }
 
   return (
-    <ScrollArea className="h-full max-h-[60vh] sm:max-h-[calc(100vh-12rem)]">
+    <ScrollArea className="h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-10rem)]">
       <div className="text-sm leading-relaxed whitespace-pre-wrap pr-4" data-testid="material-text">
         {text}
       </div>
