@@ -32,7 +32,7 @@ function MaterialContent({
     );
   }
 
-  if (materialType === "image" && imageDataUrl) {
+  if (imageDataUrl) {
     return (
       <div className="h-full flex flex-col">
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "text" | "image")} className="w-full h-full flex flex-col">
