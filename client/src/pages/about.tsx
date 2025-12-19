@@ -183,13 +183,14 @@ export default function About() {
               <Card className="border-0 bg-background/95 backdrop-blur-sm overflow-visible">
                 <CardContent className="p-8 md:p-10">
                   <div className="flex items-start gap-4 mb-6">
-                    <motion.div
+                    <Zap className="w-6 h-6 text-primary" />
+                    {/* <motion.div
                       className="p-3 rounded-xl bg-primary/10"
                       whileHover={{ rotate: 360 }}
                       transition={{ duration: 0.6 }}
                     >
-                      <Zap className="w-6 h-6 text-primary" />
-                    </motion.div>
+                      
+                    </motion.div> */}
                     <div>
                       <h2 className="text-2xl font-semibold text-foreground mb-2">Our Mission</h2>
                       <p className="text-muted-foreground">Empowering learners worldwide</p>
@@ -348,14 +349,15 @@ export default function About() {
               variants={itemVariants}
             >
               <div className="flex items-center gap-3 mb-6">
-                <motion.div
+                <Brain className="w-8 h-8 text-primary" />
+                {/* <motion.div
                   animate={{ 
                     rotate: [0, 360],
                   }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "in" }}
                 >
-                  <Brain className="w-8 h-8 text-primary" />
-                </motion.div>
+                  
+                </motion.div> */}
                 <div>
                   <h2 className="text-2xl font-semibold text-foreground">Our Technology</h2>
                   <p className="text-muted-foreground">Powered by cutting-edge AI</p>
