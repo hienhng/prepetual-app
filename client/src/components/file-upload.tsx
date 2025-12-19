@@ -14,7 +14,7 @@ interface FileUploadProps {
 export function FileUpload({ onTextExtracted }: FileUploadProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { isLoading, setIsLoading, setLoadingMessage, loadingMessage, processingProgress, setProcessingProgress } = useQuiz();
+  const { isLoading, setIsLoading, setLoadingMessage, loadingMessage, processingProgress, setProcessingProgress, setSourceMaterial } = useQuiz();
 
   const processFile = useCallback(async (file: File) => {
     setError(null);
@@ -25,6 +25,19 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
+
+      const isImage = file.type.startsWith("image/");
+      const isPdf = file.type === "application/pdf";
+      
+      let imageDataUrl: string | null = null;
+      if (isImage) {
+        imageDataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
 
       setLoadingMessage("Extracting text from document...");
       setProcessingProgress(30);
@@ -48,16 +61,23 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
         throw new Error("Not enough text could be extracted from this document. Please try a different file with more readable text.");
       }
 
+      setSourceMaterial({
+        type: isImage ? "image" : isPdf ? "pdf" : null,
+        text: data.text,
+        imageDataUrl: imageDataUrl,
+      });
+
       onTextExtracted(data.text);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred while processing the file");
       setUploadedFile(null);
+      setSourceMaterial({ type: null, text: null, imageDataUrl: null });
     } finally {
       setIsLoading(false);
       setLoadingMessage("");
       setProcessingProgress(0);
     }
-  }, [onTextExtracted, setIsLoading, setLoadingMessage, setProcessingProgress]);
+  }, [onTextExtracted, setIsLoading, setLoadingMessage, setProcessingProgress, setSourceMaterial]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -81,6 +101,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   const removeFile = () => {
     setUploadedFile(null);
     setError(null);
+    setSourceMaterial({ type: null, text: null, imageDataUrl: null });
     onTextExtracted("");
   };
 
