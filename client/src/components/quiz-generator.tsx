@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import } from "lucide-react";
+import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import, FileQuestionIcon, Settings2 } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -134,7 +134,7 @@ export function QuizGenerator() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Sparkles className="h-5 w-5 text-quiz-purple" />
+              <FileQuestionIcon className="h-5 w-5 text-quiz-purple" />
               Quiz Mode
             </CardTitle>
           </CardHeader>
@@ -153,7 +153,7 @@ export function QuizGenerator() {
               >
                 <Sparkles className="h-6 w-6 text-quiz-purple" />
                 <div>
-                  <p className="text-xl font-medium">Generate New Quiz</p>
+                  <p className="text-lg font-medium">Generate New Quiz</p>
                   <p className="text-sm text-muted-foreground">Create new questions from your study material</p>
                 </div>
               </div>
@@ -171,8 +171,8 @@ export function QuizGenerator() {
               >
                 <Import className="h-6 w-6 text-primary" />
                 <div>
-                  <p className="text-sm font-medium">Import Existing Quiz</p>
-                  <p className="text-xs text-muted-foreground">Parse questions from an exam or worksheet</p>
+                  <p className="text-lg font-medium">Import Existing Quiz</p>
+                  <p className="text-sm text-muted-foreground">Parse questions from an exam or worksheet</p>
                 </div>
               </div>
             </div>
@@ -189,7 +189,7 @@ export function QuizGenerator() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Sparkles className="h-5 w-5 text-quiz-purple" />
+              <Settings2 className="h-5 w-5 text-quiz-purple" />
               Quiz Settings
             </CardTitle>
           </CardHeader>

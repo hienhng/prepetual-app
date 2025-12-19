@@ -1,8 +1,17 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import type { Quiz, QuizResult, Question } from "@shared/schema";
 
+export type SourceMaterialType = "pdf" | "image" | null;
+
+interface SourceMaterial {
+  type: SourceMaterialType;
+  text: string | null;
+  imageDataUrl: string | null;
+}
+
 interface QuizState {
   extractedText: string | null;
+  sourceMaterial: SourceMaterial;
   currentQuiz: Quiz | null;
   quizResult: QuizResult | null;
   userAnswers: Record<string, string>;
@@ -13,6 +22,7 @@ interface QuizState {
 
 interface QuizContextType extends QuizState {
   setExtractedText: (text: string | null) => void;
+  setSourceMaterial: (material: SourceMaterial) => void;
   setCurrentQuiz: (quiz: Quiz | null) => void;
   setQuizResult: (result: QuizResult | null) => void;
   setUserAnswer: (questionId: string, answer: string) => void;
@@ -28,6 +38,7 @@ const QuizContext = createContext<QuizContextType | undefined>(undefined);
 export function QuizProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<QuizState>({
     extractedText: null,
+    sourceMaterial: { type: null, text: null, imageDataUrl: null },
     currentQuiz: null,
     quizResult: null,
     userAnswers: {},
@@ -38,6 +49,10 @@ export function QuizProvider({ children }: { children: ReactNode }) {
 
   const setExtractedText = (text: string | null) => {
     setState((prev) => ({ ...prev, extractedText: text }));
+  };
+
+  const setSourceMaterial = (material: SourceMaterial) => {
+    setState((prev) => ({ ...prev, sourceMaterial: material }));
   };
 
   const setCurrentQuiz = (quiz: Quiz | null) => {
@@ -74,6 +89,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const resetQuiz = () => {
     setState({
       extractedText: null,
+      sourceMaterial: { type: null, text: null, imageDataUrl: null },
       currentQuiz: null,
       quizResult: null,
       userAnswers: {},
@@ -88,6 +104,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       value={{
         ...state,
         setExtractedText,
+        setSourceMaterial,
         setCurrentQuiz,
         setQuizResult,
         setUserAnswer,
