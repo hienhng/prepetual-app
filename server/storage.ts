@@ -119,6 +119,7 @@ export class DatabaseStorage implements IStorage {
       userId: quiz.userId,
       title: quiz.title,
       sourceText: quiz.sourceText,
+      sourceImageUrl: quiz.sourceImageUrl,
       questions: quiz.questions as Question[],
       difficulty: quiz.difficulty || "medium",
       isPublic: quiz.isPublic || 0,
@@ -143,6 +144,7 @@ export class DatabaseStorage implements IStorage {
     const updateData: Record<string, unknown> = {};
     if (updates.title !== undefined) updateData.title = updates.title;
     if (updates.sourceText !== undefined) updateData.sourceText = updates.sourceText;
+    if (updates.sourceImageUrl !== undefined) updateData.sourceImageUrl = updates.sourceImageUrl;
     if (updates.questions !== undefined) updateData.questions = updates.questions as Question[];
     if (updates.difficulty !== undefined) updateData.difficulty = updates.difficulty;
     if (updates.isPublic !== undefined) updateData.isPublic = updates.isPublic;
