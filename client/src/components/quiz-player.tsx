@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,14 +9,17 @@ import { Progress } from "@/components/ui/progress";
 import { useQuiz } from "@/lib/quiz-context";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
+import { MaterialViewerDialog, MaterialViewerSidebar } from "@/components/material-viewer";
 
 export function QuizPlayer() {
   const [, setLocation] = useLocation();
-  const { currentQuiz, userAnswers, setUserAnswer, setQuizResult } = useQuiz();
+  const { currentQuiz, userAnswers, setUserAnswer, setQuizResult, sourceMaterial } = useQuiz();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shortAnswerInput, setShortAnswerInput] = useState("");
   const [checkedQuestions, setCheckedQuestions] = useState<Set<string>>(new Set());
+  const [showMaterial, setShowMaterial] = useState(false);
+  const [showMaterialDialog, setShowMaterialDialog] = useState(false);
 
   if (!currentQuiz) {
     return null;
@@ -289,165 +292,231 @@ export function QuizPlayer() {
 
   const isLastQuestion = currentIndex === questions.length - 1;
   const canCheck = !isChecked && (selectedAnswer || (currentQuestion.type === "short_answer" && shortAnswerInput.trim()));
+  const hasMaterial = sourceMaterial.text || currentQuiz?.sourceText;
 
   return (
-    <div className="w-full max-w-3xl mx-auto pb-24 sm:pb-0">
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-3 sm:pb-4 mb-4 sm:mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs sm:text-sm text-muted-foreground">
-            Question {currentIndex + 1} of {questions.length}
-          </span>
-          <span className="text-xs sm:text-sm text-muted-foreground">
-            {checkedQuestions.size} answered
-          </span>
-        </div>
-        <Progress value={progress} className="h-2" data-testid="progress-quiz" />
-      </div>
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentQuestion.id}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.2 }}
-        >
-          <Card className="mb-4 sm:mb-6">
-            <CardContent className="p-4 sm:p-8 md:p-12">
-              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                <Badge variant="outline" className="text-xs">
-                  Q{currentIndex + 1}
-                </Badge>
-                {getQuestionTypeBadge(currentQuestion.type)}
+    <>
+      <div className="flex w-full">
+        {/* Main quiz content */}
+        <div className={`flex-1 transition-all duration-300 ${showMaterial ? "lg:pr-0" : ""}`}>
+          <div className={`w-full mx-auto pb-24 sm:pb-0 ${showMaterial ? "max-w-2xl lg:max-w-none lg:px-6" : "max-w-3xl"}`}>
+            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-3 sm:pb-4 mb-4 sm:mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs sm:text-sm text-muted-foreground">
+                  Question {currentIndex + 1} of {questions.length}
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
+                    {checkedQuestions.size} answered
+                  </span>
+                  {hasMaterial && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowMaterial(!showMaterial)}
+                      className="hidden lg:flex gap-1"
+                      data-testid="button-toggle-material"
+                    >
+                      {showMaterial ? (
+                        <>
+                          <PanelRightClose className="h-4 w-4" />
+                          Hide
+                        </>
+                      ) : (
+                        <>
+                          <PanelRightOpen className="h-4 w-4" />
+                          Material
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
               </div>
-              
-              <h2 className="text-lg sm:text-2xl font-semibold text-foreground mb-5 sm:mb-8" data-testid="text-question">
-                {currentQuestion.question}
-              </h2>
+              <Progress value={progress} className="h-2" data-testid="progress-quiz" />
+            </div>
 
-              {renderAnswerOptions()}
-              {renderFeedback()}
-            </CardContent>
-          </Card>
-        </motion.div>
-      </AnimatePresence>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentQuestion.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card className="mb-4 sm:mb-6">
+                  <CardContent className="p-4 sm:p-8 md:p-12">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                      <Badge variant="outline" className="text-xs">
+                        Q{currentIndex + 1}
+                      </Badge>
+                      {getQuestionTypeBadge(currentQuestion.type)}
+                    </div>
+                    
+                    <h2 className="text-lg sm:text-2xl font-semibold text-foreground mb-5 sm:mb-8" data-testid="text-question">
+                      {currentQuestion.question}
+                    </h2>
 
-      {/* Desktop navigation */}
-      <div className="hidden sm:flex items-center justify-between gap-4">
-        <Button
-          variant="outline"
-          onClick={goToPrevious}
-          disabled={currentIndex === 0}
-          className="gap-2"
-          data-testid="button-previous"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
+                    {renderAnswerOptions()}
+                    {renderFeedback()}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </AnimatePresence>
 
-        <div className="flex items-center gap-3">
-          {!isChecked ? (
-            <Button
-              onClick={handleCheck}
-              disabled={!canCheck}
-              className="gap-2"
-              data-testid="button-check"
-            >
-              <CheckCheck className="h-4 w-4" />
-              Check Answer
-            </Button>
-          ) : isLastQuestion ? (
-            <Button
-              onClick={finishQuiz}
-              disabled={isSubmitting || checkedQuestions.size < questions.length}
-              className="gap-2"
-              data-testid="button-finish"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Finishing...
-                </>
-              ) : (
-                <>
-                  See Results
-                  <ArrowRight className="h-4 w-4" />
-                </>
+            {/* Desktop navigation */}
+            <div className="hidden sm:flex items-center justify-between gap-4">
+              <Button
+                variant="outline"
+                onClick={goToPrevious}
+                disabled={currentIndex === 0}
+                className="gap-2"
+                data-testid="button-previous"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+
+              <div className="flex items-center gap-3">
+                {hasMaterial && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowMaterialDialog(true)}
+                    className="gap-2 lg:hidden"
+                    data-testid="button-view-material-tablet"
+                  >
+                    <FileText className="h-4 w-4" />
+                    View Material
+                  </Button>
+                )}
+                {!isChecked ? (
+                  <Button
+                    onClick={handleCheck}
+                    disabled={!canCheck}
+                    className="gap-2"
+                    data-testid="button-check"
+                  >
+                    <CheckCheck className="h-4 w-4" />
+                    Check Answer
+                  </Button>
+                ) : isLastQuestion ? (
+                  <Button
+                    onClick={finishQuiz}
+                    disabled={isSubmitting || checkedQuestions.size < questions.length}
+                    className="gap-2"
+                    data-testid="button-finish"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Finishing...
+                      </>
+                    ) : (
+                      <>
+                        See Results
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={goToNext}
+                    className="gap-2"
+                    data-testid="button-next"
+                  >
+                    Next
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Mobile fixed bottom navigation */}
+            <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-3 flex items-center justify-between gap-2 sm:hidden z-50">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={goToPrevious}
+                disabled={currentIndex === 0}
+                className="min-h-[48px] px-3"
+                data-testid="button-previous-mobile"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+
+              {hasMaterial && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setShowMaterialDialog(true)}
+                  className="min-h-[48px] px-3"
+                  data-testid="button-view-material-mobile"
+                >
+                  <FileText className="h-4 w-4" />
+                </Button>
               )}
-            </Button>
-          ) : (
-            <Button
-              onClick={goToNext}
-              className="gap-2"
-              data-testid="button-next"
-            >
-              Next
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      </div>
 
-      {/* Mobile fixed bottom navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-3 flex items-center justify-between gap-3 sm:hidden z-50">
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={goToPrevious}
-          disabled={currentIndex === 0}
-          className="flex-1 min-h-[48px]"
-          data-testid="button-previous-mobile"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back
-        </Button>
+              {!isChecked ? (
+                <Button
+                  size="lg"
+                  onClick={handleCheck}
+                  disabled={!canCheck}
+                  className="flex-1 min-h-[48px]"
+                  data-testid="button-check-mobile"
+                >
+                  <CheckCheck className="h-4 w-4 mr-1" />
+                  Check
+                </Button>
+              ) : isLastQuestion ? (
+                <Button
+                  size="lg"
+                  onClick={finishQuiz}
+                  disabled={isSubmitting || checkedQuestions.size < questions.length}
+                  className="flex-1 min-h-[48px]"
+                  data-testid="button-finish-mobile"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      Results
+                      <ArrowRight className="h-4 w-4 ml-1" />
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  size="lg"
+                  onClick={goToNext}
+                  className="flex-1 min-h-[48px]"
+                  data-testid="button-next-mobile"
+                >
+                  Next
+                  <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
+              )}
+            </div>
 
-        {!isChecked ? (
-          <Button
-            size="lg"
-            onClick={handleCheck}
-            disabled={!canCheck}
-            className="flex-1 min-h-[48px]"
-            data-testid="button-check-mobile"
-          >
-            <CheckCheck className="h-4 w-4 mr-1" />
-            Check
-          </Button>
-        ) : isLastQuestion ? (
-          <Button
-            size="lg"
-            onClick={finishQuiz}
-            disabled={isSubmitting || checkedQuestions.size < questions.length}
-            className="flex-1 min-h-[48px]"
-            data-testid="button-finish-mobile"
-          >
-            {isSubmitting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                Results
-                <ArrowRight className="h-4 w-4 ml-1" />
-              </>
+            {isLastQuestion && checkedQuestions.size < questions.length && (
+              <p className="text-center text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
+                Answer all questions to see results
+              </p>
             )}
-          </Button>
-        ) : (
-          <Button
-            size="lg"
-            onClick={goToNext}
-            className="flex-1 min-h-[48px]"
-            data-testid="button-next-mobile"
-          >
-            Next
-            <ArrowRight className="h-4 w-4 ml-1" />
-          </Button>
+          </div>
+        </div>
+
+        {/* Desktop material sidebar */}
+        {showMaterial && hasMaterial && (
+          <div className="hidden lg:block w-96 flex-shrink-0 h-[calc(100vh-4rem)] sticky top-0">
+            <MaterialViewerSidebar onClose={() => setShowMaterial(false)} />
+          </div>
         )}
       </div>
 
-      {isLastQuestion && checkedQuestions.size < questions.length && (
-        <p className="text-center text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
-          Answer all questions to see results
-        </p>
-      )}
-    </div>
+      {/* Mobile/tablet material dialog */}
+      <MaterialViewerDialog 
+        isOpen={showMaterialDialog} 
+        onClose={() => setShowMaterialDialog(false)} 
+      />
+    </>
   );
 }
