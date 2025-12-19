@@ -15,7 +15,7 @@ type QuizMode = "generate" | "import";
 
 export function QuizGenerator() {
   const [, setLocation] = useLocation();
-  const { extractedText, setCurrentQuiz, setIsLoading, isLoading, setLoadingMessage, loadingMessage } = useQuiz();
+  const { extractedText, sourceMaterial, setCurrentQuiz, setIsLoading, isLoading, setLoadingMessage, loadingMessage } = useQuiz();
   const [showFullText, setShowFullText] = useState(false);
   const [questionCount, setQuestionCount] = useState(10);
   const [questionTypes, setQuestionTypes] = useState<QuestionType[]>(["multiple_choice", "true_false"]);
@@ -47,9 +47,10 @@ export function QuizGenerator() {
 
     try {
       const endpoint = mode === "import" ? "/api/import-quiz" : "/api/generate-quiz";
+      const sourceImageUrl = sourceMaterial.type === "image" ? sourceMaterial.imageDataUrl : null;
       const body = mode === "import" 
-        ? { text: extractedText }
-        : { text: extractedText, questionCount, questionTypes, difficulty };
+        ? { text: extractedText, sourceImageUrl }
+        : { text: extractedText, questionCount, questionTypes, difficulty, sourceImageUrl };
 
       const response = await fetch(endpoint, {
         method: "POST",

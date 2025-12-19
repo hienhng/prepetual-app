@@ -12,7 +12,7 @@ import type { Quiz } from "@shared/schema";
 
 export default function HistoryPage() {
   const [, setLocation] = useLocation();
-  const { setCurrentQuiz } = useQuiz();
+  const { setCurrentQuiz, setSourceMaterial } = useQuiz();
   const { toast } = useToast();
 
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
@@ -37,6 +37,11 @@ export default function HistoryPage() {
       ...quiz,
       createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
     } as any);
+    setSourceMaterial({
+      type: quiz.sourceImageUrl ? "image" : null,
+      text: quiz.sourceText,
+      imageDataUrl: quiz.sourceImageUrl || null,
+    });
     setLocation("/quiz");
   };
 
@@ -45,6 +50,11 @@ export default function HistoryPage() {
       ...quiz,
       createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
     } as any);
+    setSourceMaterial({
+      type: quiz.sourceImageUrl ? "image" : null,
+      text: quiz.sourceText,
+      imageDataUrl: quiz.sourceImageUrl || null,
+    });
     setLocation("/study");
   };
 
@@ -53,6 +63,11 @@ export default function HistoryPage() {
       ...quiz,
       createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
     } as any);
+    setSourceMaterial({
+      type: quiz.sourceImageUrl ? "image" : null,
+      text: quiz.sourceText,
+      imageDataUrl: quiz.sourceImageUrl || null,
+    });
     setLocation("/edit-quiz");
   };
 
