@@ -138,6 +138,7 @@ export async function registerRoutes(
       }
 
       const { text, questionCount, questionTypes, difficulty } = validation.data;
+      const { sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
 
       const questions = await generateQuizQuestions({
@@ -153,6 +154,7 @@ export async function registerRoutes(
         userId,
         title,
         sourceText: text,
+        sourceImageUrl: sourceImageUrl || null,
         questions: questions as Question[],
         difficulty: difficulty || "medium",
         isPublic: 0,
@@ -172,7 +174,7 @@ export async function registerRoutes(
 
   app.post("/api/import-quiz", isAuthenticated, async (req: any, res) => {
     try {
-      const { text } = req.body;
+      const { text, sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
       
       if (!text || typeof text !== "string") {
@@ -194,6 +196,7 @@ export async function registerRoutes(
         userId,
         title,
         sourceText: text,
+        sourceImageUrl: sourceImageUrl || null,
         questions: questions as Question[],
         difficulty: "medium",
         isPublic: 0,
