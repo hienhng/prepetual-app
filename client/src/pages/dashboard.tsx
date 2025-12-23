@@ -180,36 +180,40 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
               <Brain className="w-12 h-12 text-primary" />
             </div>
             <motion.div 
-              className="absolute"
-              style={{ 
-                top: "50%", 
-                left: "50%",
-                width: 24,
-                height: 24,
-                marginLeft: -12,
-                marginTop: -12,
-              }}
+              className="absolute inset-0"
+              style={{ transformOrigin: "center center" }}
               variants={{
                 idle: {
-                  x: 55,
-                  y: 0,
-                  scale: 1,
-                  opacity: 1,
+                  rotate: 0,
                 },
                 hover: {
-                  x: [55, 39, 0, -39, -55, -39, 0, 39, 55, 62, 52, 55],
-                  y: [0, -39, -55, -39, 0, 39, 55, 39, 0, 0, 0, 0],
-                  scale: [1, 1.1, 1.2, 1.1, 1, 1.1, 1.2, 1.1, 1, 1.3, 0.9, 1],
-                  opacity: 1,
+                  rotate: 360,
                   transition: {
-                    duration: 0.8,
-                    ease: "easeInOut",
-                    times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.85, 0.92, 1],
+                    duration: 0.6,
+                    ease: [0.42, 0, 0.58, 1],
                   }
                 }
               }}
             >
-              <Sparkles className="w-6 h-6 text-primary" />
+              <motion.div
+                className="absolute"
+                style={{ top: 0, left: "50%", marginLeft: -12 }}
+                variants={{
+                  idle: {
+                    scale: 1,
+                  },
+                  hover: {
+                    scale: [1, 1, 1, 1.3, 0.9, 1],
+                    transition: {
+                      duration: 0.85,
+                      ease: "easeOut",
+                      times: [0, 0.7, 0.75, 0.82, 0.91, 1],
+                    }
+                  }
+                }}
+              >
+                <Sparkles className="w-6 h-6 text-primary" />
+              </motion.div>
             </motion.div>
           </motion.div>
           
