@@ -366,5 +366,99 @@ export async function registerRoutes(
     }
   });
 
+  // Comments endpoints
+  app.get("/api/quiz/:id/comments", async (req, res) => {
+    try {
+      const comments = await storage.getCommentsByQuizId(req.params.id);
+      res.json(comments.map(c => ({
+        ...c,
+        createdAt: c.createdAt.toISOString(),
+      })));
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get comments" });
+    }
+  });
+
+  app.post("/api/quiz/:id/comments", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { content } = req.body;
+      
+      if (!content || content.trim().length === 0) {
+        return res.status(400).json({ message: "Comment content is required" });
+      }
+      
+      const comment = await storage.addComment({
+        quizId: req.params.id,
+        userId,
+        content: content.trim(),
+      });
+      
+      res.json({
+        ...comment,
+        createdAt: comment.createdAt.toISOString(),
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to add comment" });
+    }
+  });
+
+  app.delete("/api/comments/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      await storage.deleteComment(req.params.id, userId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete comment" });
+    }
+  });
+
+  // Votes endpoints
+  app.get("/api/quiz/:id/votes", async (req: any, res) => {
+    try {
+      const votes = await storage.getVotesByQuizId(req.params.id);
+      
+      // Get user's vote if authenticated
+      let userVote: number | null = null;
+      if (req.user?.claims?.sub) {
+        userVote = await storage.getUserVote(req.params.id, req.user.claims.sub);
+      }
+      
+      res.json({ ...votes, userVote });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get votes" });
+    }
+  });
+
+  app.post("/api/quiz/:id/vote", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { voteType } = req.body;
+      
+      if (voteType !== 1 && voteType !== -1) {
+        return res.status(400).json({ message: "Vote type must be 1 (upvote) or -1 (downvote)" });
+      }
+      
+      // Check if user already has this vote type
+      const existingVote = await storage.getUserVote(req.params.id, userId);
+      
+      if (existingVote === voteType) {
+        // Same vote type, remove the vote (toggle off)
+        await storage.removeVote(req.params.id, userId);
+      } else {
+        // Different or no vote, upsert the new vote
+        await storage.upsertVote(req.params.id, userId, voteType);
+      }
+      
+      // Get updated vote counts
+      const votes = await storage.getVotesByQuizId(req.params.id);
+      const userVote = await storage.getUserVote(req.params.id, userId);
+      
+      res.json({ ...votes, userVote });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to vote" });
+    }
+  });
+
   return httpServer;
 }
