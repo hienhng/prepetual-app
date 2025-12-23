@@ -174,17 +174,40 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full transition-all duration-300 group-hover:from-primary/30 group-hover:to-primary/15 group-hover:shadow-lg group-hover:shadow-primary/20" />
+            <motion.div 
+              className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-quiz-purple/20 to-primary/20 rounded-full blur-xl"
+              animate={{ opacity: [0.3, 0.6, 0.3], scale: [0.95, 1.05, 0.95] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full transition-all duration-300 group-hover:from-primary/30 group-hover:to-primary/15"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              style={{ background: "conic-gradient(from 0deg, hsl(var(--primary) / 0.2), hsl(var(--quiz-purple) / 0.1), hsl(var(--primary) / 0.2))" }}
+            />
+            <div className="absolute inset-1 bg-background rounded-full" />
             <div className="absolute inset-4 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full transition-all duration-300 group-hover:from-primary/40 group-hover:to-primary/20" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <Brain className="w-12 h-12 text-primary transition-transform duration-300 group-hover:scale-110" />
+              <motion.div
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Brain className="w-12 h-12 text-primary transition-transform duration-300 group-hover:scale-110" />
+              </motion.div>
             </div>
             <motion.div 
               className="absolute -top-1 -right-1"
-              animate={{ y: [0, -4, 0] }}
+              animate={{ y: [0, -4, 0], rotate: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             >
               <Sparkles className="w-6 h-6 text-primary transition-all duration-300 group-hover:scale-125 group-hover:text-quiz-purple" />
+            </motion.div>
+            <motion.div 
+              className="absolute -bottom-1 -left-1"
+              animate={{ y: [0, 3, 0], rotate: [0, -10, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+            >
+              <Sparkles className="w-4 h-4 text-quiz-purple/70 transition-all duration-300 group-hover:scale-125 group-hover:text-primary" />
             </motion.div>
           </motion.div>
           
