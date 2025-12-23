@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { queryClient } from "@/lib/queryClient";
+import { ThemeToggle } from "@/components/theme-toggle";
 import logoImage from "@assets/image_1765894870887.png";
 
 const mainNavItems = [
@@ -104,16 +105,23 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-3">
-        <Link href="/dashboard" className="flex items-center gap-2 justify-center" onClick={handleNavClick}>
-          <img 
-            src={logoImage} 
-            alt="Prepetual Logo" 
-            className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0"
-          />
+        <div className="flex items-center justify-between gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNavClick}>
+            <img 
+              src={logoImage} 
+              alt="Prepetual Logo" 
+              className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0"
+            />
+            {!isCollapsed && (
+              <span className="text-lg font-brand text-foreground whitespace-nowrap">Prepetual</span>
+            )}
+          </Link>
           {!isCollapsed && (
-            <span className="text-lg font-brand text-foreground whitespace-nowrap">Prepetual</span>
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
           )}
-        </Link>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>

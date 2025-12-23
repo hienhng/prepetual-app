@@ -136,7 +136,7 @@ function AuthenticatedHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
+    <header className="sticky top-0 z-40 flex md:hidden h-14 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
       <SidebarTrigger data-testid="button-sidebar-toggle" />
       <div className="flex-1">
         <h1 className="text-lg font-semibold">{getPageTitle()}</h1>
@@ -145,7 +145,7 @@ function AuthenticatedHeader() {
         <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full md:hidden" data-testid="button-user-menu-mobile">
+            <Button variant="ghost" size="icon" className="rounded-full" data-testid="button-user-menu-mobile">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} className="object-cover" />
                 <AvatarFallback>{getInitials()}</AvatarFallback>
