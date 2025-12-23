@@ -191,21 +191,19 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
               }}
               variants={{
                 idle: {
-                  x: 50,
-                  y: -20,
-                  scale: 1.1,
+                  x: 55,
+                  y: 0,
+                  scale: 1,
                   opacity: 1,
-                  zIndex: 20,
                 },
                 hover: {
-                  x: [50, 0, -50, 0, 50],
-                  y: [-20, -10, 20, 10, -20],
-                  scale: [1.1, 0.7, 0.6, 0.7, 1.1],
-                  opacity: [1, 0.5, 0.4, 0.5, 1],
-                  zIndex: [20, 5, 5, 5, 20],
+                  x: [55, 0, -55, 0, 55],
+                  y: [0, -55, 0, 55, 0],
+                  scale: 1.2,
+                  opacity: 1,
                   transition: {
-                    duration: 0.5,
-                    ease: "easeInOut",
+                    duration: 0.6,
+                    ease: "linear",
                     times: [0, 0.25, 0.5, 0.75, 1],
                   }
                 }
