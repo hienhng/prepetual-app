@@ -169,8 +169,9 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
           className="text-center max-w-md mx-auto"
         >
           <motion.div 
-            className="relative w-32 h-32 mx-auto mb-8"
+            className="relative w-32 h-32 mx-auto mb-8 group cursor-pointer"
             animate={floatAnimation}
+            whileHover="hover"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full" />
             <div className="absolute inset-4 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full" />
@@ -178,9 +179,38 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
               <Brain className="w-12 h-12 text-primary" />
             </div>
             <motion.div 
-              className="absolute -top-2 -right-2"
-              animate={{ scale: [1, 1.2, 1], rotate: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute"
+              style={{ 
+                top: "50%", 
+                left: "50%",
+                width: 24,
+                height: 24,
+                marginLeft: -12,
+                marginTop: -12,
+              }}
+              animate={{ 
+                rotate: 0,
+                x: 56,
+                y: -56,
+                scale: [1, 1.2, 1],
+              }}
+              variants={{
+                hover: {
+                  rotate: [0, 360],
+                  x: [56, 0, -56, 0, 56],
+                  y: [-56, -70, 0, 70, -56],
+                  scale: 1.3,
+                  transition: {
+                    rotate: { duration: 0.8, ease: "linear", repeat: Infinity },
+                    x: { duration: 0.8, ease: "easeInOut", repeat: Infinity },
+                    y: { duration: 0.8, ease: "easeInOut", repeat: Infinity },
+                    scale: { duration: 0.2 },
+                  }
+                }
+              }}
+              transition={{ 
+                scale: { duration: 2, repeat: Infinity },
+              }}
             >
               <Sparkles className="w-6 h-6 text-primary" />
             </motion.div>

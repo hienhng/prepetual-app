@@ -11,7 +11,9 @@ import {
   User,
   Globe,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  PanelRight,
+
 } from "lucide-react";
 import {
   Sidebar,
@@ -47,7 +49,7 @@ const mainNavItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Create Quiz",
+    title: "Create",
     url: "/create",
     icon: Plus,
   },
@@ -117,7 +119,7 @@ export function AppSidebar() {
                 alt="Expand Sidebar" 
                 className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0 group-hover:hidden"
               />
-              <ChevronsRight className="h-4 w-4 hidden group-hover:block" />
+              <PanelRight className="h-4 w-4 hidden group-hover:block" />
             </button>
           ) : (
             <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNavClick}>
@@ -137,7 +139,7 @@ export function AppSidebar() {
               className="hidden md:flex"
               data-testid="sidebar-collapse-toggle"
             >
-              <ChevronsLeft className="h-4 w-4" />
+              <PanelRight className="h-4 w-4" />
             </Button>
           )}
         </div>
