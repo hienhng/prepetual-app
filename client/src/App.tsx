@@ -8,7 +8,7 @@ import { AuthDialogProvider, useAuthDialog } from "@/lib/auth-context";
 import { LoginDialog, SignUpDialog } from "@/components/auth-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
-import { Archive, LogIn, LogOut, User } from "lucide-react";
+import { Archive, LayoutDashboard, LogIn, LogOut, User } from "lucide-react";
 import logoImage from "@assets/image_1765894870887.png";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { VerificationPrompt } from "@/components/verification-prompt";
 import Home from "@/pages/home";
+import Dashboard from "@/pages/dashboard";
 import Generate from "@/pages/generate";
 import Quiz from "@/pages/quiz";
 import Results from "@/pages/results";
@@ -42,6 +43,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/verify-email" component={VerifyEmailPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
@@ -88,12 +90,20 @@ function Header() {
         </Link>
         <div className="flex items-center gap-1 sm:gap-2">
           {isAuthenticated && (
-            <Link href="/history">
-              <Button variant="ghost" size="icon" className="sm:w-auto sm:px-3" data-testid="link-history">
-                <Archive className="h-4 w-4 sm:mr-1" />
-                <span className="hidden sm:inline">Archive</span>
-              </Button>
-            </Link>
+            <>
+              <Link href="/dashboard">
+                <Button variant="ghost" size="icon" className="sm:w-auto sm:px-3" data-testid="link-dashboard">
+                  <LayoutDashboard className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Dashboard</span>
+                </Button>
+              </Link>
+              <Link href="/history">
+                <Button variant="ghost" size="icon" className="sm:w-auto sm:px-3" data-testid="link-history">
+                  <Archive className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Archive</span>
+                </Button>
+              </Link>
+            </>
           )}
           <ThemeToggle />
           {!isLoading && (
@@ -163,7 +173,7 @@ function AuthDialogContainer() {
 function AppContent() {
   const { user, isAuthenticated } = useAuth();
   const [location] = useLocation();
-  const showFooter = location === "/" || location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
+  const showFooter = location === "/" || location === "/dashboard" || location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
 
   return (
     <>
