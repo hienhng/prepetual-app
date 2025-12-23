@@ -42,7 +42,30 @@ import Contact from "@/pages/contact";
 import NotFound from "@/pages/not-found";
 import { Footer } from "@/components/footer";
 
-function Router() {
+function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const { openLoginDialog } = useAuthDialog();
+  const [, setLocation] = useLocation();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    // Redirect to home and open login dialog
+    setLocation("/");
+    setTimeout(() => openLoginDialog(), 100);
+    return null;
+  }
+
+  return <Component />;
+}
+
+function AuthenticatedRouter() {
   return (
     <Switch>
       <Route path="/" component={Home} />
@@ -63,6 +86,35 @@ function Router() {
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
+
+function PublicRouter() {
+  return (
+    <Switch>
+      {/* Public pages accessible to guests */}
+      <Route path="/" component={Home} />
+      <Route path="/terms" component={TermsOfService} />
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/share/:id" component={Share} />
+      {/* Auth flow pages */}
+      <Route path="/verify-email" component={VerifyEmailPage} />
+      <Route path="/reset-password" component={ResetPasswordPage} />
+      <Route path="/forgot-password" component={ForgotPasswordPage} />
+      {/* Protected pages - redirect to home with login prompt */}
+      <Route path="/dashboard">{() => <ProtectedRoute component={Dashboard} />}</Route>
+      <Route path="/create">{() => <ProtectedRoute component={Create} />}</Route>
+      <Route path="/feed">{() => <ProtectedRoute component={Feed} />}</Route>
+      <Route path="/generate">{() => <ProtectedRoute component={Generate} />}</Route>
+      <Route path="/quiz">{() => <ProtectedRoute component={Quiz} />}</Route>
+      <Route path="/results">{() => <ProtectedRoute component={Results} />}</Route>
+      <Route path="/history">{() => <ProtectedRoute component={HistoryPage} />}</Route>
+      <Route path="/study">{() => <ProtectedRoute component={Study} />}</Route>
+      <Route path="/edit-quiz">{() => <ProtectedRoute component={EditQuiz} />}</Route>
       <Route component={NotFound} />
     </Switch>
   );
@@ -211,7 +263,7 @@ function AuthenticatedLayout() {
           <SidebarInset className="flex flex-col flex-1">
             <AuthenticatedHeader />
             <main className="flex-1">
-              <Router />
+              <AuthenticatedRouter />
             </main>
             {showFooter && <Footer />}
           </SidebarInset>
@@ -232,7 +284,7 @@ function PublicLayout() {
     <div className="min-h-screen flex flex-col pt-16">
       <PublicHeader />
       <main className="flex-1">
-        <Router />
+        <PublicRouter />
       </main>
       {showFooter && <Footer />}
     </div>
