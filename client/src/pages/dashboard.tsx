@@ -373,7 +373,7 @@ export default function Dashboard() {
               </p>
             </div>
             {hasQuizzes && (
-              <Button onClick={() => setLocation("/")} data-testid="button-create-new">
+              <Button onClick={() => setLocation("/create")} data-testid="button-create-new">
                 <Plus className="w-4 h-4 mr-2" />
                 New Quiz
               </Button>
@@ -422,7 +422,7 @@ export default function Dashboard() {
                 title="Create New Quiz"
                 description="Upload materials and generate questions"
                 icon={Plus}
-                onClick={() => setLocation("/")}
+                onClick={() => setLocation("/create")}
                 variant="primary"
                 testId="card-create-quiz"
               />
@@ -456,7 +456,7 @@ export default function Dashboard() {
           )}
 
           {!hasQuizzes ? (
-            <EmptyState onCreateQuiz={() => setLocation("/")} />
+            <EmptyState onCreateQuiz={() => setLocation("/create")} />
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {recentQuizzes.map((quiz, index) => (

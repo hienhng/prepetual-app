@@ -43,7 +43,7 @@ const mainNavItems = [
   },
   {
     title: "Create Quiz",
-    url: "/",
+    url: "/create",
     icon: Plus,
   },
   {
