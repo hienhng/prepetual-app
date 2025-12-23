@@ -394,9 +394,17 @@ export async function registerRoutes(
         content: content.trim(),
       });
       
+      // Get user info for the response
+      const user = await storage.getUser(userId);
+      
       res.json({
         ...comment,
         createdAt: comment.createdAt.toISOString(),
+        author: {
+          firstName: user?.firstName || null,
+          lastName: user?.lastName || null,
+          profileImageUrl: user?.profileImageUrl || null,
+        },
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to add comment" });
