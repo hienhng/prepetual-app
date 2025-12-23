@@ -9,7 +9,9 @@ import {
   Mail,
   LogOut,
   User,
-  Globe
+  Globe,
+  ChevronsLeft,
+  ChevronsRight
 } from "lucide-react";
 import {
   Sidebar,
@@ -23,6 +25,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -75,7 +78,8 @@ const infoNavItems = [
 export function AppSidebar() {
   const [location] = useLocation();
   const { user } = useAuth();
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile, state, toggleSidebar } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
   const getInitials = () => {
     if (user?.firstName && user?.lastName) {
@@ -98,15 +102,17 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar>
-      <SidebarHeader className="p-4">
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="p-3">
         <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNavClick}>
           <img 
             src={logoImage} 
             alt="Prepetual Logo" 
-            className="w-8 h-8 rounded-full object-cover"
+            className="w-8 h-8 rounded-full object-cover flex-shrink-0"
           />
-          <span className="text-lg font-brand text-foreground">Prepetual</span>
+          {!isCollapsed && (
+            <span className="text-lg font-brand text-foreground">Prepetual</span>
+          )}
         </Link>
       </SidebarHeader>
 
@@ -156,20 +162,40 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-3 space-y-2">
+        {/* Collapse/Expand Button - Desktop only */}
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={toggleSidebar}
+          className="w-full justify-center hidden md:flex"
+          data-testid="sidebar-collapse-toggle"
+        >
+          {isCollapsed ? (
+            <ChevronsRight className="h-4 w-4" />
+          ) : (
+            <>
+              <ChevronsLeft className="h-4 w-4 mr-2" />
+              <span>Collapse</span>
+            </>
+          )}
+        </Button>
+        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start gap-2 px-2" data-testid="sidebar-user-menu">
-              <Avatar className="h-8 w-8">
+            <Button variant="ghost" className={`w-full gap-2 ${isCollapsed ? 'justify-center px-0' : 'justify-start px-2'}`} data-testid="sidebar-user-menu">
+              <Avatar className="h-8 w-8 flex-shrink-0">
                 <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} className="object-cover" />
                 <AvatarFallback>{getInitials()}</AvatarFallback>
               </Avatar>
-              <div className="flex-1 text-left overflow-hidden">
-                <p className="text-sm font-medium truncate">
-                  {user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'User'}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-              </div>
+              {!isCollapsed && (
+                <div className="flex-1 text-left overflow-hidden">
+                  <p className="text-sm font-medium truncate">
+                    {user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'User'}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
