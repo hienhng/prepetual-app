@@ -196,7 +196,6 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
                   scale: 1.1,
                   opacity: 1,
                   zIndex: 20,
-                  transition: { duration: 0.3 }
                 },
                 hover: {
                   x: [50, 0, -50, 0, 50],
@@ -205,9 +204,8 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
                   opacity: [1, 0.5, 0.4, 0.5, 1],
                   zIndex: [20, 5, 5, 5, 20],
                   transition: {
-                    duration: 0.7,
-                    ease: "linear",
-                    repeat: Infinity,
+                    duration: 0.5,
+                    ease: "easeInOut",
                     times: [0, 0.25, 0.5, 0.75, 1],
                   }
                 }
