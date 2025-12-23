@@ -348,7 +348,7 @@ export default function Dashboard() {
     return "Good evening";
   };
 
-  const firstName = user?.firstName || "there";
+  
 
   return (
     <div className="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
@@ -363,7 +363,7 @@ export default function Dashboard() {
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
-                {getGreeting()}, {firstName}
+                {getGreeting()}
               </h1>
               <p className="text-muted-foreground">
                 {hasQuizzes 

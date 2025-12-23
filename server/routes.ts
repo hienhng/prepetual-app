@@ -354,5 +354,17 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/public-quizzes", async (req, res) => {
+    try {
+      const publicQuizzes = await storage.getPublicQuizzes();
+      res.json(publicQuizzes.map(q => ({
+        ...q,
+        createdAt: q.createdAt.toISOString(),
+      })));
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get public quizzes" });
+    }
+  });
+
   return httpServer;
 }

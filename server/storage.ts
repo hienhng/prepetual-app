@@ -30,6 +30,7 @@ export interface IStorage {
   getQuiz(id: string): Promise<Quiz | undefined>;
   getAllQuizzes(): Promise<Quiz[]>;
   getQuizzesByUserId(userId: string): Promise<Quiz[]>;
+  getPublicQuizzes(): Promise<(Quiz & { author?: { firstName: string | null; lastName: string | null; profileImageUrl: string | null } })[]>;
   updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined>;
   deleteQuiz(id: string): Promise<boolean>;
   saveQuizResult(result: InsertQuizResult): Promise<QuizResult>;
@@ -138,6 +139,27 @@ export class DatabaseStorage implements IStorage {
 
   async getQuizzesByUserId(userId: string): Promise<Quiz[]> {
     return await db.select().from(quizzes).where(eq(quizzes.userId, userId)).orderBy(desc(quizzes.createdAt));
+  }
+
+  async getPublicQuizzes(): Promise<(Quiz & { author?: { firstName: string | null; lastName: string | null; profileImageUrl: string | null } })[]> {
+    const results = await db
+      .select({
+        quiz: quizzes,
+        author: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl,
+        },
+      })
+      .from(quizzes)
+      .leftJoin(users, eq(quizzes.userId, users.id))
+      .where(eq(quizzes.isPublic, 1))
+      .orderBy(desc(quizzes.createdAt));
+    
+    return results.map(r => ({
+      ...r.quiz,
+      author: r.author || undefined,
+    }));
   }
 
   async updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined> {
