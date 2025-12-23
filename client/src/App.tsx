@@ -24,6 +24,7 @@ import { VerificationPrompt } from "@/components/verification-prompt";
 import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
 import Create from "@/pages/create";
+import Feed from "@/pages/feed";
 import Generate from "@/pages/generate";
 import Quiz from "@/pages/quiz";
 import Results from "@/pages/results";
@@ -47,6 +48,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/create" component={Create} />
+      <Route path="/feed" component={Feed} />
       <Route path="/verify-email" component={VerifyEmailPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
@@ -117,6 +119,7 @@ function AuthenticatedHeader() {
     switch (location) {
       case "/": return "Home";
       case "/create": return "Create Quiz";
+      case "/feed": return "Community Feed";
       case "/dashboard": return "Dashboard";
       case "/history": return "Archive";
       case "/generate": return "Generate Quiz";

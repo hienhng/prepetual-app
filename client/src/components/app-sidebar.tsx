@@ -8,7 +8,8 @@ import {
   Info,
   Mail,
   LogOut,
-  User
+  User,
+  Globe
 } from "lucide-react";
 import {
   Sidebar,
@@ -50,6 +51,11 @@ const mainNavItems = [
     title: "Archive",
     url: "/history",
     icon: Archive,
+  },
+  {
+    title: "Community",
+    url: "/feed",
+    icon: Globe,
   },
 ];
 
