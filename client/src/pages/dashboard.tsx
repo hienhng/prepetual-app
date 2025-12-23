@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -13,6 +14,24 @@ import { Progress } from "@/components/ui/progress";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import type { Quiz } from "@shared/schema";
+
+const learningTips = [
+  "Spaced repetition helps you remember better. Try reviewing your quizzes at increasing intervals for maximum retention.",
+  "Teaching others what you've learned is one of the best ways to reinforce your own understanding.",
+  "Taking breaks between study sessions helps your brain consolidate information more effectively.",
+  "Active recall (testing yourself) is more effective than passive review. Keep taking those quizzes!",
+  "Getting enough sleep is crucial for memory consolidation. Your brain processes what you learned while you rest.",
+  "Mix up different topics in your study sessions. Interleaving subjects can improve long-term retention.",
+  "Write down key concepts by hand. The physical act of writing helps cement information in memory.",
+  "Create mental associations or stories to connect new information with what you already know.",
+  "Study in short, focused bursts of 25-30 minutes, then take a 5-minute break. This is called the Pomodoro Technique.",
+  "Challenge yourself with harder questions. Struggling a bit helps you learn more deeply.",
+  "Review material right before sleep. Your brain will continue processing it overnight.",
+  "Explain concepts in your own words. If you can't simplify it, you don't understand it well enough yet.",
+  "Stay hydrated and maintain good nutrition. Your brain needs proper fuel to learn effectively.",
+  "Test yourself before you think you're ready. Making mistakes early helps identify gaps in your knowledge.",
+  "Connect new concepts to real-world examples. Practical applications make abstract ideas stick better.",
+];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -290,6 +309,32 @@ function QuizCard({
   );
 }
 
+function LearningTipCard() {
+  const randomTip = useMemo(() => {
+    return learningTips[Math.floor(Math.random() * learningTips.length)];
+  }, []);
+
+  return (
+    <motion.section variants={itemVariants}>
+      <Card className="overflow-visible bg-gradient-to-r from-primary/5 via-transparent to-primary/5 border-primary/10">
+        <CardContent className="p-5">
+          <div className="flex items-start gap-4">
+            <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+              <Lightbulb className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-medium text-foreground mb-1">Learning Tip</h3>
+              <p className="text-sm text-muted-foreground">
+                {randomTip}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.section>
+  );
+}
+
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial } = useQuiz();
@@ -473,25 +518,7 @@ export default function Dashboard() {
         </motion.section>
 
         {/* Learning Tip */}
-        {hasQuizzes && (
-          <motion.section variants={itemVariants}>
-            <Card className="overflow-visible bg-gradient-to-r from-primary/5 via-transparent to-primary/5 border-primary/10">
-              <CardContent className="p-5">
-                <div className="flex items-start gap-4">
-                  <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
-                    <Lightbulb className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-foreground mb-1">Learning Tip</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Spaced repetition helps you remember better. Try reviewing your quizzes at increasing intervals for maximum retention.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.section>
-        )}
+        {hasQuizzes && <LearningTipCard />}
       </motion.div>
     </div>
   );
