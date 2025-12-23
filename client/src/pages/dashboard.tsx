@@ -179,9 +179,13 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
             <div className="absolute inset-0 flex items-center justify-center">
               <Brain className="w-12 h-12 text-primary transition-transform duration-300 group-hover:scale-110" />
             </div>
-            <div className="absolute -top-1 -right-1">
+            <motion.div 
+              className="absolute -top-1 -right-1"
+              animate={{ y: [0, -4, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
               <Sparkles className="w-6 h-6 text-primary transition-all duration-300 group-hover:scale-125 group-hover:text-quiz-purple" />
-            </div>
+            </motion.div>
           </motion.div>
           
           <h3 className="text-2xl font-bold text-foreground mb-3">
