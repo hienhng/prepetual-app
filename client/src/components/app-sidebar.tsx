@@ -104,14 +104,14 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-3">
-        <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNavClick}>
+        <Link href="/dashboard" className="flex items-center gap-2 justify-center" onClick={handleNavClick}>
           <img 
             src={logoImage} 
             alt="Prepetual Logo" 
-            className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+            className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0"
           />
           {!isCollapsed && (
-            <span className="text-lg font-brand text-foreground">Prepetual</span>
+            <span className="text-lg font-brand text-foreground whitespace-nowrap">Prepetual</span>
           )}
         </Link>
       </SidebarHeader>
