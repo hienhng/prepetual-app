@@ -106,16 +106,28 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-3">
         <div className={`flex items-center gap-2 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
-          <Link href="/dashboard" className={`flex items-center gap-2 ${isCollapsed ? 'justify-center' : ''}`} onClick={handleNavClick}>
-            <img 
-              src={logoImage} 
-              alt="Prepetual Logo" 
-              className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0"
-            />
-            {!isCollapsed && (
+          {isCollapsed ? (
+            <button
+              onClick={toggleSidebar}
+              className="hidden md:flex items-center justify-center cursor-pointer"
+              data-testid="sidebar-expand-logo"
+            >
+              <img 
+                src={logoImage} 
+                alt="Expand Sidebar" 
+                className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0 hover:opacity-80 transition-opacity"
+              />
+            </button>
+          ) : (
+            <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNavClick}>
+              <img 
+                src={logoImage} 
+                alt="Prepetual Logo" 
+                className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0"
+              />
               <span className="text-lg font-brand text-foreground whitespace-nowrap">Prepetual</span>
-            )}
-          </Link>
+            </Link>
+          )}
           {!isCollapsed && (
             <Button 
               variant="ghost" 
@@ -211,18 +223,6 @@ export function AppSidebar() {
             <div className="hidden md:block">
               <ThemeToggle />
             </div>
-          )}
-          
-          {isCollapsed && (
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={toggleSidebar}
-              className="hidden md:flex"
-              data-testid="sidebar-expand-toggle"
-            >
-              <ChevronsRight className="h-4 w-4" />
-            </Button>
           )}
         </div>
       </SidebarFooter>
