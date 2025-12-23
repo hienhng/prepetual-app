@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
@@ -6,16 +5,6 @@ import { History, Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { useQuiz } from "@/lib/quiz-context";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -25,10 +14,6 @@ export default function HistoryPage() {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial } = useQuiz();
   const { toast } = useToast();
-  
-  const [shareDialogOpen, setShareDialogOpen] = useState(false);
-  const [shareNote, setShareNote] = useState("");
-  const [quizToShare, setQuizToShare] = useState<Quiz | null>(null);
 
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
     queryKey: ["/api/quizzes"],
@@ -47,16 +32,13 @@ export default function HistoryPage() {
     },
   });
 
-  const shareToFeedMutation = useMutation({
-    mutationFn: async ({ quizId, isPublic, shareNote }: { quizId: string; isPublic: boolean; shareNote?: string }) => {
-      return apiRequest("PUT", `/api/quiz/${quizId}`, { isPublic, shareNote });
+  const togglePublicMutation = useMutation({
+    mutationFn: async ({ quizId, isPublic }: { quizId: string; isPublic: boolean }) => {
+      return apiRequest("PUT", `/api/quiz/${quizId}`, { isPublic });
     },
     onSuccess: (_, { isPublic }) => {
       queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
       queryClient.invalidateQueries({ queryKey: ["/api/public-quizzes"] });
-      setShareDialogOpen(false);
-      setShareNote("");
-      setQuizToShare(null);
       toast({ 
         title: isPublic ? "Quiz shared" : "Quiz hidden", 
         description: isPublic 
@@ -68,26 +50,6 @@ export default function HistoryPage() {
       toast({ title: "Error", description: "Failed to update quiz visibility", variant: "destructive" });
     },
   });
-
-  const openShareDialog = (quiz: Quiz) => {
-    setQuizToShare(quiz);
-    setShareNote(quiz.shareNote || "");
-    setShareDialogOpen(true);
-  };
-
-  const handleShareSubmit = () => {
-    if (quizToShare) {
-      shareToFeedMutation.mutate({ 
-        quizId: quizToShare.id, 
-        isPublic: true, 
-        shareNote: shareNote.trim() || undefined 
-      });
-    }
-  };
-
-  const handleMakePrivate = (quizId: string) => {
-    shareToFeedMutation.mutate({ quizId, isPublic: false });
-  };
 
   const handleRetake = (quiz: Quiz) => {
     setCurrentQuiz({
@@ -262,8 +224,11 @@ export default function HistoryPage() {
                         <Button
                           size="icon"
                           variant="ghost"
-                          onClick={() => quiz.isPublic === 1 ? handleMakePrivate(quiz.id) : openShareDialog(quiz)}
-                          disabled={shareToFeedMutation.isPending}
+                          onClick={() => togglePublicMutation.mutate({ 
+                            quizId: quiz.id, 
+                            isPublic: quiz.isPublic !== 1 
+                          })}
+                          disabled={togglePublicMutation.isPending}
                           data-testid={`button-toggle-public-${quiz.id}`}
                           title={quiz.isPublic === 1 ? "Make private" : "Share to community"}
                         >
@@ -299,61 +264,6 @@ export default function HistoryPage() {
           </div>
         )}
       </motion.div>
-
-      {/* Share to Community Dialog */}
-      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Share to Community</DialogTitle>
-            <DialogDescription>
-              Add a note to share with your quiz. This will be visible to others in the community feed.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="share-note">Your message (optional)</Label>
-              <Textarea
-                id="share-note"
-                placeholder="Tell others about this quiz..."
-                value={shareNote}
-                onChange={(e) => setShareNote(e.target.value)}
-                rows={4}
-                data-testid="input-share-note"
-              />
-            </div>
-            {quizToShare && (
-              <div className="p-3 bg-muted rounded-md">
-                <p className="text-sm font-medium">{quizToShare.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {(quizToShare.questions as any[]).length} questions
-                </p>
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShareDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleShareSubmit} 
-              disabled={shareToFeedMutation.isPending}
-              data-testid="button-confirm-share"
-            >
-              {shareToFeedMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Sharing...
-                </>
-              ) : (
-                <>
-                  <Globe className="h-4 w-4 mr-2" />
-                  Share to Feed
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
