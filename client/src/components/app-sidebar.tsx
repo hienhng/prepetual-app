@@ -107,17 +107,15 @@ export function AppSidebar() {
       <SidebarHeader className="p-3">
         <div className={`flex items-center gap-2 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
           {isCollapsed ? (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={toggleSidebar}
-              className="hidden md:flex items-center justify-center cursor-pointer"
-              data-testid="sidebar-expand-logo"
+              className="hidden md:flex"
+              data-testid="sidebar-expand-toggle"
             >
-              <img 
-                src={logoImage} 
-                alt="Expand Sidebar" 
-                className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0 hover:opacity-80 transition-opacity"
-              />
-            </button>
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
           ) : (
             <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNavClick}>
               <img 
