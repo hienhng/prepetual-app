@@ -117,9 +117,15 @@ export function AppSidebar() {
             )}
           </Link>
           {!isCollapsed && (
-            <div className="hidden md:block">
-              <ThemeToggle />
-            </div>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={toggleSidebar}
+              className="hidden md:flex"
+              data-testid="sidebar-collapse-toggle"
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </Button>
           )}
         </div>
       </SidebarHeader>
@@ -171,52 +177,54 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3 space-y-2">
-        {/* Collapse/Expand Button - Desktop only */}
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={toggleSidebar}
-          className="w-full justify-center hidden md:flex"
-          data-testid="sidebar-collapse-toggle"
-        >
-          {isCollapsed ? (
-            <ChevronsRight className="h-4 w-4" />
-          ) : (
-            <>
-              <ChevronsLeft className="h-4 w-4 mr-2" />
-              <span>Collapse</span>
-            </>
+        <div className={`flex items-center gap-2 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className={`gap-2 ${isCollapsed ? 'justify-center px-0' : 'justify-start px-2 flex-1'}`} data-testid="sidebar-user-menu">
+                <Avatar className="h-8 w-8 flex-shrink-0">
+                  <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} className="object-cover" />
+                  <AvatarFallback>{getInitials()}</AvatarFallback>
+                </Avatar>
+                {!isCollapsed && (
+                  <div className="flex-1 text-left overflow-hidden">
+                    <p className="text-sm font-medium truncate">
+                      {user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'User'}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuItem className="text-muted-foreground" disabled>
+                <User className="h-4 w-4 mr-2" />
+                {user?.email || "User"}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} data-testid="sidebar-logout">
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          {!isCollapsed && (
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
           )}
-        </Button>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className={`w-full gap-2 ${isCollapsed ? 'justify-center px-0' : 'justify-start px-2'}`} data-testid="sidebar-user-menu">
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} className="object-cover" />
-                <AvatarFallback>{getInitials()}</AvatarFallback>
-              </Avatar>
-              {!isCollapsed && (
-                <div className="flex-1 text-left overflow-hidden">
-                  <p className="text-sm font-medium truncate">
-                    {user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'User'}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                </div>
-              )}
+          
+          {isCollapsed && (
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={toggleSidebar}
+              className="hidden md:flex"
+              data-testid="sidebar-expand-toggle"
+            >
+              <ChevronsRight className="h-4 w-4" />
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuItem className="text-muted-foreground" disabled>
-              <User className="h-4 w-4 mr-2" />
-              {user?.email || "User"}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleLogout} data-testid="sidebar-logout">
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          )}
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
