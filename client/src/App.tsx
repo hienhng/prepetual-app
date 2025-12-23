@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, useLocation, Link } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,9 +8,8 @@ import { AuthDialogProvider, useAuthDialog } from "@/lib/auth-context";
 import { LoginDialog, SignUpDialog } from "@/components/auth-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
-import { Archive, LayoutDashboard, LogIn, LogOut, User } from "lucide-react";
+import { LogIn, LogOut, User, Menu } from "lucide-react";
 import logoImage from "@assets/image_1765894870887.png";
-import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -19,6 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 import { VerificationPrompt } from "@/components/verification-prompt";
 import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
@@ -63,19 +64,9 @@ function Router() {
   );
 }
 
-function Header() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+function PublicHeader() {
+  const { isLoading } = useAuth();
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
-
-  const getInitials = () => {
-    if (user?.firstName && user?.lastName) {
-      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
-    }
-    if (user?.email) {
-      return user.email[0].toUpperCase();
-    }
-    return "U";
-  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -88,65 +79,91 @@ function Header() {
           />
           <span className="text-xl font-brand text-foreground">Prepetual</span>
         </Link>
-        <div className="flex items-center gap-1 sm:gap-2">
-          {isAuthenticated && (
-            <>
-              <Link href="/dashboard">
-                <Button variant="ghost" size="icon" className="sm:w-auto sm:px-3" data-testid="link-dashboard">
-                  <LayoutDashboard className="h-4 w-4 sm:mr-1" />
-                  <span className="hidden sm:inline">Dashboard</span>
-                </Button>
-              </Link>
-              <Link href="/history">
-                <Button variant="ghost" size="icon" className="sm:w-auto sm:px-3" data-testid="link-history">
-                  <Archive className="h-4 w-4 sm:mr-1" />
-                  <span className="hidden sm:inline">Archive</span>
-                </Button>
-              </Link>
-            </>
-          )}
+        <div className="flex items-center gap-2">
           <ThemeToggle />
           {!isLoading && (
-            isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full" data-testid="button-user-menu">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} className="object-cover" />
-                      <AvatarFallback>{getInitials()}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem className="text-muted-foreground" disabled>
-                    <User className="h-4 w-4 mr-2" />
-                    {user?.email || "User"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={async () => {
-                      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-                      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-                      window.location.href = "/";
-                    }}
-                    data-testid="button-logout"
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" onClick={openLoginDialog} className="px-2 sm:px-3" data-testid="button-login">
-                  Log in
-                </Button>
-                <Button variant="default" size="sm" onClick={openSignUpDialog} className="px-2 sm:px-3" data-testid="button-signup">
-                  Sign up
-                </Button>
-              </>
-            )
+            <>
+              <Button variant="ghost" onClick={openLoginDialog} data-testid="button-login">
+                Log in
+              </Button>
+              <Button variant="default" onClick={openSignUpDialog} data-testid="button-signup">
+                Sign up
+              </Button>
+            </>
           )}
         </div>
+      </div>
+    </header>
+  );
+}
+
+function AuthenticatedHeader() {
+  const { user } = useAuth();
+  const [location] = useLocation();
+
+  const getInitials = () => {
+    if (user?.firstName && user?.lastName) {
+      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    }
+    if (user?.email) {
+      return user.email[0].toUpperCase();
+    }
+    return "U";
+  };
+
+  const getPageTitle = () => {
+    switch (location) {
+      case "/": return "Create Quiz";
+      case "/dashboard": return "Dashboard";
+      case "/history": return "Archive";
+      case "/generate": return "Generate Quiz";
+      case "/quiz": return "Quiz";
+      case "/results": return "Results";
+      case "/study": return "Study Mode";
+      case "/edit-quiz": return "Edit Quiz";
+      case "/about": return "About";
+      case "/contact": return "Contact";
+      case "/terms": return "Terms of Service";
+      case "/privacy": return "Privacy Policy";
+      default: return "Prepetual";
+    }
+  };
+
+  return (
+    <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
+      <SidebarTrigger data-testid="button-sidebar-toggle" />
+      <div className="flex-1">
+        <h1 className="text-lg font-semibold">{getPageTitle()}</h1>
+      </div>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full md:hidden" data-testid="button-user-menu-mobile">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} className="object-cover" />
+                <AvatarFallback>{getInitials()}</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem className="text-muted-foreground" disabled>
+              <User className="h-4 w-4 mr-2" />
+              {user?.email || "User"}
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={async () => {
+                await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+                queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+                window.location.href = "/";
+              }}
+              data-testid="button-logout-mobile"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
@@ -170,23 +187,66 @@ function AuthDialogContainer() {
   );
 }
 
-function AppContent() {
-  const { user, isAuthenticated } = useAuth();
+function AuthenticatedLayout() {
+  const { user } = useAuth();
   const [location] = useLocation();
   const showFooter = location === "/" || location === "/dashboard" || location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
 
+  const sidebarStyle = {
+    "--sidebar-width": "16rem",
+    "--sidebar-width-icon": "3rem",
+  } as React.CSSProperties;
+
   return (
     <>
-      <div className="min-h-screen flex flex-col pt-16">
-        <Header />
-        <main className="flex-1">
-          <Router />
-        </main>
-        {showFooter && <Footer />}
-      </div>
-      {isAuthenticated && user && !user.emailVerified && (
+      <SidebarProvider style={sidebarStyle}>
+        <div className="flex min-h-screen w-full">
+          <AppSidebar />
+          <SidebarInset className="flex flex-col flex-1">
+            <AuthenticatedHeader />
+            <main className="flex-1">
+              <Router />
+            </main>
+            {showFooter && <Footer />}
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+      {user && !user.emailVerified && (
         <VerificationPrompt email={user.email} open={true} />
       )}
+    </>
+  );
+}
+
+function PublicLayout() {
+  const [location] = useLocation();
+  const showFooter = location === "/" || location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
+
+  return (
+    <div className="min-h-screen flex flex-col pt-16">
+      <PublicHeader />
+      <main className="flex-1">
+        <Router />
+      </main>
+      {showFooter && <Footer />}
+    </div>
+  );
+}
+
+function AppContent() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {isAuthenticated ? <AuthenticatedLayout /> : <PublicLayout />}
       <AuthDialogContainer />
     </>
   );
