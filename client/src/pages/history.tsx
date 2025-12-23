@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
-import { History, Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, Archive, CirclePlus} from "lucide-react";
+import { History, Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, Archive, CirclePlus, Globe, GlobeLock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,25 @@ export default function HistoryPage() {
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to delete quiz", variant: "destructive" });
+    },
+  });
+
+  const togglePublicMutation = useMutation({
+    mutationFn: async ({ quizId, isPublic }: { quizId: string; isPublic: boolean }) => {
+      return apiRequest("PUT", `/api/quiz/${quizId}`, { isPublic });
+    },
+    onSuccess: (_, { isPublic }) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/public-quizzes"] });
+      toast({ 
+        title: isPublic ? "Quiz shared" : "Quiz hidden", 
+        description: isPublic 
+          ? "Your quiz is now visible in the community feed." 
+          : "Your quiz is now private."
+      });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update quiz visibility", variant: "destructive" });
     },
   });
 
@@ -168,6 +187,12 @@ export default function HistoryPage() {
                               {quiz.difficulty}
                             </Badge>
                           )}
+                          {quiz.isPublic === 1 && (
+                            <Badge variant="outline" className="text-xs sm:text-sm gap-1 text-primary border-primary/30">
+                              <Globe className="h-3 w-3" />
+                              Shared
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
@@ -195,6 +220,23 @@ export default function HistoryPage() {
                           data-testid={`button-edit-${quiz.id}`}
                         >
                           <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => togglePublicMutation.mutate({ 
+                            quizId: quiz.id, 
+                            isPublic: quiz.isPublic !== 1 
+                          })}
+                          disabled={togglePublicMutation.isPending}
+                          data-testid={`button-toggle-public-${quiz.id}`}
+                          title={quiz.isPublic === 1 ? "Make private" : "Share to community"}
+                        >
+                          {quiz.isPublic === 1 ? (
+                            <Globe className="h-4 w-4 text-primary" />
+                          ) : (
+                            <GlobeLock className="h-4 w-4" />
+                          )}
                         </Button>
                         <Button
                           size="icon"
