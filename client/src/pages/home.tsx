@@ -12,8 +12,15 @@ import { motion } from "framer-motion";
 export default function Home() {
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText } = useQuiz();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const { openLoginDialog } = useAuthDialog();
+
+  useEffect(() => {
+    // Redirect authenticated users to dashboard
+    if (!isLoading && isAuthenticated) {
+      setLocation("/dashboard");
+    }
+  }, [isAuthenticated, isLoading, setLocation]);
 
   useEffect(() => {
     setExtractedText("");

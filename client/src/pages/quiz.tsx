@@ -12,7 +12,7 @@ export default function Quiz() {
 
   useEffect(() => {
     if (!currentQuiz) {
-      setLocation("/");
+      setLocation("/create");
     }
   }, [currentQuiz, setLocation]);
 

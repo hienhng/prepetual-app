@@ -137,7 +137,7 @@ export default function HistoryPage() {
           <Button
             className="text-sm group" 
             data-testid="button-new-quiz"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation("/create")}
           >
             <CirclePlus className="h-4 w-4 mr-1 transition-transform duration-300 ease-in-out group-hover:rotate-90" />
             Create
@@ -154,7 +154,7 @@ export default function HistoryPage() {
               </p>
               <Button 
                 data-testid="button-create-first-quiz"
-                onClick={() => setLocation("/")}
+                onClick={() => setLocation("/create")}
               >
                 Create Your First Quiz
               </Button>

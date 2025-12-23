@@ -100,7 +100,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="p-4">
-        <Link href="/" className="flex items-center gap-2" onClick={handleNavClick}>
+        <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNavClick}>
           <img 
             src={logoImage} 
             alt="Prepetual Logo" 

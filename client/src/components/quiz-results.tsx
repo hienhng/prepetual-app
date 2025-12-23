@@ -57,7 +57,7 @@ export function QuizResults() {
 
   const startNew = () => {
     resetQuiz();
-    setLocation("/");
+    setLocation("/create");
   };
 
   return (

@@ -12,7 +12,7 @@ export default function Generate() {
 
   useEffect(() => {
     if (!extractedText) {
-      setLocation("/");
+      setLocation("/create");
     }
   }, [extractedText, setLocation]);
 
@@ -30,7 +30,7 @@ export default function Generate() {
         >
           <Button
             variant="ghost"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation("/create")}
             className="gap-2"
             data-testid="button-back-home"
           >

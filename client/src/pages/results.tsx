@@ -20,7 +20,7 @@ export default function Results() {
     // Then check if there's still no result
     const timeout = setTimeout(() => {
       if (!quizResultRef.current) {
-        setLocation("/");
+        setLocation("/dashboard");
       }
     }, 150);
 
@@ -31,7 +31,7 @@ export default function Results() {
   // but only after initial mount delay has passed
   useEffect(() => {
     if (!quizResult && Date.now() - mountTimeRef.current > 200) {
-      setLocation("/");
+      setLocation("/dashboard");
     }
   }, [quizResult, setLocation]);
 
