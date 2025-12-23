@@ -106,6 +106,40 @@ export const insertQuizResultSchema = createInsertSchema(quizResults).omit({
 export type InsertQuizResult = z.infer<typeof insertQuizResultSchema>;
 export type QuizResult = typeof quizResults.$inferSelect;
 
+// Quiz comments table
+export const quizComments = pgTable("quiz_comments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  quizId: varchar("quiz_id").notNull().references(() => quizzes.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertCommentSchema = createInsertSchema(quizComments).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertComment = z.infer<typeof insertCommentSchema>;
+export type QuizComment = typeof quizComments.$inferSelect;
+
+// Quiz votes table (upvotes/downvotes)
+export const quizVotes = pgTable("quiz_votes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  quizId: varchar("quiz_id").notNull().references(() => quizzes.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  voteType: integer("vote_type").notNull(), // 1 for upvote, -1 for downvote
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertVoteSchema = createInsertSchema(quizVotes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertVote = z.infer<typeof insertVoteSchema>;
+export type QuizVote = typeof quizVotes.$inferSelect;
+
 // Legacy types for backward compatibility with frontend
 export const quizSchemaLegacy = z.object({
   id: z.string(),
