@@ -169,13 +169,14 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
           className="text-center max-w-md mx-auto"
         >
           <motion.div 
-            className="relative w-32 h-32 mx-auto mb-8 group cursor-pointer"
+            className="relative w-32 h-32 mx-auto mb-8 cursor-pointer"
             animate={floatAnimation}
             whileHover="hover"
+            initial="idle"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full" />
             <div className="absolute inset-4 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full" />
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center z-10">
               <Brain className="w-12 h-12 text-primary" />
             </div>
             <motion.div 
@@ -188,28 +189,28 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
                 marginLeft: -12,
                 marginTop: -12,
               }}
-              animate={{ 
-                rotate: 0,
-                x: 56,
-                y: -56,
-                scale: [1, 1.2, 1],
-              }}
               variants={{
+                idle: {
+                  x: 50,
+                  y: -20,
+                  scale: 1.1,
+                  opacity: 1,
+                  zIndex: 20,
+                  transition: { duration: 0.3 }
+                },
                 hover: {
-                  rotate: [0, 360],
-                  x: [56, 0, -56, 0, 56],
-                  y: [-56, -70, 0, 70, -56],
-                  scale: 1.3,
+                  x: [50, 0, -50, 0, 50],
+                  y: [-20, -10, 20, 10, -20],
+                  scale: [1.1, 0.7, 0.6, 0.7, 1.1],
+                  opacity: [1, 0.5, 0.4, 0.5, 1],
+                  zIndex: [20, 5, 5, 5, 20],
                   transition: {
-                    rotate: { duration: 0.8, ease: "linear", repeat: Infinity },
-                    x: { duration: 0.8, ease: "easeInOut", repeat: Infinity },
-                    y: { duration: 0.8, ease: "easeInOut", repeat: Infinity },
-                    scale: { duration: 0.2 },
+                    duration: 0.7,
+                    ease: "linear",
+                    repeat: Infinity,
+                    times: [0, 0.25, 0.5, 0.75, 1],
                   }
                 }
-              }}
-              transition={{ 
-                scale: { duration: 2, repeat: Infinity },
               }}
             >
               <Sparkles className="w-6 h-6 text-primary" />
