@@ -76,6 +76,7 @@ export const quizzes = pgTable("quizzes", {
   questions: jsonb("questions").notNull().$type<Question[]>(),
   difficulty: text("difficulty").default("medium"),
   isPublic: integer("is_public").default(0),
+  shareNote: text("share_note"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

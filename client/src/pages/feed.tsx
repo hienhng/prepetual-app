@@ -251,10 +251,16 @@ function QuizCard({ quiz, rank }: { quiz: PublicQuiz; rank?: number }) {
               )}
             </div>
 
-            {/* Title */}
-            <h3 className="text-lg font-semibold mb-4 group-hover:text-primary transition-colors">
+            {/* Title & Share Note */}
+            <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
               {quiz.title}
             </h3>
+            {quiz.shareNote && (
+              <p className="text-sm text-muted-foreground mt-2 mb-4">
+                {quiz.shareNote}
+              </p>
+            )}
+            {!quiz.shareNote && <div className="mb-4" />}
 
             {/* Actions Row */}
             <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/50">
