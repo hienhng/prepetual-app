@@ -203,7 +203,7 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
                   opacity: 1,
                   transition: {
                     duration: 0.8,
-                    ease: "linear",
+                    ease: "easeInOut",
                     times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.85, 0.92, 1],
                   }
                 }
