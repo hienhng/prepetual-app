@@ -105,8 +105,8 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-3">
-        <div className="flex items-center justify-between gap-2">
-          <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNavClick}>
+        <div className={`flex items-center gap-2 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+          <Link href="/dashboard" className={`flex items-center gap-2 ${isCollapsed ? 'justify-center' : ''}`} onClick={handleNavClick}>
             <img 
               src={logoImage} 
               alt="Prepetual Logo" 
