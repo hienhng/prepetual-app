@@ -2,13 +2,16 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { 
-  Plus, BookOpen, Play, TrendingUp, Target, Award, 
-  Clock, FileText, Loader2, Sparkles, ArrowRight, Zap
+  Plus, BookOpen, Play, Target, 
+  Clock, FileText, Loader2, Sparkles, ArrowRight, 
+  Flame, Brain, GraduationCap, Lightbulb
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { useQuiz } from "@/lib/quiz-context";
+import { useAuth } from "@/hooks/useAuth";
 import type { Quiz } from "@shared/schema";
 
 const containerVariants = {
@@ -16,37 +19,281 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
+      staggerChildren: 0.08,
+      delayChildren: 0.05,
     },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" },
+    transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
   },
 };
 
-function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
+const floatAnimation = {
+  y: [0, -8, 0],
+  transition: {
+    duration: 3,
+    repeat: Infinity,
+    ease: "easeInOut",
+  },
+};
+
+function StatCard({ 
+  label, 
+  value, 
+  icon: Icon, 
+  gradient 
+}: { 
+  label: string; 
+  value: number | string; 
+  icon: any; 
+  gradient: string;
+}) {
   return (
-    <motion.span
-      initial={{ opacity: 0, scale: 0.5 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: "spring", stiffness: 200, damping: 15 }}
-      className="text-3xl md:text-4xl font-bold text-foreground"
+    <motion.div whileHover={{ y: -4, scale: 1.02 }} transition={{ duration: 0.2 }}>
+      <Card className="overflow-visible border-0 shadow-md">
+        <CardContent className="p-0">
+          <div className={`p-5 rounded-md ${gradient}`}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-white/80 mb-1">{label}</p>
+                <motion.p 
+                  className="text-3xl font-bold text-white"
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+                >
+                  {value}
+                </motion.p>
+              </div>
+              <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm">
+                <Icon className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+function QuickActionCard({ 
+  title, 
+  description, 
+  icon: Icon, 
+  onClick,
+  variant = "default",
+  testId
+}: { 
+  title: string; 
+  description: string; 
+  icon: any; 
+  onClick: () => void;
+  variant?: "default" | "primary";
+  testId: string;
+}) {
+  const isPrimary = variant === "primary";
+  
+  return (
+    <motion.div 
+      whileHover={{ scale: 1.02 }} 
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.2 }}
     >
-      {value}{suffix}
-    </motion.span>
+      <Card 
+        className={`cursor-pointer overflow-visible transition-shadow hover:shadow-lg ${
+          isPrimary 
+            ? "bg-gradient-to-br from-primary to-primary/80 border-0" 
+            : "border-border/50"
+        }`}
+        onClick={onClick}
+        data-testid={testId}
+      >
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4">
+            <motion.div 
+              className={`p-3 rounded-xl ${isPrimary ? "bg-white/20" : "bg-primary/10"}`}
+              whileHover={{ rotate: isPrimary ? 90 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Icon className={`w-6 h-6 ${isPrimary ? "text-white" : "text-primary"}`} />
+            </motion.div>
+            <div className="flex-1 min-w-0">
+              <h3 className={`font-semibold mb-0.5 ${isPrimary ? "text-white" : "text-foreground"}`}>
+                {title}
+              </h3>
+              <p className={`text-sm truncate ${isPrimary ? "text-white/80" : "text-muted-foreground"}`}>
+                {description}
+              </p>
+            </div>
+            <ArrowRight className={`w-5 h-5 flex-shrink-0 ${isPrimary ? "text-white/60" : "text-muted-foreground"}`} />
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
+  return (
+    <Card className="overflow-visible">
+      <CardContent className="py-16 px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-md mx-auto"
+        >
+          <motion.div 
+            className="relative w-32 h-32 mx-auto mb-8"
+            animate={floatAnimation}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full" />
+            <div className="absolute inset-4 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Brain className="w-12 h-12 text-primary" />
+            </div>
+            <motion.div 
+              className="absolute -top-2 -right-2"
+              animate={{ scale: [1, 1.2, 1], rotate: [0, 10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Sparkles className="w-6 h-6 text-primary" />
+            </motion.div>
+          </motion.div>
+          
+          <h3 className="text-2xl font-bold text-foreground mb-3">
+            Ready to learn smarter?
+          </h3>
+          <p className="text-muted-foreground mb-8 leading-relaxed">
+            Upload your study materials and let AI create personalized quizzes tailored just for you.
+          </p>
+          
+          <Button size="lg" onClick={onCreateQuiz} data-testid="button-create-first">
+            <Plus className="w-5 h-5 mr-2" />
+            Create Your First Quiz
+          </Button>
+          
+          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              <span>PDFs</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Lightbulb className="w-4 h-4" />
+              <span>Images</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <GraduationCap className="w-4 h-4" />
+              <span>Any topic</span>
+            </div>
+          </div>
+        </motion.div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function QuizCard({ 
+  quiz, 
+  onTake, 
+  onStudy, 
+  index 
+}: { 
+  quiz: Quiz; 
+  onTake: () => void; 
+  onStudy: () => void;
+  index: number;
+}) {
+  const formatDate = (date: Date | string) => {
+    const d = typeof date === "string" ? new Date(date) : date;
+    const now = new Date();
+    const diff = now.getTime() - d.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) return "Today";
+    if (days === 1) return "Yesterday";
+    if (days < 7) return `${days} days ago`;
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
+  const getDifficultyStyle = (difficulty?: string | null) => {
+    switch (difficulty) {
+      case "easy": return "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20";
+      case "hard": return "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20";
+      default: return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20";
+    }
+  };
+
+  const questionCount = (quiz.questions as any[]).length;
+
+  return (
+    <motion.div
+      variants={itemVariants}
+      custom={index}
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card className="h-full overflow-visible group" data-testid={`card-recent-quiz-${quiz.id}`}>
+        <CardContent className="p-5">
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <h3 className="font-semibold text-foreground line-clamp-2 flex-1">{quiz.title}</h3>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="secondary" className="text-xs font-normal">
+                  <Target className="w-3 h-3 mr-1" />
+                  {questionCount} {questionCount === 1 ? "question" : "questions"}
+                </Badge>
+                {quiz.difficulty && (
+                  <Badge variant="outline" className={`text-xs font-normal ${getDifficultyStyle(quiz.difficulty)}`}>
+                    {quiz.difficulty}
+                  </Badge>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Clock className="w-3 h-3" />
+                {formatDate(quiz.createdAt)}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={onStudy}
+                  data-testid={`button-study-${quiz.id}`}
+                >
+                  <BookOpen className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={onTake}
+                  data-testid={`button-take-${quiz.id}`}
+                >
+                  <Play className="w-4 h-4 mr-1" />
+                  Take
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial } = useQuiz();
+  const { user } = useAuth();
 
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
     queryKey: ["/api/quizzes"],
@@ -78,31 +325,30 @@ export default function Dashboard() {
     setLocation("/study");
   };
 
-  const formatDate = (date: Date | string) => {
-    const d = typeof date === "string" ? new Date(date) : date;
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  };
-
-  const getDifficultyColor = (difficulty?: string | null) => {
-    switch (difficulty) {
-      case "easy": return "bg-green-500/10 text-green-600 dark:text-green-400";
-      case "hard": return "bg-red-500/10 text-red-600 dark:text-red-400";
-      default: return "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400";
-    }
-  };
-
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-16 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center py-32">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+          <p className="text-sm text-muted-foreground">Loading your dashboard...</p>
+        </div>
       </div>
     );
   }
 
   const totalQuizzes = quizzes?.length || 0;
   const totalQuestions = quizzes?.reduce((acc, q) => acc + (q.questions as any[]).length, 0) || 0;
-  const recentQuizzes = quizzes?.slice(0, 4) || [];
+  const recentQuizzes = quizzes?.slice(0, 6) || [];
   const hasQuizzes = totalQuizzes > 0;
+  
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
+  const firstName = user?.firstName || "there";
 
   return (
     <div className="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
@@ -112,241 +358,140 @@ export default function Dashboard() {
         animate="visible"
         className="space-y-8"
       >
-        {/* Stats Section */}
+        {/* Welcome Section */}
         <motion.section variants={itemVariants}>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
-              <Card className="overflow-visible">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Quizzes Created</p>
-                      <AnimatedCounter value={totalQuizzes} />
-                    </div>
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <FileText className="w-5 h-5 text-primary" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
-              <Card className="overflow-visible">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Questions</p>
-                      <AnimatedCounter value={totalQuestions} />
-                    </div>
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Target className="w-5 h-5 text-primary" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="col-span-2 md:col-span-1">
-              <Card className="overflow-visible">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Keep Going</p>
-                      <div className="flex items-center gap-2">
-                        <AnimatedCounter value={hasQuizzes ? 1 : 0} />
-                        <TrendingUp className="w-5 h-5 text-green-500" />
-                      </div>
-                    </div>
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Award className="w-5 h-5 text-primary" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
+                {getGreeting()}, {firstName}
+              </h1>
+              <p className="text-muted-foreground">
+                {hasQuizzes 
+                  ? "Continue where you left off or create something new."
+                  : "Let's create your first quiz and start learning."
+                }
+              </p>
+            </div>
+            {hasQuizzes && (
+              <Button onClick={() => setLocation("/")} data-testid="button-create-new">
+                <Plus className="w-4 h-4 mr-2" />
+                New Quiz
+              </Button>
+            )}
           </div>
         </motion.section>
+
+        {/* Stats Section */}
+        {hasQuizzes && (
+          <motion.section variants={itemVariants}>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                label="Quizzes"
+                value={totalQuizzes}
+                icon={FileText}
+                gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+              />
+              <StatCard
+                label="Questions"
+                value={totalQuestions}
+                icon={Target}
+                gradient="bg-gradient-to-br from-violet-500 to-violet-600"
+              />
+              <StatCard
+                label="Streak"
+                value="1"
+                icon={Flame}
+                gradient="bg-gradient-to-br from-orange-500 to-orange-600"
+              />
+              <StatCard
+                label="This Week"
+                value={`${Math.min(totalQuizzes, 7)}`}
+                icon={GraduationCap}
+                gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
+              />
+            </div>
+          </motion.section>
+        )}
 
         {/* Quick Actions */}
-        <motion.section variants={itemVariants}>
-          <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Card 
-                className="cursor-pointer border-primary/20 bg-gradient-to-br from-primary/5 to-transparent overflow-visible"
+        {hasQuizzes && (
+          <motion.section variants={itemVariants}>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <QuickActionCard
+                title="Create New Quiz"
+                description="Upload materials and generate questions"
+                icon={Plus}
                 onClick={() => setLocation("/")}
-                data-testid="card-create-quiz"
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <motion.div 
-                      className="p-3 rounded-xl bg-primary/10"
-                      whileHover={{ rotate: 90 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Plus className="w-6 h-6 text-primary" />
-                    </motion.div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-foreground mb-1">Create New Quiz</h3>
-                      <p className="text-sm text-muted-foreground">Upload materials and generate a quiz</p>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {hasQuizzes && recentQuizzes[0] && (
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Card 
-                  className="cursor-pointer border-primary/20 bg-gradient-to-br from-primary/5 to-transparent overflow-visible"
+                variant="primary"
+                testId="card-create-quiz"
+              />
+              {recentQuizzes[0] && (
+                <QuickActionCard
+                  title="Continue Studying"
+                  description={recentQuizzes[0].title}
+                  icon={BookOpen}
                   onClick={() => handleStudyQuiz(recentQuizzes[0])}
-                  data-testid="card-continue-studying"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <motion.div 
-                        className="p-3 rounded-xl bg-primary/10"
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      >
-                        <BookOpen className="w-6 h-6 text-primary" />
-                      </motion.div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-foreground mb-1">Continue Studying</h3>
-                        <p className="text-sm text-muted-foreground truncate">{recentQuizzes[0].title}</p>
-                      </div>
-                      <ArrowRight className="w-5 h-5 text-muted-foreground" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
+                  testId="card-continue-studying"
+                />
+              )}
+            </div>
+          </motion.section>
+        )}
 
-            {!hasQuizzes && (
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Card 
-                  className="cursor-pointer border-dashed overflow-visible"
-                  onClick={() => setLocation("/")}
-                  data-testid="card-get-started"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-xl bg-muted">
-                        <Sparkles className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-foreground mb-1">Get Started</h3>
-                        <p className="text-sm text-muted-foreground">Create your first quiz to begin</p>
-                      </div>
-                      <ArrowRight className="w-5 h-5 text-muted-foreground" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-          </div>
-        </motion.section>
-
-        {/* Recent Quizzes */}
+        {/* Recent Quizzes or Empty State */}
         <motion.section variants={itemVariants}>
-          <div className="flex items-center justify-between gap-4 mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Recent Quizzes</h2>
-            {hasQuizzes && (
+          {hasQuizzes && (
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <h2 className="text-lg font-semibold text-foreground">Recent Quizzes</h2>
               <Button 
                 variant="ghost" 
-                size="sm" 
                 onClick={() => setLocation("/history")}
                 data-testid="button-view-all"
               >
                 View all
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
-            )}
-          </div>
+            </div>
+          )}
 
           {!hasQuizzes ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Zap className="w-8 h-8 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">No quizzes yet</h3>
-                  <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-                    Upload your study materials and let AI create personalized quizzes for you
-                  </p>
-                  <Button onClick={() => setLocation("/")} data-testid="button-create-first">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Your First Quiz
-                  </Button>
-                </motion.div>
-              </CardContent>
-            </Card>
+            <EmptyState onCreateQuiz={() => setLocation("/")} />
           ) : (
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {recentQuizzes.map((quiz, index) => (
-                <motion.div
+                <QuizCard
                   key={quiz.id}
-                  variants={itemVariants}
-                  custom={index}
-                  whileHover={{ y: -4 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Card className="h-full overflow-visible" data-testid={`card-recent-quiz-${quiz.id}`}>
-                    <CardContent className="p-5">
-                      <div className="space-y-3">
-                        <div>
-                          <h3 className="font-semibold text-foreground truncate mb-2">{quiz.title}</h3>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock className="w-3 h-3" />
-                              {formatDate(quiz.createdAt)}
-                            </div>
-                            <Badge variant="secondary" className="text-xs">
-                              {(quiz.questions as any[]).length} Qs
-                            </Badge>
-                            {quiz.difficulty && (
-                              <Badge className={`text-xs ${getDifficultyColor(quiz.difficulty)}`}>
-                                {quiz.difficulty}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => handleTakeQuiz(quiz)}
-                            className="flex-1"
-                            data-testid={`button-take-${quiz.id}`}
-                          >
-                            <Play className="w-3 h-3 mr-1" />
-                            Take
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleStudyQuiz(quiz)}
-                            className="flex-1"
-                            data-testid={`button-study-${quiz.id}`}
-                          >
-                            <BookOpen className="w-3 h-3 mr-1" />
-                            Study
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                  quiz={quiz}
+                  index={index}
+                  onTake={() => handleTakeQuiz(quiz)}
+                  onStudy={() => handleStudyQuiz(quiz)}
+                />
               ))}
             </div>
           )}
         </motion.section>
+
+        {/* Learning Tip */}
+        {hasQuizzes && (
+          <motion.section variants={itemVariants}>
+            <Card className="overflow-visible bg-gradient-to-r from-primary/5 via-transparent to-primary/5 border-primary/10">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-4">
+                  <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                    <Lightbulb className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-foreground mb-1">Learning Tip</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Spaced repetition helps you remember better. Try reviewing your quizzes at increasing intervals for maximum retention.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.section>
+        )}
       </motion.div>
     </div>
   );
