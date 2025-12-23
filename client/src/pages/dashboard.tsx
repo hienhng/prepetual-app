@@ -169,52 +169,19 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
           className="text-center max-w-md mx-auto"
         >
           <motion.div 
-            className="relative w-32 h-32 mx-auto mb-8 cursor-pointer"
+            className="relative w-32 h-32 mx-auto mb-8 cursor-pointer group"
             animate={floatAnimation}
-            whileHover="hover"
-            initial="idle"
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.2 }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full" />
-            <div className="absolute inset-4 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full" />
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <Brain className="w-12 h-12 text-primary" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full transition-all duration-300 group-hover:from-primary/30 group-hover:to-primary/15 group-hover:shadow-lg group-hover:shadow-primary/20" />
+            <div className="absolute inset-4 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full transition-all duration-300 group-hover:from-primary/40 group-hover:to-primary/20" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Brain className="w-12 h-12 text-primary transition-transform duration-300 group-hover:scale-110" />
             </div>
-            <motion.div 
-              className="absolute inset-0"
-              style={{ transformOrigin: "center center" }}
-              variants={{
-                idle: {
-                  rotate: 0,
-                },
-                hover: {
-                  rotate: 360,
-                  transition: {
-                    duration: 0.6,
-                    ease: [0.42, 0, 0.58, 1],
-                  }
-                }
-              }}
-            >
-              <motion.div
-                className="absolute"
-                style={{ top: 0, left: "50%", marginLeft: -12 }}
-                variants={{
-                  idle: {
-                    scale: 1,
-                  },
-                  hover: {
-                    scale: [1, 1, 1, 1.3, 0.9, 1],
-                    transition: {
-                      duration: 0.85,
-                      ease: "easeOut",
-                      times: [0, 0.7, 0.75, 0.82, 0.91, 1],
-                    }
-                  }
-                }}
-              >
-                <Sparkles className="w-6 h-6 text-primary" />
-              </motion.div>
-            </motion.div>
+            <div className="absolute -top-1 -right-1">
+              <Sparkles className="w-6 h-6 text-primary transition-all duration-300 group-hover:scale-125 group-hover:text-quiz-purple" />
+            </div>
           </motion.div>
           
           <h3 className="text-2xl font-bold text-foreground mb-3">
