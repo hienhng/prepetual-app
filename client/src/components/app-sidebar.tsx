@@ -191,11 +191,11 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-3 space-y-2">
-        <div className={`flex items-center gap-2 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+      <SidebarFooter className={`p-3 space-y-2 ${isCollapsed ? 'px-1' : 'px-3'}`}>
+        <div className={`flex items-center gap-2 ${isCollapsed ? 'flex-col' : 'justify-between'}`}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className={`gap-2 ${isCollapsed ? 'justify-center px-0' : 'justify-start px-2 flex-1'}`} data-testid="sidebar-user-menu">
+              <Button variant="ghost" className={`gap-2 ${isCollapsed ? 'justify-center w-9 h-9 p-0' : 'justify-start px-2 flex-1'}`} data-testid="sidebar-user-menu">
                 <Avatar className="h-8 w-8 flex-shrink-0">
                   <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} className="object-cover" />
                   <AvatarFallback>{getInitials()}</AvatarFallback>
@@ -222,11 +222,9 @@ export function AppSidebar() {
             </DropdownMenuContent>
           </DropdownMenu>
           
-          {!isCollapsed && (
-            <div className="hidden md:block">
-              <ThemeToggle />
-            </div>
-          )}
+          <div className={`${isCollapsed ? 'flex' : 'hidden md:block'}`}>
+            <ThemeToggle />
+          </div>
         </div>
       </SidebarFooter>
     </Sidebar>
