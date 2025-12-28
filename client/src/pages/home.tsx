@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, Brain, ArrowRight, CheckCircle2, Upload, FileText, BarChart3, LoaderCircle, CircleFadingPlus, Cpu, Languages, Database } from "lucide-react";
-import { SiOpenai } from "react-icons/si";
+import { Sparkles, Brain, ArrowRight, CheckCircle2, Upload, FileText, BarChart3, LoaderCircle, CircleFadingPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "@/components/file-upload";
@@ -139,31 +138,6 @@ export default function Home() {
                       </Button>
                     </motion.div>
                   )}
-
-                  {/* Powered By Section */}
-                  <div className="mt-8 pt-6 border-t border-border/50">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-4 text-center">
-                      Powered by Industry-Leading Tech
-                    </p>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/30 border border-border/50">
-                        <SiOpenai className="w-4 h-4 text-foreground/80" />
-                        <span className="text-sm font-medium">OpenAI API</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/30 border border-border/50">
-                        <Cpu className="w-4 h-4 text-foreground/80" />
-                        <span className="text-sm font-medium">Tesseract.js</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/30 border border-border/50">
-                        <Database className="w-4 h-4 text-foreground/80" />
-                        <span className="text-sm font-medium">PostgreSQL</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/30 border border-border/50">
-                        <Languages className="w-4 h-4 text-foreground/80" />
-                        <span className="text-sm font-medium">Multi-Language</span>
-                      </div>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </motion.div>
