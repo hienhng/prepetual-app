@@ -34,11 +34,11 @@ export default function Contact() {
               </CardHeader>
               <CardContent>
                 <a 
-                  href="mailto:support@prepetual.com" 
+                  href="mailto:giahienhn@gmail.com" 
                   className="text-primary hover:underline"
                   data-testid="link-email-support"
                 >
-                  support@prepetual.com
+                  giahienhn@gmail.com
                 </a>
               </CardContent>
             </Card>
@@ -53,11 +53,11 @@ export default function Contact() {
               </CardHeader>
               <CardContent>
                 <a 
-                  href="mailto:feedback@prepetual.com" 
+                  href="mailto:giahienhn@gmail.com" 
                   className="text-primary hover:underline"
                   data-testid="link-email-feedback"
                 >
-                  feedback@prepetual.com
+                  giahienhn@gmail.com
                 </a>
               </CardContent>
             </Card>

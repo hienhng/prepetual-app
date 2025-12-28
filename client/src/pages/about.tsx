@@ -3,7 +3,7 @@ import { ArrowLeft, Zap, BookOpen, Brain, Share2, BarChart3, Globe, Check, Spark
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 
 const floatingAnimation = {
   initial: { y: 0 },
@@ -60,6 +60,10 @@ const scaleInVariants = {
 };
 
 export default function About() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
