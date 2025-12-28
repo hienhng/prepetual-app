@@ -111,7 +111,7 @@ export function AppSidebar() {
           {isCollapsed ? (
             <button
               onClick={toggleSidebar}
-              className="hidden md:flex items-center justify-center w-8 h-8 rounded-md group cursor-pointer hover:bg-sidebar-accent transition-colors"
+              className="hidden md:flex items-center justify-center w-8 h-8 rounded-md group cursor-pointer hover:bg-sidebar-accent transition-all"
               data-testid="sidebar-expand-toggle"
             >
               <img 
@@ -156,6 +156,7 @@ export function AppSidebar() {
                     asChild 
                     isActive={location === item.url}
                     tooltip={item.title}
+                    /* className="transition-transform duration-200 hover:translate-x-0.5" */
                   >
                     <Link href={item.url} onClick={handleNavClick} data-testid={`sidebar-link-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
                       <item.icon className="w-4 h-4" />
