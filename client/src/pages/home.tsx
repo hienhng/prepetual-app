@@ -175,31 +175,46 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
+              whileHover={{ y: -4 }}
             >
-              <Card className="shadow-md">
+              <Card className="shadow-lg border-primary/20 overflow-visible relative">
+                <div className="absolute -inset-0.5 bg-gradient-to-br from-primary/20 via-transparent to-primary/10 rounded-xl blur-sm -z-10" />
                 <CardContent className="p-6">
-                  <div className="flex items-center gap-1.5 pb-4 mb-4 border-b">
-                    <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/20" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/20" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/20" />
+                  <div className="flex items-center gap-1.5 pb-4 mb-4 border-b border-primary/10">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                   </div>
-                  <div className="border-2 border-dashed border-primary/20 rounded-lg p-8 text-center bg-primary/5 mb-4">
+                  <div className="border-2 border-dashed border-primary/30 rounded-xl p-8 text-center bg-gradient-to-br from-primary/10 to-primary/5 mb-4">
                     <motion.div
-                      animate={{ y: [0, -4, 0] }}
+                      animate={{ y: [0, -6, 0], rotate: [0, 2, -2, 0] }}
                       transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
                     >
-                      <FileText className="w-8 h-8 mx-auto text-primary/70 mb-2" />
+                      <FileText className="w-10 h-10 mx-auto text-primary mb-2" />
                     </motion.div>
-                    <p className="text-xs text-muted-foreground">Drop your files here</p>
+                    <p className="text-sm text-muted-foreground">Drop your files here</p>
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted/60">
-                      <FileText className="w-4 h-4 text-primary" />
-                      <span className="text-sm text-foreground flex-1 truncate">biology_notes.pdf</span>
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
-                    </div>
-                    <Button size="sm" className="w-full gap-1">
-                      Continue <ArrowRight className="w-3 h-3" />
+                  <div className="space-y-3">
+                    <motion.div 
+                      className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20"
+                      initial={{ x: -10, opacity: 0 }}
+                      whileInView={{ x: 0, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <FileText className="w-5 h-5 text-primary" />
+                      <span className="text-sm text-foreground flex-1 truncate font-medium">biology_notes.pdf</span>
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.5, type: "spring" }}
+                      >
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      </motion.div>
+                    </motion.div>
+                    <Button className="w-full gap-2 bg-gradient-to-r from-primary to-primary/90">
+                      Continue <ArrowRight className="w-4 h-4" />
                     </Button>
                   </div>
                 </CardContent>
@@ -218,41 +233,61 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
+              whileHover={{ y: -4 }}
               className="order-2 md:order-1"
             >
-              <Card className="shadow-md">
+              <Card className="shadow-lg border-quiz-purple/20 overflow-visible relative">
+                <div className="absolute -inset-0.5 bg-gradient-to-br from-quiz-purple/20 via-transparent to-quiz-purple/10 rounded-xl blur-sm -z-10" />
                 <CardContent className="p-6">
-                  <div className="flex items-center gap-1.5 pb-4 mb-4 border-b">
-                    <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/20" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/20" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/20" />
+                  <div className="flex items-center gap-1.5 pb-4 mb-4 border-b border-quiz-purple/10">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                   </div>
-                  <div className="p-4 rounded-lg border bg-background mb-3">
-                    <p className="text-xs text-muted-foreground mb-1">Multiple Choice</p>
-                    <p className="text-sm font-medium text-foreground mb-3">What is the primary function of mitochondria?</p>
+                  <div className="p-4 rounded-xl border border-quiz-purple/20 bg-gradient-to-br from-quiz-purple/5 to-transparent mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-medium text-quiz-purple bg-quiz-purple/10 px-2 py-0.5 rounded-full">Multiple Choice</span>
+                    </div>
+                    <p className="text-sm font-medium text-foreground mb-4">What is the primary function of mitochondria?</p>
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 p-2 rounded bg-muted/50 text-sm">
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-muted-foreground/30" />
+                      <motion.div 
+                        className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/40 text-sm cursor-pointer"
+                        whileHover={{ x: 2 }}
+                      >
+                        <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30" />
                         <span>Protein synthesis</span>
-                      </div>
-                      <div className="flex items-center gap-2 p-2 rounded bg-primary/10 border border-primary/30 text-sm">
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />
+                      </motion.div>
+                      <motion.div 
+                        className="flex items-center gap-3 p-2.5 rounded-lg bg-quiz-purple/15 border-2 border-quiz-purple/40 text-sm"
+                        initial={{ scale: 1 }}
+                        animate={{ scale: [1, 1.01, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        <div className="w-4 h-4 rounded-full border-2 border-quiz-purple bg-quiz-purple flex items-center justify-center">
+                          <div className="w-2 h-2 rounded-full bg-white" />
                         </div>
-                        <span className="text-primary font-medium">Energy production</span>
-                      </div>
-                      <div className="flex items-center gap-2 p-2 rounded bg-muted/50 text-sm">
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-muted-foreground/30" />
+                        <span className="text-quiz-purple font-semibold">Energy production</span>
+                      </motion.div>
+                      <motion.div 
+                        className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/40 text-sm cursor-pointer"
+                        whileHover={{ x: 2 }}
+                      >
+                        <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30" />
                         <span>Cell division</span>
-                      </div>
+                      </motion.div>
                     </div>
                   </div>
                   <motion.div 
-                    className="flex items-center gap-2 text-xs text-quiz-purple"
-                    animate={{ opacity: [0.5, 1, 0.5] }}
-                    transition={{ duration: 2, repeat: Infinity }}
+                    className="flex items-center gap-2 text-sm text-quiz-purple font-medium"
+                    animate={{ opacity: [0.6, 1, 0.6] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
                   >
-                    <Brain className="w-3.5 h-3.5" />
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    >
+                      <Brain className="w-4 h-4" />
+                    </motion.div>
                     <span>Generating more questions...</span>
                   </motion.div>
                 </CardContent>
@@ -333,49 +368,82 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
+              whileHover={{ y: -4 }}
             >
-              <Card className="shadow-md">
+              <Card className="shadow-lg border-quiz-orange/20 overflow-visible relative">
+                <div className="absolute -inset-0.5 bg-gradient-to-br from-quiz-orange/20 via-transparent to-green-500/10 rounded-xl blur-sm -z-10" />
                 <CardContent className="p-6">
-                  <div className="flex items-center gap-1.5 pb-4 mb-4 border-b">
-                    <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/20" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/20" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/20" />
+                  <div className="flex items-center gap-1.5 pb-4 mb-4 border-b border-quiz-orange/10">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                   </div>
-                  <div className="text-center py-4 mb-4">
-                    <div className="relative w-24 h-24 mx-auto mb-3">
-                      <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="6" className="text-muted" />
+                  <div className="text-center py-6 mb-4 bg-gradient-to-br from-green-500/5 to-quiz-orange/5 rounded-xl">
+                    <div className="relative w-28 h-28 mx-auto mb-4">
+                      <svg className="w-28 h-28 transform -rotate-90" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/30" />
                         <motion.circle
                           cx="50"
                           cy="50"
                           r="40"
                           fill="none"
-                          stroke="currentColor"
-                          strokeWidth="6"
+                          stroke="url(#scoreGradient)"
+                          strokeWidth="8"
                           strokeLinecap="round"
-                          className="text-green-500"
                           strokeDasharray="251.2"
                           initial={{ strokeDashoffset: 251.2 }}
                           whileInView={{ strokeDashoffset: 251.2 * 0.15 }}
                           viewport={{ once: true }}
-                          transition={{ duration: 1.2, ease: "easeOut" }}
+                          transition={{ duration: 1.5, ease: "easeOut" }}
                         />
+                        <defs>
+                          <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="hsl(var(--quiz-orange))" />
+                            <stop offset="100%" stopColor="#22c55e" />
+                          </linearGradient>
+                        </defs>
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-foreground">85%</span>
+                        <motion.span 
+                          className="text-3xl font-bold text-foreground"
+                          initial={{ scale: 0 }}
+                          whileInView={{ scale: 1 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: 0.5, type: "spring" }}
+                        >
+                          85%
+                        </motion.span>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">Great job! Above average.</p>
+                    <p className="text-sm font-medium text-foreground">Great job! Above average.</p>
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between gap-4 text-sm p-2.5 rounded-lg bg-green-500/10">
-                      <span className="text-foreground">Correct</span>
-                      <span className="font-medium text-green-600">17/20</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-4 text-sm p-2.5 rounded-lg bg-red-500/10">
-                      <span className="text-foreground">Needs review</span>
-                      <span className="font-medium text-red-600">3/20</span>
-                    </div>
+                  <div className="space-y-3">
+                    <motion.div 
+                      className="flex items-center justify-between gap-4 text-sm p-3 rounded-xl bg-green-500/15 border border-green-500/30"
+                      initial={{ x: -10, opacity: 0 }}
+                      whileInView={{ x: 0, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <span className="text-foreground font-medium">Correct</span>
+                      </div>
+                      <span className="font-bold text-green-600">17/20</span>
+                    </motion.div>
+                    <motion.div 
+                      className="flex items-center justify-between gap-4 text-sm p-3 rounded-xl bg-quiz-orange/15 border border-quiz-orange/30"
+                      initial={{ x: -10, opacity: 0 }}
+                      whileInView={{ x: 0, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.4 }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4 text-quiz-orange" />
+                        <span className="text-foreground font-medium">Needs review</span>
+                      </div>
+                      <span className="font-bold text-quiz-orange">3/20</span>
+                    </motion.div>
                   </div>
                 </CardContent>
               </Card>
