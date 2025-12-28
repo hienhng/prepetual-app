@@ -44,93 +44,103 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative pt-16 pb-24 sm:pt-24 sm:pb-32">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
+      <section className="relative pt-20 pb-16 sm:pt-28 sm:pb-20 overflow-hidden">
+        {/* Clean grid background */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.3)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.3)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
         
         <div className="container relative mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-2xl mx-auto mb-12"
-          >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>AI-Powered Study Assistant</span>
-            </div>
-            
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-5 leading-[1.1] tracking-tight">
-              Turn your notes into{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-quiz-purple">practice quizzes</span>
-            </h1>
-            
-            <p className="text-base sm:text-lg text-muted-foreground max-w-lg mx-auto mb-8">
-              Upload any study material and let AI create personalized quizzes in seconds.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button
-                size="lg"
-                onClick={handleGetStarted}
-                className="gap-2 px-8 w-full sm:w-auto"
-                data-testid="button-hero-get-started"
-              >
-                Get Started Free
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto px-8"
-                data-testid="button-hero-learn-more"
-              >
-                Learn More
-              </Button>
-            </div>
-          </motion.div>
-
-          {/* Upload Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="max-w-xl mx-auto"
-          >
-            <FileUpload onTextExtracted={handleTextExtracted} />
-          </motion.div>
-
-          {extractedText && (
+          {/* Hero Content */}
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left: Text content */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-center mt-6"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="text-center lg:text-left"
             >
-              <Button
-                size="lg"
-                onClick={handleContinueToGenerate}
-                className="gap-2 px-8"
-                data-testid="button-continue-generate"
-              >
-                Continue to Generate Quiz
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </motion.div>
-          )}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-6">
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>AI-Powered Study Assistant</span>
+              </div>
+              
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight">
+                Turn your notes into{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-quiz-purple">practice quizzes</span>
+              </h1>
+              
+              <p className="text-lg text-muted-foreground max-w-md mx-auto lg:mx-0 mb-8">
+                Upload any study material and let AI create personalized quizzes in seconds.
+              </p>
 
-          {/* Trust indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-12 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-primary" />
-              <span>Free to use</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-primary" />
-              <span>No credit card</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-primary" />
-              <span>PDF & Images</span>
-            </div>
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-8">
+                <Button
+                  size="lg"
+                  onClick={handleGetStarted}
+                  className="gap-2 px-8 w-full sm:w-auto"
+                  data-testid="button-hero-get-started"
+                >
+                  Get Started Free
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="w-full sm:w-auto px-8"
+                  data-testid="button-hero-learn-more"
+                >
+                  Learn More
+                </Button>
+              </div>
+
+              {/* Trust indicators */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <span>Free to use</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <span>No credit card</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <span>PDF & Images</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right: Upload card */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="relative"
+            >
+              <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 via-quiz-purple/10 to-primary/10 rounded-3xl blur-2xl opacity-60" />
+              <Card className="relative shadow-xl border-primary/10">
+                <CardContent className="p-6">
+                  <FileUpload onTextExtracted={handleTextExtracted} />
+                  
+                  {extractedText && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-4"
+                    >
+                      <Button
+                        size="lg"
+                        onClick={handleContinueToGenerate}
+                        className="w-full gap-2"
+                        data-testid="button-continue-generate"
+                      >
+                        Continue to Generate Quiz
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </motion.div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </div>
       </section>
