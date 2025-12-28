@@ -1,24 +1,20 @@
-import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
-  Globe, Play, Loader2, Users, BookOpen, Sparkles, 
-  ThumbsUp, ThumbsDown, MessageSquare, ChevronDown, 
-  ChevronUp, Send, Trash2, TrendingUp, Clock, Filter,
-  Award, Flame, Zap
+  Search, Play, Loader2, Users, BookOpen, 
+  Sparkles, Clock, Filter, Flame, Target, Zap, 
+  GraduationCap, Beaker, Calculator, Globe2, 
+  Palette, Music, Code, Heart, Dumbbell, Languages
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import { useQuiz } from "@/lib/quiz-context";
-import { useAuth } from "@/hooks/useAuth";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { Quiz, QuizComment } from "@shared/schema";
-import { formatDistanceToNow } from "date-fns";
+import type { Quiz } from "@shared/schema";
 
 type PublicQuiz = Quiz & { 
   author?: { 
@@ -28,87 +24,57 @@ type PublicQuiz = Quiz & {
   } 
 };
 
-type CommentWithAuthor = QuizComment & {
-  author: {
-    firstName: string | null;
-    lastName: string | null;
-    profileImageUrl: string | null;
-  };
-};
-
-type VoteData = {
-  upvotes: number;
-  downvotes: number;
-  userVote: number | null;
-};
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.06 },
+    transition: { staggerChildren: 0.04 },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3 } },
 };
 
-function QuizCard({ quiz, rank }: { quiz: PublicQuiz; rank?: number }) {
+const categories = [
+  { id: "all", label: "All", icon: Sparkles },
+  { id: "science", label: "Science", icon: Beaker },
+  { id: "math", label: "Math", icon: Calculator },
+  { id: "languages", label: "Languages", icon: Languages },
+  { id: "history", label: "History", icon: Globe2 },
+  { id: "arts", label: "Arts", icon: Palette },
+  { id: "tech", label: "Technology", icon: Code },
+  { id: "health", label: "Health", icon: Heart },
+  { id: "sports", label: "Sports", icon: Dumbbell },
+  { id: "music", label: "Music", icon: Music },
+];
+
+const gradients = [
+  "from-violet-500 to-purple-600",
+  "from-blue-500 to-cyan-500",
+  "from-emerald-500 to-teal-500",
+  "from-orange-500 to-amber-500",
+  "from-pink-500 to-rose-500",
+  "from-indigo-500 to-blue-500",
+  "from-fuchsia-500 to-pink-500",
+  "from-teal-500 to-emerald-500",
+  "from-amber-500 to-orange-500",
+  "from-rose-500 to-red-500",
+];
+
+function getGradientForQuiz(quizId: string): string {
+  let hash = 0;
+  for (let i = 0; i < quizId.length; i++) {
+    hash = quizId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return gradients[Math.abs(hash) % gradients.length];
+}
+
+function QuizCard({ quiz }: { quiz: PublicQuiz }) {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial } = useQuiz();
-  const { user } = useAuth();
-  const [showComments, setShowComments] = useState(false);
-  const [newComment, setNewComment] = useState("");
-
-  const { data: votes } = useQuery<VoteData>({
-    queryKey: ["/api/quiz", quiz.id, "votes"],
-    queryFn: async () => {
-      const res = await fetch(`/api/quiz/${quiz.id}/votes`);
-      return res.json();
-    },
-  });
-
-  const { data: comments, isLoading: commentsLoading } = useQuery<CommentWithAuthor[]>({
-    queryKey: ["/api/quiz", quiz.id, "comments"],
-    queryFn: async () => {
-      const res = await fetch(`/api/quiz/${quiz.id}/comments`);
-      return res.json();
-    },
-    enabled: showComments,
-  });
-
-  const voteMutation = useMutation({
-    mutationFn: async (voteType: number) => {
-      const res = await apiRequest("POST", `/api/quiz/${quiz.id}/vote`, { voteType });
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/quiz", quiz.id, "votes"] });
-    },
-  });
-
-  const addCommentMutation = useMutation({
-    mutationFn: async (content: string) => {
-      const res = await apiRequest("POST", `/api/quiz/${quiz.id}/comments`, { content });
-      return res.json();
-    },
-    onSuccess: () => {
-      setNewComment("");
-      queryClient.invalidateQueries({ queryKey: ["/api/quiz", quiz.id, "comments"] });
-    },
-  });
-
-  const deleteCommentMutation = useMutation({
-    mutationFn: async (commentId: string) => {
-      const res = await apiRequest("DELETE", `/api/comments/${commentId}`);
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/quiz", quiz.id, "comments"] });
-    },
-  });
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleTakeQuiz = () => {
     setCurrentQuiz({
@@ -146,7 +112,7 @@ function QuizCard({ quiz, rank }: { quiz: PublicQuiz; rank?: number }) {
     return "Anonymous";
   };
 
-  const getAuthorInitials = (author?: PublicQuiz["author"] | CommentWithAuthor["author"]) => {
+  const getAuthorInitials = (author?: PublicQuiz["author"]) => {
     if (!author) return "A";
     const first = author.firstName?.[0] || "";
     const last = author.lastName?.[0] || "";
@@ -155,406 +121,321 @@ function QuizCard({ quiz, rank }: { quiz: PublicQuiz; rank?: number }) {
 
   const getDifficultyConfig = (difficulty?: string | null) => {
     switch (difficulty) {
-      case "easy": return { bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400", label: "Easy" };
-      case "hard": return { bg: "bg-rose-500/10", text: "text-rose-600 dark:text-rose-400", label: "Hard" };
-      default: return { bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400", label: "Medium" };
+      case "easy": return { label: "Easy", color: "text-emerald-300" };
+      case "hard": return { label: "Hard", color: "text-rose-300" };
+      default: return { label: "Medium", color: "text-amber-300" };
     }
   };
 
-  const formatRelativeDate = (date: Date | string) => {
-    const d = typeof date === "string" ? new Date(date) : date;
-    return formatDistanceToNow(d, { addSuffix: true });
-  };
-
-  const handleVote = (voteType: number) => {
-    if (!user) return;
-    voteMutation.mutate(voteType);
-  };
-
-  const handleSubmitComment = () => {
-    if (!newComment.trim() || !user) return;
-    addCommentMutation.mutate(newComment.trim());
-  };
-
-  const voteScore = (votes?.upvotes || 0) - (votes?.downvotes || 0);
   const diffConfig = getDifficultyConfig(quiz.difficulty);
+  const gradient = getGradientForQuiz(quiz.id);
+  const questionCount = (quiz.questions as any[]).length;
 
   return (
-    <Card className="group overflow-visible border-border/50 hover:border-border transition-colors" data-testid={`card-public-quiz-${quiz.id}`}>
-      <CardContent className="p-0">
-        <div className="flex">
-          {/* Vote Column */}
-          <div className="flex flex-col items-center py-4 px-3 bg-muted/30 rounded-l-lg border-r border-border/50">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleVote(1)}
-              disabled={!user || voteMutation.isPending}
-              className={`h-8 w-8 ${votes?.userVote === 1 ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary"}`}
-              data-testid={`button-upvote-${quiz.id}`}
+    <motion.div
+      variants={itemVariants}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="group"
+    >
+      <Card 
+        className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+        onClick={handleTakeQuiz}
+        data-testid={`card-quiz-${quiz.id}`}
+      >
+        <div className={`relative h-36 sm:h-40 bg-gradient-to-br ${gradient} p-4 flex flex-col justify-between`}>
+          <div className="absolute inset-0 bg-black/10" />
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute top-4 right-4 w-24 h-24 rounded-full bg-white/10 blur-xl" />
+            <div className="absolute bottom-2 left-2 w-16 h-16 rounded-full bg-white/10 blur-lg" />
+          </div>
+          
+          <div className="relative flex items-start justify-between gap-2">
+            <Badge 
+              variant="secondary" 
+              className="bg-white/20 text-white border-0 backdrop-blur-sm text-xs font-medium"
             >
-              <ThumbsUp className="h-4 w-4" />
-            </Button>
-            <span className={`text-sm font-bold py-1 min-w-[2ch] text-center ${
-              voteScore > 0 ? "text-primary" : voteScore < 0 ? "text-destructive" : "text-muted-foreground"
-            }`}>
-              {voteScore}
+              {questionCount} {questionCount === 1 ? "question" : "questions"}
+            </Badge>
+            <span className={`text-xs font-medium ${diffConfig.color}`}>
+              {diffConfig.label}
             </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleVote(-1)}
-              disabled={!user || voteMutation.isPending}
-              className={`h-8 w-8 ${votes?.userVote === -1 ? "text-destructive bg-destructive/10" : "text-muted-foreground hover:text-destructive"}`}
-              data-testid={`button-downvote-${quiz.id}`}
-            >
-              <ThumbsDown className="h-4 w-4" />
-            </Button>
           </div>
 
-          {/* Main Content */}
-          <div className="flex-1 p-4 sm:p-5">
-            {/* Header */}
-            <div className="flex items-start gap-3 mb-3">
-              <Avatar className="h-9 w-9 ring-2 ring-background">
-                <AvatarImage src={quiz.author?.profileImageUrl || undefined} />
-                <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                  {getAuthorInitials(quiz.author)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-medium text-sm">
-                    {getAuthorName(quiz.author)}
-                  </span>
-                  <span className="text-muted-foreground text-xs">
-                    {formatRelativeDate(quiz.createdAt)}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <Badge variant="secondary" className="text-xs font-normal">
-                    {(quiz.questions as any[]).length} questions
-                  </Badge>
-                  <Badge className={`text-xs font-normal border-0 ${diffConfig.bg} ${diffConfig.text}`}>
-                    {diffConfig.label}
-                  </Badge>
-                </div>
-              </div>
-              {rank && rank <= 3 && (
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                  rank === 1 ? "bg-amber-500/20 text-amber-500" :
-                  rank === 2 ? "bg-slate-400/20 text-slate-400" :
-                  "bg-orange-600/20 text-orange-600"
-                }`}>
-                  <Award className="h-4 w-4" />
-                </div>
-              )}
-            </div>
-
-            {/* Title */}
-            <h3 className="text-lg font-semibold mb-4 group-hover:text-primary transition-colors">
+          <div className="relative">
+            <h3 className="text-white font-bold text-lg leading-tight line-clamp-2 drop-shadow-sm">
               {quiz.title}
             </h3>
-
-            {/* Actions Row */}
-            <div className="flex items-center justify-between gap-3 pt-3 border-t border-border/50">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowComments(!showComments)}
-                className="gap-2 text-muted-foreground hover:text-foreground"
-                data-testid={`button-comments-${quiz.id}`}
-              >
-                <MessageSquare className="h-4 w-4" />
-                <span>{showComments && comments ? comments.length : "Discuss"}</span>
-                {showComments ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-              </Button>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  onClick={handleStudyQuiz}
-                  className="gap-2"
-                  data-testid={`button-study-${quiz.id}`}
-                >
-                  <BookOpen className="h-4 w-4" />
-                  <span className="hidden sm:inline">Study</span>
-                </Button>
-                <Button
-                  onClick={handleTakeQuiz}
-                  className="gap-2"
-                  data-testid={`button-take-${quiz.id}`}
-                >
-                  <Play className="h-4 w-4" />
-                  <span className="hidden sm:inline">Take Quiz</span>
-                </Button>
-              </div>
-            </div>
-
-            {/* Comments Section */}
-            <AnimatePresence>
-              {showComments && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="pt-4 mt-4 border-t border-border/50 space-y-4">
-                    {user && (
-                      <div className="flex gap-3">
-                        <Avatar className="h-8 w-8 flex-shrink-0">
-                          <AvatarImage src={user.profileImageUrl || undefined} />
-                          <AvatarFallback className="text-xs">
-                            {user.firstName?.[0] || user.email?.[0] || "U"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 flex gap-2">
-                          <Textarea
-                            placeholder="Share your thoughts..."
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            className="min-h-[80px] resize-none bg-muted/50"
-                            data-testid={`input-comment-${quiz.id}`}
-                          />
-                          <Button
-                            size="icon"
-                            onClick={handleSubmitComment}
-                            disabled={!newComment.trim() || addCommentMutation.isPending}
-                            className="h-10 w-10 flex-shrink-0"
-                            data-testid={`button-submit-comment-${quiz.id}`}
-                          >
-                            <Send className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {!user && (
-                      <div className="bg-muted/50 rounded-lg p-4 text-center">
-                        <p className="text-sm text-muted-foreground">
-                          Sign in to join the discussion
-                        </p>
-                      </div>
-                    )}
-
-                    {commentsLoading ? (
-                      <div className="flex justify-center py-6">
-                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                      </div>
-                    ) : comments && comments.length > 0 ? (
-                      <div className="space-y-4">
-                        {comments.map((comment) => (
-                          <div key={comment.id} className="flex gap-3" data-testid={`comment-${comment.id}`}>
-                            <Avatar className="h-7 w-7 flex-shrink-0">
-                              <AvatarImage src={comment.author?.profileImageUrl || undefined} />
-                              <AvatarFallback className="text-xs">
-                                {getAuthorInitials(comment.author)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0 bg-muted/30 rounded-lg p-3">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-sm font-medium">
-                                  {getAuthorName(comment.author as any)}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                  {formatRelativeDate(comment.createdAt)}
-                                </span>
-                                {user && comment.userId === user.id && (
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-6 w-6 ml-auto text-muted-foreground hover:text-destructive"
-                                    onClick={() => deleteCommentMutation.mutate(comment.id)}
-                                    disabled={deleteCommentMutation.isPending}
-                                    data-testid={`button-delete-comment-${comment.id}`}
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                )}
-                              </div>
-                              <p className="text-sm">
-                                {comment.content}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-6">
-                        <MessageSquare className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
-                        <p className="text-sm text-muted-foreground">
-                          No comments yet. Be the first to share your thoughts!
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
+
+          <motion.div 
+            className="absolute inset-0 bg-black/50 flex items-center justify-center gap-3 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Button 
+              size="sm"
+              variant="secondary"
+              className="gap-2 bg-white/90 text-gray-900 hover:bg-white"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStudyQuiz();
+              }}
+              data-testid={`button-study-${quiz.id}`}
+            >
+              <BookOpen className="h-4 w-4" />
+              Study
+            </Button>
+            <Button 
+              size="sm"
+              className="gap-2 bg-white text-gray-900 hover:bg-white/90"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleTakeQuiz();
+              }}
+              data-testid={`button-play-${quiz.id}`}
+            >
+              <Play className="h-4 w-4 fill-current" />
+              Play
+            </Button>
+          </motion.div>
         </div>
-      </CardContent>
-    </Card>
+
+        <CardContent className="p-3">
+          <div className="flex items-center gap-2">
+            <Avatar className="h-6 w-6">
+              <AvatarImage src={quiz.author?.profileImageUrl || undefined} />
+              <AvatarFallback className="text-[10px] bg-muted">
+                {getAuthorInitials(quiz.author)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm text-muted-foreground truncate">
+              {getAuthorName(quiz.author)}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 
 export default function Feed() {
   const [, setLocation] = useLocation();
-  const [sortBy, setSortBy] = useState<"newest" | "popular">("newest");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const { data: quizzes, isLoading } = useQuery<PublicQuiz[]>({
     queryKey: ["/api/public-quizzes"],
   });
 
-  const sortedQuizzes = quizzes ? [...quizzes].sort((a, b) => {
-    if (sortBy === "popular") {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    }
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  }) : [];
+  const filteredQuizzes = useMemo(() => {
+    if (!quizzes) return [];
+    
+    return quizzes.filter(quiz => {
+      const matchesSearch = searchQuery === "" || 
+        quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        quiz.sourceText.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      return matchesSearch;
+    }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [quizzes, searchQuery]);
+
+  const stats = useMemo(() => {
+    if (!quizzes) return { totalQuizzes: 0, totalQuestions: 0, totalContributors: 0 };
+    return {
+      totalQuizzes: quizzes.length,
+      totalQuestions: quizzes.reduce((acc, q) => acc + (q.questions as any[]).length, 0),
+      totalContributors: new Set(quizzes.map(q => q.userId)).size,
+    };
+  }, [quizzes]);
 
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading community quizzes...</p>
+          <p className="text-muted-foreground">Discovering quizzes...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-purple-500/5 border-b">
+    <div className="min-h-screen bg-background">
+      <div className="relative overflow-hidden bg-gradient-to-b from-primary/5 via-background to-background">
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
         
-        <div className="container relative mx-auto px-4 sm:px-6 py-10 sm:py-16 max-w-4xl">
+        <div className="container relative mx-auto px-4 sm:px-6 pt-8 pb-6 max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center"
+            className="text-center mb-8"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-              <Users className="h-4 w-4" />
-              Community Hub
-            </div>
             <h1 className="text-3xl sm:text-4xl font-bold mb-3">
-              Discover & Learn Together
+              Discover Quizzes
             </h1>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Explore quizzes shared by the community. Study, test yourself, and join the discussion.
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              Explore community-created quizzes and test your knowledge
             </p>
           </motion.div>
 
-          {/* Stats */}
-          {quizzes && quizzes.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="flex items-center justify-center gap-6 sm:gap-10 mt-8"
-            >
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-primary">{quizzes.length}</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Quizzes</div>
-              </div>
-              <div className="w-px h-10 bg-border" />
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-primary">
-                  {quizzes.reduce((acc, q) => acc + (q.questions as any[]).length, 0)}
-                </div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Questions</div>
-              </div>
-              <div className="w-px h-10 bg-border" />
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-primary">
-                  {new Set(quizzes.map(q => q.userId)).size}
-                </div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Contributors</div>
-              </div>
-            </motion.div>
-          )}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-4xl">
-        {/* Sort Tabs */}
-        {quizzes && quizzes.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
+            transition={{ delay: 0.1 }}
+            className="max-w-2xl mx-auto mb-6"
           >
-            <Tabs value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
-              <TabsList className="bg-muted/50">
-                <TabsTrigger value="newest" className="gap-2">
-                  <Clock className="h-4 w-4" />
-                  Newest
-                </TabsTrigger>
-                <TabsTrigger value="popular" className="gap-2">
-                  <Flame className="h-4 w-4" />
-                  Popular
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder="Search quizzes by title or topic..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 h-12 text-base bg-background/80 backdrop-blur-sm border-border/50 focus:border-primary"
+                data-testid="input-search-quizzes"
+              />
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="flex items-center justify-center gap-2 flex-wrap"
+          >
+            {categories.slice(0, 6).map((category) => {
+              const Icon = category.icon;
+              const isActive = selectedCategory === category.id;
+              return (
+                <Button
+                  key={category.id}
+                  variant={isActive ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`gap-2 ${isActive ? "" : "bg-background/50 backdrop-blur-sm"}`}
+                  data-testid={`button-category-${category.id}`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {category.label}
+                </Button>
+              );
+            })}
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-6 py-8 max-w-7xl">
+        {stats.totalQuizzes > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-6 mb-8 text-sm text-muted-foreground"
+          >
+            <div className="flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              <span><strong className="text-foreground">{stats.totalQuizzes}</strong> quizzes</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              <span><strong className="text-foreground">{stats.totalQuestions}</strong> questions</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              <span><strong className="text-foreground">{stats.totalContributors}</strong> creators</span>
+            </div>
           </motion.div>
         )}
 
-        {!quizzes || quizzes.length === 0 ? (
+        {filteredQuizzes.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-16"
           >
-            <Card className="border-dashed">
-              <CardContent className="py-16 text-center">
+            {searchQuery ? (
+              <>
+                <Search className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No quizzes found</h3>
+                <p className="text-muted-foreground mb-6">
+                  Try a different search term or browse all quizzes
+                </p>
+                <Button variant="outline" onClick={() => setSearchQuery("")}>
+                  Clear Search
+                </Button>
+              </>
+            ) : (
+              <>
                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                  <Globe className="h-10 w-10 text-primary" />
+                  <GraduationCap className="h-10 w-10 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">No shared quizzes yet</h3>
+                <h3 className="text-xl font-semibold mb-2">No quizzes yet</h3>
                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-                  Be the first to share your knowledge with the community and help others learn!
+                  Be the first to share your knowledge with the community!
                 </p>
                 <Button onClick={() => setLocation("/create")} className="gap-2" data-testid="button-create-quiz">
-                  <Zap className="h-4 w-4" />
-                  Create & Share a Quiz
+                  <Sparkles className="h-4 w-4" />
+                  Create a Quiz
                 </Button>
-              </CardContent>
-            </Card>
+              </>
+            )}
           </motion.div>
         ) : (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="space-y-4"
-          >
-            {sortedQuizzes.map((quiz, index) => (
+          <>
+            {filteredQuizzes.length >= 4 && (
               <motion.div
-                key={quiz.id}
-                variants={itemVariants}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-8"
               >
-                <QuizCard quiz={quiz} rank={sortBy === "popular" ? index + 1 : undefined} />
+                <div className="flex items-center gap-2 mb-4">
+                  <Flame className="h-5 w-5 text-orange-500" />
+                  <h2 className="text-lg font-semibold">Featured</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {filteredQuizzes.slice(0, 4).map((quiz) => (
+                    <QuizCard key={quiz.id} quiz={quiz} />
+                  ))}
+                </div>
               </motion.div>
-            ))}
-          </motion.div>
+            )}
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Clock className="h-5 w-5 text-muted-foreground" />
+                <h2 className="text-lg font-semibold">
+                  {filteredQuizzes.length >= 4 ? "All Quizzes" : "Recent Quizzes"}
+                </h2>
+              </div>
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
+              >
+                {(filteredQuizzes.length >= 4 ? filteredQuizzes.slice(4) : filteredQuizzes).map((quiz) => (
+                  <QuizCard key={quiz.id} quiz={quiz} />
+                ))}
+              </motion.div>
+            </motion.div>
+          </>
         )}
 
-        {quizzes && quizzes.length > 0 && (
+        {filteredQuizzes.length > 0 && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-center mt-10 pt-6 border-t"
+            className="text-center mt-12 pt-8 border-t"
           >
             <p className="text-sm text-muted-foreground mb-4">
-              Want to contribute? Share your own quiz with the community!
+              Have study materials to share? Create your own quiz!
             </p>
             <Button variant="outline" onClick={() => setLocation("/create")} className="gap-2">
               <Sparkles className="h-4 w-4" />
