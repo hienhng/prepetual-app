@@ -1,4 +1,4 @@
-import { eq, desc, and, gt } from "drizzle-orm";
+import { eq, desc, and, gt, inArray } from "drizzle-orm";
 import { db } from "./db";
 import { 
   users, 
@@ -42,6 +42,8 @@ export interface IStorage {
   saveQuizResult(result: InsertQuizResult): Promise<QuizResult>;
   getQuizResult(quizId: string): Promise<QuizResult | undefined>;
   getQuizResultsByQuizId(quizId: string): Promise<QuizResult[]>;
+  // Streak
+  getUserStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; lastActivityDate: string | null }>;
   // Comments
   addComment(comment: InsertComment): Promise<QuizComment>;
   getCommentsByQuizId(quizId: string): Promise<(QuizComment & { author: { firstName: string | null; lastName: string | null; profileImageUrl: string | null } })[]>;
@@ -298,6 +300,101 @@ export class DatabaseStorage implements IStorage {
       .from(quizVotes)
       .where(and(eq(quizVotes.quizId, quizId), eq(quizVotes.userId, userId)));
     return vote?.voteType || null;
+  }
+
+  async getUserStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; lastActivityDate: string | null }> {
+    // Get all activity dates: quiz creation + quiz completions
+    const userQuizzes = await db.select({ createdAt: quizzes.createdAt })
+      .from(quizzes)
+      .where(eq(quizzes.userId, userId));
+
+    const userQuizIds = await db.select({ id: quizzes.id })
+      .from(quizzes)
+      .where(eq(quizzes.userId, userId));
+
+    let completionDates: Date[] = [];
+    if (userQuizIds.length > 0) {
+      const quizIdList = userQuizIds.map(q => q.id);
+      const results = await db.select({ completedAt: quizResults.completedAt })
+        .from(quizResults)
+        .where(inArray(quizResults.quizId, quizIdList));
+      completionDates = results.map(r => r.completedAt);
+    }
+
+    // Combine all activity dates
+    const allDates = [
+      ...userQuizzes.map(q => q.createdAt),
+      ...completionDates
+    ].filter(Boolean) as Date[];
+
+    if (allDates.length === 0) {
+      return { currentStreak: 0, longestStreak: 0, lastActivityDate: null };
+    }
+
+    // Convert to unique date strings (YYYY-MM-DD)
+    const dateStrings = allDates.map(d => {
+      const date = new Date(d);
+      return date.toISOString().split('T')[0];
+    });
+    const uniqueDays = Array.from(new Set(dateStrings)).sort().reverse();
+
+    if (uniqueDays.length === 0) {
+      return { currentStreak: 0, longestStreak: 0, lastActivityDate: null };
+    }
+
+    const lastActivityDate = uniqueDays[0];
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+    // Calculate current streak
+    let currentStreak = 0;
+    let checkDate = today;
+
+    // Check if there's activity today or yesterday to start the streak
+    if (uniqueDays.includes(today)) {
+      currentStreak = 1;
+      checkDate = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    } else if (uniqueDays.includes(yesterday)) {
+      currentStreak = 1;
+      checkDate = new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0];
+    } else {
+      // No recent activity, streak is 0
+      return { currentStreak: 0, longestStreak: this.calculateLongestStreak(uniqueDays), lastActivityDate };
+    }
+
+    // Count consecutive days backwards
+    while (uniqueDays.includes(checkDate)) {
+      currentStreak++;
+      const nextDate = new Date(new Date(checkDate).getTime() - 86400000);
+      checkDate = nextDate.toISOString().split('T')[0];
+    }
+
+    const longestStreak = Math.max(currentStreak, this.calculateLongestStreak(uniqueDays));
+
+    return { currentStreak, longestStreak, lastActivityDate };
+  }
+
+  private calculateLongestStreak(sortedDaysDesc: string[]): number {
+    if (sortedDaysDesc.length === 0) return 0;
+
+    const sortedDays = [...sortedDaysDesc].sort();
+    let longestStreak = 1;
+    let currentRun = 1;
+
+    for (let i = 1; i < sortedDays.length; i++) {
+      const prevDate = new Date(sortedDays[i - 1]);
+      const currDate = new Date(sortedDays[i]);
+      const diffDays = (currDate.getTime() - prevDate.getTime()) / 86400000;
+
+      if (diffDays === 1) {
+        currentRun++;
+        longestStreak = Math.max(longestStreak, currentRun);
+      } else if (diffDays > 1) {
+        currentRun = 1;
+      }
+    }
+
+    return longestStreak;
   }
 }
 

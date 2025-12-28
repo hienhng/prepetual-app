@@ -30,7 +30,7 @@ export default function Quiz() {
         >
           <Button
             variant="ghost"
-            onClick={() => setLocation("/generate")}
+            onClick={() => setLocation("/dashboard")}
             className="gap-2"
             data-testid="button-back-generate"
           >

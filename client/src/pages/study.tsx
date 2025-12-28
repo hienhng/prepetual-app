@@ -102,7 +102,7 @@ export default function StudyPage() {
               <RotateCcw className="h-4 w-4 mr-1" />
               Reset
             </Button>
-            <Link href="/history">
+            <Link href="/dashboard">
               <Button size="sm" variant="outline" data-testid="button-back-history">
                 <Home className="h-4 w-4 mr-1" />
                 Back
