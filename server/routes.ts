@@ -294,6 +294,17 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/user/streak", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const streak = await storage.getUserStreak(userId);
+      res.json(streak);
+    } catch (error) {
+      console.error("Streak fetch error:", error);
+      res.status(500).json({ message: "Failed to get streak" });
+    }
+  });
+
   app.put("/api/quiz/:id", async (req, res) => {
     try {
       const { id } = req.params;
