@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, Brain, ArrowRight, CheckCircle2, Upload, FileText, BarChart3 } from "lucide-react";
+import { Sparkles, Brain, ArrowRight, CheckCircle2, Upload, FileText, BarChart3, LoaderCircle, CircleFadingPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "@/components/file-upload";
@@ -296,7 +296,7 @@ export default function Home() {
                       animate={{ rotate: 360 }}
                       transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                     >
-                      <Brain className="w-4 h-4" />
+                      <CircleFadingPlus className="w-4 h-4" />
                     </motion.div>
                     <span>Generating more questions...</span>
                   </motion.div>
@@ -313,7 +313,7 @@ export default function Home() {
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-quiz-purple/10">
                 <Brain className="w-5 h-5 text-quiz-purple" />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground ">
                 AI-Powered Quiz Generation
               </h2>
               <p className="text-muted-foreground">

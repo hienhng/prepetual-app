@@ -111,15 +111,17 @@ export function AppSidebar() {
           {isCollapsed ? (
             <button
               onClick={toggleSidebar}
-              className="hidden md:flex items-center justify-center w-8 h-8 rounded-md group cursor-pointer hover:bg-sidebar-accent transition-all"
+              className="hidden md:flex items-center justify-center w-8 h-8 rounded-md cursor-pointer transition-all relative group/logo"
               data-testid="sidebar-expand-toggle"
             >
               <img 
                 src={logoImage} 
                 alt="Expand Sidebar" 
-                className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0 group-hover:hidden"
+                className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0 group-hover/logo:opacity-0 transition-opacity"
               />
-              <PanelRight className="h-4 w-4 hidden group-hover:block" />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/logo:opacity-100 transition-opacity bg-sidebar-accent rounded-md">
+                <PanelRight className="h-4 w-4" />
+              </div>
             </button>
           ) : (
             <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNavClick}>
