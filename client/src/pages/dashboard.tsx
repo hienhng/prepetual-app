@@ -15,6 +15,12 @@ import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import type { Quiz } from "@shared/schema";
 
+interface StreakData {
+  currentStreak: number;
+  longestStreak: number;
+  lastActivityDate: string | null;
+}
+
 const learningTips = [
   "Spaced repetition helps you remember better. Try reviewing your quizzes at increasing intervals for maximum retention.",
   "Teaching others what you've learned is one of the best ways to reinforce your own understanding.",
@@ -369,6 +375,10 @@ export default function Dashboard() {
     queryKey: ["/api/quizzes"],
   });
 
+  const { data: streakData } = useQuery<StreakData>({
+    queryKey: ["/api/user/streak"],
+  });
+
   const handleTakeQuiz = (quiz: Quiz) => {
     setCurrentQuiz({
       ...quiz,
@@ -469,7 +479,7 @@ export default function Dashboard() {
               />
               <StatCard
                 label="Streak"
-                value="1"
+                value={streakData?.currentStreak ?? 0}
                 icon={Flame}
                 gradient="bg-gradient-to-br from-orange-500 to-orange-600"
               />
