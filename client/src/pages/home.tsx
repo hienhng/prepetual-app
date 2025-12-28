@@ -44,43 +44,36 @@ export default function Home() {
   return (
     <div className="min-h-screen overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pb-16 sm:pb-24">
-        {/* Background elements */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/3 via-background to-background" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-br from-primary/8 to-quiz-purple/8 rounded-full blur-3xl opacity-60" />
+      <section className="relative overflow-hidden pb-20 sm:pb-28">
+        {/* Background - simplified */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
         
-        <div className="container relative mx-auto px-4 sm:px-6 pt-8 sm:pt-16 md:pt-20">
+        <div className="container relative mx-auto px-4 sm:px-6 pt-12 sm:pt-20 md:pt-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-4xl mx-auto mb-10 sm:mb-14"
+            className="text-center max-w-3xl mx-auto mb-12 sm:mb-16"
           >
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6"
-            >
-              <Sparkles className="h-4 w-4" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
+              <Sparkles className="h-3.5 w-3.5" />
               <span>AI-Powered Study Assistant</span>
-            </motion.div>
+            </div>
             
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight">
               Turn your notes into
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-quiz-purple to-primary">practice quizzes</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-quiz-purple">practice quizzes</span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Upload any study material and let AI create personalized quizzes in seconds. 
-              Study smarter, not harder.
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-10">
+              Upload any study material and let AI create personalized quizzes in seconds.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
               <Button
                 size="lg"
                 onClick={handleGetStarted}
-                className="gap-2 text-base px-8 w-full sm:w-auto"
+                className="gap-2 px-8 w-full sm:w-auto"
                 data-testid="button-hero-get-started"
               >
                 Get Started Free
@@ -90,7 +83,7 @@ export default function Home() {
                 size="lg"
                 variant="outline"
                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto px-8"
                 data-testid="button-hero-learn-more"
               >
                 See How It Works
@@ -100,10 +93,10 @@ export default function Home() {
 
           {/* Upload Section */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="max-w-3xl mx-auto"
+            transition={{ delay: 0.2 }}
+            className="max-w-2xl mx-auto"
           >
             <FileUpload onTextExtracted={handleTextExtracted} />
           </motion.div>
@@ -117,7 +110,7 @@ export default function Home() {
               <Button
                 size="lg"
                 onClick={handleContinueToGenerate}
-                className="gap-2 text-base px-8"
+                className="gap-2 px-8"
                 data-testid="button-continue-generate"
               >
                 Continue to Generate Quiz
@@ -126,24 +119,24 @@ export default function Home() {
             </motion.div>
           )}
 
-          {/* Trust indicators */}
+          {/* Trust indicators - cleaner chips */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex flex-wrap items-center justify-center gap-6 mt-12 text-sm text-muted-foreground"
+            transition={{ delay: 0.4 }}
+            className="flex flex-wrap items-center justify-center gap-3 mt-14"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card border text-sm text-muted-foreground">
               <CheckCircle2 className="h-4 w-4 text-primary" />
               <span>Free to use</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card border text-sm text-muted-foreground">
               <CheckCircle2 className="h-4 w-4 text-primary" />
-              <span>No credit card required</span>
+              <span>No credit card</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card border text-sm text-muted-foreground">
               <CheckCircle2 className="h-4 w-4 text-primary" />
-              <span>PDF & Image support</span>
+              <span>PDF & Images</span>
             </div>
           </motion.div>
         </div>
