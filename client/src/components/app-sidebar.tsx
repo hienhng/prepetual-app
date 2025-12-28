@@ -13,6 +13,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   PanelRight,
+  Compass
 
 } from "lucide-react";
 import {
@@ -59,9 +60,9 @@ const mainNavItems = [
     icon: Archive,
   },
   {
-    title: "Community",
+    title: "Discover",
     url: "/feed",
-    icon: Globe,
+    icon: Compass,
   },
 ];
 

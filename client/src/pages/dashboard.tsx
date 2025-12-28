@@ -37,6 +37,8 @@ const learningTips = [
   "Stay hydrated and maintain good nutrition. Your brain needs proper fuel to learn effectively.",
   "Test yourself before you think you're ready. Making mistakes early helps identify gaps in your knowledge.",
   "Connect new concepts to real-world examples. Practical applications make abstract ideas stick better.",
+  "When doing multiple-choice questions, don't just find the right answer. Explain to yourself why the other three options are wrong. This triples your learning from a single question.",
+  "Upload your material and take a quiz before you start intensive studying. This 'pre-test' highlights exactly which parts of the PDF you already know and which parts need your full attention.",
 ];
 
 const containerVariants = {
