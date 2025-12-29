@@ -1,12 +1,14 @@
 import { useLocation } from "wouter";
 import { QuizResults } from "@/components/quiz-results";
 import { useQuiz } from "@/lib/quiz-context";
+import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 
 export default function Results() {
   const [, setLocation] = useLocation();
   const { quizResult } = useQuiz();
+  const { user } = useAuth();
   const quizResultRef = useRef(quizResult);
   const mountTimeRef = useRef(Date.now());
 
@@ -20,20 +22,22 @@ export default function Results() {
     // Then check if there's still no result
     const timeout = setTimeout(() => {
       if (!quizResultRef.current) {
-        setLocation("/dashboard");
+        // Redirect guests to home, authenticated users to dashboard
+        setLocation(user ? "/dashboard" : "/");
       }
     }, 150);
 
     return () => clearTimeout(timeout);
-  }, [setLocation]);
+  }, [setLocation, user]);
 
   // Also redirect if user navigates directly to /results without a result
   // but only after initial mount delay has passed
   useEffect(() => {
     if (!quizResult && Date.now() - mountTimeRef.current > 200) {
-      setLocation("/dashboard");
+      // Redirect guests to home, authenticated users to dashboard
+      setLocation(user ? "/dashboard" : "/");
     }
-  }, [quizResult, setLocation]);
+  }, [quizResult, setLocation, user]);
 
   if (!quizResult) {
     return null;

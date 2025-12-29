@@ -3,18 +3,21 @@ import { ArrowLeft, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QuizPlayer } from "@/components/quiz-player";
 import { useQuiz } from "@/lib/quiz-context";
+import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 
 export default function Quiz() {
   const [, setLocation] = useLocation();
   const { currentQuiz } = useQuiz();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!currentQuiz) {
-      setLocation("/create");
+      // Redirect guests to home, authenticated users to create
+      setLocation(user ? "/create" : "/");
     }
-  }, [currentQuiz, setLocation]);
+  }, [currentQuiz, setLocation, user]);
 
   if (!currentQuiz) {
     return null;
@@ -30,7 +33,7 @@ export default function Quiz() {
         >
           <Button
             variant="ghost"
-            onClick={() => setLocation("/dashboard")}
+            onClick={() => setLocation(user ? "/dashboard" : "/")}
             className="gap-2"
             data-testid="button-back-generate"
           >

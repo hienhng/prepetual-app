@@ -101,6 +101,9 @@ function PublicRouter() {
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/share/:id" component={Share} />
+      {/* Guest-accessible quiz experience (from shared links) */}
+      <Route path="/quiz" component={Quiz} />
+      <Route path="/results" component={Results} />
       {/* Auth flow pages */}
       <Route path="/verify-email" component={VerifyEmailPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />
@@ -110,8 +113,6 @@ function PublicRouter() {
       <Route path="/create">{() => <ProtectedRoute component={Create} />}</Route>
       <Route path="/feed">{() => <ProtectedRoute component={Feed} />}</Route>
       <Route path="/generate">{() => <ProtectedRoute component={Generate} />}</Route>
-      <Route path="/quiz">{() => <ProtectedRoute component={Quiz} />}</Route>
-      <Route path="/results">{() => <ProtectedRoute component={Results} />}</Route>
       <Route path="/history">{() => <ProtectedRoute component={HistoryPage} />}</Route>
       <Route path="/study">{() => <ProtectedRoute component={Study} />}</Route>
       <Route path="/edit-quiz">{() => <ProtectedRoute component={EditQuiz} />}</Route>
