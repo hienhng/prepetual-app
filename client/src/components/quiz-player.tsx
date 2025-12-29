@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useQuiz } from "@/lib/quiz-context";
+import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
 import { MaterialViewerDialog, MaterialViewerSidebar } from "@/components/material-viewer";
@@ -14,12 +15,15 @@ import { MaterialViewerDialog, MaterialViewerSidebar } from "@/components/materi
 export function QuizPlayer() {
   const [, setLocation] = useLocation();
   const { currentQuiz, userAnswers, setUserAnswer, setQuizResult, sourceMaterial } = useQuiz();
+  const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shortAnswerInput, setShortAnswerInput] = useState("");
   const [checkedQuestions, setCheckedQuestions] = useState<Set<string>>(new Set());
   const [showMaterial, setShowMaterial] = useState(false);
   const [showMaterialDialog, setShowMaterialDialog] = useState(false);
+  
+  const isGuest = !user;
 
   if (!currentQuiz) {
     return null;
@@ -163,7 +167,7 @@ export function QuizPlayer() {
                     The correct answer is: <span className="font-medium text-foreground">{currentQuestion.correctAnswer}</span>
                   </p>
                 )}
-                {currentQuestion.explanation && (
+                {currentQuestion.explanation && !isGuest && (
                   <p className="text-sm text-muted-foreground mt-2">
                     {currentQuestion.explanation}
                   </p>

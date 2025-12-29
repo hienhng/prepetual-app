@@ -1,16 +1,20 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
-import { Trophy, Check, X, ChevronDown, ChevronUp, RotateCcw, Home, Sparkles, LucideMessageCircleQuestion } from "lucide-react";
+import { useLocation, Link } from "wouter";
+import { Trophy, Check, X, ChevronDown, ChevronUp, RotateCcw, Home, Sparkles, LucideMessageCircleQuestion, Lock, UserPlus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuiz } from "@/lib/quiz-context";
+import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 
 export function QuizResults() {
   const [, setLocation] = useLocation();
   const { currentQuiz, quizResult, userAnswers, resetQuiz, clearUserAnswers } = useQuiz();
+  const { user } = useAuth();
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
+  
+  const isGuest = !user;
 
   if (!currentQuiz || !quizResult) {
     return null;
@@ -243,10 +247,16 @@ export function QuizResults() {
                             <p className="text-sm font-medium text-success">{question.correctAnswer}</p>
                           </div>
                         )}
-                        {question.explanation && (
+                        {question.explanation && !isGuest && (
                           <div>
                             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Explanation</p>
                             <p className="text-sm text-muted-foreground">{question.explanation}</p>
+                          </div>
+                        )}
+                        {question.explanation && isGuest && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Lock className="h-3 w-3" />
+                            <p className="text-xs italic">Sign up to see explanations</p>
                           </div>
                         )}
                       </div>
@@ -259,10 +269,43 @@ export function QuizResults() {
         </Card>
       </motion.div>
 
+      {isGuest && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <Card className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 border-primary/20">
+            <CardContent className="p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                <UserPlus className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Unlock Full Features</h3>
+              <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
+                Sign up for free to see detailed explanations, track your progress, save quizzes, and create your own study materials!
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link href="/auth?mode=register">
+                  <Button className="gap-2" data-testid="button-guest-signup">
+                    <UserPlus className="h-4 w-4" />
+                    Create Free Account
+                  </Button>
+                </Link>
+                <Link href="/auth">
+                  <Button variant="outline" data-testid="button-guest-login">
+                    Already have an account? Sign in
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: isGuest ? 0.6 : 0.5 }}
         className="flex flex-col sm:flex-row gap-4"
       >
         <Button
@@ -274,14 +317,16 @@ export function QuizResults() {
           <RotateCcw className="h-4 w-4" />
           Retake Quiz
         </Button>
-        <Button
-          onClick={startNew}
-          className="flex-1 gap-2"
-          data-testid="button-new-quiz"
-        >
-          <Home className="h-4 w-4" />
-          Create New Quiz
-        </Button>
+        {!isGuest && (
+          <Button
+            onClick={startNew}
+            className="flex-1 gap-2"
+            data-testid="button-new-quiz"
+          >
+            <Home className="h-4 w-4" />
+            Create New Quiz
+          </Button>
+        )}
       </motion.div>
     </div>
   );

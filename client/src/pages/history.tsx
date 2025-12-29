@@ -194,12 +194,12 @@ export default function HistoryPage() {
                             <Target className="h-3 w-3" />
                             {quiz.attemptCount || 0} {quiz.attemptCount === 1 ? "attempt" : "attempts"}
                           </Badge>
-                          {quiz.isPublic === 1 && (
+                          {/* {quiz.isPublic === 1 && (
                             <Badge variant="outline" className="text-xs sm:text-sm gap-1 text-primary border-primary/30">
                               <Globe className="h-3 w-3" />
                               Shared
                             </Badge>
-                          )}
+                          )} */}
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
