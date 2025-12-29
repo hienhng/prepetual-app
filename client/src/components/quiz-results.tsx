@@ -1,17 +1,19 @@
 import { useState } from "react";
-import { useLocation, Link } from "wouter";
+import { useLocation } from "wouter";
 import { Trophy, Check, X, ChevronDown, ChevronUp, RotateCcw, Home, Sparkles, LucideMessageCircleQuestion, Lock, UserPlus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthDialog } from "@/lib/auth-context";
 import { motion } from "framer-motion";
 
 export function QuizResults() {
   const [, setLocation] = useLocation();
   const { currentQuiz, quizResult, userAnswers, resetQuiz, clearUserAnswers } = useQuiz();
   const { user } = useAuth();
+  const { openLoginDialog, openSignUpDialog } = useAuthDialog();
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
   
   const isGuest = !user;
@@ -285,17 +287,13 @@ export function QuizResults() {
                 Sign up for free to see detailed explanations, track your progress, save quizzes, and create your own study materials!
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Link href="/auth?mode=register">
-                  <Button className="gap-2" data-testid="button-guest-signup">
-                    <UserPlus className="h-4 w-4" />
-                    Create Free Account
-                  </Button>
-                </Link>
-                <Link href="/auth">
-                  <Button variant="outline" data-testid="button-guest-login">
-                    Already have an account? Sign in
-                  </Button>
-                </Link>
+                <Button className="gap-2" onClick={openSignUpDialog} data-testid="button-guest-signup">
+                  <UserPlus className="h-4 w-4" />
+                  Create Free Account
+                </Button>
+                <Button variant="outline" onClick={openLoginDialog} data-testid="button-guest-login">
+                  Already have an account? Sign in
+                </Button>
               </div>
             </CardContent>
           </Card>
