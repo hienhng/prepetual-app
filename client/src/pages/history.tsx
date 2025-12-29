@@ -19,6 +19,7 @@ export default function HistoryPage() {
 
   const { data: quizzes, isLoading } = useQuery<QuizWithAttempts[]>({
     queryKey: ["/api/quizzes"],
+    refetchOnMount: "always",
   });
 
   const deleteMutation = useMutation({
