@@ -229,12 +229,12 @@ export default function Create() {
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <FileText className="w-4 h-4" />
-                <span>PDF</span>
+                <span>PDF (slides, notes)</span>
               </div>
               <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
               <div className="flex items-center gap-1.5">
                 <Image className="w-4 h-4" />
-                <span>PNG, JPG</span>
+                <span>PNG, JPG (phone photos)</span>
               </div>
             </div>
           </motion.div>

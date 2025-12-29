@@ -285,10 +285,20 @@ export async function registerRoutes(
     try {
       const userId = req.user.claims.sub;
       const quizzes = await storage.getQuizzesByUserId(userId);
-      res.json(quizzes.map(q => ({
-        ...q,
-        createdAt: q.createdAt.toISOString(),
-      })));
+      
+      // Get attempt counts for each quiz
+      const quizzesWithAttempts = await Promise.all(
+        quizzes.map(async (q) => {
+          const results = await storage.getQuizResultsByQuizId(q.id);
+          return {
+            ...q,
+            createdAt: q.createdAt.toISOString(),
+            attemptCount: results.length,
+          };
+        })
+      );
+      
+      res.json(quizzesWithAttempts);
     } catch (error) {
       res.status(500).json({ message: "Failed to get quizzes" });
     }

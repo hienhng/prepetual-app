@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
-import { History, Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, Archive, CirclePlus, Globe, GlobeLock } from "lucide-react";
+import { History, Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, Archive, CirclePlus, Globe, GlobeLock, Target } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,12 +10,14 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Quiz } from "@shared/schema";
 
+type QuizWithAttempts = Quiz & { attemptCount?: number };
+
 export default function HistoryPage() {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial } = useQuiz();
   const { toast } = useToast();
 
-  const { data: quizzes, isLoading } = useQuery<Quiz[]>({
+  const { data: quizzes, isLoading } = useQuery<QuizWithAttempts[]>({
     queryKey: ["/api/quizzes"],
   });
 
@@ -187,6 +189,10 @@ export default function HistoryPage() {
                               {quiz.difficulty}
                             </Badge>
                           )}
+                          <Badge variant="outline" className="text-xs sm:text-sm gap-1">
+                            <Target className="h-3 w-3" />
+                            {quiz.attemptCount || 0} {quiz.attemptCount === 1 ? "attempt" : "attempts"}
+                          </Badge>
                           {quiz.isPublic === 1 && (
                             <Badge variant="outline" className="text-xs sm:text-sm gap-1 text-primary border-primary/30">
                               <Globe className="h-3 w-3" />
@@ -211,7 +217,7 @@ export default function HistoryPage() {
                           data-testid={`button-study-${quiz.id}`}
                         >
                           <BookOpen className="h-4 w-4 mr-1" />
-                          Study
+                          Review
                         </Button>
                         <Button
                           size="icon"
