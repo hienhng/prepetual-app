@@ -6,7 +6,7 @@ import {
   Search, Play, Loader2, Users, BookOpen, 
   Sparkles, Clock, Filter, Flame, Target, Zap, 
   GraduationCap, Beaker, Calculator, Globe2, 
-  Palette, Music, Code, Heart, Dumbbell, Languages
+  Palette, Music, Code, Heart, Dumbbell, Languages, Archive
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,18 +37,18 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3 } },
 };
 
-const categories = [
-  { id: "all", label: "All", icon: Sparkles },
-  { id: "science", label: "Science", icon: Beaker },
-  { id: "math", label: "Math", icon: Calculator },
-  { id: "languages", label: "Languages", icon: Languages },
-  { id: "history", label: "History", icon: Globe2 },
-  { id: "arts", label: "Arts", icon: Palette },
-  { id: "tech", label: "Technology", icon: Code },
-  { id: "health", label: "Health", icon: Heart },
-  { id: "sports", label: "Sports", icon: Dumbbell },
-  { id: "music", label: "Music", icon: Music },
-];
+// const categories = [
+//   { id: "all", label: "All", icon: Sparkles },
+//   { id: "science", label: "Science", icon: Beaker },
+//   { id: "math", label: "Math", icon: Calculator },
+//   { id: "languages", label: "Languages", icon: Languages },
+//   { id: "history", label: "History", icon: Globe2 },
+//   { id: "arts", label: "Arts", icon: Palette },
+//   { id: "tech", label: "Technology", icon: Code },
+//   { id: "health", label: "Health", icon: Heart },
+//   { id: "sports", label: "Sports", icon: Dumbbell },
+//   { id: "music", label: "Music", icon: Music },
+// ];
 
 const gradients = [
   "from-violet-500 to-purple-600",
@@ -175,9 +175,9 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
             transition={{ duration: 0.2 }}
           >
             <Button 
-              size="sm"
-              variant="secondary"
-              className="gap-2 bg-white/90 text-gray-900 hover:bg-white"
+              size="lg"
+              variant ="outline"
+              className="gap-4 bg-white/90 text-gray-900 hover:bg-white hover:-translate-y-1 transition-all"
               onClick={(e) => {
                 e.stopPropagation();
                 handleStudyQuiz();
@@ -185,19 +185,19 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
               data-testid={`button-study-${quiz.id}`}
             >
               <BookOpen className="h-4 w-4" />
-              Study
+              
             </Button>
             <Button 
-              size="sm"
-              className="gap-2 bg-white text-gray-900 hover:bg-white/90"
+              size="lg"
+              className="gap-4 bg-primary text-gray-900 hover:bg-primary/90 hover:-translate-y-1 transition-all"
               onClick={(e) => {
                 e.stopPropagation();
                 handleTakeQuiz();
               }}
               data-testid={`button-play-${quiz.id}`}
             >
-              <Play className="h-4 w-4 fill-current" />
-              Play
+              <Play className="h-4 w-4 " />
+              
             </Button>
           </motion.div>
         </div>
@@ -294,7 +294,7 @@ export default function Feed() {
                 placeholder="Search quizzes by title or topic..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 text-base bg-background/80 backdrop-blur-sm border-border/50 focus:border-primary"
+                className="pl-12 h-12 text-base bg-background/80 border-border/50 focus:border-primary"
                 data-testid="input-search-quizzes"
               />
             </div>
@@ -306,7 +306,7 @@ export default function Feed() {
             transition={{ delay: 0.15 }}
             className="flex items-center justify-center gap-2 flex-wrap"
           >
-            {categories.slice(0, 6).map((category) => {
+            {/* {categories.slice(0, 6).map((category) => {
               const Icon = category.icon;
               const isActive = selectedCategory === category.id;
               return (
@@ -322,7 +322,7 @@ export default function Feed() {
                   {category.label}
                 </Button>
               );
-            })}
+            })} */}
           </motion.div>
         </div>
       </div>
@@ -437,9 +437,13 @@ export default function Feed() {
             <p className="text-sm text-muted-foreground mb-4">
               Have study materials to share? Create your own quiz!
             </p>
-            <Button variant="outline" onClick={() => setLocation("/create")} className="gap-2">
+            <Button variant="default" onClick={() => setLocation("/create")} className="gap-2">
               <Sparkles className="h-4 w-4" />
               Create a Quiz
+            </Button>
+            <Button variant="outline" onClick={() => setLocation("/history")} className="gap-2 ml-5">
+              <Archive className="h-4 w-4" />
+              Your Quizzes
             </Button>
           </motion.div>
         )}
