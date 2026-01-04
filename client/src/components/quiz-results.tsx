@@ -21,35 +21,35 @@ function AnimatedFlame({ className, streakCount = 1 }: { className?: string, str
 
   return (
     <div className={`relative ${className} flex flex-col items-center justify-center`}>
-      <div className="relative w-24 h-24">
+      <div className="relative w-32 h-32 flex items-center justify-center">
         {/* Background Grayscale Flame */}
         <Flame 
-          className="w-full h-full text-muted-foreground/30 fill-muted-foreground/20" 
+          className="w-24 h-24 text-muted-foreground/30 fill-muted-foreground/20" 
           style={{ filter: "grayscale(100%)" }}
         />
         
         {/* Sliding Vibrant Flame (Vertical Reveal) */}
         <motion.div
-          className="absolute inset-x-0 bottom-0 overflow-hidden"
+          className="absolute inset-x-0 bottom-0 overflow-hidden flex flex-col justify-end items-center"
           initial={{ height: "0%" }}
           animate={{ height: revealProgress ? "100%" : "0%" }}
           transition={{ duration: 1.2, ease: "circOut" }}
         >
-          <div className="w-24 h-24 relative">
+          <div className="w-32 h-32 flex items-center justify-center">
             <motion.div
-              className="w-full h-full"
+              className="w-24 h-24"
               animate={revealProgress ? {
-                scale: [1, 1.1, 1],
+                scale: [1, 1.08, 1],
                 y: [0, -4, 0],
-                skewX: [0, 2, -2, 0]
+                skewX: [0, 1.5, -1.5, 0]
               } : {}}
               transition={{
-                scale: { duration: 0.4, repeat: Infinity, repeatDelay: 1 },
-                y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                skewX: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
+                scale: { duration: 0.5, repeat: Infinity, repeatDelay: 1 },
+                y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
+                skewX: { duration: 2, repeat: Infinity, ease: "easeInOut" }
               }}
             >
-              <Flame className="w-full h-full text-quiz-orange fill-quiz-orange drop-shadow-[0_0_20px_rgba(249,115,22,0.9)]" />
+              <Flame className="w-full h-full text-quiz-orange fill-quiz-orange drop-shadow-[0_0_25px_rgba(249,115,22,0.7)]" />
             </motion.div>
           </div>
         </motion.div>
