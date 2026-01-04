@@ -19,6 +19,7 @@ interface StreakData {
   currentStreak: number;
   longestStreak: number;
   lastActivityDate: string | null;
+  isActive: boolean;
 }
 
 const learningTips = [
@@ -160,7 +161,7 @@ function QuickActionCard({
                 {description}
               </p>
             </div>
-            <ArrowRight className={`w-5 h-5 flex-shrink-0 ${isPrimary ? "text-white/60" : "text-muted-foreground"}`} />
+            {/* <ArrowRight className={`w-5 h-5 flex-shrink-0 ${isPrimary ? "text-white/60" : "text-muted-foreground"}`} /> */}
           </div>
         </CardContent>
       </Card>
