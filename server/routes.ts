@@ -493,10 +493,15 @@ export async function registerRoutes(
   // Streak reminder endpoint (can be called by a cron job or manually)
   app.post("/api/send-streak-reminders", async (req: any, res) => {
     try {
-      // Optional: Add a secret key check for security
-      const authHeader = req.headers.authorization;
-      const expectedSecret = process.env.STREAK_REMINDER_SECRET || "streak-reminder-secret";
+      // Require STREAK_REMINDER_SECRET to be set for security
+      const expectedSecret = process.env.STREAK_REMINDER_SECRET;
       
+      if (!expectedSecret) {
+        console.error("[Streak Reminder] STREAK_REMINDER_SECRET environment variable is not set");
+        return res.status(500).json({ message: "Server configuration error: STREAK_REMINDER_SECRET not configured" });
+      }
+      
+      const authHeader = req.headers.authorization;
       if (authHeader !== `Bearer ${expectedSecret}`) {
         return res.status(401).json({ message: "Unauthorized" });
       }

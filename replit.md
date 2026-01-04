@@ -18,6 +18,7 @@ QuizAI is a full-stack web application that transforms study materials into inte
 - **Quiz Sharing**: Implemented shareable links at /share/:id for quiz access
 - **Quiz Editing**: Added edit interface to modify AI-generated questions before taking a quiz
 - **Navigation Fixes**: Corrected routing logic - Create New Quiz goes to home (upload required first)
+- **Streak Reminder Emails**: Decorative Duolingo-style email reminders to encourage daily learning. Includes motivational messages based on streak length, dark-themed email template with gradient backgrounds. Secured endpoint requires STREAK_REMINDER_SECRET bearer token.
 
 ## Application Flow
 
