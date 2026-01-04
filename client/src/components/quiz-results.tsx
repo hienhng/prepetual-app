@@ -10,67 +10,60 @@ import { useAuthDialog } from "@/lib/auth-context";
 import { motion, AnimatePresence } from "framer-motion";
 
 function AnimatedFlame({ className, streakCount = 1 }: { className?: string, streakCount?: number }) {
-  const [isSwitchedOn, setIsSwitchedOn] = useState(false);
+  const [revealProgress, setRevealProgress] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsSwitchedOn(true);
-    }, 2000);
+      setRevealProgress(1);
+    }, 1000);
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <div className={`relative ${className} flex flex-col items-center justify-center`}>
+      <div className="relative w-24 h-24">
+        {/* Background Grayscale Flame */}
+        <Flame 
+          className="w-full h-full text-muted-foreground/30 fill-muted-foreground/20" 
+          style={{ filter: "grayscale(100%)" }}
+        />
+        
+        {/* Sliding Vibrant Flame (Vertical Reveal) */}
+        <motion.div
+          className="absolute inset-x-0 bottom-0 overflow-hidden"
+          initial={{ height: "0%" }}
+          animate={{ height: revealProgress ? "100%" : "0%" }}
+          transition={{ duration: 1.2, ease: "circOut" }}
+        >
+          <div className="w-24 h-24 relative">
+            <motion.div
+              className="w-full h-full"
+              animate={revealProgress ? {
+                scale: [1, 1.1, 1],
+                y: [0, -4, 0],
+                skewX: [0, 2, -2, 0]
+              } : {}}
+              transition={{
+                scale: { duration: 0.4, repeat: Infinity, repeatDelay: 1 },
+                y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                skewX: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
+              }}
+            >
+              <Flame className="w-full h-full text-quiz-orange fill-quiz-orange drop-shadow-[0_0_20px_rgba(249,115,22,0.9)]" />
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
+
       <motion.div
-        initial={{ 
-          filter: "grayscale(100%) opacity(0.2) blur(2px)",
-          scale: 0.8,
-          y: 0,
-          skewX: 0
-        }}
-        animate={isSwitchedOn ? {
-          filter: "grayscale(0%) opacity(1) blur(0px) drop-shadow(0 0 25px rgba(249,115,22,0.9))",
-          scale: [1, 1.1, 1],
-          y: [0, -6, 0],
-          skewX: [0, 2, -2, 0]
-        } : {
-          filter: "grayscale(100%) opacity(0.2) blur(2px)",
-          scale: 0.8,
-          y: 0,
-          skewX: 0
-        }}
-        transition={isSwitchedOn ? {
-          filter: { duration: 0.1 },
-          scale: { 
-            duration: 0.4, 
-            times: [0, 0.5, 1],
-            repeat: Infinity,
-            repeatDelay: 1
-          },
-          y: { 
-            duration: 2, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
-          },
-          skewX: { 
-            duration: 1.5, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
-          }
-        } : {
-          duration: 0
-        }}
+        initial={{ opacity: 0, y: 15 }}
+        animate={revealProgress ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+        transition={{ delay: 0.8, duration: 0.5, ease: "easeOut" }}
+        className="mt-6 flex flex-col items-center"
       >
-        <Flame className="w-24 h-24 text-quiz-orange fill-quiz-orange" />
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={isSwitchedOn ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
-        transition={{ type: "spring", damping: 12, stiffness: 200 }}
-        className="mt-4 flex flex-col items-center"
-      >
-        <span className="text-6xl font-black text-quiz-orange leading-none drop-shadow-md">{streakCount}</span>
-        <span className="text-xs font-bold text-quiz-orange/70 uppercase tracking-[0.2em] mt-2">Day Streak</span>
+        <span className="text-7xl font-black text-quiz-orange leading-none tracking-tighter drop-shadow-xl">{streakCount}</span>
+        <div className="h-px w-12 bg-quiz-orange/30 my-3" />
+        <span className="text-xs font-bold text-quiz-orange/80 uppercase tracking-[0.3em]">Day Streak</span>
       </motion.div>
     </div>
   );

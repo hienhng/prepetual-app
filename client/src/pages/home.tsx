@@ -504,7 +504,7 @@ export default function Home() {
               className="text-center mt-20"
             >
               <Link href="/faq">
-                <Button variant="link" className="text-muted-foreground hover:text-primary" data-testid="link-faq">
+                <Button variant="ghost" className="text-muted-foreground hover:text-primary underline-offset-4 hover:underline" data-testid="link-faq">
                   Frequently Asked Questions
                 </Button>
               </Link>
