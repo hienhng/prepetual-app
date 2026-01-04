@@ -116,10 +116,20 @@ export function QuizResults() {
                   />
                   <motion.div
                     animate={{ 
-                      y: [0, -5, 0],
-                      scale: [1, 1.05, 1]
+                      scale: [1, 1.1, 1, 1.05, 1],
+                      y: [0, -8, 0, -4, 0],
+                      skewX: [0, 2, -2, 1, 0],
+                      filter: [
+                        "drop-shadow(0 0 10px rgba(249,115,22,0.8))",
+                        "drop-shadow(0 0 20px rgba(249,115,22,0.9))",
+                        "drop-shadow(0 0 10px rgba(249,115,22,0.8))"
+                      ]
                     }}
-                    transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
+                    transition={{ 
+                      duration: 1.2, 
+                      repeat: Infinity, 
+                      ease: "easeInOut" 
+                    }}
                   >
                     <Flame className="w-28 h-28 text-quiz-orange relative z-10 fill-quiz-orange" />
                   </motion.div>
