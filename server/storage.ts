@@ -43,7 +43,7 @@ export interface IStorage {
   getQuizResult(quizId: string): Promise<QuizResult | undefined>;
   getQuizResultsByQuizId(quizId: string): Promise<QuizResult[]>;
   // Streak
-  getUserStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; lastActivityDate: string | null }>;
+  getUserStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; lastActivityDate: string | null; isActive: boolean }>;
   // Streak Reminders
   getUsersForStreakReminder(): Promise<User[]>;
   updateLastStreakReminderSentAt(userId: string): Promise<void>;
@@ -305,7 +305,7 @@ export class DatabaseStorage implements IStorage {
     return vote?.voteType || null;
   }
 
-  async getUserStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; lastActivityDate: string | null }> {
+  async getUserStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; lastActivityDate: string | null; isActive: boolean }> {
     // Get all activity dates: quiz creation + quiz completions
     const userQuizzes = await db.select({ createdAt: quizzes.createdAt })
       .from(quizzes)
@@ -331,7 +331,7 @@ export class DatabaseStorage implements IStorage {
     ].filter(Boolean) as Date[];
 
     if (allDates.length === 0) {
-      return { currentStreak: 0, longestStreak: 0, lastActivityDate: null };
+      return { currentStreak: 0, longestStreak: 0, lastActivityDate: null, isActive: false };
     }
 
     // Convert to unique date strings (YYYY-MM-DD)
@@ -342,7 +342,7 @@ export class DatabaseStorage implements IStorage {
     const uniqueDays = Array.from(new Set(dateStrings)).sort().reverse();
 
     if (uniqueDays.length === 0) {
-      return { currentStreak: 0, longestStreak: 0, lastActivityDate: null };
+      return { currentStreak: 0, longestStreak: 0, lastActivityDate: null, isActive: false };
     }
 
     const lastActivityDate = uniqueDays[0];
@@ -352,6 +352,7 @@ export class DatabaseStorage implements IStorage {
     // Calculate current streak
     let currentStreak = 0;
     let checkDate = today;
+    const isActive = uniqueDays.includes(today);
 
     // Check if there's activity today or yesterday to start the streak
     if (uniqueDays.includes(today)) {
@@ -362,7 +363,7 @@ export class DatabaseStorage implements IStorage {
       checkDate = new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0];
     } else {
       // No recent activity, streak is 0
-      return { currentStreak: 0, longestStreak: this.calculateLongestStreak(uniqueDays), lastActivityDate };
+      return { currentStreak: 0, longestStreak: this.calculateLongestStreak(uniqueDays), lastActivityDate, isActive: false };
     }
 
     // Count consecutive days backwards
@@ -374,7 +375,7 @@ export class DatabaseStorage implements IStorage {
 
     const longestStreak = Math.max(currentStreak, this.calculateLongestStreak(uniqueDays));
 
-    return { currentStreak, longestStreak, lastActivityDate };
+    return { currentStreak, longestStreak, lastActivityDate, isActive };
   }
 
   async getUsersForStreakReminder(): Promise<User[]> {

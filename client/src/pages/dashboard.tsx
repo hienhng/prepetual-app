@@ -74,23 +74,25 @@ function StatCard({
   label, 
   value, 
   icon: Icon, 
-  gradient 
+  gradient,
+  isActive = true
 }: { 
   label: string; 
   value: number | string; 
   icon: any; 
   gradient: string;
+  isActive?: boolean;
 }) {
   return (
     <motion.div whileHover={{ y: -4, scale: 1.02 }} transition={{ duration: 0.2 }}>
       <Card className="overflow-visible border-0 shadow-md">
         <CardContent className="p-0">
-          <div className={`p-5 rounded-md ${gradient}`}>
+          <div className={`p-5 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-white/80 mb-1">{label}</p>
+                <p className={`text-sm font-medium mb-1 transition-colors ${isActive ? "text-white/80" : "text-muted-foreground"}`}>{label}</p>
                 <motion.p 
-                  className="text-3xl font-bold text-white"
+                  className={`text-3xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
@@ -98,8 +100,8 @@ function StatCard({
                   {value}
                 </motion.p>
               </div>
-              <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm">
-                <Icon className="w-6 h-6 text-white" />
+              <div className={`p-3 rounded-xl transition-all duration-500 ${isActive ? "bg-white/20 backdrop-blur-sm scale-110 shadow-lg" : "bg-background/50 grayscale opacity-50"}`}>
+                <Icon className={`w-6 h-6 transition-colors ${isActive ? "text-white" : "text-muted-foreground"}`} />
               </div>
             </div>
           </div>
@@ -484,6 +486,7 @@ export default function Dashboard() {
                 value={streakData?.currentStreak ?? 0}
                 icon={Flame}
                 gradient="bg-gradient-to-br from-orange-500 to-orange-600"
+                isActive={streakData?.isActive ?? false}
               />
               <StatCard
                 label="This Week"

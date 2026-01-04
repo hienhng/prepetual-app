@@ -140,7 +140,7 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
     >
       <Card 
         className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
-        onClick={handleTakeQuiz}
+        /* onClick={handleTakeQuiz} */
         data-testid={`card-quiz-${quiz.id}`}
       >
         <div className={`relative h-36 sm:h-40 bg-gradient-to-br ${gradient} p-4 flex flex-col justify-between`}>
