@@ -13,20 +13,24 @@ function AnimatedFlame({ className }: { className?: string }) {
   return (
     <div className={`relative ${className} flex items-center justify-center`}>
       <motion.div
+        initial={{ 
+          filter: "grayscale(100%) opacity(0.3) blur(2px)",
+          scale: 0.8
+        }}
         animate={{
-          scale: [1, 1.1, 1, 1.05, 1],
-          y: [0, -4, 0, -2, 0],
-          skewX: [0, 2, -2, 1, 0],
           filter: [
-            "drop-shadow(0 0 10px rgba(249,115,22,0.6))",
-            "drop-shadow(0 0 20px rgba(249,115,22,0.8))",
-            "drop-shadow(0 0 10px rgba(249,115,22,0.6))"
-          ]
+            "grayscale(100%) opacity(0.3) blur(2px)",
+            "grayscale(0%) opacity(1) blur(0px) drop-shadow(0 0 15px rgba(249,115,22,0.8))"
+          ],
+          scale: [0.8, 1.1, 1, 1.05, 1],
+          y: [0, -4, 0, -2, 0],
+          skewX: [0, 2, -2, 1, 0]
         }}
         transition={{
-          duration: 1,
-          repeat: Infinity,
-          ease: "easeInOut"
+          filter: { duration: 1, ease: "easeOut" },
+          scale: { duration: 1, ease: "easeOut" },
+          y: { duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 1 },
+          skewX: { duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 1 }
         }}
       >
         <Flame className="w-24 h-24 text-quiz-orange fill-quiz-orange" />
