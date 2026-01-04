@@ -73,7 +73,7 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"], // only for multiple_choice
+      "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"], // only for multiple_choice. Ensure the correct answer is randomly placed among A, B, C, and D. Avoid patterns like having the same letter as correct answer for multiple consecutive questions.
       "correctAnswer": "The correct answer text (for MC, include the letter e.g. 'A) Option 1', for T/F use 'True' or 'False')",
       "explanation": "Brief explanation of why this is correct"
     }
@@ -134,14 +134,43 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
         continue;
       }
 
+      let options = q.type === "multiple_choice" && Array.isArray(q.options) 
+        ? q.options.map((o: any) => String(o).trim())
+        : undefined;
+      
+      let correctAnswer = String(q.correctAnswer).trim();
+
+      // Programmatically shuffle options to ensure maximum randomness
+      if (q.type === "multiple_choice" && options && options.length > 0) {
+        // Find the index of the current correct answer
+        // Note: AI usually returns "A) Text" or just "Text"
+        const currentCorrectAns = correctAnswer;
+        const currentOptions = options;
+        const correctIndex = currentOptions.findIndex((o: string) => o === currentCorrectAns || o.split(') ')[1] === currentCorrectAns || currentCorrectAns.includes(o));
+        
+        if (correctIndex !== -1) {
+          const correctText = currentOptions[correctIndex].replace(/^[A-D]\) /, "");
+          const plainOptions = currentOptions.map((o: string) => o.replace(/^[A-D]\) /, ""));
+          
+          // Shuffle
+          for (let i = plainOptions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [plainOptions[i], plainOptions[j]] = [plainOptions[j], plainOptions[i]];
+          }
+          
+          // Re-label and find new correct
+          options = plainOptions.map((text: string, idx: number) => `${String.fromCharCode(65 + idx)}) ${text}`);
+          const newCorrectIndex = plainOptions.findIndex((t: string) => t === correctText);
+          correctAnswer = options[newCorrectIndex];
+        }
+      }
+
       const question: Question = {
         id: randomUUID(),
         type: q.type as QuestionType,
         question: String(q.question).trim(),
-        options: q.type === "multiple_choice" && Array.isArray(q.options) 
-          ? q.options.map((o: any) => String(o).trim())
-          : undefined,
-        correctAnswer: String(q.correctAnswer).trim(),
+        options,
+        correctAnswer,
         explanation: q.explanation ? String(q.explanation).trim() : undefined,
       };
 
@@ -198,7 +227,7 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice",
       "question": "The exact question text as it appears",
-      "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"],
+      "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"], // Ensure the correct answer is randomly placed among the options. Avoid repetitive patterns in the position of the correct answer.
       "correctAnswer": "A) The correct option with its full text",
       "explanation": "Brief explanation of why this is the correct answer"
     }
@@ -261,14 +290,39 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
         ? q.type as QuestionType 
         : "multiple_choice";
 
+      let options = Array.isArray(q.options) && q.options.length > 0
+        ? q.options.map((o: any) => String(o).trim())
+        : undefined;
+      
+      let correctAnswer = String(q.correctAnswer).trim();
+
+      // Programmatically shuffle options to ensure maximum randomness even for imported quizzes
+      if (questionType === "multiple_choice" && options && options.length > 0) {
+        const currentCorrectAns = correctAnswer;
+        const currentOptions = options;
+        const correctIndex = currentOptions.findIndex((o: string) => o === currentCorrectAns || o.split(') ')[1] === currentCorrectAns || currentCorrectAns.includes(o));
+        
+        if (correctIndex !== -1) {
+          const correctText = currentOptions[correctIndex].replace(/^[A-D]\) /, "");
+          const plainOptions = currentOptions.map((o: string) => o.replace(/^[A-D]\) /, ""));
+          
+          for (let i = plainOptions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [plainOptions[i], plainOptions[j]] = [plainOptions[j], plainOptions[i]];
+          }
+          
+          options = plainOptions.map((text: string, idx: number) => `${String.fromCharCode(65 + idx)}) ${text}`);
+          const newCorrectIndex = plainOptions.findIndex((t: string) => t === correctText);
+          correctAnswer = options[newCorrectIndex];
+        }
+      }
+
       const question: Question = {
         id: randomUUID(),
         type: questionType,
         question: String(q.question).trim(),
-        options: Array.isArray(q.options) && q.options.length > 0
-          ? q.options.map((o: any) => String(o).trim())
-          : undefined,
-        correctAnswer: String(q.correctAnswer).trim(),
+        options,
+        correctAnswer,
         explanation: q.explanation ? String(q.explanation).trim() : undefined,
       };
 

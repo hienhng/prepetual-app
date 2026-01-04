@@ -497,6 +497,18 @@ export default function Home() {
                 Back to top
               </Button>
             </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mt-20"
+            >
+              <Link href="/faq">
+                <Button variant="link" className="text-muted-foreground hover:text-primary">
+                  Frequently Asked Questions
+                </Button>
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
       </section>
