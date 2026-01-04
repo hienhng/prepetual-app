@@ -215,7 +215,7 @@ export default function Create() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Works with both English and Vietnamese content</span>
+                    <span>Global language support for various regions</span>
                   </li>
                 </ul>
               </CardContent>

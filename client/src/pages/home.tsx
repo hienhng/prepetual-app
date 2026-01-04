@@ -175,7 +175,7 @@ export default function Home() {
                 </li>
                 <li className="flex items-center gap-2 text-sm text-foreground">
                   <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                  Vietnamese and English support
+                  Global language support
                 </li>
               </ul>
             </motion.div>

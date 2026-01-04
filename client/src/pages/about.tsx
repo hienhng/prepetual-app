@@ -309,7 +309,7 @@ export default function About() {
                 { icon: Brain, title: "Study Mode", desc: "Flashcard-style learning experience", color: "from-purple-500/20 to-purple-600/5" },
                 { icon: Share2, title: "Shareable Quizzes", desc: "Collaborate with friends and classmates", color: "from-orange-500/20 to-orange-600/5" },
                 { icon: BarChart3, title: "Progress Tracking", desc: "Monitor your quiz history and results", color: "from-pink-500/20 to-pink-600/5" },
-                { icon: Globe, title: "Multi-Language", desc: "Vietnamese and English support", color: "from-cyan-500/20 to-cyan-600/5" },
+                { icon: Globe, title: "Global Language Support", desc: "Support for numerous languages worldwide", color: "from-cyan-500/20 to-cyan-600/5" },
               ].map(({ icon: Icon, title, desc, color }, index) => (
                 <motion.div
                   key={index}
@@ -379,7 +379,7 @@ export default function About() {
                   "Advanced OCR technology",
                   "AI-powered content analysis",
                   "Intelligent question generation",
-                  "Multi-language support",
+                  "Global language support",
                   "Personalized learning paths",
                   "Real-time progress analytics",
                 ].map((feature, index) => (
@@ -480,7 +480,7 @@ export default function About() {
             <div className="grid md:grid-cols-3 gap-8">
               {[
                 { number: "100%", label: "Free to Use", sublabel: "No hidden costs" },
-                { number: "10+", label: "Languages", sublabel: "Global support" },
+                { number: "Global", label: "Language Support", sublabel: "Working worldwide" },
                 { number: "∞", label: "Unlimited Quizzes", sublabel: "Create as many as you need" },
               ].map((stat, index) => (
                 <motion.div
