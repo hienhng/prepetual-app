@@ -121,7 +121,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-3">12. Contact Us</h2>
               <p className="text-muted-foreground leading-relaxed">
-                If you have any questions about this Privacy Policy, please contact us at privacy@prepetual.com.
+                If you have any questions about this Privacy Policy, please contact us at giahienhn@gmail.com.
               </p>
             </section>
           </div>

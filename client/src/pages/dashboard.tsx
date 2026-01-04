@@ -454,12 +454,12 @@ export default function Dashboard() {
                 }
               </p>
             </div>
-            {hasQuizzes && (
+            {/* {hasQuizzes && (
               <Button onClick={() => setLocation("/create")} data-testid="button-create-new">
                 <Plus className="w-4 h-4 mr-2" />
                 New Quiz
               </Button>
-            )}
+            )} */}
           </div>
         </motion.section>
 
@@ -468,7 +468,7 @@ export default function Dashboard() {
           <motion.section variants={itemVariants}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
-                label="Quizzes"
+                label="Quizzes Created"
                 value={totalQuizzes}
                 icon={FileText}
                 gradient="bg-gradient-to-br from-blue-500 to-blue-600"
