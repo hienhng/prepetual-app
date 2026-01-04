@@ -15,13 +15,13 @@ export default function StudyPage() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [knownCards, setKnownCards] = useState<Set<number>>(new Set());
   const [studyingCards, setStudyingCards] = useState<Set<number>>(new Set());
-  const [exitDirection, setExitDirection] = useState<"left" | "right" | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const [exitDirection, setExitDirection] = useState<number>(0);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 200], [-25, 25]);
-  const leftIndicatorOpacity = useTransform(x, [-200, -50, 0], [1, 0.5, 0]);
-  const rightIndicatorOpacity = useTransform(x, [0, 50, 200], [0, 0.5, 1]);
+  const rotate = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
+  const leftIndicatorOpacity = useTransform(x, [-150, -50, 0], [1, 0.5, 0]);
+  const rightIndicatorOpacity = useTransform(x, [0, 50, 150], [0, 0.5, 1]);
 
   if (!currentQuiz) {
     return (
@@ -41,75 +41,117 @@ export default function StudyPage() {
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
   const handleFlip = () => {
-    if (!isDragging) {
+    if (!isAnimating) {
       setIsFlipped(!isFlipped);
     }
   };
 
-  const goToNext = useCallback((direction: "left" | "right") => {
-    if (currentIndex < questions.length - 1) {
-      setExitDirection(direction);
-      setIsFlipped(false);
-      setTimeout(() => {
-        setCurrentIndex(prev => prev + 1);
-        setExitDirection(null);
-        x.set(0);
-      }, 200);
+  const triggerSwipe = useCallback((direction: number, action?: "known" | "learning") => {
+    if (isAnimating) return;
+    
+    setIsAnimating(true);
+    setExitDirection(direction);
+    setIsFlipped(false);
+    
+    if (action === "known") {
+      setKnownCards(prev => {
+        const newSet = new Set(prev);
+        newSet.add(currentIndex);
+        return newSet;
+      });
+      setStudyingCards(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(currentIndex);
+        return newSet;
+      });
+    } else if (action === "learning") {
+      setStudyingCards(prev => {
+        const newSet = new Set(prev);
+        newSet.add(currentIndex);
+        return newSet;
+      });
+      setKnownCards(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(currentIndex);
+        return newSet;
+      });
     }
-  }, [currentIndex, questions.length, x]);
+  }, [isAnimating, currentIndex]);
 
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setExitDirection("right");
-      setIsFlipped(false);
-      setTimeout(() => {
+  const handleExitComplete = useCallback(() => {
+    if (exitDirection !== 0) {
+      if (exitDirection > 0 && currentIndex > 0) {
         setCurrentIndex(prev => prev - 1);
-        setExitDirection(null);
-        x.set(0);
-      }, 200);
+      } else if (exitDirection < 0 && currentIndex < questions.length - 1) {
+        setCurrentIndex(prev => prev + 1);
+      }
     }
-  };
-
-  const handleKnown = useCallback(() => {
-    const newKnown = new Set(knownCards);
-    newKnown.add(currentIndex);
-    setKnownCards(newKnown);
-    
-    const newStudying = new Set(studyingCards);
-    newStudying.delete(currentIndex);
-    setStudyingCards(newStudying);
-    goToNext("right");
-  }, [currentIndex, knownCards, studyingCards, goToNext]);
-
-  const handleStillLearning = useCallback(() => {
-    const newStudying = new Set(studyingCards);
-    newStudying.add(currentIndex);
-    setStudyingCards(newStudying);
-    
-    const newKnown = new Set(knownCards);
-    newKnown.delete(currentIndex);
-    setKnownCards(newKnown);
-    goToNext("left");
-  }, [currentIndex, knownCards, studyingCards, goToNext]);
-
-  const handleDragStart = () => {
-    setIsDragging(true);
-  };
+    setExitDirection(0);
+    setIsAnimating(false);
+    x.set(0);
+  }, [exitDirection, currentIndex, questions.length, x]);
 
   const handleDragEnd = (_: any, info: PanInfo) => {
-    setIsDragging(false);
-    const threshold = 100;
+    const offsetThreshold = 80;
+    const velocityThreshold = 400;
     
-    if (info.offset.x > threshold && isFlipped) {
-      handleKnown();
-    } else if (info.offset.x < -threshold && isFlipped) {
-      handleStillLearning();
-    } else if (Math.abs(info.offset.x) > threshold && !isFlipped) {
-      if (info.offset.x > 0 && currentIndex > 0) {
-        handlePrev();
-      } else if (info.offset.x < 0 && currentIndex < questions.length - 1) {
-        goToNext("left");
+    const triggeredByOffset = Math.abs(info.offset.x) > offsetThreshold;
+    const triggeredByVelocity = Math.abs(info.velocity.x) > velocityThreshold;
+    
+    if (triggeredByOffset || triggeredByVelocity) {
+      const direction = info.offset.x > 0 ? 1 : -1;
+      
+      if (isFlipped) {
+        if (direction > 0) {
+          triggerSwipe(-1, "known");
+        } else {
+          triggerSwipe(-1, "learning");
+        }
+      } else {
+        if (direction > 0 && currentIndex > 0) {
+          triggerSwipe(1);
+        } else if (direction < 0 && currentIndex < questions.length - 1) {
+          triggerSwipe(-1);
+        }
       }
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0 && !isAnimating) {
+      setIsFlipped(false);
+      triggerSwipe(1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1 && !isAnimating) {
+      setIsFlipped(false);
+      triggerSwipe(-1);
+    }
+  };
+
+  const handleKnown = () => {
+    if (!isAnimating && currentIndex < questions.length - 1) {
+      triggerSwipe(-1, "known");
+    } else if (!isAnimating) {
+      setKnownCards(prev => {
+        const newSet = new Set(prev);
+        newSet.add(currentIndex);
+        return newSet;
+      });
+    }
+  };
+
+  const handleStillLearning = () => {
+    if (!isAnimating && currentIndex < questions.length - 1) {
+      triggerSwipe(-1, "learning");
+    } else if (!isAnimating) {
+      setStudyingCards(prev => {
+        const newSet = new Set(prev);
+        newSet.add(currentIndex);
+        return newSet;
+      });
     }
   };
 
@@ -118,35 +160,31 @@ export default function StudyPage() {
     setIsFlipped(false);
     setKnownCards(new Set());
     setStudyingCards(new Set());
-    setExitDirection(null);
+    setExitDirection(0);
+    setIsAnimating(false);
     x.set(0);
   };
 
   const getAnswerDisplay = (q: Question) => {
-    if (q.type === "multiple_choice") {
-      return q.correctAnswer;
-    }
     return q.correctAnswer;
   };
 
   const cardVariants = {
-    enter: (direction: "left" | "right" | null) => ({
-      x: direction === "left" ? 300 : direction === "right" ? -300 : 0,
+    enter: (direction: number) => ({
+      x: direction < 0 ? 300 : direction > 0 ? -300 : 0,
       opacity: 0,
-      scale: 0.8,
-      rotateY: 0,
+      scale: 0.92,
     }),
     center: {
       x: 0,
       opacity: 1,
       scale: 1,
-      rotateY: 0,
     },
-    exit: (direction: "left" | "right" | null) => ({
-      x: direction === "left" ? -300 : direction === "right" ? 300 : 0,
+    exit: (direction: number) => ({
+      x: direction < 0 ? -350 : direction > 0 ? 350 : 0,
       opacity: 0,
-      scale: 0.8,
-      rotate: direction === "left" ? -15 : direction === "right" ? 15 : 0,
+      scale: 0.88,
+      rotate: direction < 0 ? -12 : direction > 0 ? 12 : 0,
     }),
   };
 
@@ -197,25 +235,29 @@ export default function StudyPage() {
           <Progress value={progress} className="h-2" />
         </div>
 
-        <div className="relative h-[380px] touch-none">
-          <div className="absolute inset-0 flex items-center justify-between pointer-events-none px-4 z-10">
+        <div className="relative h-[380px] touch-none select-none">
+          <div className="absolute inset-0 flex items-center justify-between pointer-events-none px-2 z-10">
             <motion.div 
               style={{ opacity: leftIndicatorOpacity }}
-              className="bg-yellow-500/90 text-white px-4 py-2 rounded-full font-semibold shadow-lg"
+              className="bg-yellow-500/90 text-white px-3 py-2 rounded-full font-semibold shadow-lg text-sm"
             >
-              <RotateCcw className="h-5 w-5 inline mr-1" />
+              <RotateCcw className="h-4 w-4 inline mr-1" />
               Learning
             </motion.div>
             <motion.div 
               style={{ opacity: rightIndicatorOpacity }}
-              className="bg-green-500/90 text-white px-4 py-2 rounded-full font-semibold shadow-lg"
+              className="bg-green-500/90 text-white px-3 py-2 rounded-full font-semibold shadow-lg text-sm"
             >
               Got It
-              <Check className="h-5 w-5 inline ml-1" />
+              <Check className="h-4 w-4 inline ml-1" />
             </motion.div>
           </div>
 
-          <AnimatePresence mode="wait" custom={exitDirection}>
+          <AnimatePresence 
+            mode="wait" 
+            custom={exitDirection}
+            onExitComplete={handleExitComplete}
+          >
             <motion.div
               key={currentIndex}
               custom={exitDirection}
@@ -225,13 +267,14 @@ export default function StudyPage() {
               exit="exit"
               transition={{
                 type: "spring",
-                stiffness: 300,
-                damping: 30,
+                stiffness: 180,
+                damping: 24,
+                mass: 0.8,
               }}
-              drag="x"
+              drag={!isAnimating ? "x" : false}
               dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.8}
-              onDragStart={handleDragStart}
+              dragElastic={0.4}
+              dragTransition={{ bounceStiffness: 300, bounceDamping: 25 }}
               onDragEnd={handleDragEnd}
               style={{ x, rotate }}
               className="absolute inset-0 cursor-grab active:cursor-grabbing"
@@ -243,7 +286,12 @@ export default function StudyPage() {
               >
                 <motion.div
                   animate={{ rotateY: isFlipped ? 180 : 0 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 120, 
+                    damping: 18,
+                    mass: 0.5,
+                  }}
                   style={{ transformStyle: "preserve-3d" }}
                   className="h-full relative"
                 >
@@ -254,7 +302,7 @@ export default function StudyPage() {
                       </span>
                       <p className="text-lg font-medium mb-4">{currentQuestion.question}</p>
                       {currentQuestion.type === "multiple_choice" && currentQuestion.options && (
-                        <div className="w-full space-y-2 text-left">
+                        <div className="w-full space-y-2 text-left max-h-[140px] overflow-y-auto">
                           {currentQuestion.options.map((opt, i) => (
                             <div key={i} className="p-2 bg-muted/50 rounded-md text-sm">
                               {opt}
@@ -280,12 +328,12 @@ export default function StudyPage() {
                         {getAnswerDisplay(currentQuestion)}
                       </p>
                       {currentQuestion.explanation && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground max-h-[100px] overflow-y-auto">
                           {currentQuestion.explanation}
                         </p>
                       )}
                       <p className="text-xs text-muted-foreground mt-6">
-                        Swipe right for "Got It" or left for "Still Learning"
+                        Swipe right = Got It, Swipe left = Still Learning
                       </p>
                     </CardContent>
                   </Card>
@@ -301,7 +349,7 @@ export default function StudyPage() {
             size="icon"
             className="sm:w-auto sm:px-3"
             onClick={handlePrev}
-            disabled={currentIndex === 0}
+            disabled={currentIndex === 0 || isAnimating}
             data-testid="button-prev-card"
           >
             <ChevronLeft className="h-4 w-4 sm:mr-1" />
@@ -315,6 +363,7 @@ export default function StudyPage() {
                 size="sm"
                 className="border-yellow-500 text-yellow-600 px-2 sm:px-3"
                 onClick={handleStillLearning}
+                disabled={isAnimating}
                 data-testid="button-still-learning"
               >
                 <RotateCcw className="h-4 w-4 sm:mr-1" />
@@ -325,11 +374,11 @@ export default function StudyPage() {
                 size="sm"
                 className="bg-green-600 border-green-800 px-2 sm:px-3"
                 onClick={handleKnown}
+                disabled={isAnimating}
                 data-testid="button-known"
               >
                 <Check className="h-4 w-4 sm:mr-1" />
-                <span className="hidden sm:inline">Got It</span>
-                <span className="sm:hidden">Got It</span>
+                <span>Got It</span>
               </Button>
             </div>
           )}
@@ -338,8 +387,8 @@ export default function StudyPage() {
             variant="outline"
             size="icon"
             className="sm:w-auto sm:px-3"
-            onClick={() => goToNext("left")}
-            disabled={isLastCard}
+            onClick={handleNext}
+            disabled={isLastCard || isAnimating}
             data-testid="button-next-card"
           >
             <span className="hidden sm:inline">Next</span>
