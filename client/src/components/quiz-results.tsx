@@ -28,12 +28,12 @@ function AnimatedFlame({ className, streakCount = 1 }: { className?: string, str
           style={{ filter: "grayscale(100%)" }}
         />
         
-        {/* Sliding Vibrant Flame (Vertical Reveal) */}
+        {/* Sliding Vibrant Flame (Circular Reveal) */}
         <motion.div
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
-          initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
-          animate={{ clipPath: revealProgress ? "inset(-100% -100% -100% -100%)" : "inset(100% 0% 0% 0%)" }}
-          transition={{ duration: 1.2, ease: "circOut" }}
+          initial={{ clipPath: "circle(0% at 50% 50%)" }}
+          animate={{ clipPath: revealProgress ? "circle(150% at 50% 50%)" : "circle(0% at 50% 50%)" }}
+          transition={{ duration: 1.5, ease: "circOut" }}
         >
           <motion.div
             className="w-full h-full relative"
