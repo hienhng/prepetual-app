@@ -9,31 +9,53 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
 import { motion, AnimatePresence } from "framer-motion";
 
-function AnimatedFlame({ className }: { className?: string }) {
+function AnimatedFlame({ className, streakCount = 1 }: { className?: string, streakCount?: number }) {
   return (
-    <div className={`relative ${className} flex items-center justify-center`}>
+    <div className={`relative ${className} flex flex-col items-center justify-center`}>
       <motion.div
         initial={{ 
-          filter: "grayscale(100%) opacity(0.3) blur(2px)",
-          scale: 0.8
+          filter: "grayscale(100%) opacity(0.2) blur(2px)",
+          scale: 0.8,
+          y: 0,
+          skewX: 0
         }}
         animate={{
           filter: [
-            "grayscale(100%) opacity(0.3) blur(2px)",
-            "grayscale(0%) opacity(1) blur(0px) drop-shadow(0 0 15px rgba(249,115,22,0.8))"
+            "grayscale(100%) opacity(0.2) blur(2px)",
+            "grayscale(100%) opacity(0.4) blur(1px)",
+            "grayscale(0%) opacity(1) blur(0px) drop-shadow(0 0 20px rgba(249,115,22,0.9))"
           ],
-          scale: [0.8, 1.1, 1, 1.05, 1],
-          y: [0, -4, 0, -2, 0],
-          skewX: [0, 2, -2, 1, 0]
+          scale: [0.8, 0.9, 1.2, 1],
+          y: [0, 0, -8, 0, -4, 0],
+          skewX: [0, 0, 0, 2, -2, 1, 0]
         }}
         transition={{
-          filter: { duration: 1, ease: "easeOut" },
-          scale: { duration: 1, ease: "easeOut" },
-          y: { duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 1 },
-          skewX: { duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 1 }
+          filter: { times: [0, 0.4, 1], duration: 2.5, ease: "easeInOut" },
+          scale: { times: [0, 0.4, 0.7, 1], duration: 2.5, ease: "easeOut" },
+          y: { 
+            times: [0, 0.5, 0.6, 0.7, 0.85, 1],
+            duration: 3.5, 
+            repeat: Infinity, 
+            ease: "easeInOut",
+          },
+          skewX: { 
+            times: [0, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+            duration: 3, 
+            repeat: Infinity, 
+            ease: "easeInOut",
+          }
         }}
       >
         <Flame className="w-24 h-24 text-quiz-orange fill-quiz-orange" />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 2, duration: 0.5 }}
+        className="mt-4 flex flex-col items-center"
+      >
+        <span className="text-5xl font-black text-quiz-orange leading-none">{streakCount}</span>
+        <span className="text-sm font-bold text-quiz-orange/60 uppercase tracking-widest mt-1">Day Streak</span>
       </motion.div>
     </div>
   );
@@ -155,7 +177,7 @@ export function QuizResults() {
                       ease: "easeInOut" 
                     }}
                   >
-                    <AnimatedFlame className="w-32 h-32 relative z-10 drop-shadow-[0_0_10px_rgba(255,77,0,0.3)]" />
+                    <AnimatedFlame className="w-32 h-48 relative z-10 drop-shadow-[0_0_10px_rgba(255,77,0,0.3)]" streakCount={1} />
                   </motion.div>
                 </div>
                 <div className="text-center z-10">
@@ -167,14 +189,6 @@ export function QuizResults() {
                   >
                     Daily Streak!
                   </motion.h3>
-                  <motion.p 
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-xl font-bold text-foreground/80"
-                  >
-                    You're on fire!
-                  </motion.p>
                 </div>
               </motion.div>
               
