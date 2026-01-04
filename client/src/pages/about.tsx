@@ -480,7 +480,7 @@ export default function About() {
             <div className="grid md:grid-cols-3 gap-8">
               {[
                 { number: "100%", label: "Free to Use", sublabel: "No hidden costs" },
-                { number: "Global", label: "Language Support", sublabel: "Working worldwide" },
+                { number: "10+", label: "Language Support", sublabel: "Global support" },
                 { number: "∞", label: "Unlimited Quizzes", sublabel: "Create as many as you need" },
               ].map((stat, index) => (
                 <motion.div

@@ -39,6 +39,7 @@ import TermsOfService from "@/pages/terms";
 import PrivacyPolicy from "@/pages/privacy";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
+import FAQ from "@/pages/faq";
 import NotFound from "@/pages/not-found";
 import { Footer } from "@/components/footer";
 
@@ -86,6 +87,7 @@ function AuthenticatedRouter() {
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
+      <Route path="/faq" component={FAQ} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -100,6 +102,7 @@ function PublicRouter() {
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
+      <Route path="/faq" component={FAQ} />
       <Route path="/share/:id" component={Share} />
       {/* Guest-accessible quiz experience (from shared links) */}
       <Route path="/quiz" component={Quiz} />
