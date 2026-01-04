@@ -24,7 +24,7 @@ function AnimatedFlame({ className, streakCount = 1 }: { className?: string, str
       <div className="relative w-24 h-24 flex items-center justify-center overflow-visible">
         {/* Background Grayscale Flame */}
         <Flame 
-          className="w-full h-full text-muted-foreground/30 fill-muted-foreground/20" 
+          className="w-full h-full text-muted-foreground/10 fill-muted-foreground/20" 
           style={{ filter: "grayscale(100%)" }}
         />
         
@@ -33,7 +33,7 @@ function AnimatedFlame({ className, streakCount = 1 }: { className?: string, str
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
           initial={{ clipPath: "circle(0% at 50% 50%)" }}
           animate={{ clipPath: revealProgress ? "circle(150% at 50% 50%)" : "circle(0% at 50% 50%)" }}
-          transition={{ duration: 1.5, ease: "circOut" }}
+          transition={{ duration: 0.5, ease: "circOut" }}
         >
           <motion.div
             className="w-full h-full relative"
@@ -43,7 +43,7 @@ function AnimatedFlame({ className, streakCount = 1 }: { className?: string, str
               skewX: [0, 1, -1, 0]
             } : {}}
             transition={{
-              scale: { duration: 0.6, repeat: Infinity, repeatDelay: 1 },
+              scale: { duration: 0.2, repeat: Infinity, repeatDelay: 1 },
               y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
               skewX: { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
             }}
@@ -77,11 +77,18 @@ export function QuizResults() {
   
   useEffect(() => {
     if (quizResult && user) {
-      // Simulate streak animation trigger
-      const timer = setTimeout(() => {
-        setShowStreak(true);
-      }, 1000);
-      return () => clearTimeout(timer);
+      // Limit streak animation to once per day using localStorage
+      const lastSeenKey = `streak_last_seen_${user.id}`;
+      const today = new Date().toISOString().split('T')[0];
+      const lastSeenDate = localStorage.getItem(lastSeenKey);
+
+      if (lastSeenDate !== today) {
+        const timer = setTimeout(() => {
+          setShowStreak(true);
+          localStorage.setItem(lastSeenKey, today);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
     }
   }, [quizResult, user]);
 
