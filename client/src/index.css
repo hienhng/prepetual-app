@@ -335,4 +335,14 @@ body {
       background-position: 100% 0%;
     }
   }
+
+  /* 3D Flashcard utilities */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .backface-hidden {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
 }

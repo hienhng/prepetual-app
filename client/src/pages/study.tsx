@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useLocation, Link } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, RotateCcw, ChevronLeft, ChevronRight, Check, X, Home } from "lucide-react";
+import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from "framer-motion";
+import { BookOpen, RotateCcw, Check, X, Home, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -15,6 +15,13 @@ export default function StudyPage() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [knownCards, setKnownCards] = useState<Set<number>>(new Set());
   const [studyingCards, setStudyingCards] = useState<Set<number>>(new Set());
+  const [exitDirection, setExitDirection] = useState<"left" | "right" | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 200], [-25, 25]);
+  const leftIndicatorOpacity = useTransform(x, [-200, -50, 0], [1, 0.5, 0]);
+  const rightIndicatorOpacity = useTransform(x, [0, 50, 200], [0, 0.5, 1]);
 
   if (!currentQuiz) {
     return (
@@ -33,23 +40,37 @@ export default function StudyPage() {
   const currentQuestion = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
-  const handleFlip = () => setIsFlipped(!isFlipped);
-
-  const handleNext = () => {
-    if (currentIndex < questions.length - 1) {
-      setIsFlipped(false);
-      setTimeout(() => setCurrentIndex(currentIndex + 1), 150);
+  const handleFlip = () => {
+    if (!isDragging) {
+      setIsFlipped(!isFlipped);
     }
   };
+
+  const goToNext = useCallback((direction: "left" | "right") => {
+    if (currentIndex < questions.length - 1) {
+      setExitDirection(direction);
+      setIsFlipped(false);
+      setTimeout(() => {
+        setCurrentIndex(prev => prev + 1);
+        setExitDirection(null);
+        x.set(0);
+      }, 200);
+    }
+  }, [currentIndex, questions.length, x]);
 
   const handlePrev = () => {
     if (currentIndex > 0) {
+      setExitDirection("right");
       setIsFlipped(false);
-      setTimeout(() => setCurrentIndex(currentIndex - 1), 150);
+      setTimeout(() => {
+        setCurrentIndex(prev => prev - 1);
+        setExitDirection(null);
+        x.set(0);
+      }, 200);
     }
   };
 
-  const handleKnown = () => {
+  const handleKnown = useCallback(() => {
     const newKnown = new Set(knownCards);
     newKnown.add(currentIndex);
     setKnownCards(newKnown);
@@ -57,10 +78,10 @@ export default function StudyPage() {
     const newStudying = new Set(studyingCards);
     newStudying.delete(currentIndex);
     setStudyingCards(newStudying);
-    handleNext();
-  };
+    goToNext("right");
+  }, [currentIndex, knownCards, studyingCards, goToNext]);
 
-  const handleStillLearning = () => {
+  const handleStillLearning = useCallback(() => {
     const newStudying = new Set(studyingCards);
     newStudying.add(currentIndex);
     setStudyingCards(newStudying);
@@ -68,7 +89,28 @@ export default function StudyPage() {
     const newKnown = new Set(knownCards);
     newKnown.delete(currentIndex);
     setKnownCards(newKnown);
-    handleNext();
+    goToNext("left");
+  }, [currentIndex, knownCards, studyingCards, goToNext]);
+
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleDragEnd = (_: any, info: PanInfo) => {
+    setIsDragging(false);
+    const threshold = 100;
+    
+    if (info.offset.x > threshold && isFlipped) {
+      handleKnown();
+    } else if (info.offset.x < -threshold && isFlipped) {
+      handleStillLearning();
+    } else if (Math.abs(info.offset.x) > threshold && !isFlipped) {
+      if (info.offset.x > 0 && currentIndex > 0) {
+        handlePrev();
+      } else if (info.offset.x < 0 && currentIndex < questions.length - 1) {
+        goToNext("left");
+      }
+    }
   };
 
   const handleReset = () => {
@@ -76,6 +118,8 @@ export default function StudyPage() {
     setIsFlipped(false);
     setKnownCards(new Set());
     setStudyingCards(new Set());
+    setExitDirection(null);
+    x.set(0);
   };
 
   const getAnswerDisplay = (q: Question) => {
@@ -84,6 +128,29 @@ export default function StudyPage() {
     }
     return q.correctAnswer;
   };
+
+  const cardVariants = {
+    enter: (direction: "left" | "right" | null) => ({
+      x: direction === "left" ? 300 : direction === "right" ? -300 : 0,
+      opacity: 0,
+      scale: 0.8,
+      rotateY: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      rotateY: 0,
+    },
+    exit: (direction: "left" | "right" | null) => ({
+      x: direction === "left" ? -300 : direction === "right" ? 300 : 0,
+      opacity: 0,
+      scale: 0.8,
+      rotate: direction === "left" ? -15 : direction === "right" ? 15 : 0,
+    }),
+  };
+
+  const isLastCard = currentIndex === questions.length - 1;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
@@ -130,30 +197,64 @@ export default function StudyPage() {
           <Progress value={progress} className="h-2" />
         </div>
 
-        <div 
-          className="perspective-1000 cursor-pointer"
-          onClick={handleFlip}
-          data-testid="flashcard-container"
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${currentIndex}-${isFlipped}`}
-              initial={{ rotateY: isFlipped ? -90 : 90, opacity: 0 }}
-              animate={{ rotateY: 0, opacity: 1 }}
-              exit={{ rotateY: isFlipped ? 90 : -90, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              style={{ transformStyle: "preserve-3d" }}
+        <div className="relative h-[380px] touch-none">
+          <div className="absolute inset-0 flex items-center justify-between pointer-events-none px-4 z-10">
+            <motion.div 
+              style={{ opacity: leftIndicatorOpacity }}
+              className="bg-yellow-500/90 text-white px-4 py-2 rounded-full font-semibold shadow-lg"
             >
-              <Card className="min-h-[300px] flex items-center justify-center">
-                <CardContent className="p-8 text-center">
-                  {!isFlipped ? (
-                    <div className="space-y-4">
-                      <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              <RotateCcw className="h-5 w-5 inline mr-1" />
+              Learning
+            </motion.div>
+            <motion.div 
+              style={{ opacity: rightIndicatorOpacity }}
+              className="bg-green-500/90 text-white px-4 py-2 rounded-full font-semibold shadow-lg"
+            >
+              Got It
+              <Check className="h-5 w-5 inline ml-1" />
+            </motion.div>
+          </div>
+
+          <AnimatePresence mode="wait" custom={exitDirection}>
+            <motion.div
+              key={currentIndex}
+              custom={exitDirection}
+              variants={cardVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
+              }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.8}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              style={{ x, rotate }}
+              className="absolute inset-0 cursor-grab active:cursor-grabbing"
+              data-testid="flashcard-container"
+            >
+              <div 
+                className="h-full perspective-1000"
+                onClick={handleFlip}
+              >
+                <motion.div
+                  animate={{ rotateY: isFlipped ? 180 : 0 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  style={{ transformStyle: "preserve-3d" }}
+                  className="h-full relative"
+                >
+                  <Card className="absolute inset-0 backface-hidden">
+                    <CardContent className="h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center">
+                      <span className="text-xs uppercase tracking-wide text-muted-foreground mb-4">
                         Question
                       </span>
-                      <p className="text-lg font-medium">{currentQuestion.question}</p>
+                      <p className="text-lg font-medium mb-4">{currentQuestion.question}</p>
                       {currentQuestion.type === "multiple_choice" && currentQuestion.options && (
-                        <div className="mt-4 space-y-2 text-left">
+                        <div className="w-full space-y-2 text-left">
                           {currentQuestion.options.map((opt, i) => (
                             <div key={i} className="p-2 bg-muted/50 rounded-md text-sm">
                               {opt}
@@ -162,26 +263,34 @@ export default function StudyPage() {
                         </div>
                       )}
                       <p className="text-sm text-muted-foreground mt-4">
-                        Click to reveal answer
+                        Tap to reveal answer
                       </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <span className="text-xs uppercase tracking-wide text-primary">
+                    </CardContent>
+                  </Card>
+
+                  <Card 
+                    className="absolute inset-0 backface-hidden"
+                    style={{ transform: "rotateY(180deg)" }}
+                  >
+                    <CardContent className="h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center">
+                      <span className="text-xs uppercase tracking-wide text-primary mb-4">
                         Answer
                       </span>
-                      <p className="text-lg font-semibold text-primary">
+                      <p className="text-lg font-semibold text-primary mb-4">
                         {getAnswerDisplay(currentQuestion)}
                       </p>
                       {currentQuestion.explanation && (
-                        <p className="text-sm text-muted-foreground mt-4">
+                        <p className="text-sm text-muted-foreground">
                           {currentQuestion.explanation}
                         </p>
                       )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                      <p className="text-xs text-muted-foreground mt-6">
+                        Swipe right for "Got It" or left for "Still Learning"
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </div>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -204,7 +313,7 @@ export default function StudyPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-950 px-2 sm:px-3"
+                className="border-yellow-500 text-yellow-600 px-2 sm:px-3"
                 onClick={handleStillLearning}
                 data-testid="button-still-learning"
               >
@@ -214,7 +323,7 @@ export default function StudyPage() {
               </Button>
               <Button
                 size="sm"
-                className="bg-green-600 border-green-800 hover:bg-green-700 hover:border-green-500 px-2 sm:px-3"
+                className="bg-green-600 border-green-800 px-2 sm:px-3"
                 onClick={handleKnown}
                 data-testid="button-known"
               >
@@ -229,8 +338,8 @@ export default function StudyPage() {
             variant="outline"
             size="icon"
             className="sm:w-auto sm:px-3"
-            onClick={handleNext}
-            disabled={currentIndex === questions.length - 1}
+            onClick={() => goToNext("left")}
+            disabled={isLastCard}
             data-testid="button-next-card"
           >
             <span className="hidden sm:inline">Next</span>
@@ -238,7 +347,7 @@ export default function StudyPage() {
           </Button>
         </div>
 
-        {currentIndex === questions.length - 1 && isFlipped && (
+        {isLastCard && isFlipped && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
