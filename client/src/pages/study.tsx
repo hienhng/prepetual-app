@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
-import { useLocation, Link } from "wouter";
-import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from "framer-motion";
-import { BookOpen, RotateCcw, Check, X, Home, ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "wouter";
+import { motion, useMotionValue, useTransform, useAnimationControls, PanInfo } from "framer-motion";
+import { BookOpen, RotateCcw, Check, Home, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -9,19 +9,18 @@ import { useQuiz } from "@/lib/quiz-context";
 import type { Question } from "@shared/schema";
 
 export default function StudyPage() {
-  const [, setLocation] = useLocation();
   const { currentQuiz } = useQuiz();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [knownCards, setKnownCards] = useState<Set<number>>(new Set());
   const [studyingCards, setStudyingCards] = useState<Set<number>>(new Set());
-  const [exitDirection, setExitDirection] = useState<number>(0);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [isSwiping, setIsSwiping] = useState(false);
 
+  const controls = useAnimationControls();
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
-  const leftIndicatorOpacity = useTransform(x, [-150, -50, 0], [1, 0.5, 0]);
-  const rightIndicatorOpacity = useTransform(x, [0, 50, 150], [0, 0.5, 1]);
+  const rotate = useTransform(x, [-200, 0, 200], [-12, 0, 12]);
+  const leftOpacity = useTransform(x, [-120, -40, 0], [1, 0.4, 0]);
+  const rightOpacity = useTransform(x, [0, 40, 120], [0, 0.4, 1]);
 
   if (!currentQuiz) {
     return (
@@ -39,119 +38,119 @@ export default function StudyPage() {
   const questions = currentQuiz.questions as Question[];
   const currentQuestion = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
+  const isLastCard = currentIndex === questions.length - 1;
 
   const handleFlip = () => {
-    if (!isAnimating) {
-      setIsFlipped(!isFlipped);
+    if (!isSwiping) {
+      setIsFlipped(prev => !prev);
     }
   };
 
-  const triggerSwipe = useCallback((direction: number, action?: "known" | "learning") => {
-    if (isAnimating) return;
-    
-    setIsAnimating(true);
-    setExitDirection(direction);
+  const flyOut = async (direction: number) => {
+    setIsSwiping(true);
+    await controls.start({
+      x: direction * 400,
+      rotate: direction * 15,
+      opacity: 0,
+      transition: { type: "spring", stiffness: 200, damping: 28, mass: 0.5 }
+    });
+  };
+
+  const resetCard = () => {
+    controls.set({ x: 0, rotate: 0, opacity: 1 });
+    x.set(0);
     setIsFlipped(false);
+    setIsSwiping(false);
+  };
+
+  const snapBack = async () => {
+    await controls.start({
+      x: 0,
+      rotate: 0,
+      transition: { type: "spring", stiffness: 300, damping: 22 }
+    });
+  };
+
+  const goNext = async (action?: "known" | "learning") => {
+    if (isSwiping || isLastCard) return;
     
     if (action === "known") {
-      setKnownCards(prev => {
-        const newSet = new Set(prev);
-        newSet.add(currentIndex);
-        return newSet;
-      });
+      setKnownCards(prev => new Set(prev).add(currentIndex));
       setStudyingCards(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(currentIndex);
-        return newSet;
+        const s = new Set(prev);
+        s.delete(currentIndex);
+        return s;
       });
     } else if (action === "learning") {
-      setStudyingCards(prev => {
-        const newSet = new Set(prev);
-        newSet.add(currentIndex);
-        return newSet;
-      });
+      setStudyingCards(prev => new Set(prev).add(currentIndex));
       setKnownCards(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(currentIndex);
-        return newSet;
+        const s = new Set(prev);
+        s.delete(currentIndex);
+        return s;
       });
     }
-  }, [isAnimating, currentIndex]);
 
-  const handleExitComplete = useCallback(() => {
-    if (exitDirection !== 0) {
-      if (exitDirection > 0 && currentIndex > 0) {
-        setCurrentIndex(prev => prev - 1);
-      } else if (exitDirection < 0 && currentIndex < questions.length - 1) {
-        setCurrentIndex(prev => prev + 1);
-      }
-    }
-    setExitDirection(0);
-    setIsAnimating(false);
-    x.set(0);
-  }, [exitDirection, currentIndex, questions.length, x]);
+    await flyOut(-1);
+    setCurrentIndex(prev => prev + 1);
+    resetCard();
+  };
 
-  const handleDragEnd = (_: any, info: PanInfo) => {
+  const goPrev = async () => {
+    if (isSwiping || currentIndex === 0) return;
+    await flyOut(1);
+    setCurrentIndex(prev => prev - 1);
+    resetCard();
+  };
+
+  const handleDragEnd = async (_: any, info: PanInfo) => {
     const offsetThreshold = 80;
     const velocityThreshold = 400;
     
-    const triggeredByOffset = Math.abs(info.offset.x) > offsetThreshold;
-    const triggeredByVelocity = Math.abs(info.velocity.x) > velocityThreshold;
-    
-    if (triggeredByOffset || triggeredByVelocity) {
-      const direction = info.offset.x > 0 ? 1 : -1;
-      
-      if (isFlipped) {
-        if (direction > 0) {
-          triggerSwipe(-1, "known");
-        } else {
-          triggerSwipe(-1, "learning");
-        }
+    const swipedRight = info.offset.x > offsetThreshold || info.velocity.x > velocityThreshold;
+    const swipedLeft = info.offset.x < -offsetThreshold || info.velocity.x < -velocityThreshold;
+
+    if (isFlipped) {
+      if (swipedRight && !isLastCard) {
+        await goNext("known");
+      } else if (swipedLeft && !isLastCard) {
+        await goNext("learning");
       } else {
-        if (direction > 0 && currentIndex > 0) {
-          triggerSwipe(1);
-        } else if (direction < 0 && currentIndex < questions.length - 1) {
-          triggerSwipe(-1);
-        }
+        await snapBack();
+      }
+    } else {
+      if (swipedRight && currentIndex > 0) {
+        await goPrev();
+      } else if (swipedLeft && !isLastCard) {
+        await goNext();
+      } else {
+        await snapBack();
       }
     }
   };
 
-  const handlePrev = () => {
-    if (currentIndex > 0 && !isAnimating) {
-      setIsFlipped(false);
-      triggerSwipe(1);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentIndex < questions.length - 1 && !isAnimating) {
-      setIsFlipped(false);
-      triggerSwipe(-1);
-    }
-  };
-
-  const handleKnown = () => {
-    if (!isAnimating && currentIndex < questions.length - 1) {
-      triggerSwipe(-1, "known");
-    } else if (!isAnimating) {
-      setKnownCards(prev => {
-        const newSet = new Set(prev);
-        newSet.add(currentIndex);
-        return newSet;
-      });
-    }
-  };
-
-  const handleStillLearning = () => {
-    if (!isAnimating && currentIndex < questions.length - 1) {
-      triggerSwipe(-1, "learning");
-    } else if (!isAnimating) {
+  const handleKnown = async () => {
+    if (isLastCard) {
+      setKnownCards(prev => new Set(prev).add(currentIndex));
       setStudyingCards(prev => {
-        const newSet = new Set(prev);
-        newSet.add(currentIndex);
-        return newSet;
+        const s = new Set(prev);
+        s.delete(currentIndex);
+        return s;
       });
+    } else {
+      await goNext("known");
+    }
+  };
+
+  const handleStillLearning = async () => {
+    if (isLastCard) {
+      setStudyingCards(prev => new Set(prev).add(currentIndex));
+      setKnownCards(prev => {
+        const s = new Set(prev);
+        s.delete(currentIndex);
+        return s;
+      });
+    } else {
+      await goNext("learning");
     }
   };
 
@@ -160,35 +159,8 @@ export default function StudyPage() {
     setIsFlipped(false);
     setKnownCards(new Set());
     setStudyingCards(new Set());
-    setExitDirection(0);
-    setIsAnimating(false);
-    x.set(0);
+    resetCard();
   };
-
-  const getAnswerDisplay = (q: Question) => {
-    return q.correctAnswer;
-  };
-
-  const cardVariants = {
-    enter: (direction: number) => ({
-      x: direction < 0 ? 300 : direction > 0 ? -300 : 0,
-      opacity: 0,
-      scale: 0.92,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-      scale: 1,
-    },
-    exit: (direction: number) => ({
-      x: direction < 0 ? -350 : direction > 0 ? 350 : 0,
-      opacity: 0,
-      scale: 0.88,
-      rotate: direction < 0 ? -12 : direction > 0 ? 12 : 0,
-    }),
-  };
-
-  const isLastCard = currentIndex === questions.length - 1;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
@@ -238,109 +210,86 @@ export default function StudyPage() {
         <div className="relative h-[380px] touch-none select-none">
           <div className="absolute inset-0 flex items-center justify-between pointer-events-none px-2 z-10">
             <motion.div 
-              style={{ opacity: leftIndicatorOpacity }}
-              className="bg-yellow-500/90 text-white px-3 py-2 rounded-full font-semibold shadow-lg text-sm"
+              style={{ opacity: leftOpacity }}
+              className="bg-yellow-500 text-white px-3 py-2 rounded-full font-semibold shadow-lg text-sm"
             >
               <RotateCcw className="h-4 w-4 inline mr-1" />
               Learning
             </motion.div>
             <motion.div 
-              style={{ opacity: rightIndicatorOpacity }}
-              className="bg-green-500/90 text-white px-3 py-2 rounded-full font-semibold shadow-lg text-sm"
+              style={{ opacity: rightOpacity }}
+              className="bg-green-500 text-white px-3 py-2 rounded-full font-semibold shadow-lg text-sm"
             >
               Got It
               <Check className="h-4 w-4 inline ml-1" />
             </motion.div>
           </div>
 
-          <AnimatePresence 
-            mode="wait" 
-            custom={exitDirection}
-            onExitComplete={handleExitComplete}
+          <motion.div
+            key={currentIndex}
+            animate={controls}
+            drag="x"
+            dragElastic={0.15}
+            onDragEnd={handleDragEnd}
+            style={{ x, rotate }}
+            className="absolute inset-0 cursor-grab active:cursor-grabbing"
+            data-testid="flashcard-container"
           >
-            <motion.div
-              key={currentIndex}
-              custom={exitDirection}
-              variants={cardVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                type: "spring",
-                stiffness: 180,
-                damping: 24,
-                mass: 0.8,
-              }}
-              drag={!isAnimating ? "x" : false}
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.4}
-              dragTransition={{ bounceStiffness: 300, bounceDamping: 25 }}
-              onDragEnd={handleDragEnd}
-              style={{ x, rotate }}
-              className="absolute inset-0 cursor-grab active:cursor-grabbing"
-              data-testid="flashcard-container"
+            <div 
+              className="h-full perspective-1000"
+              onClick={handleFlip}
             >
-              <div 
-                className="h-full perspective-1000"
-                onClick={handleFlip}
+              <motion.div
+                animate={{ rotateY: isFlipped ? 180 : 0 }}
+                transition={{ type: "spring", stiffness: 150, damping: 20 }}
+                style={{ transformStyle: "preserve-3d" }}
+                className="h-full relative"
               >
-                <motion.div
-                  animate={{ rotateY: isFlipped ? 180 : 0 }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 120, 
-                    damping: 18,
-                    mass: 0.5,
-                  }}
-                  style={{ transformStyle: "preserve-3d" }}
-                  className="h-full relative"
-                >
-                  <Card className="absolute inset-0 backface-hidden">
-                    <CardContent className="h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center">
-                      <span className="text-xs uppercase tracking-wide text-muted-foreground mb-4">
-                        Question
-                      </span>
-                      <p className="text-lg font-medium mb-4">{currentQuestion.question}</p>
-                      {currentQuestion.type === "multiple_choice" && currentQuestion.options && (
-                        <div className="w-full space-y-2 text-left max-h-[140px] overflow-y-auto">
-                          {currentQuestion.options.map((opt, i) => (
-                            <div key={i} className="p-2 bg-muted/50 rounded-md text-sm">
-                              {opt}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      <p className="text-sm text-muted-foreground mt-4">
-                        Tap to reveal answer
-                      </p>
-                    </CardContent>
-                  </Card>
+                <Card className="absolute inset-0 backface-hidden">
+                  <CardContent className="h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center">
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground mb-4">
+                      Question
+                    </span>
+                    <p className="text-lg font-medium mb-4">{currentQuestion.question}</p>
+                    {currentQuestion.type === "multiple_choice" && currentQuestion.options && (
+                      <div className="w-full space-y-2 text-left max-h-[140px] overflow-y-auto">
+                        {currentQuestion.options.map((opt, i) => (
+                          <div key={i} className="p-2 bg-muted/50 rounded-md text-sm">
+                            {opt}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-sm text-muted-foreground mt-4">
+                      Tap to reveal answer
+                    </p>
+                  </CardContent>
+                </Card>
 
-                  <Card 
-                    className="absolute inset-0 backface-hidden"
-                    style={{ transform: "rotateY(180deg)" }}
-                  >
-                    <CardContent className="h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center">
-                      <span className="text-xs uppercase tracking-wide text-primary mb-4">
-                        Answer
-                      </span>
-                      <p className="text-lg font-semibold text-primary mb-4">
-                        {getAnswerDisplay(currentQuestion)}
+                <Card 
+                  className="absolute inset-0 backface-hidden"
+                  style={{ transform: "rotateY(180deg)" }}
+                >
+                  <CardContent className="h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center">
+                    <span className="text-xs uppercase tracking-wide text-primary mb-4">
+                      Answer
+                    </span>
+                    <p className="text-lg font-semibold text-primary mb-4">
+                      {currentQuestion.correctAnswer}
+                    </p>
+                    {currentQuestion.explanation && (
+                      <p className="text-sm text-muted-foreground max-h-[100px] overflow-y-auto">
+                        {currentQuestion.explanation}
                       </p>
-                      {currentQuestion.explanation && (
-                        <p className="text-sm text-muted-foreground max-h-[100px] overflow-y-auto">
-                          {currentQuestion.explanation}
-                        </p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-6">
-                        Swipe right = Got It, Swipe left = Still Learning
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-6">
+                      Swipe right = Got It, left = Learning
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          </motion.div>
         </div>
 
         <div className="flex items-center justify-between gap-2 sm:gap-4">
@@ -348,8 +297,8 @@ export default function StudyPage() {
             variant="outline"
             size="icon"
             className="sm:w-auto sm:px-3"
-            onClick={handlePrev}
-            disabled={currentIndex === 0 || isAnimating}
+            onClick={() => goPrev()}
+            disabled={currentIndex === 0 || isSwiping}
             data-testid="button-prev-card"
           >
             <ChevronLeft className="h-4 w-4 sm:mr-1" />
@@ -363,7 +312,7 @@ export default function StudyPage() {
                 size="sm"
                 className="border-yellow-500 text-yellow-600 px-2 sm:px-3"
                 onClick={handleStillLearning}
-                disabled={isAnimating}
+                disabled={isSwiping}
                 data-testid="button-still-learning"
               >
                 <RotateCcw className="h-4 w-4 sm:mr-1" />
@@ -374,7 +323,7 @@ export default function StudyPage() {
                 size="sm"
                 className="bg-green-600 border-green-800 px-2 sm:px-3"
                 onClick={handleKnown}
-                disabled={isAnimating}
+                disabled={isSwiping}
                 data-testid="button-known"
               >
                 <Check className="h-4 w-4 sm:mr-1" />
@@ -387,8 +336,8 @@ export default function StudyPage() {
             variant="outline"
             size="icon"
             className="sm:w-auto sm:px-3"
-            onClick={handleNext}
-            disabled={isLastCard || isAnimating}
+            onClick={() => goNext()}
+            disabled={isLastCard || isSwiping}
             data-testid="button-next-card"
           >
             <span className="hidden sm:inline">Next</span>
