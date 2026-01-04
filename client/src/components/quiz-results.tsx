@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Trophy, Check, X, ChevronDown, ChevronUp, RotateCcw, Home, Sparkles, LucideMessageCircleQuestion, Lock, UserPlus } from "lucide-react";
+import { Trophy, Check, X, ChevronDown, ChevronUp, RotateCcw, Home, Sparkles, LucideMessageCircleQuestion, Lock, UserPlus, Flame } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function QuizResults() {
   const [, setLocation] = useLocation();
@@ -15,7 +15,18 @@ export function QuizResults() {
   const { user } = useAuth();
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
+  const [showStreak, setShowStreak] = useState(false);
   
+  useEffect(() => {
+    if (quizResult && user) {
+      // Simulate streak animation trigger
+      const timer = setTimeout(() => {
+        setShowStreak(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [quizResult, user]);
+
   const isGuest = !user;
 
   if (!currentQuiz || !quizResult) {
@@ -67,7 +78,72 @@ export function QuizResults() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-6">
+    <div className="w-full max-w-3xl mx-auto space-y-6 relative">
+      <AnimatePresence>
+        {showStreak && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5, y: 50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.5, y: -50 }}
+            className="fixed inset-0 flex items-center justify-center z-[100] pointer-events-none"
+            onAnimationComplete={() => {
+              setTimeout(() => setShowStreak(false), 3000);
+            }}
+          >
+            <div className="relative">
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  rotate: [0, 5, -5, 0]
+                }}
+                transition={{ 
+                  duration: 0.5,
+                  repeat: Infinity,
+                  repeatType: "reverse"
+                }}
+                className="bg-background/80 backdrop-blur-md p-8 rounded-full shadow-2xl border-4 border-quiz-orange flex flex-col items-center gap-4"
+              >
+                <div className="relative">
+                  <motion.div
+                    animate={{ 
+                      scale: [1, 1.5, 1],
+                      opacity: [0.5, 1, 0.5]
+                    }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                    className="absolute inset-0 bg-quiz-orange blur-2xl rounded-full opacity-50"
+                  />
+                  <Flame className="w-24 h-24 text-quiz-orange relative z-10 fill-quiz-orange" />
+                </div>
+                <div className="text-center z-10">
+                  <h3 className="text-3xl font-black text-quiz-orange uppercase tracking-tighter">Daily Streak!</h3>
+                  <p className="text-xl font-bold text-foreground">You're on fire!</p>
+                </div>
+              </motion.div>
+              
+              {/* Particle effects */}
+              {[...Array(12)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ 
+                    opacity: [0, 1, 0],
+                    scale: [0, 1, 0.5],
+                    x: (Math.random() - 0.5) * 400,
+                    y: (Math.random() - 0.5) * 400,
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    delay: Math.random() * 0.5,
+                    repeat: Infinity
+                  }}
+                  className="absolute top-1/2 left-1/2 w-4 h-4 bg-quiz-orange rounded-full"
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}

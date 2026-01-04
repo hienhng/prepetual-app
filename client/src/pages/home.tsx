@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { Sparkles, Brain, ArrowRight, CheckCircle2, Upload, FileText, BarChart3, LoaderCircle, CircleFadingPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -504,7 +504,7 @@ export default function Home() {
               className="text-center mt-20"
             >
               <Link href="/faq">
-                <Button variant="link" className="text-muted-foreground hover:text-primary">
+                <Button variant="link" className="text-muted-foreground hover:text-primary" data-testid="link-faq">
                   Frequently Asked Questions
                 </Button>
               </Link>

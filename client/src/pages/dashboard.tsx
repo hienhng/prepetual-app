@@ -468,7 +468,7 @@ export default function Dashboard() {
           <motion.section variants={itemVariants}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
-                label="Quizzes Created"
+                label="Created"
                 value={totalQuizzes}
                 icon={FileText}
                 gradient="bg-gradient-to-br from-blue-500 to-blue-600"
