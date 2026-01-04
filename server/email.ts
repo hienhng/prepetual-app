@@ -117,36 +117,36 @@ export async function sendStreakReminderEmail(
   // Motivational messages based on streak length
   let headline = "";
   let subheadline = "";
-  let emoji = "";
   
   if (currentStreak >= 30) {
     headline = `${currentStreak} days strong!`;
     subheadline = "You're a learning legend. Don't let this incredible streak slip away!";
-    emoji = "&#127942;"; // Trophy
   } else if (currentStreak >= 14) {
     headline = `${currentStreak} days and counting!`;
     subheadline = "Two weeks of dedication. You're building something amazing here!";
-    emoji = "&#11088;"; // Star
   } else if (currentStreak >= 7) {
     headline = `A whole week! ${currentStreak} days!`;
     subheadline = "Your consistency is paying off. Keep the momentum going!";
-    emoji = "&#128293;"; // Fire
   } else if (currentStreak >= 3) {
     headline = `${currentStreak} day streak!`;
     subheadline = "Great progress! A few minutes today keeps the streak alive.";
-    emoji = "&#128170;"; // Flexed bicep
   } else {
     headline = "Keep your streak alive!";
     subheadline = "One quick quiz is all it takes. You've got this!";
-    emoji = "&#128161;"; // Light bulb
   }
+  
+  // Inline SVG flame icon (Lucide Flame icon)
+  const flameIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`;
+  
+  // Inline SVG arrow icon for button
+  const arrowIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:6px;"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
 
   console.log("[Email] Sending streak reminder to:", to);
   const transporter = getTransporter();
   await transporter.sendMail({
     from: `"Prepetual" <${process.env.GMAIL_USER}>`,
     to,
-    subject: `${emoji} Your ${currentStreak}-day streak is waiting, ${name}!`,
+    subject: `Your ${currentStreak}-day streak is waiting, ${name}!`,
     html: `
       <!DOCTYPE html>
       <html>
@@ -163,7 +163,7 @@ export async function sendStreakReminderEmail(
                 <!-- Hero Section with Flame -->
                 <tr>
                   <td style="background: linear-gradient(135deg, #F97316 0%, #EA580C 50%, #C2410C 100%); padding: 48px 40px; text-align: center;">
-                    <div style="font-size: 64px; margin-bottom: 8px;">&#128293;</div>
+                    <div style="margin-bottom: 8px;">${flameIconSvg}</div>
                     <h1 style="margin: 0; color: #ffffff; font-size: 42px; font-weight: 800; letter-spacing: -1px; font-family: 'Bricolage Grotesque', sans-serif; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">${currentStreak}</h1>
                     <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; font-family: 'Bricolage Grotesque', sans-serif;">Day Streak</p>
                   </td>
@@ -189,7 +189,7 @@ export async function sendStreakReminderEmail(
                       <tr>
                         <td style="text-align: center;">
                           <a href="${dashboardUrl}" style="display: inline-block; background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 700; font-family: 'Bricolage Grotesque', sans-serif; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);">
-                            Continue Learning &#8594;
+                            Continue Learning ${arrowIconSvg}
                           </a>
                         </td>
                       </tr>
