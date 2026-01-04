@@ -10,6 +10,15 @@ import { useAuthDialog } from "@/lib/auth-context";
 import { motion, AnimatePresence } from "framer-motion";
 
 function AnimatedFlame({ className, streakCount = 1 }: { className?: string, streakCount?: number }) {
+  const [isSwitchedOn, setIsSwitchedOn] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsSwitchedOn(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className={`relative ${className} flex flex-col items-center justify-center`}>
       <motion.div
@@ -19,43 +28,49 @@ function AnimatedFlame({ className, streakCount = 1 }: { className?: string, str
           y: 0,
           skewX: 0
         }}
-        animate={{
-          filter: [
-            "grayscale(100%) opacity(0.2) blur(2px)",
-            "grayscale(100%) opacity(0.4) blur(1px)",
-            "grayscale(0%) opacity(1) blur(0px) drop-shadow(0 0 20px rgba(249,115,22,0.9))"
-          ],
-          scale: [0.8, 0.9, 1.2, 1],
-          y: [0, 0, -8, 0, -4, 0],
-          skewX: [0, 0, 0, 2, -2, 1, 0]
+        animate={isSwitchedOn ? {
+          filter: "grayscale(0%) opacity(1) blur(0px) drop-shadow(0 0 25px rgba(249,115,22,0.9))",
+          scale: [1, 1.1, 1],
+          y: [0, -6, 0],
+          skewX: [0, 2, -2, 0]
+        } : {
+          filter: "grayscale(100%) opacity(0.2) blur(2px)",
+          scale: 0.8,
+          y: 0,
+          skewX: 0
         }}
-        transition={{
-          filter: { times: [0, 0.4, 1], duration: 2.5, ease: "easeInOut" },
-          scale: { times: [0, 0.4, 0.7, 1], duration: 2.5, ease: "easeOut" },
+        transition={isSwitchedOn ? {
+          filter: { duration: 0.1 },
+          scale: { 
+            duration: 0.4, 
+            times: [0, 0.5, 1],
+            repeat: Infinity,
+            repeatDelay: 1
+          },
           y: { 
-            times: [0, 0.5, 0.6, 0.7, 0.85, 1],
-            duration: 3.5, 
+            duration: 2, 
             repeat: Infinity, 
-            ease: "easeInOut",
+            ease: "easeInOut" 
           },
           skewX: { 
-            times: [0, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
-            duration: 3, 
+            duration: 1.5, 
             repeat: Infinity, 
-            ease: "easeInOut",
+            ease: "easeInOut" 
           }
+        } : {
+          duration: 0
         }}
       >
         <Flame className="w-24 h-24 text-quiz-orange fill-quiz-orange" />
       </motion.div>
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2, duration: 0.5 }}
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={isSwitchedOn ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
+        transition={{ type: "spring", damping: 12, stiffness: 200 }}
         className="mt-4 flex flex-col items-center"
       >
-        <span className="text-5xl font-black text-quiz-orange leading-none">{streakCount}</span>
-        <span className="text-sm font-bold text-quiz-orange/60 uppercase tracking-widest mt-1">Day Streak</span>
+        <span className="text-6xl font-black text-quiz-orange leading-none drop-shadow-md">{streakCount}</span>
+        <span className="text-xs font-bold text-quiz-orange/70 uppercase tracking-[0.2em] mt-2">Day Streak</span>
       </motion.div>
     </div>
   );
@@ -187,7 +202,7 @@ export function QuizResults() {
                     transition={{ delay: 0.2 }}
                     className="text-4xl font-black text-quiz-orange uppercase tracking-tighter italic"
                   >
-                    Daily Streak!
+                    
                   </motion.h3>
                 </div>
               </motion.div>
