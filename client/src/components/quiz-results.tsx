@@ -77,18 +77,11 @@ export function QuizResults() {
   
   useEffect(() => {
     if (quizResult && user) {
-      // Limit streak animation to once per day using localStorage
-      const lastSeenKey = `streak_last_seen_${user.id}`;
-      const today = new Date().toISOString().split('T')[0];
-      const lastSeenDate = localStorage.getItem(lastSeenKey);
-
-      if (lastSeenDate !== today) {
-        const timer = setTimeout(() => {
-          setShowStreak(true);
-          localStorage.setItem(lastSeenKey, today);
-        }, 1000);
-        return () => clearTimeout(timer);
-      }
+      // Simulate streak animation trigger
+      const timer = setTimeout(() => {
+        setShowStreak(true);
+      }, 1000);
+      return () => clearTimeout(timer);
     }
   }, [quizResult, user]);
 

@@ -44,6 +44,9 @@ export interface IStorage {
   getQuizResultsByQuizId(quizId: string): Promise<QuizResult[]>;
   // Streak
   getUserStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; lastActivityDate: string | null }>;
+  // Streak Reminders
+  getUsersForStreakReminder(): Promise<User[]>;
+  updateLastStreakReminderSentAt(userId: string): Promise<void>;
   // Comments
   addComment(comment: InsertComment): Promise<QuizComment>;
   getCommentsByQuizId(quizId: string): Promise<(QuizComment & { author: { firstName: string | null; lastName: string | null; profileImageUrl: string | null } })[]>;
@@ -372,6 +375,37 @@ export class DatabaseStorage implements IStorage {
     const longestStreak = Math.max(currentStreak, this.calculateLongestStreak(uniqueDays));
 
     return { currentStreak, longestStreak, lastActivityDate };
+  }
+
+  async getUsersForStreakReminder(): Promise<User[]> {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    
+    // Get all users who:
+    // 1. Have verified emails
+    // 2. Have streak reminders enabled
+    // 3. Haven't received a reminder in the last 24 hours (or never received one)
+    const eligibleUsers = await db
+      .select()
+      .from(users)
+      .where(
+        and(
+          eq(users.emailVerified, true),
+          eq(users.streakReminderEnabled, true)
+        )
+      );
+    
+    // Filter users who haven't received reminder in 24h
+    return eligibleUsers.filter(user => {
+      if (!user.lastStreakReminderSentAt) return true;
+      return new Date(user.lastStreakReminderSentAt) < oneDayAgo;
+    });
+  }
+
+  async updateLastStreakReminderSentAt(userId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ lastStreakReminderSentAt: new Date(), updatedAt: new Date() })
+      .where(eq(users.id, userId));
   }
 
   private calculateLongestStreak(sortedDaysDesc: string[]): number {

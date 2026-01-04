@@ -25,6 +25,8 @@ export const users = pgTable("users", {
   emailVerified: boolean("email_verified").default(false),
   googleId: varchar("google_id").unique(),
   authProvider: varchar("auth_provider").default("email"),
+  lastStreakReminderSentAt: timestamp("last_streak_reminder_sent_at"),
+  streakReminderEnabled: boolean("streak_reminder_enabled").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

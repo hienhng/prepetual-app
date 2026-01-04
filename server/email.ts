@@ -100,6 +100,138 @@ export async function sendVerificationEmail(
   console.log("[Email] Verification email sent successfully to:", to);
 }
 
+export async function sendStreakReminderEmail(
+  to: string,
+  firstName: string | null,
+  currentStreak: number
+): Promise<void> {
+  const baseUrl = process.env.NODE_ENV === "production"
+    ? "https://prepetual.app"
+    : process.env.REPLIT_DEV_DOMAIN
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+      : "http://localhost:5000";
+
+  const dashboardUrl = `${baseUrl}/dashboard`;
+  const name = firstName || "there";
+  
+  // Motivational messages based on streak length
+  let headline = "";
+  let subheadline = "";
+  let emoji = "";
+  
+  if (currentStreak >= 30) {
+    headline = `${currentStreak} days strong!`;
+    subheadline = "You're a learning legend. Don't let this incredible streak slip away!";
+    emoji = "&#127942;"; // Trophy
+  } else if (currentStreak >= 14) {
+    headline = `${currentStreak} days and counting!`;
+    subheadline = "Two weeks of dedication. You're building something amazing here!";
+    emoji = "&#11088;"; // Star
+  } else if (currentStreak >= 7) {
+    headline = `A whole week! ${currentStreak} days!`;
+    subheadline = "Your consistency is paying off. Keep the momentum going!";
+    emoji = "&#128293;"; // Fire
+  } else if (currentStreak >= 3) {
+    headline = `${currentStreak} day streak!`;
+    subheadline = "Great progress! A few minutes today keeps the streak alive.";
+    emoji = "&#128170;"; // Flexed bicep
+  } else {
+    headline = "Keep your streak alive!";
+    subheadline = "One quick quiz is all it takes. You've got this!";
+    emoji = "&#128161;"; // Light bulb
+  }
+
+  console.log("[Email] Sending streak reminder to:", to);
+  const transporter = getTransporter();
+  await transporter.sendMail({
+    from: `"Prepetual" <${process.env.GMAIL_USER}>`,
+    to,
+    subject: `${emoji} Your ${currentStreak}-day streak is waiting, ${name}!`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #1a1a1a; font-family: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 40px 20px;">
+              <table role="presentation" style="max-width: 480px; margin: 0 auto; background-color: #262626; border-radius: 20px; overflow: hidden; border: 1px solid #404040;">
+                <!-- Hero Section with Flame -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #F97316 0%, #EA580C 50%, #C2410C 100%); padding: 48px 40px; text-align: center;">
+                    <div style="font-size: 64px; margin-bottom: 8px;">&#128293;</div>
+                    <h1 style="margin: 0; color: #ffffff; font-size: 42px; font-weight: 800; letter-spacing: -1px; font-family: 'Bricolage Grotesque', sans-serif; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">${currentStreak}</h1>
+                    <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; font-family: 'Bricolage Grotesque', sans-serif;">Day Streak</p>
+                  </td>
+                </tr>
+                <!-- Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <h2 style="margin: 0 0 12px 0; color: #ffffff; font-size: 24px; font-weight: 700; font-family: 'Bricolage Grotesque', sans-serif;">${headline}</h2>
+                    <p style="margin: 0 0 32px 0; color: #a3a3a3; font-size: 16px; line-height: 1.7; font-family: 'Bricolage Grotesque', sans-serif;">
+                      Hey ${name}! ${subheadline}
+                    </p>
+                    <!-- Stats Box -->
+                    <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 32px;">
+                      <tr>
+                        <td style="background-color: #1a1a1a; border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #404040;">
+                          <p style="margin: 0 0 4px 0; color: #F97316; font-size: 28px; font-weight: 800; font-family: 'Bricolage Grotesque', sans-serif;">${currentStreak} days</p>
+                          <p style="margin: 0; color: #737373; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-family: 'Bricolage Grotesque', sans-serif;">Current Streak</p>
+                        </td>
+                      </tr>
+                    </table>
+                    <!-- CTA Button -->
+                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="text-align: center;">
+                          <a href="${dashboardUrl}" style="display: inline-block; background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 700; font-family: 'Bricolage Grotesque', sans-serif; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);">
+                            Continue Learning &#8594;
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <!-- Motivational Quote -->
+                <tr>
+                  <td style="padding: 0 40px 32px 40px;">
+                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="background-color: #1a1a1a; border-radius: 12px; padding: 20px; border-left: 4px solid #F97316;">
+                          <p style="margin: 0; color: #d4d4d4; font-size: 14px; font-style: italic; line-height: 1.6; font-family: 'Bricolage Grotesque', sans-serif;">
+                            "Small daily improvements are the key to staggering long-term results."
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <!-- Footer -->
+                <tr>
+                  <td style="padding: 24px 40px; background-color: #1a1a1a; border-top: 1px solid #404040;">
+                    <p style="margin: 0 0 8px 0; color: #737373; font-size: 12px; text-align: center; font-family: 'Bricolage Grotesque', sans-serif;">
+                      You're receiving this because you're awesome and have an active streak on Prepetual.
+                    </p>
+                    <p style="margin: 0; color: #525252; font-size: 11px; text-align: center; font-family: 'Bricolage Grotesque', sans-serif;">
+                      <a href="${baseUrl}/dashboard" style="color: #525252; text-decoration: underline;">Manage email preferences</a>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `,
+  });
+  console.log("[Email] Streak reminder sent successfully to:", to);
+}
+
 export async function sendPasswordResetEmail(
   to: string,
   token: string,
