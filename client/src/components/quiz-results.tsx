@@ -92,51 +92,76 @@ export function QuizResults() {
           >
             <div className="relative">
               <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ 
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 5, -5, 0]
+                  scale: 1,
+                  opacity: 1,
+                  y: [0, -10, 0]
                 }}
                 transition={{ 
-                  duration: 0.5,
-                  repeat: Infinity,
-                  repeatType: "reverse"
+                  scale: { type: "spring", damping: 15, stiffness: 200 },
+                  opacity: { duration: 0.3 },
+                  y: { duration: 2, repeat: Infinity, ease: "easeInOut" }
                 }}
-                className="bg-background/80 backdrop-blur-md p-8 rounded-full shadow-2xl border-4 border-quiz-orange flex flex-col items-center gap-4"
+                className="bg-background/95 backdrop-blur-xl p-10 rounded-full shadow-[0_0_50px_rgba(249,115,22,0.3)] border-4 border-quiz-orange/50 flex flex-col items-center gap-4 min-w-[280px]"
               >
                 <div className="relative">
                   <motion.div
                     animate={{ 
-                      scale: [1, 1.5, 1],
-                      opacity: [0.5, 1, 0.5]
+                      scale: [1, 1.4, 1],
+                      opacity: [0.3, 0.6, 0.3]
                     }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                    className="absolute inset-0 bg-quiz-orange blur-2xl rounded-full opacity-50"
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0 bg-quiz-orange blur-3xl rounded-full"
                   />
-                  <Flame className="w-24 h-24 text-quiz-orange relative z-10 fill-quiz-orange" />
+                  <motion.div
+                    animate={{ 
+                      y: [0, -5, 0],
+                      scale: [1, 1.05, 1]
+                    }}
+                    transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <Flame className="w-28 h-28 text-quiz-orange relative z-10 fill-quiz-orange" />
+                  </motion.div>
                 </div>
                 <div className="text-center z-10">
-                  <h3 className="text-3xl font-black text-quiz-orange uppercase tracking-tighter">Daily Streak!</h3>
-                  <p className="text-xl font-bold text-foreground">You're on fire!</p>
+                  <motion.h3 
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-4xl font-black text-quiz-orange uppercase tracking-tighter italic"
+                  >
+                    Daily Streak!
+                  </motion.h3>
+                  <motion.p 
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-xl font-bold text-foreground/80"
+                  >
+                    You're on fire!
+                  </motion.p>
                 </div>
               </motion.div>
               
-              {/* Particle effects */}
-              {[...Array(12)].map((_, i) => (
+              {/* Refined Particle effects */}
+              {[...Array(20)].map((_, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, scale: 0 }}
+                  initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
                   animate={{ 
                     opacity: [0, 1, 0],
-                    scale: [0, 1, 0.5],
-                    x: (Math.random() - 0.5) * 400,
-                    y: (Math.random() - 0.5) * 400,
+                    scale: [0, Math.random() * 1 + 0.5, 0],
+                    x: (Math.random() - 0.5) * 500,
+                    y: (Math.random() - 0.5) * 500,
                   }}
                   transition={{ 
-                    duration: 2,
+                    duration: Math.random() * 2 + 1,
                     delay: Math.random() * 0.5,
-                    repeat: Infinity
+                    repeat: Infinity,
+                    ease: "easeOut"
                   }}
-                  className="absolute top-1/2 left-1/2 w-4 h-4 bg-quiz-orange rounded-full"
+                  className="absolute top-1/2 left-1/2 w-2 h-2 bg-gradient-to-t from-quiz-orange to-yellow-400 rounded-full blur-[1px]"
                 />
               ))}
             </div>
