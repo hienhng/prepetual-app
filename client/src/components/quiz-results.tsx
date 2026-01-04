@@ -13,38 +13,32 @@ function AnimatedFlame({ className }: { className?: string }) {
   return (
     <div className={`relative ${className}`}>
       <svg viewBox="0 0 100 100" className="w-full h-full">
-        <defs>
-          <linearGradient id="flameGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#ff4d00" />
-            <stop offset="50%" stopColor="#ff9000" />
-            <stop offset="100%" stopColor="#ffea00" />
-          </linearGradient>
-          <filter id="flameGlow">
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-        </defs>
-
-        {/* Outer Flame */}
+        <filter id="flame-blur">
+          <feGaussianBlur stdDeviation="0.5" />
+        </filter>
+        
+        {/* Outer Flame - Flat Vector Style */}
         <motion.path
           animate={{
             d: [
-              "M50,95 Q20,80 30,50 Q35,20 50,5 Q65,20 70,50 Q80,80 50,95 Z",
-              "M50,95 Q25,85 35,55 Q40,25 50,10 Q60,25 65,55 Q75,85 50,95 Z",
-              "M50,95 Q15,75 25,45 Q30,15 50,0 Q70,15 75,45 Q85,75 50,95 Z",
-              "M50,95 Q20,80 30,50 Q35,20 50,5 Q65,20 70,50 Q80,80 50,95 Z"
-            ]
+              "M50,95 Q20,80 25,50 Q30,20 50,5 Q70,20 75,50 Q80,80 50,95 Z",
+              "M50,95 Q25,85 30,55 Q35,25 50,10 Q65,25 70,55 Q75,85 50,95 Z",
+              "M50,95 Q15,75 20,45 Q25,15 50,0 Q75,15 80,45 Q85,75 50,95 Z",
+              "M50,95 Q20,80 25,50 Q30,20 50,5 Q70,20 75,50 Q80,80 50,95 Z"
+            ],
+            scale: [1, 1.02, 0.98, 1],
+            y: [0, -2, 1, 0]
           }}
           transition={{
-            duration: 2,
+            duration: 1.5,
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          fill="url(#flameGradient)"
-          filter="url(#flameGlow)"
+          fill="#FF4D00"
+          className="drop-shadow-sm"
         />
 
-        {/* Inner Flame */}
+        {/* Inner Flame - Flat Vector Style */}
         <motion.path
           animate={{
             d: [
@@ -52,15 +46,17 @@ function AnimatedFlame({ className }: { className?: string }) {
               "M50,90 Q38,82 43,68 Q45,53 50,43 Q55,53 57,68 Q62,82 50,90 Z",
               "M50,90 Q32,78 37,62 Q39,47 50,37 Q61,47 63,62 Q68,78 50,90 Z",
               "M50,90 Q35,80 40,65 Q42,50 50,40 Q58,50 60,65 Q65,80 50,90 Z"
-            ]
+            ],
+            scale: [1, 1.05, 0.95, 1],
+            y: [0, -4, 2, 0]
           }}
           transition={{
-            duration: 1.5,
+            duration: 1.2,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
+            delay: 0.1
           }}
-          fill="#ffea00"
-          opacity="0.8"
+          fill="#FFEA00"
         />
       </svg>
     </div>
@@ -161,7 +157,7 @@ export function QuizResults() {
                   opacity: { duration: 0.3 },
                   y: { duration: 2, repeat: Infinity, ease: "easeInOut" }
                 }}
-                className="bg-background/95 backdrop-blur-xl p-10 rounded-full shadow-[0_0_50px_rgba(249,115,22,0.3)] border-4 border-quiz-orange/50 flex flex-col items-center gap-4 min-w-[280px]"
+                className="bg-background/95 backdrop-blur-xl p-10 rounded-full shadow-[0_0_50px_rgba(249,115,22,0.2)] border-4 border-quiz-orange/30 flex flex-col items-center gap-4 min-w-[280px]"
               >
                 <div className="relative">
                   <motion.div
@@ -174,13 +170,8 @@ export function QuizResults() {
                   />
                   <motion.div
                     animate={{ 
-                      scale: [1, 1.05, 1],
-                      y: [0, -5, 0],
-                      filter: [
-                        "drop-shadow(0 0 15px rgba(255,77,0,0.6))",
-                        "drop-shadow(0 0 30px rgba(255,144,0,0.8))",
-                        "drop-shadow(0 0 15px rgba(255,77,0,0.6))"
-                      ]
+                      scale: [1, 1.03, 1],
+                      y: [0, -3, 0]
                     }}
                     transition={{ 
                       duration: 2, 
@@ -188,7 +179,7 @@ export function QuizResults() {
                       ease: "easeInOut" 
                     }}
                   >
-                    <AnimatedFlame className="w-32 h-32 relative z-10" />
+                    <AnimatedFlame className="w-32 h-32 relative z-10 drop-shadow-[0_0_10px_rgba(255,77,0,0.3)]" />
                   </motion.div>
                 </div>
                 <div className="text-center z-10">
