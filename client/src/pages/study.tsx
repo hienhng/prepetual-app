@@ -39,7 +39,6 @@ export default function StudyPage() {
   const currentQuestion = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
   const isLastCard = currentIndex === questions.length - 1;
-  const isFirstCard = currentIndex === 0;
 
   const handleFlip = () => {
     if (!isSwiping) {
@@ -72,8 +71,8 @@ export default function StudyPage() {
     });
   };
 
-  const handleSwipe = async (direction: number, action?: "known" | "learning") => {
-    if (isSwiping) return;
+  const goToNextCard = async (direction: number, action: "known" | "learning") => {
+    if (isSwiping || isLastCard) return;
     
     if (action === "known") {
       setKnownCards(prev => new Set(prev).add(currentIndex));
@@ -82,7 +81,7 @@ export default function StudyPage() {
         s.delete(currentIndex);
         return s;
       });
-    } else if (action === "learning") {
+    } else {
       setStudyingCards(prev => new Set(prev).add(currentIndex));
       setKnownCards(prev => {
         const s = new Set(prev);
@@ -92,13 +91,7 @@ export default function StudyPage() {
     }
 
     await flyOut(direction);
-    
-    if (direction > 0 && currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-    } else if (direction < 0 && currentIndex < questions.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-    }
-    
+    setCurrentIndex(prev => prev + 1);
     resetCard();
   };
 
@@ -109,48 +102,12 @@ export default function StudyPage() {
     const swipedRight = info.offset.x > offsetThreshold || info.velocity.x > velocityThreshold;
     const swipedLeft = info.offset.x < -offsetThreshold || info.velocity.x < -velocityThreshold;
 
-    if (isFlipped) {
-      if (swipedRight && !isLastCard) {
-        await handleSwipe(1, "known");
-      } else if (swipedLeft && !isLastCard) {
-        await handleSwipe(-1, "learning");
-      } else {
-        await snapBack();
-      }
+    if (swipedRight && !isLastCard) {
+      await goToNextCard(1, "known");
+    } else if (swipedLeft && !isLastCard) {
+      await goToNextCard(-1, "learning");
     } else {
-      if (swipedRight && !isFirstCard) {
-        await handleSwipe(1);
-      } else if (swipedLeft && !isLastCard) {
-        await handleSwipe(-1);
-      } else {
-        await snapBack();
-      }
-    }
-  };
-
-  const handleKnown = async () => {
-    if (isLastCard) {
-      setKnownCards(prev => new Set(prev).add(currentIndex));
-      setStudyingCards(prev => {
-        const s = new Set(prev);
-        s.delete(currentIndex);
-        return s;
-      });
-    } else {
-      await handleSwipe(1, "known");
-    }
-  };
-
-  const handleStillLearning = async () => {
-    if (isLastCard) {
-      setStudyingCards(prev => new Set(prev).add(currentIndex));
-      setKnownCards(prev => {
-        const s = new Set(prev);
-        s.delete(currentIndex);
-        return s;
-      });
-    } else {
-      await handleSwipe(-1, "learning");
+      await snapBack();
     }
   };
 
@@ -292,33 +249,7 @@ export default function StudyPage() {
           </motion.div>
         </div>
 
-        {isFlipped && (
-          <div className="flex justify-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-yellow-500 text-yellow-600 px-3"
-              onClick={handleStillLearning}
-              disabled={isSwiping}
-              data-testid="button-still-learning"
-            >
-              <RotateCcw className="h-4 w-4 mr-1" />
-              Still Learning
-            </Button>
-            <Button
-              size="sm"
-              className="bg-green-600 border-green-800 px-3"
-              onClick={handleKnown}
-              disabled={isSwiping}
-              data-testid="button-known"
-            >
-              <Check className="h-4 w-4 mr-1" />
-              Got It
-            </Button>
-          </div>
-        )}
-
-        {isLastCard && isFlipped && (
+        {isLastCard && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
