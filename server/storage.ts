@@ -305,7 +305,13 @@ export class DatabaseStorage implements IStorage {
     return vote?.voteType || null;
   }
 
-  async getUserStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; lastActivityDate: string | null; isActive: boolean }> {
+  async getUserStreak(userId: string): Promise<{ 
+    currentStreak: number; 
+    longestStreak: number; 
+    lastActivityDate: string | null; 
+    isActive: boolean;
+    isFirstCompletionToday: boolean;
+  }> {
     // Get all activity dates: quiz creation + quiz completions
     const userQuizzes = await db.select({ createdAt: quizzes.createdAt })
       .from(quizzes)
@@ -331,7 +337,13 @@ export class DatabaseStorage implements IStorage {
     ].filter(Boolean) as Date[];
 
     if (allDates.length === 0) {
-      return { currentStreak: 0, longestStreak: 0, lastActivityDate: null, isActive: false };
+      return { 
+        currentStreak: 0, 
+        longestStreak: 0, 
+        lastActivityDate: null, 
+        isActive: false,
+        isFirstCompletionToday: false
+      };
     }
 
     // Convert to unique date strings (YYYY-MM-DD)
@@ -342,7 +354,13 @@ export class DatabaseStorage implements IStorage {
     const uniqueDays = Array.from(new Set(dateStrings)).sort().reverse();
 
     if (uniqueDays.length === 0) {
-      return { currentStreak: 0, longestStreak: 0, lastActivityDate: null, isActive: false };
+      return { 
+        currentStreak: 0, 
+        longestStreak: 0, 
+        lastActivityDate: null, 
+        isActive: false,
+        isFirstCompletionToday: false
+      };
     }
 
     const lastActivityDate = uniqueDays[0];
@@ -354,6 +372,13 @@ export class DatabaseStorage implements IStorage {
     let checkDate = today;
     const isActive = uniqueDays.includes(today);
 
+    // Calculate completions specifically for today to determine if this is the first one
+    // Note: The streak calculation uses both quiz creation and completions.
+    // The user specifically asked for "one quiz completion only".
+    const todayCompletions = completionDates.filter(d => 
+      new Date(d).toISOString().split('T')[0] === today
+    ).length;
+
     // Check if there's activity today or yesterday to start the streak
     if (uniqueDays.includes(today)) {
       currentStreak = 1;
@@ -363,7 +388,13 @@ export class DatabaseStorage implements IStorage {
       checkDate = new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0];
     } else {
       // No recent activity, streak is 0
-      return { currentStreak: 0, longestStreak: this.calculateLongestStreak(uniqueDays), lastActivityDate, isActive: false };
+      return { 
+        currentStreak: 0, 
+        longestStreak: this.calculateLongestStreak(uniqueDays), 
+        lastActivityDate, 
+        isActive: false,
+        isFirstCompletionToday: false
+      };
     }
 
     // Count consecutive days backwards
@@ -375,7 +406,13 @@ export class DatabaseStorage implements IStorage {
 
     const longestStreak = Math.max(currentStreak, this.calculateLongestStreak(uniqueDays));
 
-    return { currentStreak, longestStreak, lastActivityDate, isActive };
+    return { 
+      currentStreak, 
+      longestStreak, 
+      lastActivityDate, 
+      isActive,
+      isFirstCompletionToday: todayCompletions === 1 && isActive
+    };
   }
 
   async getUsersForStreakReminder(): Promise<User[]> {

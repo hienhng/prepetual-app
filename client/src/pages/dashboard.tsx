@@ -19,6 +19,8 @@ interface StreakData {
   currentStreak: number;
   longestStreak: number;
   lastActivityDate: string | null;
+  isActive: boolean;
+  isFirstCompletionToday: boolean;
 }
 
 const learningTips = [

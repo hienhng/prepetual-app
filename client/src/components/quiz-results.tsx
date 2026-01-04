@@ -74,14 +74,27 @@ export function QuizResults() {
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
   const [showStreak, setShowStreak] = useState(false);
+  const [currentStreakCount, setCurrentStreakCount] = useState(1);
   
   useEffect(() => {
     if (quizResult && user) {
-      // Simulate streak animation trigger
-      const timer = setTimeout(() => {
-        setShowStreak(true);
-      }, 1000);
-      return () => clearTimeout(timer);
+      const today = new Date().toISOString().split('T')[0];
+      const resultDate = new Date(quizResult.completedAt).toISOString().split('T')[0];
+      
+      if (resultDate === today) {
+        fetch(`/api/user/streak`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.isFirstCompletionToday) {
+              setCurrentStreakCount(data.currentStreak);
+              const timer = setTimeout(() => {
+                setShowStreak(true);
+              }, 1000);
+              return () => clearTimeout(timer);
+            }
+          })
+          .catch(err => console.error("Failed to fetch streak:", err));
+      }
     }
   }, [quizResult, user]);
 
@@ -183,7 +196,10 @@ export function QuizResults() {
                       ease: "easeInOut" 
                     }}
                   >
-                    <AnimatedFlame className="w-32 h-48 relative z-10 drop-shadow-[0_0_10px_rgba(255,77,0,0.3)]" streakCount={1} />
+                    <AnimatedFlame 
+                      className="w-32 h-48 relative z-10 drop-shadow-[0_0_10px_rgba(255,77,0,0.3)]" 
+                      streakCount={currentStreakCount} 
+                    />
                   </motion.div>
                 </div>
                 <div className="text-center z-10">
