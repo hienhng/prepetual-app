@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion, useMotionValue, useTransform, useAnimationControls, PanInfo } from "framer-motion";
 import { BookOpen, RotateCcw, Check, Home } from "lucide-react";
@@ -23,6 +23,24 @@ export default function StudyPage() {
   const rotate = useTransform(x, [-200, 0, 200], [-12, 0, 12]);
   const leftOpacity = useTransform(x, [-120, -40, 0], [1, 0.4, 0]);
   const rightOpacity = useTransform(x, [0, 40, 120], [0, 0.4, 1]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isCompleted || isSwiping) return;
+
+      if (e.code === "Space") {
+        e.preventDefault();
+        handleFlip();
+      } else if (e.code === "ArrowRight") {
+        handleSwipeAction(1, "known");
+      } else if (e.code === "ArrowLeft") {
+        handleSwipeAction(-1, "learning");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isCompleted, isSwiping, currentIndex, isFlipped]);
 
   if (!currentQuiz) {
     return (
@@ -276,7 +294,7 @@ export default function StudyPage() {
                     </ScrollArea>
                     <div className="p-4 text-center border-t">
                       <p className="text-sm text-muted-foreground">
-                        Tap to reveal answer
+                        Tap or Press Space to reveal answer
                       </p>
                     </div>
                   </CardContent>
@@ -309,7 +327,7 @@ export default function StudyPage() {
                     </ScrollArea>
                     <div className="p-4 text-center border-t">
                       <p className="text-xs text-muted-foreground">
-                        Swipe right = Got It, left = Learning
+                        Arrows: Left = Learning, Right = Got It
                       </p>
                     </div>
                   </CardContent>
