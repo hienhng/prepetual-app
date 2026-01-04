@@ -7,7 +7,7 @@ import { FileUpload } from "@/components/file-upload";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 export default function Home() {
   const [, setLocation] = useLocation();

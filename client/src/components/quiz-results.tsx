@@ -11,54 +11,26 @@ import { motion, AnimatePresence } from "framer-motion";
 
 function AnimatedFlame({ className }: { className?: string }) {
   return (
-    <div className={`relative ${className}`}>
-      <svg viewBox="0 0 100 100" className="w-full h-full">
-        <filter id="flame-blur">
-          <feGaussianBlur stdDeviation="0.5" />
-        </filter>
-        
-        {/* Outer Flame - Flat Vector Style with Multiple Tips */}
-        <motion.path
-          animate={{
-            d: [
-              "M50,95 Q20,80 25,55 Q15,45 25,30 Q30,15 50,5 Q70,15 75,30 Q85,45 75,55 Q80,80 50,95 Z",
-              "M50,95 Q25,85 30,60 Q20,50 30,35 Q35,20 50,10 Q65,20 70,35 Q80,50 70,60 Q75,85 50,95 Z",
-              "M50,95 Q15,75 20,50 Q10,40 20,25 Q25,10 50,0 Q75,10 80,25 Q90,40 80,50 Q85,75 50,95 Z",
-              "M50,95 Q20,80 25,55 Q15,45 25,30 Q30,15 50,5 Q70,15 75,30 Q85,45 75,55 Q80,80 50,95 Z"
-            ],
-            scale: [1, 1.02, 0.98, 1],
-            y: [0, -2, 1, 0]
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          fill="#FF4D00"
-          className="drop-shadow-sm"
-        />
-
-        {/* Inner Flame - Flat Vector Style with Multiple Tips */}
-        <motion.path
-          animate={{
-            d: [
-              "M50,90 Q35,80 40,70 Q30,60 40,50 Q45,40 50,35 Q55,40 60,50 Q70,60 60,70 Q65,80 50,90 Z",
-              "M50,90 Q38,82 43,72 Q33,62 43,52 Q48,42 50,37 Q52,42 57,52 Q67,62 57,72 Q62,82 50,90 Z",
-              "M50,90 Q32,78 37,68 Q27,58 37,48 Q42,38 50,33 Q58,38 63,48 Q73,58 63,68 Q68,78 50,90 Z",
-              "M50,90 Q35,80 40,70 Q30,60 40,50 Q45,40 50,35 Q55,40 60,50 Q70,60 60,70 Q65,80 50,90 Z"
-            ],
-            scale: [1, 1.05, 0.95, 1],
-            y: [0, -4, 2, 0]
-          }}
-          transition={{
-            duration: 1.2,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 0.1
-          }}
-          fill="#FFEA00"
-        />
-      </svg>
+    <div className={`relative ${className} flex items-center justify-center`}>
+      <motion.div
+        animate={{
+          scale: [1, 1.1, 1, 1.05, 1],
+          y: [0, -4, 0, -2, 0],
+          skewX: [0, 2, -2, 1, 0],
+          filter: [
+            "drop-shadow(0 0 10px rgba(249,115,22,0.6))",
+            "drop-shadow(0 0 20px rgba(249,115,22,0.8))",
+            "drop-shadow(0 0 10px rgba(249,115,22,0.6))"
+          ]
+        }}
+        transition={{
+          duration: 1,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      >
+        <Flame className="w-24 h-24 text-quiz-orange fill-quiz-orange" />
+      </motion.div>
     </div>
   );
 }
