@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { Link } from "wouter";
 import { motion, useMotionValue, useTransform, useAnimationControls, PanInfo } from "framer-motion";
-import { BookOpen, RotateCcw, Check, Home, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, RotateCcw, Check, Home } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -39,6 +39,7 @@ export default function StudyPage() {
   const currentQuestion = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
   const isLastCard = currentIndex === questions.length - 1;
+  const isFirstCard = currentIndex === 0;
 
   const handleFlip = () => {
     if (!isSwiping) {
@@ -52,7 +53,7 @@ export default function StudyPage() {
       x: direction * 400,
       rotate: direction * 15,
       opacity: 0,
-      transition: { type: "spring", stiffness: 200, damping: 28, mass: 0.5 }
+      transition: { type: "spring", stiffness: 250, damping: 30 }
     });
   };
 
@@ -67,12 +68,12 @@ export default function StudyPage() {
     await controls.start({
       x: 0,
       rotate: 0,
-      transition: { type: "spring", stiffness: 300, damping: 22 }
+      transition: { type: "spring", stiffness: 200, damping: 26 }
     });
   };
 
-  const goNext = async (action?: "known" | "learning") => {
-    if (isSwiping || isLastCard) return;
+  const handleSwipe = async (direction: number, action?: "known" | "learning") => {
+    if (isSwiping) return;
     
     if (action === "known") {
       setKnownCards(prev => new Set(prev).add(currentIndex));
@@ -90,15 +91,14 @@ export default function StudyPage() {
       });
     }
 
-    await flyOut(-1);
-    setCurrentIndex(prev => prev + 1);
-    resetCard();
-  };
-
-  const goPrev = async () => {
-    if (isSwiping || currentIndex === 0) return;
-    await flyOut(1);
-    setCurrentIndex(prev => prev - 1);
+    await flyOut(direction);
+    
+    if (direction > 0 && currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+    } else if (direction < 0 && currentIndex < questions.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    }
+    
     resetCard();
   };
 
@@ -111,17 +111,17 @@ export default function StudyPage() {
 
     if (isFlipped) {
       if (swipedRight && !isLastCard) {
-        await goNext("known");
+        await handleSwipe(1, "known");
       } else if (swipedLeft && !isLastCard) {
-        await goNext("learning");
+        await handleSwipe(-1, "learning");
       } else {
         await snapBack();
       }
     } else {
-      if (swipedRight && currentIndex > 0) {
-        await goPrev();
+      if (swipedRight && !isFirstCard) {
+        await handleSwipe(1);
       } else if (swipedLeft && !isLastCard) {
-        await goNext();
+        await handleSwipe(-1);
       } else {
         await snapBack();
       }
@@ -137,7 +137,7 @@ export default function StudyPage() {
         return s;
       });
     } else {
-      await goNext("known");
+      await handleSwipe(1, "known");
     }
   };
 
@@ -150,7 +150,7 @@ export default function StudyPage() {
         return s;
       });
     } else {
-      await goNext("learning");
+      await handleSwipe(-1, "learning");
     }
   };
 
@@ -229,7 +229,7 @@ export default function StudyPage() {
             key={currentIndex}
             animate={controls}
             drag="x"
-            dragElastic={0.15}
+            dragElastic={0.25}
             onDragEnd={handleDragEnd}
             style={{ x, rotate }}
             className="absolute inset-0 cursor-grab active:cursor-grabbing"
@@ -292,58 +292,31 @@ export default function StudyPage() {
           </motion.div>
         </div>
 
-        <div className="flex items-center justify-between gap-2 sm:gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            className="sm:w-auto sm:px-3"
-            onClick={() => goPrev()}
-            disabled={currentIndex === 0 || isSwiping}
-            data-testid="button-prev-card"
-          >
-            <ChevronLeft className="h-4 w-4 sm:mr-1" />
-            <span className="hidden sm:inline">Previous</span>
-          </Button>
-
-          {isFlipped && (
-            <div className="flex gap-1 sm:gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-yellow-500 text-yellow-600 px-2 sm:px-3"
-                onClick={handleStillLearning}
-                disabled={isSwiping}
-                data-testid="button-still-learning"
-              >
-                <RotateCcw className="h-4 w-4 sm:mr-1" />
-                <span className="hidden sm:inline">Still Learning</span>
-                <span className="sm:hidden">Learning</span>
-              </Button>
-              <Button
-                size="sm"
-                className="bg-green-600 border-green-800 px-2 sm:px-3"
-                onClick={handleKnown}
-                disabled={isSwiping}
-                data-testid="button-known"
-              >
-                <Check className="h-4 w-4 sm:mr-1" />
-                <span>Got It</span>
-              </Button>
-            </div>
-          )}
-
-          <Button
-            variant="outline"
-            size="icon"
-            className="sm:w-auto sm:px-3"
-            onClick={() => goNext()}
-            disabled={isLastCard || isSwiping}
-            data-testid="button-next-card"
-          >
-            <span className="hidden sm:inline">Next</span>
-            <ChevronRight className="h-4 w-4 sm:ml-1" />
-          </Button>
-        </div>
+        {isFlipped && (
+          <div className="flex justify-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-yellow-500 text-yellow-600 px-3"
+              onClick={handleStillLearning}
+              disabled={isSwiping}
+              data-testid="button-still-learning"
+            >
+              <RotateCcw className="h-4 w-4 mr-1" />
+              Still Learning
+            </Button>
+            <Button
+              size="sm"
+              className="bg-green-600 border-green-800 px-3"
+              onClick={handleKnown}
+              disabled={isSwiping}
+              data-testid="button-known"
+            >
+              <Check className="h-4 w-4 mr-1" />
+              Got It
+            </Button>
+          </div>
+        )}
 
         {isLastCard && isFlipped && (
           <motion.div
