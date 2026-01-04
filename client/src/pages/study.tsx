@@ -217,7 +217,7 @@ export default function StudyPage() {
           <Progress value={progress} className="h-2" />
         </div>
 
-        <div className="relative h-[420px] touch-none select-none">
+        <div className="relative h-[calc(100vh-280px)] min-h-[400px] max-h-[600px] touch-none select-none">
           <div className="absolute inset-0 flex items-center justify-between pointer-events-none px-2 z-10">
             <motion.div 
               style={{ opacity: leftOpacity }}
