@@ -9,6 +9,64 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
 import { motion, AnimatePresence } from "framer-motion";
 
+function AnimatedFlame({ className }: { className?: string }) {
+  return (
+    <div className={`relative ${className}`}>
+      <svg viewBox="0 0 100 100" className="w-full h-full">
+        <defs>
+          <linearGradient id="flameGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#ff4d00" />
+            <stop offset="50%" stopColor="#ff9000" />
+            <stop offset="100%" stopColor="#ffea00" />
+          </linearGradient>
+          <filter id="flameGlow">
+            <feGaussianBlur stdDeviation="2" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+
+        {/* Outer Flame */}
+        <motion.path
+          animate={{
+            d: [
+              "M50,95 Q20,80 30,50 Q35,20 50,5 Q65,20 70,50 Q80,80 50,95 Z",
+              "M50,95 Q25,85 35,55 Q40,25 50,10 Q60,25 65,55 Q75,85 50,95 Z",
+              "M50,95 Q15,75 25,45 Q30,15 50,0 Q70,15 75,45 Q85,75 50,95 Z",
+              "M50,95 Q20,80 30,50 Q35,20 50,5 Q65,20 70,50 Q80,80 50,95 Z"
+            ]
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          fill="url(#flameGradient)"
+          filter="url(#flameGlow)"
+        />
+
+        {/* Inner Flame */}
+        <motion.path
+          animate={{
+            d: [
+              "M50,90 Q35,80 40,65 Q42,50 50,40 Q58,50 60,65 Q65,80 50,90 Z",
+              "M50,90 Q38,82 43,68 Q45,53 50,43 Q55,53 57,68 Q62,82 50,90 Z",
+              "M50,90 Q32,78 37,62 Q39,47 50,37 Q61,47 63,62 Q68,78 50,90 Z",
+              "M50,90 Q35,80 40,65 Q42,50 50,40 Q58,50 60,65 Q65,80 50,90 Z"
+            ]
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          fill="#ffea00"
+          opacity="0.8"
+        />
+      </svg>
+    </div>
+  );
+}
+
 export function QuizResults() {
   const [, setLocation] = useLocation();
   const { currentQuiz, quizResult, userAnswers, resetQuiz, clearUserAnswers } = useQuiz();
@@ -116,22 +174,21 @@ export function QuizResults() {
                   />
                   <motion.div
                     animate={{ 
-                      scale: [1, 1.1, 1, 1.05, 1],
-                      y: [0, -8, 0, -4, 0],
-                      skewX: [0, 2, -2, 1, 0],
+                      scale: [1, 1.05, 1],
+                      y: [0, -5, 0],
                       filter: [
-                        "drop-shadow(0 0 10px rgba(249,115,22,0.8))",
-                        "drop-shadow(0 0 20px rgba(249,115,22,0.9))",
-                        "drop-shadow(0 0 10px rgba(249,115,22,0.8))"
+                        "drop-shadow(0 0 15px rgba(255,77,0,0.6))",
+                        "drop-shadow(0 0 30px rgba(255,144,0,0.8))",
+                        "drop-shadow(0 0 15px rgba(255,77,0,0.6))"
                       ]
                     }}
                     transition={{ 
-                      duration: 1.2, 
+                      duration: 2, 
                       repeat: Infinity, 
                       ease: "easeInOut" 
                     }}
                   >
-                    <Flame className="w-28 h-28 text-quiz-orange relative z-10 fill-quiz-orange" />
+                    <AnimatedFlame className="w-32 h-32 relative z-10" />
                   </motion.div>
                 </div>
                 <div className="text-center z-10">
