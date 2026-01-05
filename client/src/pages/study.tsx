@@ -272,7 +272,7 @@ export default function StudyPage() {
           <Progress value={progress} className="h-2" />
         </div>
 
-        <div className="relative h-[calc(100vh-220px)] min-h-[500px] max-h-[800px] touch-none select-none">
+        <div className="relative h-[calc(100vh-160px)] min-h-[650px] max-h-[1100px] touch-none select-none">
           <motion.div
             key={currentIndex}
             animate={controls}
@@ -312,61 +312,68 @@ export default function StudyPage() {
                 className="h-full relative"
               >
 
-                <Card className="absolute inset-0 backface-hidden">
-                  <CardContent className="h-full flex flex-col p-0">
-                    <ScrollArea className="flex-1 p-6 sm:p-8">
-                      <div className="text-center">
-                        <span className="text-xs uppercase tracking-wide text-muted-foreground mb-4 block">
+                <Card className="absolute inset-0 backface-hidden shadow-lg border-primary/10">
+                  <CardContent className="h-full flex flex-col p-0 overflow-hidden">
+                    <ScrollArea className="flex-1">
+                      <div className="p-6 sm:p-10 flex flex-col min-h-full">
+                        <span className="text-xs uppercase tracking-widest text-muted-foreground mb-6 block text-center font-bold opacity-70">
                           Question
                         </span>
-                        <p className="text-lg font-medium mb-4">{currentQuestion.question}</p>
-                        {currentQuestion.type === "multiple_choice" && currentQuestion.options && (
-                          <div className="w-full space-y-2 text-left mt-4">
-                            {currentQuestion.options.map((opt, i) => (
-                              <div key={i} className="p-3 bg-muted/50 rounded-md text-sm">
-                                {opt}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        <div className="flex-1 flex flex-col justify-center">
+                          <p className="text-xl sm:text-2xl font-bold mb-8 text-center leading-tight">{currentQuestion.question}</p>
+                          {currentQuestion.type === "multiple_choice" && currentQuestion.options && (
+                            <div className="w-full space-y-3 mt-4">
+                              {currentQuestion.options.map((opt, i) => (
+                                <div key={i} className="p-4 bg-muted/50 rounded-xl text-base border border-transparent hover:border-primary/20 transition-colors">
+                                  <span className="inline-block w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold mr-3 text-center leading-6">
+                                    {String.fromCharCode(65 + i)}
+                                  </span>
+                                  {opt}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </ScrollArea>
-                    <div className="p-4 text-center border-t">
-                      <p className="text-sm text-muted-foreground">
-                        Tap or Press Space to reveal answer
+                    <div className="p-6 text-center border-t bg-muted/20">
+                      <p className="text-sm font-medium text-muted-foreground animate-pulse">
+                        Tap to reveal answer
                       </p>
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card 
-                  className="absolute inset-0 backface-hidden"
+                  className="absolute inset-0 backface-hidden shadow-lg border-primary/20"
                   style={{ transform: "rotateY(180deg)" }}
                 >
-                  <CardContent className="h-full flex flex-col p-0">
-                    <ScrollArea className="flex-1 p-6 sm:p-8">
-                      <div className="text-center">
-                        <span className="text-xs uppercase tracking-wide text-primary mb-4 block">
+                  <CardContent className="h-full flex flex-col p-0 overflow-hidden">
+                    <ScrollArea className="flex-1">
+                      <div className="p-6 sm:p-10 flex flex-col min-h-full">
+                        <span className="text-xs uppercase tracking-widest text-primary mb-6 block text-center font-bold">
                           Answer
                         </span>
-                        <p className="text-lg font-semibold text-primary mb-4">
-                          {currentQuestion.correctAnswer}
-                        </p>
-                        {currentQuestion.explanation && (
-                          <div className="mt-4 p-4 bg-muted/30 rounded-lg text-left">
-                            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
-                              Explanation
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {currentQuestion.explanation}
-                            </p>
-                          </div>
-                        )}
+                        <div className="flex-1 flex flex-col justify-center">
+                          <p className="text-2xl sm:text-3xl font-black text-primary mb-8 text-center leading-tight">
+                            {currentQuestion.correctAnswer}
+                          </p>
+                          {currentQuestion.explanation && (
+                            <div className="mt-8 p-6 bg-primary/5 rounded-2xl border border-primary/10 text-left">
+                              <p className="text-xs uppercase tracking-widest text-primary/70 mb-3 font-bold">
+                                Explanation
+                              </p>
+                              <p className="text-base text-foreground leading-relaxed">
+                                {currentQuestion.explanation}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </ScrollArea>
-                    <div className="p-4 text-center border-t">
-                      <p className="text-xs text-muted-foreground">
-                        Arrows: Left = Learning, Right = Got It
+                    <div className="p-6 text-center border-t bg-muted/20">
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        Left = Learning • Right = Got It
                       </p>
                     </div>
                   </CardContent>
