@@ -548,7 +548,6 @@ export default function Home() {
             <Accordion type="single" collapsible className="w-full space-y-4">
               {[
                 {
-                  id: "faq-1",
                   q: "\"Import Existing Quiz\" vs \"Generate New Quiz\" - What's the difference?",
                   a: "Import parses exam papers to identify answers using AI knowledge, while Generate creates entirely new questions based on the content of your study materials."
                 },
@@ -557,12 +556,12 @@ export default function Home() {
                   a: "Detailed explanations are a premium feature. Guests can take quizzes, but full explanations are only available to registered users. Sign up for free to unlock them!"
                 },
                 {
-                  q: "What file types can I upload?",
-                  a: "You can upload PDF documents and common image formats (JPEG, PNG). Our AI handles both text-based PDFs and scanned images using advanced OCR technology."
+                  q: "What file types work?",
+                  a: "We support PDF documents and various image formats (PNG, JPG). Our advanced OCR technology handles scanned documents and photos of physical notes with high precision."
                 },
                 {
-                  q: "Does it support languages other than English?",
-                  a: "Yes! Prepetual automatically detects the language of your material. It has specialized support for Vietnamese and many other global languages."
+                  q: "Study Mode - How does it work?",
+                  a: "Study Mode uses a flashcard-style system. 'Known' indicates you've mastered the concept, while 'Learning' marks it for further review. The AI uses these signals to help you focus on your weak areas."
                 }
               ].map((faq, i) => (
                 <AccordionItem 
