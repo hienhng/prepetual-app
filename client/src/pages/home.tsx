@@ -8,6 +8,12 @@ import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
 import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -530,58 +536,54 @@ export default function Home() {
       <section className="py-20 sm:py-28">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 tracking-tight">
               Frequently Asked Questions
             </h2>
             <p className="text-lg text-muted-foreground">
-              Everything you need to know about Prepetual and how it helps you study.
+              Quick answers to common questions about Prepetual.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-6 max-w-5xl mx-auto mb-12">
-            {[
-              {
-                q: "\"Import Existing Quiz\" vs \"Generate New Quiz\" - What's the difference?",
-                a: "Import parses exam papers to identify answers using AI knowledge, while Generate creates entirely new questions based on the content of your study materials."
-              },
-              {
-                q: "Why can't I see explanations?",
-                a: "Detailed explanations are a premium feature. Guests can take quizzes, but full explanations are only available to registered users. Sign up for free to unlock them!"
-              },
-              {
-                q: "What file types can I upload?",
-                a: "You can upload PDF documents and common image formats (JPEG, PNG). Our AI handles both text-based PDFs and scanned images using advanced OCR technology."
-              },
-              {
-                q: "Does it support languages other than English?",
-                a: "Yes! Prepetual automatically detects the language of your material. It has specialized support for Vietnamese and many other global languages."
-              }
-            ].map((faq, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card className="h-full border-primary/10 hover:border-primary/30 transition-colors shadow-sm">
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold text-foreground mb-2 flex gap-2">
-                      <span className="text-primary font-bold">Q:</span>
-                      {faq.q}
-                    </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {faq.a}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+          <div className="max-w-3xl mx-auto mb-12">
+            <Accordion type="single" collapsible className="w-full space-y-4">
+              {[
+                {
+                  id: "faq-1",
+                  q: "\"Import Existing Quiz\" vs \"Generate New Quiz\" - What's the difference?",
+                  a: "Import parses exam papers to identify answers using AI knowledge, while Generate creates entirely new questions based on the content of your study materials."
+                },
+                {
+                  q: "Why can't I see explanations?",
+                  a: "Detailed explanations are a premium feature. Guests can take quizzes, but full explanations are only available to registered users. Sign up for free to unlock them!"
+                },
+                {
+                  q: "What file types can I upload?",
+                  a: "You can upload PDF documents and common image formats (JPEG, PNG). Our AI handles both text-based PDFs and scanned images using advanced OCR technology."
+                },
+                {
+                  q: "Does it support languages other than English?",
+                  a: "Yes! Prepetual automatically detects the language of your material. It has specialized support for Vietnamese and many other global languages."
+                }
+              ].map((faq, i) => (
+                <AccordionItem 
+                  key={i} 
+                  value={`item-${i}`}
+                  className="border rounded-xl px-6 bg-card/50 backdrop-blur-sm transition-all hover:border-primary/30 data-[state=open]:border-primary/50"
+                >
+                  <AccordionTrigger className="hover:no-underline py-6">
+                    <span className="font-semibold text-lg text-left">{faq.q}</span>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground text-base leading-relaxed pb-6">
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
 
           <div className="text-center">
             <Link href="/faq">
-              <Button variant="outline" size="lg" className="gap-2 px-8">
+              <Button variant="outline" size="lg" className="gap-2 px-8 rounded-full">
                 View All FAQs
                 <ArrowRight className="h-4 w-4" />
               </Button>
