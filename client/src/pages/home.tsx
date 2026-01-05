@@ -469,7 +469,7 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 sm:py-28">
+      {/* <section className="py-20 sm:py-28">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
@@ -530,7 +530,7 @@ export default function Home() {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* FAQ Section */}
       <section className="py-20 sm:py-28">
@@ -556,7 +556,7 @@ export default function Home() {
                   a: "Detailed explanations are a premium feature. Guests can take quizzes, but full explanations are only available to registered users. Sign up for free to unlock them!"
                 },
                 {
-                  q: "What file types work?",
+                  q: "Which file formats are supported?",
                   a: "We support PDF documents and various image formats (PNG, JPG). Our advanced OCR technology handles scanned documents and photos of physical notes with high precision."
                 },
                 {
@@ -632,11 +632,11 @@ export default function Home() {
               viewport={{ once: true }}
               className="text-center mt-20"
             >
-              <Link href="/faq">
+              {/* <Link href="/faq">
                 <Button variant="ghost" className="text-muted-foreground hover:text-primary underline-offset-4 hover:underline" data-testid="link-faq">
                   Frequently Asked Questions
                 </Button>
-              </Link>
+              </Link> */}
             </motion.div>
           </motion.div>
         </div>

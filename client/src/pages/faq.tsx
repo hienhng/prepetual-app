@@ -9,7 +9,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 const faqs = [
   {
     id: "item-1",
-    question: "\"Import Existing Quiz\" vs \"Generate New Quiz\" - What's the difference?",
+    question: "Quiz Creation — What is the difference between Import and Generate?",
     answer: "Import parses exam papers to identify answers using AI knowledge, while Generate creates entirely new questions based on the content of your study materials.",
     icon: BookOpen
   },
