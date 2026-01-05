@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { motion, useMotionValue, useTransform, useAnimationControls, PanInfo } from "framer-motion";
+import { motion, useMotionValue, useTransform, useAnimationControls, PanInfo, animate } from "framer-motion";
 import { BookOpen, RotateCcw, Check, Home } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -68,12 +68,15 @@ export default function StudyPage() {
 
   const flyOut = async (direction: number) => {
     setIsSwiping(true);
-    await controls.start({
-      x: direction * 400,
-      rotate: direction * 15,
-      opacity: 0,
-      transition: { type: "spring", stiffness: 250, damping: 30 }
-    });
+    // Explicitly animate the motion value x so the overlays react
+    await Promise.all([
+      animate(x, direction * 400, { type: "spring", stiffness: 250, damping: 30 }),
+      controls.start({
+        rotate: direction * 15,
+        opacity: 0,
+        transition: { type: "spring", stiffness: 250, damping: 30 }
+      })
+    ]);
   };
 
   const resetCard = () => {
