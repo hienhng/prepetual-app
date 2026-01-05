@@ -26,25 +26,31 @@ interface QuizGenerationParams {
   difficulty?: DifficultyLevel;
 }
 
-export async function generateQuizQuestions(params: QuizGenerationParams): Promise<Question[]> {
+export async function generateQuizQuestions(
+  params: QuizGenerationParams,
+): Promise<Question[]> {
   const { text, questionCount, questionTypes, difficulty = "medium" } = params;
 
-  const truncatedText = text.length > 8000 ? text.substring(0, 8000) + "..." : text;
+  const truncatedText =
+    text.length > 8000 ? text.substring(0, 8000) + "..." : text;
 
-  const questionTypeDescriptions = questionTypes.map(type => {
-    switch (type) {
-      case "multiple_choice":
-        return "Multiple choice questions with 4 options (A, B, C, D)";
-      case "true_false":
-        return "True/False questions";
-      case "short_answer":
-        return "Short answer questions with brief 1-3 word answers";
-    }
-  }).join(", ");
+  const questionTypeDescriptions = questionTypes
+    .map((type) => {
+      switch (type) {
+        case "multiple_choice":
+          return "Multiple choice questions with 4 options (A, B, C, D)";
+        case "true_false":
+          return "True/False questions";
+        case "short_answer":
+          return "Short answer questions with brief 1-3 word answers";
+      }
+    })
+    .join(", ");
 
   const difficultyDescriptions: Record<DifficultyLevel, string> = {
     easy: "simple recall and basic understanding questions that test fundamental concepts",
-    medium: "moderate complexity questions requiring comprehension and application",
+    medium:
+      "moderate complexity questions requiring comprehension and application",
     hard: "challenging questions requiring analysis, synthesis, and deep understanding with tricky distractors",
   };
 
@@ -110,34 +116,35 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
             throw error;
           }
         },
-      }
+      },
     );
 
     const parsed = JSON.parse(response);
-    
+
     if (!parsed.questions || !Array.isArray(parsed.questions)) {
       throw new Error("Invalid AI response: missing questions array");
     }
 
     const questions: Question[] = [];
-    
+
     for (const q of parsed.questions) {
       // Validate required fields
       if (!q.type || !q.question || !q.correctAnswer) {
         console.warn("Skipping malformed question:", q);
         continue;
       }
-      
+
       // Validate question type
       if (!["multiple_choice", "true_false", "short_answer"].includes(q.type)) {
         console.warn("Skipping question with invalid type:", q.type);
         continue;
       }
 
-      let options = q.type === "multiple_choice" && Array.isArray(q.options) 
-        ? q.options.map((o: any) => String(o).trim())
-        : undefined;
-      
+      let options =
+        q.type === "multiple_choice" && Array.isArray(q.options)
+          ? q.options.map((o: any) => String(o).trim())
+          : undefined;
+
       let correctAnswer = String(q.correctAnswer).trim();
 
       // Programmatically shuffle options to ensure maximum randomness
@@ -146,21 +153,39 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
         // Note: AI usually returns "A) Text" or just "Text"
         const currentCorrectAns = correctAnswer;
         const currentOptions = options;
-        const correctIndex = currentOptions.findIndex((o: string) => o === currentCorrectAns || o.split(') ')[1] === currentCorrectAns || currentCorrectAns.includes(o));
-        
+        const correctIndex = currentOptions.findIndex(
+          (o: string) =>
+            o === currentCorrectAns ||
+            o.split(") ")[1] === currentCorrectAns ||
+            currentCorrectAns.includes(o),
+        );
+
         if (correctIndex !== -1) {
-          const correctText = currentOptions[correctIndex].replace(/^[A-D]\) /, "");
-          const plainOptions = currentOptions.map((o: string) => o.replace(/^[A-D]\) /, ""));
-          
+          const correctText = currentOptions[correctIndex].replace(
+            /^[A-D]\) /,
+            "",
+          );
+          const plainOptions = currentOptions.map((o: string) =>
+            o.replace(/^[A-D]\) /, ""),
+          );
+
           // Shuffle
           for (let i = plainOptions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [plainOptions[i], plainOptions[j]] = [plainOptions[j], plainOptions[i]];
+            [plainOptions[i], plainOptions[j]] = [
+              plainOptions[j],
+              plainOptions[i],
+            ];
           }
-          
+
           // Re-label and find new correct
-          options = plainOptions.map((text: string, idx: number) => `${String.fromCharCode(65 + idx)}) ${text}`);
-          const newCorrectIndex = plainOptions.findIndex((t: string) => t === correctText);
+          options = plainOptions.map(
+            (text: string, idx: number) =>
+              `${String.fromCharCode(65 + idx)}) ${text}`,
+          );
+          const newCorrectIndex = plainOptions.findIndex(
+            (t: string) => t === correctText,
+          );
           correctAnswer = options[newCorrectIndex];
         }
       }
@@ -192,10 +217,13 @@ interface ImportQuizParams {
   text: string;
 }
 
-export async function importExistingQuiz(params: ImportQuizParams): Promise<Question[]> {
+export async function importExistingQuiz(
+  params: ImportQuizParams,
+): Promise<Question[]> {
   const { text } = params;
 
-  const truncatedText = text.length > 8000 ? text.substring(0, 8000) + "..." : text;
+  const truncatedText =
+    text.length > 8000 ? text.substring(0, 8000) + "..." : text;
 
   const prompt = `You are an expert educator. The following text appears to be from an existing exam, quiz, or worksheet that already contains questions with answer options.
 
@@ -263,56 +291,84 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
             throw error;
           }
         },
-      }
+      },
     );
 
     const parsed = JSON.parse(response);
-    
+
     console.log("AI import response:", JSON.stringify(parsed, null, 2));
-    
+
     if (!parsed.questions || !Array.isArray(parsed.questions)) {
-      throw new Error("No quiz questions detected in this document. Please upload a document that contains multiple choice questions.");
+      throw new Error(
+        "No quiz questions detected in this document. Please upload a document that contains multiple choice questions.",
+      );
     }
 
     if (parsed.questions.length === 0) {
-      throw new Error("No quiz questions detected in this document. Please upload a document that contains multiple choice questions.");
+      throw new Error(
+        "No quiz questions detected in this document. Please upload a document that contains multiple choice questions.",
+      );
     }
 
     const questions: Question[] = [];
-    
+
     for (const q of parsed.questions) {
       if (!q.question || !q.correctAnswer) {
-        console.warn("Skipping malformed question (missing question or answer):", q);
+        console.warn(
+          "Skipping malformed question (missing question or answer):",
+          q,
+        );
         continue;
       }
-      
-      const questionType = q.type && ["multiple_choice", "true_false", "short_answer"].includes(q.type) 
-        ? q.type as QuestionType 
-        : "multiple_choice";
 
-      let options = Array.isArray(q.options) && q.options.length > 0
-        ? q.options.map((o: any) => String(o).trim())
-        : undefined;
-      
+      const questionType =
+        q.type &&
+        ["multiple_choice", "true_false", "short_answer"].includes(q.type)
+          ? (q.type as QuestionType)
+          : "multiple_choice";
+
+      let options =
+        Array.isArray(q.options) && q.options.length > 0
+          ? q.options.map((o: any) => String(o).trim())
+          : undefined;
+
       let correctAnswer = String(q.correctAnswer).trim();
 
       // Programmatically shuffle options to ensure maximum randomness even for imported quizzes
       if (questionType === "multiple_choice" && options && options.length > 0) {
         const currentCorrectAns = correctAnswer;
         const currentOptions = options;
-        const correctIndex = currentOptions.findIndex((o: string) => o === currentCorrectAns || o.split(') ')[1] === currentCorrectAns || currentCorrectAns.includes(o));
-        
+        const correctIndex = currentOptions.findIndex(
+          (o: string) =>
+            o === currentCorrectAns ||
+            o.split(") ")[1] === currentCorrectAns ||
+            currentCorrectAns.includes(o),
+        );
+
         if (correctIndex !== -1) {
-          const correctText = currentOptions[correctIndex].replace(/^[A-D]\) /, "");
-          const plainOptions = currentOptions.map((o: string) => o.replace(/^[A-D]\) /, ""));
-          
+          const correctText = currentOptions[correctIndex].replace(
+            /^[A-D]\) /,
+            "",
+          );
+          const plainOptions = currentOptions.map((o: string) =>
+            o.replace(/^[A-D]\) /, ""),
+          );
+
           for (let i = plainOptions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [plainOptions[i], plainOptions[j]] = [plainOptions[j], plainOptions[i]];
+            [plainOptions[i], plainOptions[j]] = [
+              plainOptions[j],
+              plainOptions[i],
+            ];
           }
-          
-          options = plainOptions.map((text: string, idx: number) => `${String.fromCharCode(65 + idx)}) ${text}`);
-          const newCorrectIndex = plainOptions.findIndex((t: string) => t === correctText);
+
+          options = plainOptions.map(
+            (text: string, idx: number) =>
+              `${String.fromCharCode(65 + idx)}) ${text}`,
+          );
+          const newCorrectIndex = plainOptions.findIndex(
+            (t: string) => t === correctText,
+          );
           correctAnswer = options[newCorrectIndex];
         }
       }
@@ -330,7 +386,9 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     }
 
     if (questions.length === 0) {
-      throw new Error("No quiz questions detected in this document. Make sure you're uploading an exam paper or worksheet with multiple choice questions.");
+      throw new Error(
+        "No quiz questions detected in this document. Make sure you're uploading an exam paper or worksheet with multiple choice questions.",
+      );
     }
 
     return questions;
@@ -367,18 +425,20 @@ Respond with ONLY the title, no quotes or additional text.`,
           max_completion_tokens: 50,
         });
 
-        return completion.choices[0]?.message?.content?.trim() || "Study Quiz";
+        return (
+          completion.choices[0]?.message?.content?.trim() || "Untitled Quiz"
+        );
       },
       {
         retries: 3,
         minTimeout: 1000,
         maxTimeout: 10000,
         factor: 2,
-      }
+      },
     );
 
     return response;
   } catch (error) {
-    return "Study Quiz";
+    return "Untitled Quiz";
   }
 }
