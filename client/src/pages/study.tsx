@@ -272,7 +272,7 @@ export default function StudyPage() {
           <Progress value={progress} className="h-2" />
         </div>
 
-        <div className="relative h-[calc(100vh-280px)] min-h-[400px] max-h-[600px] touch-none select-none">
+        <div className="relative h-[calc(100vh-220px)] min-h-[500px] max-h-[800px] touch-none select-none">
           <motion.div
             key={currentIndex}
             animate={controls}
