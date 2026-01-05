@@ -124,7 +124,12 @@ export default function StudyPage() {
     resetCard();
   };
 
+  const handleDragStart = () => {
+    document.body.style.overflow = "hidden";
+  };
+
   const handleDragEnd = async (_: any, info: PanInfo) => {
+    document.body.style.overflow = "auto";
     const offsetThreshold = 80;
     const velocityThreshold = 400;
     
@@ -244,6 +249,7 @@ export default function StudyPage() {
             animate={controls}
             drag="x"
             dragElastic={0.25}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             style={{ x, rotate }}
             className="absolute inset-0 cursor-grab active:cursor-grabbing"
