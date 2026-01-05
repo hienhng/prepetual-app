@@ -70,11 +70,11 @@ export default function StudyPage() {
     setIsSwiping(true);
     // Explicitly animate the motion value x so the overlays react
     await Promise.all([
-      animate(x, direction * 400, { type: "spring", stiffness: 250, damping: 30 }),
+      animate(x, direction * 500, { type: "spring", stiffness: 200, damping: 35 }),
       controls.start({
-        rotate: direction * 15,
+        rotate: direction * 25,
         opacity: 0,
-        transition: { type: "spring", stiffness: 250, damping: 30 }
+        transition: { type: "spring", stiffness: 200, damping: 35 }
       })
     ]);
   };
