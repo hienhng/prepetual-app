@@ -270,7 +270,7 @@ export default function StudyPage() {
                   className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-yellow-500/90 text-white rounded-xl backface-hidden"
                 >
                   <RotateCcw className="h-20 w-20 mb-4" />
-                  <span className="text-3xl font-bold uppercase tracking-widest">Learning</span>
+                  <span className="text-3xl font-bold uppercase tracking-widest text-center px-4">Still Learning</span>
                 </motion.div>
 
                 <Card className="absolute inset-0 backface-hidden">
