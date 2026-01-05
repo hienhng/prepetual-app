@@ -42,6 +42,7 @@ export interface IStorage {
   saveQuizResult(result: InsertQuizResult): Promise<QuizResult>;
   getQuizResult(quizId: string): Promise<QuizResult | undefined>;
   getQuizResultsByQuizId(quizId: string): Promise<QuizResult[]>;
+  getUserAverageAccuracy(userId: string): Promise<{ averageAccuracy: number; totalAttempts: number }>;
   // Streak
   getUserStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; lastActivityDate: string | null; isActive: boolean }>;
   // Streak Reminders
@@ -225,6 +226,28 @@ export class DatabaseStorage implements IStorage {
       .from(quizResults)
       .where(eq(quizResults.quizId, quizId))
       .orderBy(desc(quizResults.completedAt));
+  }
+
+  async getUserAverageAccuracy(userId: string): Promise<{ averageAccuracy: number; totalAttempts: number }> {
+    const userQuizzes = await this.getQuizzesByUserId(userId);
+    if (userQuizzes.length === 0) {
+      return { averageAccuracy: 0, totalAttempts: 0 };
+    }
+
+    const quizIds = userQuizzes.map(q => q.id);
+    const allResults = await db.select()
+      .from(quizResults)
+      .where(inArray(quizResults.quizId, quizIds));
+
+    if (allResults.length === 0) {
+      return { averageAccuracy: 0, totalAttempts: 0 };
+    }
+
+    const totalCorrect = allResults.reduce((sum, r) => sum + r.correctAnswers, 0);
+    const totalQuestions = allResults.reduce((sum, r) => sum + r.totalQuestions, 0);
+    const averageAccuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+
+    return { averageAccuracy, totalAttempts: allResults.length };
   }
 
   // Comments

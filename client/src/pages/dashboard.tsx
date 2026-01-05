@@ -23,6 +23,11 @@ interface StreakData {
   isFirstCompletionToday: boolean;
 }
 
+interface UserStats {
+  averageAccuracy: number;
+  totalAttempts: number;
+}
+
 const learningTips = [
   "Spaced repetition helps you remember better. Try reviewing your quizzes at increasing intervals for maximum retention.",
   "Teaching others what you've learned is one of the best ways to reinforce your own understanding.",
@@ -385,6 +390,10 @@ export default function Dashboard() {
     queryKey: ["/api/user/streak"],
   });
 
+  const { data: userStats } = useQuery<UserStats>({
+    queryKey: ["/api/user/stats"],
+  });
+
   const handleTakeQuiz = (quiz: Quiz) => {
     setCurrentQuiz({
       ...quiz,
@@ -491,10 +500,11 @@ export default function Dashboard() {
                 isActive={streakData?.isActive ?? false}
               />
               <StatCard
-                label="This Week"
-                value={`${Math.min(totalQuizzes, 7)}`}
+                label="Avg Accuracy"
+                value={userStats?.totalAttempts ? `${userStats.averageAccuracy}%` : "-"}
                 icon={GraduationCap}
                 gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
+                isActive={(userStats?.totalAttempts ?? 0) > 0}
               />
             </div>
           </motion.section>
