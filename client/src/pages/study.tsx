@@ -158,14 +158,14 @@ export default function StudyPage() {
             <Check className="h-16 w-16 mx-auto text-green-500 mb-4" />
             <h2 className="text-2xl font-bold mb-2">Study Session Complete!</h2>
             <p className="text-muted-foreground">
-              Great job reviewing all {questions.length} cards!
+              You just reviewed {questions.length} cards! 
             </p>
           </div>
           
           <div className="flex justify-center gap-8 mb-8">
             <div className="text-center">
               <p className="text-3xl font-bold text-green-600">{knownCards.size}</p>
-              <p className="text-sm text-muted-foreground">Known</p>
+              <p className="text-sm text-muted-foreground">Know</p>
             </div>
             <div className="text-center">
               <p className="text-3xl font-bold text-yellow-600">{studyingCards.size}</p>
@@ -236,23 +236,6 @@ export default function StudyPage() {
         </div>
 
         <div className="relative h-[calc(100vh-280px)] min-h-[400px] max-h-[600px] touch-none select-none">
-          <div className="absolute inset-0 flex items-center justify-between pointer-events-none px-2 z-10">
-            <motion.div 
-              style={{ opacity: leftOpacity }}
-              className="bg-yellow-500 text-white px-3 py-2 rounded-full font-semibold shadow-lg text-sm"
-            >
-              <RotateCcw className="h-4 w-4 inline mr-1" />
-              Learning
-            </motion.div>
-            <motion.div 
-              style={{ opacity: rightOpacity }}
-              className="bg-green-500 text-white px-3 py-2 rounded-full font-semibold shadow-lg text-sm"
-            >
-              Got It
-              <Check className="h-4 w-4 inline ml-1" />
-            </motion.div>
-          </div>
-
           <motion.div
             key={currentIndex}
             animate={controls}
@@ -273,6 +256,23 @@ export default function StudyPage() {
                 style={{ transformStyle: "preserve-3d" }}
                 className="h-full relative"
               >
+                {/* Swipe Overlays */}
+                <motion.div 
+                  style={{ opacity: rightOpacity }}
+                  className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-green-500/90 text-white rounded-xl backface-hidden"
+                >
+                  <Check className="h-20 w-20 mb-4" />
+                  <span className="text-3xl font-bold uppercase tracking-widest">Know</span>
+                </motion.div>
+
+                <motion.div 
+                  style={{ opacity: leftOpacity }}
+                  className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-yellow-500/90 text-white rounded-xl backface-hidden"
+                >
+                  <RotateCcw className="h-20 w-20 mb-4" />
+                  <span className="text-3xl font-bold uppercase tracking-widest">Learning</span>
+                </motion.div>
+
                 <Card className="absolute inset-0 backface-hidden">
                   <CardContent className="h-full flex flex-col p-0">
                     <ScrollArea className="flex-1 p-6 sm:p-8">
