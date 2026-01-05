@@ -250,31 +250,32 @@ export default function StudyPage() {
             data-testid="flashcard-container"
           >
             <div 
-              className="h-full perspective-1000"
+              className="h-full perspective-1000 relative"
               onClick={handleFlip}
             >
+              {/* Swipe Overlays - Moved outside flipping container so they stay visible when flipped */}
+              <motion.div 
+                style={{ opacity: rightOpacity }}
+                className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-green-500/90 text-white rounded-xl pointer-events-none"
+              >
+                <Check className="h-20 w-20 mb-4" />
+                <span className="text-3xl font-bold uppercase tracking-widest">Know</span>
+              </motion.div>
+
+              <motion.div 
+                style={{ opacity: leftOpacity }}
+                className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-yellow-500/90 text-white rounded-xl pointer-events-none"
+              >
+                <RotateCcw className="h-20 w-20 mb-4" />
+                <span className="text-3xl font-bold uppercase tracking-widest text-center px-4">Still Learning</span>
+              </motion.div>
+
               <motion.div
                 animate={{ rotateY: isFlipped ? 180 : 0 }}
                 transition={{ type: "spring", stiffness: 150, damping: 20 }}
                 style={{ transformStyle: "preserve-3d" }}
                 className="h-full relative"
               >
-                {/* Swipe Overlays */}
-                <motion.div 
-                  style={{ opacity: rightOpacity }}
-                  className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-green-500/90 text-white rounded-xl backface-hidden"
-                >
-                  <Check className="h-20 w-20 mb-4" />
-                  <span className="text-3xl font-bold uppercase tracking-widest">Know</span>
-                </motion.div>
-
-                <motion.div 
-                  style={{ opacity: leftOpacity }}
-                  className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-yellow-500/90 text-white rounded-xl backface-hidden"
-                >
-                  <RotateCcw className="h-20 w-20 mb-4" />
-                  <span className="text-3xl font-bold uppercase tracking-widest text-center px-4">Still Learning</span>
-                </motion.div>
 
                 <Card className="absolute inset-0 backface-hidden">
                   <CardContent className="h-full flex flex-col p-0">
