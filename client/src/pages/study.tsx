@@ -240,17 +240,6 @@ export default function StudyPage() {
             <p className="text-sm text-muted-foreground">Study Mode</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={handleUndo} 
-              disabled={history.length === 0 || isSwiping}
-              className="gap-1.5"
-              data-testid="button-undo"
-            >
-              <Undo2 className="h-4 w-4" />
-              Undo
-            </Button>
             <Button size="sm" variant="ghost" onClick={handleReset} data-testid="button-reset">
               <RotateCcw className="h-4 w-4 mr-1" />
               Reset
@@ -385,6 +374,19 @@ export default function StudyPage() {
               </motion.div>
             </div>
           </motion.div>
+        </div>
+
+        <div className="flex justify-center pt-4">
+          <Button 
+            size="icon" 
+            variant="outline" 
+            onClick={handleUndo} 
+            disabled={history.length === 0 || isSwiping}
+            className="rounded-full h-12 w-12 shadow-md hover-elevate"
+            data-testid="button-undo"
+          >
+            <Undo2 className="h-6 w-6" />
+          </Button>
         </div>
       </motion.div>
     </div>
