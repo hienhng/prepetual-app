@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { 
   Plus, BookOpen, Play, Target, 
   Clock, FileText, Loader2, Sparkles, ArrowRight, 
-  Flame, Brain, GraduationCap, Lightbulb
+  Flame, Brain, GraduationCap, Lightbulb, ChartNoAxesColumn
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -140,11 +140,25 @@ function QuickActionCard({
       whileHover={{ scale: 1.02 }} 
       whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.2 }}
+      className={isPrimary ? "relative group" : ""}
     >
+      {isPrimary && (
+        <motion.div 
+          className="absolute -inset-0.5 bg-gradient-to-r from-primary via-quiz-purple to-primary rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-tilt"
+          animate={{ 
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
+          }}
+          transition={{ 
+            duration: 5, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
+        />
+      )}
       <Card 
-        className={`cursor-pointer overflow-visible transition-shadow hover:shadow-lg ${
+        className={`relative cursor-pointer overflow-visible transition-shadow hover:shadow-xl ${
           isPrimary 
-            ? "bg-gradient-to-br from-primary to-primary/80 border-0" 
+            ? "bg-gradient-to-br from-primary via-primary to-primary/80 border-0 shadow-lg shadow-primary/20" 
             : "border-border/50"
         }`}
         onClick={onClick}
@@ -153,21 +167,23 @@ function QuickActionCard({
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
             <motion.div 
-              className={`p-3 rounded-xl ${isPrimary ? "bg-white/20" : "bg-primary/10"}`}
-              whileHover={{ rotate: isPrimary ? 90 : 0 }}
+              className={`p-3 rounded-xl ${isPrimary ? "bg-white/20 backdrop-blur-sm" : "bg-primary/10"}`}
+              whileHover={{ rotate: isPrimary ? 90 : 0, scale: 1.1 }}
               transition={{ duration: 0.3 }}
             >
               <Icon className={`w-6 h-6 ${isPrimary ? "text-white" : "text-primary"}`} />
             </motion.div>
             <div className="flex-1 min-w-0">
-              <h3 className={`font-semibold mb-0.5 ${isPrimary ? "text-white" : "text-foreground"}`}>
+              <h3 className={`font-bold text-lg mb-0.5 ${isPrimary ? "text-white" : "text-foreground"}`}>
                 {title}
               </h3>
-              <p className={`text-sm truncate ${isPrimary ? "text-white/80" : "text-muted-foreground"}`}>
+              <p className={`text-sm font-medium truncate ${isPrimary ? "text-white/90" : "text-muted-foreground"}`}>
                 {description}
               </p>
             </div>
-            <ArrowRight className={`w-5 h-5 flex-shrink-0 ${isPrimary ? "text-white/60" : "text-muted-foreground"}`} />
+            <div className={`p-2 rounded-full ${isPrimary ? "bg-white/10" : "bg-muted"}`}>
+              <ArrowRight className={`w-5 h-5 flex-shrink-0 ${isPrimary ? "text-white" : "text-muted-foreground"}`} />
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -500,9 +516,9 @@ export default function Dashboard() {
                 isActive={streakData?.isActive ?? false}
               />
               <StatCard
-                label="Avg Accuracy"
+                label="Accuracy"
                 value={userStats?.totalAttempts ? `${userStats.averageAccuracy}%` : "-"}
-                icon={GraduationCap}
+                icon={ChartNoAxesColumn}
                 gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
                 isActive={(userStats?.totalAttempts ?? 0) > 0}
               />
