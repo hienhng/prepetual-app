@@ -217,8 +217,22 @@ body {
       transform: rotate(-0.5deg);
     }
   }
+  @keyframes scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.4; }
+  }
   .animate-tilt {
     animation: tilt 10s infinite linear;
+  }
+  .animate-scan {
+    animation: scan 3s linear infinite;
+  }
+  .animate-pulse-soft {
+    animation: pulse-soft 2s ease-in-out infinite;
   }
 }
 

@@ -156,32 +156,60 @@ function QuickActionCard({
         />
       )}
       <Card 
-        className={`relative cursor-pointer overflow-visible transition-shadow hover:shadow-xl ${
+        className={`relative cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-0.5 ${
           isPrimary 
-            ? "bg-gradient-to-br from-primary via-primary to-primary/80 border-0 shadow-lg shadow-primary/20" 
+            ? "bg-gradient-to-br from-primary via-primary to-primary/90 border-0 shadow-lg shadow-primary/30" 
             : "border-border/50"
         }`}
         onClick={onClick}
         data-testid={testId}
       >
-        <CardContent className="p-6">
+        {isPrimary && (
+          <>
+            {/* Grid background effect */}
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+            
+            {/* Scanning line effect */}
+            <div className="absolute inset-x-0 h-px bg-white/40 shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-scan z-10 pointer-events-none" />
+            
+            {/* Corner brackets */}
+            <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-white/60 rounded-tl-sm pointer-events-none" />
+            <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-white/60 rounded-tr-sm pointer-events-none" />
+            <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-white/60 rounded-bl-sm pointer-events-none" />
+            <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-white/60 rounded-br-sm pointer-events-none" />
+            
+            {/* Pulsing glow dots */}
+            <div className="absolute top-1/2 left-2 w-1 h-1 bg-white rounded-full animate-pulse-soft pointer-events-none" />
+            <div className="absolute top-1/2 right-2 w-1 h-1 bg-white rounded-full animate-pulse-soft pointer-events-none" />
+          </>
+        )}
+        <CardContent className="p-6 relative z-20">
           <div className="flex items-center gap-4">
             <motion.div 
-              className={`p-3 rounded-xl ${isPrimary ? "bg-white/20 backdrop-blur-sm" : "bg-primary/10"}`}
-              whileHover={{ rotate: isPrimary ? 90 : 0, scale: 1.1 }}
-              transition={{ duration: 0.3 }}
+              className={`p-3 rounded-xl ${isPrimary ? "bg-white/20 backdrop-blur-md border border-white/30" : "bg-primary/10"}`}
+              whileHover={{ rotate: isPrimary ? 90 : 0, scale: 1.15 }}
+              transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
             >
               <Icon className={`w-6 h-6 ${isPrimary ? "text-white" : "text-primary"}`} />
             </motion.div>
             <div className="flex-1 min-w-0">
-              <h3 className={`font-bold text-lg mb-0.5 ${isPrimary ? "text-white" : "text-foreground"}`}>
-                {title}
-              </h3>
-              <p className={`text-sm font-medium truncate ${isPrimary ? "text-white/90" : "text-muted-foreground"}`}>
+              <div className="flex items-center gap-2 mb-0.5">
+                <h3 className={`font-bold text-lg leading-tight ${isPrimary ? "text-white" : "text-foreground"}`}>
+                  {title}
+                </h3>
+                {isPrimary && (
+                  <motion.div 
+                    animate={{ opacity: [0.4, 1, 0.4] }} 
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className="h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_5px_white]" 
+                  />
+                )}
+              </div>
+              <p className={`text-sm font-medium tracking-tight truncate ${isPrimary ? "text-white/90" : "text-muted-foreground"}`}>
                 {description}
               </p>
             </div>
-            <div className={`p-2 rounded-full ${isPrimary ? "bg-white/10" : "bg-muted"}`}>
+            <div className={`p-2 rounded-full transition-colors ${isPrimary ? "bg-white/20 hover:bg-white/30" : "bg-muted"}`}>
               <ArrowRight className={`w-5 h-5 flex-shrink-0 ${isPrimary ? "text-white" : "text-muted-foreground"}`} />
             </div>
           </div>
