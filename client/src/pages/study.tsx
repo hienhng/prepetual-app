@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion, useMotionValue, useTransform, useAnimationControls, PanInfo, animate } from "framer-motion";
-import { BookOpen, RotateCcw, Check, Home } from "lucide-react";
+import { BookOpen, RotateCcw, Check, Home, Undo2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -17,6 +17,7 @@ export default function StudyPage() {
   const [studyingCards, setStudyingCards] = useState<Set<number>>(new Set());
   const [isSwiping, setIsSwiping] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [history, setHistory] = useState<{ index: number; action: "known" | "learning" }[]>([]);
 
   const controls = useAnimationControls();
   const x = useMotionValue(0);
@@ -115,6 +116,8 @@ export default function StudyPage() {
 
     await flyOut(direction);
     
+    setHistory(prev => [...prev, { index: currentIndex, action }]);
+
     if (isLastCard) {
       setIsCompleted(true);
     } else {
@@ -150,7 +153,33 @@ export default function StudyPage() {
     setIsFlipped(false);
     setKnownCards(new Set());
     setStudyingCards(new Set());
+    setHistory([]);
     setIsCompleted(false);
+    resetCard();
+  };
+
+  const handleUndo = () => {
+    if (history.length === 0 || isSwiping) return;
+
+    const last = history[history.length - 1];
+    setHistory(prev => prev.slice(0, -1));
+    
+    if (last.action === "known") {
+      setKnownCards(prev => {
+        const s = new Set(prev);
+        s.delete(last.index);
+        return s;
+      });
+    } else {
+      setStudyingCards(prev => {
+        const s = new Set(prev);
+        s.delete(last.index);
+        return s;
+      });
+    }
+
+    setCurrentIndex(last.index);
+    setIsFlipped(false);
     resetCard();
   };
 
@@ -211,6 +240,17 @@ export default function StudyPage() {
             <p className="text-sm text-muted-foreground">Study Mode</p>
           </div>
           <div className="flex items-center gap-2">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={handleUndo} 
+              disabled={history.length === 0 || isSwiping}
+              className="gap-1.5"
+              data-testid="button-undo"
+            >
+              <Undo2 className="h-4 w-4" />
+              Undo
+            </Button>
             <Button size="sm" variant="ghost" onClick={handleReset} data-testid="button-reset">
               <RotateCcw className="h-4 w-4 mr-1" />
               Reset
