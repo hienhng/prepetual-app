@@ -462,6 +462,134 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section className="py-20 sm:py-28">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Everything you need to know about Prepetual and how it helps you study.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-6 max-w-5xl mx-auto mb-12">
+            {[
+              {
+                q: "What file types can I upload?",
+                a: "You can upload PDF documents and common image formats (JPEG, PNG). Our AI handles both text-based PDFs and scanned images using advanced OCR technology."
+              },
+              {
+                q: "Does it support languages other than English?",
+                a: "Yes! Prepetual automatically detects the language of your material. It has specialized support for Vietnamese and many other global languages."
+              },
+              {
+                q: "Can I edit the quizzes after they are generated?",
+                a: "Absolutely. You can modify questions, answers, and explanations before taking the quiz to ensure it matches your specific study needs."
+              },
+              {
+                q: "Is there a limit to how many quizzes I can create?",
+                a: "Free accounts can create multiple quizzes. For intensive users, we offer persistent history so you can retake and review your materials anytime."
+              }
+            ].map((faq, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Card className="h-full border-primary/10 hover:border-primary/30 transition-colors shadow-sm">
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-foreground mb-2 flex gap-2">
+                      <span className="text-primary font-bold">Q:</span>
+                      {faq.q}
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {faq.a}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Link href="/faq">
+              <Button variant="outline" size="lg" className="gap-2 px-8">
+                View All FAQs
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 sm:py-28">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Everything you need to know about Prepetual and how it helps you study.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-6 max-w-5xl mx-auto mb-12">
+            {[
+              {
+                q: "\"Import Existing Quiz\" vs \"Generate New Quiz\" - What's the difference?",
+                a: "Import parses exam papers to identify answers using AI knowledge, while Generate creates entirely new questions based on the content of your study materials."
+              },
+              {
+                q: "Why can't I see explanations?",
+                a: "Detailed explanations are a premium feature. Guests can take quizzes, but full explanations are only available to registered users. Sign up for free to unlock them!"
+              },
+              {
+                q: "What file types can I upload?",
+                a: "You can upload PDF documents and common image formats (JPEG, PNG). Our AI handles both text-based PDFs and scanned images using advanced OCR technology."
+              },
+              {
+                q: "Does it support languages other than English?",
+                a: "Yes! Prepetual automatically detects the language of your material. It has specialized support for Vietnamese and many other global languages."
+              }
+            ].map((faq, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Card className="h-full border-primary/10 hover:border-primary/30 transition-colors shadow-sm">
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-foreground mb-2 flex gap-2">
+                      <span className="text-primary font-bold">Q:</span>
+                      {faq.q}
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {faq.a}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Link href="/faq">
+              <Button variant="outline" size="lg" className="gap-2 px-8">
+                View All FAQs
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 sm:py-28">
         <div className="container mx-auto px-4 sm:px-6">
