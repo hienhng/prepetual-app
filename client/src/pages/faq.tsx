@@ -63,84 +63,59 @@ export default function FAQ() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background Decor */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-      </div>
-
-      <div className="container mx-auto px-4 py-12 max-w-4xl relative z-10">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-12 max-w-3xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Link href="/">
-            <Button variant="ghost" className="mb-8 group" data-testid="button-back-home">
+          <Link href="/help">
+            <Button variant="ghost" className="mb-8 group">
               <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-              Back to Home
+              Back to Help Center
             </Button>
           </Link>
 
-          <div className="text-center mb-16">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, type: "spring" }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6"
-            >
-              <HelpCircle className="w-8 h-8 text-primary" />
-            </motion.div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
-              Frequently Asked <span className="text-primary">Questions</span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to know about Prepetual and how to make the most of your study sessions.
+          <div className="mb-12">
+            <h1 className="text-4xl font-black mb-4 tracking-tight">Frequently Asked Questions</h1>
+            <p className="text-xl text-muted-foreground">
+              Everything you need to know about Prepetual.
             </p>
           </div>
 
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
-            <CardContent className="p-6 md:p-8">
-              <Accordion type="single" collapsible className="w-full space-y-4">
-                {faqs.map((faq) => (
-                  <AccordionItem 
-                    key={faq.id} 
-                    value={faq.id}
-                    className="border rounded-xl px-4 md:px-6 bg-background/50 transition-all hover:border-primary/50 data-[state=open]:border-primary/50 data-[state=open]:bg-primary/[0.02]"
-                  >
-                    <AccordionTrigger className="hover:no-underline py-4">
-                      <div className="flex items-center gap-4 text-left">
-                        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <faq.icon className="w-4 h-4 text-primary" />
-                        </div>
-                        <span className="font-semibold text-lg">{faq.question}</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground text-base leading-relaxed pb-6 pt-2">
-                      <div className="pl-12">
-                        {faq.answer}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </CardContent>
-          </Card>
+          <Accordion type="single" collapsible className="w-full space-y-4">
+            {faqs.map((faq) => (
+              <AccordionItem 
+                key={faq.id} 
+                value={faq.id}
+                className="border rounded-2xl px-6 bg-card hover:border-primary/20 transition-all data-[state=open]:border-primary/30 shadow-sm"
+              >
+                <AccordionTrigger className="hover:no-underline py-6">
+                  <div className="flex items-center gap-4 text-left">
+                    <div className="shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <faq.icon className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="font-bold text-lg">{faq.question}</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-base leading-relaxed pb-6 pt-0">
+                  <div className="pl-12">
+                    {faq.answer}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="mt-16 text-center"
-          >
-            <p className="text-muted-foreground mb-4">Still have questions?</p>
+          <div className="mt-16 text-center border-t pt-16">
+            <p className="text-muted-foreground mb-6">Still have questions?</p>
             <Link href="/contact">
-              <Button variant="outline" size="lg" className="rounded-full px-8">
+              <Button size="lg" variant="outline" className="rounded-full px-8 font-bold">
                 Contact Support
               </Button>
             </Link>
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </div>
