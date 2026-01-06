@@ -11,12 +11,37 @@ import { SiGithub } from "react-icons/si";
 export default function Contact() {
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Message sent!",
-      description: "We'll get back to you at giahienhn@gmail.com as soon as possible.",
-    });
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      subject: formData.get("subject"),
+      message: formData.get("message"),
+    };
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error("Failed to send");
+
+      toast({
+        title: "Message sent!",
+        description: "We'll get back to you at giahienhn@gmail.com as soon as possible.",
+      });
+      (e.target as HTMLFormElement).reset();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   const contactMethods = [
@@ -84,6 +109,7 @@ export default function Contact() {
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-muted-foreground ml-1">Your Name</label>
                         <Input 
+                          name="name"
                           placeholder="John Doe" 
                           className="h-12 rounded-xl border-primary/10 bg-background/50 focus:ring-primary/20"
                           required
@@ -93,6 +119,7 @@ export default function Contact() {
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-muted-foreground ml-1">Email Address</label>
                         <Input 
+                          name="email"
                           type="email" 
                           placeholder="john@example.com" 
                           className="h-12 rounded-xl border-primary/10 bg-background/50 focus:ring-primary/20"
@@ -104,6 +131,7 @@ export default function Contact() {
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-muted-foreground ml-1">Subject</label>
                       <Input 
+                        name="subject"
                         placeholder="How can we help?" 
                         className="h-12 rounded-xl border-primary/10 bg-background/50 focus:ring-primary/20"
                         required
@@ -113,6 +141,7 @@ export default function Contact() {
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-muted-foreground ml-1">Message</label>
                       <Textarea 
+                        name="message"
                         placeholder="Tell us more about your inquiry..." 
                         className="min-h-[150px] rounded-2xl border-primary/10 bg-background/50 focus:ring-primary/20 p-4"
                         required

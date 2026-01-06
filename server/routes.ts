@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
-import { sendStreakReminderEmail } from "./email";
+import { sendStreakReminderEmail, sendContactEmail } from "./email";
 import multer from "multer";
 import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
@@ -587,6 +587,25 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Test streak reminder error:", error);
       res.status(500).json({ message: "Failed to send test streak reminder" });
+    }
+  });
+
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const { name, email, subject, message } = req.body;
+      
+      if (!name || !email || !subject || !message) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      await sendContactEmail({ name, email, subject, message });
+      
+      res.json({ success: true, message: "Your message has been sent successfully" });
+    } catch (error) {
+      console.error("Contact form error:", error);
+      res.status(500).json({ 
+        message: "Failed to send message. Please try again later." 
+      });
     }
   });
 

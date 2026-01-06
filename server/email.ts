@@ -312,3 +312,52 @@ export async function sendPasswordResetEmail(
     `,
   });
 }
+
+export async function sendContactEmail(data: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}): Promise<void> {
+  const transporter = getTransporter();
+  
+  // Send email TO the admin (giahienhn@gmail.com)
+  await transporter.sendMail({
+    from: `"Prepetual Contact" <${process.env.GMAIL_USER}>`,
+    to: "giahienhn@gmail.com",
+    replyTo: data.email,
+    subject: `Contact Form: ${data.subject}`,
+    text: `Name: ${data.name}\nEmail: ${data.email}\nSubject: ${data.subject}\n\nMessage:\n${data.message}`,
+    html: `
+      <div style="font-family: sans-serif; padding: 20px; color: #333;">
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${data.name}</p>
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Subject:</strong> ${data.subject}</p>
+        <hr style="border: 1px solid #eee; margin: 20px 0;" />
+        <p><strong>Message:</strong></p>
+        <p style="white-space: pre-wrap;">${data.message}</p>
+      </div>
+    `,
+  });
+
+  // Optional: Send a confirmation email back to the user
+  try {
+    await transporter.sendMail({
+      from: `"Prepetual Support" <${process.env.GMAIL_USER}>`,
+      to: data.email,
+      subject: "We received your message - Prepetual",
+      html: `
+        <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
+          <h2 style="color: #FACC15;">Message Received!</h2>
+          <p>Hi ${data.name},</p>
+          <p>Thanks for reaching out to Prepetual. We've received your message about "<strong>${data.subject}</strong>" and will get back to you at this email address as soon as possible.</p>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #777;">This is an automated confirmation. No need to reply to this email.</p>
+        </div>
+      `,
+    });
+  } catch (err) {
+    console.error("Failed to send contact confirmation email:", err);
+  }
+}
