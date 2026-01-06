@@ -132,8 +132,8 @@ export default function TermsOfService() {
           <div className="p-8 rounded-3xl bg-muted/30 border border-primary/5 text-center">
             <p className="text-muted-foreground">
               By using Prepetual, you agree to these terms. If you have questions, please reach out at{" "}
-              <a href="mailto:support@prepetual.com" className="text-primary font-bold hover:underline underline-offset-4">
-                support@prepetual.com
+              <a href="mailto:giahienhn@gmail.com" className="text-primary font-bold hover:underline underline-offset-4">
+                giahienhn@gmail.com
               </a>
             </p>
           </div>
