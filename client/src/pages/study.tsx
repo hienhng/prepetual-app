@@ -56,6 +56,15 @@ export default function StudyPage() {
     );
   }
 
+  const getQuestionTypeLabel = (type: string) => {
+    switch (type) {
+      case "multiple_choice": return "Multiple Choice";
+      case "true_false": return "True / False";
+      case "short_answer": return "Short Answer";
+      default: return type.replace("_", " ");
+    }
+  };
+
   const questions = currentQuiz.questions as Question[];
   const currentQuestion = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
@@ -316,9 +325,14 @@ export default function StudyPage() {
                   <CardContent className="h-full flex flex-col p-0 overflow-hidden">
                     <ScrollArea className="flex-1">
                       <div className="p-6 sm:p-10 flex flex-col min-h-full">
-                        <span className="text-xs uppercase tracking-widest text-muted-foreground mb-6 block text-center font-bold opacity-70">
-                          Question
-                        </span>
+                        <div className="flex flex-col items-center mb-6">
+                          <span className="text-xs uppercase tracking-widest text-muted-foreground block font-bold opacity-70 mb-1">
+                            Question
+                          </span>
+                          <Badge variant="secondary" className="text-[10px] uppercase tracking-tighter font-bold px-2 py-0 h-5 bg-primary/10 text-primary border-primary/20">
+                            {getQuestionTypeLabel(currentQuestion.type)}
+                          </Badge>
+                        </div>
                         <div className="flex-1 flex flex-col justify-center">
                           <p className="text-xl sm:text-2xl font-bold mb-8 text-center leading-tight">{currentQuestion.question}</p>
                           {currentQuestion.type === "multiple_choice" && currentQuestion.options && (
