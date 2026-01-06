@@ -7,63 +7,103 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 export default function Contact() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-12 max-w-3xl">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.3 }}
         >
-          <Link href="/help">
-            <Button variant="ghost" className="mb-8 group">
-              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-              Back to Help Center
+          <Link href="/">
+            <Button variant="ghost" size="sm" className="mb-6" data-testid="button-back-home">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
             </Button>
           </Link>
 
-          <div className="mb-12">
-            <h1 className="text-4xl font-black mb-4 tracking-tight">Contact Us</h1>
-            <p className="text-xl text-muted-foreground">
-              Have questions or feedback? We'd love to hear from you.
-            </p>
-          </div>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Contact Us</h1>
+          <p className="text-muted-foreground mb-8">We'd love to hear from you. Get in touch with our team.</p>
 
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
-            <Card className="border-primary/10 shadow-sm hover:border-primary/30 transition-all">
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card>
               <CardHeader>
-                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 text-primary">
-                  <Mail className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                  <Mail className="w-5 h-5 text-primary" />
                 </div>
-                <CardTitle className="text-xl font-bold">Email Support</CardTitle>
-                <CardDescription>General inquiries & support</CardDescription>
+                <CardTitle>Email Support</CardTitle>
+                <CardDescription>For general inquiries and support</CardDescription>
               </CardHeader>
               <CardContent>
-                <a href="mailto:giahienhn@gmail.com" className="text-primary font-bold hover:underline">
+                <a 
+                  href="mailto:giahienhn@gmail.com" 
+                  className="text-primary hover:underline"
+                  data-testid="link-email-support"
+                >
                   giahienhn@gmail.com
                 </a>
               </CardContent>
             </Card>
 
-            <Card className="border-primary/10 shadow-sm hover:border-primary/30 transition-all">
+            <Card>
               <CardHeader>
-                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 text-primary">
-                  <MessageSquare className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                  <MessageSquare className="w-5 h-5 text-primary" />
                 </div>
-                <CardTitle className="text-xl font-bold">Feedback</CardTitle>
+                <CardTitle>Feedback</CardTitle>
                 <CardDescription>Help us improve Prepetual</CardDescription>
               </CardHeader>
               <CardContent>
-                <a href="mailto:giahienhn@gmail.com" className="text-primary font-bold hover:underline">
+                <a 
+                  href="mailto:giahienhn@gmail.com" 
+                  className="text-primary hover:underline"
+                  data-testid="link-email-feedback"
+                >
                   giahienhn@gmail.com
                 </a>
               </CardContent>
             </Card>
           </div>
 
-          <div className="p-8 rounded-3xl bg-muted border border-border/50">
-            <h2 className="text-xl font-bold mb-4">Response Time</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              We aim to respond to all inquiries within 24-48 hours during business days. For urgent matters, please include "URGENT" in your email subject line.
-            </p>
+          <div className="mt-12 space-y-6">
+            <section>
+              <h2 className="text-xl font-semibold text-foreground mb-3">Frequently Asked Questions</h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-medium text-foreground mb-1">How do I reset my password?</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Click on "Forgot password?" on the login screen and enter your email address. We'll send you a link to reset your password.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-foreground mb-1">What file formats are supported?</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Prepetual supports PDF documents and common image formats (PNG, JPG, JPEG). Our OCR technology can extract text from both.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-foreground mb-1">Is my data secure?</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Yes, we take security seriously. Your uploaded documents are processed securely and your personal information is protected. See our Privacy Policy for more details.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-foreground mb-1">Can I share quizzes with others?</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Yes! Each quiz has a shareable link that you can send to friends, classmates, or study groups.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-semibold text-foreground mb-3">Response Time</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                We aim to respond to all inquiries within 24-48 hours during business days. For urgent matters, please include "URGENT" in your email subject line.
+              </p>
+            </section>
           </div>
         </motion.div>
       </div>
