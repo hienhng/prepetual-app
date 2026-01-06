@@ -202,43 +202,83 @@ export default function StudyPage() {
 
   if (isCompleted) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="container mx-auto px-4 py-8 max-w-2xl min-h-[80vh] flex items-center justify-center">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center p-8 bg-muted rounded-lg"
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="w-full"
         >
-          <div className="mb-6">
-            <Check className="h-16 w-16 mx-auto text-green-500 mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Study Session Complete!</h2>
-            <p className="text-muted-foreground">
-              You just reviewed {questions.length} cards! 
-            </p>
-          </div>
-          
-          <div className="flex justify-center gap-8 mb-8">
-            <div className="text-center">
-              <p className="text-3xl font-bold text-green-600">{knownCards.size}</p>
-              <p className="text-sm text-muted-foreground">Know</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-yellow-600">{studyingCards.size}</p>
-              <p className="text-sm text-muted-foreground">Still Learning</p>
-            </div>
-          </div>
+          <Card className="overflow-hidden border-primary/10 shadow-2xl bg-gradient-to-b from-background to-muted/30">
+            <CardContent className="p-0">
+              <div className="relative h-32 bg-primary/10 flex items-center justify-center overflow-hidden">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                  className="relative z-10"
+                >
+                  <div className="p-4 bg-background rounded-full shadow-lg">
+                    <Check className="h-10 w-10 text-green-500" />
+                  </div>
+                </motion.div>
+                {/* Decorative circles */}
+                <div className="absolute top-0 left-0 w-32 h-32 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
+                <div className="absolute bottom-0 right-0 w-32 h-32 bg-primary/5 rounded-full translate-x-1/2 translate-y-1/2" />
+              </div>
 
-          <div className="flex justify-center gap-4">
-            <Button variant="outline" onClick={handleReset} data-testid="button-study-again">
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Study Again
-            </Button>
-            <Link href="/dashboard">
-              <Button data-testid="button-finish-study">
-                <Home className="h-4 w-4 mr-2" />
-                Done
-              </Button>
-            </Link>
-          </div>
+              <div className="p-8 text-center">
+                <h2 className="text-3xl font-black mb-2 tracking-tight">Well Done!</h2>
+                <p className="text-muted-foreground mb-8 text-lg">
+                  You've mastered <span className="font-bold text-foreground">{questions.length}</span> flashcards today.
+                </p>
+
+                <div className="grid grid-cols-2 gap-4 mb-10">
+                  <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="p-6 rounded-2xl bg-green-500/5 border border-green-500/10"
+                  >
+                    <p className="text-4xl font-black text-green-600 mb-1">{knownCards.size}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-green-600/70">Mastered</p>
+                  </motion.div>
+                  <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="p-6 rounded-2xl bg-yellow-500/5 border border-yellow-500/10"
+                  >
+                    <p className="text-4xl font-black text-yellow-600 mb-1">{studyingCards.size}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-yellow-600/70">Learning</p>
+                  </motion.div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-center gap-4">
+                  <Button 
+                    size="lg"
+                    variant="outline" 
+                    onClick={handleReset} 
+                    className="flex-1 font-bold h-12 rounded-xl border-2 hover:bg-muted/50 transition-all"
+                    data-testid="button-study-again"
+                  >
+                    <RotateCcw className="h-5 w-5 mr-2" />
+                    Study Again
+                  </Button>
+                  <Link href="/dashboard" className="flex-1">
+                    <Button 
+                      size="lg"
+                      className="w-full font-bold h-12 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                      data-testid="button-finish-study"
+                    >
+                      <Home className="h-5 w-5 mr-2" />
+                      Back Home
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
     );
