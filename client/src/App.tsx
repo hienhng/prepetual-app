@@ -40,6 +40,7 @@ import PrivacyPolicy from "@/pages/privacy";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import FAQ from "@/pages/faq";
+import HelpCenter from "@/pages/help-center";
 import NotFound from "@/pages/not-found";
 import { Footer } from "@/components/footer";
 
@@ -88,6 +89,7 @@ function AuthenticatedRouter() {
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/faq" component={FAQ} />
+      <Route path="/help" component={HelpCenter} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -103,6 +105,7 @@ function PublicRouter() {
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/faq" component={FAQ} />
+      <Route path="/help" component={HelpCenter} />
       <Route path="/share/:id" component={Share} />
       {/* Guest-accessible quiz experience (from shared links) */}
       <Route path="/quiz" component={Quiz} />
@@ -252,7 +255,7 @@ function AuthDialogContainer() {
 function AuthenticatedLayout() {
   const { user } = useAuth();
   const [location] = useLocation();
-  const showFooter = location === "/" || location === "/dashboard" || location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
+  const showFooter = location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
 
   const sidebarStyle = {
     "--sidebar-width": "16rem",
@@ -282,7 +285,7 @@ function AuthenticatedLayout() {
 
 function PublicLayout() {
   const [location] = useLocation();
-  const showFooter = location === "/" || location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
+  const showFooter = location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
 
   return (
     <div className="min-h-screen flex flex-col pt-16">

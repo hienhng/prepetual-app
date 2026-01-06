@@ -13,7 +13,8 @@ import {
   ChevronsLeft,
   ChevronsRight,
   PanelRight,
-  Compass
+  Compass,
+  HelpCircle
 
 } from "lucide-react";
 import {
@@ -67,6 +68,11 @@ const mainNavItems = [
 ];
 
 const infoNavItems = [
+  {
+    title: "Help Center",
+    url: "/help",
+    icon: HelpCircle,
+  },
   {
     title: "About",
     url: "/about",
