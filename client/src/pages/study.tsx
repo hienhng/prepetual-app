@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import confetti from "canvas-confetti";
 import { Badge } from "@/components/ui/badge";
 import { useQuiz } from "@/lib/quiz-context";
 import type { Question } from "@shared/schema";
@@ -129,6 +130,12 @@ export default function StudyPage() {
     setHistory(prev => [...prev, { index: currentIndex, action }]);
 
     if (isLastCard) {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ["#FACC15", "#4ADE80", "#3B82F6"],
+      });
       setIsCompleted(true);
     } else {
       setCurrentIndex(prev => prev + 1);
