@@ -14,6 +14,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Footer } from "@/components/footer";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -641,6 +642,7 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 }
