@@ -212,23 +212,29 @@ function StreakCalendar({
 
   return (
     <div className="space-y-6">
-      {currentStreak > 0 && (
-        <div className="bg-orange-500/20 border border-orange-500/30 rounded-full px-4 py-3 flex items-center justify-center gap-1">
-          {streakPaletteDays.map((day, idx) => (
-            <div
-              key={idx}
-              className="flex-1 flex items-center justify-center text-lg font-bold text-orange-600 dark:text-orange-400"
-            >
-              {day}
-            </div>
-          ))}
-          {currentStreak > 7 && (
-            <div className="flex items-center gap-1 ml-2">
-              <Flame className="h-4 w-4 text-orange-500" />
-            </div>
-          )}
-        </div>
-      )}
+      <div className="bg-orange-500/40 border-2 border-orange-500/50 rounded-full px-6 py-4 flex items-center justify-center gap-2">
+        {currentStreak > 0 ? (
+          <>
+            {streakPaletteDays.map((day, idx) => (
+              <div
+                key={idx}
+                className="w-10 h-10 flex items-center justify-center text-xl font-bold text-orange-800 dark:text-orange-200"
+              >
+                {day}
+              </div>
+            ))}
+            {currentStreak > 7 && (
+              <div className="flex items-center ml-2">
+                <Flame className="h-5 w-5 text-orange-600" />
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-orange-700 dark:text-orange-300 font-medium py-1">
+            Start your streak today!
+          </div>
+        )}
+      </div>
 
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={goToPreviousMonth} data-testid="button-prev-month">
