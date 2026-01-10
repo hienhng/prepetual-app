@@ -212,10 +212,10 @@ function StreakCalendar({
       >
         {streakDay && !isSingleStreakDay && (
           <div 
-            className="absolute top-1/2 -translate-y-1/2 h-10 bg-orange-500/30"
+            className="absolute top-1/2 -translate-y-1/2 h-12 bg-orange-400"
             style={{
-              left: (isStreakStart || wrapAtRowStart) ? 'calc(50% - 20px)' : '-4px',
-              right: (isStreakEnd || wrapAtRowEnd) ? 'calc(50% - 20px)' : '-4px',
+              left: (isStreakStart || wrapAtRowStart) ? 'calc(50% - 24px)' : '-4px',
+              right: (isStreakEnd || wrapAtRowEnd) ? 'calc(50% - 24px)' : '-4px',
               borderRadius: `${(isStreakStart || wrapAtRowStart) ? '9999px' : '0'} ${(isStreakEnd || wrapAtRowEnd) ? '9999px' : '0'} ${(isStreakEnd || wrapAtRowEnd) ? '9999px' : '0'} ${(isStreakStart || wrapAtRowStart) ? '9999px' : '0'}`,
             }}
           />
