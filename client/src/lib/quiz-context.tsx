@@ -18,6 +18,7 @@ interface QuizState {
   isLoading: boolean;
   loadingMessage: string;
   processingProgress: number;
+  revisedQuestionsCount: number;
 }
 
 interface QuizContextType extends QuizState {
@@ -30,6 +31,7 @@ interface QuizContextType extends QuizState {
   setIsLoading: (loading: boolean) => void;
   setLoadingMessage: (message: string) => void;
   setProcessingProgress: (progress: number) => void;
+  setRevisedQuestionsCount: (count: number) => void;
   resetQuiz: () => void;
 }
 
@@ -45,6 +47,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     isLoading: false,
     loadingMessage: "",
     processingProgress: 0,
+    revisedQuestionsCount: 0,
   });
 
   const setExtractedText = (text: string | null) => {
@@ -86,6 +89,10 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, processingProgress: progress }));
   };
 
+  const setRevisedQuestionsCount = (count: number) => {
+    setState((prev) => ({ ...prev, revisedQuestionsCount: count }));
+  };
+
   const resetQuiz = () => {
     setState({
       extractedText: null,
@@ -96,6 +103,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       isLoading: false,
       loadingMessage: "",
       processingProgress: 0,
+      revisedQuestionsCount: 0,
     });
   };
 
@@ -112,6 +120,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         setIsLoading,
         setLoadingMessage,
         setProcessingProgress,
+        setRevisedQuestionsCount,
         resetQuiz,
       }}
     >

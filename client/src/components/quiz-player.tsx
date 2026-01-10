@@ -14,7 +14,7 @@ import { MaterialViewerDialog, MaterialViewerSidebar } from "@/components/materi
 
 export function QuizPlayer() {
   const [, setLocation] = useLocation();
-  const { currentQuiz, userAnswers, setUserAnswer, setQuizResult, sourceMaterial } = useQuiz();
+  const { currentQuiz, userAnswers, setUserAnswer, setQuizResult, sourceMaterial, setRevisedQuestionsCount } = useQuiz();
   const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -147,6 +147,9 @@ export function QuizPlayer() {
     setIsSubmitting(true);
 
     try {
+      // Set the revised questions count for the results page
+      setRevisedQuestionsCount(wrongAnswerIds.size);
+      
       const response = await fetch("/api/submit-quiz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
