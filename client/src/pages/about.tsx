@@ -169,53 +169,65 @@ export default function About() {
             </p>
           </motion.section>
 
-          {/* What We Do */}
+          {/* Our Story */}
           <motion.section variants={itemVariants} className="mb-20">
             <div className="text-center mb-8">
-              <span className="text-sm font-semibold text-primary uppercase tracking-wider">What We Do</span>
-              <h2 className="text-3xl font-bold text-foreground mt-2">Revolutionizing How You Study</h2>
+              <span className="text-sm font-semibold text-primary uppercase tracking-wider">Our Story</span>
+              <h2 className="text-3xl font-bold text-foreground mt-2">Born From a Real Problem</h2>
             </div>
             <Card className="overflow-visible">
               <CardContent className="p-8">
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-2 gap-8 items-center">
                   <div className="space-y-4">
                     <p className="text-foreground leading-relaxed text-lg">
-                      Prepetual uses cutting-edge artificial intelligence to analyze your study materials—
-                      whether it's PDFs, images, or plain text—and creates personalized quizzes designed 
-                      to help you learn faster and retain information longer.
+                      Prepetual started with a simple frustration: I had stacks of papers, lecture notes, 
+                      and study materials, but no effective way to test myself on them.
                     </p>
                     <p className="text-muted-foreground leading-relaxed">
-                      Our AI understands context, identifies key concepts, and generates questions that 
-                      challenge you at just the right level. Whether you're preparing for an exam, 
-                      learning a new language, or mastering a professional skill, Prepetual adapts to you.
+                      I knew that active recall—testing yourself rather than just re-reading—is the most 
+                      effective way to learn. But staring at a piece of paper doesn't let you do that. 
+                      I needed something that could turn my own materials into interactive quizzes.
+                    </p>
+                    <p className="text-muted-foreground leading-relaxed">
+                      So I built it. Prepetual uses AI to read your documents and generate personalized 
+                      quiz questions, so you can actually practice active recall on your own content—not 
+                      generic flashcards someone else made.
                     </p>
                   </div>
                   <div className="flex items-center justify-center">
                     <motion.div 
-                      className="relative w-48 h-48"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+                      className="relative"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6 }}
                     >
-                      {[Brain, BookOpen, Target, Zap].map((Icon, i) => (
+                      <div className="w-48 h-64 bg-gradient-to-br from-muted/50 to-muted rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center relative">
+                        <BookOpen className="w-16 h-16 text-muted-foreground/40" />
                         <motion.div
-                          key={i}
-                          className="absolute w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center"
-                          style={{
-                            top: `${50 + 40 * Math.sin((i * Math.PI) / 2)}%`,
-                            left: `${50 + 40 * Math.cos((i * Math.PI) / 2)}%`,
-                            transform: "translate(-50%, -50%)",
-                          }}
-                          animate={{ rotate: -360 }}
-                          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+                          className="absolute -right-4 -bottom-4 w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center"
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ duration: 2, repeat: Infinity }}
                         >
-                          <Icon className="w-6 h-6 text-primary" />
+                          <span className="text-2xl">?</span>
                         </motion.div>
-                      ))}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
-                          <Sparkles className="w-8 h-8 text-white" />
-                        </div>
                       </div>
+                      <motion.div
+                        className="absolute -right-8 top-1/2 -translate-y-1/2"
+                        animate={{ x: [0, 10, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        <Zap className="w-8 h-8 text-primary" />
+                      </motion.div>
+                      <motion.div 
+                        className="absolute -right-24 top-1/2 -translate-y-1/2 w-16 h-20 bg-primary/10 rounded-lg border border-primary/30 flex items-center justify-center"
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                      >
+                        <Brain className="w-8 h-8 text-primary" />
+                      </motion.div>
                     </motion.div>
                   </div>
                 </div>
