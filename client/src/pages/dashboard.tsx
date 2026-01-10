@@ -8,7 +8,12 @@ import {
   Brain, GraduationCap, Lightbulb, ChartNoAxesColumn, ChevronLeft, ChevronRight, X
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFire } from "@fortawesome/free-solid-svg-icons";
+import { 
+  faFire, 
+  faFileLines, 
+  faBullseye, 
+  faChartSimple 
+} from "@fortawesome/free-solid-svg-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -665,19 +670,19 @@ export default function Dashboard() {
               <StatCard
                 label="Created"
                 value={totalQuizzes}
-                icon={FileText}
+                icon={() => <FontAwesomeIcon icon={faFileLines} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-blue-500 to-blue-600"
               />
               <StatCard
                 label="Questions"
                 value={totalQuestions}
-                icon={Target}
+                icon={() => <FontAwesomeIcon icon={faBullseye} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-violet-500 to-violet-600"
               />
               <StatCard
                 label="Streak"
                 value={streakData?.currentStreak ?? 0}
-                icon={() => <FontAwesomeIcon icon={faFire} className="mt-auto h-6 w-6" />}
+                icon={() => <FontAwesomeIcon icon={faFire} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-orange-500 to-orange-600"
                 isActive={streakData?.isActive ?? false}
                 onClick={() => setStreakCalendarOpen(true)}
@@ -685,7 +690,7 @@ export default function Dashboard() {
               <StatCard
                 label="Accuracy"
                 value={userStats?.totalAttempts ? `${userStats.averageAccuracy}%` : "-"}
-                icon={ChartNoAxesColumn}
+                icon={() => <FontAwesomeIcon icon={faChartSimple} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
                 isActive={(userStats?.totalAttempts ?? 0) > 0}
               />
