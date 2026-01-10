@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose, RotateCcw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,13 @@ export function QuizPlayer() {
   const [showMaterial, setShowMaterial] = useState(false);
   const [showMaterialDialog, setShowMaterialDialog] = useState(false);
   
+  // Spaced repetition: track wrong answers for retry round
+  const [wrongAnswerIds, setWrongAnswerIds] = useState<Set<string>>(new Set());
+  const [isRetryRound, setIsRetryRound] = useState(false);
+  const [retryIndex, setRetryIndex] = useState(0);
+  const [retryChecked, setRetryChecked] = useState<Set<string>>(new Set());
+  const [retryAnswers, setRetryAnswers] = useState<Record<string, string>>({});
+  
   const isGuest = !user;
 
   if (!currentQuiz) {
@@ -30,21 +37,47 @@ export function QuizPlayer() {
   }
 
   const questions = currentQuiz.questions;
-  const currentQuestion = questions[currentIndex];
-  const progress = ((currentIndex + 1) / questions.length) * 100;
-  const selectedAnswer = userAnswers[currentQuestion.id];
-  const isChecked = checkedQuestions.has(currentQuestion.id);
+  
+  // Get retry questions (ones that were answered wrong)
+  const retryQuestions = useMemo(() => {
+    return questions.filter(q => wrongAnswerIds.has(q.id));
+  }, [questions, wrongAnswerIds]);
+
+  // Current question depends on whether we're in retry round
+  const currentQuestion = isRetryRound 
+    ? retryQuestions[retryIndex] 
+    : questions[currentIndex];
+    
+  const progress = isRetryRound 
+    ? 100 // Main quiz is complete during retry
+    : ((currentIndex + 1) / questions.length) * 100;
+    
+  const selectedAnswer = isRetryRound 
+    ? retryAnswers[currentQuestion?.id] 
+    : userAnswers[currentQuestion?.id];
+    
+  const isChecked = isRetryRound 
+    ? retryChecked.has(currentQuestion?.id) 
+    : checkedQuestions.has(currentQuestion?.id);
+
+  const isCorrectAnswer = (answer: string | undefined, question: Question) => {
+    if (!answer) return false;
+    const normalizedUser = answer.toLowerCase().trim();
+    const normalizedCorrect = question.correctAnswer.toLowerCase().trim();
+    return normalizedUser === normalizedCorrect;
+  };
 
   const isCorrect = () => {
-    if (!selectedAnswer) return false;
-    const normalizedUser = selectedAnswer.toLowerCase().trim();
-    const normalizedCorrect = currentQuestion.correctAnswer.toLowerCase().trim();
-    return normalizedUser === normalizedCorrect;
+    return isCorrectAnswer(selectedAnswer, currentQuestion);
   };
 
   const handleSelectAnswer = (answer: string) => {
     if (isChecked) return;
-    setUserAnswer(currentQuestion.id, answer);
+    if (isRetryRound) {
+      setRetryAnswers(prev => ({ ...prev, [currentQuestion.id]: answer }));
+    } else {
+      setUserAnswer(currentQuestion.id, answer);
+    }
   };
 
   const handleShortAnswerChange = (value: string) => {
@@ -53,27 +86,63 @@ export function QuizPlayer() {
   };
 
   const handleCheck = () => {
+    let answerToCheck = selectedAnswer;
+    
     if (currentQuestion.type === "short_answer" && shortAnswerInput.trim()) {
-      setUserAnswer(currentQuestion.id, shortAnswerInput.trim());
+      answerToCheck = shortAnswerInput.trim();
+      if (isRetryRound) {
+        setRetryAnswers(prev => ({ ...prev, [currentQuestion.id]: answerToCheck! }));
+      } else {
+        setUserAnswer(currentQuestion.id, answerToCheck);
+      }
     }
     
-    if (selectedAnswer || (currentQuestion.type === "short_answer" && shortAnswerInput.trim())) {
-      setCheckedQuestions(prev => new Set(prev).add(currentQuestion.id));
+    if (answerToCheck || (currentQuestion.type === "short_answer" && shortAnswerInput.trim())) {
+      if (isRetryRound) {
+        setRetryChecked(prev => new Set(prev).add(currentQuestion.id));
+      } else {
+        setCheckedQuestions(prev => new Set(prev).add(currentQuestion.id));
+        
+        // Track wrong answers for retry round
+        if (!isCorrectAnswer(answerToCheck, currentQuestion)) {
+          setWrongAnswerIds(prev => new Set(prev).add(currentQuestion.id));
+        }
+      }
     }
   };
 
   const goToNext = () => {
-    if (currentIndex < questions.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-      setShortAnswerInput(userAnswers[questions[currentIndex + 1]?.id] || "");
+    if (isRetryRound) {
+      if (retryIndex < retryQuestions.length - 1) {
+        setRetryIndex(retryIndex + 1);
+        setShortAnswerInput(retryAnswers[retryQuestions[retryIndex + 1]?.id] || "");
+      }
+    } else {
+      if (currentIndex < questions.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+        setShortAnswerInput(userAnswers[questions[currentIndex + 1]?.id] || "");
+      }
     }
   };
 
   const goToPrevious = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-      setShortAnswerInput(userAnswers[questions[currentIndex - 1]?.id] || "");
+    if (isRetryRound) {
+      if (retryIndex > 0) {
+        setRetryIndex(retryIndex - 1);
+        setShortAnswerInput(retryAnswers[retryQuestions[retryIndex - 1]?.id] || "");
+      }
+    } else {
+      if (currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
+        setShortAnswerInput(userAnswers[questions[currentIndex - 1]?.id] || "");
+      }
     }
+  };
+
+  const startRetryRound = () => {
+    setIsRetryRound(true);
+    setRetryIndex(0);
+    setShortAnswerInput("");
   };
 
   const finishQuiz = async () => {
@@ -85,7 +154,7 @@ export function QuizPlayer() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           quizId: currentQuiz.id,
-          answers: userAnswers,
+          answers: userAnswers, // Only original answers count
         }),
       });
 
@@ -116,7 +185,7 @@ export function QuizPlayer() {
 
   const getOptionStyle = (option: string) => {
     const isSelected = selectedAnswer === option;
-    const isCorrectAnswer = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
+    const isCorrectOpt = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
     
     if (!isChecked) {
       return isSelected 
@@ -124,11 +193,11 @@ export function QuizPlayer() {
         : "hover:bg-muted/50";
     }
     
-    if (isCorrectAnswer) {
+    if (isCorrectOpt) {
       return "ring-2 ring-green-500 bg-green-500/10";
     }
     
-    if (isSelected && !isCorrectAnswer) {
+    if (isSelected && !isCorrectOpt) {
       return "ring-2 ring-red-500 bg-red-500/10";
     }
     
@@ -186,7 +255,7 @@ export function QuizPlayer() {
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {["True", "False"].map((option) => {
             const isSelected = selectedAnswer === option;
-            const isCorrectAnswer = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
+            const isCorrectOpt = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
             
             return (
               <Card
@@ -202,7 +271,7 @@ export function QuizPlayer() {
                 <div className="flex items-center justify-between">
                   <span className="text-base sm:text-lg font-medium">{option}</span>
                   {isChecked ? (
-                    isCorrectAnswer ? (
+                    isCorrectOpt ? (
                       <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
                         <Check className="h-4 w-4 text-white" />
                       </div>
@@ -243,7 +312,7 @@ export function QuizPlayer() {
       <div className="space-y-2 sm:space-y-3">
         {currentQuestion.options?.map((option, index) => {
           const isSelected = selectedAnswer === option;
-          const isCorrectAnswer = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
+          const isCorrectOpt = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
           
           return (
             <Card
@@ -259,9 +328,9 @@ export function QuizPlayer() {
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className={`
                   w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center font-semibold text-xs sm:text-sm flex-shrink-0
-                  ${isChecked && isCorrectAnswer
+                  ${isChecked && isCorrectOpt
                     ? "border-green-500 bg-green-500 text-white"
-                    : isChecked && isSelected && !isCorrectAnswer
+                    : isChecked && isSelected && !isCorrectOpt
                       ? "border-red-500 bg-red-500 text-white"
                       : isSelected
                         ? "border-primary bg-primary text-primary-foreground"
@@ -272,7 +341,7 @@ export function QuizPlayer() {
                 </div>
                 <span className="text-sm sm:text-base flex-1">{option}</span>
                 {isChecked ? (
-                  isCorrectAnswer ? (
+                  isCorrectOpt ? (
                     <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
                       <Check className="h-4 w-4 text-white" />
                     </div>
@@ -294,9 +363,71 @@ export function QuizPlayer() {
     );
   };
 
-  const isLastQuestion = currentIndex === questions.length - 1;
-  const canCheck = !isChecked && (selectedAnswer || (currentQuestion.type === "short_answer" && shortAnswerInput.trim()));
+  // Check if we're at the end of main quiz and have wrong answers to retry
+  const isMainQuizComplete = checkedQuestions.size === questions.length;
+  const hasWrongAnswers = wrongAnswerIds.size > 0;
+  const shouldShowRetryPrompt = isMainQuizComplete && hasWrongAnswers && !isRetryRound;
+  
+  const isLastQuestion = isRetryRound 
+    ? retryIndex === retryQuestions.length - 1 
+    : currentIndex === questions.length - 1;
+    
+  const canCheck = !isChecked && (selectedAnswer || (currentQuestion?.type === "short_answer" && shortAnswerInput.trim()));
   const hasMaterial = sourceMaterial.text || currentQuiz?.sourceText;
+
+  // Show retry prompt screen
+  if (shouldShowRetryPrompt) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="overflow-hidden">
+            <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-6 text-white">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                  <RotateCcw className="h-6 w-6" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold">Time for a Quick Review!</h2>
+                  <p className="text-white/90">You got {wrongAnswerIds.size} question{wrongAnswerIds.size > 1 ? 's' : ''} wrong</p>
+                </div>
+              </div>
+            </div>
+            <CardContent className="p-6">
+              <p className="text-muted-foreground mb-6">
+                Studies show that reviewing incorrect answers immediately helps you remember them better. 
+                Let's go through those questions one more time before seeing your final results.
+              </p>
+              <p className="text-sm text-muted-foreground mb-6">
+                Don't worry - this practice round won't affect your score!
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button onClick={startRetryRound} className="flex-1 gap-2">
+                  <RotateCcw className="h-4 w-4" />
+                  Practice {wrongAnswerIds.size} Question{wrongAnswerIds.size > 1 ? 's' : ''}
+                </Button>
+                <Button variant="outline" onClick={finishQuiz} disabled={isSubmitting} className="flex-1">
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Finishing...
+                    </>
+                  ) : (
+                    "Skip to Results"
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (!currentQuestion) return null;
 
   return (
     <>
@@ -306,13 +437,27 @@ export function QuizPlayer() {
           <div className={`w-full mx-auto pb-24 sm:pb-0 ${showMaterial ? "max-w-2xl lg:max-w-none lg:px-6" : "max-w-3xl"}`}>
             <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-3 sm:pb-4 mb-4 sm:mb-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs sm:text-sm text-muted-foreground">
-                  Question {currentIndex + 1} of {questions.length}
-                </span>
-                <div className="flex items-center gap-2">
+                {isRetryRound ? (
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-orange-500 text-white">
+                      <RotateCcw className="h-3 w-3 mr-1" />
+                      Practice Round
+                    </Badge>
+                    <span className="text-xs sm:text-sm text-muted-foreground">
+                      {retryIndex + 1} of {retryQuestions.length}
+                    </span>
+                  </div>
+                ) : (
                   <span className="text-xs sm:text-sm text-muted-foreground">
-                    {checkedQuestions.size} answered
+                    Question {currentIndex + 1} of {questions.length}
                   </span>
+                )}
+                <div className="flex items-center gap-2">
+                  {!isRetryRound && (
+                    <span className="text-xs sm:text-sm text-muted-foreground">
+                      {checkedQuestions.size} answered
+                    </span>
+                  )}
                   {hasMaterial && (
                     <Button
                       variant="ghost"
@@ -336,12 +481,16 @@ export function QuizPlayer() {
                   )}
                 </div>
               </div>
-              <Progress value={progress} className="h-2" data-testid="progress-quiz" />
+              <Progress 
+                value={isRetryRound ? ((retryIndex + 1) / retryQuestions.length) * 100 : progress} 
+                className={`h-2 ${isRetryRound ? "[&>div]:bg-orange-500" : ""}`} 
+                data-testid="progress-quiz" 
+              />
             </div>
 
             <AnimatePresence mode="wait">
               <motion.div
-                key={currentQuestion.id}
+                key={`${isRetryRound ? 'retry-' : ''}${currentQuestion.id}`}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
@@ -350,9 +499,16 @@ export function QuizPlayer() {
                 <Card className="mb-4 sm:mb-6">
                   <CardContent className="p-4 sm:p-8 md:p-12">
                     <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                      <Badge variant="outline" className="text-xs">
-                        Q{currentIndex + 1}
-                      </Badge>
+                      {isRetryRound ? (
+                        <Badge variant="outline" className="text-xs border-orange-500 text-orange-600 dark:text-orange-400">
+                          <RotateCcw className="h-3 w-3 mr-1" />
+                          Retry
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-xs">
+                          Q{currentIndex + 1}
+                        </Badge>
+                      )}
                       {getQuestionTypeBadge(currentQuestion.type)}
                     </div>
                     
@@ -372,7 +528,7 @@ export function QuizPlayer() {
               <Button
                 variant="outline"
                 onClick={goToPrevious}
-                disabled={currentIndex === 0}
+                disabled={isRetryRound ? retryIndex === 0 : currentIndex === 0}
                 className="gap-2"
                 data-testid="button-previous"
               >
@@ -402,7 +558,27 @@ export function QuizPlayer() {
                     <CheckCheck className="h-4 w-4" />
                     Check Answer
                   </Button>
-                ) : isLastQuestion ? (
+                ) : isRetryRound && isLastQuestion ? (
+                  <Button
+                    onClick={finishQuiz}
+                    disabled={isSubmitting || retryChecked.size < retryQuestions.length}
+                    className="gap-2"
+                    data-testid="button-finish"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Finishing...
+                      </>
+                    ) : (
+                      <>
+                        See Results
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                ) : isLastQuestion && !isRetryRound ? (
+                  // This case is handled by the retry prompt screen now
                   <Button
                     onClick={finishQuiz}
                     disabled={isSubmitting || checkedQuestions.size < questions.length}
@@ -440,7 +616,7 @@ export function QuizPlayer() {
                 variant="outline"
                 size="lg"
                 onClick={goToPrevious}
-                disabled={currentIndex === 0}
+                disabled={isRetryRound ? retryIndex === 0 : currentIndex === 0}
                 className="min-h-[48px] px-3"
                 data-testid="button-previous-mobile"
               >
@@ -470,7 +646,24 @@ export function QuizPlayer() {
                   <CheckCheck className="h-4 w-4 mr-1" />
                   Check
                 </Button>
-              ) : isLastQuestion ? (
+              ) : isRetryRound && isLastQuestion ? (
+                <Button
+                  size="lg"
+                  onClick={finishQuiz}
+                  disabled={isSubmitting || retryChecked.size < retryQuestions.length}
+                  className="flex-1 min-h-[48px]"
+                  data-testid="button-finish-mobile"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      Results
+                      <ArrowRight className="h-4 w-4 ml-1" />
+                    </>
+                  )}
+                </Button>
+              ) : isLastQuestion && !isRetryRound ? (
                 <Button
                   size="lg"
                   onClick={finishQuiz}
@@ -500,9 +693,15 @@ export function QuizPlayer() {
               )}
             </div>
 
-            {isLastQuestion && checkedQuestions.size < questions.length && (
+            {!isRetryRound && isLastQuestion && checkedQuestions.size < questions.length && (
               <p className="text-center text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
                 Answer all questions to see results
+              </p>
+            )}
+            
+            {isRetryRound && isLastQuestion && retryChecked.size < retryQuestions.length && (
+              <p className="text-center text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
+                Practice all questions to see your results
               </p>
             )}
           </div>
