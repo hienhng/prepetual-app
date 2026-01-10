@@ -40,25 +40,40 @@ interface QuizContextType extends QuizState {
 const QuizContext = createContext<QuizContextType | undefined>(undefined);
 
 export function QuizProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<QuizState>({
-    extractedText: null,
-    sourceMaterial: { type: null, text: null, imageDataUrl: null },
-    currentQuiz: null,
-    quizResult: null,
-    userAnswers: {},
-    isLoading: false,
-    loadingMessage: "",
-    processingProgress: 0,
-    revisedQuestionsCount: 0,
-    retryCorrectCount: 0,
+  const [state, setState] = useState<QuizState>(() => {
+    const savedText = sessionStorage.getItem("extracted_text");
+    const savedMaterial = sessionStorage.getItem("source_material");
+    
+    return {
+      extractedText: savedText || null,
+      sourceMaterial: savedMaterial ? JSON.parse(savedMaterial) : { type: null, text: null, imageDataUrl: null },
+      currentQuiz: null,
+      quizResult: null,
+      userAnswers: {},
+      isLoading: false,
+      loadingMessage: "",
+      processingProgress: 0,
+      revisedQuestionsCount: 0,
+      retryCorrectCount: 0,
+    };
   });
 
   const setExtractedText = (text: string | null) => {
     setState((prev) => ({ ...prev, extractedText: text }));
+    if (text === null || text === "") {
+      sessionStorage.removeItem("extracted_text");
+    } else {
+      sessionStorage.setItem("extracted_text", text);
+    }
   };
 
   const setSourceMaterial = (material: SourceMaterial) => {
     setState((prev) => ({ ...prev, sourceMaterial: material }));
+    if (material.type === null) {
+      sessionStorage.removeItem("source_material");
+    } else {
+      sessionStorage.setItem("source_material", JSON.stringify(material));
+    }
   };
 
   const setCurrentQuiz = (quiz: Quiz | null) => {
@@ -101,6 +116,8 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   };
 
   const resetQuiz = () => {
+    sessionStorage.removeItem("extracted_text");
+    sessionStorage.removeItem("source_material");
     setState({
       extractedText: null,
       sourceMaterial: { type: null, text: null, imageDataUrl: null },
