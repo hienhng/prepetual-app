@@ -54,16 +54,17 @@ export function GlobalUploadIndicator() {
 
   const handleGoToQuiz = () => {
     setLocation("/generate");
-    clearJob();
   };
 
   const handleDismiss = () => {
-    // Immediate local state update to force re-render
-    setExtractedText("");
-    setSourceMaterial({ type: null, text: null, imageDataUrl: null });
-    // Then clear the job globally
     clearJob();
   };
+
+  useEffect(() => {
+    if (location === "/generate" && activeJob) {
+      clearJob();
+    }
+  }, [location, activeJob, clearJob]);
 
   return (
     <AnimatePresence>
@@ -131,30 +132,12 @@ export function GlobalUploadIndicator() {
               
               {isCompleted && (
                 <div className="flex gap-2 mt-2">
-                  <Button size="sm" onClick={handleGoToQuiz} disabled={isGenerating}>
+                  <Button size="sm" onClick={handleGoToQuiz}>
                     Continue
                   </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="ghost" data-testid="button-dismiss-upload" disabled={isGenerating}>
-                        {isGenerating ? "Generating..." : "Dismiss"}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Remove document?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This will remove the document from the queue. You'll need to upload it again to use it.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDismiss} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                          Remove
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <Button size="sm" variant="ghost" onClick={handleDismiss} data-testid="button-dismiss-upload">
+                    Dismiss
+                  </Button>
                 </div>
               )}
               
