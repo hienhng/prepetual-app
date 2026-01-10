@@ -87,14 +87,14 @@ export default function Create() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="space-y-4 sm:space-y-6"
+        className="space-y-6"
       >
         {/* Header */}
-        <motion.div variants={itemVariants} className="text-center px-2">
+        <motion.div variants={itemVariants} className="text-center">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
             Create a New Quiz
           </h1>
-          <p className="text-sm md:text-base text-muted-foreground">
+          <p className="text-muted-foreground">
             Upload your study materials and let AI generate personalized questions
           </p>
         </motion.div>
