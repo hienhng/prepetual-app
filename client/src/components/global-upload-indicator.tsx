@@ -19,7 +19,7 @@ import {
 
 export function GlobalUploadIndicator() {
   const { activeJob, clearJob } = useUpload();
-  const { setExtractedText, setSourceMaterial, isLoading: isGenerating } = useQuiz();
+  const { setExtractedText, setSourceMaterial } = useQuiz();
   const [location, setLocation] = useLocation();
 
   useEffect(() => {
@@ -43,6 +43,13 @@ export function GlobalUploadIndicator() {
     }
   }, [activeJob?.status, activeJob?.text]);
 
+  // Auto-dismiss when landing on generate page
+  useEffect(() => {
+    if (location === "/generate" && activeJob) {
+      clearJob();
+    }
+  }, [location, activeJob, clearJob]);
+
   if (!activeJob) return null;
   if (location === "/" && (activeJob.status === "pending" || activeJob.status === "processing")) {
     return null;
@@ -59,12 +66,6 @@ export function GlobalUploadIndicator() {
   const handleDismiss = () => {
     clearJob();
   };
-
-  useEffect(() => {
-    if (location === "/generate" && activeJob) {
-      clearJob();
-    }
-  }, [location, activeJob, clearJob]);
 
   return (
     <AnimatePresence>
