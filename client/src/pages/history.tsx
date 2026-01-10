@@ -127,23 +127,24 @@ export default function HistoryPage() {
         animate={{ opacity: 1, y: 0 }}
         className="space-y-6"
       >
-        <div className="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
+        <div className="flex items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-white-700 flex items-center justify-center">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-white-700 flex items-center justify-center shrink-0">
               <Archive className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold">Quiz Archive</h1>
-              <p className="text-xs sm:text-sm text-muted-foreground">Your materials, as quizzes</p>
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold truncate">Quiz Archive</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">Your materials, as quizzes</p>
             </div>
           </div>
           <Button
-            className="text-sm group" 
+            className="text-sm group shrink-0" 
+            size="sm"
             data-testid="button-new-quiz"
             onClick={() => setLocation("/create")}
           >
             <CirclePlus className="h-4 w-4 mr-1 transition-transform duration-300 ease-in-out group-hover:rotate-90" />
-            Create
+            <span className="hidden xs:inline">Create</span>
           </Button>
         </div>
 
@@ -210,8 +211,8 @@ export default function HistoryPage() {
                       </div>
 
                       {/* Right Action Section */}
-                      <div className="flex items-center sm:flex-col justify-between sm:justify-center gap-2 p-4 sm:p-5 bg-muted/30 sm:border-l border-t sm:border-t-0 border-border/40">
-                        <div className="flex items-center gap-2 w-full">
+                      <div className="flex flex-col sm:flex-col justify-center gap-2 p-3 sm:p-5 bg-muted/30 sm:border-l border-t sm:border-t-0 border-border/40">
+                        <div className="flex flex-row sm:flex-row items-center gap-2 w-full">
                           <Button
                             onClick={() => handleRetake(quiz)}
                             className="flex-1 sm:w-28 font-semibold shadow-sm"
@@ -233,7 +234,7 @@ export default function HistoryPage() {
                           </Button>
                         </div>
 
-                        <div className="flex items-center justify-center gap-1 px-1">
+                        <div className="flex items-center justify-between sm:justify-center gap-1 px-1">
                           <Button
                             size="icon"
                             variant="ghost"
