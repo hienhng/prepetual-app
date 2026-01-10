@@ -59,7 +59,10 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   });
 
   const setExtractedText = (text: string | null) => {
-    setState((prev) => ({ ...prev, extractedText: text }));
+    setState((prev) => {
+      if (prev.extractedText === text) return prev;
+      return { ...prev, extractedText: text };
+    });
     if (text === null || text === "") {
       sessionStorage.removeItem("extracted_text");
     } else {
@@ -68,7 +71,10 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   };
 
   const setSourceMaterial = (material: SourceMaterial) => {
-    setState((prev) => ({ ...prev, sourceMaterial: material }));
+    setState((prev) => {
+      if (JSON.stringify(prev.sourceMaterial) === JSON.stringify(material)) return prev;
+      return { ...prev, sourceMaterial: material };
+    });
     if (material.type === null) {
       sessionStorage.removeItem("source_material");
     } else {

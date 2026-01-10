@@ -33,6 +33,7 @@ export function GlobalUploadIndicator() {
                           activeJob.fileType === "application/vnd.ms-powerpoint" ||
                           activeJob.fileType === "application/vnd.ms-excel";
 
+      // Only update if text is different to prevent loops
       setSourceMaterial({
         type: isImage ? "image" : isPdf ? "pdf" : isOfficeDoc ? "document" : null,
         text: activeJob.text,
@@ -40,7 +41,7 @@ export function GlobalUploadIndicator() {
       });
       setExtractedText(activeJob.text);
     }
-  }, [activeJob?.status, activeJob?.text, setSourceMaterial, setExtractedText, activeJob?.fileType, activeJob?.imageDataUrl]);
+  }, [activeJob?.status, activeJob?.text]);
 
   if (!activeJob) return null;
   if (location === "/" && (activeJob.status === "pending" || activeJob.status === "processing")) {
@@ -57,9 +58,11 @@ export function GlobalUploadIndicator() {
   };
 
   const handleDismiss = () => {
-    clearJob();
+    // Immediate local state update to force re-render
     setExtractedText("");
     setSourceMaterial({ type: null, text: null, imageDataUrl: null });
+    // Then clear the job globally
+    clearJob();
   };
 
   return (
