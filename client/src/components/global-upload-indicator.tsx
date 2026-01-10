@@ -42,6 +42,7 @@ export function GlobalUploadIndicator() {
 
   const handleGoToQuiz = () => {
     setLocation("/generate");
+    clearJob();
   };
 
   const handleDismiss = () => {
