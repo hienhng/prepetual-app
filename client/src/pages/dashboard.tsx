@@ -122,7 +122,7 @@ function StatCard({
                   {value}
                 </motion.p>
               </div>
-              <div className={`p-3 rounded-xl transition-all duration-500 flex items-center justify-center ${isActive ? "bg-white/20 backdrop-blur-sm scale-110 shadow-lg" : "bg-white/10 grayscale opacity-50"}`}>
+              <div className={`p-3 rounded-xl transition-all duration-500 flex items-center justify-center ${isActive ? "bg-white/20 backdrop-blur-sm scale-110 shadow-lg" : "bg-white/20 grayscale opacity-50"}`}>
                 <Icon className="w-6 h-6 transition-colors text-white" />
               </div>
             </div>
