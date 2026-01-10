@@ -19,7 +19,7 @@ import {
 
 export function GlobalUploadIndicator() {
   const { activeJob, clearJob } = useUpload();
-  const { setExtractedText, setSourceMaterial } = useQuiz();
+  const { setExtractedText, setSourceMaterial, isLoading: isGenerating } = useQuiz();
   const [location, setLocation] = useLocation();
 
   useEffect(() => {
@@ -131,13 +131,13 @@ export function GlobalUploadIndicator() {
               
               {isCompleted && (
                 <div className="flex gap-2 mt-2">
-                  <Button size="sm" onClick={handleGoToQuiz}>
+                  <Button size="sm" onClick={handleGoToQuiz} disabled={isGenerating}>
                     Continue
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="ghost" data-testid="button-dismiss-upload">
-                        Dismiss
+                      <Button size="sm" variant="ghost" data-testid="button-dismiss-upload" disabled={isGenerating}>
+                        {isGenerating ? "Generating..." : "Dismiss"}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
