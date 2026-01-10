@@ -296,7 +296,7 @@ function StreakCalendar({
   return (
     <div className="space-y-6">
       {/* Streak Header with Fire Icon and Trivia */}
-      <div className="flex items-center gap-5 p-4 -mx-6 -mt-6 mb-2 bg-orange-100 dark:bg-orange-950/50 rounded-t-lg">
+      <div className="flex items-center gap-5 p-4 bg-orange-100 dark:bg-orange-950/50 rounded-lg">
         <motion.div
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
@@ -833,7 +833,7 @@ export default function Dashboard() {
         <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" />
+              {/* <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" /> */}
               Your Streak Calendar
             </DialogTitle>
           </DialogHeader>
