@@ -296,17 +296,18 @@ function StreakCalendar({
   return (
     <div className="space-y-6">
       {/* Streak Header with Fire Icon and Trivia */}
-      <div className="text-center pb-4 border-b">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <motion.div
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            <FontAwesomeIcon icon={faFire} className="h-10 w-10 text-orange-500" />
-          </motion.div>
-          <span className="text-4xl font-bold text-foreground">{currentStreak}</span>
+      <div className="flex items-center gap-5 pb-4 border-b">
+        <motion.div
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="flex-shrink-0"
+        >
+          <FontAwesomeIcon icon={faFire} className="h-16 w-16 text-orange-500" />
+        </motion.div>
+        <div className="flex-1">
+          <span className="text-4xl font-bold text-foreground">{currentStreak} day streak</span>
+          <p className="text-sm text-muted-foreground mt-1">{trivia}</p>
         </div>
-        <p className="text-sm text-muted-foreground italic px-4">{trivia}</p>
       </div>
 
       <div className="flex items-center justify-between">
