@@ -117,7 +117,7 @@ function StatCard({
                   {value}
                 </motion.p>
               </div>
-              <div className={`p-3 rounded-xl transition-all duration-500 ${isActive ? "bg-white/20 backdrop-blur-sm scale-110 shadow-lg" : "bg-background/50 grayscale opacity-50"}`}>
+              <div className={`p-3 rounded-xl transition-all duration-500 flex items-center justify-center ${isActive ? "bg-white/20 backdrop-blur-sm scale-110 shadow-lg" : "bg-background/50 grayscale opacity-50"}`}>
                 <Icon className={`w-6 h-6 transition-colors ${isActive ? "text-white" : "text-muted-foreground"}`} />
               </div>
             </div>
@@ -677,7 +677,7 @@ export default function Dashboard() {
               <StatCard
                 label="Streak"
                 value={streakData?.currentStreak ?? 0}
-                icon={() => <FontAwesomeIcon icon={faFire} className="h-6 w-6" />}
+                icon={() => <FontAwesomeIcon icon={faFire} className="mt-auto h-6 w-6" />}
                 gradient="bg-gradient-to-br from-orange-500 to-orange-600"
                 isActive={streakData?.isActive ?? false}
                 onClick={() => setStreakCalendarOpen(true)}
