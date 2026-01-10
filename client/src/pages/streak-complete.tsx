@@ -70,28 +70,46 @@ function WeekCalendar({ streakDays }: { streakDays: string[] }) {
         const wrapAtRowStart = isStreak && hasPrevStreak && isStartOfRow;
         const wrapAtRowEnd = isStreak && hasNextStreak && isEndOfRow;
         
+        const streakIndex = isStreak ? streakDays.indexOf(dateStr) : 0;
+        const animationDelay = 0.1 * streakIndex;
+        
         return (
           <div key={index} className="flex flex-col items-center gap-1">
             <span className="text-xs text-muted-foreground">{dayNames[index]}</span>
             <div className="relative w-12 h-12 flex items-center justify-center overflow-visible">
               {isStreak && !isSingleStreak && (
-                <div 
+                <motion.div 
                   className="absolute top-1/2 -translate-y-1/2 h-12 bg-orange-400"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: animationDelay + 0.3, duration: 0.4, ease: "easeOut" }}
                   style={{
                     left: (isStreakStart || wrapAtRowStart) ? 'calc(50% - 24px)' : '-4px',
                     right: (isStreakEnd || wrapAtRowEnd) ? 'calc(50% - 24px)' : '-4px',
                     borderRadius: `${(isStreakStart || wrapAtRowStart) ? '9999px' : '0'} ${(isStreakEnd || wrapAtRowEnd) ? '9999px' : '0'} ${(isStreakEnd || wrapAtRowEnd) ? '9999px' : '0'} ${(isStreakStart || wrapAtRowStart) ? '9999px' : '0'}`,
+                    transformOrigin: isStreakStart ? 'center' : 'left',
                   }}
                 />
               )}
-              <div
-                className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold z-10
-                  ${isStreak ? "bg-orange-500 text-white" : ""}
-                  ${isToday && !isStreak ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
-                  ${!isStreak && !isToday ? "text-muted-foreground bg-muted/30" : ""}
-                `}
-              >
-                {day}
+              <div className="relative w-10 h-10 z-10">
+                <div
+                  className={`absolute inset-0 flex items-center justify-center rounded-full text-sm font-bold
+                    ${!isStreak && isToday ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
+                    ${!isStreak ? "text-muted-foreground bg-muted/30" : "bg-muted/30 text-muted-foreground"}
+                  `}
+                >
+                  {day}
+                </div>
+                {isStreak && (
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center rounded-full text-sm font-bold bg-orange-500 text-white"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: animationDelay + 0.2, duration: 0.4, type: "spring", stiffness: 300, damping: 20 }}
+                  >
+                    {day}
+                  </motion.div>
+                )}
               </div>
             </div>
           </div>
