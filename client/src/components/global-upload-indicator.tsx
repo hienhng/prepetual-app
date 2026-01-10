@@ -85,7 +85,12 @@ export function GlobalUploadIndicator() {
                       transition={{ duration: 0.3 }}
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">{activeJob.progress}%</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="text-xs text-muted-foreground">{activeJob.progress}%</p>
+                    <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={handleDismiss} data-testid="button-cancel-upload">
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
               )}
               
