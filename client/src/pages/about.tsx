@@ -195,40 +195,133 @@ export default function About() {
                     </p>
                   </div>
                   <div className="flex items-center justify-center">
-                    <motion.div 
-                      className="relative"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6 }}
-                    >
-                      <div className="w-48 h-64 bg-gradient-to-br from-muted/50 to-muted rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center relative">
-                        <BookOpen className="w-16 h-16 text-muted-foreground/40" />
+                    <div className="relative w-72 h-56">
+                      {/* Messy Papers - Left Side */}
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2">
+                        {[0, 1, 2, 3, 4].map((i) => (
+                          <motion.div
+                            key={i}
+                            className="absolute w-16 h-20 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/20 rounded shadow-md border border-amber-200/50 dark:border-amber-700/30"
+                            style={{
+                              left: `${i * 3}px`,
+                              zIndex: 5 - i,
+                            }}
+                            initial={{ rotate: -15 + i * 8, x: 0, y: i * -3 }}
+                            animate={{ 
+                              rotate: [-15 + i * 8, -10 + i * 6, -15 + i * 8],
+                              y: [i * -3, i * -5, i * -3],
+                            }}
+                            transition={{ 
+                              duration: 3 + i * 0.5, 
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          >
+                            <div className="p-1.5 space-y-1">
+                              <div className="h-1 w-10 bg-muted-foreground/20 rounded" />
+                              <div className="h-1 w-8 bg-muted-foreground/20 rounded" />
+                              <div className="h-1 w-11 bg-muted-foreground/20 rounded" />
+                              <div className="h-1 w-6 bg-muted-foreground/20 rounded" />
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+
+                      {/* Transformation Arrow with Sparkles */}
+                      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
                         <motion.div
-                          className="absolute -right-4 -bottom-4 w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center"
+                          className="relative"
                           animate={{ scale: [1, 1.1, 1] }}
                           transition={{ duration: 2, repeat: Infinity }}
                         >
-                          <span className="text-2xl">?</span>
+                          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/30">
+                            <Sparkles className="w-7 h-7 text-white" />
+                          </div>
+                          {[0, 1, 2].map((i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute w-2 h-2 rounded-full bg-primary"
+                              style={{
+                                top: `${-10 + i * 5}px`,
+                                left: `${50 + i * 10}px`,
+                              }}
+                              animate={{
+                                opacity: [0, 1, 0],
+                                scale: [0.5, 1.2, 0.5],
+                                x: [0, 15, 30],
+                              }}
+                              transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                delay: i * 0.3,
+                              }}
+                            />
+                          ))}
                         </motion.div>
                       </div>
-                      <motion.div
-                        className="absolute -right-8 top-1/2 -translate-y-1/2"
-                        animate={{ x: [0, 10, 0] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                      >
-                        <Zap className="w-8 h-8 text-primary" />
-                      </motion.div>
-                      <motion.div 
-                        className="absolute -right-24 top-1/2 -translate-y-1/2 w-16 h-20 bg-primary/10 rounded-lg border border-primary/30 flex items-center justify-center"
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.3 }}
-                      >
-                        <Brain className="w-8 h-8 text-primary" />
-                      </motion.div>
-                    </motion.div>
+
+                      {/* Quiz Archive - Right Side */}
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2">
+                        <motion.div
+                          className="relative"
+                          initial={{ opacity: 0, x: 20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.6, delay: 0.2 }}
+                        >
+                          {/* Stacked organized cards */}
+                          {[0, 1, 2].map((i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute w-20 h-24 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-lg border border-primary/30 shadow-sm"
+                              style={{
+                                right: `${i * 6}px`,
+                                top: `${i * 4}px`,
+                                zIndex: 3 - i,
+                              }}
+                              animate={{
+                                y: [0, -2, 0],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                delay: i * 0.2,
+                              }}
+                            >
+                              {i === 0 && (
+                                <div className="p-2 space-y-1.5">
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-3 h-3 rounded-full bg-primary/40" />
+                                    <div className="h-1.5 w-10 bg-primary/30 rounded" />
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-2 h-2 rounded-sm border border-primary/40" />
+                                    <div className="h-1 w-12 bg-muted-foreground/20 rounded" />
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-2 h-2 rounded-sm border border-primary/40 bg-primary/30" />
+                                    <div className="h-1 w-10 bg-muted-foreground/20 rounded" />
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <div className="w-2 h-2 rounded-sm border border-primary/40" />
+                                    <div className="h-1 w-8 bg-muted-foreground/20 rounded" />
+                                  </div>
+                                </div>
+                              )}
+                            </motion.div>
+                          ))}
+                          
+                          {/* Check badge */}
+                          <motion.div
+                            className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shadow-lg z-10"
+                            animate={{ scale: [1, 1.15, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          >
+                            <CheckCircle2 className="w-5 h-5 text-white" />
+                          </motion.div>
+                        </motion.div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
