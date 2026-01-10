@@ -201,24 +201,30 @@ function StreakCalendar({
     const wrapAtRowStart = streakDay && hasPrevStreak && isStartOfRow;
     const wrapAtRowEnd = streakDay && hasNextStreak && isEndOfRow;
     
+    const showLeftBar = streakDay && (hasPrevStreak && !isStartOfRow);
+    const showRightBar = streakDay && (hasNextStreak && !isEndOfRow);
+    const isSingleStreakDay = isStreakStart && isStreakEnd;
+    
     days.push(
       <div
         key={day}
-        className="h-12 flex items-center justify-center relative"
+        className="h-12 flex items-center justify-center relative overflow-visible"
       >
-        {streakDay && (
-          <div 
-            className={`absolute top-1 bottom-1 h-10 bg-orange-500/30
-              ${isStreakStart && isStreakEnd ? "left-[calc(50%-20px)] right-[calc(50%-20px)] rounded-full" : ""}
-              ${isStreakStart && !isStreakEnd && !wrapAtRowEnd ? "left-[calc(50%-20px)] right-0 rounded-l-full" : ""}
-              ${isStreakEnd && !isStreakStart && !wrapAtRowStart ? "left-0 right-[calc(50%-20px)] rounded-r-full" : ""}
-              ${!isStreakStart && !isStreakEnd && !wrapAtRowStart && !wrapAtRowEnd ? "left-0 right-0" : ""}
-              ${wrapAtRowStart && !isStreakEnd ? "left-[calc(50%-20px)] right-0 rounded-l-full" : ""}
-              ${wrapAtRowEnd && !isStreakStart ? "left-0 right-[calc(50%-20px)] rounded-r-full" : ""}
-              ${wrapAtRowStart && isStreakEnd ? "left-[calc(50%-20px)] right-[calc(50%-20px)] rounded-full" : ""}
-              ${wrapAtRowEnd && isStreakStart ? "left-[calc(50%-20px)] right-[calc(50%-20px)] rounded-full" : ""}
-            `}
-          />
+        {streakDay && !isSingleStreakDay && (
+          <>
+            {showLeftBar && (
+              <div className="absolute left-0 right-1/2 top-1/2 -translate-y-1/2 h-10 bg-orange-500/30" />
+            )}
+            {showRightBar && (
+              <div className="absolute left-1/2 right-0 top-1/2 -translate-y-1/2 h-10 bg-orange-500/30" />
+            )}
+            {(isStreakStart || wrapAtRowStart) && (
+              <div className="absolute left-1/2 -translate-x-full top-1/2 -translate-y-1/2 w-5 h-10 bg-orange-500/30 rounded-l-full" />
+            )}
+            {(isStreakEnd || wrapAtRowEnd) && (
+              <div className="absolute right-1/2 translate-x-full top-1/2 -translate-y-1/2 w-5 h-10 bg-orange-500/30 rounded-r-full" />
+            )}
+          </>
         )}
         <div
           className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all z-10
