@@ -212,10 +212,10 @@ export default function HistoryPage() {
 
                       {/* Right Action Section */}
                       <div className="flex flex-col sm:flex-col justify-center gap-2 p-3 sm:p-5 bg-muted/30 sm:border-l border-t sm:border-t-0 border-border/40">
-                        <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-2 w-full">
+                        <div className="flex flex-row sm:flex-row items-center gap-2 w-full">
                           <Button
                             onClick={() => handleRetake(quiz)}
-                            className="font-semibold shadow-sm sm:w-28"
+                            className="flex-1 sm:w-28 font-semibold shadow-sm"
                             size="sm"
                             data-testid={`button-retake-${quiz.id}`}
                           >
@@ -225,7 +225,7 @@ export default function HistoryPage() {
                           <Button
                             variant="outline"
                             onClick={() => handleStudy(quiz)}
-                            className="font-semibold bg-background sm:w-28"
+                            className="flex-1 sm:w-28 font-semibold bg-background"
                             size="sm"
                             data-testid={`button-study-${quiz.id}`}
                           >
