@@ -135,6 +135,56 @@ function StatCard({
   );
 }
 
+const streakTriviaByNumber: Record<number, string> = {
+  0: "Every journey begins with a single step. Start your streak today!",
+  1: "The number 1 symbolizes new beginnings. You've taken the first step!",
+  2: "Two is the first prime number. Keep the momentum going!",
+  3: "Three is considered a lucky number in many cultures.",
+  4: "Four seasons, four directions - balance in learning!",
+  5: "High five! You're building a solid habit.",
+  6: "Six is a perfect number in mathematics.",
+  7: "Seven days make a week. You're on your way to a full week!",
+  8: "In many cultures, 8 symbolizes infinity and abundance.",
+  9: "Nine is the highest single digit. Almost double digits!",
+  10: "Double digits! 10 represents completion and perfection.",
+  14: "Two weeks of consistent learning. Habits are forming!",
+  21: "21 days - the classic habit formation milestone!",
+  30: "One month of dedication. You're truly committed!",
+  50: "Half a century of learning days. Incredible dedication!",
+  100: "Triple digits! You're a learning legend!",
+  365: "One full year! You've mastered consistency.",
+};
+
+const dateTriviaByDay: Record<number, string> = {
+  1: "First day of the month - fresh starts and new possibilities.",
+  7: "A week into the month. Time flies when you're learning!",
+  13: "Lucky 13! Some say it brings fortune to the bold.",
+  15: "Mid-month milestone. Half the month, all the progress!",
+  21: "The 21st - a popular day for new beginnings.",
+  25: "The 25th - counting down to a new month ahead.",
+  28: "Day 28 - every February ends here or beyond.",
+  31: "The longest month's final day. Maximum effort!",
+};
+
+function getStreakTrivia(streak: number): string {
+  if (streakTriviaByNumber[streak]) {
+    return streakTriviaByNumber[streak];
+  }
+  
+  if (streak > 100) return "You're in the elite league of learners!";
+  if (streak > 50) return `${streak} days! You're unstoppable!`;
+  if (streak > 30) return `${streak} days of pure dedication!`;
+  if (streak > 14) return `${streak} days - habits are becoming second nature.`;
+  if (streak > 7) return `${streak} days strong! Keep pushing forward.`;
+  
+  const today = new Date().getDate();
+  if (dateTriviaByDay[today]) {
+    return dateTriviaByDay[today];
+  }
+  
+  return `Day ${streak} of your learning adventure!`;
+}
+
 function StreakCalendar({ 
   streakDates, 
   currentStreak,
@@ -147,6 +197,7 @@ function StreakCalendar({
   const [currentMonth, setCurrentMonth] = useState(new Date());
   
   const streakSet = useMemo(() => new Set(streakDates), [streakDates]);
+  const trivia = useMemo(() => getStreakTrivia(currentStreak), [currentStreak]);
   
   const daysInMonth = new Date(
     currentMonth.getFullYear(),
@@ -244,6 +295,20 @@ function StreakCalendar({
 
   return (
     <div className="space-y-6">
+      {/* Streak Header with Fire Icon and Trivia */}
+      <div className="text-center pb-4 border-b">
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <motion.div
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <FontAwesomeIcon icon={faFire} className="h-10 w-10 text-orange-500" />
+          </motion.div>
+          <span className="text-4xl font-bold text-foreground">{currentStreak}</span>
+        </div>
+        <p className="text-sm text-muted-foreground italic px-4">{trivia}</p>
+      </div>
+
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={goToPreviousMonth} data-testid="button-prev-month">
           <ChevronLeft className="h-5 w-5" />
