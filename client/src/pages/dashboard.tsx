@@ -191,7 +191,7 @@ function StreakCalendar({
 
   const days = [];
   for (let i = 0; i < firstDayOfMonth; i++) {
-    days.push(<div key={`empty-${i}`} className="h-10" />);
+    days.push(<div key={`empty-${i}`} className="h-12" />);
   }
   for (let day = 1; day <= daysInMonth; day++) {
     const streakDay = hasStreak(day);
@@ -238,6 +238,13 @@ function StreakCalendar({
         </div>
       </div>
     );
+  }
+
+  // Pad the end of the grid to ensure exactly 6 rows (42 cells)
+  const totalCells = days.length;
+  const paddingNeeded = 42 - totalCells;
+  for (let i = 0; i < paddingNeeded; i++) {
+    days.push(<div key={`empty-end-${i}`} className="h-12" />);
   }
 
   return (
