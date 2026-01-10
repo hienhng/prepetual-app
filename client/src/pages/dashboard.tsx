@@ -268,7 +268,7 @@ function StreakCalendar({
     days.push(
       <div
         key={day}
-        className="h-12 flex items-center justify-center relative overflow-visible"
+        className="h-12 flex items-center justify-center relative overflow-visible hide-scrollbar::-webkit-scrollbar"
       >
         {streakDay && !isSingleStreakDay && (
           <div 
@@ -833,7 +833,7 @@ export default function Dashboard() {
       </motion.div>
 
       <Dialog open={streakCalendarOpen} onOpenChange={setStreakCalendarOpen}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto scrollbar-hide">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {/* <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" /> */}
