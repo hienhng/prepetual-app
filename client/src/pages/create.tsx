@@ -37,13 +37,10 @@ export default function Create() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    setExtractedText("");
-    setIsReady(false);
-  }, []);
-
-  useEffect(() => {
     if (extractedText && extractedText.length > 0) {
       setIsReady(true);
+    } else {
+      setIsReady(false);
     }
   }, [extractedText]);
 
