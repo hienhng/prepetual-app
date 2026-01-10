@@ -196,130 +196,116 @@ export default function About() {
                   </div>
                   <div className="flex items-center justify-center">
                     <div className="relative w-72 h-56">
-                      {/* Messy Papers - Left Side */}
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2">
-                        {[0, 1, 2, 3, 4].map((i) => (
-                          <motion.div
-                            key={i}
-                            className="absolute w-16 h-20 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/20 rounded shadow-md border border-amber-200/50 dark:border-amber-700/30"
-                            style={{
-                              left: `${i * 3}px`,
-                              zIndex: 5 - i,
-                            }}
-                            initial={{ rotate: -15 + i * 8, x: 0, y: i * -3 }}
-                            animate={{ 
-                              rotate: [-15 + i * 8, -10 + i * 6, -15 + i * 8],
-                              y: [i * -3, i * -5, i * -3],
-                            }}
-                            transition={{ 
-                              duration: 3 + i * 0.5, 
-                              repeat: Infinity,
-                              ease: "easeInOut"
-                            }}
-                          >
-                            <div className="p-1.5 space-y-1">
-                              <div className="h-1 w-10 bg-muted-foreground/20 rounded" />
-                              <div className="h-1 w-8 bg-muted-foreground/20 rounded" />
-                              <div className="h-1 w-11 bg-muted-foreground/20 rounded" />
-                              <div className="h-1 w-6 bg-muted-foreground/20 rounded" />
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-
-                      {/* Transformation Arrow with Sparkles */}
-                      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                        <motion.div
-                          className="relative"
-                          animate={{ scale: [1, 1.1, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/30">
-                            <Sparkles className="w-7 h-7 text-white" />
-                          </div>
-                          {[0, 1, 2].map((i) => (
+                      {/* Transition Animation Container */}
+                      <div className="absolute inset-0 flex items-center justify-between">
+                        {/* Messy Papers Side */}
+                        <div className="relative w-24 h-32">
+                          {[0, 1, 2, 3, 4].map((i) => (
                             <motion.div
-                              key={i}
-                              className="absolute w-2 h-2 rounded-full bg-primary"
-                              style={{
-                                top: `${-10 + i * 5}px`,
-                                left: `${50 + i * 10}px`,
+                              key={`paper-${i}`}
+                              className="absolute w-16 h-20 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/20 rounded shadow-md border border-amber-200/50 dark:border-amber-700/30"
+                              style={{ zIndex: 10 - i }}
+                              animate={{ 
+                                x: [0, 150, 150, 0],
+                                y: [i * 5, 0, 0, i * 5],
+                                rotate: [i * 15 - 30, 0, 0, i * 15 - 30],
+                                opacity: [1, 1, 0, 0, 1],
+                                scale: [1, 0.8, 0, 0, 1],
                               }}
-                              animate={{
-                                opacity: [0, 1, 0],
-                                scale: [0.5, 1.2, 0.5],
-                                x: [0, 15, 30],
-                              }}
-                              transition={{
-                                duration: 1.5,
+                              transition={{ 
+                                duration: 4,
                                 repeat: Infinity,
-                                delay: i * 0.3,
+                                delay: i * 0.2,
+                                times: [0, 0.4, 0.5, 0.6, 1],
+                                ease: "easeInOut"
+                              }}
+                            >
+                              <div className="p-1.5 space-y-1">
+                                <div className="h-1 w-10 bg-muted-foreground/20 rounded" />
+                                <div className="h-1 w-8 bg-muted-foreground/20 rounded" />
+                                <div className="h-1 w-11 bg-muted-foreground/20 rounded" />
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+
+                        {/* Transformation Center */}
+                        <div className="relative">
+                          <motion.div
+                            className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30"
+                            animate={{ 
+                              scale: [1, 1.2, 1],
+                              rotate: [0, 180, 360],
+                            }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                          >
+                            <Sparkles className="w-8 h-8 text-primary" />
+                          </motion.div>
+                          
+                          {/* Sparkle Particles */}
+                          {[0, 1, 2, 3, 4].map((i) => (
+                            <motion.div
+                              key={`sparkle-${i}`}
+                              className="absolute w-1 h-1 bg-primary rounded-full"
+                              animate={{ 
+                                x: [0, Math.cos(i) * 40],
+                                y: [0, Math.sin(i) * 40],
+                                opacity: [0, 1, 0],
+                                scale: [0, 1.5, 0],
+                              }}
+                              transition={{ 
+                                duration: 1, 
+                                repeat: Infinity, 
+                                delay: i * 0.2,
+                                repeatDelay: 3
                               }}
                             />
                           ))}
-                        </motion.div>
-                      </div>
+                        </div>
 
-                      {/* Quiz Archive - Right Side */}
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2">
-                        <motion.div
-                          className="relative"
-                          initial={{ opacity: 0, x: 20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.6, delay: 0.2 }}
-                        >
-                          {/* Stacked organized cards */}
+                        {/* Quiz Archive Side */}
+                        <div className="relative w-24 h-32">
                           {[0, 1, 2].map((i) => (
                             <motion.div
-                              key={i}
+                              key={`quiz-${i}`}
                               className="absolute w-20 h-24 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-lg border border-primary/30 shadow-sm"
-                              style={{
-                                right: `${i * 6}px`,
-                                top: `${i * 4}px`,
-                                zIndex: 3 - i,
+                              style={{ 
+                                right: 0,
+                                top: i * 4,
+                                zIndex: 5 - i 
                               }}
-                              animate={{
-                                y: [0, -2, 0],
+                              animate={{ 
+                                opacity: [0, 0, 1, 1, 0],
+                                scale: [0, 0, 1, 1, 0],
+                                x: [20, 20, 0, 0, 20],
                               }}
-                              transition={{
-                                duration: 2,
+                              transition={{ 
+                                duration: 4,
                                 repeat: Infinity,
-                                delay: i * 0.2,
+                                delay: 1.5 + i * 0.2,
+                                times: [0, 0.4, 0.5, 0.9, 1],
+                                ease: "easeInOut"
                               }}
                             >
-                              {i === 0 && (
-                                <div className="p-2 space-y-1.5">
-                                  <div className="flex items-center gap-1">
-                                    <div className="w-3 h-3 rounded-full bg-primary/40" />
-                                    <div className="h-1.5 w-10 bg-primary/30 rounded" />
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <div className="w-2 h-2 rounded-sm border border-primary/40" />
-                                    <div className="h-1 w-12 bg-muted-foreground/20 rounded" />
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <div className="w-2 h-2 rounded-sm border border-primary/40 bg-primary/30" />
-                                    <div className="h-1 w-10 bg-muted-foreground/20 rounded" />
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <div className="w-2 h-2 rounded-sm border border-primary/40" />
-                                    <div className="h-1 w-8 bg-muted-foreground/20 rounded" />
-                                  </div>
+                              <div className="p-2 space-y-1.5">
+                                <div className="flex items-center gap-1">
+                                  <div className="w-3 h-3 rounded-full bg-primary/40" />
+                                  <div className="h-1.5 w-10 bg-primary/30 rounded" />
                                 </div>
+                                <div className="h-1 w-full bg-muted-foreground/10 rounded" />
+                              </div>
+                              {i === 0 && (
+                                <motion.div 
+                                  className="absolute -top-2 -right-2 bg-green-500 rounded-full p-0.5"
+                                  animate={{ scale: [0, 1.2, 1] }}
+                                  transition={{ delay: 2.2, duration: 0.3 }}
+                                >
+                                  <CheckCircle2 className="w-4 h-4 text-white" />
+                                </motion.div>
                               )}
                             </motion.div>
                           ))}
-                          
-                          {/* Check badge */}
-                          <motion.div
-                            className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shadow-lg z-10"
-                            animate={{ scale: [1, 1.15, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          >
-                            <CheckCircle2 className="w-5 h-5 text-white" />
-                          </motion.div>
-                        </motion.div>
+                        </div>
                       </div>
                     </div>
                   </div>
