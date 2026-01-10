@@ -7,7 +7,7 @@ import multer from "multer";
 import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { parseOffice } from "officeparser";
-import { generateQuizQuestions, generateQuizTitle, importExistingQuiz } from "./openai";
+import { generateQuizQuestions, importExistingQuiz } from "./openai";
 import { generateQuizRequestSchema, submitQuizRequestSchema } from "@shared/schema";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs";
@@ -230,14 +230,12 @@ export async function registerRoutes(
       const { sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
 
-      const questions = await generateQuizQuestions({
+      const { questions, title } = await generateQuizQuestions({
         text,
         questionCount,
         questionTypes,
         difficulty: difficulty as DifficultyLevel,
       });
-
-      const title = await generateQuizTitle(text);
 
       const quiz = await storage.saveQuiz({
         userId,
@@ -278,8 +276,7 @@ export async function registerRoutes(
         });
       }
 
-      const questions = await importExistingQuiz({ text });
-      const title = await generateQuizTitle(text);
+      const { questions, title } = await importExistingQuiz({ text });
 
       const quiz = await storage.saveQuiz({
         userId,

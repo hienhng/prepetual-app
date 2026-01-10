@@ -28,7 +28,7 @@ interface QuizGenerationParams {
 
 export async function generateQuizQuestions(
   params: QuizGenerationParams,
-): Promise<Question[]> {
+): Promise<{ questions: Question[]; title: string }> {
   const { text, questionCount, questionTypes, difficulty = "medium" } = params;
 
   const truncatedText =
@@ -54,14 +54,14 @@ export async function generateQuizQuestions(
     hard: "challenging questions requiring analysis, synthesis, and deep understanding with tricky distractors",
   };
 
-  const prompt = `You are an expert educator. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material.
+  const prompt = `You are an expert educator. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz.
 
 CONTENT:
 ${truncatedText}
 
 LANGUAGE HANDLING:
 - Detect the primary language of the content above (English, Vietnamese, or other)
-- Generate ALL questions, options, correct answers, and explanations in the SAME language as the content
+- Generate ALL questions, options, correct answers, explanations, and the QUIZ TITLE in the SAME language as the content
 - If the content is in Vietnamese, write everything in Vietnamese
 - If the content is in English, write everything in English
 
@@ -75,6 +75,7 @@ REQUIREMENTS:
 
 OUTPUT FORMAT (JSON):
 {
+  "title": "A short descriptive title for the quiz",
   "questions": [
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
@@ -125,6 +126,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
       throw new Error("Invalid AI response: missing questions array");
     }
 
+    const title = parsed.title?.trim() || "Untitled Quiz";
     const questions: Question[] = [];
 
     for (const q of parsed.questions) {
@@ -206,7 +208,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
       throw new Error("AI failed to generate valid questions");
     }
 
-    return questions;
+    return { questions, title };
   } catch (error) {
     console.error("Error generating quiz:", error);
     throw new Error("Failed to generate quiz questions. Please try again.");
@@ -219,7 +221,7 @@ interface ImportQuizParams {
 
 export async function importExistingQuiz(
   params: ImportQuizParams,
-): Promise<Question[]> {
+): Promise<{ questions: Question[]; title: string }> {
   const { text } = params;
 
   const truncatedText =
@@ -231,6 +233,7 @@ Your task is to:
 1. Parse and extract ALL existing questions from the content
 2. Identify the correct answer for each question using your knowledge
 3. Provide a brief explanation for why each answer is correct
+4. Generate a short, descriptive title (max 6 words) for this quiz.
 
 CONTENT:
 ${truncatedText}
@@ -238,9 +241,9 @@ ${truncatedText}
 LANGUAGE HANDLING:
 - Detect the primary language of the content above (English, Vietnamese, or other)
 - Preserve the original language of the questions and options
-- Write explanations in the SAME language as the content
-- If the content is in Vietnamese, write explanations in Vietnamese
-- If the content is in English, write explanations in English
+- Write explanations and the QUIZ TITLE in the SAME language as the content
+- If the content is in Vietnamese, write explanations and title in Vietnamese
+- If the content is in English, write explanations and title in English
 
 IMPORTANT INSTRUCTIONS:
 - Extract questions EXACTLY as they appear (preserving the original wording)
@@ -251,6 +254,7 @@ IMPORTANT INSTRUCTIONS:
 
 OUTPUT FORMAT (JSON):
 {
+  "title": "A short descriptive title for the quiz",
   "questions": [
     {
       "type": "multiple_choice",
@@ -310,6 +314,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
       );
     }
 
+    const title = parsed.title?.trim() || "Imported Quiz";
     const questions: Question[] = [];
 
     for (const q of parsed.questions) {
@@ -391,7 +396,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
       );
     }
 
-    return questions;
+    return { questions, title };
   } catch (error: any) {
     console.error("Error importing quiz:", error);
     if (error.message && error.message.includes("No quiz questions")) {
@@ -401,44 +406,3 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
   }
 }
 
-export async function generateQuizTitle(text: string): Promise<string> {
-  const truncatedText = text.substring(0, 500);
-
-  try {
-    const response = await pRetry(
-      async () => {
-        const completion = await openai.chat.completions.create({
-          // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-          model: "gpt-5",
-          messages: [
-            {
-              role: "user",
-              content: `Based on this content, generate a short, descriptive title (max 6 words) for a study quiz.
-
-LANGUAGE: Detect the language of the content and write the title in the SAME language. If Vietnamese, write in Vietnamese. If English, write in English.
-
-${truncatedText}
-
-Respond with ONLY the title, no quotes or additional text.`,
-            },
-          ],
-          max_completion_tokens: 50,
-        });
-
-        return (
-          completion.choices[0]?.message?.content?.trim() || "Untitled Quiz"
-        );
-      },
-      {
-        retries: 3,
-        minTimeout: 1000,
-        maxTimeout: 10000,
-        factor: 2,
-      },
-    );
-
-    return response;
-  } catch (error) {
-    return "Untitled Quiz";
-  }
-}
