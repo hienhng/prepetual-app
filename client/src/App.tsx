@@ -141,26 +141,26 @@ function PublicHeader() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2" data-testid="link-logo">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-2">
+        <Link href="/" className="flex items-center gap-2 shrink-0" data-testid="link-logo">
           <img 
             src={logoImage} 
             alt="Prepetual Logo" 
-            className="w-9 h-9 rounded-full object-cover"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover"
           />
-          <span className="text-xl font-brand text-foreground hidden sm:inline">Prepetual</span>
+          <span className="text-lg sm:text-xl font-brand text-foreground hidden xs:inline">Prepetual</span>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <ThemeToggle />
           {!isLoading && (
-            <>
-              <Button variant="ghost" onClick={openLoginDialog} data-testid="button-login">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Button variant="ghost" size="sm" onClick={openLoginDialog} data-testid="button-login" className="px-2 sm:px-4">
                 Log in
               </Button>
-              <Button variant="default" onClick={openSignUpDialog} data-testid="button-signup">
+              <Button variant="default" size="sm" onClick={openSignUpDialog} data-testid="button-signup" className="px-2 sm:px-4">
                 Sign up
               </Button>
-            </>
+            </div>
           )}
         </div>
       </div>
