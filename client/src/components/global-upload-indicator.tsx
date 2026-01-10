@@ -41,7 +41,7 @@ export function GlobalUploadIndicator() {
   const isError = activeJob.status === "error";
 
   const handleGoToQuiz = () => {
-    setLocation("/");
+    setLocation("/generate");
   };
 
   const handleDismiss = () => {
@@ -91,7 +91,7 @@ export function GlobalUploadIndicator() {
               
               {isCompleted && (
                 <div className="flex gap-2 mt-2">
-                  <Button size="sm" onClick={handleGoToQuiz} data-testid="button-go-to-quiz">
+                  <Button size="sm" onClick={handleGoToQuiz}>
                     Continue
                   </Button>
                   <Button size="sm" variant="ghost" onClick={handleDismiss} data-testid="button-dismiss-upload">
