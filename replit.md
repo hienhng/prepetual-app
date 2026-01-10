@@ -2,7 +2,7 @@
 
 ## Overview
 
-QuizAI is a full-stack web application that transforms study materials into interactive quizzes using AI. Users can upload documents (PDFs, images) to extract text via OCR, then generate custom quizzes with multiple question types (multiple choice, true/false, short answer). The app provides an interactive quiz-taking experience with detailed results and explanations.
+QuizAI is a full-stack web application that transforms study materials into interactive quizzes using AI. Users can upload documents (PDFs, Word docs, PowerPoint, Excel, images) to extract text, then generate custom quizzes with multiple question types (multiple choice, true/false, short answer). The app provides an interactive quiz-taking experience with detailed results and explanations.
 
 ## Recent Changes (Dec 2025)
 
@@ -22,8 +22,8 @@ QuizAI is a full-stack web application that transforms study materials into inte
 
 ## Application Flow
 
-1. User uploads document (PDF/image) on home page
-2. OCR extracts text via Tesseract.js (images) or pdf.js (PDFs)
+1. User uploads document (PDF, Word, PowerPoint, Excel, or image) on home page
+2. Text is extracted via appropriate parser (officeparser for Office docs, pdf.js for PDFs, Tesseract.js for images)
 3. "Continue to Generate Quiz" button appears after extraction
 4. User configures quiz settings (question count, types, difficulty)
 5. AI generates quiz via OpenAI-compatible API
@@ -59,6 +59,7 @@ Preferred communication style: Simple, everyday language.
 - **Text Extraction**: 
   - PDF parsing via pdf.js (`pdfjs-dist`)
   - OCR for images via Tesseract.js
+  - Office documents (DOCX, PPTX, XLSX) via officeparser
 - **AI Integration**: OpenAI-compatible API via Replit's AI Integrations service for quiz generation
 
 ### Data Layer

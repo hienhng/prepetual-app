@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import type { Quiz, QuizResult, Question } from "@shared/schema";
 
-export type SourceMaterialType = "pdf" | "image" | null;
+export type SourceMaterialType = "pdf" | "image" | "document" | null;
 
 interface SourceMaterial {
   type: SourceMaterialType;

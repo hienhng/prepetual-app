@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, Image, X, Loader2, } from "lucide-react";
+import { Upload, FileText, Image, X, Loader2, File } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,12 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
 
       const isImage = file.type.startsWith("image/");
       const isPdf = file.type === "application/pdf";
+      const isOfficeDoc = file.type.includes("wordprocessingml") || 
+                          file.type.includes("presentationml") || 
+                          file.type.includes("spreadsheetml") ||
+                          file.type === "application/msword" ||
+                          file.type === "application/vnd.ms-powerpoint" ||
+                          file.type === "application/vnd.ms-excel";
       
       let imageDataUrl: string | null = null;
       if (isImage) {
@@ -62,7 +68,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
       }
 
       setSourceMaterial({
-        type: isImage ? "image" : isPdf ? "pdf" : null,
+        type: isImage ? "image" : isPdf ? "pdf" : isOfficeDoc ? "document" : null,
         text: data.text,
         imageDataUrl: imageDataUrl,
       });
@@ -93,6 +99,12 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
       "application/pdf": [".pdf"],
       "image/jpeg": [".jpg", ".jpeg"],
       "image/png": [".png"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+      "application/msword": [".doc"],
+      "application/vnd.ms-powerpoint": [".ppt"],
+      "application/vnd.ms-excel": [".xls"],
     },
     maxFiles: 1,
     disabled: isLoading,
@@ -179,12 +191,16 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                     PDF
                   </Badge>
                   <Badge variant="secondary" className="gap-1 text-xs">
-                    <Image className="h-3 w-3" />
-                    JPG
+                    <File className="h-3 w-3" />
+                    DOCX
+                  </Badge>
+                  <Badge variant="secondary" className="gap-1 text-xs">
+                    <File className="h-3 w-3" />
+                    PPTX
                   </Badge>
                   <Badge variant="secondary" className="gap-1 text-xs">
                     <Image className="h-3 w-3" />
-                    PNG
+                    Images
                   </Badge>
                 </div>
               </div>

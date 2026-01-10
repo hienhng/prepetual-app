@@ -6,6 +6,7 @@ import { sendStreakReminderEmail, sendContactEmail } from "./email";
 import multer from "multer";
 import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
+import { parseOffice } from "officeparser";
 import { generateQuizQuestions, generateQuizTitle, importExistingQuiz } from "./openai";
 import { generateQuizRequestSchema, submitQuizRequestSchema } from "@shared/schema";
 import type { Question, DifficultyLevel } from "@shared/schema";
@@ -16,11 +17,22 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024,
   },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
+    const allowedTypes = [
+      "application/pdf",
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/msword",
+      "application/vnd.ms-powerpoint",
+      "application/vnd.ms-excel",
+    ];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error("Invalid file type. Only PDF, JPG, and PNG are allowed."));
+      cb(new Error("Invalid file type. Only PDF, images, and Office documents (docx, pptx, xlsx) are allowed."));
     }
   },
 });
@@ -89,6 +101,17 @@ async function extractTextFromImage(buffer: Buffer): Promise<string> {
   }
 }
 
+async function extractTextFromOfficeDocument(buffer: Buffer): Promise<string> {
+  try {
+    const result = await parseOffice(buffer);
+    const text = typeof result === 'string' ? result : String(result);
+    return text.trim();
+  } catch (error) {
+    console.error("Office document extraction error:", error);
+    throw new Error("Failed to extract text from document");
+  }
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -109,6 +132,15 @@ export async function registerRoutes(
         extractedText = await extractTextFromPDF(buffer);
       } else if (mimetype.startsWith("image/")) {
         extractedText = await extractTextFromImage(buffer);
+      } else if (
+        mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        mimetype === "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
+        mimetype === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+        mimetype === "application/msword" ||
+        mimetype === "application/vnd.ms-powerpoint" ||
+        mimetype === "application/vnd.ms-excel"
+      ) {
+        extractedText = await extractTextFromOfficeDocument(buffer);
       } else {
         return res.status(400).json({ message: "Unsupported file type" });
       }
