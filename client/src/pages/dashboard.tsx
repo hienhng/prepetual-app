@@ -195,20 +195,29 @@ function StreakCalendar({
     const isStartOfRow = dayPosition === 0;
     const isEndOfRow = dayPosition === 6;
     
+    const isStreakStart = streakDay && !hasPrevStreak;
+    const isStreakEnd = streakDay && !hasNextStreak;
+    const isStreakMiddle = streakDay && hasPrevStreak && hasNextStreak;
+    const wrapAtRowStart = streakDay && hasPrevStreak && isStartOfRow;
+    const wrapAtRowEnd = streakDay && hasNextStreak && isEndOfRow;
+    
     days.push(
       <div
         key={day}
-        className="h-10 flex items-center justify-center relative"
+        className="h-12 flex items-center justify-center relative"
       >
-        {streakDay && hasPrevStreak && !isStartOfRow && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1/2 h-8 bg-orange-500/30 -z-10" />
-        )}
-        {streakDay && hasNextStreak && !isEndOfRow && (
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 h-8 bg-orange-500/30 -z-10" />
+        {streakDay && (
+          <div 
+            className={`absolute inset-y-1 bg-orange-500/30
+              ${isStreakStart || wrapAtRowStart ? "left-1 rounded-l-full" : "left-0"}
+              ${isStreakEnd || wrapAtRowEnd ? "right-1 rounded-r-full" : "right-0"}
+              ${isStreakStart && isStreakEnd ? "rounded-full left-1 right-1" : ""}
+            `}
+          />
         )}
         <div
-          className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium transition-all z-10
-            ${streakDay ? "bg-orange-500 text-white shadow-md shadow-orange-500/30" : ""}
+          className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all z-10
+            ${streakDay ? "bg-orange-500 text-white" : ""}
             ${today && !streakDay ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
             ${!streakDay && !today ? "text-muted-foreground" : ""}
           `}
