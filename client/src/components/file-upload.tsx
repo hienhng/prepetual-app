@@ -27,7 +27,18 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   const { activeJob, startUpload, clearJob } = useUpload();
   const [uploadedFile, setUploadedFile] = useState<File | null>(() => {
     if (activeJob && activeJob.status === "completed") {
-      return new File([], activeJob.fileName, { type: activeJob.fileType });
+      // Create a minimal File-like object that satisfies the type system
+      return {
+        name: activeJob.fileName,
+        type: activeJob.fileType,
+        size: 0,
+        lastModified: Date.now(),
+        webkitRelativePath: "",
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+        slice: () => new Blob(),
+        stream: () => new ReadableStream(),
+        text: () => Promise.resolve(""),
+      } as File;
     }
     return null;
   });
