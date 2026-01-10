@@ -104,9 +104,17 @@ async function extractTextFromImage(buffer: Buffer): Promise<string> {
 }
 
 async function extractTextFromOfficeDocument(buffer: Buffer): Promise<string> {
-  const result = await parseOffice(buffer);
-  const text = typeof result === 'string' ? result : String(result);
-  return text.trim();
+  try {
+    const result = await parseOffice(buffer);
+    const text = typeof result === 'string' ? result : String(result);
+    console.log("Office parser result type:", typeof result);
+    console.log("Office parser text length:", text.length);
+    console.log("Office parser text preview:", text.substring(0, 200));
+    return text.trim();
+  } catch (error) {
+    console.error("Office parser error:", error);
+    throw new Error("Failed to parse Office document: " + (error instanceof Error ? error.message : "Unknown error"));
+  }
 }
 
 export async function processJob(id: string) {
