@@ -378,7 +378,7 @@ export default function Feed() {
                   Be the first to share your knowledge with the community!
                 </p>
                 <Button onClick={() => setLocation("/create")} className="gap-2" data-testid="button-create-quiz">
-                  <Sparkles className="h-4 w-4" fill="currentColor" />
+                  <Sparkles className="h-4 w-4" />
                   Create a Quiz
                 </Button>
               </>

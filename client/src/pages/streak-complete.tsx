@@ -230,9 +230,9 @@ export default function StreakComplete() {
           className="text-center mb-10"
         >
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Sparkles className="h-5 w-5 text-quiz-orange" fill="currentColor" />
+            <Sparkles className="h-5 w-5 text-quiz-orange" />
             <h2 className="text-xl font-bold text-foreground">{motivational.message}</h2>
-            <Sparkles className="h-5 w-5 text-quiz-orange" fill="currentColor" />
+            <Sparkles className="h-5 w-5 text-quiz-orange" />
           </div>
           <p className="text-muted-foreground">{motivational.subtext}</p>
         </motion.div>

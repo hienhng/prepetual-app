@@ -266,7 +266,7 @@ function StreakCalendar({
         </div>
         <div className="text-center">
           <div className="flex items-center gap-2 justify-center mb-1">
-            <Target className="h-5 w-5 text-primary" fill="currentColor" />
+            <Target className="h-5 w-5 text-primary" />
             <span className="text-2xl font-bold text-foreground">{longestStreak}</span>
           </div>
           <p className="text-xs text-muted-foreground">Longest Streak</p>
@@ -467,14 +467,6 @@ function QuizCard({
     }
   };
 
-  const getDifficultyIconColor = (difficulty?: string | null) => {
-    switch (difficulty) {
-      case "easy": return "text-green-600 dark:text-green-400";
-      case "hard": return "text-red-600 dark:text-red-400";
-      default: return "text-amber-600 dark:text-amber-400";
-    }
-  };
-
   const questionCount = (quiz.questions as any[]).length;
 
   return (
@@ -493,7 +485,7 @@ function QuizCard({
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="secondary" className="text-xs font-normal">
-                  <Target className={`w-3 h-3 mr-1 ${getDifficultyIconColor(quiz.difficulty)}`} fill="currentColor" />
+                  <Target className="w-3 h-3 mr-1" />
                   {questionCount} {questionCount === 1 ? "question" : "questions"}
                 </Badge>
                 {quiz.difficulty && (
@@ -516,14 +508,14 @@ function QuizCard({
                   onClick={onStudy}
                   data-testid={`button-study-${quiz.id}`}
                 >
-                  <BookOpen className="w-4 h-4" fill="currentColor" />
+                  <BookOpen className="w-4 h-4" />
                 </Button>
                 <Button
                   size="sm"
                   onClick={onTake}
                   data-testid={`button-take-${quiz.id}`}
                 >
-                  <Play className="w-4 h-4 mr-1" fill="currentColor" />
+                  <Play className="w-4 h-4 mr-1" />
                   Take
                 </Button>
               </div>
@@ -673,13 +665,13 @@ export default function Dashboard() {
               <StatCard
                 label="Created"
                 value={totalQuizzes}
-                icon={(props: any) => <FileText {...props} fill="currentColor" />}
+                icon={FileText}
                 gradient="bg-gradient-to-br from-blue-500 to-blue-600"
               />
               <StatCard
                 label="Questions"
                 value={totalQuestions}
-                icon={(props: any) => <Target {...props} fill="currentColor" />}
+                icon={Target}
                 gradient="bg-gradient-to-br from-violet-500 to-violet-600"
               />
               <StatCard
@@ -693,7 +685,7 @@ export default function Dashboard() {
               <StatCard
                 label="Accuracy"
                 value={userStats?.totalAttempts ? `${userStats.averageAccuracy}%` : "-"}
-                icon={(props: any) => <ChartNoAxesColumn {...props} fill="currentColor" />}
+                icon={ChartNoAxesColumn}
                 gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
                 isActive={(userStats?.totalAttempts ?? 0) > 0}
               />
@@ -709,7 +701,7 @@ export default function Dashboard() {
               <QuickActionCard
                 title="Create New Quiz"
                 description="Upload materials and generate questions"
-                icon={(props: any) => <Plus {...props} fill="currentColor" />}
+                icon={Plus}
                 onClick={() => setLocation("/create")}
                 variant="primary"
                 testId="card-create-quiz"
@@ -718,7 +710,7 @@ export default function Dashboard() {
                 <QuickActionCard
                   title="Continue Studying"
                   description={recentQuizzes[0].title}
-                  icon={(props: any) => <BookOpen {...props} fill="currentColor" />}
+                  icon={BookOpen}
                   onClick={() => handleStudyQuiz(recentQuizzes[0])}
                   testId="card-continue-studying"
                 />
