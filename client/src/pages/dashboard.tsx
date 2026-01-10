@@ -252,7 +252,7 @@ function StreakCalendar({
         </Button>
       </div>
 
-      <div className="max-h-[300px] overflow-y-auto pr-2 -mr-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+      <div className="max-h-[300px] overflow-y-auto pr-2 -mr-2 hide-scrollbar">
         <div className="grid grid-cols-7 gap-1 text-center">
           {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
             <div key={d} className="h-8 flex items-center justify-center text-xs font-medium text-muted-foreground sticky top-0 bg-background z-20">
