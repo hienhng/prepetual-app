@@ -74,7 +74,7 @@ export default function Results() {
       if (newTotal > 5) {
         setTimeout(() => {
           setShowRevisionDialog(true);
-        }, 1500);
+        }, 4000);
       }
     }
   }, [revisedQuestionsCount]);
