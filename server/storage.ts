@@ -336,11 +336,7 @@ export class DatabaseStorage implements IStorage {
     isActive: boolean;
     isFirstCompletionToday: boolean;
   }> {
-    // Get all activity dates: quiz creation + quiz completions
-    const userQuizzes = await db.select({ createdAt: quizzes.createdAt })
-      .from(quizzes)
-      .where(eq(quizzes.userId, userId));
-
+    // Get quiz completion dates for quizzes with more than 8 questions only
     const userQuizIds = await db.select({ id: quizzes.id })
       .from(quizzes)
       .where(eq(quizzes.userId, userId));
@@ -348,17 +344,17 @@ export class DatabaseStorage implements IStorage {
     let completionDates: Date[] = [];
     if (userQuizIds.length > 0) {
       const quizIdList = userQuizIds.map(q => q.id);
-      const results = await db.select({ completedAt: quizResults.completedAt })
+      // Only count completions of quizzes with more than 8 questions
+      const results = await db.select({ completedAt: quizResults.completedAt, totalQuestions: quizResults.totalQuestions })
         .from(quizResults)
         .where(inArray(quizResults.quizId, quizIdList));
-      completionDates = results.map(r => r.completedAt);
+      completionDates = results
+        .filter(r => r.totalQuestions > 8)
+        .map(r => r.completedAt);
     }
 
-    // Combine all activity dates
-    const allDates = [
-      ...userQuizzes.map(q => q.createdAt),
-      ...completionDates
-    ].filter(Boolean) as Date[];
+    // Only count quiz completions (not creations) for streak
+    const allDates = completionDates.filter(Boolean) as Date[];
 
     if (allDates.length === 0) {
       return { 
@@ -440,11 +436,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserStreakHistory(userId: string): Promise<string[]> {
-    // Get all activity dates: quiz creation + quiz completions
-    const userQuizzes = await db.select({ createdAt: quizzes.createdAt })
-      .from(quizzes)
-      .where(eq(quizzes.userId, userId));
-
+    // Get quiz completion dates for quizzes with more than 8 questions only
     const userQuizIds = await db.select({ id: quizzes.id })
       .from(quizzes)
       .where(eq(quizzes.userId, userId));
@@ -452,17 +444,17 @@ export class DatabaseStorage implements IStorage {
     let completionDates: Date[] = [];
     if (userQuizIds.length > 0) {
       const quizIdList = userQuizIds.map(q => q.id);
-      const results = await db.select({ completedAt: quizResults.completedAt })
+      // Only count completions of quizzes with more than 8 questions
+      const results = await db.select({ completedAt: quizResults.completedAt, totalQuestions: quizResults.totalQuestions })
         .from(quizResults)
         .where(inArray(quizResults.quizId, quizIdList));
-      completionDates = results.map(r => r.completedAt);
+      completionDates = results
+        .filter(r => r.totalQuestions > 8)
+        .map(r => r.completedAt);
     }
 
-    // Combine all activity dates
-    const allDates = [
-      ...userQuizzes.map(q => q.createdAt),
-      ...completionDates
-    ].filter(Boolean) as Date[];
+    // Only count quiz completions (not creations) for streak
+    const allDates = completionDates.filter(Boolean) as Date[];
 
     // Convert to unique date strings (YYYY-MM-DD) and return sorted
     const dateStrings = allDates.map(d => {
