@@ -1,80 +1,21 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Trophy, Check, X, ChevronDown, ChevronUp, RotateCcw, Home, Sparkles, LucideMessageCircleQuestion, Lock, UserPlus, Flame } from "lucide-react";
+import { Check, X, ChevronDown, ChevronUp, RotateCcw, ArrowRight, LucideMessageCircleQuestion, Lock, UserPlus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
-import { motion, AnimatePresence } from "framer-motion";
-
-function AnimatedFlame({ className, streakCount = 1 }: { className?: string, streakCount?: number }) {
-  const [revealProgress, setRevealProgress] = useState(0);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setRevealProgress(1);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
-    <div className={`relative ${className} flex flex-col items-center justify-center`}>
-      <div className="relative w-24 h-24 flex items-center justify-center overflow-visible">
-        {/* Background Grayscale Flame */}
-        <Flame 
-          className="w-full h-full text-muted-foreground/10 fill-muted-foreground/20" 
-          style={{ filter: "grayscale(100%)" }}
-        />
-        
-        {/* Sliding Vibrant Flame (Circular Reveal) */}
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center pointer-events-none"
-          initial={{ clipPath: "circle(0% at 50% 50%)" }}
-          animate={{ clipPath: revealProgress ? "circle(150% at 50% 50%)" : "circle(0% at 50% 50%)" }}
-          transition={{ duration: 0.5, ease: "circOut" }}
-        >
-          <motion.div
-            className="w-full h-full relative"
-            animate={revealProgress ? {
-              scale: [1, 1.05, 1],
-              y: [0, -3, 0],
-              skewX: [0, 1, -1, 0]
-            } : {}}
-            transition={{
-              scale: { duration: 0.2, repeat: Infinity, repeatDelay: 1 },
-              y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-              skewX: { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
-            }}
-          >
-            <Flame className="w-full h-full text-quiz-orange fill-quiz-orange drop-shadow-[0_0_20px_rgba(249,115,22,0.8)]" />
-          </motion.div>
-        </motion.div>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={revealProgress ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-        transition={{ delay: 0.8, duration: 0.5, ease: "easeOut" }}
-        className="mt-6 flex flex-col items-center"
-      >
-        <span className="text-7xl font-black text-quiz-orange leading-none tracking-tighter drop-shadow-xl">{streakCount}</span>
-        <div className="h-px w-12 bg-quiz-orange/30 my-3" />
-        <span className="text-xs font-bold text-quiz-orange/80 uppercase tracking-[0.3em]">Day Streak</span>
-      </motion.div>
-    </div>
-  );
-}
+import { motion } from "framer-motion";
 
 export function QuizResults() {
   const [, setLocation] = useLocation();
-  const { currentQuiz, quizResult, userAnswers, resetQuiz, clearUserAnswers } = useQuiz();
+  const { currentQuiz, quizResult, userAnswers, clearUserAnswers } = useQuiz();
   const { user } = useAuth();
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
-  const [showStreak, setShowStreak] = useState(false);
-  const [currentStreakCount, setCurrentStreakCount] = useState(1);
+  const [isFirstCompletionToday, setIsFirstCompletionToday] = useState(false);
   
   useEffect(() => {
     if (quizResult && user) {
@@ -85,13 +26,7 @@ export function QuizResults() {
         fetch(`/api/user/streak`)
           .then(res => res.json())
           .then(data => {
-            if (data.isFirstCompletionToday) {
-              setCurrentStreakCount(data.currentStreak);
-              const timer = setTimeout(() => {
-                setShowStreak(true);
-              }, 1000);
-              return () => clearTimeout(timer);
-            }
+            setIsFirstCompletionToday(data.isFirstCompletionToday || false);
           })
           .catch(err => console.error("Failed to fetch streak:", err));
       }
@@ -143,102 +78,16 @@ export function QuizResults() {
     setLocation("/quiz");
   };
 
-  const startNew = () => {
-    resetQuiz();
-    setLocation("/create");
+  const handleContinue = () => {
+    if (user && isFirstCompletionToday) {
+      setLocation("/streak-complete");
+    } else {
+      setLocation(user ? "/dashboard" : "/");
+    }
   };
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6 relative">
-      <AnimatePresence>
-        {showStreak && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5, y: 50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.5, y: -50 }}
-            className="fixed inset-0 flex items-center justify-center z-[100] pointer-events-none"
-            onAnimationComplete={() => {
-              setTimeout(() => setShowStreak(false), 3000);
-            }}
-          >
-            <div className="relative">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ 
-                  scale: 1,
-                  opacity: 1,
-                  y: [0, -10, 0]
-                }}
-                transition={{ 
-                  scale: { type: "spring", damping: 15, stiffness: 200 },
-                  opacity: { duration: 0.3 },
-                  y: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-                }}
-                className="bg-background/95 backdrop-blur-xl p-10 rounded-full shadow-[0_0_50px_rgba(249,115,22,0.2)] border-4 border-quiz-orange/30 flex flex-col items-center gap-4 min-w-[280px]"
-              >
-                <div className="relative">
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.4, 1],
-                      opacity: [0.3, 0.6, 0.3]
-                    }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute inset-0 bg-quiz-orange blur-3xl rounded-full"
-                  />
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.03, 1],
-                      y: [0, -3, 0]
-                    }}
-                    transition={{ 
-                      duration: 2, 
-                      repeat: Infinity, 
-                      ease: "easeInOut" 
-                    }}
-                  >
-                    <AnimatedFlame 
-                      className="w-32 h-48 relative z-10 drop-shadow-[0_0_10px_rgba(255,77,0,0.3)]" 
-                      streakCount={currentStreakCount} 
-                    />
-                  </motion.div>
-                </div>
-                <div className="text-center z-10">
-                  <motion.h3 
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-4xl font-black text-quiz-orange uppercase tracking-tighter italic"
-                  >
-                    
-                  </motion.h3>
-                </div>
-              </motion.div>
-              
-              {/* Refined Particle effects */}
-              {[...Array(20)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
-                  animate={{ 
-                    opacity: [0, 1, 0],
-                    scale: [0, Math.random() * 1 + 0.5, 0],
-                    x: (Math.random() - 0.5) * 500,
-                    y: (Math.random() - 0.5) * 500,
-                  }}
-                  transition={{ 
-                    duration: Math.random() * 2 + 1,
-                    delay: Math.random() * 0.5,
-                    repeat: Infinity,
-                    ease: "easeOut"
-                  }}
-                  className="absolute top-1/2 left-1/2 w-2 h-2 bg-gradient-to-t from-quiz-orange to-yellow-400 rounded-full blur-[1px]"
-                />
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -486,16 +335,14 @@ export function QuizResults() {
           <RotateCcw className="h-4 w-4" />
           Retake Quiz
         </Button>
-        {!isGuest && (
-          <Button
-            onClick={startNew}
-            className="flex-1 gap-2"
-            data-testid="button-new-quiz"
-          >
-            <Home className="h-4 w-4" />
-            Create New Quiz
-          </Button>
-        )}
+        <Button
+          onClick={handleContinue}
+          className="flex-1 gap-2"
+          data-testid="button-continue"
+        >
+          <ArrowRight className="h-4 w-4" />
+          Continue
+        </Button>
       </motion.div>
     </div>
   );

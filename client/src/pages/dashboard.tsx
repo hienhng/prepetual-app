@@ -212,7 +212,7 @@ function StreakCalendar({
       >
         {streakDay && !isSingleStreakDay && (
           <div 
-            className="absolute top-1/2 -translate-y-1/2 h-12 bg-orange-400"
+            className="absolute top-1/2 -translate-y-1/2 h-12 bg-orange-600"
             style={{
               left: (isStreakStart || wrapAtRowStart) ? 'calc(50% - 24px)' : '-4px',
               right: (isStreakEnd || wrapAtRowEnd) ? 'calc(50% - 24px)' : '-4px',
