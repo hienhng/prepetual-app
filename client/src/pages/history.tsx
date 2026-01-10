@@ -106,9 +106,9 @@ export default function HistoryPage() {
 
   const getDifficultyBadge = (difficulty?: string | null) => {
     switch (difficulty) {
-      case "easy": return <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-200 dark:border-green-900 capitalize font-medium">Easy</Badge>;
-      case "hard": return <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-200 dark:border-red-900 capitalize font-medium">Hard</Badge>;
-      default: return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-200 dark:border-yellow-900 capitalize font-medium">Medium</Badge>;
+      case "easy": return <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-200 dark:border-green-900  font-medium">easy</Badge>;
+      case "hard": return <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-200 dark:border-red-900  font-medium">hard</Badge>;
+      default: return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-200 dark:border-yellow-900  font-medium">medium</Badge>;
     }
   };
 

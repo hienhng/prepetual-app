@@ -79,8 +79,8 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"], // only for multiple_choice. Ensure the correct answer is randomly placed among A, B, C, and D. Avoid patterns like having the same letter as correct answer for multiple consecutive questions.
-      "correctAnswer": "The correct answer text (for MC, include the letter e.g. 'A) Option 1', for T/F use 'True' or 'False')",
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // only for multiple_choice. Ensure the correct answer is randomly placed among options. DO NOT include prefixes like "A) " or "1. " in the option text.
+      "correctAnswer": "The exact correct option text (without any prefix)",
       "explanation": "Brief explanation of why this is correct"
     }
   ]
@@ -255,8 +255,8 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice",
       "question": "The exact question text as it appears",
-      "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"], // Ensure the correct answer is randomly placed among the options. Avoid repetitive patterns in the position of the correct answer.
-      "correctAnswer": "A) The correct option with its full text",
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // Extract exactly as they appear, but REMOVE any prefixes like "A) " or "1. " from the start of each option.
+      "correctAnswer": "The exact full text of the correct option (without any prefix)",
       "explanation": "Brief explanation of why this is the correct answer"
     }
   ]
