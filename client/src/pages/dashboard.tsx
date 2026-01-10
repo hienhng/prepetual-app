@@ -211,20 +211,14 @@ function StreakCalendar({
         className="h-12 flex items-center justify-center relative overflow-visible"
       >
         {streakDay && !isSingleStreakDay && (
-          <>
-            {showLeftBar && (
-              <div className="absolute left-0 right-1/2 top-1/2 -translate-y-1/2 h-10 bg-orange-500/30" />
-            )}
-            {showRightBar && (
-              <div className="absolute left-1/2 right-0 top-1/2 -translate-y-1/2 h-10 bg-orange-500/30" />
-            )}
-            {(isStreakStart || wrapAtRowStart) && (
-              <div className="absolute left-1/2 -translate-x-full top-1/2 -translate-y-1/2 w-5 h-10 bg-orange-500/30 rounded-l-full" />
-            )}
-            {(isStreakEnd || wrapAtRowEnd) && (
-              <div className="absolute right-1/2 translate-x-full top-1/2 -translate-y-1/2 w-5 h-10 bg-orange-500/30 rounded-r-full" />
-            )}
-          </>
+          <div 
+            className="absolute top-1/2 -translate-y-1/2 h-10 bg-orange-500/30"
+            style={{
+              left: (isStreakStart || wrapAtRowStart) ? 'calc(50% - 20px)' : '-4px',
+              right: (isStreakEnd || wrapAtRowEnd) ? 'calc(50% - 20px)' : '-4px',
+              borderRadius: `${(isStreakStart || wrapAtRowStart) ? '9999px' : '0'} ${(isStreakEnd || wrapAtRowEnd) ? '9999px' : '0'} ${(isStreakEnd || wrapAtRowEnd) ? '9999px' : '0'} ${(isStreakStart || wrapAtRowStart) ? '9999px' : '0'}`,
+            }}
+          />
         )}
         <div
           className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all z-10
