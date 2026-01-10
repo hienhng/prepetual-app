@@ -196,8 +196,40 @@ function StreakCalendar({
     );
   }
 
+  const getStreakPaletteDays = () => {
+    if (currentStreak <= 0) return [];
+    const today = new Date();
+    const days = [];
+    for (let i = currentStreak - 1; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      days.push(date.getDate());
+    }
+    return days.slice(-7);
+  };
+
+  const streakPaletteDays = getStreakPaletteDays();
+
   return (
     <div className="space-y-6">
+      {currentStreak > 0 && (
+        <div className="bg-orange-500/20 border border-orange-500/30 rounded-full px-4 py-3 flex items-center justify-center gap-1">
+          {streakPaletteDays.map((day, idx) => (
+            <div
+              key={idx}
+              className="flex-1 flex items-center justify-center text-lg font-bold text-orange-600 dark:text-orange-400"
+            >
+              {day}
+            </div>
+          ))}
+          {currentStreak > 7 && (
+            <div className="flex items-center gap-1 ml-2">
+              <Flame className="h-4 w-4 text-orange-500" />
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={goToPreviousMonth} data-testid="button-prev-month">
           <ChevronLeft className="h-5 w-5" />
