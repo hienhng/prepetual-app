@@ -229,7 +229,7 @@ function StreakCalendar({
         )}
         <div
           className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all z-10
-            ${streakDay ? "bg-orange-500 text-white" : ""}
+            ${streakDay ? "bg-orange-400 dark:bg-orange-600 text-white" : ""}
             ${today && !streakDay ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
             ${!streakDay && !today ? "text-muted-foreground" : ""}
           `}
