@@ -24,10 +24,15 @@ interface FileUploadProps {
 }
 
 export function FileUpload({ onTextExtracted }: FileUploadProps) {
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const { setSourceMaterial } = useQuiz();
   const { activeJob, startUpload, clearJob } = useUpload();
+  const [uploadedFile, setUploadedFile] = useState<File | null>(() => {
+    if (activeJob && activeJob.status === "completed") {
+      return new File([], activeJob.fileName, { type: activeJob.fileType });
+    }
+    return null;
+  });
+  const [error, setError] = useState<string | null>(activeJob?.status === "error" ? (activeJob.error || "An error occurred") : null);
+  const { setSourceMaterial } = useQuiz();
 
   const isLoading = activeJob?.status === "pending" || activeJob?.status === "processing";
   const loadingMessage = activeJob?.message || "";
