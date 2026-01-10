@@ -2,7 +2,9 @@ import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Flame, Home, Sparkles } from "lucide-react";
+import { Home, Sparkles } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFire } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "@/hooks/useAuth";
 
 const motivationalMessages = [
@@ -179,8 +181,9 @@ export default function StreakComplete() {
         />
         
         <div className="relative w-32 h-32 flex items-center justify-center mb-4">
-          <Flame 
-            className="w-full h-full text-muted-foreground/10 fill-muted-foreground/20 absolute" 
+          <FontAwesomeIcon 
+            icon={faFire}
+            className="w-full h-full text-muted-foreground/10 absolute" 
             style={{ filter: "grayscale(100%)" }}
           />
           
@@ -201,7 +204,7 @@ export default function StreakComplete() {
                 y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
               }}
             >
-              <Flame className="w-full h-full text-quiz-orange fill-quiz-orange drop-shadow-[0_0_30px_rgba(249,115,22,0.8)]" />
+              <FontAwesomeIcon icon={faFire} className="w-full h-full text-quiz-orange drop-shadow-[0_0_30px_rgba(249,115,22,0.8)]" />
             </motion.div>
           </motion.div>
         </div>

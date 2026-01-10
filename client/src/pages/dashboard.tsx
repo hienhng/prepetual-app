@@ -5,8 +5,10 @@ import { motion } from "framer-motion";
 import { 
   Plus, BookOpen, Play, Target, 
   Clock, FileText, Loader2, Sparkles, ArrowRight, 
-  Flame, Brain, GraduationCap, Lightbulb, ChartNoAxesColumn, ChevronLeft, ChevronRight, X
+  Brain, GraduationCap, Lightbulb, ChartNoAxesColumn, ChevronLeft, ChevronRight, X
 } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFire } from "@fortawesome/free-solid-svg-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -257,7 +259,7 @@ function StreakCalendar({
       <div className="flex items-center justify-center gap-8 pt-4 border-t">
         <div className="text-center">
           <div className="flex items-center gap-2 justify-center mb-1">
-            <Flame className="h-5 w-5 text-orange-500" />
+            <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" />
             <span className="text-2xl font-bold text-foreground">{currentStreak}</span>
           </div>
           <p className="text-xs text-muted-foreground">Current Streak</p>
@@ -675,7 +677,7 @@ export default function Dashboard() {
               <StatCard
                 label="Streak"
                 value={streakData?.currentStreak ?? 0}
-                icon={Flame}
+                icon={() => <FontAwesomeIcon icon={faFire} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-orange-500 to-orange-600"
                 isActive={streakData?.isActive ?? false}
                 onClick={() => setStreakCalendarOpen(true)}
@@ -758,7 +760,7 @@ export default function Dashboard() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Flame className="h-5 w-5 text-orange-500" />
+              <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" />
               Your Streak Calendar
             </DialogTitle>
           </DialogHeader>

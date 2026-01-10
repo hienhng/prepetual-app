@@ -4,10 +4,12 @@ import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { 
   Search, Play, Loader2, Users, BookOpen, 
-  Sparkles, Clock, Filter, Flame, Target, Zap, 
+  Sparkles, Clock, Filter, Target, Zap, 
   GraduationCap, Beaker, Calculator, Globe2, 
   Palette, Music, Code, Heart, Dumbbell, Languages, Archive
 } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFire } from "@fortawesome/free-solid-svg-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -391,7 +393,7 @@ export default function Feed() {
                 className="mb-8"
               >
                 <div className="flex items-center gap-2 mb-4">
-                  <Flame className="h-5 w-5 text-orange-500" />
+                  <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" />
                   <h2 className="text-lg font-semibold">Featured</h2>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
