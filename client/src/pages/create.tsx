@@ -48,13 +48,15 @@ export default function Create() {
   const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial } = useQuiz();
   const { activeJob, clearJob } = useUpload();
   const [isReady, setIsReady] = useState(false);
+  const [hasRedirected, setHasRedirected] = useState(false);
 
-  // Redirect to generate page if upload is in progress
+  // Redirect to generate page if upload is in progress (only once)
   useEffect(() => {
-    if (activeJob && (activeJob.status === "pending" || activeJob.status === "processing")) {
+    if (!hasRedirected && activeJob && (activeJob.status === "pending" || activeJob.status === "processing")) {
+      setHasRedirected(true);
       setLocation("/generate");
     }
-  }, [activeJob, setLocation]);
+  }, [activeJob?.status, hasRedirected, setLocation]);
 
   useEffect(() => {
     if (extractedText && extractedText.length > 0) {

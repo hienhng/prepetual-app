@@ -3,20 +3,27 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QuizGenerator } from "@/components/quiz-generator";
 import { useQuiz } from "@/lib/quiz-context";
+import { useUpload } from "@/lib/upload-context";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Generate() {
   const [, setLocation] = useLocation();
   const { extractedText } = useQuiz();
+  const { activeJob } = useUpload();
+  const [hasRedirected, setHasRedirected] = useState(false);
+
+  const isProcessing = activeJob?.status === "pending" || activeJob?.status === "processing";
 
   useEffect(() => {
-    if (!extractedText) {
+    // Only redirect to create if no extracted text AND no active job processing
+    if (!hasRedirected && !extractedText && !isProcessing) {
+      setHasRedirected(true);
       setLocation("/create");
     }
-  }, [extractedText, setLocation]);
+  }, [extractedText, isProcessing, hasRedirected, setLocation]);
 
-  if (!extractedText) {
+  if (!extractedText && !isProcessing) {
     return null;
   }
 
