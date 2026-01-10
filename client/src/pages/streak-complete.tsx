@@ -131,12 +131,14 @@ export default function StreakComplete() {
       return;
     }
     
-    fetch("/api/user/streak")
-      .then(res => res.json())
-      .then(data => {
+    Promise.all([
+      fetch("/api/user/streak").then(res => res.json()),
+      fetch("/api/user/streak-history").then(res => res.json())
+    ])
+      .then(([streakInfo, streakHistory]) => {
         setStreakData({
-          currentStreak: data.currentStreak || 1,
-          streakDays: data.streakDays || []
+          currentStreak: streakInfo.currentStreak || 1,
+          streakDays: streakHistory || []
         });
         setTimeout(() => setRevealProgress(1), 500);
       })
