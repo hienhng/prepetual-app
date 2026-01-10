@@ -1,16 +1,17 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { 
   Plus, BookOpen, Play, Target, 
   Clock, FileText, Loader2, Sparkles, ArrowRight, 
-  Flame, Brain, GraduationCap, Lightbulb, ChartNoAxesColumn
+  Flame, Brain, GraduationCap, Lightbulb, ChartNoAxesColumn, ChevronLeft, ChevronRight, X
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import type { Quiz } from "@shared/schema";
@@ -82,16 +83,23 @@ function StatCard({
   value, 
   icon: Icon, 
   gradient,
-  isActive = true
+  isActive = true,
+  onClick
 }: { 
   label: string; 
   value: number | string; 
   icon: any; 
   gradient: string;
   isActive?: boolean;
+  onClick?: () => void;
 }) {
   return (
-    <motion.div whileHover={{ y: -4, scale: 1.02 }} transition={{ duration: 0.2 }}>
+    <motion.div 
+      whileHover={{ y: -4, scale: 1.02 }} 
+      transition={{ duration: 0.2 }}
+      onClick={onClick}
+      className={onClick ? "cursor-pointer" : ""}
+    >
       <Card className="overflow-visible border-0 shadow-md">
         <CardContent className="p-0">
           <div className={`p-5 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
@@ -115,6 +123,117 @@ function StatCard({
         </CardContent>
       </Card>
     </motion.div>
+  );
+}
+
+function StreakCalendar({ 
+  streakDates, 
+  currentStreak,
+  longestStreak 
+}: { 
+  streakDates: string[]; 
+  currentStreak: number;
+  longestStreak: number;
+}) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  
+  const streakSet = useMemo(() => new Set(streakDates), [streakDates]);
+  
+  const daysInMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth() + 1,
+    0
+  ).getDate();
+  
+  const firstDayOfMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth(),
+    1
+  ).getDay();
+  
+  const monthName = currentMonth.toLocaleString("default", { month: "long", year: "numeric" });
+  
+  const goToPreviousMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  };
+  
+  const goToNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+  };
+  
+  const isToday = (day: number) => {
+    const today = new Date();
+    return (
+      day === today.getDate() &&
+      currentMonth.getMonth() === today.getMonth() &&
+      currentMonth.getFullYear() === today.getFullYear()
+    );
+  };
+  
+  const hasStreak = (day: number) => {
+    const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    return streakSet.has(dateStr);
+  };
+
+  const days = [];
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    days.push(<div key={`empty-${i}`} className="h-10" />);
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    const streakDay = hasStreak(day);
+    const today = isToday(day);
+    days.push(
+      <div
+        key={day}
+        className={`h-10 w-10 flex items-center justify-center rounded-full text-sm font-medium transition-all
+          ${streakDay ? "bg-orange-500 text-white shadow-md shadow-orange-500/30" : ""}
+          ${today && !streakDay ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
+          ${!streakDay && !today ? "text-muted-foreground" : ""}
+        `}
+      >
+        {day}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="icon" onClick={goToPreviousMonth} data-testid="button-prev-month">
+          <ChevronLeft className="h-5 w-5" />
+        </Button>
+        <h3 className="text-lg font-semibold text-foreground">{monthName}</h3>
+        <Button variant="ghost" size="icon" onClick={goToNextMonth} data-testid="button-next-month">
+          <ChevronRight className="h-5 w-5" />
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 text-center">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+          <div key={d} className="h-8 flex items-center justify-center text-xs font-medium text-muted-foreground">
+            {d}
+          </div>
+        ))}
+        {days}
+      </div>
+
+      <div className="flex items-center justify-center gap-8 pt-4 border-t">
+        <div className="text-center">
+          <div className="flex items-center gap-2 justify-center mb-1">
+            <Flame className="h-5 w-5 text-orange-500" />
+            <span className="text-2xl font-bold text-foreground">{currentStreak}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">Current Streak</p>
+        </div>
+        <div className="text-center">
+          <div className="flex items-center gap-2 justify-center mb-1">
+            <Target className="h-5 w-5 text-primary" />
+            <span className="text-2xl font-bold text-foreground">{longestStreak}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">Longest Streak</p>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -399,6 +518,7 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial } = useQuiz();
   const { user } = useAuth();
+  const [streakCalendarOpen, setStreakCalendarOpen] = useState(false);
 
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
     queryKey: ["/api/quizzes"],
@@ -406,6 +526,11 @@ export default function Dashboard() {
 
   const { data: streakData } = useQuery<StreakData>({
     queryKey: ["/api/user/streak"],
+  });
+
+  const { data: streakHistory } = useQuery<string[]>({
+    queryKey: ["/api/user/streak-history"],
+    enabled: streakCalendarOpen,
   });
 
   const { data: userStats } = useQuery<UserStats>({
@@ -516,6 +641,7 @@ export default function Dashboard() {
                 icon={Flame}
                 gradient="bg-gradient-to-br from-orange-500 to-orange-600"
                 isActive={streakData?.isActive ?? false}
+                onClick={() => setStreakCalendarOpen(true)}
               />
               <StatCard
                 label="Accuracy"
@@ -590,6 +716,22 @@ export default function Dashboard() {
         {/* Learning Tip */}
         {hasQuizzes && <LearningTipCard />}
       </motion.div>
+
+      <Dialog open={streakCalendarOpen} onOpenChange={setStreakCalendarOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Flame className="h-5 w-5 text-orange-500" />
+              Your Streak Calendar
+            </DialogTitle>
+          </DialogHeader>
+          <StreakCalendar 
+            streakDates={streakHistory ?? []} 
+            currentStreak={streakData?.currentStreak ?? 0}
+            longestStreak={streakData?.longestStreak ?? 0}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

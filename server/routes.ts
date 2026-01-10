@@ -316,6 +316,17 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/user/streak-history", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const dates = await storage.getUserStreakHistory(userId);
+      res.json(dates);
+    } catch (error) {
+      console.error("Streak history fetch error:", error);
+      res.status(500).json({ message: "Failed to get streak history" });
+    }
+  });
+
   app.get("/api/user/stats", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;

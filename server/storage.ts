@@ -45,6 +45,7 @@ export interface IStorage {
   getUserAverageAccuracy(userId: string): Promise<{ averageAccuracy: number; totalAttempts: number }>;
   // Streak
   getUserStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; lastActivityDate: string | null; isActive: boolean }>;
+  getUserStreakHistory(userId: string): Promise<string[]>;
   // Streak Reminders
   getUsersForStreakReminder(): Promise<User[]>;
   updateLastStreakReminderSentAt(userId: string): Promise<void>;
@@ -436,6 +437,39 @@ export class DatabaseStorage implements IStorage {
       isActive,
       isFirstCompletionToday: todayCompletions === 1 && isActive
     };
+  }
+
+  async getUserStreakHistory(userId: string): Promise<string[]> {
+    // Get all activity dates: quiz creation + quiz completions
+    const userQuizzes = await db.select({ createdAt: quizzes.createdAt })
+      .from(quizzes)
+      .where(eq(quizzes.userId, userId));
+
+    const userQuizIds = await db.select({ id: quizzes.id })
+      .from(quizzes)
+      .where(eq(quizzes.userId, userId));
+
+    let completionDates: Date[] = [];
+    if (userQuizIds.length > 0) {
+      const quizIdList = userQuizIds.map(q => q.id);
+      const results = await db.select({ completedAt: quizResults.completedAt })
+        .from(quizResults)
+        .where(inArray(quizResults.quizId, quizIdList));
+      completionDates = results.map(r => r.completedAt);
+    }
+
+    // Combine all activity dates
+    const allDates = [
+      ...userQuizzes.map(q => q.createdAt),
+      ...completionDates
+    ].filter(Boolean) as Date[];
+
+    // Convert to unique date strings (YYYY-MM-DD) and return sorted
+    const dateStrings = allDates.map(d => {
+      const date = new Date(d);
+      return date.toISOString().split('T')[0];
+    });
+    return Array.from(new Set(dateStrings)).sort();
   }
 
   async getUsersForStreakReminder(): Promise<User[]> {
