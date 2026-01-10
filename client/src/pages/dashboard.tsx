@@ -123,7 +123,7 @@ function StatCard({
                 </motion.p>
               </div>
               <div className={`p-3 rounded-xl transition-all duration-500 flex items-center justify-center ${isActive ? "bg-white/20 backdrop-blur-sm scale-110 shadow-lg" : "bg-white/20 grayscale opacity-50"}`}>
-                <Icon style={{ color: 'white' }} className="w-6 h-6 transition-colors" />
+                <Icon style={{ color: '#ffffff' }} className="w-6 h-6 transition-colors" />
               </div>
             </div>
           </div>
