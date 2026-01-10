@@ -208,10 +208,15 @@ function StreakCalendar({
       >
         {streakDay && (
           <div 
-            className={`absolute inset-y-1 bg-orange-500/30
-              ${isStreakStart || wrapAtRowStart ? "left-1 rounded-l-full" : "left-0"}
-              ${isStreakEnd || wrapAtRowEnd ? "right-1 rounded-r-full" : "right-0"}
-              ${isStreakStart && isStreakEnd ? "rounded-full left-1 right-1" : ""}
+            className={`absolute top-1 bottom-1 h-10 bg-orange-500/30
+              ${isStreakStart && isStreakEnd ? "left-[calc(50%-20px)] right-[calc(50%-20px)] rounded-full" : ""}
+              ${isStreakStart && !isStreakEnd && !wrapAtRowEnd ? "left-[calc(50%-20px)] right-0 rounded-l-full" : ""}
+              ${isStreakEnd && !isStreakStart && !wrapAtRowStart ? "left-0 right-[calc(50%-20px)] rounded-r-full" : ""}
+              ${!isStreakStart && !isStreakEnd && !wrapAtRowStart && !wrapAtRowEnd ? "left-0 right-0" : ""}
+              ${wrapAtRowStart && !isStreakEnd ? "left-[calc(50%-20px)] right-0 rounded-l-full" : ""}
+              ${wrapAtRowEnd && !isStreakStart ? "left-0 right-[calc(50%-20px)] rounded-r-full" : ""}
+              ${wrapAtRowStart && isStreakEnd ? "left-[calc(50%-20px)] right-[calc(50%-20px)] rounded-full" : ""}
+              ${wrapAtRowEnd && isStreakStart ? "left-[calc(50%-20px)] right-[calc(50%-20px)] rounded-full" : ""}
             `}
           />
         )}
