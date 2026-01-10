@@ -1,10 +1,11 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, FileText, Image, X, Loader2, File } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useQuiz } from "@/lib/quiz-context";
+import { useUpload } from "@/lib/upload-context";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface FileUploadProps {
@@ -14,76 +15,32 @@ interface FileUploadProps {
 export function FileUpload({ onTextExtracted }: FileUploadProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { isLoading, setIsLoading, setLoadingMessage, loadingMessage, processingProgress, setProcessingProgress, setSourceMaterial } = useQuiz();
+  const { setSourceMaterial } = useQuiz();
+  const { activeJob, startUpload, clearJob } = useUpload();
+
+  const isLoading = activeJob?.status === "pending" || activeJob?.status === "processing";
+  const loadingMessage = activeJob?.message || "";
+  const processingProgress = activeJob?.progress || 0;
+
+  useEffect(() => {
+    if (activeJob?.status === "completed" && activeJob.text) {
+      onTextExtracted(activeJob.text);
+    }
+    if (activeJob?.status === "error") {
+      setError(activeJob.error || "An error occurred while processing the file");
+    }
+  }, [activeJob?.status, activeJob?.text, activeJob?.error, onTextExtracted]);
 
   const processFile = useCallback(async (file: File) => {
     setError(null);
-    setIsLoading(true);
-    setLoadingMessage("Uploading file...");
-    setProcessingProgress(10);
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const isImage = file.type.startsWith("image/");
-      const isPdf = file.type === "application/pdf";
-      const isOfficeDoc = file.type.includes("wordprocessingml") || 
-                          file.type.includes("presentationml") || 
-                          file.type.includes("spreadsheetml") ||
-                          file.type === "application/msword" ||
-                          file.type === "application/vnd.ms-powerpoint" ||
-                          file.type === "application/vnd.ms-excel";
-      
-      let imageDataUrl: string | null = null;
-      if (isImage) {
-        imageDataUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      }
-
-      setLoadingMessage("Extracting text from document...");
-      setProcessingProgress(30);
-
-      const response = await fetch("/api/extract-text", {
-        method: "POST",
-        body: formData,
-      });
-
-      setProcessingProgress(70);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to extract text");
-      }
-
-      const data = await response.json();
-      setProcessingProgress(100);
-      
-      if (!data.text || data.text.trim().length < 50) {
-        throw new Error("Not enough text could be extracted from this document. Please try a different file with more readable text.");
-      }
-
-      setSourceMaterial({
-        type: isImage ? "image" : isPdf ? "pdf" : isOfficeDoc ? "document" : null,
-        text: data.text,
-        imageDataUrl: imageDataUrl,
-      });
-
-      onTextExtracted(data.text);
+      await startUpload(file);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred while processing the file");
+      setError(err instanceof Error ? err.message : "An error occurred while uploading the file");
       setUploadedFile(null);
-      setSourceMaterial({ type: null, text: null, imageDataUrl: null });
-    } finally {
-      setIsLoading(false);
-      setLoadingMessage("");
-      setProcessingProgress(0);
     }
-  }, [onTextExtracted, setIsLoading, setLoadingMessage, setProcessingProgress, setSourceMaterial]);
+  }, [startUpload]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -113,6 +70,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   const removeFile = () => {
     setUploadedFile(null);
     setError(null);
+    clearJob();
     setSourceMaterial({ type: null, text: null, imageDataUrl: null });
     onTextExtracted("");
   };

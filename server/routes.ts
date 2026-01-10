@@ -10,6 +10,8 @@ import { parseOffice } from "officeparser";
 import { generateQuizQuestions, generateQuizTitle, importExistingQuiz } from "./openai";
 import { generateQuizRequestSchema, submitQuizRequestSchema } from "@shared/schema";
 import type { Question, DifficultyLevel } from "@shared/schema";
+import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs";
+import crypto from "crypto";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -157,6 +159,60 @@ export async function registerRoutes(
       res.status(500).json({
         message: error instanceof Error ? error.message : "Failed to extract text from file",
       });
+    }
+  });
+
+  app.post("/api/upload-async", upload.single("file"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const { buffer, mimetype } = req.file;
+      const jobId = crypto.randomUUID();
+      
+      const job = createJob(jobId, mimetype);
+      storeBuffer(jobId, buffer);
+      
+      setImmediate(() => {
+        processJob(jobId);
+      });
+
+      res.json({ jobId, status: job.status, message: job.message });
+    } catch (error) {
+      console.error("Async upload error:", error);
+      res.status(500).json({
+        message: error instanceof Error ? error.message : "Failed to start upload",
+      });
+    }
+  });
+
+  app.get("/api/upload-status/:jobId", async (req, res) => {
+    try {
+      const job = getJob(req.params.jobId);
+      
+      if (!job) {
+        return res.status(404).json({ message: "Job not found", expired: true });
+      }
+
+      res.json({
+        status: job.status,
+        progress: job.progress,
+        message: job.message,
+        text: job.text,
+        error: job.error,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get job status" });
+    }
+  });
+
+  app.delete("/api/upload-job/:jobId", async (req, res) => {
+    try {
+      deleteJob(req.params.jobId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete job" });
     }
   });
 

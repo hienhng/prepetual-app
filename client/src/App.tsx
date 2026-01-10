@@ -4,7 +4,9 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QuizProvider } from "@/lib/quiz-context";
+import { UploadProvider } from "@/lib/upload-context";
 import { AuthDialogProvider, useAuthDialog } from "@/lib/auth-context";
+import { GlobalUploadIndicator } from "@/components/global-upload-indicator";
 import { LoginDialog, SignUpDialog } from "@/components/auth-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
@@ -329,8 +331,11 @@ function App() {
       <TooltipProvider>
         <AuthDialogProvider>
           <QuizProvider>
-            <AppContent />
-            <Toaster />
+            <UploadProvider>
+              <AppContent />
+              <GlobalUploadIndicator />
+              <Toaster />
+            </UploadProvider>
           </QuizProvider>
         </AuthDialogProvider>
       </TooltipProvider>
