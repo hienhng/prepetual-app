@@ -46,8 +46,15 @@ const itemVariants = {
 export default function Create() {
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial } = useQuiz();
-  const { clearJob } = useUpload();
+  const { activeJob, clearJob } = useUpload();
   const [isReady, setIsReady] = useState(false);
+
+  // Redirect to generate page if upload is in progress
+  useEffect(() => {
+    if (activeJob && (activeJob.status === "pending" || activeJob.status === "processing")) {
+      setLocation("/generate");
+    }
+  }, [activeJob, setLocation]);
 
   useEffect(() => {
     if (extractedText && extractedText.length > 0) {
