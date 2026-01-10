@@ -5,25 +5,29 @@ import { QuizGenerator } from "@/components/quiz-generator";
 import { useQuiz } from "@/lib/quiz-context";
 import { useUpload } from "@/lib/upload-context";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function Generate() {
   const [, setLocation] = useLocation();
-  const { extractedText } = useQuiz();
+  const { extractedText, isLoading } = useQuiz();
   const { activeJob } = useUpload();
-  const [hasRedirected, setHasRedirected] = useState(false);
+  const redirectedRef = useRef(false);
 
   const isProcessing = activeJob?.status === "pending" || activeJob?.status === "processing";
 
   useEffect(() => {
-    // Only redirect to create if no extracted text AND no active job processing
-    if (!hasRedirected && !extractedText && !isProcessing) {
-      setHasRedirected(true);
+    // Only redirect to create if no extracted text AND no active job processing AND not generating quiz
+    if (!extractedText && !isProcessing && !isLoading && !redirectedRef.current) {
+      redirectedRef.current = true;
       setLocation("/create");
     }
-  }, [extractedText, isProcessing, hasRedirected, setLocation]);
+    // Reset ref when there is content or processing
+    if (extractedText || isProcessing || isLoading) {
+      redirectedRef.current = false;
+    }
+  }, [extractedText, isProcessing, isLoading, setLocation]);
 
-  if (!extractedText && !isProcessing) {
+  if (!extractedText && !isProcessing && !isLoading) {
     return null;
   }
 

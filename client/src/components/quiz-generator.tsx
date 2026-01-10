@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useQuiz } from "@/lib/quiz-context";
+import { useUpload } from "@/lib/upload-context";
 import { motion, AnimatePresence } from "framer-motion";
 import type { QuestionType, DifficultyLevel } from "@shared/schema";
 
@@ -16,6 +17,7 @@ type QuizMode = "generate" | "import";
 export function QuizGenerator() {
   const [, setLocation] = useLocation();
   const { extractedText, sourceMaterial, setCurrentQuiz, setIsLoading, isLoading, setLoadingMessage, loadingMessage } = useQuiz();
+  const { clearJob } = useUpload();
   const [showFullText, setShowFullText] = useState(false);
   const [questionCount, setQuestionCount] = useState(10);
   const [questionTypes, setQuestionTypes] = useState<QuestionType[]>(["multiple_choice", "true_false"]);
@@ -65,6 +67,7 @@ export function QuizGenerator() {
 
       const quiz = await response.json();
       setCurrentQuiz(quiz);
+      clearJob(); // Clear the upload job after quiz is created
       queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
       setLocation("/history");
     } catch (err) {

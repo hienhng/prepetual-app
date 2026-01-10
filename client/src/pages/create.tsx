@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -45,18 +45,23 @@ const itemVariants = {
 
 export default function Create() {
   const [, setLocation] = useLocation();
-  const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial } = useQuiz();
+  const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial, isLoading } = useQuiz();
   const { activeJob, clearJob } = useUpload();
   const [isReady, setIsReady] = useState(false);
-  const [hasRedirected, setHasRedirected] = useState(false);
+  const redirectedRef = useRef(false);
 
-  // Redirect to generate page if upload is in progress (only once)
+  // Redirect to generate page if upload is in progress or quiz generation is happening
   useEffect(() => {
-    if (!hasRedirected && activeJob && (activeJob.status === "pending" || activeJob.status === "processing")) {
-      setHasRedirected(true);
+    const isProcessing = activeJob && (activeJob.status === "pending" || activeJob.status === "processing");
+    if ((isProcessing || isLoading) && !redirectedRef.current) {
+      redirectedRef.current = true;
       setLocation("/generate");
     }
-  }, [activeJob?.status, hasRedirected, setLocation]);
+    // Reset ref when there's no active processing
+    if (!isProcessing && !isLoading) {
+      redirectedRef.current = false;
+    }
+  }, [activeJob?.status, isLoading, setLocation]);
 
   useEffect(() => {
     if (extractedText && extractedText.length > 0) {
