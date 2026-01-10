@@ -66,8 +66,7 @@ export default function Create() {
   };
 
   const handleClearText = () => {
-    // Clear everything immediately in local and session storage
-    setExtractedText("");
+    setExtractedText("");  
     setSourceMaterial({ type: null, text: null, imageDataUrl: null });
     clearJob();
     setIsReady(false);
