@@ -12,7 +12,9 @@ import {
   faFire, 
   faFileLines, 
   faBullseye, 
-  faChartSimple 
+  faChartSimple, 
+  faComment,
+  faMessage
 } from "@fortawesome/free-solid-svg-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -229,7 +231,7 @@ function StreakCalendar({
         )}
         <div
           className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all z-10
-            ${streakDay ? "bg-orange-400 dark:bg-orange-600 text-white" : ""}
+            ${streakDay ? "bg-orange-400 dark:bg-orange-700 text-white" : ""}
             ${today && !streakDay ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
             ${!streakDay && !today ? "text-muted-foreground" : ""}
           `}
@@ -676,7 +678,7 @@ export default function Dashboard() {
               <StatCard
                 label="Questions"
                 value={totalQuestions}
-                icon={() => <FontAwesomeIcon icon={faBullseye} className="h-6 w-6" />}
+                icon={() => <FontAwesomeIcon icon={faMessage} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-violet-500 to-violet-600"
               />
               <StatCard

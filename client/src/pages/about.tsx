@@ -171,50 +171,6 @@ export default function About() {
             </div>
           </motion.section>
 
-          {/* Mission Section with gradient border */}
-          <motion.section
-            className="mb-20"
-            variants={itemVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-          >
-            <motion.div
-              className="relative p-[1px] rounded-xl bg-gradient-to-r from-primary/50 via-primary/20 to-primary/50 overflow-visible"
-              whileHover={{ scale: 1.01 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Card className="border-0 bg-background/95 backdrop-blur-sm overflow-visible">
-                <CardContent className="p-8 md:p-10">
-                  <div className="flex items-start gap-4 mb-6">
-                    <Zap className="w-6 h-6 text-primary" />
-                    {/* <motion.div
-                      className="p-3 rounded-xl bg-primary/10"
-                      whileHover={{ rotate: 360 }}
-                      transition={{ duration: 0.6 }}
-                    >
-                      
-                    </motion.div> */}
-                    <div>
-                      <h2 className="text-2xl font-semibold text-foreground mb-2">Our Mission</h2>
-                      <p className="text-muted-foreground">Empowering learners worldwide</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4 text-muted-foreground leading-relaxed">
-                    <p>
-                      Prepetual is dedicated to transforming the way students learn and prepare for exams. 
-                      We believe that effective studying should be accessible, engaging, and personalized.
-                    </p>
-                    <p>
-                      Our AI-powered platform turns your study materials into interactive quizzes, 
-                      helping you master any subject faster and more efficiently.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </motion.section>
-
           {/* How It Works - Interactive Timeline */}
           <motion.section
             className="mb-20"
@@ -338,70 +294,6 @@ export default function About() {
                 </motion.div>
               ))}
             </div>
-          </motion.section>
-
-          {/* Technology Section with animated list */}
-          <motion.section
-            className="mb-20"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-          >
-            <motion.div
-              className="relative rounded-2xl bg-gradient-to-br from-primary/10 via-background to-primary/5 p-8 md:p-12 border"
-              variants={itemVariants}
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <Brain className="w-8 h-8 text-primary" />
-                {/* <motion.div
-                  animate={{ 
-                    rotate: [0, 360],
-                  }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "in" }}
-                >
-                  
-                </motion.div> */}
-                <div>
-                  <h2 className="text-2xl font-semibold text-foreground">Our Technology</h2>
-                  <p className="text-muted-foreground">Powered by cutting-edge AI</p>
-                </div>
-              </div>
-
-              <p className="text-muted-foreground leading-relaxed mb-8 max-w-2xl">
-                Prepetual leverages advanced artificial intelligence to understand your study materials 
-                and generate relevant, challenging questions. Our platform intelligently processes 
-                various document formats and languages.
-              </p>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                {[
-                  "Advanced OCR technology",
-                  "AI-powered content analysis",
-                  "Intelligent question generation",
-                  "Global language support",
-                  "Personalized learning paths",
-                  "Real-time progress analytics",
-                ].map((feature, index) => (
-                  <motion.div
-                    key={index}
-                    className="flex items-center gap-3"
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                  >
-                    <motion.div
-                      className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center"
-                      whileHover={{ scale: 1.2 }}
-                    >
-                      <Check className="w-3 h-3 text-primary" />
-                    </motion.div>
-                    <span className="text-foreground">{feature}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
           </motion.section>
 
           {/* CTA Section with animated background */}
