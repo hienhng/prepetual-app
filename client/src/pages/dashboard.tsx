@@ -219,7 +219,7 @@ function StreakCalendar({
       >
         {streakDay && !isSingleStreakDay && (
           <div 
-            className="absolute top-1/2 -translate-y-1/2 h-12 bg-orange-600"
+            className="absolute top-1/2 -translate-y-1/2 h-12 bg-orange-900"
             style={{
               left: (isStreakStart || wrapAtRowStart) ? 'calc(50% - 24px)' : '-4px',
               right: (isStreakEnd || wrapAtRowEnd) ? 'calc(50% - 24px)' : '-4px',
@@ -252,13 +252,15 @@ function StreakCalendar({
         </Button>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-          <div key={d} className="h-8 flex items-center justify-center text-xs font-medium text-muted-foreground">
-            {d}
-          </div>
-        ))}
-        {days}
+      <div className="max-h-[300px] overflow-y-auto pr-2 -mr-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+        <div className="grid grid-cols-7 gap-1 text-center">
+          {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
+            <div key={d} className="h-8 flex items-center justify-center text-xs font-medium text-muted-foreground sticky top-0 bg-background z-20">
+              {d}
+            </div>
+          ))}
+          {days}
+        </div>
       </div>
 
       <div className="flex items-center justify-center gap-8 pt-4 border-t">
