@@ -52,11 +52,14 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   useEffect(() => {
     if (activeJob?.status === "completed" && activeJob.text) {
       onTextExtracted(activeJob.text);
+    } else if (!activeJob) {
+      setUploadedFile(null);
+      setError(null);
     }
     if (activeJob?.status === "error") {
       setError(activeJob.error || "An error occurred while processing the file");
     }
-  }, [activeJob?.status, activeJob?.text, activeJob?.error, onTextExtracted]);
+  }, [activeJob?.status, activeJob?.text, activeJob?.error, onTextExtracted, activeJob]);
 
   const processFile = useCallback(async (file: File) => {
     setError(null);

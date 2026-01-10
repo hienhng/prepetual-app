@@ -66,7 +66,7 @@ export default function Create() {
   };
 
   const handleClearText = () => {
-    
+    setExtractedText("");
     setSourceMaterial({ type: null, text: null, imageDataUrl: null });
     clearJob();
     setIsReady(false);

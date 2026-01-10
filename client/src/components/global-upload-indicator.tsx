@@ -58,6 +58,8 @@ export function GlobalUploadIndicator() {
 
   const handleDismiss = () => {
     clearJob();
+    setExtractedText("");
+    setSourceMaterial({ type: null, text: null, imageDataUrl: null });
   };
 
   return (
