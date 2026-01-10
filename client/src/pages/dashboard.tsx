@@ -122,8 +122,8 @@ function StatCard({
                   {value}
                 </motion.p>
               </div>
-              <div className={`p-3 rounded-xl transition-all duration-500 flex items-center justify-center ${isActive ? "bg-white/20 backdrop-blur-sm scale-110 shadow-lg" : "bg-background/50 grayscale opacity-50"}`}>
-                <Icon className={`w-6 h-6 transition-colors ${isActive ? "text-white" : "text-muted-foreground"}`} />
+              <div className={`p-3 rounded-xl transition-all duration-500 flex items-center justify-center ${isActive ? "bg-white/20 backdrop-blur-sm scale-110 shadow-lg" : "bg-white/10 grayscale opacity-50"}`}>
+                <Icon className="w-6 h-6 transition-colors text-white" />
               </div>
             </div>
           </div>
@@ -191,7 +191,7 @@ function StreakCalendar({
 
   const days = [];
   for (let i = 0; i < firstDayOfMonth; i++) {
-    days.push(<div key={`empty-${i}`} className="h-12" />);
+    days.push(<div key={`empty-${i}`} className="h-10" />);
   }
   for (let day = 1; day <= daysInMonth; day++) {
     const streakDay = hasStreak(day);
@@ -240,13 +240,6 @@ function StreakCalendar({
     );
   }
 
-  // Pad the end of the grid to ensure exactly 6 rows (42 cells)
-  const totalCells = days.length;
-  const paddingNeeded = 42 - totalCells;
-  for (let i = 0; i < paddingNeeded; i++) {
-    days.push(<div key={`empty-end-${i}`} className="h-12" />);
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -259,15 +252,13 @@ function StreakCalendar({
         </Button>
       </div>
 
-      <div className="max-h-[300px] overflow-y-auto pr-2 -mr-2 hide-scrollbar">
-        <div className="grid grid-cols-7 gap-1 text-center">
-          {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
-            <div key={d} className="h-8 flex items-center justify-center text-xs font-medium text-muted-foreground sticky top-0 bg-background z-20">
-              {d}
-            </div>
-          ))}
-          {days}
-        </div>
+      <div className="grid grid-cols-7 gap-1 text-center">
+        {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
+          <div key={d} className="h-8 flex items-center justify-center text-xs font-medium text-muted-foreground">
+            {d}
+          </div>
+        ))}
+        {days}
       </div>
 
       <div className="flex items-center justify-center gap-8 pt-4 border-t">
