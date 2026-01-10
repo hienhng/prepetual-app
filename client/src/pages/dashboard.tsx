@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { 
   Plus, BookOpen, Play, Target, 
   Clock, FileText, Loader2, Sparkles, ArrowRight, 
-  Brain, GraduationCap, Lightbulb, ChartNoAxesColumn, ChevronLeft, ChevronRight, X
+  Brain, GraduationCap, Lightbulb, ChartNoAxesColumn
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
@@ -20,7 +20,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import type { Quiz } from "@shared/schema";
@@ -132,154 +131,6 @@ function StatCard({
         </CardContent>
       </Card>
     </motion.div>
-  );
-}
-
-function StreakCalendar({ 
-  streakDates, 
-  currentStreak,
-  longestStreak 
-}: { 
-  streakDates: string[]; 
-  currentStreak: number;
-  longestStreak: number;
-}) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  
-  const streakSet = useMemo(() => new Set(streakDates), [streakDates]);
-  
-  const daysInMonth = new Date(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth() + 1,
-    0
-  ).getDate();
-  
-  const firstDayOfMonth = new Date(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth(),
-    1
-  ).getDay();
-  
-  const monthName = currentMonth.toLocaleString("default", { month: "long", year: "numeric" });
-  
-  const goToPreviousMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
-  };
-  
-  const goToNextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
-  };
-  
-  const isToday = (day: number) => {
-    const today = new Date();
-    return (
-      day === today.getDate() &&
-      currentMonth.getMonth() === today.getMonth() &&
-      currentMonth.getFullYear() === today.getFullYear()
-    );
-  };
-  
-  const hasStreak = (day: number) => {
-    const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return streakSet.has(dateStr);
-  };
-
-  const isConsecutiveStreak = (day: number, direction: "prev" | "next") => {
-    const checkDay = direction === "prev" ? day - 1 : day + 1;
-    if (checkDay < 1 || checkDay > daysInMonth) return false;
-    const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(checkDay).padStart(2, "0")}`;
-    return streakSet.has(dateStr);
-  };
-
-  const days = [];
-  for (let i = 0; i < firstDayOfMonth; i++) {
-    days.push(<div key={`empty-${i}`} className="h-10" />);
-  }
-  for (let day = 1; day <= daysInMonth; day++) {
-    const streakDay = hasStreak(day);
-    const today = isToday(day);
-    const hasPrevStreak = streakDay && isConsecutiveStreak(day, "prev");
-    const hasNextStreak = streakDay && isConsecutiveStreak(day, "next");
-    const dayPosition = (firstDayOfMonth + day - 1) % 7;
-    const isStartOfRow = dayPosition === 0;
-    const isEndOfRow = dayPosition === 6;
-    
-    const isStreakStart = streakDay && !hasPrevStreak;
-    const isStreakEnd = streakDay && !hasNextStreak;
-    const isStreakMiddle = streakDay && hasPrevStreak && hasNextStreak;
-    const wrapAtRowStart = streakDay && hasPrevStreak && isStartOfRow;
-    const wrapAtRowEnd = streakDay && hasNextStreak && isEndOfRow;
-    
-    const showLeftBar = streakDay && (hasPrevStreak && !isStartOfRow);
-    const showRightBar = streakDay && (hasNextStreak && !isEndOfRow);
-    const isSingleStreakDay = isStreakStart && isStreakEnd;
-    
-    days.push(
-      <div
-        key={day}
-        className="h-12 flex items-center justify-center relative overflow-visible"
-      >
-        {streakDay && !isSingleStreakDay && (
-          <div 
-            className="absolute top-1/2 -translate-y-1/2 h-12 bg-orange-200 dark:bg-orange-900"
-            style={{
-              left: (isStreakStart || wrapAtRowStart) ? 'calc(50% - 24px)' : '-4px',
-              right: (isStreakEnd || wrapAtRowEnd) ? 'calc(50% - 24px)' : '-4px',
-              borderRadius: `${(isStreakStart || wrapAtRowStart) ? '9999px' : '0'} ${(isStreakEnd || wrapAtRowEnd) ? '9999px' : '0'} ${(isStreakEnd || wrapAtRowEnd) ? '9999px' : '0'} ${(isStreakStart || wrapAtRowStart) ? '9999px' : '0'}`,
-            }}
-          />
-        )}
-        <div
-          className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all z-10
-            ${streakDay ? "bg-orange-400 dark:bg-orange-700 text-white" : ""}
-            ${today && !streakDay ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
-            ${!streakDay && !today ? "text-muted-foreground" : ""}
-          `}
-        >
-          {day}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" size="icon" onClick={goToPreviousMonth} data-testid="button-prev-month">
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        <h3 className="text-lg font-semibold text-foreground">{monthName}</h3>
-        <Button variant="ghost" size="icon" onClick={goToNextMonth} data-testid="button-next-month">
-          <ChevronRight className="h-5 w-5" />
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-7 gap-1 text-center">
-        {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
-          <div key={d} className="h-8 flex items-center justify-center text-xs font-medium text-muted-foreground">
-            {d}
-          </div>
-        ))}
-        {days}
-      </div>
-
-      <div className="flex items-center justify-center gap-8 pt-4 border-t">
-        <div className="text-center">
-          <div className="flex items-center gap-2 justify-center mb-1">
-            <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" />
-            <span className="text-2xl font-bold text-foreground">{currentStreak}</span>
-          </div>
-          <p className="text-xs text-muted-foreground">Current Streak</p>
-        </div>
-        <div className="text-center">
-          <div className="flex items-center gap-2 justify-center mb-1">
-            <Target className="h-5 w-5 text-primary" />
-            <span className="text-2xl font-bold text-foreground">{longestStreak}</span>
-          </div>
-          <p className="text-xs text-muted-foreground">Longest Streak</p>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -564,7 +415,6 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial } = useQuiz();
   const { user } = useAuth();
-  const [streakCalendarOpen, setStreakCalendarOpen] = useState(false);
 
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
     queryKey: ["/api/quizzes"],
@@ -572,11 +422,6 @@ export default function Dashboard() {
 
   const { data: streakData } = useQuery<StreakData>({
     queryKey: ["/api/user/streak"],
-  });
-
-  const { data: streakHistory } = useQuery<string[]>({
-    queryKey: ["/api/user/streak-history"],
-    enabled: streakCalendarOpen,
   });
 
   const { data: userStats } = useQuery<UserStats>({
@@ -687,7 +532,7 @@ export default function Dashboard() {
                 icon={() => <FontAwesomeIcon icon={faFire} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-orange-500 to-orange-600"
                 isActive={streakData?.isActive ?? false}
-                onClick={() => setStreakCalendarOpen(true)}
+                onClick={() => setLocation("/streak")}
               />
               <StatCard
                 label="Accuracy"
@@ -763,21 +608,6 @@ export default function Dashboard() {
         {hasQuizzes && <LearningTipCard />}
       </motion.div>
 
-      <Dialog open={streakCalendarOpen} onOpenChange={setStreakCalendarOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" />
-              Your Streak Calendar
-            </DialogTitle>
-          </DialogHeader>
-          <StreakCalendar 
-            streakDates={streakHistory ?? []} 
-            currentStreak={streakData?.currentStreak ?? 0}
-            longestStreak={streakData?.longestStreak ?? 0}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
