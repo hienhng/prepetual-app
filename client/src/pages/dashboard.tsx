@@ -266,7 +266,7 @@ function StreakCalendar({
         </div>
         <div className="text-center">
           <div className="flex items-center gap-2 justify-center mb-1">
-            <Target className="h-5 w-5 text-primary" />
+            <Target className="h-5 w-5 text-primary" fill="currentColor" />
             <span className="text-2xl font-bold text-foreground">{longestStreak}</span>
           </div>
           <p className="text-xs text-muted-foreground">Longest Streak</p>
@@ -485,7 +485,7 @@ function QuizCard({
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="secondary" className="text-xs font-normal">
-                  <Target className="w-3 h-3 mr-1" />
+                  <Target className="w-3 h-3 mr-1" fill="currentColor" />
                   {questionCount} {questionCount === 1 ? "question" : "questions"}
                 </Badge>
                 {quiz.difficulty && (
@@ -508,14 +508,14 @@ function QuizCard({
                   onClick={onStudy}
                   data-testid={`button-study-${quiz.id}`}
                 >
-                  <BookOpen className="w-4 h-4" />
+                  <BookOpen className="w-4 h-4" fill="currentColor" />
                 </Button>
                 <Button
                   size="sm"
                   onClick={onTake}
                   data-testid={`button-take-${quiz.id}`}
                 >
-                  <Play className="w-4 h-4 mr-1" />
+                  <Play className="w-4 h-4 mr-1" fill="currentColor" />
                   Take
                 </Button>
               </div>
@@ -665,13 +665,13 @@ export default function Dashboard() {
               <StatCard
                 label="Created"
                 value={totalQuizzes}
-                icon={FileText}
+                icon={(props) => <FileText {...props} fill="currentColor" />}
                 gradient="bg-gradient-to-br from-blue-500 to-blue-600"
               />
               <StatCard
                 label="Questions"
                 value={totalQuestions}
-                icon={Target}
+                icon={(props) => <Target {...props} fill="currentColor" />}
                 gradient="bg-gradient-to-br from-violet-500 to-violet-600"
               />
               <StatCard
@@ -685,7 +685,7 @@ export default function Dashboard() {
               <StatCard
                 label="Accuracy"
                 value={userStats?.totalAttempts ? `${userStats.averageAccuracy}%` : "-"}
-                icon={ChartNoAxesColumn}
+                icon={(props) => <ChartNoAxesColumn {...props} fill="currentColor" />}
                 gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
                 isActive={(userStats?.totalAttempts ?? 0) > 0}
               />
@@ -701,7 +701,7 @@ export default function Dashboard() {
               <QuickActionCard
                 title="Create New Quiz"
                 description="Upload materials and generate questions"
-                icon={Plus}
+                icon={(props) => <Plus {...props} fill="currentColor" />}
                 onClick={() => setLocation("/create")}
                 variant="primary"
                 testId="card-create-quiz"
@@ -710,7 +710,7 @@ export default function Dashboard() {
                 <QuickActionCard
                   title="Continue Studying"
                   description={recentQuizzes[0].title}
-                  icon={BookOpen}
+                  icon={(props) => <BookOpen {...props} fill="currentColor" />}
                   onClick={() => handleStudyQuiz(recentQuizzes[0])}
                   testId="card-continue-studying"
                 />
