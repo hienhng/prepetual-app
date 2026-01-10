@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { FileUpload } from "@/components/file-upload";
 import { useQuiz } from "@/lib/quiz-context";
+import { useUpload } from "@/lib/upload-context";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -33,7 +34,8 @@ const itemVariants = {
 
 export default function Create() {
   const [, setLocation] = useLocation();
-  const { extractedText, setExtractedText, sourceMaterial } = useQuiz();
+  const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial } = useQuiz();
+  const { clearJob } = useUpload();
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -54,6 +56,8 @@ export default function Create() {
 
   const handleClearText = () => {
     setExtractedText("");
+    setSourceMaterial({ type: null, text: null, imageDataUrl: null });
+    clearJob();
     setIsReady(false);
   };
 
