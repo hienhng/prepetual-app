@@ -42,6 +42,7 @@ import Contact from "@/pages/contact";
 import FAQ from "@/pages/faq";
 import HelpCenter from "@/pages/help-center";
 import StreakComplete from "@/pages/streak-complete";
+import RevisionSummary from "@/pages/revision-summary";
 import NotFound from "@/pages/not-found";
 import { Footer } from "@/components/footer";
 
@@ -86,6 +87,7 @@ function AuthenticatedRouter() {
       <Route path="/share/:id" component={Share} />
       <Route path="/edit-quiz" component={EditQuiz} />
       <Route path="/streak-complete" component={StreakComplete} />
+      <Route path="/revision-summary" component={RevisionSummary} />
       <Route path="/terms" component={TermsOfService} />
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/about" component={About} />
@@ -112,6 +114,7 @@ function PublicRouter() {
       {/* Guest-accessible quiz experience (from shared links) */}
       <Route path="/quiz" component={Quiz} />
       <Route path="/results" component={Results} />
+      <Route path="/revision-summary" component={RevisionSummary} />
       {/* Auth flow pages */}
       <Route path="/verify-email" component={VerifyEmailPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />

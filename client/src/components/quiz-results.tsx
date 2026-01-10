@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 
 export function QuizResults() {
   const [, setLocation] = useLocation();
-  const { currentQuiz, quizResult, userAnswers, clearUserAnswers } = useQuiz();
+  const { currentQuiz, quizResult, userAnswers, clearUserAnswers, revisedQuestionsCount } = useQuiz();
   const { user } = useAuth();
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
@@ -79,7 +79,38 @@ export function QuizResults() {
   };
 
   const handleContinue = () => {
-    if (user && isFirstCompletionToday) {
+    // Check if we should show revision summary (weekly revisions > 5)
+    const WEEKLY_REVISIONS_KEY = "prepetual_weekly_revisions";
+    let shouldShowRevision = false;
+    
+    try {
+      const stored = localStorage.getItem(WEEKLY_REVISIONS_KEY);
+      if (stored) {
+        const data = JSON.parse(stored);
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+        const weekStart = new Date(now.setDate(diff));
+        weekStart.setHours(0, 0, 0, 0);
+        const currentWeekStart = weekStart.toISOString().split('T')[0];
+        
+        if (data.weekStart === currentWeekStart) {
+          // Add current quiz revisions to check threshold
+          const projectedTotal = data.count + revisedQuestionsCount;
+          shouldShowRevision = projectedTotal > 5 && revisedQuestionsCount > 0;
+        } else {
+          shouldShowRevision = revisedQuestionsCount > 5;
+        }
+      } else {
+        shouldShowRevision = revisedQuestionsCount > 5;
+      }
+    } catch (e) {
+      shouldShowRevision = revisedQuestionsCount > 5;
+    }
+    
+    if (shouldShowRevision) {
+      setLocation("/revision-summary");
+    } else if (user && isFirstCompletionToday) {
       setLocation("/streak-complete");
     } else {
       setLocation(user ? "/dashboard" : "/");

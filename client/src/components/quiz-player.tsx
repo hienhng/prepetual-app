@@ -14,7 +14,7 @@ import { MaterialViewerDialog, MaterialViewerSidebar } from "@/components/materi
 
 export function QuizPlayer() {
   const [, setLocation] = useLocation();
-  const { currentQuiz, userAnswers, setUserAnswer, setQuizResult, sourceMaterial, setRevisedQuestionsCount } = useQuiz();
+  const { currentQuiz, userAnswers, setUserAnswer, setQuizResult, sourceMaterial, setRevisedQuestionsCount, setRetryCorrectCount } = useQuiz();
   const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -149,6 +149,17 @@ export function QuizPlayer() {
     try {
       // Set the revised questions count for the results page
       setRevisedQuestionsCount(wrongAnswerIds.size);
+      
+      // Calculate how many retry questions were answered correctly
+      const retryQs = allQuestions.filter(q => q.isRetry);
+      let retryCorrect = 0;
+      for (const rq of retryQs) {
+        const answer = retryAnswers[rq.id];
+        if (answer && answer.toLowerCase().trim() === rq.correctAnswer.toLowerCase().trim()) {
+          retryCorrect++;
+        }
+      }
+      setRetryCorrectCount(retryCorrect);
       
       const response = await fetch("/api/submit-quiz", {
         method: "POST",
