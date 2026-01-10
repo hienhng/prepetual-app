@@ -5,6 +5,17 @@ import { Upload, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export function GlobalUploadIndicator() {
   const { activeJob, clearJob } = useUpload();
@@ -88,9 +99,27 @@ export function GlobalUploadIndicator() {
                   </div>
                   <div className="flex items-center justify-between mt-1">
                     <p className="text-xs text-muted-foreground">{activeJob.progress}%</p>
-                    <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={handleDismiss} data-testid="button-cancel-upload">
-                      Cancel
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" data-testid="button-cancel-upload">
+                          Cancel
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Cancel upload?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to cancel the document processing?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>No, keep it</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDismiss} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            Yes, cancel
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               )}
@@ -100,9 +129,27 @@ export function GlobalUploadIndicator() {
                   <Button size="sm" onClick={handleGoToQuiz}>
                     Continue
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={handleDismiss} data-testid="button-dismiss-upload">
-                    Dismiss
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="ghost" data-testid="button-dismiss-upload">
+                        Dismiss
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Remove document?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will remove the document from the queue. You'll need to upload it again to use it.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDismiss} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          Remove
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               )}
               

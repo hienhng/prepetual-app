@@ -12,6 +12,17 @@ import { Progress } from "@/components/ui/progress";
 import { FileUpload } from "@/components/file-upload";
 import { useQuiz } from "@/lib/quiz-context";
 import { useUpload } from "@/lib/upload-context";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -125,14 +136,31 @@ export default function Create() {
                             </p>
                           </div>
                         </div>
-                        <Button 
-                          size="icon" 
-                          variant="ghost" 
-                          onClick={handleClearText}
-                          data-testid="button-clear-text"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              size="icon" 
+                              variant="ghost" 
+                              data-testid="button-clear-text"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Remove document?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will remove the extracted content and you will need to upload it again to generate a quiz.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleClearText} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                Remove
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
 
                       {/* Preview */}
