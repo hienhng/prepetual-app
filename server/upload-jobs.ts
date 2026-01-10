@@ -106,8 +106,7 @@ async function extractTextFromImage(buffer: Buffer): Promise<string> {
 async function extractTextFromOfficeDocument(buffer: Buffer): Promise<string> {
   try {
     const result = await parseOffice(buffer);
-    const text = typeof result === 'string' ? result : String(result);
-    console.log("Office parser result type:", typeof result);
+    const text = typeof result === 'string' ? result : (result.toText ? result.toText() : String(result));
     console.log("Office parser text length:", text.length);
     console.log("Office parser text preview:", text.substring(0, 200));
     return text.trim();
