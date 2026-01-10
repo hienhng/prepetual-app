@@ -326,6 +326,9 @@ function StreakCalendar({
             {d}
           </div>
         ))}
+      </div>
+      {/* Fixed height calendar grid - 6 rows max */}
+      <div className="grid grid-cols-7 gap-1 text-center" style={{ minHeight: '312px' }}>
         {days}
       </div>
 
