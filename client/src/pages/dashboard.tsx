@@ -175,6 +175,13 @@ function StreakCalendar({
     return streakSet.has(dateStr);
   };
 
+  const isConsecutiveStreak = (day: number, direction: "prev" | "next") => {
+    const checkDay = direction === "prev" ? day - 1 : day + 1;
+    if (checkDay < 1 || checkDay > daysInMonth) return false;
+    const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(checkDay).padStart(2, "0")}`;
+    return streakSet.has(dateStr);
+  };
+
   const days = [];
   for (let i = 0; i < firstDayOfMonth; i++) {
     days.push(<div key={`empty-${i}`} className="h-10" />);
@@ -182,60 +189,38 @@ function StreakCalendar({
   for (let day = 1; day <= daysInMonth; day++) {
     const streakDay = hasStreak(day);
     const today = isToday(day);
+    const hasPrevStreak = streakDay && isConsecutiveStreak(day, "prev");
+    const hasNextStreak = streakDay && isConsecutiveStreak(day, "next");
+    const dayPosition = (firstDayOfMonth + day - 1) % 7;
+    const isStartOfRow = dayPosition === 0;
+    const isEndOfRow = dayPosition === 6;
+    
     days.push(
       <div
         key={day}
-        className={`h-10 w-10 flex items-center justify-center rounded-full text-sm font-medium transition-all
-          ${streakDay ? "bg-orange-500 text-white shadow-md shadow-orange-500/30" : ""}
-          ${today && !streakDay ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
-          ${!streakDay && !today ? "text-muted-foreground" : ""}
-        `}
+        className="h-10 flex items-center justify-center relative"
       >
-        {day}
+        {streakDay && hasPrevStreak && !isStartOfRow && (
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1/2 h-8 bg-orange-500/30 -z-10" />
+        )}
+        {streakDay && hasNextStreak && !isEndOfRow && (
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 h-8 bg-orange-500/30 -z-10" />
+        )}
+        <div
+          className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium transition-all z-10
+            ${streakDay ? "bg-orange-500 text-white shadow-md shadow-orange-500/30" : ""}
+            ${today && !streakDay ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
+            ${!streakDay && !today ? "text-muted-foreground" : ""}
+          `}
+        >
+          {day}
+        </div>
       </div>
     );
   }
 
-  const getStreakPaletteDays = () => {
-    if (currentStreak <= 0) return [];
-    const today = new Date();
-    const days = [];
-    for (let i = currentStreak - 1; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      days.push(date.getDate());
-    }
-    return days.slice(-7);
-  };
-
-  const streakPaletteDays = getStreakPaletteDays();
-
   return (
     <div className="space-y-6">
-      <div className="bg-orange-500/40 border-2 border-orange-500/50 rounded-full px-6 py-4 flex items-center justify-center gap-2">
-        {currentStreak > 0 ? (
-          <>
-            {streakPaletteDays.map((day, idx) => (
-              <div
-                key={idx}
-                className="w-10 h-10 flex items-center justify-center text-xl font-bold text-orange-800 dark:text-orange-200"
-              >
-                {day}
-              </div>
-            ))}
-            {currentStreak > 7 && (
-              <div className="flex items-center ml-2">
-                <Flame className="h-5 w-5 text-orange-600" />
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="text-orange-700 dark:text-orange-300 font-medium py-1">
-            Start your streak today!
-          </div>
-        )}
-      </div>
-
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={goToPreviousMonth} data-testid="button-prev-month">
           <ChevronLeft className="h-5 w-5" />
