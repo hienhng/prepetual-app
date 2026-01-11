@@ -689,6 +689,7 @@ export default function Home() {
   const { extractedText, setExtractedText } = useQuiz();
   const { isAuthenticated, isLoading } = useAuth();
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -698,6 +699,14 @@ export default function Home() {
 
   useEffect(() => {
     setExtractedText("");
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleTextExtracted = (text: string, isOfficeWithImages?: boolean, documentImages?: string[]) => {
@@ -994,17 +1003,22 @@ export default function Home() {
       </section>
 
       {/* Scroll to top button */}
-      <motion.button
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-6 right-6 w-10 h-10 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center z-50 hover:scale-110 active:scale-95 transition-transform"
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        whileHover={{ y: -2 }}
-        data-testid="button-scroll-to-top"
-        aria-label="Scroll to top"
-      >
-        <ArrowUp className="w-5 h-5" />
-      </motion.button>
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="fixed bottom-6 right-6 w-10 h-10 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center z-50 hover:scale-110 active:scale-95 transition-transform"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0 }}
+            whileHover={{ y: -2 }}
+            data-testid="button-scroll-to-top"
+            aria-label="Scroll to top"
+          >
+            <ArrowUp className="w-5 h-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </div>
