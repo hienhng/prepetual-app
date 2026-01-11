@@ -349,7 +349,7 @@ export class DatabaseStorage implements IStorage {
         .from(quizResults)
         .where(inArray(quizResults.quizId, quizIdList));
       completionDates = results
-        .filter(r => r.totalQuestions > 8)
+        .filter(r => r.totalQuestions >= 8)
         .map(r => r.completedAt);
     }
 
