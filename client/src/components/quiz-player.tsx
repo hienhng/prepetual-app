@@ -405,7 +405,7 @@ export function QuizPlayer() {
             return (
               <motion.button
                 key={option}
-                whileHover={!isChecked ? { scale: 1.02 } : {}}
+                whileHover={!isChecked ? { scale: 1.1 } : {}}
                 whileTap={!isChecked ? { scale: 0.98 } : {}}
                 onClick={() => handleSelectAnswer(option)}
                 disabled={isChecked}
