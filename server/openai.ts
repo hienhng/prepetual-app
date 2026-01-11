@@ -89,7 +89,7 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Actual answer A", "Actual answer B", "Actual answer C", "Actual answer D"], // 4 real answers, NO placeholders, NO prefixes like "A) " or "1. " from the start of each option.
+      "options": ["Actual answer A", "Actual answer B", "Actual answer C", "Actual answer D"], // 4 real answers, NO placeholders, NO prefixes like "A) " or "1. ". IMPORTANT: Ensure options are of roughly similar length and grammatical structure to avoid making the correct answer obvious.
       "correctAnswer": "The exact correct option text (without any prefix)",
       "explanation": "Brief explanation of why this is correct",
       "wrongAnswerExplanations": { // Keys must be EXACT wrong option text from options array
@@ -146,7 +146,7 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Actual answer A", "Actual answer B", "Actual answer C", "Actual answer D"], // 4 real answers, NO placeholders, NO prefixes like "A) " or "1. " from the start of each option.
+      "options": ["Actual answer A", "Actual answer B", "Actual answer C", "Actual answer D"], // 4 real answers, NO placeholders, NO prefixes like "A) " or "1. ". IMPORTANT: Ensure options are of roughly similar length and grammatical structure to avoid making the correct answer obvious.
       "correctAnswer": "The exact correct option text (without any prefix)",
       "explanation": "Brief explanation of why this is correct",
       "wrongAnswerExplanations": { // Keys must be EXACT wrong option text from options array
