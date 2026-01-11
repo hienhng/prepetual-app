@@ -49,7 +49,7 @@ function InteractiveFlashcard() {
           onDragEnd={handleDragEnd}
         >
           {/* Card content */}
-          <div className="flex-1 p-3 flex flex-col bg-card">
+          <div className="flex-1 p-3 flex flex-col bg-card rounded-xl overflow-hidden">
             <div className="text-center mb-1">
               <span className="text-[7px] uppercase tracking-widest text-muted-foreground font-bold">Question</span>
             </div>
@@ -68,7 +68,7 @@ function InteractiveFlashcard() {
           
           {/* Green "KNOW" overlay */}
           <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center bg-green-500 text-white rounded-xl pointer-events-none"
+            className="absolute inset-0 flex flex-col items-center justify-center bg-green-500 text-white rounded-xl pointer-events-none overflow-hidden"
             style={{ opacity: rightOpacity }}
           >
             <Check className="w-6 h-6 mb-1" />
@@ -77,7 +77,7 @@ function InteractiveFlashcard() {
           
           {/* Yellow "STILL LEARNING" overlay */}
           <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-500 text-white rounded-xl pointer-events-none"
+            className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-500 text-white rounded-xl pointer-events-none overflow-hidden"
             style={{ opacity: leftOpacity }}
           >
             <RotateCcw className="w-6 h-6 mb-1" />
