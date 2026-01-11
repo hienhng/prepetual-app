@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { 
   ArrowRight, CheckCircle2, Upload, Brain, Zap, BookOpen, 
   Share2, RotateCcw, Sparkles, Play, Eye, Target, Users, Star,
-  ChevronRight, Layers, GraduationCap, Trophy, Flame
+  ChevronRight, Layers, GraduationCap, Trophy, Flame, MousePointer2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -155,6 +155,71 @@ function HeroIllustration() {
             </div>
           </motion.div>
 
+          {/* Flashcard Card (Bottom) */}
+          <motion.div
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[180px] md:w-[200px] rounded-xl bg-card border shadow-xl"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.6 }}
+          >
+            <div className="p-4">
+              {/* Header */}
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+                  <BookOpen className="w-3 h-3 text-white" />
+                </div>
+                <span className="text-[10px] font-semibold text-foreground">Study Mode</span>
+              </div>
+              
+              {/* Flashcard mockup */}
+              <motion.div 
+                className="relative h-[80px] rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-center justify-center p-3"
+                animate={{ rotateY: [0, 180, 180, 0] }}
+                transition={{ duration: 4, repeat: Infinity, times: [0, 0.25, 0.5, 0.75] }}
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                <p className="text-[10px] text-center text-foreground font-medium leading-tight">
+                  What organelle produces ATP?
+                </p>
+              </motion.div>
+              
+              {/* Swipe buttons */}
+              <div className="flex justify-center gap-3 mt-3">
+                <div className="px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/30">
+                  <span className="text-[9px] font-medium text-rose-500">Learning</span>
+                </div>
+                <div className="px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/30">
+                  <span className="text-[9px] font-medium text-green-500">Known</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Animated Pointer */}
+            <motion.div
+              className="absolute -bottom-3 -right-3 z-10"
+              initial={{ opacity: 0, x: -20, y: -20 }}
+              animate={{ 
+                opacity: 1, 
+                x: [0, 10, 0],
+                y: [0, 5, 0]
+              }}
+              transition={{ 
+                opacity: { delay: 1.2 },
+                x: { delay: 1.2, duration: 1.5, repeat: Infinity },
+                y: { delay: 1.2, duration: 1.5, repeat: Infinity }
+              }}
+            >
+              <div className="relative">
+                <MousePointer2 className="w-6 h-6 text-foreground drop-shadow-lg" fill="white" />
+                <motion.div
+                  className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-primary"
+                  animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+
           {/* Floating sparkle decorations */}
           <motion.div
             className="absolute -top-4 left-1/2 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center"
@@ -165,7 +230,7 @@ function HeroIllustration() {
           </motion.div>
           
           <motion.div
-            className="absolute bottom-8 left-8 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center"
+            className="absolute top-1/2 -left-4 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center"
             animate={{ y: [0, 6, 0] }}
             transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
           >
@@ -173,7 +238,7 @@ function HeroIllustration() {
           </motion.div>
           
           <motion.div
-            className="absolute bottom-16 right-4 w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center"
+            className="absolute top-1/3 -right-2 w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center"
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 2, repeat: Infinity, delay: 1 }}
           >
