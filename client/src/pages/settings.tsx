@@ -69,14 +69,17 @@ export default function Settings() {
     enabled: !!user,
   });
 
-  useState(() => {
+  useEffect(() => {
     if (settings) {
       setFirstName(settings.firstName || "");
       setLastName(settings.lastName || "");
       setProfileImage(settings.profileImageUrl);
       setAutoDeleteFiles(settings.autoDeleteFiles || false);
+      if (settings.themePreference) {
+        setTheme(settings.themePreference);
+      }
     }
-  });
+  }, [settings]);
 
   const updateSettingsMutation = useMutation({
     mutationFn: async (data: {
