@@ -102,7 +102,7 @@ function InteractiveFlashcard() {
 
 function HeroIllustration() {
   return (
-    <div className="relative w-full h-[400px] md:h-[500px]">
+    <div className="relative w-full h-[400px] md:h-[500px] perspective-1000">
       {/* Background glow */}
       <motion.div 
         className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent rounded-[3rem] blur-3xl"
@@ -133,14 +133,16 @@ function HeroIllustration() {
       </svg>
 
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative w-full max-w-[380px] md:max-w-[450px] h-[320px] md:h-[380px]">
+        <div className="relative w-full max-w-[380px] md:max-w-[450px] h-[320px] md:h-[380px] perspective-1000">
           
           {/* Generation Board Card (Back) */}
           <motion.div
             className="absolute top-0 left-0 w-[200px] md:w-[220px] rounded-xl bg-card border shadow-xl"
-            initial={{ opacity: 0, x: -30, rotate: -8 }}
-            animate={{ opacity: 1, x: 0, rotate: -6 }}
+            initial={{ opacity: 0, x: -30, rotateY: -15, rotateX: 10, rotate: -8 }}
+            animate={{ opacity: 1, x: 0, rotateY: -10, rotateX: 5, rotate: -6 }}
+            whileHover={{ rotateY: -5, rotateX: 0, translateZ: 20 }}
             transition={{ delay: 0.3, duration: 0.6 }}
+            style={{ transformStyle: "preserve-3d" }}
           >
             <div className="p-4">
               {/* Header */}
@@ -187,9 +189,11 @@ function HeroIllustration() {
           {/* Quiz Question Card (Front) */}
           <motion.div
             className="absolute top-4 right-0 w-[220px] md:w-[250px] rounded-xl bg-card border-2 border-primary/20 shadow-2xl"
-            initial={{ opacity: 0, x: 30, rotate: 5 }}
-            animate={{ opacity: 1, x: 0, rotate: 3 }}
+            initial={{ opacity: 0, x: 30, rotateY: 15, rotateX: -5, rotate: 5 }}
+            animate={{ opacity: 1, x: 0, rotateY: 10, rotateX: -2, rotate: 3 }}
+            whileHover={{ rotateY: 5, rotateX: 0, translateZ: 30 }}
             transition={{ delay: 0.5, duration: 0.6, type: "spring" }}
+            style={{ transformStyle: "preserve-3d" }}
           >
             <div className="p-4">
               {/* Question header */}
