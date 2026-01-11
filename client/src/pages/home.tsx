@@ -647,7 +647,12 @@ export default function Home() {
                       initial: { scaleX: 0 },
                       hovered: { scaleX: 1 }
                     }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    transition={{ 
+                      type: "spring", 
+                      stiffness: 400, 
+                      damping: 30,
+                      restDelta: 0.001
+                    }}
                   />
                 </motion.span>
                 <br />
