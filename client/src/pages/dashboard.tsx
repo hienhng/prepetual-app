@@ -343,16 +343,14 @@ function StreakCalendar({
           {isActive ? (
             <p className="text-sm text-muted-foreground mt-1">{trivia}</p>
           ) : (
-            <div className="mt-2">
-              <Button 
-                size="sm" 
+            <div className="mt-1">
+              <button 
                 onClick={handleRandomQuiz}
-                className="bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-sm"
+                className="text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors p-0 h-auto bg-transparent border-0"
                 data-testid="button-random-quiz-streak"
               >
-                <Play className="w-4 h-4 mr-2" />
-                Jump into a Quiz
-              </Button>
+                Jump into a Quiz →
+              </button>
             </div>
           )}
         </div>
