@@ -27,7 +27,6 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   const { activeJob, startUpload, clearJob } = useUpload();
   const [uploadedFile, setUploadedFile] = useState<File | null>(() => {
     if (activeJob && activeJob.status === "completed") {
-      // Create a minimal File-like object that satisfies the type system
       return {
         name: activeJob.fileName,
         type: activeJob.fileType,
@@ -43,11 +42,12 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
     return null;
   });
   const [error, setError] = useState<string | null>(activeJob?.status === "error" ? (activeJob.error || "An error occurred") : null);
+  const [isUploading, setIsUploading] = useState(false);
   const { setSourceMaterial } = useQuiz();
 
-  const isLoading = activeJob?.status === "pending" || activeJob?.status === "processing";
-  const loadingMessage = activeJob?.message || "";
-  const processingProgress = activeJob?.progress || 0;
+  const isLoading = isUploading || activeJob?.status === "pending" || activeJob?.status === "processing";
+  const loadingMessage = activeJob?.message || (isUploading ? "Uploading file..." : "");
+  const processingProgress = activeJob?.progress || (isUploading ? 5 : 0);
 
   useEffect(() => {
     if (activeJob?.status === "completed") {
@@ -67,12 +67,15 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
 
   const processFile = useCallback(async (file: File) => {
     setError(null);
+    setIsUploading(true);
 
     try {
       await startUpload(file);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred while uploading the file");
       setUploadedFile(null);
+    } finally {
+      setIsUploading(false);
     }
   }, [startUpload]);
 

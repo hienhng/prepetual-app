@@ -16,7 +16,7 @@ type QuizMode = "generate" | "import";
 
 export function QuizGenerator() {
   const [, setLocation] = useLocation();
-  const { extractedText, sourceMaterial, setCurrentQuiz, setIsLoading, isLoading, setLoadingMessage, loadingMessage } = useQuiz();
+  const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial, setCurrentQuiz, setIsLoading, isLoading, setLoadingMessage, loadingMessage } = useQuiz();
   const { clearJob } = useUpload();
   const [showFullText, setShowFullText] = useState(false);
   const [questionCount, setQuestionCount] = useState(10);
@@ -73,6 +73,9 @@ export function QuizGenerator() {
       const quiz = await response.json();
       setCurrentQuiz(quiz);
       clearJob(); // Clear the upload job after quiz is created
+      // Clear extracted text and source material so create page shows upload box
+      setExtractedText("");
+      setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
       queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
       setLocation("/history");
     } catch (err) {
