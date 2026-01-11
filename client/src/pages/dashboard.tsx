@@ -324,12 +324,12 @@ function StreakCalendar({
       <div className={`flex items-center gap-5 p-4 rounded-lg ${
         isActive 
           ? "bg-orange-100 dark:bg-orange-950/50" 
-          : "bg-muted/50 grayscale opacity-70"
+          : "bg-muted/50"
       }`}>
         <motion.div
           animate={isActive ? { scale: [1, 1.1, 1] } : {}}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="flex-shrink-0"
+          className={`flex-shrink-0 ${!isActive ? "grayscale opacity-70" : ""}`}
         >
           <FontAwesomeIcon 
             icon={faFire} 
@@ -337,7 +337,7 @@ function StreakCalendar({
           />
         </motion.div>
         <div className="flex-1">
-          <span className={`text-4xl font-bold ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
+          <span className={`text-4xl font-bold ${isActive ? "text-foreground" : "text-muted-foreground grayscale opacity-70"}`}>
             {currentStreak} day streak
           </span>
           {isActive ? (
@@ -346,10 +346,10 @@ function StreakCalendar({
             <div className="mt-1">
               <button 
                 onClick={handleRandomQuiz}
-                className="text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors p-0 h-auto bg-transparent border-0"
+                className="text-sm font-bold text-orange-500 hover:text-orange-600 transition-colors p-0 h-auto bg-transparent border-0 uppercase"
                 data-testid="button-random-quiz-streak"
               >
-                Jump into a Quiz →
+                EXTEND STREAK →
               </button>
             </div>
           )}
