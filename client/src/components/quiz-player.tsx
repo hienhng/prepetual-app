@@ -84,6 +84,7 @@ export function QuizPlayer() {
   const originalQuestions = currentQuiz.questions;
   
   const allQuestions = useMemo(() => {
+    // Both users and guests get a 2nd attempt for wrong answers
     const wrongQuestions = originalQuestions.filter(q => wrongAnswerIds.current.has(q.id));
     const retryQuestions = wrongQuestions.map(q => ({
       ...q,
@@ -359,7 +360,7 @@ export function QuizPlayer() {
                   Correct answer: <span className="font-semibold text-foreground">{currentQuestion.correctAnswer}</span>
                 </p>
               )}
-              {currentQuestion.explanation && !isGuest && (
+              {currentQuestion.explanation && (!isGuest || isRetryQuestion) && (
                 <motion.p 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -369,11 +370,17 @@ export function QuizPlayer() {
                   {currentQuestion.explanation}
                 </motion.p>
               )}
+              {currentQuestion.explanation && isGuest && !isRetryQuestion && (
+                <div className="flex items-center gap-2 text-muted-foreground mt-3">
+                  <Lock className="h-3 w-3" />
+                  <p className="text-xs italic">Sign up to see explanations</p>
+                </div>
+              )}
             </div>
           </div>
         </motion.div>
         
-        {wrongExplanation && !isGuest && (
+        {wrongExplanation && (!isGuest || isRetryQuestion) && (
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
