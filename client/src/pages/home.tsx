@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { 
   ArrowRight, CheckCircle2, Upload, Brain, Zap, BookOpen, 
   Share2, RotateCcw, Sparkles, Play, Eye, Target, Users, Star,
-  ChevronRight, Layers, GraduationCap, Trophy, Flame, MousePointer2
+  ChevronRight, Layers, GraduationCap, Trophy, Flame, MousePointer2, Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -155,122 +155,89 @@ function HeroIllustration() {
             </div>
           </motion.div>
 
-          {/* Flashcard Card (Left side, lower) */}
+          {/* Study Mode Card (Left side, lower) - Matches real study.tsx UI */}
           <motion.div
-            className="absolute bottom-4 -left-4 md:left-0 w-[160px] md:w-[180px] rounded-xl bg-card border shadow-xl"
-            initial={{ opacity: 0, x: -30, rotate: 5 }}
+            className="absolute bottom-4 -left-4 md:left-0 w-[160px] md:w-[180px] rounded-xl bg-card border shadow-xl overflow-hidden"
+            initial={{ opacity: 0, x: -30, rotate: -9 }}
             animate={{ opacity: 1, x: 0, rotate: 3 }}
             transition={{ delay: 0.7, duration: 0.6 }}
           >
-            <div className="p-3">
-              {/* Header */}
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-5 h-5 rounded-md bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
-                  <BookOpen className="w-2.5 h-2.5 text-white" />
+            {/* Flashcard with swipe animation - matches real study UI */}
+            <div className="relative h-[130px]">
+              {/* Main flashcard content */}
+              <motion.div 
+                className="absolute inset-0 flex flex-col"
+                animate={{ 
+                  x: [0, 0, 40, 40, 0, 0, 0, -40, -40, 0, 0],
+                  rotate: [0, 0, 8, 8, 0, 0, 0, -8, -8, 0, 0]
+                }}
+                transition={{ 
+                  duration: 6, 
+                  repeat: Infinity,
+                  times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
+                }}
+              >
+                {/* Card content - question side */}
+                <div className="flex-1 p-3 flex flex-col">
+                  <div className="text-center mb-1">
+                    <span className="text-[7px] uppercase tracking-widest text-muted-foreground font-bold">Question</span>
+                  </div>
+                  <div className="flex-1 flex items-center justify-center">
+                    <p className="text-[10px] text-foreground font-semibold text-center leading-tight px-1">
+                      What is the powerhouse of the cell?
+                    </p>
+                  </div>
                 </div>
-                <span className="text-[9px] font-semibold text-foreground">Study Mode</span>
-              </div>
-              
-              {/* Flashcard stack with swipe animation */}
-              <div className="relative h-[70px]">
-                {/* Background cards (stack effect) */}
-                <div className="absolute inset-0 rounded-lg bg-muted/50 border transform rotate-2 translate-x-1" />
-                <div className="absolute inset-0 rounded-lg bg-muted/30 border transform -rotate-1 -translate-x-0.5" />
                 
-                {/* Main flashcard with swipe animation and color change */}
-                <motion.div 
-                  className="absolute inset-0 rounded-lg flex items-center justify-center p-2 overflow-hidden"
-                  animate={{ 
-                    x: [0, 0, 45, 45, 0, 0, 0, -45, -45, 0, 0],
-                    rotate: [0, 0, 10, 10, 0, 0, 0, -10, -10, 0, 0],
-                    backgroundColor: [
-                      'hsl(var(--primary) / 0.1)',
-                      'hsl(var(--primary) / 0.1)',
-                      'hsl(var(--primary) / 0.1)',
-                      'hsl(142 76% 36% / 0.35)',
-                      'hsl(var(--primary) / 0.1)',
-                      'hsl(var(--primary) / 0.1)',
-                      'hsl(var(--primary) / 0.1)',
-                      'hsl(var(--primary) / 0.1)',
-                      'hsl(25 95% 53% / 0.35)',
-                      'hsl(var(--primary) / 0.1)',
-                      'hsl(var(--primary) / 0.1)'
-                    ],
-                    borderColor: [
-                      'hsl(var(--primary) / 0.2)',
-                      'hsl(var(--primary) / 0.2)',
-                      'hsl(var(--primary) / 0.2)',
-                      'hsl(142 76% 36% / 0.6)',
-                      'hsl(var(--primary) / 0.2)',
-                      'hsl(var(--primary) / 0.2)',
-                      'hsl(var(--primary) / 0.2)',
-                      'hsl(var(--primary) / 0.2)',
-                      'hsl(25 95% 53% / 0.6)',
-                      'hsl(var(--primary) / 0.2)',
-                      'hsl(var(--primary) / 0.2)'
-                    ]
+                {/* Bottom hint - matches real UI */}
+                <div className="p-2 text-center border-t bg-muted/20">
+                  <p className="text-[7px] font-medium text-muted-foreground">
+                    Tap to reveal answer
+                  </p>
+                </div>
+                
+                {/* Green "KNOW" overlay - shows on right swipe */}
+                <motion.div
+                  className="absolute inset-0 flex flex-col items-center justify-center bg-green-500/90 text-white rounded-xl"
+                  animate={{
+                    opacity: [0, 0, 0.7, 1, 0, 0, 0, 0, 0, 0, 0]
                   }}
-                  style={{ borderWidth: 1 }}
                   transition={{ 
                     duration: 6, 
                     repeat: Infinity,
                     times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
                   }}
                 >
-                  {/* Card content - always visible except at peak swipe */}
-                  <motion.div
-                    className="text-center"
-                    animate={{
-                      opacity: [1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1]
-                    }}
-                    transition={{ 
-                      duration: 6, 
-                      repeat: Infinity,
-                      times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
-                    }}
-                  >
-                    <p className="text-[9px] text-foreground font-medium">Mitochondria</p>
-                  </motion.div>
-                  
-                  {/* "KNOW" overlay - only shows at full right swipe */}
-                  <motion.div
-                    className="absolute inset-0 flex items-center justify-center"
-                    animate={{
-                      opacity: [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
-                    }}
-                    transition={{ 
-                      duration: 6, 
-                      repeat: Infinity,
-                      times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
-                    }}
-                  >
-                    <span className="text-[11px] font-bold text-green-600">KNOW</span>
-                  </motion.div>
-                  
-                  {/* "STILL LEARNING" overlay - only shows at full left swipe */}
-                  <motion.div
-                    className="absolute inset-0 flex items-center justify-center"
-                    animate={{
-                      opacity: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
-                    }}
-                    transition={{ 
-                      duration: 6, 
-                      repeat: Infinity,
-                      times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
-                    }}
-                  >
-                    <span className="text-[9px] font-bold text-orange-500">STILL LEARNING</span>
-                  </motion.div>
+                  <Check className="w-6 h-6 mb-1" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Know</span>
                 </motion.div>
+                
+                {/* Yellow "STILL LEARNING" overlay - shows on left swipe */}
+                <motion.div
+                  className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-500/90 text-white rounded-xl"
+                  animate={{
+                    opacity: [0, 0, 0, 0, 0, 0, 0.7, 1, 0, 0, 0]
+                  }}
+                  transition={{ 
+                    duration: 6, 
+                    repeat: Infinity,
+                    times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
+                  }}
+                >
+                  <RotateCcw className="w-6 h-6 mb-1" />
+                  <span className="text-[8px] font-bold uppercase tracking-wider text-center px-2">Still Learning</span>
+                </motion.div>
+              </motion.div>
+            </div>
+            
+            {/* Progress bar - matches real study UI */}
+            <div className="px-3 pb-2">
+              <div className="flex items-center justify-between text-[7px] text-muted-foreground mb-1">
+                <span>Card 3 of 5</span>
+                <span className="text-green-600">2 known</span>
               </div>
-              
-              {/* Progress indicator */}
-              <div className="flex items-center justify-center gap-1 mt-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                <div className="w-1.5 h-1.5 rounded-full bg-muted" />
-                <div className="w-1.5 h-1.5 rounded-full bg-muted" />
+              <div className="h-1 bg-muted rounded-full overflow-hidden">
+                <div className="h-full w-3/5 bg-primary rounded-full" />
               </div>
             </div>
             
@@ -278,7 +245,7 @@ function HeroIllustration() {
             <motion.div
               className="absolute top-1/2 -right-6 z-10"
               animate={{ 
-                x: [0, 0, 30, 30, 0, 0, 0, -30, -30, 0, 0],
+                x: [0, 0, 25, 25, 0, 0, 0, -25, -25, 0, 0],
                 y: [0, 0, -2, -2, 0, 0, 0, -2, -2, 0, 0]
               }}
               transition={{ 
