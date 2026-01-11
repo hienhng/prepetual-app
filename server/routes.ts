@@ -201,6 +201,8 @@ export async function registerRoutes(
         message: job.message,
         text: job.text,
         error: job.error,
+        isOfficeWithImages: job.isOfficeWithImages || false,
+        documentImages: job.documentImages || [],
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to get job status" });
@@ -226,7 +228,7 @@ export async function registerRoutes(
         });
       }
 
-      const { text, questionCount, questionTypes, difficulty } = validation.data;
+      const { text, questionCount, questionTypes, difficulty, documentImages } = validation.data;
       const { sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
 
@@ -235,6 +237,7 @@ export async function registerRoutes(
         questionCount,
         questionTypes,
         difficulty: difficulty as DifficultyLevel,
+        documentImages: documentImages || undefined,
       });
 
       const quiz = await storage.saveQuiz({
@@ -261,7 +264,7 @@ export async function registerRoutes(
 
   app.post("/api/import-quiz", isAuthenticated, async (req: any, res) => {
     try {
-      const { text, sourceImageUrl } = req.body;
+      const { text, sourceImageUrl, documentImages } = req.body;
       const userId = req.user.claims.sub;
       
       if (!text || typeof text !== "string") {
@@ -276,7 +279,10 @@ export async function registerRoutes(
         });
       }
 
-      const { questions, title } = await importExistingQuiz({ text });
+      const { questions, title } = await importExistingQuiz({ 
+        text,
+        documentImages: Array.isArray(documentImages) ? documentImages : undefined,
+      });
 
       const quiz = await storage.saveQuiz({
         userId,

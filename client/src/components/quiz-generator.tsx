@@ -25,6 +25,9 @@ export function QuizGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<QuizMode>("generate");
 
+  const isOfficeWithImages = sourceMaterial?.isOfficeWithImages || false;
+  const documentImages = sourceMaterial?.documentImages || [];
+
   const toggleQuestionType = (type: QuestionType) => {
     setQuestionTypes((prev) => {
       if (prev.includes(type)) {
@@ -43,6 +46,8 @@ export function QuizGenerator() {
     
     if (mode === "import") {
       setLoadingMessage("AI is parsing your questions and finding answers...");
+    } else if (isOfficeWithImages) {
+      setLoadingMessage("AI is analyzing text and visual content...");
     } else {
       setLoadingMessage("AI is analyzing your content...");
     }
@@ -51,8 +56,8 @@ export function QuizGenerator() {
       const endpoint = mode === "import" ? "/api/import-quiz" : "/api/generate-quiz";
       const sourceImageUrl = sourceMaterial.type === "image" ? sourceMaterial.imageDataUrl : null;
       const body = mode === "import" 
-        ? { text: extractedText, sourceImageUrl }
-        : { text: extractedText, questionCount, questionTypes, difficulty, sourceImageUrl };
+        ? { text: extractedText, sourceImageUrl, documentImages: isOfficeWithImages ? documentImages : undefined }
+        : { text: extractedText, questionCount, questionTypes, difficulty, sourceImageUrl, documentImages: isOfficeWithImages ? documentImages : undefined };
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -83,52 +88,103 @@ export function QuizGenerator() {
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <FileText className="h-5 w-5 text-primary" />
-              Extracted Content
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-muted/50 rounded-md p-4">
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {showFullText ? extractedText : truncatedText}
-                {!showFullText && hasMoreText && "..."}
-              </p>
-              {hasMoreText && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="mt-2 gap-1"
-                  onClick={() => setShowFullText(!showFullText)}
-                  data-testid="button-toggle-text"
-                >
-                  {showFullText ? (
-                    <>
-                      <ChevronUp className="h-4 w-4" />
-                      Show less
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="h-4 w-4" />
-                      Show full text
-                    </>
+      {isOfficeWithImages ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="border-primary/30 bg-primary/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Sparkles className="h-5 w-5 text-primary" />
+                Visual Document Analysis
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-background rounded-md p-4 border border-primary/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <FileText className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Office Document with Visual Content</p>
+                    <p className="text-sm text-muted-foreground">
+                      {documentImages.length} image{documentImages.length !== 1 ? 's' : ''} and graphics detected
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {documentImages.slice(0, 4).map((img, index) => (
+                    <div key={index} className="w-16 h-16 rounded-md overflow-hidden border border-muted bg-muted">
+                      <img 
+                        src={img} 
+                        alt={`Document image ${index + 1}`} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                  {documentImages.length > 4 && (
+                    <div className="w-16 h-16 rounded-md border border-muted bg-muted flex items-center justify-center">
+                      <span className="text-xs text-muted-foreground font-medium">+{documentImages.length - 4}</span>
+                    </div>
                   )}
-                </Button>
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              {extractedText?.length.toLocaleString()} characters extracted
-            </p>
-          </CardContent>
-        </Card>
-      </motion.div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  AI will analyze both text and visual content (charts, diagrams, images) to generate comprehensive quiz questions.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <FileText className="h-5 w-5 text-primary" />
+                Extracted Content
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-muted/50 rounded-md p-4">
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {showFullText ? extractedText : truncatedText}
+                  {!showFullText && hasMoreText && "..."}
+                </p>
+                {hasMoreText && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2 gap-1"
+                    onClick={() => setShowFullText(!showFullText)}
+                    data-testid="button-toggle-text"
+                  >
+                    {showFullText ? (
+                      <>
+                        <ChevronUp className="h-4 w-4" />
+                        Show less
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="h-4 w-4" />
+                        Show full text
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                {extractedText?.length.toLocaleString()} characters extracted
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

@@ -173,6 +173,7 @@ export const generateQuizRequestSchema = z.object({
   questionCount: z.number().min(3).max(20).default(10),
   questionTypes: z.array(z.enum(["multiple_choice", "true_false", "short_answer"])).min(1),
   difficulty: z.enum(["easy", "medium", "hard"]).default("medium"),
+  documentImages: z.array(z.string()).optional(),
 });
 
 export type GenerateQuizRequest = z.infer<typeof generateQuizRequestSchema>;

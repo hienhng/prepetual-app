@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface FileUploadProps {
-  onTextExtracted: (text: string) => void;
+  onTextExtracted: (text: string, isOfficeWithImages?: boolean, documentImages?: string[]) => void;
 }
 
 export function FileUpload({ onTextExtracted }: FileUploadProps) {
@@ -50,8 +50,12 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   const processingProgress = activeJob?.progress || 0;
 
   useEffect(() => {
-    if (activeJob?.status === "completed" && activeJob.text) {
-      onTextExtracted(activeJob.text);
+    if (activeJob?.status === "completed") {
+      if (activeJob.isOfficeWithImages && activeJob.documentImages && activeJob.documentImages.length > 0) {
+        onTextExtracted(activeJob.text || "", true, activeJob.documentImages);
+      } else if (activeJob.text) {
+        onTextExtracted(activeJob.text, false, []);
+      }
     } else if (!activeJob) {
       setUploadedFile(null);
       setError(null);
@@ -59,7 +63,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
     if (activeJob?.status === "error") {
       setError(activeJob.error || "An error occurred while processing the file");
     }
-  }, [activeJob?.status, activeJob?.text, activeJob?.error, onTextExtracted, activeJob]);
+  }, [activeJob?.status, activeJob?.text, activeJob?.error, activeJob?.isOfficeWithImages, activeJob?.documentImages, onTextExtracted, activeJob]);
 
   const processFile = useCallback(async (file: File) => {
     setError(null);

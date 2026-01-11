@@ -7,6 +7,8 @@ interface SourceMaterial {
   type: SourceMaterialType;
   text: string | null;
   imageDataUrl: string | null;
+  isOfficeWithImages?: boolean;
+  documentImages?: string[];
 }
 
 interface QuizState {
@@ -46,7 +48,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     
     return {
       extractedText: savedText || null,
-      sourceMaterial: savedMaterial ? JSON.parse(savedMaterial) : { type: null, text: null, imageDataUrl: null },
+      sourceMaterial: savedMaterial ? JSON.parse(savedMaterial) : { type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] },
       currentQuiz: null,
       quizResult: null,
       userAnswers: {},
@@ -126,7 +128,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem("source_material");
     setState({
       extractedText: null,
-      sourceMaterial: { type: null, text: null, imageDataUrl: null },
+      sourceMaterial: { type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] },
       currentQuiz: null,
       quizResult: null,
       userAnswers: {},

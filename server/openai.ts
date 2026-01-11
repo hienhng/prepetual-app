@@ -24,13 +24,15 @@ interface QuizGenerationParams {
   questionCount: number;
   questionTypes: QuestionType[];
   difficulty?: DifficultyLevel;
+  documentImages?: string[];
 }
 
 export async function generateQuizQuestions(
   params: QuizGenerationParams,
 ): Promise<{ questions: Question[]; title: string }> {
-  const { text, questionCount, questionTypes, difficulty = "medium" } = params;
+  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [] } = params;
 
+  const hasImages = documentImages.length > 0;
   const truncatedText =
     text.length > 8000 ? text.substring(0, 8000) + "..." : text;
 
@@ -89,13 +91,77 @@ OUTPUT FORMAT (JSON):
 
 Respond with ONLY valid JSON, no markdown or additional text.`;
 
+  const visionPrompt = hasImages ? `You are an expert educator. Based on the following document content AND the attached images/diagrams/charts from the document, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material.
+
+IMPORTANT: Carefully analyze ALL attached images. These may contain:
+- Charts, graphs, and diagrams with important data
+- Illustrations and figures that explain concepts
+- Tables with information
+- Screenshots or visual examples
+
+Generate questions that test understanding of BOTH the text content AND the visual content from the images.
+
+TEXT CONTENT:
+${truncatedText}
+
+LANGUAGE HANDLING:
+- Detect the primary language of the content above (English, Vietnamese, or other)
+- Generate ALL questions, options, correct answers, explanations, and the QUIZ TITLE in the SAME language as the content
+- If the content is in Vietnamese, write everything in Vietnamese
+- If the content is in English, write everything in English
+
+REQUIREMENTS:
+1. Generate exactly ${questionCount} questions
+2. Use these question types: ${questionTypeDescriptions}
+3. Distribute question types roughly evenly among the selected types
+4. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
+5. Include an explanation for each answer
+6. For multiple choice, always provide exactly 4 options labeled A, B, C, D
+7. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
+
+OUTPUT FORMAT (JSON):
+{
+  "title": "A short descriptive title for the quiz",
+  "questions": [
+    {
+      "type": "multiple_choice" | "true_false" | "short_answer",
+      "question": "The question text",
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "correctAnswer": "The exact correct option text (without any prefix)",
+      "explanation": "Brief explanation of why this is correct"
+    }
+  ]
+}
+
+Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
+
   try {
     const response = await pRetry(
       async () => {
+        let messages: any[];
+        
+        if (hasImages) {
+          const imageContent = documentImages.slice(0, 6).map(imageUrl => ({
+            type: "image_url" as const,
+            image_url: { url: imageUrl, detail: "high" as const }
+          }));
+          
+          messages = [{
+            role: "user",
+            content: [
+              { type: "text", text: visionPrompt },
+              ...imageContent
+            ]
+          }];
+          
+          console.log(`Generating quiz with ${imageContent.length} images using vision model`);
+        } else {
+          messages = [{ role: "user", content: prompt }];
+        }
+        
         const completion = await openai.chat.completions.create({
-          // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-          model: "gpt-5",
-          messages: [{ role: "user", content: prompt }],
+          model: hasImages ? "gpt-4.1" : "gpt-5",
+          messages,
           response_format: { type: "json_object" },
           max_completion_tokens: 8192,
         });
@@ -217,13 +283,15 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
 
 interface ImportQuizParams {
   text: string;
+  documentImages?: string[];
 }
 
 export async function importExistingQuiz(
   params: ImportQuizParams,
 ): Promise<{ questions: Question[]; title: string }> {
-  const { text } = params;
-
+  const { text, documentImages = [] } = params;
+  
+  const hasImages = documentImages.length > 0;
   const truncatedText =
     text.length > 8000 ? text.substring(0, 8000) + "..." : text;
 
@@ -268,12 +336,72 @@ OUTPUT FORMAT (JSON):
 
 Respond with ONLY valid JSON, no markdown or additional text.`;
 
+  const visionPrompt = hasImages ? `You are an expert educator. The following content appears to be from an existing exam, quiz, or worksheet that already contains questions with answer options. The content includes IMAGES that may contain questions, diagrams, or visual content that are part of the quiz.
+
+Your task is to:
+1. Parse and extract ALL existing questions from BOTH the text content AND the attached images
+2. Questions may appear in the images - extract those too
+3. Identify the correct answer for each question using your knowledge
+4. Provide a brief explanation for why each answer is correct
+5. Generate a short, descriptive title (max 6 words) for this quiz.
+
+TEXT CONTENT:
+${truncatedText}
+
+LANGUAGE HANDLING:
+- Detect the primary language of the content (English, Vietnamese, or other)
+- Preserve the original language of the questions and options
+- Write explanations and the QUIZ TITLE in the SAME language as the content
+
+IMPORTANT INSTRUCTIONS:
+- Extract questions EXACTLY as they appear (from both text and images)
+- For multiple choice, preserve all answer options as they appear
+- Use your knowledge to determine the correct answer - DO NOT just guess
+- Convert all questions to multiple_choice type since they appear to have options
+
+OUTPUT FORMAT (JSON):
+{
+  "title": "A short descriptive title for the quiz",
+  "questions": [
+    {
+      "type": "multiple_choice",
+      "question": "The exact question text as it appears",
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "correctAnswer": "The exact full text of the correct option (without any prefix)",
+      "explanation": "Brief explanation of why this is the correct answer"
+    }
+  ]
+}
+
+Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
+
   try {
     const response = await pRetry(
       async () => {
+        let messages: any[];
+        
+        if (hasImages) {
+          const imageContent = documentImages.slice(0, 6).map(imageUrl => ({
+            type: "image_url" as const,
+            image_url: { url: imageUrl, detail: "high" as const }
+          }));
+          
+          messages = [{
+            role: "user",
+            content: [
+              { type: "text", text: visionPrompt },
+              ...imageContent
+            ]
+          }];
+          
+          console.log(`Importing quiz with ${imageContent.length} images using vision model`);
+        } else {
+          messages = [{ role: "user", content: prompt }];
+        }
+        
         const completion = await openai.chat.completions.create({
-          model: "gpt-5",
-          messages: [{ role: "user", content: prompt }],
+          model: hasImages ? "gpt-4.1" : "gpt-5",
+          messages,
           response_format: { type: "json_object" },
           max_completion_tokens: 8192,
         });

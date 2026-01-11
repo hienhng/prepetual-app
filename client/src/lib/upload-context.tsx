@@ -10,6 +10,8 @@ interface UploadJob {
   text?: string;
   error?: string;
   imageDataUrl?: string;
+  isOfficeWithImages?: boolean;
+  documentImages?: string[];
 }
 
 interface UploadContextType {
@@ -81,6 +83,8 @@ export function UploadProvider({ children }: { children: ReactNode }) {
         message: data.message,
         text: data.text,
         error: data.error,
+        isOfficeWithImages: data.isOfficeWithImages || false,
+        documentImages: data.documentImages || [],
       };
       
       saveJob(updatedJob);

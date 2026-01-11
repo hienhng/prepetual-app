@@ -32,7 +32,7 @@ export default function Home() {
     setExtractedText("");
   }, []);
 
-  const handleTextExtracted = (text: string) => {
+  const handleTextExtracted = (text: string, isOfficeWithImages?: boolean, documentImages?: string[]) => {
     setExtractedText(text);
   };
 

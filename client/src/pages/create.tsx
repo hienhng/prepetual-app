@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Upload, FileText, Image, Sparkles, ArrowRight, 
-  CheckCircle2, Loader2, X, FileUp, Wand2
+  CheckCircle2, Loader2, X, FileUp, Wand2, Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -71,8 +71,25 @@ export default function Create() {
     }
   }, [extractedText]);
 
-  const handleTextExtracted = (text: string) => {
+  const handleTextExtracted = (text: string, isOfficeWithImages?: boolean, documentImages?: string[]) => {
     setExtractedText(text);
+    if (isOfficeWithImages && documentImages && documentImages.length > 0) {
+      setSourceMaterial({
+        type: "document",
+        text: text,
+        imageDataUrl: null,
+        isOfficeWithImages: true,
+        documentImages: documentImages,
+      });
+    } else if (text) {
+      setSourceMaterial({
+        type: "document",
+        text: text,
+        imageDataUrl: null,
+        isOfficeWithImages: false,
+        documentImages: [],
+      });
+    }
   };
 
   const handleContinueToGenerate = () => {
@@ -81,7 +98,7 @@ export default function Create() {
 
   const handleClearText = () => {
     setExtractedText("");  
-    setSourceMaterial({ type: null, text: null, imageDataUrl: null });
+    setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
     clearJob();
     setIsReady(false);
   };
@@ -178,11 +195,41 @@ export default function Create() {
                       </div>
 
                       {/* Preview */}
-                      <div className="p-4 rounded-lg bg-background border">
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          {getPreviewText(extractedText || "", 300)}
-                        </p>
-                      </div>
+                      {sourceMaterial?.isOfficeWithImages && sourceMaterial?.documentImages && sourceMaterial.documentImages.length > 0 ? (
+                        <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                          <div className="flex items-center gap-3 mb-3">
+                            <Sparkles className="w-5 h-5 text-primary" />
+                            <p className="text-sm font-medium text-foreground">
+                              Document with visual content detected
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {sourceMaterial.documentImages.slice(0, 4).map((img, index) => (
+                              <div key={index} className="w-14 h-14 rounded-md overflow-hidden border border-muted bg-muted">
+                                <img 
+                                  src={img} 
+                                  alt={`Document image ${index + 1}`} 
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                            {sourceMaterial.documentImages.length > 4 && (
+                              <div className="w-14 h-14 rounded-md border border-muted bg-muted flex items-center justify-center">
+                                <span className="text-xs text-muted-foreground font-medium">+{sourceMaterial.documentImages.length - 4}</span>
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            AI will analyze charts, diagrams, and images along with text content
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="p-4 rounded-lg bg-background border">
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {getPreviewText(extractedText || "", 300)}
+                          </p>
+                        </div>
+                      )}
 
                       {/* File Type Badge */}
                       <div className="flex items-center gap-2">
