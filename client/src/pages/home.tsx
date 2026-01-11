@@ -68,7 +68,7 @@ function InteractiveFlashcard() {
           
           {/* Green "KNOW" overlay */}
           <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center bg-green-500/90 text-white rounded-xl pointer-events-none"
+            className="absolute inset-0 flex flex-col items-center justify-center bg-green-500 text-white rounded-xl pointer-events-none"
             style={{ opacity: rightOpacity }}
           >
             <Check className="w-6 h-6 mb-1" />
@@ -77,7 +77,7 @@ function InteractiveFlashcard() {
           
           {/* Yellow "STILL LEARNING" overlay */}
           <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-500/90 text-white rounded-xl pointer-events-none"
+            className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-500 text-white rounded-xl pointer-events-none"
             style={{ opacity: leftOpacity }}
           >
             <RotateCcw className="w-6 h-6 mb-1" />
