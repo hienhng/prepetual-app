@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { 
   ArrowRight, CheckCircle2, Upload, Brain, Zap, BookOpen, 
   Share2, RotateCcw, Sparkles, Play, Eye, Target, Users, Star,
-  ChevronRight, Layers, GraduationCap, Trophy, Flame, MousePointer2, Check
+  ChevronRight, ChevronLeft, Layers, GraduationCap, Trophy, Flame, MousePointer2, Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -287,173 +287,215 @@ function HeroIllustration() {
   );
 }
 
-function TransformationDemo() {
-  const [step, setStep] = useState(0);
-  const containerRef = useRef(null);
-  const isInView = useInView(containerRef, { once: true, margin: "-100px" });
-  
-  useEffect(() => {
-    if (!isInView) return;
-    const timer = setInterval(() => {
-      setStep((prev) => (prev + 1) % 4);
-    }, 3000);
-    return () => clearInterval(timer);
-  }, [isInView]);
+function HowItWorksGallery() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeStep, setActiveStep] = useState(0);
 
   const stages = [
-    { icon: Upload, label: "Upload", desc: "Drop your document", color: "text-blue-500", bg: "bg-blue-500/10" },
-    { icon: Zap, label: "Extract", desc: "AI reads content", color: "text-amber-500", bg: "bg-amber-500/10" },
-    { icon: Brain, label: "Generate", desc: "Creates questions", color: "text-purple-500", bg: "bg-purple-500/10" },
-    { icon: GraduationCap, label: "Learn", desc: "Study & master", color: "text-green-500", bg: "bg-green-500/10" },
+    { 
+      icon: Upload, 
+      label: "Upload", 
+      desc: "Drop your study materials (PDF, Images, Word, PPT)", 
+      color: "text-blue-500", 
+      bg: "bg-blue-500/10",
+      content: (
+        <div className="text-center">
+          <motion.div 
+            className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-blue-500/10 border-2 border-dashed border-blue-500/30 flex items-center justify-center"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <Upload className="w-10 h-10 text-blue-500" />
+          </motion.div>
+          <p className="text-lg font-semibold text-foreground mb-2">Drop your study materials</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {['PDF', 'Images', 'Word', 'PowerPoint'].map((f) => (
+              <Badge key={f} variant="secondary" className="text-xs">{f}</Badge>
+            ))}
+          </div>
+        </div>
+      )
+    },
+    { 
+      icon: Eye, 
+      label: "Extract", 
+      desc: "Our AI reads and analyzes your content instantly", 
+      color: "text-amber-500", 
+      bg: "bg-amber-500/10",
+      content: (
+        <div className="w-full max-w-md">
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <motion.div 
+                key={i} 
+                className="h-4 bg-gradient-to-r from-muted to-transparent rounded-full"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: i * 0.2, duration: 0.5 }}
+                style={{ transformOrigin: "left" }}
+              />
+            ))}
+          </div>
+          <motion.div 
+            className="mt-6 flex items-center gap-2 text-amber-500"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <Eye className="w-5 h-5" />
+            <span className="text-sm font-medium">Reading and analyzing...</span>
+          </motion.div>
+        </div>
+      )
+    },
+    { 
+      icon: Brain, 
+      label: "Generate", 
+      desc: "AI transforms text into meaningful questions", 
+      color: "text-purple-500", 
+      bg: "bg-purple-500/10",
+      content: (
+        <div className="w-full max-w-md space-y-3">
+          {[
+            { type: 'Multiple Choice', q: 'What is the main concept?' },
+            { type: 'True/False', q: 'This statement is correct?' },
+          ].map((item, i) => (
+            <motion.div 
+              key={i}
+              className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/20"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.3 }}
+            >
+              <Badge variant="outline" className="mb-2 text-purple-500 border-purple-500/30 text-xs">
+                {item.type}
+              </Badge>
+              <p className="text-sm font-medium text-foreground">{item.q}</p>
+            </motion.div>
+          ))}
+          <motion.p 
+            className="text-sm text-purple-500 flex items-center gap-2"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <Brain className="w-4 h-4" />
+            Generating more questions...
+          </motion.p>
+        </div>
+      )
+    },
+    { 
+      icon: GraduationCap, 
+      label: "Learn", 
+      desc: "Master your subjects with quizzes and flashcards", 
+      color: "text-green-500", 
+      bg: "bg-green-500/10",
+      content: (
+        <div className="text-center">
+          <motion.div 
+            className="w-24 h-24 mx-auto mb-4 rounded-full bg-green-500/10 flex items-center justify-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring" }}
+          >
+            <Trophy className="w-10 h-10 text-green-500" />
+          </motion.div>
+          <p className="text-lg font-semibold text-foreground mb-2">Ready to learn!</p>
+          <div className="flex justify-center gap-3">
+            <Badge className="bg-green-500/10 text-green-600 border-green-500/30">
+              <Play className="w-3 h-3 mr-1" /> Quiz
+            </Badge>
+            <Badge className="bg-orange-500/10 text-orange-600 border-orange-500/30">
+              <BookOpen className="w-3 h-3 mr-1" /> Study
+            </Badge>
+          </div>
+        </div>
+      )
+    },
   ];
 
+  const handleScroll = () => {
+    if (!containerRef.current) return;
+    const scrollLeft = containerRef.current.scrollLeft;
+    const width = containerRef.current.offsetWidth;
+    const index = Math.round(scrollLeft / width);
+    setActiveStep(index);
+  };
+
   return (
-    <div ref={containerRef} className="relative">
-      <div className="flex items-center justify-between mb-8">
-        {stages.map((s, i) => (
-          <div key={s.label} className="flex-1 flex items-center">
-            <motion.div 
-              className={`relative z-10 flex flex-col items-center ${i <= step ? 'opacity-100' : 'opacity-40'}`}
-              animate={{ scale: i === step ? 1.1 : 1 }}
-              transition={{ type: "spring" }}
-            >
-              <motion.div 
-                className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl ${s.bg} flex items-center justify-center mb-2 border-2 ${
-                  i === step ? 'border-primary shadow-lg' : 'border-transparent'
-                }`}
-                animate={i === step ? { y: [0, -5, 0] } : {}}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              >
-                <s.icon className={`w-6 h-6 md:w-7 md:h-7 ${s.color}`} />
-              </motion.div>
-              <span className="text-xs md:text-sm font-semibold text-foreground">{s.label}</span>
-              <span className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">{s.desc}</span>
-            </motion.div>
-            {i < stages.length - 1 && (
-              <div className="flex-1 h-0.5 mx-2 md:mx-4 relative overflow-hidden">
-                <div className="absolute inset-0 bg-muted" />
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-r from-primary to-primary/50"
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: i < step ? 1 : 0 }}
-                  style={{ transformOrigin: "left" }}
-                  transition={{ duration: 0.5 }}
-                />
-              </div>
-            )}
+    <div className="relative">
+      <div 
+        ref={containerRef}
+        onScroll={handleScroll}
+        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-6 pb-12"
+        style={{ scrollBehavior: 'smooth' }}
+      >
+        {stages.map((stage, i) => (
+          <div key={stage.label} className="min-w-full snap-center px-4">
+            <Card className="border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 overflow-hidden h-full min-h-[400px]">
+              <CardContent className="p-8 flex flex-col items-center justify-center text-center h-full">
+                <div className="mb-6">
+                  <Badge variant="outline" className={`px-4 py-1.5 ${stage.color} border-current/30 mb-4`}>
+                    Step {i + 1}: {stage.label}
+                  </Badge>
+                  <p className="text-muted-foreground max-w-sm mb-8">{stage.desc}</p>
+                </div>
+                <div className="flex-1 flex items-center justify-center w-full">
+                  {stage.content}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         ))}
       </div>
+
+      <div className="flex justify-center gap-2 mt-4">
+        {stages.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => {
+              containerRef.current?.scrollTo({ left: i * containerRef.current.offsetWidth, behavior: 'smooth' });
+            }}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              activeStep === i ? 'w-8 bg-primary' : 'bg-primary/20'
+            }`}
+            aria-label={`Go to step ${i + 1}`}
+          />
+        ))}
+      </div>
       
-      <Card className="border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 overflow-hidden">
-        <CardContent className="p-6 md:p-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={step}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="min-h-[200px] flex items-center justify-center"
-            >
-              {step === 0 && (
-                <div className="text-center">
-                  <motion.div 
-                    className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-blue-500/10 border-2 border-dashed border-blue-500/30 flex items-center justify-center"
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <Upload className="w-10 h-10 text-blue-500" />
-                  </motion.div>
-                  <p className="text-lg font-semibold text-foreground mb-2">Drop your study materials</p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {['PDF', 'Images', 'Word', 'PowerPoint'].map((f) => (
-                      <Badge key={f} variant="secondary" className="text-xs">{f}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {step === 1 && (
-                <div className="w-full max-w-md">
-                  <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
-                      <motion.div 
-                        key={i} 
-                        className="h-4 bg-gradient-to-r from-muted to-transparent rounded-full"
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ delay: i * 0.2, duration: 0.5 }}
-                        style={{ transformOrigin: "left" }}
-                      />
-                    ))}
-                  </div>
-                  <motion.div 
-                    className="mt-6 flex items-center gap-2 text-amber-500"
-                    animate={{ opacity: [0.5, 1, 0.5] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <Eye className="w-5 h-5" />
-                    <span className="text-sm font-medium">Reading and analyzing...</span>
-                  </motion.div>
-                </div>
-              )}
-              
-              {step === 2 && (
-                <div className="w-full max-w-md space-y-3">
-                  {[
-                    { type: 'Multiple Choice', q: 'What is the main concept?' },
-                    { type: 'True/False', q: 'This statement is correct?' },
-                  ].map((item, i) => (
-                    <motion.div 
-                      key={i}
-                      className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/20"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.3 }}
-                    >
-                      <Badge variant="outline" className="mb-2 text-purple-500 border-purple-500/30 text-xs">
-                        {item.type}
-                      </Badge>
-                      <p className="text-sm font-medium text-foreground">{item.q}</p>
-                    </motion.div>
-                  ))}
-                  <motion.p 
-                    className="text-sm text-purple-500 flex items-center gap-2"
-                    animate={{ opacity: [0.5, 1, 0.5] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <Brain className="w-4 h-4" />
-                    Generating more questions...
-                  </motion.p>
-                </div>
-              )}
-              
-              {step === 3 && (
-                <div className="text-center">
-                  <motion.div 
-                    className="w-24 h-24 mx-auto mb-4 rounded-full bg-green-500/10 flex items-center justify-center"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring" }}
-                  >
-                    <Trophy className="w-10 h-10 text-green-500" />
-                  </motion.div>
-                  <p className="text-lg font-semibold text-foreground mb-2">Ready to learn!</p>
-                  <div className="flex justify-center gap-3">
-                    <Badge className="bg-green-500/10 text-green-600 border-green-500/30">
-                      <Play className="w-3 h-3 mr-1" /> Quiz
-                    </Badge>
-                    <Badge className="bg-orange-500/10 text-orange-600 border-orange-500/30">
-                      <BookOpen className="w-3 h-3 mr-1" /> Study
-                    </Badge>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </CardContent>
-      </Card>
+      {/* Navigation buttons */}
+      <div className="absolute top-1/2 -translate-y-1/2 -left-4 md:-left-12 lg:-left-16 z-10 hidden sm:block">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full bg-background/80 backdrop-blur-sm border shadow-sm"
+          onClick={() => {
+            containerRef.current?.scrollTo({ 
+              left: (activeStep - 1) * containerRef.current.offsetWidth, 
+              behavior: 'smooth' 
+            });
+          }}
+          disabled={activeStep === 0}
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </Button>
+      </div>
+      <div className="absolute top-1/2 -translate-y-1/2 -right-4 md:-right-12 lg:-right-16 z-10 hidden sm:block">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full bg-background/80 backdrop-blur-sm border shadow-sm"
+          onClick={() => {
+            containerRef.current?.scrollTo({ 
+              left: (activeStep + 1) * containerRef.current.offsetWidth, 
+              behavior: 'smooth' 
+            });
+          }}
+          disabled={activeStep === stages.length - 1}
+        >
+          <ChevronRight className="h-6 w-6" />
+        </Button>
+      </div>
     </div>
   );
 }
@@ -757,7 +799,7 @@ export default function Home() {
             </p>
           </motion.div>
           
-          <TransformationDemo />
+          <HowItWorksGallery />
         </div>
       </section>
 
