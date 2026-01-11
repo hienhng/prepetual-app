@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation, Link } from "wouter";
 import { 
-  ArrowRight, CheckCircle2, Upload, Brain, Zap, BookOpen, 
+  ArrowRight, ArrowUp, CheckCircle2, Upload, Brain, Zap, BookOpen, 
   Share2, RotateCcw, Sparkles, Play, Eye, Target, Users, Star,
   ChevronRight, ChevronLeft, Layers, GraduationCap, Trophy, Flame, MousePointer2, Check
 } from "lucide-react";
@@ -992,6 +992,19 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Scroll to top button */}
+      <motion.button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="fixed bottom-6 right-6 w-10 h-10 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center z-50 hover:scale-110 active:scale-95 transition-transform"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ y: -2 }}
+        data-testid="button-scroll-to-top"
+        aria-label="Scroll to top"
+      >
+        <ArrowUp className="w-5 h-5" />
+      </motion.button>
 
       <Footer />
     </div>
