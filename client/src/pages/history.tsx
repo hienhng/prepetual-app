@@ -330,7 +330,7 @@ export default function HistoryPage() {
             <AlertDialogAction 
               onClick={confirmDelete}
               disabled={deleteMutation.isPending}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive border-destructive text-destructive-foreground hover:bg-destructive/90"
               data-testid="button-confirm-delete"
             >
               {deleteMutation.isPending ? (
