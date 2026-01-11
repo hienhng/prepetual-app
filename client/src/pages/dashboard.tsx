@@ -189,17 +189,40 @@ function StreakCalendar({
   streakDates, 
   currentStreak,
   longestStreak,
-  isActive
+  isActive,
+  quizzes = []
 }: { 
   streakDates: string[]; 
   currentStreak: number;
   longestStreak: number;
   isActive: boolean;
+  quizzes?: Quiz[];
 }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [, setLocation] = useLocation();
+  const { setCurrentQuiz, setSourceMaterial } = useQuiz();
   
   const streakSet = useMemo(() => new Set(streakDates), [streakDates]);
   const trivia = useMemo(() => getStreakTrivia(currentStreak), [currentStreak]);
+
+  const handleRandomQuiz = () => {
+    const eligibleQuizzes = quizzes.filter(q => (q.questions as any[]).length >= 8);
+    if (eligibleQuizzes.length > 0) {
+      const randomQuiz = eligibleQuizzes[Math.floor(Math.random() * eligibleQuizzes.length)];
+      setCurrentQuiz({
+        ...randomQuiz,
+        createdAt: typeof randomQuiz.createdAt === "string" ? randomQuiz.createdAt : randomQuiz.createdAt.toISOString(),
+      } as any);
+      setSourceMaterial({
+        type: randomQuiz.sourceImageUrl ? "image" : null,
+        text: randomQuiz.sourceText,
+        imageDataUrl: randomQuiz.sourceImageUrl || null,
+      });
+      setLocation("/quiz");
+    } else {
+      setLocation("/create");
+    }
+  };
   
   const daysInMonth = new Date(
     currentMonth.getFullYear(),
@@ -317,7 +340,21 @@ function StreakCalendar({
           <span className={`text-4xl font-bold ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
             {currentStreak} day streak
           </span>
-          <p className="text-sm text-muted-foreground mt-1">{trivia}</p>
+          {isActive ? (
+            <p className="text-sm text-muted-foreground mt-1">{trivia}</p>
+          ) : (
+            <div className="mt-2">
+              <Button 
+                size="sm" 
+                onClick={handleRandomQuiz}
+                className="bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-sm"
+                data-testid="button-random-quiz-streak"
+              >
+                <Play className="w-4 h-4 mr-2" />
+                Jump into a Quiz
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -861,6 +898,7 @@ export default function Dashboard() {
             currentStreak={streakData?.currentStreak ?? 0}
             longestStreak={streakData?.longestStreak ?? 0}
             isActive={streakData?.isActive ?? false}
+            quizzes={quizzes}
           />
         </DialogContent>
       </Dialog>
