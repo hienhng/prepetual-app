@@ -220,12 +220,13 @@ export function QuizPlayer() {
     if (!isChecked) return null;
     
     const correct = isCorrect();
+    const wrongExplanation = !correct && selectedAnswer && currentQuestion.wrongAnswerExplanations?.[selectedAnswer];
     
     return (
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mt-6"
+        className="mt-6 space-y-3"
       >
         <Card className={`${correct ? "bg-green-500/10 border-green-500/30" : "bg-red-500/10 border-red-500/30"}`}>
           <CardContent className="p-4">
@@ -257,6 +258,26 @@ export function QuizPlayer() {
             </div>
           </CardContent>
         </Card>
+        
+        {wrongExplanation && !isGuest && (
+          <Card className="bg-amber-500/10 border-amber-500/30">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-500">
+                  <Sparkles className="h-4 w-4 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-amber-600 dark:text-amber-400">
+                    Why your answer was wrong
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {wrongExplanation}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </motion.div>
     );
   };
@@ -472,6 +493,17 @@ export function QuizPlayer() {
                     <h2 className="text-lg sm:text-2xl font-semibold text-foreground mb-5 sm:mb-8" data-testid="text-question">
                       {currentQuestion.question}
                     </h2>
+
+                    {currentQuestion.imageUrl && (
+                      <div className="mb-6 rounded-lg overflow-hidden border border-border">
+                        <img 
+                          src={currentQuestion.imageUrl} 
+                          alt="Question reference image"
+                          className="w-full max-h-80 object-contain bg-muted/30"
+                          data-testid="image-question-reference"
+                        />
+                      </div>
+                    )}
 
                     {renderAnswerOptions()}
                     {renderFeedback()}

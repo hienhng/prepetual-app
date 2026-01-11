@@ -72,8 +72,9 @@ REQUIREMENTS:
 2. Use these question types: ${questionTypeDescriptions}
 3. Distribute question types roughly evenly among the selected types
 4. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
-5. Include an explanation for each answer
-6. For multiple choice, always provide exactly 4 options labeled A, B, C, D
+5. Include an explanation for why the correct answer is right
+6. For multiple choice, include explanations for why EACH wrong answer is incorrect
+7. For multiple choice, always provide exactly 4 options labeled A, B, C, D
 
 OUTPUT FORMAT (JSON):
 {
@@ -84,7 +85,12 @@ OUTPUT FORMAT (JSON):
       "question": "The question text",
       "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // only for multiple_choice. Ensure the correct answer is randomly placed among options. DO NOT include prefixes like "A) " or "1. " in the option text.
       "correctAnswer": "The exact correct option text (without any prefix)",
-      "explanation": "Brief explanation of why this is correct"
+      "explanation": "Brief explanation of why this is correct",
+      "wrongAnswerExplanations": { // For multiple_choice only - explain why each wrong option is incorrect
+        "Wrong Option 1 text": "Why this option is incorrect",
+        "Wrong Option 2 text": "Why this option is incorrect",
+        "Wrong Option 3 text": "Why this option is incorrect"
+      }
     }
   ]
 }
@@ -115,9 +121,11 @@ REQUIREMENTS:
 2. Use these question types: ${questionTypeDescriptions}
 3. Distribute question types roughly evenly among the selected types
 4. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
-5. Include an explanation for each answer
-6. For multiple choice, always provide exactly 4 options labeled A, B, C, D
-7. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
+5. Include an explanation for why the correct answer is right
+6. For multiple choice, include explanations for why EACH wrong answer is incorrect
+7. For multiple choice, always provide exactly 4 options labeled A, B, C, D
+8. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
+9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
 
 OUTPUT FORMAT (JSON):
 {
@@ -128,7 +136,13 @@ OUTPUT FORMAT (JSON):
       "question": "The question text",
       "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
       "correctAnswer": "The exact correct option text (without any prefix)",
-      "explanation": "Brief explanation of why this is correct"
+      "explanation": "Brief explanation of why this is correct",
+      "wrongAnswerExplanations": { // For multiple_choice only - explain why each wrong option is incorrect
+        "Wrong Option 1 text": "Why this option is incorrect",
+        "Wrong Option 2 text": "Why this option is incorrect",
+        "Wrong Option 3 text": "Why this option is incorrect"
+      },
+      "imageIndex": 0 // Optional: 0-based index of the attached image this question references (only if question is about a specific image)
     }
   ]
 }
@@ -258,6 +272,23 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
         }
       }
 
+      // Process wrong answer explanations if present
+      let wrongAnswerExplanations: Record<string, string> | undefined;
+      if (q.type === "multiple_choice" && q.wrongAnswerExplanations && typeof q.wrongAnswerExplanations === "object") {
+        wrongAnswerExplanations = {};
+        for (const [key, value] of Object.entries(q.wrongAnswerExplanations)) {
+          if (typeof value === "string") {
+            wrongAnswerExplanations[String(key).trim()] = String(value).trim();
+          }
+        }
+      }
+
+      // Map imageIndex to actual image URL if present
+      let imageUrl: string | undefined;
+      if (typeof q.imageIndex === "number" && q.imageIndex >= 0 && q.imageIndex < documentImages.length) {
+        imageUrl = documentImages[q.imageIndex];
+      }
+
       const question: Question = {
         id: randomUUID(),
         type: q.type as QuestionType,
@@ -265,6 +296,8 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
         options,
         correctAnswer,
         explanation: q.explanation ? String(q.explanation).trim() : undefined,
+        wrongAnswerExplanations,
+        imageUrl,
       };
 
       questions.push(question);

@@ -64,6 +64,8 @@ export const questionSchema = z.object({
   options: z.array(z.string()).optional(),
   correctAnswer: z.string(),
   explanation: z.string().optional(),
+  wrongAnswerExplanations: z.record(z.string(), z.string()).optional(),
+  imageUrl: z.string().optional(),
 });
 
 export type Question = z.infer<typeof questionSchema>;

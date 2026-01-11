@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ChevronDown, ChevronUp, RotateCcw, ArrowRight, LucideMessageCircleQuestion, Lock, UserPlus } from "lucide-react";
+import { Check, X, ChevronDown, ChevronUp, RotateCcw, ArrowRight, LucideMessageCircleQuestion, Lock, UserPlus, Lightbulb } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -288,6 +288,16 @@ export function QuizResults() {
                       className="px-4 pb-4 border-t bg-muted/20"
                     >
                       <div className="pt-4 space-y-3">
+                        {question.imageUrl && (
+                          <div className="mb-3 rounded-lg overflow-hidden border border-border">
+                            <img 
+                              src={question.imageUrl} 
+                              alt="Question reference image"
+                              className="w-full max-h-48 object-contain bg-muted/30"
+                              data-testid={`image-question-${index}`}
+                            />
+                          </div>
+                        )}
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Your Answer</p>
                           <p className={`text-sm font-medium ${isCorrect ? "text-success" : "text-destructive"}`}>
@@ -304,6 +314,17 @@ export function QuizResults() {
                           <div>
                             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Explanation</p>
                             <p className="text-sm text-muted-foreground">{question.explanation}</p>
+                          </div>
+                        )}
+                        {!isCorrect && userAnswer && question.wrongAnswerExplanations?.[userAnswer] && !isGuest && (
+                          <div className="bg-amber-500/10 border border-amber-500/30 rounded-md p-3">
+                            <div className="flex items-start gap-2">
+                              <Lightbulb className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                              <div>
+                                <p className="text-xs text-amber-600 dark:text-amber-400 font-medium uppercase tracking-wide mb-1">Why This Was Wrong</p>
+                                <p className="text-sm text-muted-foreground">{question.wrongAnswerExplanations[userAnswer]}</p>
+                              </div>
+                            </div>
                           </div>
                         )}
                         {question.explanation && isGuest && (
