@@ -155,66 +155,93 @@ function HeroIllustration() {
             </div>
           </motion.div>
 
-          {/* Flashcard Card (Bottom) */}
+          {/* Flashcard Card (Left side, lower) */}
           <motion.div
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[180px] md:w-[200px] rounded-xl bg-card border shadow-xl"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            className="absolute bottom-4 -left-4 md:left-0 w-[160px] md:w-[180px] rounded-xl bg-card border shadow-xl"
+            initial={{ opacity: 0, x: -30, rotate: 5 }}
+            animate={{ opacity: 1, x: 0, rotate: 3 }}
             transition={{ delay: 0.7, duration: 0.6 }}
           >
-            <div className="p-4">
+            <div className="p-3">
               {/* Header */}
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
-                  <BookOpen className="w-3 h-3 text-white" />
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-5 h-5 rounded-md bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+                  <BookOpen className="w-2.5 h-2.5 text-white" />
                 </div>
-                <span className="text-[10px] font-semibold text-foreground">Study Mode</span>
+                <span className="text-[9px] font-semibold text-foreground">Study Mode</span>
               </div>
               
-              {/* Flashcard mockup */}
-              <motion.div 
-                className="relative h-[80px] rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-center justify-center p-3"
-                animate={{ rotateY: [0, 180, 180, 0] }}
-                transition={{ duration: 4, repeat: Infinity, times: [0, 0.25, 0.5, 0.75] }}
-                style={{ transformStyle: 'preserve-3d' }}
-              >
-                <p className="text-[10px] text-center text-foreground font-medium leading-tight">
-                  What organelle produces ATP?
-                </p>
-              </motion.div>
+              {/* Flashcard stack with swipe animation */}
+              <div className="relative h-[70px]">
+                {/* Background cards (stack effect) */}
+                <div className="absolute inset-0 rounded-lg bg-muted/50 border transform rotate-2 translate-x-1" />
+                <div className="absolute inset-0 rounded-lg bg-muted/30 border transform -rotate-1 -translate-x-0.5" />
+                
+                {/* Main flashcard with swipe animation */}
+                <motion.div 
+                  className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-center justify-center p-2"
+                  animate={{ 
+                    x: [0, 40, 40, 0, -40, -40, 0],
+                    rotate: [0, 8, 8, 0, -8, -8, 0],
+                    opacity: [1, 1, 0.5, 1, 1, 0.5, 1]
+                  }}
+                  transition={{ 
+                    duration: 4, 
+                    repeat: Infinity,
+                    times: [0, 0.15, 0.2, 0.35, 0.5, 0.55, 0.7]
+                  }}
+                >
+                  <p className="text-[9px] text-center text-foreground font-medium leading-tight">
+                    Mitochondria
+                  </p>
+                </motion.div>
+                
+                {/* Swipe indicators */}
+                <motion.div 
+                  className="absolute -left-2 top-1/2 -translate-y-1/2 text-[8px] text-rose-500 font-medium"
+                  animate={{ opacity: [0, 1, 0], x: [5, 0, 5] }}
+                  transition={{ duration: 4, repeat: Infinity, times: [0.35, 0.5, 0.55] }}
+                >
+                  ←
+                </motion.div>
+                <motion.div 
+                  className="absolute -right-2 top-1/2 -translate-y-1/2 text-[8px] text-green-500 font-medium"
+                  animate={{ opacity: [0, 1, 0], x: [-5, 0, -5] }}
+                  transition={{ duration: 4, repeat: Infinity, times: [0, 0.15, 0.2] }}
+                >
+                  →
+                </motion.div>
+              </div>
               
-              {/* Swipe buttons */}
-              <div className="flex justify-center gap-3 mt-3">
-                <div className="px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/30">
-                  <span className="text-[9px] font-medium text-rose-500">Learning</span>
-                </div>
-                <div className="px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/30">
-                  <span className="text-[9px] font-medium text-green-500">Known</span>
-                </div>
+              {/* Progress indicator */}
+              <div className="flex items-center justify-center gap-1 mt-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                <div className="w-1.5 h-1.5 rounded-full bg-muted" />
+                <div className="w-1.5 h-1.5 rounded-full bg-muted" />
               </div>
             </div>
             
-            {/* Animated Pointer */}
+            {/* Animated Pointer dragging the card */}
             <motion.div
-              className="absolute -bottom-3 -right-3 z-10"
-              initial={{ opacity: 0, x: -20, y: -20 }}
+              className="absolute top-1/2 -right-6 z-10"
               animate={{ 
-                opacity: 1, 
-                x: [0, 10, 0],
-                y: [0, 5, 0]
+                x: [0, 25, 25, 0, -25, -25, 0],
+                y: [0, -2, -2, 0, -2, -2, 0]
               }}
               transition={{ 
-                opacity: { delay: 1.2 },
-                x: { delay: 1.2, duration: 1.5, repeat: Infinity },
-                y: { delay: 1.2, duration: 1.5, repeat: Infinity }
+                duration: 4, 
+                repeat: Infinity,
+                times: [0, 0.15, 0.2, 0.35, 0.5, 0.55, 0.7]
               }}
             >
               <div className="relative">
-                <MousePointer2 className="w-6 h-6 text-foreground drop-shadow-lg" fill="white" />
+                <MousePointer2 className="w-5 h-5 text-foreground drop-shadow-lg" fill="white" />
                 <motion.div
-                  className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-primary"
-                  animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
-                  transition={{ duration: 1, repeat: Infinity }}
+                  className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-primary"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 0.5, repeat: Infinity }}
                 />
               </div>
             </motion.div>
