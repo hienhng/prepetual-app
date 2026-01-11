@@ -101,6 +101,7 @@ export default function Settings() {
         toast({
           title: "Settings saved",
           description: "Your preferences have been updated.",
+          variant: "success" as any,
         });
       }
     },
@@ -155,6 +156,7 @@ export default function Settings() {
       toast({
         title: "Image uploaded",
         description: "Your profile picture has been updated.",
+        variant: "success" as any,
       });
     } catch (error) {
       toast({
