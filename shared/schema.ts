@@ -27,6 +27,8 @@ export const users = pgTable("users", {
   authProvider: varchar("auth_provider").default("email"),
   lastStreakReminderSentAt: timestamp("last_streak_reminder_sent_at"),
   streakReminderEnabled: boolean("streak_reminder_enabled").default(true),
+  themePreference: varchar("theme_preference").default("system"),
+  autoDeleteFiles: boolean("auto_delete_files").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
