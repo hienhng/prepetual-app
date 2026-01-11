@@ -12,8 +12,93 @@ import { FileUpload } from "@/components/file-upload";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, animate, PanInfo } from "framer-motion";
 import { Footer } from "@/components/footer";
+
+function InteractiveFlashcard() {
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-100, 0, 100], [-12, 0, 12]);
+  const leftOpacity = useTransform(x, [-60, -20, 0], [1, 0.3, 0]);
+  const rightOpacity = useTransform(x, [0, 20, 60], [0, 0.3, 1]);
+
+  const handleDragEnd = async (_: any, info: PanInfo) => {
+    const threshold = 40;
+    if (Math.abs(info.offset.x) > threshold) {
+      await animate(x, info.offset.x > 0 ? 150 : -150, { duration: 0.2 });
+      await animate(x, 0, { duration: 0.3 });
+    } else {
+      await animate(x, 0, { type: "spring", stiffness: 300, damping: 25 });
+    }
+  };
+
+  return (
+    <motion.div
+      className="absolute bottom-4 -left-4 md:left-0 w-[160px] md:w-[180px] rounded-xl bg-card border shadow-xl overflow-hidden"
+      initial={{ opacity: 0, x: -30, rotate: -9 }}
+      animate={{ opacity: 1, x: 0, rotate: 3 }}
+      transition={{ delay: 0.7, duration: 0.6 }}
+    >
+      {/* Draggable flashcard - works like real study page */}
+      <div className="relative h-[130px] touch-none">
+        <motion.div 
+          className="absolute inset-0 flex flex-col cursor-grab active:cursor-grabbing"
+          style={{ x, rotate }}
+          drag="x"
+          dragElastic={0.3}
+          dragConstraints={{ left: 0, right: 0 }}
+          onDragEnd={handleDragEnd}
+        >
+          {/* Card content */}
+          <div className="flex-1 p-3 flex flex-col bg-card">
+            <div className="text-center mb-1">
+              <span className="text-[7px] uppercase tracking-widest text-muted-foreground font-bold">Question</span>
+            </div>
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-[10px] text-foreground font-semibold text-center leading-tight px-1">
+                What is the powerhouse of the cell?
+              </p>
+            </div>
+          </div>
+          
+          <div className="p-2 text-center border-t bg-muted/20">
+            <p className="text-[7px] font-medium text-muted-foreground">
+              Swipe to interact
+            </p>
+          </div>
+          
+          {/* Green "KNOW" overlay */}
+          <motion.div
+            className="absolute inset-0 flex flex-col items-center justify-center bg-green-500/90 text-white rounded-xl pointer-events-none"
+            style={{ opacity: rightOpacity }}
+          >
+            <Check className="w-6 h-6 mb-1" />
+            <span className="text-[10px] font-bold uppercase tracking-wider">Know</span>
+          </motion.div>
+          
+          {/* Yellow "STILL LEARNING" overlay */}
+          <motion.div
+            className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-500/90 text-white rounded-xl pointer-events-none"
+            style={{ opacity: leftOpacity }}
+          >
+            <RotateCcw className="w-6 h-6 mb-1" />
+            <span className="text-[8px] font-bold uppercase tracking-wider text-center px-2">Still Learning</span>
+          </motion.div>
+        </motion.div>
+      </div>
+      
+      {/* Progress bar */}
+      <div className="px-3 pb-2">
+        <div className="flex items-center justify-between text-[7px] text-muted-foreground mb-1">
+          <span>Card 3 of 5</span>
+          <span className="text-green-600">2 known</span>
+        </div>
+        <div className="h-1 bg-muted rounded-full overflow-hidden">
+          <div className="h-full w-3/5 bg-primary rounded-full" />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 function HeroIllustration() {
   return (
@@ -155,119 +240,8 @@ function HeroIllustration() {
             </div>
           </motion.div>
 
-          {/* Study Mode Card (Left side, lower) - Matches real study.tsx UI */}
-          <motion.div
-            className="absolute bottom-4 -left-4 md:left-0 w-[160px] md:w-[180px] rounded-xl bg-card border shadow-xl overflow-hidden"
-            initial={{ opacity: 0, x: -30, rotate: -9 }}
-            animate={{ opacity: 1, x: 0, rotate: 3 }}
-            transition={{ delay: 0.7, duration: 0.6 }}
-          >
-            {/* Flashcard with swipe animation - matches real study UI */}
-            <div className="relative h-[130px]">
-              {/* Main flashcard content */}
-              <motion.div 
-                className="absolute inset-0 flex flex-col"
-                animate={{ 
-                  x: [0, 0, 20, 40, 40, 0, 0, 0, -20, -40, -40, 0, 0],
-                  rotate: [0, 0, 4, 8, 8, 0, 0, 0, -4, -8, -8, 0, 0]
-                }}
-                transition={{ 
-                  duration: 7, 
-                  repeat: Infinity,
-                  times: [0, 0.07, 0.12, 0.18, 0.24, 0.32, 0.42, 0.50, 0.55, 0.61, 0.67, 0.75, 0.88],
-                  ease: "easeInOut"
-                }}
-              >
-                {/* Card content - question side */}
-                <div className="flex-1 p-3 flex flex-col">
-                  <div className="text-center mb-1">
-                    <span className="text-[7px] uppercase tracking-widest text-muted-foreground font-bold">Question</span>
-                  </div>
-                  <div className="flex-1 flex items-center justify-center">
-                    <p className="text-[10px] text-foreground font-semibold text-center leading-tight px-1">
-                      What is the powerhouse of the cell?
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Bottom hint - matches real UI */}
-                <div className="p-2 text-center border-t bg-muted/20">
-                  <p className="text-[7px] font-medium text-muted-foreground">
-                    Tap to reveal answer
-                  </p>
-                </div>
-                
-                {/* Green "KNOW" overlay - gradually appears while dragging right */}
-                <motion.div
-                  className="absolute inset-0 flex flex-col items-center justify-center bg-green-500/90 text-white rounded-xl"
-                  animate={{
-                    opacity: [0, 0, 0.4, 0.85, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-                  }}
-                  transition={{ 
-                    duration: 7, 
-                    repeat: Infinity,
-                    times: [0, 0.07, 0.12, 0.18, 0.24, 0.32, 0.42, 0.50, 0.55, 0.61, 0.67, 0.75, 0.88],
-                    ease: "easeInOut"
-                  }}
-                >
-                  <Check className="w-6 h-6 mb-1" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Know</span>
-                </motion.div>
-                
-                {/* Yellow "STILL LEARNING" overlay - gradually appears while dragging left */}
-                <motion.div
-                  className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-500/90 text-white rounded-xl"
-                  animate={{
-                    opacity: [0, 0, 0, 0, 0, 0, 0, 0, 0.4, 0.85, 1, 0, 0]
-                  }}
-                  transition={{ 
-                    duration: 7, 
-                    repeat: Infinity,
-                    times: [0, 0.07, 0.12, 0.18, 0.24, 0.32, 0.42, 0.50, 0.55, 0.61, 0.67, 0.75, 0.88],
-                    ease: "easeInOut"
-                  }}
-                >
-                  <RotateCcw className="w-6 h-6 mb-1" />
-                  <span className="text-[8px] font-bold uppercase tracking-wider text-center px-2">Still Learning</span>
-                </motion.div>
-              </motion.div>
-            </div>
-            
-            {/* Progress bar - matches real study UI */}
-            <div className="px-3 pb-2">
-              <div className="flex items-center justify-between text-[7px] text-muted-foreground mb-1">
-                <span>Card 3 of 5</span>
-                <span className="text-green-600">2 known</span>
-              </div>
-              <div className="h-1 bg-muted rounded-full overflow-hidden">
-                <div className="h-full w-3/5 bg-primary rounded-full" />
-              </div>
-            </div>
-            
-            {/* Animated Pointer dragging the card */}
-            <motion.div
-              className="absolute top-1/2 -right-6 z-10"
-              animate={{ 
-                x: [0, 0, 15, 28, 28, 0, 0, 0, -15, -28, -28, 0, 0],
-                y: [0, 0, -1, -2, -2, 0, 0, 0, -1, -2, -2, 0, 0]
-              }}
-              transition={{ 
-                duration: 7, 
-                repeat: Infinity,
-                times: [0, 0.07, 0.12, 0.18, 0.24, 0.32, 0.42, 0.50, 0.55, 0.61, 0.67, 0.75, 0.88],
-                ease: "easeInOut"
-              }}
-            >
-              <div className="relative">
-                <MousePointer2 className="w-5 h-5 text-foreground drop-shadow-lg" fill="white" />
-                <motion.div
-                  className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-primary"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 0.5, repeat: Infinity }}
-                />
-              </div>
-            </motion.div>
-          </motion.div>
+          {/* Study Mode Card (Left side, lower) - Interactive like real study.tsx */}
+          <InteractiveFlashcard />
 
           {/* Floating sparkle decorations */}
           <motion.div
