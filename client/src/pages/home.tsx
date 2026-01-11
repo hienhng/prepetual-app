@@ -141,7 +141,12 @@ function HeroIllustration() {
             initial={{ opacity: 0, x: -30, rotateY: -15, rotateX: 10, rotate: -8 }}
             animate={{ opacity: 1, x: 0, rotateY: -10, rotateX: 5, rotate: -6 }}
             whileHover={{ rotateY: -5, rotateX: 0, translateZ: 20 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
+            transition={{ 
+              type: "spring",
+              stiffness: 400,
+              damping: 30,
+              mass: 0.8
+            }}
             style={{ transformStyle: "preserve-3d" }}
           >
             <div className="p-4">
@@ -192,7 +197,12 @@ function HeroIllustration() {
             initial={{ opacity: 0, x: 30, rotateY: 15, rotateX: -5, rotate: 5 }}
             animate={{ opacity: 1, x: 0, rotateY: 10, rotateX: -2, rotate: 3 }}
             whileHover={{ rotateY: 5, rotateX: 0, translateZ: 30 }}
-            transition={{ delay: 0.5, duration: 0.6, type: "spring" }}
+            transition={{ 
+              type: "spring",
+              stiffness: 400,
+              damping: 30,
+              mass: 0.8
+            }}
             style={{ transformStyle: "preserve-3d" }}
           >
             <div className="p-4">
