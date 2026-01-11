@@ -337,19 +337,20 @@ function StreakCalendar({
           />
         </motion.div>
         <div className="flex-1">
-          <span className={`text-4xl font-bold ${isActive ? "text-foreground" : "text-muted-foreground grayscale opacity-70"}`}>
+          <span className={`text-3xl font-bold ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
             {currentStreak} day streak
           </span>
           {isActive ? (
             <p className="text-sm text-muted-foreground mt-1">{trivia}</p>
           ) : (
-            <div className="mt-1">
+            <div className="mt-1 bg-white dark:bg-foreground/30 border rounded-md pl-2">
+              <p className="text-sm text-muted-foreground mt-1">Go finish a quiz to extend your streak!</p>
               <button 
                 onClick={handleRandomQuiz}
-                className="text-sm font-bold text-orange-500 hover:text-orange-600 transition-colors p-0 h-auto bg-transparent border-0 uppercase"
+                className="text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors p-0 h-auto bg-transparent border-0"
                 data-testid="button-random-quiz-streak"
               >
-                EXTEND STREAK →
+                Extend streak
               </button>
             </div>
           )}
