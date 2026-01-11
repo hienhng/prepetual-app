@@ -365,51 +365,17 @@ export default function About() {
           </motion.div>
 
           <motion.section variants={itemVariants} className="text-center mb-16">
-            <div className="relative inline-block mb-6 group">
-              <motion.div
-                className="absolute inset-0 rounded-3xl bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 10, -10, 0]
-                }}
-                transition={{ 
-                  duration: 4, 
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
+            <motion.div 
+              className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-background mb-6 shadow-lg border border-primary/20 overflow-hidden"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <img 
+                src={brandLogo} 
+                alt="Prepetual Logo" 
+                className="w-full h-full object-cover"
               />
-              <motion.div 
-                className="relative inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-background shadow-xl border border-primary/20 overflow-hidden z-10"
-                whileHover={{ 
-                  scale: 1.05,
-                  rotate: [0, -2, 2, 0],
-                }}
-                transition={{ 
-                  type: "spring", 
-                  stiffness: 300,
-                  rotate: { duration: 0.5, repeat: Infinity }
-                }}
-              >
-                <img 
-                  src={brandLogo} 
-                  alt="Prepetual Logo" 
-                  className="w-full h-full object-cover p-2"
-                />
-                
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                />
-              </motion.div>
-              
-              {/* Decorative sparkles on hover */}
-              <motion.div
-                className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                animate={{ y: [0, -4, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <Sparkles className="w-6 h-6 text-primary/60" />
-              </motion.div>
-            </div>
+            </motion.div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
               About <span className="font-brand bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Prepetual</span>
             </h1>
