@@ -14,7 +14,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import { Footer } from "@/components/footer";
-import brandLogo from "@assets/favicon_prepetual_1768124938772.png";
 
 function FloatingDocument({ delay, x, y, rotation, scale = 1, type }: { 
   delay: number; 
@@ -104,39 +103,139 @@ function HeroIllustration() {
         transition={{ duration: 6, repeat: Infinity }}
       />
       
+      {/* App Flow Mockup - Stacked Screens */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <motion.div 
-          className="relative w-48 h-48 md:w-64 md:h-64"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", duration: 0.8 }}
-        >
+        <div className="relative w-[280px] md:w-[340px] h-[320px] md:h-[400px]">
+          
+          {/* Screen 3 (Back) - Results */}
           <motion.div 
-            className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-primary to-primary/70 shadow-2xl shadow-primary/30"
-            animate={{ rotate: [0, 5, 0, -5, 0] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div 
-            className="absolute inset-4 bg-background rounded-[1.5rem] flex items-center justify-center overflow-hidden"
-            whileHover={{ scale: 1.02 }}
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] md:w-[240px] h-[260px] md:h-[320px] rounded-2xl bg-card border shadow-xl overflow-hidden"
+            initial={{ opacity: 0, y: 40, x: 40 }}
+            animate={{ opacity: 0.6, y: 20, x: 30 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
           >
-            <motion.img 
-              src={brandLogo} 
-              alt="Prepetual" 
-              className="w-full h-full object-cover"
-              animate={{ scale: [1, 1.02, 1] }}
-              transition={{ duration: 3, repeat: Infinity }}
-            />
+            <div className="h-full p-3 flex flex-col">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-lg bg-green-500/20 flex items-center justify-center">
+                  <Trophy className="w-3 h-3 text-green-500" />
+                </div>
+                <div className="h-2 w-16 bg-muted rounded-full" />
+              </div>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-green-500/20 flex items-center justify-center">
+                    <CheckCircle2 className="w-8 h-8 text-green-500" />
+                  </div>
+                  <div className="h-3 w-12 mx-auto bg-green-500/30 rounded-full" />
+                </div>
+              </div>
+            </div>
           </motion.div>
           
-          <motion.div
-            className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg"
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
+          {/* Screen 2 (Middle) - Quiz */}
+          <motion.div 
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] md:w-[240px] h-[260px] md:h-[320px] rounded-2xl bg-card border shadow-xl overflow-hidden"
+            initial={{ opacity: 0, y: 20, x: 20 }}
+            animate={{ opacity: 0.8, y: 10, x: 15 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
           >
-            <Sparkles className="w-4 h-4 text-primary-foreground" />
+            <div className="h-full p-3 flex flex-col">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                  <Brain className="w-3 h-3 text-purple-500" />
+                </div>
+                <div className="h-2 w-20 bg-muted rounded-full" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <div className="p-2 rounded-lg bg-muted/50">
+                  <div className="h-2 w-full bg-muted rounded-full mb-1" />
+                  <div className="h-2 w-3/4 bg-muted rounded-full" />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="p-2 rounded-lg border border-primary/30 bg-primary/5">
+                    <div className="h-2 w-full bg-primary/20 rounded-full" />
+                  </div>
+                  <div className="p-2 rounded-lg border">
+                    <div className="h-2 w-full bg-muted rounded-full" />
+                  </div>
+                  <div className="p-2 rounded-lg border">
+                    <div className="h-2 w-3/4 bg-muted rounded-full" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </motion.div>
-        </motion.div>
+          
+          {/* Screen 1 (Front) - Upload */}
+          <motion.div 
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] md:w-[240px] h-[260px] md:h-[320px] rounded-2xl bg-card border-2 border-primary/30 shadow-2xl overflow-hidden"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.8, type: "spring" }}
+          >
+            <div className="h-full p-4 flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center">
+                    <Sparkles className="w-3 h-3 text-primary-foreground" />
+                  </div>
+                  <div className="h-2.5 w-16 bg-foreground/20 rounded-full" />
+                </div>
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 rounded-full bg-muted" />
+                  <div className="w-2 h-2 rounded-full bg-muted" />
+                </div>
+              </div>
+              
+              {/* Upload Area */}
+              <motion.div 
+                className="flex-1 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 flex flex-col items-center justify-center"
+                animate={{ borderColor: ['hsl(var(--primary) / 0.4)', 'hsl(var(--primary) / 0.6)', 'hsl(var(--primary) / 0.4)'] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <motion.div
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Upload className="w-8 h-8 text-primary mb-2" />
+                </motion.div>
+                <div className="h-2 w-20 bg-primary/30 rounded-full mb-1" />
+                <div className="h-1.5 w-14 bg-muted rounded-full" />
+              </motion.div>
+              
+              {/* File Types */}
+              <div className="mt-3 flex justify-center gap-1.5">
+                {['PDF', 'IMG', 'DOC'].map((type, i) => (
+                  <motion.div 
+                    key={type}
+                    className="px-2 py-1 rounded-md bg-muted text-[8px] font-medium text-muted-foreground"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8 + i * 0.1 }}
+                  >
+                    {type}
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+          
+          {/* Animated Arrow Flow */}
+          <motion.div
+            className="absolute -right-2 md:right-0 top-1/2 -translate-y-1/2"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1 }}
+          >
+            <motion.div
+              animate={{ x: [0, 5, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <ArrowRight className="w-6 h-6 text-primary" />
+            </motion.div>
+          </motion.div>
+        </div>
       </div>
       
       <FloatingDocument delay={0.2} x="5%" y="15%" rotation={-15} type="pdf" />
