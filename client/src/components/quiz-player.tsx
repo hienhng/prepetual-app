@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose, RotateCcw, Zap, Trophy, Target, ChevronUp, Star, Flame } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose, RotateCcw, Zap, Trophy, Target, ChevronUp, Star, Flame, BadgeCheck, BookCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -377,7 +377,7 @@ export function QuizPlayer() {
           >
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-500">
-                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                <BookCheck className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-amber-600 dark:text-amber-400">
@@ -411,7 +411,7 @@ export function QuizPlayer() {
                 disabled={isChecked}
                 data-testid={`option-${option.toLowerCase()}`}
                 className={`
-                  relative p-5 sm:p-8 rounded-2xl transition-all duration-200 text-left
+                  relative p-5 sm:p-8 rounded-2xl transition-all duration-50 text-left
                   ${!isChecked ? "cursor-pointer" : "cursor-default"}
                   ${isChecked && isCorrectOpt 
                     ? "bg-green-500/15 border-2 border-green-500 shadow-lg shadow-green-500/10" 
@@ -664,7 +664,7 @@ export function QuizPlayer() {
                     </motion.div>
                   )}
                   <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500/20 rounded-full">
-                    <Trophy className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <BadgeCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
                     <span className="text-sm font-bold text-green-600 dark:text-green-400">{correctCount}</span>
                   </div>
                   {hasMaterial && (
@@ -802,7 +802,7 @@ export function QuizPlayer() {
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
                     <>
-                      <Trophy className="h-5 w-5" />
+                      
                       See Results
                     </>
                   )}
@@ -828,7 +828,7 @@ export function QuizPlayer() {
               className="gap-2 rounded-xl flex-1 sm:flex-none"
               data-testid="button-skip"
             >
-              <span className="hidden sm:inline">Skip</span>
+              <span className="hidden sm:inline">Next</span>
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
