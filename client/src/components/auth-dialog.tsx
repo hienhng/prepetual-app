@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,33 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, Loader2, ArrowRight } from "lucide-react";
 import logoImage from "@assets/image_1765894870887.png";
 import { Link } from "wouter";
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: { credential: string }) => void;
+            auto_select?: boolean;
+          }) => void;
+          renderButton: (
+            element: HTMLElement,
+            config: {
+              theme?: "outline" | "filled_blue" | "filled_black";
+              size?: "large" | "medium" | "small";
+              text?: "signin_with" | "signup_with" | "continue_with" | "signin";
+              shape?: "rectangular" | "pill" | "circle" | "square";
+              width?: number;
+            }
+          ) => void;
+          prompt: () => void;
+        };
+      };
+    };
+  }
+}
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -36,6 +64,8 @@ interface LoginDialogProps {
 
 export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialogProps) {
   const { toast } = useToast();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const googleButtonRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<LoginFormType>({
     resolver: zodResolver(loginSchema),
@@ -58,9 +88,85 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
     },
   });
 
+  const googleMutation = useMutation({
+    mutationFn: async (credential: string) => {
+      const res = await apiRequest("POST", "/api/auth/google", { credential });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({ title: "Welcome!", description: "You have signed in with Google." });
+      onOpenChange(false);
+      setGoogleLoading(false);
+    },
+    onError: (error: Error) => {
+      toast({ title: "Google Sign-In failed", description: error.message, variant: "destructive" });
+      setGoogleLoading(false);
+    },
+  });
+
+  useEffect(() => {
+    if (!open) return;
+    
+    let cancelled = false;
+    
+    const initializeGoogle = async () => {
+      try {
+        const res = await fetch("/api/config");
+        const config = await res.json();
+        const clientId = config.googleClientId;
+        
+        if (!clientId || cancelled) return;
+
+        const tryInit = () => {
+          if (window.google && googleButtonRef.current) {
+            window.google.accounts.id.initialize({
+              client_id: clientId,
+              callback: (response) => {
+                setGoogleLoading(true);
+                googleMutation.mutate(response.credential);
+              },
+            });
+
+            window.google.accounts.id.renderButton(googleButtonRef.current, {
+              theme: "outline",
+              size: "large",
+              text: "continue_with",
+              shape: "rectangular",
+              width: 360,
+            });
+          }
+        };
+
+        if (window.google) {
+          tryInit();
+        } else {
+          const checkGoogle = setInterval(() => {
+            if (window.google) {
+              clearInterval(checkGoogle);
+              tryInit();
+            }
+          }, 100);
+
+          setTimeout(() => clearInterval(checkGoogle), 5000);
+        }
+      } catch (error) {
+        console.error("Failed to load Google config:", error);
+      }
+    };
+
+    const timer = setTimeout(initializeGoogle, 100);
+    
+    return () => { 
+      cancelled = true; 
+      clearTimeout(timer);
+    };
+  }, [open]);
+
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       form.reset();
+      setGoogleLoading(false);
     }
     onOpenChange(isOpen);
   };
@@ -152,6 +258,26 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
             </form>
           </Form>
 
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or</span>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            {googleLoading ? (
+              <div className="flex items-center justify-center h-10 w-full rounded-md border bg-muted">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-sm text-muted-foreground">Signing in...</span>
+              </div>
+            ) : (
+              <div ref={googleButtonRef} data-testid="button-google-signin" />
+            )}
+          </div>
+
           <div className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
             <button
@@ -188,6 +314,8 @@ interface SignUpDialogProps {
 
 export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDialogProps) {
   const { toast } = useToast();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const googleButtonRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<RegisterFormType>({
     resolver: zodResolver(registerSchema),
@@ -213,9 +341,85 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
     },
   });
 
+  const googleMutation = useMutation({
+    mutationFn: async (credential: string) => {
+      const res = await apiRequest("POST", "/api/auth/google", { credential });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({ title: "Welcome!", description: "You have signed up with Google." });
+      onOpenChange(false);
+      setGoogleLoading(false);
+    },
+    onError: (error: Error) => {
+      toast({ title: "Google Sign-Up failed", description: error.message, variant: "destructive" });
+      setGoogleLoading(false);
+    },
+  });
+
+  useEffect(() => {
+    if (!open) return;
+    
+    let cancelled = false;
+    
+    const initializeGoogle = async () => {
+      try {
+        const res = await fetch("/api/config");
+        const config = await res.json();
+        const clientId = config.googleClientId;
+        
+        if (!clientId || cancelled) return;
+
+        const tryInit = () => {
+          if (window.google && googleButtonRef.current) {
+            window.google.accounts.id.initialize({
+              client_id: clientId,
+              callback: (response) => {
+                setGoogleLoading(true);
+                googleMutation.mutate(response.credential);
+              },
+            });
+
+            window.google.accounts.id.renderButton(googleButtonRef.current, {
+              theme: "outline",
+              size: "large",
+              text: "signup_with",
+              shape: "rectangular",
+              width: 360,
+            });
+          }
+        };
+
+        if (window.google) {
+          tryInit();
+        } else {
+          const checkGoogle = setInterval(() => {
+            if (window.google) {
+              clearInterval(checkGoogle);
+              tryInit();
+            }
+          }, 100);
+
+          setTimeout(() => clearInterval(checkGoogle), 5000);
+        }
+      } catch (error) {
+        console.error("Failed to load Google config:", error);
+      }
+    };
+
+    const timer = setTimeout(initializeGoogle, 100);
+    
+    return () => { 
+      cancelled = true; 
+      clearTimeout(timer);
+    };
+  }, [open]);
+
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       form.reset();
+      setGoogleLoading(false);
     }
     onOpenChange(isOpen);
   };
@@ -297,6 +501,26 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
               </Button>
             </form>
           </Form>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or</span>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            {googleLoading ? (
+              <div className="flex items-center justify-center h-10 w-full rounded-md border bg-muted">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-sm text-muted-foreground">Signing up...</span>
+              </div>
+            ) : (
+              <div ref={googleButtonRef} data-testid="button-google-signup" />
+            )}
+          </div>
 
           <div className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
