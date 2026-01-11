@@ -1,20 +1,496 @@
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation, Link } from "wouter";
-import { Sparkles, Brain, ArrowRight, CheckCircle2, Upload, FileText, BarChart3, LoaderCircle, CircleFadingPlus } from "lucide-react";
+import { 
+  ArrowRight, CheckCircle2, Upload, FileText, Brain, Zap, BookOpen, 
+  Share2, RotateCcw, Sparkles, Play, Eye, Target, Users, Star,
+  ChevronRight, Layers, GraduationCap, Trophy, Flame
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { FileUpload } from "@/components/file-upload";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
-import { motion, useScroll, useTransform } from "framer-motion";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import { Footer } from "@/components/footer";
+import brandLogo from "@assets/favicon_prepetual_1768124938772.png";
+
+function FloatingDocument({ delay, x, y, rotation, scale = 1, type }: { 
+  delay: number; 
+  x: string; 
+  y: string; 
+  rotation: number;
+  scale?: number;
+  type: 'pdf' | 'image' | 'word' | 'ppt';
+}) {
+  const colors = {
+    pdf: { bg: 'bg-red-500/20', border: 'border-red-500/30', icon: 'text-red-500' },
+    image: { bg: 'bg-blue-500/20', border: 'border-blue-500/30', icon: 'text-blue-500' },
+    word: { bg: 'bg-blue-600/20', border: 'border-blue-600/30', icon: 'text-blue-600' },
+    ppt: { bg: 'bg-orange-500/20', border: 'border-orange-500/30', icon: 'text-orange-500' },
+  };
+  const c = colors[type];
+  
+  return (
+    <motion.div
+      className={`absolute ${c.bg} ${c.border} border rounded-xl p-3 backdrop-blur-sm shadow-lg`}
+      style={{ left: x, top: y, transform: `scale(${scale})` }}
+      initial={{ opacity: 0, y: 20, rotate: rotation - 5 }}
+      animate={{ 
+        opacity: 1, 
+        y: [0, -10, 0],
+        rotate: [rotation - 2, rotation + 2, rotation - 2]
+      }}
+      transition={{ 
+        opacity: { delay, duration: 0.5 },
+        y: { delay, duration: 4, repeat: Infinity, ease: "easeInOut" },
+        rotate: { delay, duration: 6, repeat: Infinity, ease: "easeInOut" }
+      }}
+    >
+      <FileText className={`w-6 h-6 ${c.icon}`} />
+    </motion.div>
+  );
+}
+
+function QuizCard({ delay, x, y, rotation, correct }: { 
+  delay: number; 
+  x: string; 
+  y: string; 
+  rotation: number;
+  correct?: boolean;
+}) {
+  return (
+    <motion.div
+      className={`absolute bg-card border rounded-xl p-3 shadow-xl backdrop-blur-sm ${
+        correct ? 'border-green-500/50' : 'border-primary/30'
+      }`}
+      style={{ left: x, top: y }}
+      initial={{ opacity: 0, scale: 0.8, rotate: rotation - 10 }}
+      animate={{ 
+        opacity: 1, 
+        scale: 1,
+        y: [0, -8, 0],
+        rotate: [rotation - 2, rotation + 2, rotation - 2]
+      }}
+      transition={{ 
+        opacity: { delay, duration: 0.5 },
+        scale: { delay, duration: 0.5, type: "spring" },
+        y: { delay: delay + 0.5, duration: 5, repeat: Infinity, ease: "easeInOut" },
+        rotate: { delay: delay + 0.5, duration: 7, repeat: Infinity, ease: "easeInOut" }
+      }}
+    >
+      <div className="flex items-center gap-2">
+        {correct ? (
+          <CheckCircle2 className="w-5 h-5 text-green-500" />
+        ) : (
+          <Brain className="w-5 h-5 text-primary" />
+        )}
+        <div className="space-y-1">
+          <div className="h-2 w-16 bg-muted rounded-full" />
+          <div className="h-2 w-12 bg-muted/60 rounded-full" />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function HeroIllustration() {
+  return (
+    <div className="relative w-full h-[400px] md:h-[500px]">
+      <motion.div 
+        className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent rounded-[3rem] blur-3xl"
+        animate={{ scale: [1, 1.05, 1], opacity: [0.5, 0.7, 0.5] }}
+        transition={{ duration: 6, repeat: Infinity }}
+      />
+      
+      <div className="absolute inset-0 flex items-center justify-center">
+        <motion.div 
+          className="relative w-48 h-48 md:w-64 md:h-64"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", duration: 0.8 }}
+        >
+          <motion.div 
+            className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-primary to-primary/70 shadow-2xl shadow-primary/30"
+            animate={{ rotate: [0, 5, 0, -5, 0] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div 
+            className="absolute inset-4 bg-background rounded-[1.5rem] flex items-center justify-center overflow-hidden"
+            whileHover={{ scale: 1.02 }}
+          >
+            <motion.img 
+              src={brandLogo} 
+              alt="Prepetual" 
+              className="w-full h-full object-cover"
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            />
+          </motion.div>
+          
+          <motion.div
+            className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg"
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <Sparkles className="w-4 h-4 text-primary-foreground" />
+          </motion.div>
+        </motion.div>
+      </div>
+      
+      <FloatingDocument delay={0.2} x="5%" y="15%" rotation={-15} type="pdf" />
+      <FloatingDocument delay={0.4} x="75%" y="10%" rotation={12} type="image" />
+      <FloatingDocument delay={0.6} x="85%" y="60%" rotation={-8} type="word" />
+      <FloatingDocument delay={0.8} x="10%" y="70%" rotation={10} type="ppt" />
+      
+      <QuizCard delay={1.0} x="0%" y="40%" rotation={-5} />
+      <QuizCard delay={1.2} x="70%" y="35%" rotation={8} correct />
+      <QuizCard delay={1.4} x="60%" y="75%" rotation={-3} correct />
+      
+      <motion.div
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[400px] h-[300px] md:h-[400px]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <svg className="w-full h-full" viewBox="0 0 400 400">
+          <motion.circle
+            cx="200"
+            cy="200"
+            r="150"
+            fill="none"
+            stroke="url(#orbitGradient)"
+            strokeWidth="1"
+            strokeDasharray="10 5"
+            initial={{ rotate: 0 }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+            style={{ transformOrigin: "center" }}
+          />
+          <motion.circle
+            cx="200"
+            cy="200"
+            r="180"
+            fill="none"
+            stroke="url(#orbitGradient2)"
+            strokeWidth="1"
+            strokeDasharray="15 10"
+            initial={{ rotate: 0 }}
+            animate={{ rotate: -360 }}
+            transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+            style={{ transformOrigin: "center" }}
+          />
+          <defs>
+            <linearGradient id="orbitGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
+              <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity="0.1" />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
+            </linearGradient>
+            <linearGradient id="orbitGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.2" />
+              <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity="0.05" />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.2" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </motion.div>
+    </div>
+  );
+}
+
+function TransformationDemo() {
+  const [step, setStep] = useState(0);
+  const containerRef = useRef(null);
+  const isInView = useInView(containerRef, { once: true, margin: "-100px" });
+  
+  useEffect(() => {
+    if (!isInView) return;
+    const timer = setInterval(() => {
+      setStep((prev) => (prev + 1) % 4);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [isInView]);
+
+  const stages = [
+    { icon: Upload, label: "Upload", desc: "Drop your document", color: "text-blue-500", bg: "bg-blue-500/10" },
+    { icon: Zap, label: "Extract", desc: "AI reads content", color: "text-amber-500", bg: "bg-amber-500/10" },
+    { icon: Brain, label: "Generate", desc: "Creates questions", color: "text-purple-500", bg: "bg-purple-500/10" },
+    { icon: GraduationCap, label: "Learn", desc: "Study & master", color: "text-green-500", bg: "bg-green-500/10" },
+  ];
+
+  return (
+    <div ref={containerRef} className="relative">
+      <div className="flex items-center justify-between mb-8">
+        {stages.map((s, i) => (
+          <div key={s.label} className="flex-1 flex items-center">
+            <motion.div 
+              className={`relative z-10 flex flex-col items-center ${i <= step ? 'opacity-100' : 'opacity-40'}`}
+              animate={{ scale: i === step ? 1.1 : 1 }}
+              transition={{ type: "spring" }}
+            >
+              <motion.div 
+                className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl ${s.bg} flex items-center justify-center mb-2 border-2 ${
+                  i === step ? 'border-primary shadow-lg' : 'border-transparent'
+                }`}
+                animate={i === step ? { y: [0, -5, 0] } : {}}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <s.icon className={`w-6 h-6 md:w-7 md:h-7 ${s.color}`} />
+              </motion.div>
+              <span className="text-xs md:text-sm font-semibold text-foreground">{s.label}</span>
+              <span className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">{s.desc}</span>
+            </motion.div>
+            {i < stages.length - 1 && (
+              <div className="flex-1 h-0.5 mx-2 md:mx-4 relative overflow-hidden">
+                <div className="absolute inset-0 bg-muted" />
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-primary to-primary/50"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: i < step ? 1 : 0 }}
+                  style={{ transformOrigin: "left" }}
+                  transition={{ duration: 0.5 }}
+                />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      
+      <Card className="border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 overflow-hidden">
+        <CardContent className="p-6 md:p-8">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="min-h-[200px] flex items-center justify-center"
+            >
+              {step === 0 && (
+                <div className="text-center">
+                  <motion.div 
+                    className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-blue-500/10 border-2 border-dashed border-blue-500/30 flex items-center justify-center"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Upload className="w-10 h-10 text-blue-500" />
+                  </motion.div>
+                  <p className="text-lg font-semibold text-foreground mb-2">Drop your study materials</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {['PDF', 'Images', 'Word', 'PowerPoint'].map((f) => (
+                      <Badge key={f} variant="secondary" className="text-xs">{f}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {step === 1 && (
+                <div className="w-full max-w-md">
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <motion.div 
+                        key={i} 
+                        className="h-4 bg-gradient-to-r from-muted to-transparent rounded-full"
+                        initial={{ scaleX: 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{ delay: i * 0.2, duration: 0.5 }}
+                        style={{ transformOrigin: "left" }}
+                      />
+                    ))}
+                  </div>
+                  <motion.div 
+                    className="mt-6 flex items-center gap-2 text-amber-500"
+                    animate={{ opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <Eye className="w-5 h-5" />
+                    <span className="text-sm font-medium">Reading and analyzing...</span>
+                  </motion.div>
+                </div>
+              )}
+              
+              {step === 2 && (
+                <div className="w-full max-w-md space-y-3">
+                  {[
+                    { type: 'Multiple Choice', q: 'What is the main concept?' },
+                    { type: 'True/False', q: 'This statement is correct?' },
+                  ].map((item, i) => (
+                    <motion.div 
+                      key={i}
+                      className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/20"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.3 }}
+                    >
+                      <Badge variant="outline" className="mb-2 text-purple-500 border-purple-500/30 text-xs">
+                        {item.type}
+                      </Badge>
+                      <p className="text-sm font-medium text-foreground">{item.q}</p>
+                    </motion.div>
+                  ))}
+                  <motion.p 
+                    className="text-sm text-purple-500 flex items-center gap-2"
+                    animate={{ opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <Brain className="w-4 h-4" />
+                    Generating more questions...
+                  </motion.p>
+                </div>
+              )}
+              
+              {step === 3 && (
+                <div className="text-center">
+                  <motion.div 
+                    className="w-24 h-24 mx-auto mb-4 rounded-full bg-green-500/10 flex items-center justify-center"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring" }}
+                  >
+                    <Trophy className="w-10 h-10 text-green-500" />
+                  </motion.div>
+                  <p className="text-lg font-semibold text-foreground mb-2">Ready to learn!</p>
+                  <div className="flex justify-center gap-3">
+                    <Badge className="bg-green-500/10 text-green-600 border-green-500/30">
+                      <Play className="w-3 h-3 mr-1" /> Quiz
+                    </Badge>
+                    <Badge className="bg-orange-500/10 text-orange-600 border-orange-500/30">
+                      <BookOpen className="w-3 h-3 mr-1" /> Study
+                    </Badge>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function FeatureShowcase() {
+  const features = [
+    {
+      icon: Upload,
+      title: "Multi-Format Upload",
+      description: "PDFs, images, Word, PowerPoint, Excel. Our OCR handles photos of textbooks too.",
+      color: "blue",
+      gradient: "from-blue-500/20 to-blue-600/5",
+    },
+    {
+      icon: Brain,
+      title: "AI Quiz Generation",
+      description: "Intelligent AI creates meaningful questions that test real understanding.",
+      color: "purple",
+      gradient: "from-purple-500/20 to-purple-600/5",
+    },
+    {
+      icon: BookOpen,
+      title: "Study Mode",
+      description: "Swipe-based flashcards with 'known' and 'learning' progress tracking.",
+      color: "orange",
+      gradient: "from-orange-500/20 to-orange-600/5",
+    },
+    {
+      icon: RotateCcw,
+      title: "Spaced Repetition",
+      description: "Missed questions come back in retry rounds until you master them.",
+      color: "rose",
+      gradient: "from-rose-500/20 to-rose-600/5",
+    },
+    {
+      icon: Share2,
+      title: "Community Sharing",
+      description: "Share quizzes, browse public ones, vote and comment.",
+      color: "emerald",
+      gradient: "from-emerald-500/20 to-emerald-600/5",
+    },
+    {
+      icon: Flame,
+      title: "Streak Tracking",
+      description: "Build daily learning habits with streak goals and reminders.",
+      color: "amber",
+      gradient: "from-amber-500/20 to-amber-600/5",
+    },
+  ];
+
+  const colorClasses: Record<string, { text: string; border: string; bg: string }> = {
+    blue: { text: "text-blue-500", border: "border-blue-500/30", bg: "bg-blue-500/10" },
+    purple: { text: "text-purple-500", border: "border-purple-500/30", bg: "bg-purple-500/10" },
+    orange: { text: "text-orange-500", border: "border-orange-500/30", bg: "bg-orange-500/10" },
+    rose: { text: "text-rose-500", border: "border-rose-500/30", bg: "bg-rose-500/10" },
+    emerald: { text: "text-emerald-500", border: "border-emerald-500/30", bg: "bg-emerald-500/10" },
+    amber: { text: "text-amber-500", border: "border-amber-500/30", bg: "bg-amber-500/10" },
+  };
+
+  return (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {features.map((feature, index) => {
+        const colors = colorClasses[feature.color];
+        return (
+          <motion.div
+            key={feature.title}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <Card className={`h-full group hover:shadow-xl transition-all duration-300 border-transparent hover:${colors.border} bg-gradient-to-br ${feature.gradient} to-card`}>
+              <CardContent className="p-6">
+                <motion.div 
+                  className={`w-12 h-12 rounded-xl ${colors.bg} flex items-center justify-center mb-4`}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                >
+                  <feature.icon className={`w-6 h-6 ${colors.text}`} />
+                </motion.div>
+                <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {feature.description}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
+function StatsSection() {
+  const stats = [
+    { value: "100%", label: "Free Forever", icon: Star },
+    { value: "10+", label: "Languages", icon: Users },
+    { value: "∞", label: "Unlimited Quizzes", icon: Layers },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4 md:gap-8">
+      {stats.map((stat, index) => (
+        <motion.div
+          key={stat.label}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: index * 0.1 }}
+          className="text-center"
+        >
+          <motion.div 
+            className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-3 rounded-2xl bg-primary/10 flex items-center justify-center"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+          >
+            <stat.icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
+          </motion.div>
+          <div className="text-2xl md:text-4xl font-bold text-primary mb-1">{stat.value}</div>
+          <div className="text-xs md:text-sm text-muted-foreground">{stat.label}</div>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -49,599 +525,270 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative pt-20 pb-16 sm:pt-28 sm:pb-20 overflow-hidden">
-        {/* Clean grid background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.3)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.3)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-        
+    <div className="min-h-screen overflow-hidden">
+      <section className="relative pt-8 pb-16 md:pt-16 md:pb-24">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div
+            className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/10 blur-[100px]"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 8, repeat: Infinity }}
+          />
+          <motion.div
+            className="absolute top-1/2 -left-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[80px]"
+            animate={{ scale: [1.2, 1, 1.2], opacity: [0.4, 0.2, 0.4] }}
+            transition={{ duration: 10, repeat: Infinity }}
+          />
+        </div>
+
         <div className="container relative mx-auto px-4 sm:px-6">
-          {/* Hero Content */}
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left: Text content */}
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-center lg:text-left"
+              className="text-center lg:text-left order-2 lg:order-1"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-6">
-                <Sparkles className="h-3.5 w-3.5" />
+              <motion.div 
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm font-medium mb-6"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Sparkles className="h-4 w-4" />
                 <span>AI-Powered Study Assistant</span>
-              </div>
+              </motion.div>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight">
-                Turn your notes into{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-quiz-purple">practice quizzes</span>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight">
+                Turn notes into{" "}
+                <span className="relative">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-amber-500">
+                    quizzes
+                  </span>
+                  <motion.span
+                    className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-amber-500 rounded-full"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ delay: 0.5, duration: 0.5 }}
+                  />
+                </span>
+                <br />
+                <span className="text-muted-foreground text-3xl sm:text-4xl lg:text-5xl">in seconds</span>
               </h1>
               
-              <p className="text-lg text-muted-foreground max-w-md mx-auto lg:mx-0 mb-8">
-                Upload any study material and let AI create personalized quizzes in seconds.
+              <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 mb-8">
+                Upload any study material and let AI create personalized practice quizzes. Study smarter, not harder.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-8">
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8">
                 <Button
                   size="lg"
                   onClick={handleGetStarted}
-                  className="gap-2 px-8 w-full sm:w-auto"
+                  className="gap-2 px-8 text-base h-12 w-full sm:w-auto shadow-lg shadow-primary/20"
                   data-testid="button-hero-get-started"
                 >
                   Get Started Free
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-5 w-5" />
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="w-full sm:w-auto px-8"
+                  onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="gap-2 w-full sm:w-auto h-12"
                   data-testid="button-hero-learn-more"
                 >
-                  Learn More
+                  See How It Works
+                  <ChevronRight className="h-5 w-5" />
                 </Button>
               </div>
 
-              {/* Trust indicators */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span>Free to use</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span>No credit card</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span>PDF & Images</span>
-                </div>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 text-sm text-muted-foreground">
+                {[
+                  { icon: CheckCircle2, text: "Free forever" },
+                  { icon: CheckCircle2, text: "No credit card" },
+                  { icon: CheckCircle2, text: "PDF & Images" },
+                ].map((item, i) => (
+                  <motion.div 
+                    key={item.text}
+                    className="flex items-center gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 + i * 0.1 }}
+                  >
+                    <item.icon className="h-4 w-4 text-green-500" />
+                    <span>{item.text}</span>
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
 
-            {/* Right: Upload card */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="relative"
+              className="order-1 lg:order-2"
             >
-              <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 via-quiz-purple/10 to-primary/10 rounded-3xl blur-2xl opacity-60" />
-              <Card className="relative shadow-xl border-primary/10">
-                <CardContent className="p-6">
-                  <FileUpload onTextExtracted={handleTextExtracted} />
-                  
-                  {extractedText && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-4"
-                    >
-                      <Button
-                        size="lg"
-                        onClick={handleContinueToGenerate}
-                        className="w-full gap-2"
-                        data-testid="button-continue-generate"
-                      >
-                        Continue to Generate Quiz
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </motion.div>
-                  )}
-                </CardContent>
-              </Card>
+              <HeroIllustration />
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Feature Section 1: Upload & Extract */}
-      <section id="features" className="py-20 sm:py-28 bg-muted/40">
+      <section className="py-12 md:py-16 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center max-w-5xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="space-y-4"
-            >
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-                <Upload className="w-5 h-5 text-primary" />
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
-                Effortless Document Upload
-              </h2>
-              <p className="text-muted-foreground">
-                Drag and drop your study materials. Smart extraction handles PDFs and scanned images with precision.
-              </p>
-              <ul className="space-y-2 pt-2">
-                <li className="flex items-center gap-2 text-sm text-foreground">
-                  <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                  PDF documents with multi-page support
-                </li>
-                <li className="flex items-center gap-2 text-sm text-foreground">
-                  <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                  Images with OCR text extraction
-                </li>
-                <li className="flex items-center gap-2 text-sm text-foreground">
-                  <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                  Global language support
-                </li>
-              </ul>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              whileHover={{ y: -4 }}
-            >
-              <Card className="shadow-lg border-primary/20 overflow-visible relative">
-                <div className="absolute -inset-0.5 bg-gradient-to-br from-primary/20 via-transparent to-primary/10 rounded-xl blur-sm -z-10" />
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-1.5 pb-4 mb-4 border-b border-primary/10">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
-                  </div>
-                  <div className="border-2 border-dashed border-primary/30 rounded-xl p-8 text-center bg-gradient-to-br from-primary/10 to-primary/5 mb-4">
-                    <motion.div
-                      animate={{ y: [0, -6, 0], rotate: [0, 2, -2, 0] }}
-                      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                    >
-                      <FileText className="w-10 h-10 mx-auto text-primary mb-2" />
-                    </motion.div>
-                    <p className="text-sm text-muted-foreground">Drop your files here</p>
-                  </div>
-                  <div className="space-y-3">
-                    <motion.div 
-                      className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20"
-                      initial={{ x: -10, opacity: 0 }}
-                      whileInView={{ x: 0, opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.3 }}
-                    >
-                      <FileText className="w-5 h-5 text-primary" />
-                      <span className="text-sm text-foreground flex-1 truncate font-medium">biology_notes.pdf</span>
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        whileInView={{ scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.5, type: "spring" }}
-                      >
-                        <CheckCircle2 className="w-5 h-5 text-green-500" />
-                      </motion.div>
-                    </motion.div>
-                    <Button className="w-full gap-2 bg-gradient-to-r from-primary to-primary/90">
-                      Continue <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
+          <StatsSection />
         </div>
       </section>
 
-      {/* Feature Section 2: AI Generation */}
-      <section className="py-20 sm:py-28">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center max-w-5xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              whileHover={{ y: -4 }}
-              className="order-2 md:order-1"
-            >
-              <Card className="shadow-lg border-quiz-purple/20 overflow-visible relative">
-                <div className="absolute -inset-0.5 bg-gradient-to-br from-quiz-purple/20 via-transparent to-quiz-purple/10 rounded-xl blur-sm -z-10" />
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-1.5 pb-4 mb-4 border-b border-quiz-purple/10">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
-                  </div>
-                  <div className="p-4 rounded-xl border border-quiz-purple/20 bg-gradient-to-br from-quiz-purple/5 to-transparent mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-medium text-quiz-purple bg-quiz-purple/10 px-2 py-0.5 rounded-full">Multiple Choice</span>
-                    </div>
-                    <p className="text-sm font-medium text-foreground mb-4">What is the primary function of mitochondria?</p>
-                    <div className="space-y-2">
-                      <motion.div 
-                        className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/40 text-sm cursor-pointer"
-                        whileHover={{ x: 2 }}
-                      >
-                        <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30" />
-                        <span>Protein synthesis</span>
-                      </motion.div>
-                      <motion.div 
-                        className="flex items-center gap-3 p-2.5 rounded-lg bg-quiz-purple/15 border-2 border-quiz-purple/40 text-sm"
-                        initial={{ scale: 1 }}
-                        animate={{ scale: [1, 1.01, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      >
-                        <div className="w-4 h-4 rounded-full border-2 border-quiz-purple bg-quiz-purple flex items-center justify-center">
-                          <div className="w-2 h-2 rounded-full bg-white" />
-                        </div>
-                        <span className="text-quiz-purple font-semibold">Energy production</span>
-                      </motion.div>
-                      <motion.div 
-                        className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/40 text-sm cursor-pointer"
-                        whileHover={{ x: 2 }}
-                      >
-                        <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30" />
-                        <span>Cell division</span>
-                      </motion.div>
-                    </div>
-                  </div>
-                  <motion.div 
-                    className="flex items-center gap-2 text-sm text-quiz-purple font-medium"
-                    animate={{ opacity: [0.6, 1, 0.6] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    >
-                      <CircleFadingPlus className="w-4 h-4" />
-                    </motion.div>
-                    <span>Generating more questions...</span>
-                  </motion.div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="space-y-4 order-1 md:order-2"
-            >
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-quiz-purple/10">
-                <Brain className="w-5 h-5 text-quiz-purple" />
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground ">
-                AI-Powered Quiz Generation
-              </h2>
-              <p className="text-muted-foreground">
-                Intelligent AI analyzes your content and creates meaningful questions that test understanding.
-              </p>
-              <ul className="space-y-2 pt-2">
-                <li className="flex items-center gap-2 text-sm text-foreground">
-                  <CheckCircle2 className="w-4 h-4 text-quiz-purple flex-shrink-0" />
-                  Multiple choice, true/false, short answer
-                </li>
-                <li className="flex items-center gap-2 text-sm text-foreground">
-                  <CheckCircle2 className="w-4 h-4 text-quiz-purple flex-shrink-0" />
-                  Adjustable difficulty levels
-                </li>
-                <li className="flex items-center gap-2 text-sm text-foreground">
-                  <CheckCircle2 className="w-4 h-4 text-quiz-purple flex-shrink-0" />
-                  Smart question variety
-                </li>
-              </ul>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Feature Section 3: Results & Feedback */}
-      <section className="py-20 sm:py-28 bg-muted/40">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center max-w-5xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="space-y-4"
-            >
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-quiz-orange/10">
-                <BarChart3 className="w-5 h-5 text-quiz-orange" />
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
-                Instant Results & Insights
-              </h2>
-              <p className="text-muted-foreground">
-                Immediate feedback on every answer with detailed explanations to help you learn.
-              </p>
-              <ul className="space-y-2 pt-2">
-                <li className="flex items-center gap-2 text-sm text-foreground">
-                  <CheckCircle2 className="w-4 h-4 text-quiz-orange flex-shrink-0" />
-                  Detailed explanations for each question
-                </li>
-                <li className="flex items-center gap-2 text-sm text-foreground">
-                  <CheckCircle2 className="w-4 h-4 text-quiz-orange flex-shrink-0" />
-                  Score tracking and visualization
-                </li>
-                <li className="flex items-center gap-2 text-sm text-foreground">
-                  <CheckCircle2 className="w-4 h-4 text-quiz-orange flex-shrink-0" />
-                  Study mode for focused review
-                </li>
-              </ul>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              whileHover={{ y: -4 }}
-            >
-              <Card className="shadow-lg border-quiz-orange/20 overflow-visible relative">
-                <div className="absolute -inset-0.5 bg-gradient-to-br from-quiz-orange/20 via-transparent to-green-500/10 rounded-xl blur-sm -z-10" />
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-1.5 pb-4 mb-4 border-b border-quiz-orange/10">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
-                  </div>
-                  <div className="text-center py-6 mb-4 bg-gradient-to-br from-green-500/5 to-quiz-orange/5 rounded-xl">
-                    <div className="relative w-28 h-28 mx-auto mb-4">
-                      <svg className="w-28 h-28 transform -rotate-90" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/30" />
-                        <motion.circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="none"
-                          stroke="url(#scoreGradient)"
-                          strokeWidth="8"
-                          strokeLinecap="round"
-                          strokeDasharray="251.2"
-                          initial={{ strokeDashoffset: 251.2 }}
-                          whileInView={{ strokeDashoffset: 251.2 * 0.15 }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 1.5, ease: "easeOut" }}
-                        />
-                        <defs>
-                          <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="hsl(var(--quiz-orange))" />
-                            <stop offset="100%" stopColor="#22c55e" />
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <motion.span 
-                          className="text-3xl font-bold text-foreground"
-                          initial={{ scale: 0 }}
-                          whileInView={{ scale: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.5, type: "spring" }}
-                        >
-                          85%
-                        </motion.span>
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium text-foreground">Great job! Above average.</p>
-                  </div>
-                  <div className="space-y-3">
-                    <motion.div 
-                      className="flex items-center justify-between gap-4 text-sm p-3 rounded-xl bg-green-500/15 border border-green-500/30"
-                      initial={{ x: -10, opacity: 0 }}
-                      whileInView={{ x: 0, opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.3 }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        <span className="text-foreground font-medium">Correct</span>
-                      </div>
-                      <span className="font-bold text-green-600">17/20</span>
-                    </motion.div>
-                    <motion.div 
-                      className="flex items-center justify-between gap-4 text-sm p-3 rounded-xl bg-quiz-orange/15 border border-quiz-orange/30"
-                      initial={{ x: -10, opacity: 0 }}
-                      whileInView={{ x: 0, opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.4 }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4 text-quiz-orange" />
-                        <span className="text-foreground font-medium">Needs review</span>
-                      </div>
-                      <span className="font-bold text-quiz-orange">3/20</span>
-                    </motion.div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      {/* <section className="py-20 sm:py-28">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Everything you need to know about Prepetual and how it helps you study.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-6 max-w-5xl mx-auto mb-12">
-            {[
-              {
-                q: "What file types can I upload?",
-                a: "You can upload PDF documents and common image formats (JPEG, PNG). Our AI handles both text-based PDFs and scanned images using advanced OCR technology."
-              },
-              {
-                q: "Does it support languages other than English?",
-                a: "Yes! Prepetual automatically detects the language of your material. It has specialized support for Vietnamese and many other global languages."
-              },
-              {
-                q: "Can I edit the quizzes after they are generated?",
-                a: "Absolutely. You can modify questions, answers, and explanations before taking the quiz to ensure it matches your specific study needs."
-              },
-              {
-                q: "Is there a limit to how many quizzes I can create?",
-                a: "Free accounts can create multiple quizzes. For intensive users, we offer persistent history so you can retake and review your materials anytime."
-              }
-            ].map((faq, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card className="h-full border-primary/10 hover:border-primary/30 transition-colors shadow-sm">
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold text-foreground mb-2 flex gap-2">
-                      <span className="text-primary font-bold">Q:</span>
-                      {faq.q}
-                    </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {faq.a}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="text-center">
-            <Link href="/faq">
-              <Button variant="outline" size="lg" className="gap-2 px-8">
-                View All FAQs
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section> */}
-
-      {/* FAQ Section */}
-      <section className="py-20 sm:py-28">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 tracking-tight">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Quick answers to common questions about Prepetual.
-            </p>
-          </div>
-
-          <div className="max-w-3xl mx-auto mb-12">
-            <Accordion type="single" collapsible className="w-full space-y-4">
-              {[
-                {
-                  q: "\"Import Existing Quiz\" vs \"Generate New Quiz\" - What's the difference?",
-                  a: "Import parses exam papers to identify answers using AI knowledge, while Generate creates entirely new questions based on the content of your study materials."
-                },
-                {
-                  q: "Why can't I see explanations?",
-                  a: "Detailed explanations are a premium feature. Guests can take quizzes, but full explanations are only available to registered users. Sign up for free to unlock them!"
-                },
-                {
-                  q: "Which file formats are supported?",
-                  a: "We support PDF documents and various image formats (PNG, JPG). Our advanced OCR technology handles scanned documents and photos of physical notes with high precision."
-                },
-                {
-                  q: "Study Mode - How does it work?",
-                  a: "Study Mode uses a flashcard-style system. 'Known' indicates you've mastered the concept, while 'Learning' marks it for further review. The AI uses these signals to help you focus on your weak areas."
-                }
-              ].map((faq, i) => (
-                <AccordionItem 
-                  key={i} 
-                  value={`item-${i}`}
-                  className="border rounded-xl px-6 bg-card/50 backdrop-blur-sm transition-all hover:border-primary/30 data-[state=open]:border-primary/50"
-                >
-                  <AccordionTrigger className="hover:no-underline py-6">
-                    <span className="font-semibold text-lg text-left">{faq.q}</span>
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground text-base leading-relaxed pb-6">
-                    {faq.a}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-
-          <div className="text-center">
-            <Link href="/faq">
-              <Button variant="outline" size="lg" className="gap-2 px-8 rounded-full">
-                View All FAQs
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 sm:py-28">
-        <div className="container mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
+      <section id="how-it-works" className="py-20 md:py-28">
+        <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+          <motion.div 
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center max-w-lg mx-auto"
           >
-            <h2 className="text-2xl sm:text-3xl font-semibold text-foreground mb-4">
-              Ready to ace your next exam?
+            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30">
+              How It Works
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              From Documents to Mastery
             </h2>
-            <p className="text-muted-foreground mb-8">
-              Join students studying smarter with AI-powered quizzes.
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Four simple steps to transform any study material into an interactive learning experience.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button
-                size="lg"
-                onClick={handleGetStarted}
-                className="gap-2 px-8 w-full sm:w-auto"
-                data-testid="button-cta-get-started"
-              >
-                Get Started Free
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button
-                size="lg"
-                variant="ghost"
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                className="w-full sm:w-auto"
-                data-testid="button-cta-try-now"
-              >
-                Back to top
-              </Button>
-            </div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mt-20"
-            >
-              {/* <Link href="/faq">
-                <Button variant="ghost" className="text-muted-foreground hover:text-primary underline-offset-4 hover:underline" data-testid="link-faq">
-                  Frequently Asked Questions
-                </Button>
-              </Link> */}
-            </motion.div>
+          </motion.div>
+          
+          <TransformationDemo />
+        </div>
+      </section>
+
+      <section className="py-20 md:py-28 bg-muted/30">
+        <div className="container mx-auto px-4 sm:px-6">
+          <motion.div 
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30">
+              Features
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Everything You Need to Learn Smarter
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Powerful tools designed to make studying more effective and enjoyable.
+            </p>
+          </motion.div>
+          
+          <div className="max-w-5xl mx-auto">
+            <FeatureShowcase />
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 md:py-28">
+        <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+          <motion.div 
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30">
+              Try It Now
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Upload Your First Document
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              See how easy it is. Drop a file and watch the magic happen.
+            </p>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Card className="shadow-xl border-primary/20 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+              <CardContent className="p-6 md:p-8 relative">
+                <FileUpload onTextExtracted={handleTextExtracted} />
+                
+                {extractedText && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6"
+                  >
+                    <Button
+                      size="lg"
+                      onClick={handleContinueToGenerate}
+                      className="w-full gap-2 h-12"
+                      data-testid="button-continue-generate"
+                    >
+                      Continue to Generate Quiz
+                      <ArrowRight className="h-5 w-5" />
+                    </Button>
+                  </motion.div>
+                )}
+              </CardContent>
+            </Card>
           </motion.div>
         </div>
       </section>
+
+      <section className="py-20 md:py-28 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+        <div className="container mx-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center max-w-2xl mx-auto"
+          >
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="mb-6"
+            >
+              <div className="w-20 h-20 mx-auto rounded-2xl bg-primary/20 flex items-center justify-center">
+                <GraduationCap className="w-10 h-10 text-primary" />
+              </div>
+            </motion.div>
+            
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Ready to Study Smarter?
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Join students who are transforming their study materials into effective, personalized quizzes.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button
+                size="lg"
+                onClick={handleGetStarted}
+                className="gap-2 px-8 h-12 w-full sm:w-auto shadow-lg shadow-primary/20"
+                data-testid="button-cta-get-started"
+              >
+                Get Started Free
+                <ArrowRight className="h-5 w-5" />
+              </Button>
+              <Link href="/about">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="gap-2 w-full sm:w-auto h-12"
+                  data-testid="button-learn-more"
+                >
+                  Learn More
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );
