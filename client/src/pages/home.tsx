@@ -429,23 +429,85 @@ function HowItWorksGallery() {
         className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-6 pb-12"
         style={{ scrollBehavior: 'smooth' }}
       >
-        {stages.map((stage, i) => (
-          <div key={stage.label} className="min-w-full snap-center px-4">
-            <Card className="border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 overflow-hidden h-full min-h-[400px]">
-              <CardContent className="p-8 flex flex-col items-center justify-center text-center h-full">
-                <div className="mb-6">
-                  <Badge variant="outline" className={`px-4 py-1.5 ${stage.color} border-current/30 mb-4`}>
-                    Step {i + 1}: {stage.label}
-                  </Badge>
-                  <p className="text-muted-foreground max-w-sm mb-8">{stage.desc}</p>
-                </div>
-                <div className="flex-1 flex items-center justify-center w-full">
-                  {stage.content}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        ))}
+        {stages.map((stage, i) => {
+          const colorMap: Record<string, { glow: string; ring: string; gradient: string }> = {
+            'text-blue-500': { glow: 'shadow-blue-500/30', ring: 'ring-blue-500/20', gradient: 'from-blue-500/10 via-transparent to-blue-500/5' },
+            'text-amber-500': { glow: 'shadow-amber-500/30', ring: 'ring-amber-500/20', gradient: 'from-amber-500/10 via-transparent to-amber-500/5' },
+            'text-purple-500': { glow: 'shadow-purple-500/30', ring: 'ring-purple-500/20', gradient: 'from-purple-500/10 via-transparent to-purple-500/5' },
+            'text-green-500': { glow: 'shadow-green-500/30', ring: 'ring-green-500/20', gradient: 'from-green-500/10 via-transparent to-green-500/5' },
+          };
+          const colors = colorMap[stage.color] || colorMap['text-blue-500'];
+          
+          return (
+            <div key={stage.label} className="min-w-full snap-center px-4">
+              <motion.div
+                className="relative h-full"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Card className={`relative border-2 border-transparent hover:border-primary/20 bg-gradient-to-br ${colors.gradient} to-card overflow-hidden h-full min-h-[400px] transition-all duration-300 group`}>
+                  {/* Animated background glow */}
+                  <motion.div
+                    className={`absolute -top-20 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full ${stage.bg} blur-3xl opacity-50`}
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                  />
+                  
+                  {/* Floating decorative particles */}
+                  <motion.div
+                    className={`absolute top-10 right-10 w-3 h-3 rounded-full ${stage.bg}`}
+                    animate={{ y: [0, -10, 0], x: [0, 5, 0] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  />
+                  <motion.div
+                    className={`absolute bottom-20 left-10 w-2 h-2 rounded-full ${stage.bg}`}
+                    animate={{ y: [0, 8, 0], x: [0, -3, 0] }}
+                    transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
+                  />
+                  <motion.div
+                    className={`absolute top-1/3 right-8 w-1.5 h-1.5 rounded-full ${stage.bg}`}
+                    animate={{ y: [0, -6, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                  />
+                  
+                  <CardContent className="relative p-8 flex flex-col items-center justify-center text-center h-full z-10">
+                    {/* Floating step icon */}
+                    <motion.div
+                      className="relative mb-6"
+                      animate={{ y: [0, -5, 0] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <div className={`w-16 h-16 rounded-2xl ${stage.bg} ${colors.glow} shadow-lg flex items-center justify-center ring-4 ${colors.ring}`}>
+                        <stage.icon className={`w-8 h-8 ${stage.color}`} />
+                      </div>
+                      {/* Step number badge */}
+                      <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full bg-card border-2 border-current ${stage.color} flex items-center justify-center text-xs font-bold shadow-md`}>
+                        {i + 1}
+                      </div>
+                    </motion.div>
+                    
+                    {/* Title and description */}
+                    <div className="mb-6">
+                      <h3 className={`text-xl font-bold mb-2 ${stage.color}`}>
+                        {stage.label}
+                      </h3>
+                      <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">{stage.desc}</p>
+                    </div>
+                    
+                    {/* Separator line with gradient */}
+                    <div className={`w-16 h-0.5 rounded-full bg-gradient-to-r ${stage.color === 'text-blue-500' ? 'from-blue-500/50 to-transparent' : stage.color === 'text-amber-500' ? 'from-amber-500/50 to-transparent' : stage.color === 'text-purple-500' ? 'from-purple-500/50 to-transparent' : 'from-green-500/50 to-transparent'} mb-6`} />
+                    
+                    {/* Content area */}
+                    <div className="flex-1 flex items-center justify-center w-full">
+                      {stage.content}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="flex justify-center gap-2 mt-4">
