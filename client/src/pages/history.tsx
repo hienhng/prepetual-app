@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
@@ -5,6 +6,16 @@ import { History, Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useQuiz } from "@/lib/quiz-context";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -16,6 +27,7 @@ export default function HistoryPage() {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial } = useQuiz();
   const { toast } = useToast();
+  const [quizToDelete, setQuizToDelete] = useState<QuizWithAttempts | null>(null);
 
   const { data: quizzes, isLoading } = useQuery<QuizWithAttempts[]>({
     queryKey: ["/api/quizzes"],
@@ -28,12 +40,23 @@ export default function HistoryPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
-      toast({ title: "Quiz deleted", description: "The quiz has been removed from your history." });
+      setQuizToDelete(null);
+      toast({ title: "Quiz deleted", description: "The quiz has been removed from your history.", variant: "success" as any });
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to delete quiz", variant: "destructive" });
     },
   });
+
+  const handleDeleteClick = (quiz: QuizWithAttempts) => {
+    setQuizToDelete(quiz);
+  };
+
+  const confirmDelete = () => {
+    if (quizToDelete) {
+      deleteMutation.mutate(quizToDelete.id);
+    }
+  };
 
   const togglePublicMutation = useMutation({
     mutationFn: async ({ quizId, isPublic }: { quizId: string; isPublic: boolean }) => {
@@ -277,8 +300,7 @@ export default function HistoryPage() {
                             size="icon"
                             variant="ghost"
                             className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                            onClick={() => deleteMutation.mutate(quiz.id)}
-                            disabled={deleteMutation.isPending}
+                            onClick={() => handleDeleteClick(quiz)}
                             data-testid={`button-delete-${quiz.id}`}
                             title="Delete quiz"
                           >
@@ -294,6 +316,33 @@ export default function HistoryPage() {
           </div>
         )}
       </motion.div>
+
+      <AlertDialog open={!!quizToDelete} onOpenChange={(open) => !open && setQuizToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Quiz</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{quizToDelete?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-delete"
+            >
+              {deleteMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Trash2 className="h-4 w-4 mr-2" />
+              )}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
