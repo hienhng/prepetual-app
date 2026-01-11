@@ -14,8 +14,8 @@ import {
   ChevronsRight,
   PanelRight,
   Compass,
-  HelpCircle
-
+  HelpCircle,
+  Settings
 } from "lucide-react";
 import {
   Sidebar,
@@ -224,6 +224,12 @@ export function AppSidebar() {
               <DropdownMenuItem className="text-muted-foreground" disabled>
                 <User className="h-4 w-4 mr-2" />
                 {user?.email || "User"}
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/settings" onClick={handleNavClick} data-testid="sidebar-settings">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout} data-testid="sidebar-logout">
                 <LogOut className="h-4 w-4 mr-2" />

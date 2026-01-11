@@ -436,6 +436,74 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/user/settings", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profileImageUrl: user.profileImageUrl,
+        themePreference: user.themePreference || "system",
+        autoDeleteFiles: user.autoDeleteFiles || false,
+      });
+    } catch (error) {
+      console.error("Settings fetch error:", error);
+      res.status(500).json({ message: "Failed to get settings" });
+    }
+  });
+
+  app.patch("/api/user/settings", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { firstName, lastName, themePreference, autoDeleteFiles, profileImageUrl } = req.body;
+      
+      const updates: any = {};
+      if (firstName !== undefined) updates.firstName = firstName;
+      if (lastName !== undefined) updates.lastName = lastName;
+      if (themePreference !== undefined) updates.themePreference = themePreference;
+      if (autoDeleteFiles !== undefined) updates.autoDeleteFiles = autoDeleteFiles;
+      if (profileImageUrl !== undefined) updates.profileImageUrl = profileImageUrl;
+
+      const updatedUser = await storage.updateUser(userId, updates);
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        profileImageUrl: updatedUser.profileImageUrl,
+        themePreference: updatedUser.themePreference || "system",
+        autoDeleteFiles: updatedUser.autoDeleteFiles || false,
+      });
+    } catch (error) {
+      console.error("Settings update error:", error);
+      res.status(500).json({ message: "Failed to update settings" });
+    }
+  });
+
+  app.post("/api/user/upload-profile-image", isAuthenticated, upload.single("file"), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+      const userId = req.user.claims.sub;
+      
+      await storage.updateUser(userId, { profileImageUrl: base64Image });
+      
+      res.json({ imageUrl: base64Image });
+    } catch (error) {
+      console.error("Profile image upload error:", error);
+      res.status(500).json({ message: "Failed to upload profile image" });
+    }
+  });
+
   app.put("/api/quiz/:id", async (req, res) => {
     try {
       const { id } = req.params;

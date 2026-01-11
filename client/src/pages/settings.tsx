@@ -1,0 +1,391 @@
+import { useState, useRef, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import { 
+  User, Camera, Save, Moon, Sun, Monitor, Trash2, 
+  Loader2, Check, AlertCircle
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+
+type ThemeOption = "light" | "dark" | "system";
+
+function useTheme() {
+  const [theme, setThemeState] = useState<ThemeOption>(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("theme") as ThemeOption) || "system";
+    }
+    return "system";
+  });
+
+  useEffect(() => {
+    const applyTheme = (t: ThemeOption) => {
+      if (t === "system") {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.classList.toggle("dark", prefersDark);
+      } else {
+        document.documentElement.classList.toggle("dark", t === "dark");
+      }
+    };
+    applyTheme(theme);
+  }, [theme]);
+
+  const setTheme = (newTheme: ThemeOption) => {
+    setThemeState(newTheme);
+    localStorage.setItem("theme", newTheme);
+  };
+
+  return { theme, setTheme };
+}
+
+export default function Settings() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [firstName, setFirstName] = useState(user?.firstName || "");
+  const [lastName, setLastName] = useState(user?.lastName || "");
+  const [profileImage, setProfileImage] = useState<string | null>(user?.profileImageUrl || null);
+  const [autoDeleteFiles, setAutoDeleteFiles] = useState(user?.autoDeleteFiles || false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const { data: settings, isLoading } = useQuery<{
+    themePreference: ThemeOption;
+    autoDeleteFiles: boolean;
+    firstName: string | null;
+    lastName: string | null;
+    profileImageUrl: string | null;
+  }>({
+    queryKey: ["/api/user/settings"],
+    enabled: !!user,
+  });
+
+  useState(() => {
+    if (settings) {
+      setFirstName(settings.firstName || "");
+      setLastName(settings.lastName || "");
+      setProfileImage(settings.profileImageUrl);
+      setAutoDeleteFiles(settings.autoDeleteFiles || false);
+    }
+  });
+
+  const updateSettingsMutation = useMutation({
+    mutationFn: async (data: {
+      firstName?: string;
+      lastName?: string;
+      themePreference?: ThemeOption;
+      autoDeleteFiles?: boolean;
+      profileImageUrl?: string;
+    }) => {
+      const response = await apiRequest("PATCH", "/api/user/settings", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user/settings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({
+        title: "Settings saved",
+        description: "Your preferences have been updated.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to save settings. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      const response = await fetch("/api/user/upload-profile-image", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      
+      if (!response.ok) throw new Error("Upload failed");
+      
+      const data = await response.json();
+      setProfileImage(data.imageUrl);
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      
+      toast({
+        title: "Image uploaded",
+        description: "Your profile picture has been updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleSaveProfile = () => {
+    updateSettingsMutation.mutate({
+      firstName: firstName.trim() || undefined,
+      lastName: lastName.trim() || undefined,
+    });
+  };
+
+  const handleThemeChange = (newTheme: ThemeOption) => {
+    setTheme(newTheme);
+    updateSettingsMutation.mutate({ themePreference: newTheme });
+  };
+
+  const handleAutoDeleteChange = (checked: boolean) => {
+    setAutoDeleteFiles(checked);
+    updateSettingsMutation.mutate({ autoDeleteFiles: checked });
+  };
+
+  const getInitials = () => {
+    const first = firstName || user?.firstName || "";
+    const last = lastName || user?.lastName || "";
+    if (first && last) return `${first[0]}${last[0]}`.toUpperCase();
+    if (first) return first[0].toUpperCase();
+    return user?.email?.[0]?.toUpperCase() || "U";
+  };
+
+  const themeOptions: { value: ThemeOption; label: string; icon: typeof Sun }[] = [
+    { value: "light", label: "Light", icon: Sun },
+    { value: "dark", label: "Dark", icon: Moon },
+    { value: "system", label: "System", icon: Monitor },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+            <p className="text-muted-foreground">Manage your account preferences</p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5" />
+                Profile
+              </CardTitle>
+              <CardDescription>
+                Update your profile information and picture
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center gap-6">
+                <div className="relative">
+                  <Avatar className="w-20 h-20">
+                    <AvatarImage src={profileImage || undefined} />
+                    <AvatarFallback className="text-xl bg-primary/10 text-primary">
+                      {getInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingImage}
+                    className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    data-testid="button-upload-avatar"
+                  >
+                    {uploadingImage ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Camera className="w-4 h-4" />
+                    )}
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    data-testid="input-avatar-file"
+                  />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <p className="font-medium text-foreground">{user?.email}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Click the camera icon to upload a new picture
+                  </p>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Enter your first name"
+                    data-testid="input-first-name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Enter your last name"
+                    data-testid="input-last-name"
+                  />
+                </div>
+              </div>
+
+              <Button
+                onClick={handleSaveProfile}
+                disabled={updateSettingsMutation.isPending}
+                className="gap-2"
+                data-testid="button-save-profile"
+              >
+                {updateSettingsMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                Save Profile
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sun className="w-5 h-5" />
+                Appearance
+              </CardTitle>
+              <CardDescription>
+                Choose your preferred theme
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-3">
+                {themeOptions.map((option) => {
+                  const Icon = option.icon;
+                  const isActive = theme === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      onClick={() => handleThemeChange(option.value)}
+                      className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                        isActive
+                          ? "border-primary bg-primary/5"
+                          : "border-transparent bg-muted/50 hover:bg-muted"
+                      }`}
+                      data-testid={`button-theme-${option.value}`}
+                    >
+                      <Icon className={`w-6 h-6 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+                      <span className={`text-sm font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                        {option.label}
+                      </span>
+                      {isActive && (
+                        <Check className="w-4 h-4 text-primary" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Trash2 className="w-5 h-5" />
+                Privacy
+              </CardTitle>
+              <CardDescription>
+                Manage your data and privacy settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="auto-delete" className="text-base">
+                    Auto-delete uploaded files
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Automatically delete source files after quiz generation
+                  </p>
+                </div>
+                <Switch
+                  id="auto-delete"
+                  checked={autoDeleteFiles}
+                  onCheckedChange={handleAutoDeleteChange}
+                  data-testid="switch-auto-delete"
+                />
+              </div>
+              
+              {autoDeleteFiles && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20"
+                >
+                  <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-amber-600 dark:text-amber-400">
+                    When enabled, your uploaded documents will be deleted immediately after quiz generation. 
+                    The quiz content will still be saved.
+                  </p>
+                </motion.div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  );
+}

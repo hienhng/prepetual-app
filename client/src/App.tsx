@@ -10,7 +10,7 @@ import { GlobalUploadIndicator } from "@/components/global-upload-indicator";
 import { LoginDialog, SignUpDialog } from "@/components/auth-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
-import { LogIn, LogOut, User, Menu } from "lucide-react";
+import { LogIn, LogOut, User, Menu, Settings as SettingsIcon } from "lucide-react";
 import logoImage from "@assets/image_1765894870887.png";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -45,6 +45,7 @@ import FAQ from "@/pages/faq";
 import HelpCenter from "@/pages/help-center";
 import StreakComplete from "@/pages/streak-complete";
 import RevisionSummary from "@/pages/revision-summary";
+import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 import { Footer } from "@/components/footer";
 
@@ -90,6 +91,7 @@ function AuthenticatedRouter() {
       <Route path="/edit-quiz" component={EditQuiz} />
       <Route path="/streak-complete" component={StreakComplete} />
       <Route path="/revision-summary" component={RevisionSummary} />
+      <Route path="/settings" component={Settings} />
       <Route path="/terms" component={TermsOfService} />
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/about" component={About} />
@@ -130,6 +132,7 @@ function PublicRouter() {
       <Route path="/study">{() => <ProtectedRoute component={Study} />}</Route>
       <Route path="/edit-quiz">{() => <ProtectedRoute component={EditQuiz} />}</Route>
       <Route path="/streak-complete">{() => <ProtectedRoute component={StreakComplete} />}</Route>
+      <Route path="/settings">{() => <ProtectedRoute component={Settings} />}</Route>
       <Route component={NotFound} />
     </Switch>
   );
@@ -223,6 +226,12 @@ function AuthenticatedHeader() {
             <DropdownMenuItem className="text-muted-foreground" disabled>
               <User className="h-4 w-4 mr-2" />
               {user?.email || "User"}
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/settings" data-testid="link-settings-mobile">
+                <SettingsIcon className="h-4 w-4 mr-2" />
+                Settings
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={async () => {
