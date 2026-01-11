@@ -148,7 +148,7 @@ function PublicHeader() {
             alt="Prepetual Logo" 
             className="w-9 h-9 rounded-full object-cover"
           />
-          <span className="text-xl font-brand text-foreground hidden sm:inline">Prepetual</span>
+          <span className="text-md font-brand text-foreground hidden sm:inline">Prepetual</span>
         </Link>
         <div className="flex items-center gap-2">
           <ThemeToggle />
