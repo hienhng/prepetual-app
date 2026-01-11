@@ -343,7 +343,8 @@ Your task is to:
 1. Parse and extract ALL existing questions from the content
 2. Identify the correct answer for each question using your knowledge
 3. Provide a brief explanation for why each answer is correct
-4. Generate a short, descriptive title (max 6 words) for this quiz.
+4. For each WRONG answer option, provide a brief explanation of why it is incorrect
+5. Generate a short, descriptive title (max 6 words) for this quiz.
 
 CONTENT:
 ${truncatedText}
@@ -361,6 +362,7 @@ IMPORTANT INSTRUCTIONS:
 - Use your knowledge to determine the correct answer - DO NOT just guess
 - If a question is unclear or you cannot determine the answer confidently, still include it but note the uncertainty in the explanation
 - Convert all questions to multiple_choice type since they appear to have options
+- The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
 OUTPUT FORMAT (JSON):
 {
@@ -371,7 +373,11 @@ OUTPUT FORMAT (JSON):
       "question": "The exact question text as it appears",
       "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // Extract exactly as they appear, but REMOVE any prefixes like "A) ", "1. ", "a. ", etc. from the start of each option.
       "correctAnswer": "The exact full text of the correct option (without any prefix)",
-      "explanation": "Brief explanation of why this is the correct answer"
+      "explanation": "Brief explanation of why this is the correct answer",
+      "wrongAnswerExplanations": {
+        "Option 1": "Why this option is incorrect",
+        "Option 2": "Why this option is incorrect"
+      }
     }
   ]
 }
@@ -385,7 +391,8 @@ Your task is to:
 2. Questions may appear in the images - extract those too
 3. Identify the correct answer for each question using your knowledge
 4. Provide a brief explanation for why each answer is correct
-5. Generate a short, descriptive title (max 6 words) for this quiz.
+5. For each WRONG answer option, provide a brief explanation of why it is incorrect
+6. Generate a short, descriptive title (max 6 words) for this quiz.
 
 TEXT CONTENT:
 ${truncatedText}
@@ -400,6 +407,7 @@ IMPORTANT INSTRUCTIONS:
 - For multiple choice, preserve all answer options as they appear
 - Use your knowledge to determine the correct answer - DO NOT just guess
 - Convert all questions to multiple_choice type since they appear to have options
+- The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
 OUTPUT FORMAT (JSON):
 {
@@ -410,7 +418,11 @@ OUTPUT FORMAT (JSON):
       "question": "The exact question text as it appears",
       "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // Extract exactly as they appear, but REMOVE any prefixes like "A) ", "1. ", "a. ", etc. from the start of each option.
       "correctAnswer": "The exact full text of the correct option (without any prefix)",
-      "explanation": "Brief explanation of why this is the correct answer"
+      "explanation": "Brief explanation of why this is the correct answer",
+      "wrongAnswerExplanations": {
+        "Option 1": "Why this option is incorrect",
+        "Option 2": "Why this option is incorrect"
+      }
     }
   ]
 }
@@ -545,6 +557,17 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
         }
       }
 
+      // Process wrongAnswerExplanations for imported quizzes
+      let wrongAnswerExplanations: Record<string, string> | undefined;
+      if (questionType === "multiple_choice" && q.wrongAnswerExplanations && typeof q.wrongAnswerExplanations === "object") {
+        wrongAnswerExplanations = {};
+        for (const [key, value] of Object.entries(q.wrongAnswerExplanations)) {
+          if (value && typeof value === "string") {
+            wrongAnswerExplanations[String(key).trim()] = String(value).trim();
+          }
+        }
+      }
+
       const question: Question = {
         id: randomUUID(),
         type: questionType,
@@ -552,6 +575,7 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
         options,
         correctAnswer,
         explanation: q.explanation ? String(q.explanation).trim() : undefined,
+        wrongAnswerExplanations,
       };
 
       questions.push(question);
