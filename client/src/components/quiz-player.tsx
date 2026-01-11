@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose, RotateCcw, Zap, Trophy, Target, ChevronUp, Star, Flame, BadgeCheck, BookCheck } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose, RotateCcw, Zap, Trophy, Target, ChevronUp, Star, Flame, BadgeCheck, BookCheck, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,8 +84,8 @@ export function QuizPlayer() {
   const originalQuestions = currentQuiz.questions;
   
   const allQuestions = useMemo(() => {
-    // Both users and guests get a 2nd attempt for wrong answers
-    const wrongQuestions = originalQuestions.filter(q => wrongAnswerIds.current.has(q.id));
+    // Only registered users get a 2nd attempt for wrong answers
+    const wrongQuestions = !isGuest ? originalQuestions.filter(q => wrongAnswerIds.current.has(q.id)) : [];
     const retryQuestions = wrongQuestions.map(q => ({
       ...q,
       id: `retry-${q.id}`,
@@ -93,7 +93,7 @@ export function QuizPlayer() {
       isRetry: true as const,
     }));
     return [...originalQuestions.map(q => ({ ...q, isRetry: false as const, originalId: q.id })), ...retryQuestions];
-  }, [originalQuestions, wrongAnswerIds.current.size]);
+  }, [originalQuestions, wrongAnswerIds.current.size, isGuest]);
 
   const currentQuestion = allQuestions[currentIndex];
   const isRetryQuestion = currentQuestion?.isRetry;
