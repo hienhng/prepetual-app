@@ -33,13 +33,13 @@ function InteractiveFlashcard() {
 
   return (
     <motion.div
-      className="absolute bottom-4 -left-4 md:left-0 w-[160px] md:w-[180px] rounded-xl bg-card border shadow-xl overflow-hidden"
+      className="absolute bottom-4 -left-4 md:left-0 w-[160px] md:w-[180px] rounded-xl bg-card border shadow-xl z-20"
       initial={{ opacity: 0, x: -30, rotate: -9 }}
       animate={{ opacity: 1, x: 0, rotate: 3 }}
       transition={{ delay: 0.7, duration: 0.6 }}
     >
       {/* Draggable flashcard - works like real study page */}
-      <div className="relative h-[130px] touch-none">
+      <div className="relative h-[130px] touch-none overflow-visible">
         <motion.div 
           className="absolute inset-0 flex flex-col cursor-grab active:cursor-grabbing"
           style={{ x, rotate }}
