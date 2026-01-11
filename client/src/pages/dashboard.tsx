@@ -188,11 +188,13 @@ function getStreakTrivia(streak: number): string {
 function StreakCalendar({ 
   streakDates, 
   currentStreak,
-  longestStreak 
+  longestStreak,
+  isActive
 }: { 
   streakDates: string[]; 
   currentStreak: number;
   longestStreak: number;
+  isActive: boolean;
 }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   
@@ -296,16 +298,25 @@ function StreakCalendar({
   return (
     <div className="space-y-6">
       {/* Streak Header with Fire Icon and Trivia */}
-      <div className="flex items-center gap-5 p-4 bg-orange-100 dark:bg-orange-950/50 rounded-lg">
+      <div className={`flex items-center gap-5 p-4 rounded-lg ${
+        isActive 
+          ? "bg-orange-100 dark:bg-orange-950/50" 
+          : "bg-muted/50 grayscale opacity-70"
+      }`}>
         <motion.div
-          animate={{ scale: [1, 1.1, 1] }}
+          animate={isActive ? { scale: [1, 1.1, 1] } : {}}
           transition={{ duration: 1.5, repeat: Infinity }}
           className="flex-shrink-0"
         >
-          <FontAwesomeIcon icon={faFire} className="h-16 w-16 text-orange-500" />
+          <FontAwesomeIcon 
+            icon={faFire} 
+            className={`h-16 w-16 ${isActive ? "text-orange-500" : "text-muted-foreground"}`} 
+          />
         </motion.div>
         <div className="flex-1">
-          <span className="text-4xl font-bold text-foreground">{currentStreak} day streak</span>
+          <span className={`text-4xl font-bold ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
+            {currentStreak} day streak
+          </span>
           <p className="text-sm text-muted-foreground mt-1">{trivia}</p>
         </div>
       </div>
@@ -335,8 +346,13 @@ function StreakCalendar({
       <div className="flex items-center justify-center gap-8 pt-4 border-t">
         <div className="text-center">
           <div className="flex items-center gap-2 justify-center mb-1">
-            <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" />
-            <span className="text-2xl font-bold text-foreground">{currentStreak}</span>
+            <FontAwesomeIcon 
+              icon={faFire} 
+              className={`h-5 w-5 ${isActive ? "text-orange-500" : "text-muted-foreground"}`} 
+            />
+            <span className={`text-2xl font-bold ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
+              {currentStreak}
+            </span>
           </div>
           <p className="text-xs text-muted-foreground">Current Streak</p>
         </div>
@@ -844,6 +860,7 @@ export default function Dashboard() {
             streakDates={streakHistory ?? []} 
             currentStreak={streakData?.currentStreak ?? 0}
             longestStreak={streakData?.longestStreak ?? 0}
+            isActive={streakData?.isActive ?? false}
           />
         </DialogContent>
       </Dialog>
