@@ -88,17 +88,21 @@ export default function Settings() {
       themePreference?: ThemeOption;
       autoDeleteFiles?: boolean;
       profileImageUrl?: string;
+      _silent?: boolean;
     }) => {
-      const response = await apiRequest("PATCH", "/api/user/settings", data);
-      return response.json();
+      const { _silent, ...payload } = data;
+      const response = await apiRequest("PATCH", "/api/user/settings", payload);
+      return { result: await response.json(), silent: _silent };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/settings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      toast({
-        title: "Settings saved",
-        description: "Your preferences have been updated.",
-      });
+      if (!data.silent) {
+        toast({
+          title: "Settings saved",
+          description: "Your preferences have been updated.",
+        });
+      }
     },
     onError: () => {
       toast({
@@ -172,12 +176,12 @@ export default function Settings() {
 
   const handleThemeChange = (newTheme: ThemeOption) => {
     setTheme(newTheme);
-    updateSettingsMutation.mutate({ themePreference: newTheme });
+    updateSettingsMutation.mutate({ themePreference: newTheme, _silent: true });
   };
 
   const handleAutoDeleteChange = (checked: boolean) => {
     setAutoDeleteFiles(checked);
-    updateSettingsMutation.mutate({ autoDeleteFiles: checked });
+    updateSettingsMutation.mutate({ autoDeleteFiles: checked, _silent: true });
   };
 
   const getInitials = () => {
