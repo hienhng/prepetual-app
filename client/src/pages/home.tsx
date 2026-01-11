@@ -177,39 +177,82 @@ function HeroIllustration() {
                 <div className="absolute inset-0 rounded-lg bg-muted/50 border transform rotate-2 translate-x-1" />
                 <div className="absolute inset-0 rounded-lg bg-muted/30 border transform -rotate-1 -translate-x-0.5" />
                 
-                {/* Main flashcard with swipe animation */}
+                {/* Main flashcard with swipe animation and color change */}
                 <motion.div 
-                  className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-center justify-center p-2"
+                  className="absolute inset-0 rounded-lg flex items-center justify-center p-2 overflow-hidden"
                   animate={{ 
-                    x: [0, 40, 40, 0, -40, -40, 0],
-                    rotate: [0, 8, 8, 0, -8, -8, 0],
-                    opacity: [1, 1, 0.5, 1, 1, 0.5, 1]
+                    x: [0, 45, 45, 0, -45, -45, 0],
+                    rotate: [0, 10, 10, 0, -10, -10, 0],
+                    backgroundColor: [
+                      'hsl(var(--primary) / 0.1)',
+                      'hsl(142 76% 36% / 0.3)',
+                      'hsl(142 76% 36% / 0.3)',
+                      'hsl(var(--primary) / 0.1)',
+                      'hsl(25 95% 53% / 0.3)',
+                      'hsl(25 95% 53% / 0.3)',
+                      'hsl(var(--primary) / 0.1)'
+                    ],
+                    borderColor: [
+                      'hsl(var(--primary) / 0.2)',
+                      'hsl(142 76% 36% / 0.5)',
+                      'hsl(142 76% 36% / 0.5)',
+                      'hsl(var(--primary) / 0.2)',
+                      'hsl(25 95% 53% / 0.5)',
+                      'hsl(25 95% 53% / 0.5)',
+                      'hsl(var(--primary) / 0.2)'
+                    ]
                   }}
+                  style={{ borderWidth: 1 }}
                   transition={{ 
-                    duration: 4, 
+                    duration: 5, 
                     repeat: Infinity,
-                    times: [0, 0.15, 0.2, 0.35, 0.5, 0.55, 0.7]
+                    times: [0, 0.12, 0.18, 0.32, 0.44, 0.50, 0.65]
                   }}
                 >
-                  <p className="text-[9px] text-center text-foreground font-medium leading-tight">
-                    Mitochondria
-                  </p>
-                </motion.div>
-                
-                {/* Swipe indicators */}
-                <motion.div 
-                  className="absolute -left-2 top-1/2 -translate-y-1/2 text-[8px] text-rose-500 font-medium"
-                  animate={{ opacity: [0, 1, 0], x: [5, 0, 5] }}
-                  transition={{ duration: 4, repeat: Infinity, times: [0.35, 0.5, 0.55] }}
-                >
-                  ←
-                </motion.div>
-                <motion.div 
-                  className="absolute -right-2 top-1/2 -translate-y-1/2 text-[8px] text-green-500 font-medium"
-                  animate={{ opacity: [0, 1, 0], x: [-5, 0, -5] }}
-                  transition={{ duration: 4, repeat: Infinity, times: [0, 0.15, 0.2] }}
-                >
-                  →
+                  {/* Card content that changes based on swipe */}
+                  <motion.div
+                    className="text-center"
+                    animate={{
+                      opacity: [1, 0, 0, 1, 0, 0, 1]
+                    }}
+                    transition={{ 
+                      duration: 5, 
+                      repeat: Infinity,
+                      times: [0, 0.12, 0.18, 0.32, 0.44, 0.50, 0.65]
+                    }}
+                  >
+                    <p className="text-[9px] text-foreground font-medium">Mitochondria</p>
+                  </motion.div>
+                  
+                  {/* "KNOW" overlay - shows on right swipe */}
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center"
+                    animate={{
+                      opacity: [0, 1, 1, 0, 0, 0, 0]
+                    }}
+                    transition={{ 
+                      duration: 5, 
+                      repeat: Infinity,
+                      times: [0, 0.12, 0.18, 0.32, 0.44, 0.50, 0.65]
+                    }}
+                  >
+                    <span className="text-[11px] font-bold text-green-600">KNOW</span>
+                  </motion.div>
+                  
+                  {/* "STILL LEARNING" overlay - shows on left swipe */}
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center"
+                    animate={{
+                      opacity: [0, 0, 0, 0, 1, 1, 0]
+                    }}
+                    transition={{ 
+                      duration: 5, 
+                      repeat: Infinity,
+                      times: [0, 0.12, 0.18, 0.32, 0.44, 0.50, 0.65]
+                    }}
+                  >
+                    <span className="text-[9px] font-bold text-orange-500">STILL LEARNING</span>
+                  </motion.div>
                 </motion.div>
               </div>
               
@@ -227,13 +270,13 @@ function HeroIllustration() {
             <motion.div
               className="absolute top-1/2 -right-6 z-10"
               animate={{ 
-                x: [0, 25, 25, 0, -25, -25, 0],
+                x: [0, 30, 30, 0, -30, -30, 0],
                 y: [0, -2, -2, 0, -2, -2, 0]
               }}
               transition={{ 
-                duration: 4, 
+                duration: 5, 
                 repeat: Infinity,
-                times: [0, 0.15, 0.2, 0.35, 0.5, 0.55, 0.7]
+                times: [0, 0.12, 0.18, 0.32, 0.44, 0.50, 0.65]
               }}
             >
               <div className="relative">
