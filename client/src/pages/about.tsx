@@ -365,11 +365,13 @@ export default function About() {
 
           <motion.section variants={itemVariants} className="text-center mb-16">
             <motion.div 
-              className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-primary/80 mb-6 shadow-lg shadow-primary/25"
+              className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-background mb-6 shadow-lg border border-primary/20"
               whileHover={{ scale: 1.1, rotate: 5 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Sparkles className="w-10 h-10 text-white" />
+              <span className="font-brand text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                P
+              </span>
             </motion.div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
               About <span className="font-brand bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Prepetual</span>
