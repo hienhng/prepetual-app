@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { 
   User, Camera, Save, Moon, Sun, Monitor, Trash2, 
-  Loader2, Check, AlertCircle
+  Loader2, Check, AlertCircle, ShieldCheck, ShieldX
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -261,11 +262,19 @@ export default function Settings() {
                     data-testid="input-avatar-file"
                   />
                 </div>
-                <div className="flex-1 space-y-1">
+                <div className="flex-1 space-y-2">
                   <p className="font-medium text-foreground">{user?.email}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Click the camera icon to upload a new picture
-                  </p>
+                  {user?.emailVerified ? (
+                    <Badge variant="outline" className="gap-1 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/30">
+                      <ShieldCheck className="w-3 h-3" />
+                      Verified
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="gap-1 text-amber-600 dark:text-amber-400 border-amber-500/30 bg-amber-50 dark:bg-amber-950/30">
+                      <ShieldX className="w-3 h-3" />
+                      Not Verified
+                    </Badge>
+                  )}
                 </div>
               </div>
 
