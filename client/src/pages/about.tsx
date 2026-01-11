@@ -366,8 +366,8 @@ export default function About() {
 
           <motion.section variants={itemVariants} className="text-center mb-16">
             <motion.div 
-              className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-background mb-6 shadow-lg border border-primary/20 overflow-hidden"
-              whileHover={{ scale: 1.1, rotate: 5 }}
+              className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-background mb-6 border border-primary/20 overflow-hidden shadow-[0_10px_25px_-5px_rgba(234,179,8,0.3)] dark:shadow-[0_10px_25px_-5px_rgba(234,179,8,0.2)]"
+              whileHover={{ scale: 1.1, rotate: 5, shadow: "0 15px 30px -5px rgba(234,179,8,0.4)" }}
               transition={{ type: "spring", stiffness: 300 }}
             >
               <img 
