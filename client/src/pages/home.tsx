@@ -633,17 +633,23 @@ export default function Home() {
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight">
                 Turn notes into{" "}
-                <span className="relative">
+                <motion.span 
+                  className="relative cursor-default inline-block"
+                  whileHover="hovered"
+                  initial="initial"
+                >
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-amber-500">
                     quizzes
                   </span>
                   <motion.span
-                    className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-amber-500 rounded-full"
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ delay: 0.5, duration: 0.5 }}
+                    className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-amber-500 rounded-full origin-left"
+                    variants={{
+                      initial: { scaleX: 0 },
+                      hovered: { scaleX: 1 }
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   />
-                </span>
+                </motion.span>
                 <br />
                 <span className="text-muted-foreground text-3xl sm:text-4xl lg:text-5xl">in seconds</span>
               </h1>
