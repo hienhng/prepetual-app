@@ -29,6 +29,7 @@ declare global {
           renderButton: (
             element: HTMLElement,
             config: {
+              type?: "standard" | "icon";
               theme?: "outline" | "filled_blue" | "filled_black";
               size?: "large" | "medium" | "small";
               text?: "signin_with" | "signup_with" | "continue_with" | "signin";
@@ -66,7 +67,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
   const { toast } = useToast();
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
-  const googleCallbackRef = useRef<((response: { credential: string }) => void) | null>(null);
+  const hiddenGoogleButtonRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<LoginFormType>({
     resolver: zodResolver(loginSchema),
@@ -120,16 +121,18 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
         if (!clientId || cancelled) return;
 
         const tryInit = () => {
-          if (window.google) {
-            const callback = (response: { credential: string }) => {
-              setGoogleLoading(true);
-              googleMutation.mutate(response.credential);
-            };
-            googleCallbackRef.current = callback;
-            
+          if (window.google && hiddenGoogleButtonRef.current) {
             window.google.accounts.id.initialize({
               client_id: clientId,
-              callback,
+              callback: (response) => {
+                setGoogleLoading(true);
+                googleMutation.mutate(response.credential);
+              },
+            });
+
+            window.google.accounts.id.renderButton(hiddenGoogleButtonRef.current, {
+              type: "standard",
+              size: "large",
             });
             
             setGoogleReady(true);
@@ -162,8 +165,9 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
   }, [open]);
 
   const handleGoogleClick = () => {
-    if (window.google && googleReady) {
-      window.google.accounts.id.prompt();
+    const hiddenButton = hiddenGoogleButtonRef.current?.querySelector('div[role="button"]') as HTMLElement;
+    if (hiddenButton) {
+      hiddenButton.click();
     }
   };
 
@@ -303,6 +307,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
             )}
             {googleLoading ? "Signing in..." : "Continue with Google"}
           </Button>
+          <div ref={hiddenGoogleButtonRef} className="hidden" />
 
           <div className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
@@ -342,7 +347,7 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
   const { toast } = useToast();
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
-  const googleCallbackRef = useRef<((response: { credential: string }) => void) | null>(null);
+  const hiddenGoogleButtonRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<RegisterFormType>({
     resolver: zodResolver(registerSchema),
@@ -399,16 +404,18 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
         if (!clientId || cancelled) return;
 
         const tryInit = () => {
-          if (window.google) {
-            const callback = (response: { credential: string }) => {
-              setGoogleLoading(true);
-              googleMutation.mutate(response.credential);
-            };
-            googleCallbackRef.current = callback;
-            
+          if (window.google && hiddenGoogleButtonRef.current) {
             window.google.accounts.id.initialize({
               client_id: clientId,
-              callback,
+              callback: (response) => {
+                setGoogleLoading(true);
+                googleMutation.mutate(response.credential);
+              },
+            });
+
+            window.google.accounts.id.renderButton(hiddenGoogleButtonRef.current, {
+              type: "standard",
+              size: "large",
             });
             
             setGoogleReady(true);
@@ -441,8 +448,9 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
   }, [open]);
 
   const handleGoogleClick = () => {
-    if (window.google && googleReady) {
-      window.google.accounts.id.prompt();
+    const hiddenButton = hiddenGoogleButtonRef.current?.querySelector('div[role="button"]') as HTMLElement;
+    if (hiddenButton) {
+      hiddenButton.click();
     }
   };
 
@@ -573,6 +581,7 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
             )}
             {googleLoading ? "Signing up..." : "Sign up with Google"}
           </Button>
+          <div ref={hiddenGoogleButtonRef} className="hidden" />
 
           <div className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
