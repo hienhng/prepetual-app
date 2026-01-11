@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose, RotateCcw } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose, RotateCcw, Zap, Trophy, Target, ChevronUp, Star, Flame } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,46 @@ import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
 import { MaterialViewerDialog, MaterialViewerSidebar } from "@/components/material-viewer";
+import confetti from "canvas-confetti";
+
+const encouragingMessages = {
+  correct: [
+    "Excellent work!",
+    "You nailed it!",
+    "Brilliant!",
+    "Keep it up!",
+    "Perfect!",
+    "Outstanding!",
+    "You're on fire!",
+    "Impressive!",
+  ],
+  incorrect: [
+    "Don't worry, keep learning!",
+    "You'll get the next one!",
+    "Learning in progress!",
+    "Every mistake is a lesson!",
+    "Stay curious!",
+  ],
+  streak: [
+    "2 in a row!",
+    "3 in a row! Nice!",
+    "4 in a row! Amazing!",
+    "5+ streak! Unstoppable!",
+  ],
+};
+
+const getRandomMessage = (type: "correct" | "incorrect") => {
+  const messages = encouragingMessages[type];
+  return messages[Math.floor(Math.random() * messages.length)];
+};
+
+const getStreakMessage = (streak: number) => {
+  if (streak < 2) return null;
+  if (streak === 2) return encouragingMessages.streak[0];
+  if (streak === 3) return encouragingMessages.streak[1];
+  if (streak === 4) return encouragingMessages.streak[2];
+  return encouragingMessages.streak[3];
+};
 
 export function QuizPlayer() {
   const [, setLocation] = useLocation();
@@ -22,9 +62,11 @@ export function QuizPlayer() {
   const [checkedQuestions, setCheckedQuestions] = useState<Set<string>>(new Set());
   const [showMaterial, setShowMaterial] = useState(false);
   const [showMaterialDialog, setShowMaterialDialog] = useState(false);
+  const [correctStreak, setCorrectStreak] = useState(0);
+  const [feedbackMessages, setFeedbackMessages] = useState<Record<string, { message: string; streakAtTime: number }>>({}); 
+  const [showQuestionNav, setShowQuestionNav] = useState(false);
   
-  // Spaced repetition: track wrong answers for retry round
-  const [wrongAnswerIds, setWrongAnswerIds] = useState<Set<string>>(new Set());
+  const wrongAnswerIds = useRef<Set<string>>(new Set());
   const [retryAnswers, setRetryAnswers] = useState<Record<string, string>>({});
   const [retryChecked, setRetryChecked] = useState<Set<string>>(new Set());
   
@@ -36,29 +78,23 @@ export function QuizPlayer() {
 
   const originalQuestions = currentQuiz.questions;
   
-  // Build the combined question list: original questions + retry questions (clones of wrong ones)
   const allQuestions = useMemo(() => {
-    const wrongQuestions = originalQuestions.filter(q => wrongAnswerIds.has(q.id));
-    // Create "cloned" retry questions with a special marker
+    const wrongQuestions = originalQuestions.filter(q => wrongAnswerIds.current.has(q.id));
     const retryQuestions = wrongQuestions.map(q => ({
       ...q,
-      id: `retry-${q.id}`, // Unique ID for retry version
+      id: `retry-${q.id}`,
       originalId: q.id,
       isRetry: true as const,
     }));
     return [...originalQuestions.map(q => ({ ...q, isRetry: false as const, originalId: q.id })), ...retryQuestions];
-  }, [originalQuestions, wrongAnswerIds]);
+  }, [originalQuestions, wrongAnswerIds.current.size]);
 
   const currentQuestion = allQuestions[currentIndex];
   const isRetryQuestion = currentQuestion?.isRetry;
   const originalQuestionCount = originalQuestions.length;
   
-  // Progress shows completion of original questions only
   const mainProgress = Math.min(currentIndex + 1, originalQuestionCount);
   const progress = (mainProgress / originalQuestionCount) * 100;
-  
-  // Get the right answer and checked status based on whether it's a retry
-  const getQuestionKey = (q: typeof currentQuestion) => q?.isRetry ? q.id : q?.originalId;
   
   const selectedAnswer = currentQuestion?.isRetry 
     ? retryAnswers[currentQuestion.id] 
@@ -77,6 +113,15 @@ export function QuizPlayer() {
 
   const isCorrect = () => {
     return isCorrectAnswer(selectedAnswer, currentQuestion);
+  };
+
+  const triggerConfetti = () => {
+    confetti({
+      particleCount: 80,
+      spread: 60,
+      origin: { y: 0.7 },
+      colors: ['#4255FF', '#9C27B0', '#00C853', '#FFD700'],
+    });
   };
 
   const handleSelectAnswer = (answer: string) => {
@@ -106,14 +151,36 @@ export function QuizPlayer() {
     }
     
     if (answerToCheck || (currentQuestion.type === "short_answer" && shortAnswerInput.trim())) {
+      const correct = isCorrectAnswer(answerToCheck, currentQuestion);
+      const questionKey = currentQuestion.id;
+      
+      let newStreak = correctStreak;
+      let message = "";
+      
+      if (correct) {
+        newStreak = correctStreak + 1;
+        setCorrectStreak(newStreak);
+        message = getStreakMessage(newStreak) || getRandomMessage("correct");
+        if (newStreak >= 3) {
+          triggerConfetti();
+        }
+      } else {
+        setCorrectStreak(0);
+        message = getRandomMessage("incorrect");
+      }
+      
+      setFeedbackMessages(prev => ({
+        ...prev,
+        [questionKey]: { message, streakAtTime: correct ? newStreak : 0 }
+      }));
+      
       if (currentQuestion.isRetry) {
         setRetryChecked(prev => new Set(prev).add(currentQuestion.id));
       } else {
         setCheckedQuestions(prev => new Set(prev).add(currentQuestion.originalId));
         
-        // Track wrong answers for retry round (only for original questions)
-        if (!isCorrectAnswer(answerToCheck, currentQuestion)) {
-          setWrongAnswerIds(prev => new Set(prev).add(currentQuestion.originalId));
+        if (!correct) {
+          wrongAnswerIds.current.add(currentQuestion.originalId);
         }
       }
     }
@@ -143,14 +210,23 @@ export function QuizPlayer() {
     }
   };
 
+  const goToQuestion = (index: number) => {
+    setCurrentIndex(index);
+    setShowQuestionNav(false);
+    const question = allQuestions[index];
+    if (question.isRetry) {
+      setShortAnswerInput(retryAnswers[question.id] || "");
+    } else {
+      setShortAnswerInput(userAnswers[question.originalId] || "");
+    }
+  };
+
   const finishQuiz = async () => {
     setIsSubmitting(true);
 
     try {
-      // Set the revised questions count for the results page
-      setRevisedQuestionsCount(wrongAnswerIds.size);
+      setRevisedQuestionsCount(wrongAnswerIds.current.size);
       
-      // Calculate how many retry questions were answered correctly
       const retryQs = allQuestions.filter(q => q.isRetry);
       let retryCorrect = 0;
       for (const rq of retryQs) {
@@ -166,7 +242,7 @@ export function QuizPlayer() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           quizId: currentQuiz.id,
-          answers: userAnswers, // Only original answers count for scoring
+          answers: userAnswers,
         }),
       });
 
@@ -187,50 +263,26 @@ export function QuizPlayer() {
   const getQuestionTypeBadge = (type: Question["type"]) => {
     switch (type) {
       case "multiple_choice":
-        return <Badge variant="secondary">Multiple Choice</Badge>;
+        return <Badge variant="secondary" className="text-xs">Multiple Choice</Badge>;
       case "true_false":
-        return <Badge className="bg-quiz-purple text-white">True/False</Badge>;
+        return <Badge className="bg-quiz-purple text-white text-xs">True/False</Badge>;
       case "short_answer":
-        return <Badge className="bg-quiz-orange text-white">Short Answer</Badge>;
+        return <Badge className="bg-quiz-orange text-white text-xs">Short Answer</Badge>;
     }
-  };
-
-  const getOptionStyle = (option: string) => {
-    const isSelected = selectedAnswer === option;
-    const isCorrectOpt = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
-    
-    if (!isChecked) {
-      return isSelected 
-        ? "ring-2 ring-primary bg-primary/5" 
-        : "hover:bg-muted/50";
-    }
-    
-    if (isCorrectOpt) {
-      return "ring-2 ring-green-500 bg-green-500/10";
-    }
-    
-    if (isSelected && !isCorrectOpt) {
-      return "ring-2 ring-red-500 bg-red-500/10";
-    }
-    
-    return "opacity-50";
   };
 
   const getWrongAnswerExplanation = (answer: string | undefined) => {
     if (!answer || !currentQuestion.wrongAnswerExplanations) return null;
     
-    // Try exact match first
     if (currentQuestion.wrongAnswerExplanations[answer]) {
       return currentQuestion.wrongAnswerExplanations[answer];
     }
     
-    // Try matching without prefix (e.g., "A) Option" -> "Option")
     const answerWithoutPrefix = answer.replace(/^[A-D]\)\s*/, "").trim();
     if (currentQuestion.wrongAnswerExplanations[answerWithoutPrefix]) {
       return currentQuestion.wrongAnswerExplanations[answerWithoutPrefix];
     }
     
-    // Try finding a key that matches either way
     for (const [key, value] of Object.entries(currentQuestion.wrongAnswerExplanations)) {
       const keyWithoutPrefix = key.replace(/^[A-D]\)\s*/, "").trim();
       if (keyWithoutPrefix.toLowerCase() === answerWithoutPrefix.toLowerCase() ||
@@ -247,62 +299,96 @@ export function QuizPlayer() {
     
     const correct = isCorrect();
     const wrongExplanation = !correct && selectedAnswer && getWrongAnswerExplanation(selectedAnswer);
+    const questionFeedback = feedbackMessages[currentQuestion.id];
+    const feedbackMessage = questionFeedback?.message || (correct ? "Correct!" : "Incorrect");
+    const streakAtTime = questionFeedback?.streakAtTime || 0;
     
     return (
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         className="mt-6 space-y-3"
       >
-        <Card className={`${correct ? "bg-green-500/10 border-green-500/30" : "bg-red-500/10 border-red-500/30"}`}>
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+        <motion.div
+          initial={{ x: correct ? 20 : -20 }}
+          animate={{ x: 0 }}
+          className={`rounded-2xl p-4 sm:p-5 ${
+            correct 
+              ? "bg-gradient-to-r from-green-500/20 to-emerald-500/10 border border-green-500/30" 
+              : "bg-gradient-to-r from-red-500/20 to-rose-500/10 border border-red-500/30"
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 25 }}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
                 correct ? "bg-green-500" : "bg-red-500"
-              }`}>
-                {correct ? (
-                  <Check className="h-5 w-5 text-white" />
-                ) : (
-                  <X className="h-5 w-5 text-white" />
-                )}
-              </div>
-              <div className="flex-1">
-                <p className={`font-semibold ${correct ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                  {correct ? "Correct!" : "Incorrect"}
+              }`}
+            >
+              {correct ? (
+                <Check className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+              ) : (
+                <X className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+              )}
+            </motion.div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className={`text-lg sm:text-xl font-bold ${correct ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                  {feedbackMessage}
                 </p>
-                {!correct && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    The correct answer is: <span className="font-medium text-foreground">{currentQuestion.correctAnswer}</span>
-                  </p>
-                )}
-                {currentQuestion.explanation && !isGuest && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {currentQuestion.explanation}
-                  </p>
+                {correct && streakAtTime >= 2 && (
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    className="flex items-center gap-1 px-2 py-0.5 bg-orange-500/20 rounded-full"
+                  >
+                    <Flame className="h-4 w-4 text-orange-500" />
+                    <span className="text-xs font-bold text-orange-600 dark:text-orange-400">{streakAtTime}</span>
+                  </motion.div>
                 )}
               </div>
+              {!correct && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  Correct answer: <span className="font-semibold text-foreground">{currentQuestion.correctAnswer}</span>
+                </p>
+              )}
+              {currentQuestion.explanation && !isGuest && (
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-sm text-muted-foreground mt-3 leading-relaxed"
+                >
+                  {currentQuestion.explanation}
+                </motion.p>
+              )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </motion.div>
         
         {wrongExplanation && !isGuest && (
-          <Card className="bg-amber-500/10 border-amber-500/30">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-500">
-                  <Sparkles className="h-4 w-4 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-amber-600 dark:text-amber-400">
-                    Why your answer was wrong
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {wrongExplanation}
-                  </p>
-                </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="rounded-2xl p-4 sm:p-5 bg-gradient-to-r from-amber-500/15 to-yellow-500/10 border border-amber-500/30"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-500">
+                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-amber-600 dark:text-amber-400">
+                  Why this was incorrect
+                </p>
+                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                  {wrongExplanation}
+                </p>
+              </div>
+            </div>
+          </motion.div>
         )}
       </motion.div>
     );
@@ -317,35 +403,59 @@ export function QuizPlayer() {
             const isCorrectOpt = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
             
             return (
-              <Card
+              <motion.button
                 key={option}
-                className={`
-                  p-4 sm:p-6 transition-all min-h-[56px]
-                  ${!isChecked ? "cursor-pointer hover:scale-[1.02]" : ""}
-                  ${getOptionStyle(option)}
-                `}
+                whileHover={!isChecked ? { scale: 1.02 } : {}}
+                whileTap={!isChecked ? { scale: 0.98 } : {}}
                 onClick={() => handleSelectAnswer(option)}
+                disabled={isChecked}
                 data-testid={`option-${option.toLowerCase()}`}
+                className={`
+                  relative p-5 sm:p-8 rounded-2xl transition-all duration-200 text-left
+                  ${!isChecked ? "cursor-pointer" : "cursor-default"}
+                  ${isChecked && isCorrectOpt 
+                    ? "bg-green-500/15 border-2 border-green-500 shadow-lg shadow-green-500/10" 
+                    : isChecked && isSelected && !isCorrectOpt
+                      ? "bg-red-500/15 border-2 border-red-500 shadow-lg shadow-red-500/10"
+                      : isSelected
+                        ? "bg-primary/10 border-2 border-primary shadow-lg shadow-primary/10"
+                        : "bg-card border-2 border-border hover:border-primary/50 hover:bg-muted/50"
+                  }
+                `}
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-base sm:text-lg font-medium">{option}</span>
-                  {isChecked ? (
-                    isCorrectOpt ? (
-                      <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-                        <Check className="h-4 w-4 text-white" />
-                      </div>
-                    ) : isSelected ? (
-                      <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center">
-                        <X className="h-4 w-4 text-white" />
-                      </div>
-                    ) : null
-                  ) : isSelected ? (
-                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                      <Check className="h-4 w-4 text-primary-foreground" />
-                    </div>
-                  ) : null}
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-lg sm:text-xl font-semibold">{option}</span>
+                  <AnimatePresence>
+                    {isChecked && isCorrectOpt && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center"
+                      >
+                        <Check className="h-5 w-5 text-white" />
+                      </motion.div>
+                    )}
+                    {isChecked && isSelected && !isCorrectOpt && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center"
+                      >
+                        <X className="h-5 w-5 text-white" />
+                      </motion.div>
+                    )}
+                    {!isChecked && isSelected && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="w-8 h-8 rounded-full bg-primary flex items-center justify-center"
+                      >
+                        <Check className="h-5 w-5 text-primary-foreground" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              </Card>
+              </motion.button>
             );
           })}
         </div>
@@ -359,7 +469,7 @@ export function QuizPlayer() {
             value={isChecked ? (selectedAnswer || shortAnswerInput) : shortAnswerInput}
             onChange={(e) => handleShortAnswerChange(e.target.value)}
             placeholder="Type your answer here..."
-            className="py-6 text-lg"
+            className="py-6 px-5 text-lg rounded-xl border-2 focus:border-primary"
             disabled={isChecked}
             data-testid="input-short-answer"
           />
@@ -367,62 +477,137 @@ export function QuizPlayer() {
       );
     }
 
+    const optionLabels = ['A', 'B', 'C', 'D'];
+    
     return (
-      <div className="space-y-2 sm:space-y-3">
+      <div className="space-y-3">
         {currentQuestion.options?.map((option, index) => {
           const isSelected = selectedAnswer === option;
           const isCorrectOpt = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
           
           return (
-            <Card
+            <motion.button
               key={index}
-              className={`
-                p-3 sm:p-5 transition-all min-h-[56px]
-                ${!isChecked ? "cursor-pointer hover:scale-[1.01]" : ""}
-                ${getOptionStyle(option)}
-              `}
+              whileHover={!isChecked ? { scale: 1.01, x: 4 } : {}}
+              whileTap={!isChecked ? { scale: 0.99 } : {}}
               onClick={() => handleSelectAnswer(option)}
+              disabled={isChecked}
               data-testid={`option-${index}`}
+              className={`
+                w-full relative p-4 sm:p-5 rounded-xl transition-all duration-200 text-left
+                ${!isChecked ? "cursor-pointer" : "cursor-default"}
+                ${isChecked && isCorrectOpt 
+                  ? "bg-green-500/15 border-2 border-green-500" 
+                  : isChecked && isSelected && !isCorrectOpt
+                    ? "bg-red-500/15 border-2 border-red-500"
+                    : isSelected
+                      ? "bg-primary/10 border-2 border-primary"
+                      : "bg-card border-2 border-border hover:border-primary/50 hover:bg-muted/30"
+                }
+              `}
             >
-              <div className="flex items-center gap-3 sm:gap-4">
+              <div className="flex items-center gap-4">
                 <div className={`
-                  w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center font-semibold text-xs sm:text-sm flex-shrink-0
+                  w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0 transition-all
                   ${isChecked && isCorrectOpt
-                    ? "border-green-500 bg-green-500 text-white"
+                    ? "bg-green-500 text-white"
                     : isChecked && isSelected && !isCorrectOpt
-                      ? "border-red-500 bg-red-500 text-white"
+                      ? "bg-red-500 text-white"
                       : isSelected
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-muted-foreground/30"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
                   }
                 `}>
-                  {String.fromCharCode(65 + index)}
+                  {optionLabels[index]}
                 </div>
-                <span className="text-sm sm:text-base flex-1">{option}</span>
-                {isChecked ? (
-                  isCorrectOpt ? (
-                    <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                <span className="text-sm sm:text-base flex-1 font-medium">{option}</span>
+                <AnimatePresence>
+                  {isChecked && isCorrectOpt && (
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      className="w-7 h-7 rounded-full bg-green-500 flex items-center justify-center"
+                    >
                       <Check className="h-4 w-4 text-white" />
-                    </div>
-                  ) : isSelected ? (
-                    <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center">
+                    </motion.div>
+                  )}
+                  {isChecked && isSelected && !isCorrectOpt && (
+                    <motion.div
+                      initial={{ scale: 0, rotate: 180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center"
+                    >
                       <X className="h-4 w-4 text-white" />
-                    </div>
-                  ) : null
-                ) : isSelected ? (
-                  <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                    <Check className="h-4 w-4 text-primary-foreground" />
-                  </div>
-                ) : null}
+                    </motion.div>
+                  )}
+                  {!isChecked && isSelected && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="w-7 h-7 rounded-full bg-primary flex items-center justify-center"
+                    >
+                      <Check className="h-4 w-4 text-primary-foreground" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </Card>
+            </motion.button>
           );
         })}
       </div>
     );
   };
 
-  // Calculate if all questions (including retries) have been checked
+  const renderQuestionNav = () => {
+    return (
+      <AnimatePresence>
+        {showQuestionNav && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed inset-x-0 bottom-20 sm:bottom-24 z-40 px-4"
+          >
+            <Card className="mx-auto max-w-lg p-4 shadow-xl border-2">
+              <p className="text-sm font-medium text-muted-foreground mb-3">Jump to question</p>
+              <div className="flex flex-wrap gap-2">
+                {originalQuestions.map((q, i) => {
+                  const isAnswered = checkedQuestions.has(q.id);
+                  const wasCorrect = isAnswered && isCorrectAnswer(userAnswers[q.id], { ...q, isRetry: false, originalId: q.id });
+                  const isCurrent = currentQuestion?.originalId === q.id && !currentQuestion?.isRetry;
+                  const isCurrentRetry = currentQuestion?.originalId === q.id && currentQuestion?.isRetry;
+                  
+                  return (
+                    <button
+                      key={q.id}
+                      onClick={() => goToQuestion(i)}
+                      className={`
+                        w-10 h-10 rounded-lg font-semibold text-sm transition-all
+                        ${isCurrent 
+                          ? "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2" 
+                          : isCurrentRetry
+                            ? "bg-orange-500 text-white ring-2 ring-orange-500 ring-offset-2"
+                            : isAnswered && wasCorrect
+                              ? "bg-green-500/20 text-green-700 dark:text-green-400 border border-green-500/50"
+                              : isAnswered
+                                ? "bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/50"
+                                : "bg-muted hover:bg-muted/80"
+                        }
+                      `}
+                      data-testid={`nav-question-${i}`}
+                    >
+                      {i + 1}
+                    </button>
+                  );
+                })}
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  };
+
   const allOriginalChecked = checkedQuestions.size === originalQuestionCount;
   const retryQuestionsInList = allQuestions.filter(q => q.isRetry);
   const allRetryChecked = retryQuestionsInList.every(q => retryChecked.has(q.id));
@@ -434,263 +619,225 @@ export function QuizPlayer() {
 
   if (!currentQuestion) return null;
 
-  // Display question number - for retries, show which original question it refers to
   const displayQuestionNum = isRetryQuestion 
     ? originalQuestions.findIndex(q => q.id === currentQuestion.originalId) + 1
     : currentIndex + 1;
 
+  const correctCount = Array.from(checkedQuestions).filter(qId => {
+    const q = originalQuestions.find(oq => oq.id === qId);
+    return q && isCorrectAnswer(userAnswers[qId], { ...q, isRetry: false, originalId: q.id });
+  }).length;
+
   return (
     <>
-      <div className="flex w-full">
-        {/* Main quiz content */}
+      <div className="flex w-full min-h-[calc(100vh-4rem)]">
         <div className={`flex-1 transition-all duration-300 ${showMaterial ? "lg:pr-0" : ""}`}>
-          <div className={`w-full mx-auto pb-24 sm:pb-0 ${showMaterial ? "max-w-2xl lg:max-w-none lg:px-6" : "max-w-3xl"}`}>
-            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-3 sm:pb-4 mb-4 sm:mb-6">
-              <div className="flex items-center justify-between mb-2">
+          <div className={`w-full mx-auto pb-32 sm:pb-28 ${showMaterial ? "max-w-2xl lg:max-w-none lg:px-6" : "max-w-3xl px-4"}`}>
+            
+            <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 py-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   {isRetryQuestion && (
-                    <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400 text-xs">
+                    <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400 text-xs font-semibold">
                       <RotateCcw className="h-3 w-3 mr-1" />
-                      2nd Chance
+                      Retry
                     </Badge>
                   )}
-                  <span className="text-xs sm:text-sm text-muted-foreground">
-                    Question {displayQuestionNum} of {originalQuestionCount}
-                  </span>
+                  <button
+                    onClick={() => setShowQuestionNav(!showQuestionNav)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                    data-testid="button-question-nav"
+                  >
+                    <span className="text-sm font-semibold">{displayQuestionNum}/{originalQuestionCount}</span>
+                    <ChevronUp className={`h-4 w-4 transition-transform ${showQuestionNav ? "rotate-180" : ""}`} />
+                  </button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs sm:text-sm text-muted-foreground">
-                    {checkedQuestions.size} answered
-                  </span>
+                <div className="flex items-center gap-3">
+                  {correctStreak >= 2 && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="flex items-center gap-1 px-2.5 py-1 bg-orange-500/20 rounded-full"
+                    >
+                      <Flame className="h-4 w-4 text-orange-500" />
+                      <span className="text-sm font-bold text-orange-600 dark:text-orange-400">{correctStreak}</span>
+                    </motion.div>
+                  )}
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500/20 rounded-full">
+                    <Trophy className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <span className="text-sm font-bold text-green-600 dark:text-green-400">{correctCount}</span>
+                  </div>
                   {hasMaterial && (
                     <Button
                       variant="ghost"
-                      size="sm"
+                      size="icon"
                       onClick={() => setShowMaterial(!showMaterial)}
-                      className="hidden lg:flex gap-1"
+                      className="hidden lg:flex"
                       data-testid="button-toggle-material"
                     >
-                      {showMaterial ? (
-                        <>
-                          <PanelRightClose className="h-4 w-4" />
-                          Hide
-                        </>
-                      ) : (
-                        <>
-                          <PanelRightOpen className="h-4 w-4" />
-                          Material
-                        </>
-                      )}
+                      {showMaterial ? <PanelRightClose className="h-5 w-5" /> : <PanelRightOpen className="h-5 w-5" />}
                     </Button>
                   )}
                 </div>
               </div>
-              <Progress 
-                value={progress} 
-                className="h-2" 
-                data-testid="progress-quiz" 
-              />
+              
+              <div className="relative">
+                <Progress value={progress} className="h-2.5 rounded-full" data-testid="progress-quiz" />
+                <motion.div
+                  className="absolute -top-1 h-4 w-4 bg-primary rounded-full border-2 border-background shadow-lg"
+                  style={{ left: `calc(${progress}% - 8px)` }}
+                  layoutId="progress-indicator"
+                />
+              </div>
             </div>
 
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentQuestion.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="mt-6"
               >
-                <Card className="mb-4 sm:mb-6">
-                  <CardContent className="p-4 sm:p-8 md:p-12">
-                    <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                      {isRetryQuestion ? (
-                        <Badge variant="outline" className="text-xs border-orange-500 text-orange-600 dark:text-orange-400">
-                          <RotateCcw className="h-3 w-3 mr-1" />
-                          Q{displayQuestionNum}
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-xs">
-                          Q{displayQuestionNum}
-                        </Badge>
-                      )}
-                      {getQuestionTypeBadge(currentQuestion.type)}
-                    </div>
-                    
-                    <h2 className="text-lg sm:text-2xl font-semibold text-foreground mb-5 sm:mb-8" data-testid="text-question">
-                      {currentQuestion.question}
-                    </h2>
-
-                    {currentQuestion.imageUrl && (
-                      <div className="mb-6 rounded-lg overflow-hidden border border-border">
-                        <img 
-                          src={currentQuestion.imageUrl} 
-                          alt="Question reference image"
-                          className="w-full max-h-80 object-contain bg-muted/30"
-                          data-testid="image-question-reference"
-                        />
-                      </div>
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-4 flex-wrap">
+                    {isRetryQuestion ? (
+                      <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400">
+                        <RotateCcw className="h-3 w-3 mr-1" />
+                        Q{displayQuestionNum} - Second Chance
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="font-semibold">
+                        Question {displayQuestionNum}
+                      </Badge>
                     )}
+                    {getQuestionTypeBadge(currentQuestion.type)}
+                  </div>
+                  
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-snug" data-testid="text-question">
+                    {currentQuestion.question}
+                  </h2>
+                </div>
 
-                    {renderAnswerOptions()}
-                    {renderFeedback()}
-                  </CardContent>
-                </Card>
+                {currentQuestion.imageUrl && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mb-6 rounded-2xl overflow-hidden border-2 border-border bg-muted/30"
+                  >
+                    <img 
+                      src={currentQuestion.imageUrl} 
+                      alt="Question reference"
+                      className="w-full max-h-72 sm:max-h-80 object-contain"
+                      data-testid="image-question-reference"
+                    />
+                  </motion.div>
+                )}
+
+                {renderAnswerOptions()}
+                {renderFeedback()}
               </motion.div>
             </AnimatePresence>
+          </div>
+        </div>
 
-            {/* Desktop navigation */}
-            <div className="hidden sm:flex items-center justify-between gap-4">
-              <Button
-                variant="outline"
-                onClick={goToPrevious}
-                disabled={currentIndex === 0}
-                className="gap-2"
-                data-testid="button-previous"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </Button>
+        {showMaterial && hasMaterial && (
+          <MaterialViewerSidebar
+            onClose={() => setShowMaterial(false)}
+          />
+        )}
+      </div>
 
-              <div className="flex items-center gap-3">
-                {hasMaterial && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowMaterialDialog(true)}
-                    className="gap-2 lg:hidden"
-                    data-testid="button-view-material-tablet"
-                  >
-                    <FileText className="h-4 w-4" />
-                    View Material
-                  </Button>
-                )}
-                {!isChecked ? (
-                  <Button
-                    onClick={handleCheck}
-                    disabled={!canCheck}
-                    className="gap-2"
-                    data-testid="button-check"
-                  >
-                    <CheckCheck className="h-4 w-4" />
-                    Check Answer
-                  </Button>
-                ) : isLastQuestion ? (
-                  <Button
-                    onClick={finishQuiz}
-                    disabled={isSubmitting || !canFinish}
-                    className="gap-2"
-                    data-testid="button-finish"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Finishing...
-                      </>
-                    ) : (
-                      <>
-                        See Results
-                        <ArrowRight className="h-4 w-4" />
-                      </>
-                    )}
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={goToNext}
-                    className="gap-2"
-                    data-testid="button-next"
-                  >
-                    Next
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
+      {renderQuestionNav()}
 
-            {/* Mobile fixed bottom navigation */}
-            <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-3 flex items-center justify-between gap-2 sm:hidden z-50">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={goToPrevious}
-                disabled={currentIndex === 0}
-                className="min-h-[48px] px-3"
-                data-testid="button-previous-mobile"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
+      <div className="fixed bottom-0 inset-x-0 z-30 bg-background/95 backdrop-blur-md border-t">
+        <div className="max-w-3xl mx-auto px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-3">
+            <Button
+              variant="outline"
+              onClick={goToPrevious}
+              disabled={currentIndex === 0}
+              size="lg"
+              className="gap-2 rounded-xl flex-1 sm:flex-none"
+              data-testid="button-previous"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Back</span>
+            </Button>
 
+            <div className="flex items-center gap-2 flex-1 sm:flex-none justify-center">
               {hasMaterial && (
                 <Button
                   variant="outline"
-                  size="lg"
                   onClick={() => setShowMaterialDialog(true)}
-                  className="min-h-[48px] px-3"
+                  size="lg"
+                  className="rounded-xl lg:hidden"
                   data-testid="button-view-material-mobile"
                 >
                   <FileText className="h-4 w-4" />
                 </Button>
               )}
-
+              
               {!isChecked ? (
                 <Button
-                  size="lg"
                   onClick={handleCheck}
                   disabled={!canCheck}
-                  className="flex-1 min-h-[48px]"
-                  data-testid="button-check-mobile"
+                  size="lg"
+                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold"
+                  data-testid="button-check"
                 >
-                  <CheckCheck className="h-4 w-4 mr-1" />
+                  <CheckCheck className="h-5 w-5" />
                   Check
                 </Button>
               ) : isLastQuestion ? (
                 <Button
-                  size="lg"
                   onClick={finishQuiz}
                   disabled={isSubmitting || !canFinish}
-                  className="flex-1 min-h-[48px]"
-                  data-testid="button-finish-mobile"
+                  size="lg"
+                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+                  data-testid="button-finish"
                 >
                   {isSubmitting ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
                     <>
-                      Results
-                      <ArrowRight className="h-4 w-4 ml-1" />
+                      <Trophy className="h-5 w-5" />
+                      See Results
                     </>
                   )}
                 </Button>
               ) : (
                 <Button
-                  size="lg"
                   onClick={goToNext}
-                  className="flex-1 min-h-[48px]"
-                  data-testid="button-next-mobile"
+                  size="lg"
+                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold"
+                  data-testid="button-next"
                 >
-                  Next
-                  <ArrowRight className="h-4 w-4 ml-1" />
+                  Continue
+                  <ArrowRight className="h-5 w-5" />
                 </Button>
               )}
             </div>
 
-            {isLastQuestion && !canFinish && (
-              <p className="text-center text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
-                Answer all questions to see results
-              </p>
-            )}
+            <Button
+              variant="outline"
+              onClick={goToNext}
+              disabled={currentIndex >= allQuestions.length - 1}
+              size="lg"
+              className="gap-2 rounded-xl flex-1 sm:flex-none"
+              data-testid="button-skip"
+            >
+              <span className="hidden sm:inline">Skip</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
-
-        {/* Desktop material sidebar */}
-        {showMaterial && hasMaterial && (
-          <div className="hidden lg:block w-96 flex-shrink-0 h-[calc(100vh-4rem)] sticky top-0">
-            <MaterialViewerSidebar onClose={() => setShowMaterial(false)} />
-          </div>
-        )}
       </div>
 
-      {/* Mobile/tablet material dialog */}
-      <MaterialViewerDialog 
-        isOpen={showMaterialDialog} 
-        onClose={() => setShowMaterialDialog(false)} 
+      <MaterialViewerDialog
+        isOpen={showMaterialDialog}
+        onClose={() => setShowMaterialDialog(false)}
       />
     </>
   );
