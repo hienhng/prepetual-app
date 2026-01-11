@@ -50,18 +50,17 @@ export default function Create() {
   const [isReady, setIsReady] = useState(false);
   const redirectedRef = useRef(false);
 
-  // Redirect to generate page if upload is in progress or quiz generation is happening
+  // Only redirect to generate page if quiz generation is actively happening (not during upload)
   useEffect(() => {
-    const isProcessing = activeJob && (activeJob.status === "pending" || activeJob.status === "processing");
-    if ((isProcessing || isLoading) && !redirectedRef.current) {
+    if (isLoading && !redirectedRef.current) {
       redirectedRef.current = true;
       setLocation("/generate");
     }
-    // Reset ref when there's no active processing
-    if (!isProcessing && !isLoading) {
+    // Reset ref when not loading
+    if (!isLoading) {
       redirectedRef.current = false;
     }
-  }, [activeJob?.status, isLoading, setLocation]);
+  }, [isLoading, setLocation]);
 
   useEffect(() => {
     if (extractedText && extractedText.length > 0) {

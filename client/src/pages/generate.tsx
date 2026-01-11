@@ -9,25 +9,50 @@ import { useEffect, useRef } from "react";
 
 export default function Generate() {
   const [, setLocation] = useLocation();
-  const { extractedText, isLoading } = useQuiz();
+  const { extractedText, setExtractedText, setSourceMaterial, isLoading } = useQuiz();
   const { activeJob } = useUpload();
   const redirectedRef = useRef(false);
 
   const isProcessing = activeJob?.status === "pending" || activeJob?.status === "processing";
+  const hasCompletedJob = activeJob?.status === "completed" && activeJob?.text;
+
+  // Capture completed job data into quiz context if not already set
+  useEffect(() => {
+    if (hasCompletedJob && !extractedText) {
+      setExtractedText(activeJob.text || "");
+      if (activeJob.isOfficeWithImages && activeJob.documentImages && activeJob.documentImages.length > 0) {
+        setSourceMaterial({
+          type: "document",
+          text: activeJob.text || "",
+          imageDataUrl: null,
+          isOfficeWithImages: true,
+          documentImages: activeJob.documentImages,
+        });
+      } else {
+        setSourceMaterial({
+          type: "document",
+          text: activeJob.text || "",
+          imageDataUrl: null,
+          isOfficeWithImages: false,
+          documentImages: [],
+        });
+      }
+    }
+  }, [hasCompletedJob, extractedText, activeJob, setExtractedText, setSourceMaterial]);
 
   useEffect(() => {
-    // Only redirect to create if no extracted text AND no active job processing AND not generating quiz
-    if (!extractedText && !isProcessing && !isLoading && !redirectedRef.current) {
+    // Only redirect to create if no extracted text AND no active job (processing OR completed with text) AND not generating quiz
+    if (!extractedText && !isProcessing && !hasCompletedJob && !isLoading && !redirectedRef.current) {
       redirectedRef.current = true;
       setLocation("/create");
     }
-    // Reset ref when there is content or processing
-    if (extractedText || isProcessing || isLoading) {
+    // Reset ref when there is content or processing or completed job
+    if (extractedText || isProcessing || hasCompletedJob || isLoading) {
       redirectedRef.current = false;
     }
-  }, [extractedText, isProcessing, isLoading, setLocation]);
+  }, [extractedText, isProcessing, hasCompletedJob, isLoading, setLocation]);
 
-  if (!extractedText && !isProcessing && !isLoading) {
+  if (!extractedText && !isProcessing && !hasCompletedJob && !isLoading) {
     return null;
   }
 
