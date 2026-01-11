@@ -181,74 +181,82 @@ function HeroIllustration() {
                 <motion.div 
                   className="absolute inset-0 rounded-lg flex items-center justify-center p-2 overflow-hidden"
                   animate={{ 
-                    x: [0, 45, 45, 0, -45, -45, 0],
-                    rotate: [0, 10, 10, 0, -10, -10, 0],
+                    x: [0, 0, 45, 45, 0, 0, 0, -45, -45, 0, 0],
+                    rotate: [0, 0, 10, 10, 0, 0, 0, -10, -10, 0, 0],
                     backgroundColor: [
                       'hsl(var(--primary) / 0.1)',
-                      'hsl(142 76% 36% / 0.3)',
-                      'hsl(142 76% 36% / 0.3)',
                       'hsl(var(--primary) / 0.1)',
-                      'hsl(25 95% 53% / 0.3)',
-                      'hsl(25 95% 53% / 0.3)',
+                      'hsl(var(--primary) / 0.1)',
+                      'hsl(142 76% 36% / 0.35)',
+                      'hsl(var(--primary) / 0.1)',
+                      'hsl(var(--primary) / 0.1)',
+                      'hsl(var(--primary) / 0.1)',
+                      'hsl(var(--primary) / 0.1)',
+                      'hsl(25 95% 53% / 0.35)',
+                      'hsl(var(--primary) / 0.1)',
                       'hsl(var(--primary) / 0.1)'
                     ],
                     borderColor: [
                       'hsl(var(--primary) / 0.2)',
-                      'hsl(142 76% 36% / 0.5)',
-                      'hsl(142 76% 36% / 0.5)',
                       'hsl(var(--primary) / 0.2)',
-                      'hsl(25 95% 53% / 0.5)',
-                      'hsl(25 95% 53% / 0.5)',
+                      'hsl(var(--primary) / 0.2)',
+                      'hsl(142 76% 36% / 0.6)',
+                      'hsl(var(--primary) / 0.2)',
+                      'hsl(var(--primary) / 0.2)',
+                      'hsl(var(--primary) / 0.2)',
+                      'hsl(var(--primary) / 0.2)',
+                      'hsl(25 95% 53% / 0.6)',
+                      'hsl(var(--primary) / 0.2)',
                       'hsl(var(--primary) / 0.2)'
                     ]
                   }}
                   style={{ borderWidth: 1 }}
                   transition={{ 
-                    duration: 5, 
+                    duration: 6, 
                     repeat: Infinity,
-                    times: [0, 0.12, 0.18, 0.32, 0.44, 0.50, 0.65]
+                    times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
                   }}
                 >
-                  {/* Card content that changes based on swipe */}
+                  {/* Card content - always visible except at peak swipe */}
                   <motion.div
                     className="text-center"
                     animate={{
-                      opacity: [1, 0, 0, 1, 0, 0, 1]
+                      opacity: [1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1]
                     }}
                     transition={{ 
-                      duration: 5, 
+                      duration: 6, 
                       repeat: Infinity,
-                      times: [0, 0.12, 0.18, 0.32, 0.44, 0.50, 0.65]
+                      times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
                     }}
                   >
                     <p className="text-[9px] text-foreground font-medium">Mitochondria</p>
                   </motion.div>
                   
-                  {/* "KNOW" overlay - shows on right swipe */}
+                  {/* "KNOW" overlay - only shows at full right swipe */}
                   <motion.div
                     className="absolute inset-0 flex items-center justify-center"
                     animate={{
-                      opacity: [0, 1, 1, 0, 0, 0, 0]
+                      opacity: [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
                     }}
                     transition={{ 
-                      duration: 5, 
+                      duration: 6, 
                       repeat: Infinity,
-                      times: [0, 0.12, 0.18, 0.32, 0.44, 0.50, 0.65]
+                      times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
                     }}
                   >
                     <span className="text-[11px] font-bold text-green-600">KNOW</span>
                   </motion.div>
                   
-                  {/* "STILL LEARNING" overlay - shows on left swipe */}
+                  {/* "STILL LEARNING" overlay - only shows at full left swipe */}
                   <motion.div
                     className="absolute inset-0 flex items-center justify-center"
                     animate={{
-                      opacity: [0, 0, 0, 0, 1, 1, 0]
+                      opacity: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
                     }}
                     transition={{ 
-                      duration: 5, 
+                      duration: 6, 
                       repeat: Infinity,
-                      times: [0, 0.12, 0.18, 0.32, 0.44, 0.50, 0.65]
+                      times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
                     }}
                   >
                     <span className="text-[9px] font-bold text-orange-500">STILL LEARNING</span>
@@ -270,13 +278,13 @@ function HeroIllustration() {
             <motion.div
               className="absolute top-1/2 -right-6 z-10"
               animate={{ 
-                x: [0, 30, 30, 0, -30, -30, 0],
-                y: [0, -2, -2, 0, -2, -2, 0]
+                x: [0, 0, 30, 30, 0, 0, 0, -30, -30, 0, 0],
+                y: [0, 0, -2, -2, 0, 0, 0, -2, -2, 0, 0]
               }}
               transition={{ 
-                duration: 5, 
+                duration: 6, 
                 repeat: Infinity,
-                times: [0, 0.12, 0.18, 0.32, 0.44, 0.50, 0.65]
+                times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
               }}
             >
               <div className="relative">
