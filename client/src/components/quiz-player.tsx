@@ -11,6 +11,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
 import { MaterialViewerDialog, MaterialViewerSidebar } from "@/components/material-viewer";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 import confetti from "canvas-confetti";
 
 const encouragingMessages = {
@@ -638,122 +643,128 @@ export function QuizPlayer() {
   return (
     <>
       <div className="flex w-full min-h-[calc(100vh-4rem)] overflow-x-hidden">
-        <div className={`flex-1 transition-all duration-300 ${showMaterial ? "lg:pr-0" : ""}`}>
-          <div className={`w-full mx-auto pb-32 sm:pb-28 ${showMaterial ? "max-w-2xl lg:max-w-none lg:px-6" : "max-w-3xl px-4"}`}>
-            
-            <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 py-4 -mx-4 px-4 sm:mx-0 sm:px-0">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  {isRetryQuestion && (
-                    <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400 text-xs font-semibold">
-                      <RotateCcw className="h-3 w-3 mr-1" />
-                      Retry
-                    </Badge>
-                  )}
-                  <button
-                    onClick={() => setShowQuestionNav(!showQuestionNav)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                    data-testid="button-question-nav"
-                  >
-                    <span className="text-sm font-semibold">{displayQuestionNum}/{originalQuestionCount}</span>
-                    <ChevronUp className={`h-4 w-4 transition-transform ${showQuestionNav ? "rotate-180" : ""}`} />
-                  </button>
-                </div>
-                <div className="flex items-center gap-3">
-                  {correctStreak >= 2 && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="flex items-center gap-1 px-2.5 py-1 bg-orange-500/20 rounded-full"
-                    >
-                      <Flame className="h-4 w-4 text-orange-500" />
-                      <span className="text-sm font-bold text-orange-600 dark:text-orange-400">{correctStreak}</span>
-                    </motion.div>
-                  )}
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500/20 rounded-full">
-                    <BadgeCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
-                    <span className="text-sm font-bold text-green-600 dark:text-green-400">{correctCount}</span>
-                  </div>
-                  {hasMaterial && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setShowMaterial(!showMaterial)}
-                      className="hidden lg:flex"
-                      data-testid="button-toggle-material"
-                    >
-                      {showMaterial ? <PanelRightClose className="h-5 w-5" /> : <PanelRightOpen className="h-5 w-5" />}
-                    </Button>
-                  )}
-                </div>
-              </div>
-              
-              <div className="relative">
-                <Progress value={progress} className="h-2.5 rounded-full" data-testid="progress-quiz" />
-                <motion.div
-                  className="absolute -top-1 h-4 w-4 bg-primary rounded-full border-2 border-background shadow-lg"
-                  style={{ left: `calc(${progress}% - 8px)` }}
-                  layoutId="progress-indicator"
-                />
-              </div>
-            </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentQuestion.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-                className="mt-6"
-              >
-                <div className="mb-6">
-                  <div className="flex items-center gap-2 mb-4 flex-wrap">
-                    {isRetryQuestion ? (
-                      <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400">
+        <ResizablePanelGroup direction="horizontal" className="w-full">
+          <ResizablePanel defaultSize={100} minSize={30}>
+            <div className={`w-full mx-auto pb-32 sm:pb-28 ${showMaterial ? "max-w-2xl lg:max-w-none lg:px-6" : "max-w-3xl px-4"}`}>
+              <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 py-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    {isRetryQuestion && (
+                      <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400 text-xs font-semibold">
                         <RotateCcw className="h-3 w-3 mr-1" />
-                        Q{displayQuestionNum} - Second Chance
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="font-semibold">
-                        Question {displayQuestionNum}
+                        Retry
                       </Badge>
                     )}
-                    {getQuestionTypeBadge(currentQuestion.type)}
+                    <button
+                      onClick={() => setShowQuestionNav(!showQuestionNav)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                      data-testid="button-question-nav"
+                    >
+                      <span className="text-sm font-semibold">{displayQuestionNum}/{originalQuestionCount}</span>
+                      <ChevronUp className={`h-4 w-4 transition-transform ${showQuestionNav ? "rotate-180" : ""}`} />
+                    </button>
                   </div>
-                  
-                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-snug" data-testid="text-question">
-                    {currentQuestion.question}
-                  </h2>
+                  <div className="flex items-center gap-3">
+                    {correctStreak >= 2 && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="flex items-center gap-1 px-2.5 py-1 bg-orange-500/20 rounded-full"
+                      >
+                        <Flame className="h-4 w-4 text-orange-500" />
+                        <span className="text-sm font-bold text-orange-600 dark:text-orange-400">{correctStreak}</span>
+                      </motion.div>
+                    )}
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500/20 rounded-full">
+                      <BadgeCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      <span className="text-sm font-bold text-green-600 dark:text-green-400">{correctCount}</span>
+                    </div>
+                    {hasMaterial && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setShowMaterial(!showMaterial)}
+                        className="hidden lg:flex"
+                        data-testid="button-toggle-material"
+                      >
+                        {showMaterial ? <PanelRightClose className="h-5 w-5" /> : <PanelRightOpen className="h-5 w-5" />}
+                      </Button>
+                    )}
+                  </div>
                 </div>
+                
+                <div className="relative">
+                  <Progress value={progress} className="h-2.5 rounded-full" data-testid="progress-quiz" />
+                  <motion.div
+                    className="absolute -top-1 h-4 w-4 bg-primary rounded-full border-2 border-background shadow-lg"
+                    style={{ left: `calc(${progress}% - 8px)` }}
+                    layoutId="progress-indicator"
+                  />
+                </div>
+              </div>
 
-                {currentQuestion.imageUrl && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="mb-6 rounded-2xl overflow-hidden border-2 border-border bg-muted/30"
-                  >
-                    <img 
-                      src={currentQuestion.imageUrl} 
-                      alt="Question reference"
-                      className="w-full max-h-72 sm:max-h-80 object-contain"
-                      data-testid="image-question-reference"
-                    />
-                  </motion.div>
-                )}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentQuestion.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="mt-6"
+                >
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-4 flex-wrap">
+                      {isRetryQuestion ? (
+                        <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400">
+                          <RotateCcw className="h-3 w-3 mr-1" />
+                          Q{displayQuestionNum} - Second Chance
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="font-semibold">
+                          Question {displayQuestionNum}
+                        </Badge>
+                      )}
+                      {getQuestionTypeBadge(currentQuestion.type)}
+                    </div>
+                    
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-snug" data-testid="text-question">
+                      {currentQuestion.question}
+                    </h2>
+                  </div>
 
-                {renderAnswerOptions()}
-                {renderFeedback()}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
+                  {currentQuestion.imageUrl && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="mb-6 rounded-2xl overflow-hidden border-2 border-border bg-muted/30"
+                    >
+                      <img 
+                        src={currentQuestion.imageUrl} 
+                        alt="Question reference"
+                        className="w-full max-h-72 sm:max-h-80 object-contain"
+                        data-testid="image-question-reference"
+                      />
+                    </motion.div>
+                  )}
 
-        {showMaterial && hasMaterial && (
-          <MaterialViewerSidebar
-            onClose={() => setShowMaterial(false)}
-          />
-        )}
+                  {renderAnswerOptions()}
+                  {renderFeedback()}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </ResizablePanel>
+
+          {showMaterial && hasMaterial && (
+            <>
+              <ResizableHandle withHandle className="hidden lg:flex" />
+              <ResizablePanel defaultSize={40} minSize={20} className="hidden lg:block">
+                <MaterialViewerSidebar
+                  onClose={() => setShowMaterial(false)}
+                />
+              </ResizablePanel>
+            </>
+          )}
+        </ResizablePanelGroup>
       </div>
 
       {renderQuestionNav()}
