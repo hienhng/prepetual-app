@@ -74,10 +74,11 @@ REQUIREMENTS:
 4. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
 5. Include an explanation for why the correct answer is right
 6. For multiple choice, include explanations for why EACH wrong answer is incorrect
-7. For multiple choice, always provide exactly 4 options labeled A, B, C, D
+7. For multiple choice, always provide exactly 4 options
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
+- Do not contain any prefix like "A) ", "1. ", "a. ", etc. in the options or correct answer. Provide ONLY the answer text.
 - All options must be real, meaningful answers related to the question
 - The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
@@ -88,7 +89,7 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Actual answer A", "Actual answer B", "Actual answer C", "Actual answer D"], // 4 real answers, NO placeholders, NO prefixes
+      "options": ["Actual answer A", "Actual answer B", "Actual answer C", "Actual answer D"], // 4 real answers, NO placeholders, NO prefixes like "A) " or "1. " from the start of each option.
       "correctAnswer": "The exact correct option text (without any prefix)",
       "explanation": "Brief explanation of why this is correct",
       "wrongAnswerExplanations": { // Keys must be EXACT wrong option text from options array
@@ -134,6 +135,7 @@ REQUIREMENTS:
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
+- Do not contain any prefix like "A) ", "1. ", "a. ", etc. in the options or correct answer. Provide ONLY the answer text.
 - All options must be real, meaningful answers related to the question
 - The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
@@ -144,7 +146,7 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Actual answer A", "Actual answer B", "Actual answer C", "Actual answer D"], // 4 real answers, NO placeholders, NO prefixes
+      "options": ["Actual answer A", "Actual answer B", "Actual answer C", "Actual answer D"], // 4 real answers, NO placeholders, NO prefixes like "A) " or "1. " from the start of each option.
       "correctAnswer": "The exact correct option text (without any prefix)",
       "explanation": "Brief explanation of why this is correct",
       "wrongAnswerExplanations": { // Keys must be EXACT wrong option text from options array
@@ -271,10 +273,7 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
           }
 
           // Re-label and find new correct
-          options = plainOptions.map(
-            (text: string, idx: number) =>
-              `${String.fromCharCode(65 + idx)}) ${text}`,
-          );
+          options = plainOptions;
           const newCorrectIndex = plainOptions.findIndex(
             (t: string) => t === correctText,
           );
@@ -370,7 +369,7 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice",
       "question": "The exact question text as it appears",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // Extract exactly as they appear, but REMOVE any prefixes like "A) " or "1. " from the start of each option.
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // Extract exactly as they appear, but REMOVE any prefixes like "A) ", "1. ", "a. ", etc. from the start of each option.
       "correctAnswer": "The exact full text of the correct option (without any prefix)",
       "explanation": "Brief explanation of why this is the correct answer"
     }
@@ -409,7 +408,7 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice",
       "question": "The exact question text as it appears",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // Extract exactly as they appear, but REMOVE any prefixes like "A) ", "1. ", "a. ", etc. from the start of each option.
       "correctAnswer": "The exact full text of the correct option (without any prefix)",
       "explanation": "Brief explanation of why this is the correct answer"
     }
@@ -538,10 +537,7 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
             ];
           }
 
-          options = plainOptions.map(
-            (text: string, idx: number) =>
-              `${String.fromCharCode(65 + idx)}) ${text}`,
-          );
+          options = plainOptions;
           const newCorrectIndex = plainOptions.findIndex(
             (t: string) => t === correctText,
           );
