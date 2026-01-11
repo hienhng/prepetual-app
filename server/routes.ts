@@ -121,6 +121,13 @@ export async function registerRoutes(
   // Setup custom auth
   setupAuth(app);
 
+  // Public config endpoint for frontend (Google Client ID is public, not sensitive)
+  app.get("/api/config", (req, res) => {
+    res.json({
+      googleClientId: process.env.GOOGLE_CLIENT_ID || "",
+    });
+  });
+
   app.post("/api/extract-text", upload.single("file"), async (req, res) => {
     try {
       if (!req.file) {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +13,33 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles, Mail, Lock, User, Loader2 } from "lucide-react";
 import { Link } from "wouter";
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: { credential: string }) => void;
+            auto_select?: boolean;
+          }) => void;
+          renderButton: (
+            element: HTMLElement,
+            config: {
+              theme?: "outline" | "filled_blue" | "filled_black";
+              size?: "large" | "medium" | "small";
+              text?: "signin_with" | "signup_with" | "continue_with" | "signin";
+              shape?: "rectangular" | "pill" | "circle" | "square";
+              width?: number;
+            }
+          ) => void;
+          prompt: () => void;
+        };
+      };
+    };
+  }
+}
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -33,6 +60,8 @@ export default function AuthPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const googleButtonRef = useRef<HTMLDivElement>(null);
 
   const loginForm = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -43,6 +72,75 @@ export default function AuthPage() {
     resolver: zodResolver(registerSchema),
     defaultValues: { email: "", password: "", firstName: "", lastName: "" },
   });
+
+  const googleMutation = useMutation({
+    mutationFn: async (credential: string) => {
+      const res = await apiRequest("POST", "/api/auth/google", { credential });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({ title: "Welcome!", description: "You have signed in with Google." });
+      setLocation("/");
+    },
+    onError: (error: Error) => {
+      toast({ title: "Google Sign-In failed", description: error.message, variant: "destructive" });
+      setGoogleLoading(false);
+    },
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    
+    const initializeGoogle = async () => {
+      try {
+        const res = await fetch("/api/config");
+        const config = await res.json();
+        const clientId = config.googleClientId;
+        
+        if (!clientId || cancelled) return;
+
+        const tryInit = () => {
+          if (window.google && googleButtonRef.current) {
+            window.google.accounts.id.initialize({
+              client_id: clientId,
+              callback: (response) => {
+                setGoogleLoading(true);
+                googleMutation.mutate(response.credential);
+              },
+            });
+
+            window.google.accounts.id.renderButton(googleButtonRef.current, {
+              theme: "outline",
+              size: "large",
+              text: "continue_with",
+              shape: "rectangular",
+              width: 320,
+            });
+          }
+        };
+
+        if (window.google) {
+          tryInit();
+        } else {
+          const checkGoogle = setInterval(() => {
+            if (window.google) {
+              clearInterval(checkGoogle);
+              tryInit();
+            }
+          }, 100);
+
+          setTimeout(() => clearInterval(checkGoogle), 5000);
+        }
+      } catch (error) {
+        console.error("Failed to load Google config:", error);
+      }
+    };
+
+    initializeGoogle();
+    
+    return () => { cancelled = true; };
+  }, []);
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginForm) => {
@@ -76,13 +174,6 @@ export default function AuthPage() {
       toast({ title: "Registration failed", description: error.message, variant: "destructive" });
     },
   });
-
-  const handleGoogleSignIn = async () => {
-    toast({
-      title: "Google Sign-In",
-      description: "Google Sign-In requires additional setup. Please use email/password for now.",
-    });
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
@@ -226,6 +317,25 @@ export default function AuthPage() {
             </TabsContent>
           </Tabs>
 
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            {googleLoading ? (
+              <div className="flex items-center justify-center h-10 w-full max-w-[320px] rounded-md border bg-muted">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-sm text-muted-foreground">Signing in...</span>
+              </div>
+            ) : (
+              <div ref={googleButtonRef} data-testid="button-google-signin" />
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
