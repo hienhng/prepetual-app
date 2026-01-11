@@ -48,11 +48,11 @@ function HeroIllustration() {
       </svg>
 
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative w-full max-w-[380px] md:max-w-[450px]">
+        <div className="relative w-full max-w-[380px] md:max-w-[450px] h-[320px] md:h-[380px]">
           
           {/* Generation Board Card (Back) */}
           <motion.div
-            className="absolute top-4 left-0 w-[200px] md:w-[220px] rounded-xl bg-card border shadow-xl"
+            className="absolute top-0 left-0 w-[200px] md:w-[220px] rounded-xl bg-card border shadow-xl"
             initial={{ opacity: 0, x: -30, rotate: -8 }}
             animate={{ opacity: 1, x: 0, rotate: -6 }}
             transition={{ delay: 0.3, duration: 0.6 }}
@@ -101,7 +101,7 @@ function HeroIllustration() {
 
           {/* Quiz Question Card (Front) */}
           <motion.div
-            className="absolute top-8 right-0 w-[220px] md:w-[250px] rounded-xl bg-card border-2 border-primary/20 shadow-2xl"
+            className="absolute top-4 right-0 w-[220px] md:w-[250px] rounded-xl bg-card border-2 border-primary/20 shadow-2xl"
             initial={{ opacity: 0, x: 30, rotate: 5 }}
             animate={{ opacity: 1, x: 0, rotate: 3 }}
             transition={{ delay: 0.5, duration: 0.6, type: "spring" }}
