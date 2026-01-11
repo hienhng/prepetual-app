@@ -748,98 +748,96 @@ export function QuizPlayer() {
           />
         )}
       </div>
-    </div>
 
-    {renderQuestionNav()}
+      {renderQuestionNav()}
 
-    <div className="fixed bottom-0 left-0 lg:left-[var(--sidebar-width,16rem)] right-0 z-30 bg-background/95 backdrop-blur-md border-t transition-[left] duration-300 ease-in-out">
-      <div className="max-w-3xl mx-auto px-4 py-3 sm:py-4">
-        <div className="flex items-center justify-between gap-3">
-          <Button
-            variant="outline"
-            onClick={goToPrevious}
-            disabled={currentIndex === 0}
-            size="lg"
-            className="gap-2 rounded-xl flex-1 sm:flex-none"
-            data-testid="button-previous"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Back</span>
-          </Button>
+      <div className="fixed bottom-0 left-0 lg:left-[var(--sidebar-width,16rem)] right-0 z-30 bg-background/95 backdrop-blur-md border-t transition-[left] duration-300 ease-in-out">
+        <div className="max-w-3xl mx-auto px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-3">
+            <Button
+              variant="outline"
+              onClick={goToPrevious}
+              disabled={currentIndex === 0}
+              size="lg"
+              className="gap-2 rounded-xl flex-1 sm:flex-none"
+              data-testid="button-previous"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Back</span>
+            </Button>
 
-          <div className="flex items-center gap-2 flex-1 sm:flex-none justify-center">
-            {hasMaterial && (
-              <Button
-                variant="outline"
-                onClick={() => setShowMaterialDialog(true)}
-                size="lg"
-                className="rounded-xl lg:hidden"
-                data-testid="button-view-material-mobile"
-              >
-                <FileText className="h-4 w-4" />
-              </Button>
-            )}
-            
-            {!isChecked ? (
-              <Button
-                onClick={handleCheck}
-                disabled={!canCheck}
-                size="lg"
-                className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold"
-                data-testid="button-check"
-              >
-                <CheckCheck className="h-5 w-5" />
-                Check
-              </Button>
-            ) : isLastQuestion ? (
-              <Button
-                onClick={finishQuiz}
-                disabled={isSubmitting || !canFinish}
-                size="lg"
-                className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
-                data-testid="button-finish"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <>
-                    
-                    See Results
-                  </>
-                )}
-              </Button>
-            ) : (
-              <Button
-                onClick={goToNext}
-                size="lg"
-                className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold"
-                data-testid="button-next"
-              >
-                Continue
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-            )}
+            <div className="flex items-center gap-2 flex-1 sm:flex-none justify-center">
+              {hasMaterial && (
+                <Button
+                  variant="outline"
+                  onClick={() => setShowMaterialDialog(true)}
+                  size="lg"
+                  className="rounded-xl lg:hidden"
+                  data-testid="button-view-material-mobile"
+                >
+                  <FileText className="h-4 w-4" />
+                </Button>
+              )}
+              
+              {!isChecked ? (
+                <Button
+                  onClick={handleCheck}
+                  disabled={!canCheck}
+                  size="lg"
+                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold"
+                  data-testid="button-check"
+                >
+                  <CheckCheck className="h-5 w-5" />
+                  Check
+                </Button>
+              ) : isLastQuestion ? (
+                <Button
+                  onClick={finishQuiz}
+                  disabled={isSubmitting || !canFinish}
+                  size="lg"
+                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+                  data-testid="button-finish"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <>
+                      See Results
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  onClick={goToNext}
+                  size="lg"
+                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold"
+                  data-testid="button-next"
+                >
+                  Continue
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+              )}
+            </div>
+
+            <Button
+              variant="outline"
+              onClick={goToNext}
+              disabled={currentIndex >= allQuestions.length - 1}
+              size="lg"
+              className="gap-2 rounded-xl flex-1 sm:flex-none"
+              data-testid="button-skip"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
-
-          <Button
-            variant="outline"
-            onClick={goToNext}
-            disabled={currentIndex >= allQuestions.length - 1}
-            size="lg"
-            className="gap-2 rounded-xl flex-1 sm:flex-none"
-            data-testid="button-skip"
-          >
-            <span className="hidden sm:inline">Next</span>
-            <ArrowRight className="h-4 w-4" />
-          </Button>
         </div>
       </div>
-    </div>
 
-    <MaterialViewerDialog
-      isOpen={showMaterialDialog}
-      onClose={() => setShowMaterialDialog(false)}
-    />
-  </>
-);
+      <MaterialViewerDialog
+        isOpen={showMaterialDialog}
+        onClose={() => setShowMaterialDialog(false)}
+      />
+    </>
+  );
 }
