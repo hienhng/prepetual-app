@@ -14,7 +14,8 @@ import {
   faBullseye, 
   faChartSimple, 
   faComment,
-  faMessage
+  faMessage,
+  faAlarmClock
 } from "@fortawesome/free-solid-svg-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -345,7 +346,7 @@ function StreakCalendar({
           ) : (
             <div className="mt-2 p-3 bg-white dark:bg-muted/30 border border-orange-100 dark:border-orange-900/30 rounded-lg flex items-center gap-3 shadow-sm group/streak">
               <div className="p-2 rounded-full bg-orange-100 dark:bg-orange-900/30 flex-shrink-0">
-                <Clock className="w-4 h-4 text-orange-500 animate-pulse" />
+                 <FontAwesomeIcon icon={faAlarmClock} className="h-4 w-4 text-orange-500"/>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-muted-foreground leading-tight mb-1">
@@ -896,7 +897,7 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {/* <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" /> */}
-              Your Streak Calendar
+              Streak
             </DialogTitle>
           </DialogHeader>
           <StreakCalendar 

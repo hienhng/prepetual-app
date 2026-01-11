@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Sparkles, Rocket, Target, Users, Lightbulb, Shield, Heart, Upload, Brain, Zap, GraduationCap, BookOpen, BarChart3, Share2, Globe, CheckCircle2, Star } from "lucide-react";
+import { ArrowLeft, Sparkles, Rocket, Target, Users, Lightbulb, Shield, Heart, Upload, Brain, Zap, GraduationCap, BookOpen, BarChart3, Share2, Globe, CheckCircle2, Star, FileText, HelpCircle } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -169,149 +169,206 @@ export default function About() {
             </p>
           </motion.section>
 
-          {/* Our Story */}
+          {/* Interactive Feature Exploration */}
           <motion.section variants={itemVariants} className="mb-20">
-            <div className="text-center mb-8">
-              <span className="text-sm font-semibold text-primary uppercase tracking-wider">Our Story</span>
-              <h2 className="text-3xl font-bold text-foreground mt-2">Born From a Real Problem</h2>
+            <div className="text-center mb-10">
+              <span className="text-sm font-semibold text-primary uppercase tracking-wider">Features</span>
+              <h2 className="text-3xl font-bold text-foreground mt-2">Explore the Power of QuizAI</h2>
+              <p className="text-muted-foreground mt-2">Discover how our technology transforms your learning experience.</p>
             </div>
-            <Card className="overflow-visible">
-              <CardContent className="p-8">
-                <div className="grid md:grid-cols-2 gap-8 items-center">
-                  <div className="space-y-4">
-                    <p className="text-foreground leading-relaxed text-lg">
-                      Prepetual started with a simple frustration: I had stacks of papers, lecture notes, 
-                      and study materials, but no effective way to test myself on them.
-                    </p>
-                    <p className="text-muted-foreground leading-relaxed">
-                      I knew that active recall—testing yourself rather than just re-reading—is the most 
-                      effective way to learn. But staring at a piece of paper doesn't let you do that. 
-                      I needed something that could turn my own materials into interactive quizzes.
-                    </p>
-                    <p className="text-muted-foreground leading-relaxed">
-                      So I built it. Prepetual uses AI to read your documents and generate personalized 
-                      quiz questions, so you can actually practice active recall on your own content—not 
-                      generic flashcards someone else made.
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <div className="relative w-72 h-56">
-                      {/* Transition Animation Container */}
-                      <div className="absolute inset-0 flex items-center justify-between">
-                        {/* Messy Papers Side */}
-                        <div className="relative w-24 h-32">
-                          {[0, 1, 2, 3, 4].map((i) => (
-                            <motion.div
-                              key={`paper-${i}`}
-                              className="absolute w-16 h-20 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/20 rounded shadow-md border border-amber-200/50 dark:border-amber-700/30"
-                              style={{ zIndex: 10 - i }}
-                              animate={{ 
-                                x: [0, 150, 150, 0],
-                                y: [i * 5, 0, 0, i * 5],
-                                rotate: [i * 15 - 30, 0, 0, i * 15 - 30],
-                                opacity: [1, 1, 0, 0, 1],
-                                scale: [1, 0.8, 0, 0, 1],
-                              }}
-                              transition={{ 
-                                duration: 4,
-                                repeat: Infinity,
-                                delay: i * 0.2,
-                                times: [0, 0.4, 0.5, 0.6, 1],
-                                ease: "easeInOut"
-                              }}
-                            >
-                              <div className="p-1.5 space-y-1">
-                                <div className="h-1 w-10 bg-muted-foreground/20 rounded" />
-                                <div className="h-1 w-8 bg-muted-foreground/20 rounded" />
-                                <div className="h-1 w-11 bg-muted-foreground/20 rounded" />
-                              </div>
-                            </motion.div>
-                          ))}
+            
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Feature 1: AI Content Extraction */}
+              <motion.div
+                whileHover={{ y: -5 }}
+                className="relative group cursor-default"
+              >
+                <Card className="h-full border-primary/20 bg-gradient-to-br from-blue-500/5 to-transparent overflow-hidden">
+                  <CardContent className="p-8">
+                    <div className="flex flex-col h-full">
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-500">
+                          <FileText className="w-8 h-8" />
                         </div>
-
-                        {/* Transformation Center */}
-                        <div className="relative">
-                          <motion.div
-                            className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30"
-                            animate={{ 
-                              scale: [1, 1.2, 1],
-                              rotate: [0, 180, 360],
-                            }}
-                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                          >
-                            <Sparkles className="w-8 h-8 text-primary" />
-                          </motion.div>
-                          
-                          {/* Sparkle Particles */}
-                          {[0, 1, 2, 3, 4].map((i) => (
-                            <motion.div
-                              key={`sparkle-${i}`}
-                              className="absolute w-1 h-1 bg-primary rounded-full"
-                              animate={{ 
-                                x: [0, Math.cos(i) * 40],
-                                y: [0, Math.sin(i) * 40],
-                                opacity: [0, 1, 0],
-                                scale: [0, 1.5, 0],
-                              }}
-                              transition={{ 
-                                duration: 1, 
-                                repeat: Infinity, 
-                                delay: i * 0.2,
-                                repeatDelay: 3
-                              }}
-                            />
-                          ))}
+                        <div>
+                          <h3 className="text-xl font-bold text-foreground">Smart Extraction</h3>
+                          <p className="text-sm text-blue-500 font-medium">Any format, any language</p>
                         </div>
-
-                        {/* Quiz Archive Side */}
-                        <div className="relative w-24 h-32">
+                      </div>
+                      
+                      <div className="relative h-40 bg-muted/30 rounded-xl mb-6 flex items-center justify-center overflow-hidden">
+                        <div className="absolute inset-0 flex items-center justify-center gap-4">
                           {[0, 1, 2].map((i) => (
                             <motion.div
-                              key={`quiz-${i}`}
-                              className="absolute w-20 h-24 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 rounded-lg border border-primary/30 shadow-sm"
-                              style={{ 
-                                right: 0,
-                                top: i * 4,
-                                zIndex: 5 - i 
-                              }}
+                              key={i}
                               animate={{ 
-                                opacity: [0, 0, 1, 1, 0],
-                                scale: [0, 0, 1, 1, 0],
-                                x: [20, 20, 0, 0, 20],
+                                x: [-100, 100],
+                                opacity: [0, 1, 1, 0],
+                                scale: [0.8, 1, 1, 0.8],
+                                rotate: [i * 10, 0]
                               }}
                               transition={{ 
-                                duration: 4,
-                                repeat: Infinity,
-                                delay: 1.5 + i * 0.2,
-                                times: [0, 0.4, 0.5, 0.9, 1],
-                                ease: "easeInOut"
+                                duration: 3, 
+                                repeat: Infinity, 
+                                delay: i * 1,
+                                ease: "linear"
                               }}
+                              className="w-12 h-16 bg-white dark:bg-muted border rounded shadow-sm flex flex-col p-2 space-y-1"
                             >
-                              <div className="p-2 space-y-1.5">
-                                <div className="flex items-center gap-1">
-                                  <div className="w-3 h-3 rounded-full bg-primary/40" />
-                                  <div className="h-1.5 w-10 bg-primary/30 rounded" />
-                                </div>
-                                <div className="h-1 w-full bg-muted-foreground/10 rounded" />
-                              </div>
-                              {i === 0 && (
-                                <motion.div 
-                                  className="absolute -top-2 -right-2 bg-green-500 rounded-full p-0.5"
-                                  animate={{ scale: [0, 1.2, 1] }}
-                                  transition={{ delay: 2.2, duration: 0.3 }}
-                                >
-                                  <CheckCircle2 className="w-4 h-4 text-white" />
-                                </motion.div>
-                              )}
+                              <div className="h-1 w-full bg-blue-200 dark:bg-blue-900 rounded" />
+                              <div className="h-1 w-3/4 bg-blue-200 dark:bg-blue-900 rounded" />
+                              <div className="h-1 w-full bg-blue-200 dark:bg-blue-900 rounded" />
+                            </motion.div>
+                          ))}
+                          <div className="z-10 w-1 bg-blue-500 h-24 blur-sm shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+                        </div>
+                      </div>
+                      
+                      <p className="text-muted-foreground leading-relaxed">
+                        Whether it's a blurry photo of a textbook page, a complex PDF, or a PowerPoint slide, our AI extracts every bit of knowledge with precision.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Feature 2: Personalized Quiz Generation */}
+              <motion.div
+                whileHover={{ y: -5 }}
+                className="relative group cursor-default"
+              >
+                <Card className="h-full border-primary/20 bg-gradient-to-br from-purple-500/5 to-transparent overflow-hidden">
+                  <CardContent className="p-8">
+                    <div className="flex flex-col h-full">
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-500">
+                          <Zap className="w-8 h-8" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-foreground">Instant Generation</h3>
+                          <p className="text-sm text-purple-500 font-medium">Tailored to your needs</p>
+                        </div>
+                      </div>
+                      
+                      <div className="relative h-40 bg-muted/30 rounded-xl mb-6 flex items-center justify-center overflow-hidden">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                          className="relative"
+                        >
+                          <Brain className="w-16 h-16 text-purple-500" />
+                          {[0, 90, 180, 270].map((angle) => (
+                            <motion.div
+                              key={angle}
+                              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                              style={{ rotate: angle }}
+                            >
+                              <motion.div
+                                animate={{ y: [-40, -80], opacity: [0, 1, 0] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+                                className="bg-white dark:bg-muted p-1 rounded border shadow-sm"
+                              >
+                                <HelpCircle className="w-4 h-4 text-purple-500" />
+                              </motion.div>
+                            </motion.div>
+                          ))}
+                        </motion.div>
+                      </div>
+                      
+                      <p className="text-muted-foreground leading-relaxed">
+                        Adjust difficulty, question types, and count. Our AI understands concepts to challenge you effectively, ensuring better retention.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Feature 3: Interactive Study Mode */}
+              <motion.div
+                whileHover={{ y: -5 }}
+                className="relative group cursor-default"
+              >
+                <Card className="h-full border-primary/20 bg-gradient-to-br from-orange-500/5 to-transparent overflow-hidden">
+                  <CardContent className="p-8">
+                    <div className="flex flex-col h-full">
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 rounded-2xl bg-orange-500/10 text-orange-500">
+                          <BookOpen className="w-8 h-8" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-foreground">Interactive Study</h3>
+                          <p className="text-sm text-orange-500 font-medium">Flashcards & Feedback</p>
+                        </div>
+                      </div>
+                      
+                      <div className="relative h-40 bg-muted/30 rounded-xl mb-6 flex items-center justify-center overflow-hidden">
+                        <motion.div
+                          animate={{ rotateY: [0, 180, 0] }}
+                          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                          className="w-32 h-20 bg-white dark:bg-muted border-2 border-orange-500 rounded-xl flex items-center justify-center shadow-lg preserve-3d"
+                          style={{ perspective: 1000 }}
+                        >
+                          <span className="text-orange-500 font-bold backface-hidden">Question?</span>
+                          <span className="text-green-500 font-bold absolute backface-hidden [transform:rotateY(180deg)]">Answer!</span>
+                        </motion.div>
+                      </div>
+                      
+                      <p className="text-muted-foreground leading-relaxed">
+                        Engage with your content through beautiful flashcard animations and immediate performance insights that highlight your weak spots.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Feature 4: Performance Analytics */}
+              <motion.div
+                whileHover={{ y: -5 }}
+                className="relative group cursor-default"
+              >
+                <Card className="h-full border-primary/20 bg-gradient-to-br from-emerald-500/5 to-transparent overflow-hidden">
+                  <CardContent className="p-8">
+                    <div className="flex flex-col h-full">
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-500">
+                          <BarChart3 className="w-8 h-8" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-foreground">Deep Analytics</h3>
+                          <p className="text-sm text-emerald-500 font-medium">Track your growth</p>
+                        </div>
+                      </div>
+                      
+                      <div className="relative h-40 bg-muted/30 rounded-xl mb-6 flex items-center justify-end px-8 overflow-hidden">
+                        <div className="flex items-end gap-2 h-24">
+                          {[40, 60, 45, 80, 70, 95].map((h, i) => (
+                            <motion.div
+                              key={i}
+                              initial={{ height: 0 }}
+                              animate={{ height: `${h}%` }}
+                              transition={{ duration: 1, delay: i * 0.1 }}
+                              className="w-4 bg-emerald-500/40 rounded-t-sm relative group"
+                            >
+                              <motion.div 
+                                animate={{ opacity: [0, 1, 0] }}
+                                transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                                className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-emerald-600"
+                              >
+                                {h}%
+                              </motion.div>
                             </motion.div>
                           ))}
                         </div>
                       </div>
+                      
+                      <p className="text-muted-foreground leading-relaxed">
+                        Visualize your streaks, accuracy, and mastery over time. Data-driven learning ensures you spend time on what matters most.
+                      </p>
                     </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
           </motion.section>
 
           {/* How It Works */}
