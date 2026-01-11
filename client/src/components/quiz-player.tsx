@@ -405,9 +405,9 @@ export function QuizPlayer() {
             return (
               <motion.button
                 key={option}
-                whileHover={!isChecked ? { scale: 1.05 } : {}}
+                whileHover={!isChecked ? { scale: 1.02 } : {}}
                 whileTap={!isChecked ? { scale: 0.98 } : {}}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 onClick={() => handleSelectAnswer(option)}
                 disabled={isChecked}
                 data-testid={`option-${option.toLowerCase()}`}
@@ -489,12 +489,12 @@ export function QuizPlayer() {
           return (
             <motion.button
               key={index}
-              whileHover={!isChecked ? { scale: 1.05, x: 4 } : {}}
+              whileHover={!isChecked ? { scale: 1.02, x: 4 } : {}}
               whileTap={!isChecked ? { scale: 0.98 } : {}}
               transition={{ 
                 type: "spring", 
                 stiffness: 400, 
-                damping: 17,
+                damping: 30,
                 layout: { duration: 0 } 
               }}
               onClick={() => handleSelectAnswer(option)}
