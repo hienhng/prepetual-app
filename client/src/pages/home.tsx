@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation, Link } from "wouter";
 import { 
-  ArrowRight, CheckCircle2, Upload, FileText, Brain, Zap, BookOpen, 
+  ArrowRight, CheckCircle2, Upload, Brain, Zap, BookOpen, 
   Share2, RotateCcw, Sparkles, Play, Eye, Target, Users, Star,
   ChevronRight, Layers, GraduationCap, Trophy, Flame
 } from "lucide-react";
@@ -15,285 +15,172 @@ import { useAuthDialog } from "@/lib/auth-context";
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import { Footer } from "@/components/footer";
 
-function FloatingDocument({ delay, x, y, rotation, scale = 1, type }: { 
-  delay: number; 
-  x: string; 
-  y: string; 
-  rotation: number;
-  scale?: number;
-  type: 'pdf' | 'image' | 'word' | 'ppt';
-}) {
-  const colors = {
-    pdf: { bg: 'bg-red-500/20', border: 'border-red-500/30', icon: 'text-red-500' },
-    image: { bg: 'bg-blue-500/20', border: 'border-blue-500/30', icon: 'text-blue-500' },
-    word: { bg: 'bg-blue-600/20', border: 'border-blue-600/30', icon: 'text-blue-600' },
-    ppt: { bg: 'bg-orange-500/20', border: 'border-orange-500/30', icon: 'text-orange-500' },
-  };
-  const c = colors[type];
-  
-  return (
-    <motion.div
-      className={`absolute ${c.bg} ${c.border} border rounded-xl p-3 backdrop-blur-sm shadow-lg`}
-      style={{ left: x, top: y, transform: `scale(${scale})` }}
-      initial={{ opacity: 0, y: 20, rotate: rotation - 5 }}
-      animate={{ 
-        opacity: 1, 
-        y: [0, -10, 0],
-        rotate: [rotation - 2, rotation + 2, rotation - 2]
-      }}
-      transition={{ 
-        opacity: { delay, duration: 0.5 },
-        y: { delay, duration: 4, repeat: Infinity, ease: "easeInOut" },
-        rotate: { delay, duration: 6, repeat: Infinity, ease: "easeInOut" }
-      }}
-    >
-      <FileText className={`w-6 h-6 ${c.icon}`} />
-    </motion.div>
-  );
-}
-
-function QuizCard({ delay, x, y, rotation, correct }: { 
-  delay: number; 
-  x: string; 
-  y: string; 
-  rotation: number;
-  correct?: boolean;
-}) {
-  return (
-    <motion.div
-      className={`absolute bg-card border rounded-xl p-3 shadow-xl backdrop-blur-sm ${
-        correct ? 'border-green-500/50' : 'border-primary/30'
-      }`}
-      style={{ left: x, top: y }}
-      initial={{ opacity: 0, scale: 0.8, rotate: rotation - 10 }}
-      animate={{ 
-        opacity: 1, 
-        scale: 1,
-        y: [0, -8, 0],
-        rotate: [rotation - 2, rotation + 2, rotation - 2]
-      }}
-      transition={{ 
-        opacity: { delay, duration: 0.5 },
-        scale: { delay, duration: 0.5, type: "spring" },
-        y: { delay: delay + 0.5, duration: 5, repeat: Infinity, ease: "easeInOut" },
-        rotate: { delay: delay + 0.5, duration: 7, repeat: Infinity, ease: "easeInOut" }
-      }}
-    >
-      <div className="flex items-center gap-2">
-        {correct ? (
-          <CheckCircle2 className="w-5 h-5 text-green-500" />
-        ) : (
-          <Brain className="w-5 h-5 text-primary" />
-        )}
-        <div className="space-y-1">
-          <div className="h-2 w-16 bg-muted rounded-full" />
-          <div className="h-2 w-12 bg-muted/60 rounded-full" />
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
 function HeroIllustration() {
   return (
     <div className="relative w-full h-[400px] md:h-[500px]">
+      {/* Background glow */}
       <motion.div 
         className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent rounded-[3rem] blur-3xl"
         animate={{ scale: [1, 1.05, 1], opacity: [0.5, 0.7, 0.5] }}
         transition={{ duration: 6, repeat: Infinity }}
       />
       
-      {/* App Flow Mockup - Stacked Screens */}
+      {/* Decorative SVG circles */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 500 500">
+        <motion.circle
+          cx="250" cy="250" r="200"
+          fill="none" stroke="hsl(var(--primary))" strokeOpacity="0.1"
+          strokeWidth="1" strokeDasharray="8 8"
+          initial={{ rotate: 0 }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+          style={{ transformOrigin: "center" }}
+        />
+        <motion.circle
+          cx="250" cy="250" r="160"
+          fill="none" stroke="hsl(var(--primary))" strokeOpacity="0.15"
+          strokeWidth="1" strokeDasharray="4 6"
+          initial={{ rotate: 0 }}
+          animate={{ rotate: -360 }}
+          transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+          style={{ transformOrigin: "center" }}
+        />
+      </svg>
+
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative w-[280px] md:w-[340px] h-[320px] md:h-[400px]">
+        <div className="relative w-full max-w-[380px] md:max-w-[450px]">
           
-          {/* Screen 3 (Back) - Results */}
-          <motion.div 
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] md:w-[240px] h-[260px] md:h-[320px] rounded-2xl bg-card border shadow-xl overflow-hidden"
-            initial={{ opacity: 0, y: 40, x: 40 }}
-            animate={{ opacity: 0.6, y: 20, x: 30 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
+          {/* Generation Board Card (Back) */}
+          <motion.div
+            className="absolute top-4 left-0 w-[200px] md:w-[220px] rounded-xl bg-card border shadow-xl"
+            initial={{ opacity: 0, x: -30, rotate: -8 }}
+            animate={{ opacity: 1, x: 0, rotate: -6 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
           >
-            <div className="h-full p-3 flex flex-col">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-lg bg-green-500/20 flex items-center justify-center">
-                  <Trophy className="w-3 h-3 text-green-500" />
-                </div>
-                <div className="h-2 w-16 bg-muted rounded-full" />
-              </div>
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <CheckCircle2 className="w-8 h-8 text-green-500" />
-                  </div>
-                  <div className="h-3 w-12 mx-auto bg-green-500/30 rounded-full" />
-                </div>
-              </div>
-            </div>
-          </motion.div>
-          
-          {/* Screen 2 (Middle) - Quiz */}
-          <motion.div 
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] md:w-[240px] h-[260px] md:h-[320px] rounded-2xl bg-card border shadow-xl overflow-hidden"
-            initial={{ opacity: 0, y: 20, x: 20 }}
-            animate={{ opacity: 0.8, y: 10, x: 15 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-          >
-            <div className="h-full p-3 flex flex-col">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <Brain className="w-3 h-3 text-purple-500" />
-                </div>
-                <div className="h-2 w-20 bg-muted rounded-full" />
-              </div>
-              <div className="flex-1 space-y-2">
-                <div className="p-2 rounded-lg bg-muted/50">
-                  <div className="h-2 w-full bg-muted rounded-full mb-1" />
-                  <div className="h-2 w-3/4 bg-muted rounded-full" />
-                </div>
-                <div className="space-y-1.5">
-                  <div className="p-2 rounded-lg border border-primary/30 bg-primary/5">
-                    <div className="h-2 w-full bg-primary/20 rounded-full" />
-                  </div>
-                  <div className="p-2 rounded-lg border">
-                    <div className="h-2 w-full bg-muted rounded-full" />
-                  </div>
-                  <div className="p-2 rounded-lg border">
-                    <div className="h-2 w-3/4 bg-muted rounded-full" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-          
-          {/* Screen 1 (Front) - Upload */}
-          <motion.div 
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] md:w-[240px] h-[260px] md:h-[320px] rounded-2xl bg-card border-2 border-primary/30 shadow-2xl overflow-hidden"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.8, type: "spring" }}
-          >
-            <div className="h-full p-4 flex flex-col">
+            <div className="p-4">
               {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center">
-                    <Sparkles className="w-3 h-3 text-primary-foreground" />
-                  </div>
-                  <div className="h-2.5 w-16 bg-foreground/20 rounded-full" />
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-white" />
                 </div>
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-muted" />
-                  <div className="w-2 h-2 rounded-full bg-muted" />
-                </div>
+                <span className="text-xs font-semibold text-foreground">Generate Quiz</span>
               </div>
               
-              {/* Upload Area */}
-              <motion.div 
-                className="flex-1 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 flex flex-col items-center justify-center"
-                animate={{ borderColor: ['hsl(var(--primary) / 0.4)', 'hsl(var(--primary) / 0.6)', 'hsl(var(--primary) / 0.4)'] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <motion.div
-                  animate={{ y: [0, -5, 0] }}
+              {/* Settings mockup */}
+              <div className="space-y-3">
+                <div>
+                  <div className="text-[10px] text-muted-foreground mb-1">Questions</div>
+                  <div className="flex gap-1">
+                    {[5, 10, 15].map((n, i) => (
+                      <div key={n} className={`px-2 py-1 rounded text-[10px] font-medium ${i === 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                        {n}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-muted-foreground mb-1">Difficulty</div>
+                  <div className="flex gap-1">
+                    {['Easy', 'Medium', 'Hard'].map((d, i) => (
+                      <div key={d} className={`px-2 py-1 rounded text-[10px] font-medium ${i === 1 ? 'bg-amber-500/20 text-amber-600' : 'bg-muted text-muted-foreground'}`}>
+                        {d}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <motion.div 
+                  className="mt-3 h-8 rounded-lg bg-gradient-to-r from-primary to-primary/80 flex items-center justify-center"
+                  animate={{ scale: [1, 1.02, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Upload className="w-8 h-8 text-primary mb-2" />
+                  <span className="text-[11px] font-semibold text-primary-foreground">Generate</span>
                 </motion.div>
-                <div className="h-2 w-20 bg-primary/30 rounded-full mb-1" />
-                <div className="h-1.5 w-14 bg-muted rounded-full" />
-              </motion.div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Quiz Question Card (Front) */}
+          <motion.div
+            className="absolute top-8 right-0 w-[220px] md:w-[250px] rounded-xl bg-card border-2 border-primary/20 shadow-2xl"
+            initial={{ opacity: 0, x: 30, rotate: 5 }}
+            animate={{ opacity: 1, x: 0, rotate: 3 }}
+            transition={{ delay: 0.5, duration: 0.6, type: "spring" }}
+          >
+            <div className="p-4">
+              {/* Question header */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                    3
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">of 10</span>
+                </div>
+                <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <Target className="w-3 h-3" />
+                  <span>Multiple Choice</span>
+                </div>
+              </div>
               
-              {/* File Types */}
-              <div className="mt-3 flex justify-center gap-1.5">
-                {['PDF', 'IMG', 'DOC'].map((type, i) => (
-                  <motion.div 
-                    key={type}
-                    className="px-2 py-1 rounded-md bg-muted text-[8px] font-medium text-muted-foreground"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8 + i * 0.1 }}
+              {/* Question text */}
+              <div className="mb-4 p-3 rounded-lg bg-muted/50">
+                <p className="text-xs font-medium text-foreground leading-relaxed">
+                  What is the primary function of mitochondria in a cell?
+                </p>
+              </div>
+              
+              {/* Answer options */}
+              <div className="space-y-2">
+                {[
+                  { text: 'Energy production', correct: true },
+                  { text: 'Protein synthesis', correct: false },
+                  { text: 'Cell division', correct: false },
+                  { text: 'Waste removal', correct: false },
+                ].map((opt, i) => (
+                  <motion.div
+                    key={i}
+                    className={`p-2.5 rounded-lg border text-[11px] font-medium flex items-center gap-2 ${
+                      opt.correct 
+                        ? 'border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400' 
+                        : 'border-border bg-background text-foreground hover:border-primary/30'
+                    }`}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7 + i * 0.1 }}
                   >
-                    {type}
+                    {opt.correct && <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />}
+                    <span>{opt.text}</span>
                   </motion.div>
                 ))}
               </div>
             </div>
           </motion.div>
-          
-          {/* Animated Arrow Flow */}
+
+          {/* Floating sparkle decorations */}
           <motion.div
-            className="absolute -right-2 md:right-0 top-1/2 -translate-y-1/2"
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 1 }}
+            className="absolute -top-4 left-1/2 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center"
+            animate={{ y: [0, -8, 0], rotate: [0, 10, 0] }}
+            transition={{ duration: 3, repeat: Infinity }}
           >
-            <motion.div
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              <ArrowRight className="w-6 h-6 text-primary" />
-            </motion.div>
+            <Sparkles className="w-4 h-4 text-primary" />
+          </motion.div>
+          
+          <motion.div
+            className="absolute bottom-8 left-8 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center"
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
+          >
+            <CheckCircle2 className="w-3 h-3 text-green-500" />
+          </motion.div>
+          
+          <motion.div
+            className="absolute bottom-16 right-4 w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center"
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+          >
+            <Star className="w-3 h-3 text-amber-500" />
           </motion.div>
         </div>
       </div>
-      
-      <FloatingDocument delay={0.2} x="5%" y="15%" rotation={-15} type="pdf" />
-      <FloatingDocument delay={0.4} x="75%" y="10%" rotation={12} type="image" />
-      <FloatingDocument delay={0.6} x="85%" y="60%" rotation={-8} type="word" />
-      <FloatingDocument delay={0.8} x="10%" y="70%" rotation={10} type="ppt" />
-      
-      <QuizCard delay={1.0} x="0%" y="40%" rotation={-5} />
-      <QuizCard delay={1.2} x="70%" y="35%" rotation={8} correct />
-      <QuizCard delay={1.4} x="60%" y="75%" rotation={-3} correct />
-      
-      <motion.div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[400px] h-[300px] md:h-[400px]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        <svg className="w-full h-full" viewBox="0 0 400 400">
-          <motion.circle
-            cx="200"
-            cy="200"
-            r="150"
-            fill="none"
-            stroke="url(#orbitGradient)"
-            strokeWidth="1"
-            strokeDasharray="10 5"
-            initial={{ rotate: 0 }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-            style={{ transformOrigin: "center" }}
-          />
-          <motion.circle
-            cx="200"
-            cy="200"
-            r="180"
-            fill="none"
-            stroke="url(#orbitGradient2)"
-            strokeWidth="1"
-            strokeDasharray="15 10"
-            initial={{ rotate: 0 }}
-            animate={{ rotate: -360 }}
-            transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
-            style={{ transformOrigin: "center" }}
-          />
-          <defs>
-            <linearGradient id="orbitGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
-              <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity="0.1" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
-            </linearGradient>
-            <linearGradient id="orbitGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.2" />
-              <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity="0.05" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.2" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </motion.div>
     </div>
   );
 }
