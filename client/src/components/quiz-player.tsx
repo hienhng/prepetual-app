@@ -216,11 +216,37 @@ export function QuizPlayer() {
     return "opacity-50";
   };
 
+  const getWrongAnswerExplanation = (answer: string | undefined) => {
+    if (!answer || !currentQuestion.wrongAnswerExplanations) return null;
+    
+    // Try exact match first
+    if (currentQuestion.wrongAnswerExplanations[answer]) {
+      return currentQuestion.wrongAnswerExplanations[answer];
+    }
+    
+    // Try matching without prefix (e.g., "A) Option" -> "Option")
+    const answerWithoutPrefix = answer.replace(/^[A-D]\)\s*/, "").trim();
+    if (currentQuestion.wrongAnswerExplanations[answerWithoutPrefix]) {
+      return currentQuestion.wrongAnswerExplanations[answerWithoutPrefix];
+    }
+    
+    // Try finding a key that matches either way
+    for (const [key, value] of Object.entries(currentQuestion.wrongAnswerExplanations)) {
+      const keyWithoutPrefix = key.replace(/^[A-D]\)\s*/, "").trim();
+      if (keyWithoutPrefix.toLowerCase() === answerWithoutPrefix.toLowerCase() ||
+          key.toLowerCase() === answer.toLowerCase()) {
+        return value;
+      }
+    }
+    
+    return null;
+  };
+
   const renderFeedback = () => {
     if (!isChecked) return null;
     
     const correct = isCorrect();
-    const wrongExplanation = !correct && selectedAnswer && currentQuestion.wrongAnswerExplanations?.[selectedAnswer];
+    const wrongExplanation = !correct && selectedAnswer && getWrongAnswerExplanation(selectedAnswer);
     
     return (
       <motion.div

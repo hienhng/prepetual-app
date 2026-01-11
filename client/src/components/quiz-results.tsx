@@ -316,17 +316,38 @@ export function QuizResults() {
                             <p className="text-sm text-muted-foreground">{question.explanation}</p>
                           </div>
                         )}
-                        {!isCorrect && userAnswer && question.wrongAnswerExplanations?.[userAnswer] && !isGuest && (
-                          <div className="bg-amber-500/10 border border-amber-500/30 rounded-md p-3">
-                            <div className="flex items-start gap-2">
-                              <Lightbulb className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                              <div>
-                                <p className="text-xs text-amber-600 dark:text-amber-400 font-medium uppercase tracking-wide mb-1">Why This Was Wrong</p>
-                                <p className="text-sm text-muted-foreground">{question.wrongAnswerExplanations[userAnswer]}</p>
+                        {!isCorrect && userAnswer && question.wrongAnswerExplanations && !isGuest && (() => {
+                          // Helper function to find wrong answer explanation with flexible matching
+                          const getExplanation = () => {
+                            if (question.wrongAnswerExplanations![userAnswer]) {
+                              return question.wrongAnswerExplanations![userAnswer];
+                            }
+                            const answerWithoutPrefix = userAnswer.replace(/^[A-D]\)\s*/, "").trim();
+                            if (question.wrongAnswerExplanations![answerWithoutPrefix]) {
+                              return question.wrongAnswerExplanations![answerWithoutPrefix];
+                            }
+                            for (const [key, value] of Object.entries(question.wrongAnswerExplanations!)) {
+                              const keyWithoutPrefix = key.replace(/^[A-D]\)\s*/, "").trim();
+                              if (keyWithoutPrefix.toLowerCase() === answerWithoutPrefix.toLowerCase() ||
+                                  key.toLowerCase() === userAnswer.toLowerCase()) {
+                                return value;
+                              }
+                            }
+                            return null;
+                          };
+                          const explanation = getExplanation();
+                          return explanation ? (
+                            <div className="bg-amber-500/10 border border-amber-500/30 rounded-md p-3">
+                              <div className="flex items-start gap-2">
+                                <Lightbulb className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                                <div>
+                                  <p className="text-xs text-amber-600 dark:text-amber-400 font-medium uppercase tracking-wide mb-1">Why This Was Wrong</p>
+                                  <p className="text-sm text-muted-foreground">{explanation}</p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          ) : null;
+                        })()}
                         {question.explanation && isGuest && (
                           <div className="flex items-center gap-2 text-muted-foreground">
                             <Lock className="h-3 w-3" />

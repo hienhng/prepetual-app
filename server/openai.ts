@@ -76,6 +76,11 @@ REQUIREMENTS:
 6. For multiple choice, include explanations for why EACH wrong answer is incorrect
 7. For multiple choice, always provide exactly 4 options labeled A, B, C, D
 
+CRITICAL RULES:
+- NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
+- All options must be real, meaningful answers related to the question
+- The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
+
 OUTPUT FORMAT (JSON):
 {
   "title": "A short descriptive title for the quiz",
@@ -83,13 +88,13 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // only for multiple_choice. Ensure the correct answer is randomly placed among options. DO NOT include prefixes like "A) " or "1. " in the option text.
+      "options": ["Actual answer A", "Actual answer B", "Actual answer C", "Actual answer D"], // 4 real answers, NO placeholders, NO prefixes
       "correctAnswer": "The exact correct option text (without any prefix)",
       "explanation": "Brief explanation of why this is correct",
-      "wrongAnswerExplanations": { // For multiple_choice only - explain why each wrong option is incorrect
-        "Wrong Option 1 text": "Why this option is incorrect",
-        "Wrong Option 2 text": "Why this option is incorrect",
-        "Wrong Option 3 text": "Why this option is incorrect"
+      "wrongAnswerExplanations": { // Keys must be EXACT wrong option text from options array
+        "Actual answer A": "Why this specific option is incorrect",
+        "Actual answer C": "Why this specific option is incorrect",
+        "Actual answer D": "Why this specific option is incorrect"
       }
     }
   ]
@@ -127,6 +132,11 @@ REQUIREMENTS:
 8. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
 9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
 
+CRITICAL RULES:
+- NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
+- All options must be real, meaningful answers related to the question
+- The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
+
 OUTPUT FORMAT (JSON):
 {
   "title": "A short descriptive title for the quiz",
@@ -134,13 +144,13 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "options": ["Actual answer A", "Actual answer B", "Actual answer C", "Actual answer D"], // 4 real answers, NO placeholders, NO prefixes
       "correctAnswer": "The exact correct option text (without any prefix)",
       "explanation": "Brief explanation of why this is correct",
-      "wrongAnswerExplanations": { // For multiple_choice only - explain why each wrong option is incorrect
-        "Wrong Option 1 text": "Why this option is incorrect",
-        "Wrong Option 2 text": "Why this option is incorrect",
-        "Wrong Option 3 text": "Why this option is incorrect"
+      "wrongAnswerExplanations": { // Keys must be EXACT wrong option text from options array
+        "Actual answer A": "Why this specific option is incorrect",
+        "Actual answer C": "Why this specific option is incorrect",
+        "Actual answer D": "Why this specific option is incorrect"
       },
       "imageIndex": 0 // Optional: 0-based index of the attached image this question references (only if question is about a specific image)
     }
