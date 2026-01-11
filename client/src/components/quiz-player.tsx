@@ -405,13 +405,14 @@ export function QuizPlayer() {
             return (
               <motion.button
                 key={option}
-                whileHover={!isChecked ? { scale: 1.1 } : {}}
+                whileHover={!isChecked ? { scale: 1.05 } : {}}
                 whileTap={!isChecked ? { scale: 0.98 } : {}}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 onClick={() => handleSelectAnswer(option)}
                 disabled={isChecked}
                 data-testid={`option-${option.toLowerCase()}`}
                 className={`
-                  relative p-5 sm:p-8 rounded-2xl transition-all duration-50 text-left
+                  relative p-5 sm:p-8 rounded-2xl text-left
                   ${!isChecked ? "cursor-pointer" : "cursor-default"}
                   ${isChecked && isCorrectOpt 
                     ? "bg-green-500/15 border-2 border-green-500 shadow-lg shadow-green-500/10" 
@@ -488,13 +489,19 @@ export function QuizPlayer() {
           return (
             <motion.button
               key={index}
-              whileHover={!isChecked ? { scale: 1.01, x: 4 } : {}}
-              whileTap={!isChecked ? { scale: 0.99 } : {}}
+              whileHover={!isChecked ? { scale: 1.05, x: 4 } : {}}
+              whileTap={!isChecked ? { scale: 0.98 } : {}}
+              transition={{ 
+                type: "spring", 
+                stiffness: 400, 
+                damping: 17,
+                layout: { duration: 0 } 
+              }}
               onClick={() => handleSelectAnswer(option)}
               disabled={isChecked}
               data-testid={`option-${index}`}
               className={`
-                w-full relative p-4 sm:p-5 rounded-xl transition-all duration-200 text-left
+                w-full relative p-4 sm:p-5 rounded-xl text-left
                 ${!isChecked ? "cursor-pointer" : "cursor-default"}
                 ${isChecked && isCorrectOpt 
                   ? "bg-green-500/15 border-2 border-green-500" 
