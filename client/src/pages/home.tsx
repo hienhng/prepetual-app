@@ -659,8 +659,8 @@ export default function Home() {
                   <motion.span
                     className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-amber-500 rounded-full origin-left"
                     variants={{
-                      initial: { scaleX: 0 },
-                      hovered: { scaleX: 1 }
+                      initial: { scaleX: 0, opacity: 0 },
+                      hovered: { scaleX: 1, opacity: 1 }
                     }}
                     transition={{ 
                       type: "spring", 
