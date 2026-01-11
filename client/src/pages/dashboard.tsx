@@ -343,22 +343,23 @@ function StreakCalendar({
           {isActive ? (
             <p className="text-sm text-muted-foreground mt-1">{trivia}</p>
           ) : (
-        <div className="mt-2 p-3 bg-white dark:bg-muted/30 border border-orange-100 dark:border-orange-900/30 rounded-lg flex items-center gap-3 shadow-sm group/streak">
-          <div className="p-2 rounded-full bg-orange-100 dark:bg-orange-900/30 flex-shrink-0">
-            <Clock className="w-4 h-4 text-orange-500 animate-pulse" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-muted-foreground leading-tight mb-1">
-              Go finish a quiz to extend your streak!
-            </p>
-            <button 
-              onClick={handleRandomQuiz}
-              className="text-xs font-bold text-orange-500 hover:text-orange-600 transition-all p-0 h-auto bg-transparent border-0 uppercase tracking-wider flex items-center gap-1 group-hover/streak:translate-x-1 duration-300"
-              data-testid="button-random-quiz-streak"
-            >
-              Extend streak <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
+            <div className="mt-2 p-3 bg-white dark:bg-muted/30 border border-orange-100 dark:border-orange-900/30 rounded-lg flex items-center gap-3 shadow-sm group/streak">
+              <div className="p-2 rounded-full bg-orange-100 dark:bg-orange-900/30 flex-shrink-0">
+                <Clock className="w-4 h-4 text-orange-500 animate-pulse" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-muted-foreground leading-tight mb-1">
+                  Go finish a quiz to extend your streak!
+                </p>
+                <button 
+                  onClick={handleRandomQuiz}
+                  className="text-xs font-bold text-orange-500 hover:text-orange-600 transition-all p-0 h-auto bg-transparent border-0 uppercase tracking-wider flex items-center gap-1 group-hover/streak:translate-x-1 duration-300"
+                  data-testid="button-random-quiz-streak"
+                >
+                  Extend streak <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -895,7 +896,7 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {/* <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" /> */}
-              Streak 
+              Your Streak Calendar
             </DialogTitle>
           </DialogHeader>
           <StreakCalendar 
