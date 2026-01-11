@@ -768,7 +768,6 @@ export default function Home() {
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-amber-500">
                     quizzes
                   </span>
-                  <div className="absolute -left-4 top-0 bottom-0 w-4 bg-background z-10" />
                   <motion.span
                     className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-amber-500 rounded-full origin-left"
                     variants={{
