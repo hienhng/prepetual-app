@@ -168,13 +168,14 @@ function HeroIllustration() {
               <motion.div 
                 className="absolute inset-0 flex flex-col"
                 animate={{ 
-                  x: [0, 0, 40, 40, 0, 0, 0, -40, -40, 0, 0],
-                  rotate: [0, 0, 8, 8, 0, 0, 0, -8, -8, 0, 0]
+                  x: [0, 0, 20, 40, 40, 0, 0, 0, -20, -40, -40, 0, 0],
+                  rotate: [0, 0, 4, 8, 8, 0, 0, 0, -4, -8, -8, 0, 0]
                 }}
                 transition={{ 
-                  duration: 6, 
+                  duration: 7, 
                   repeat: Infinity,
-                  times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
+                  times: [0, 0.07, 0.12, 0.18, 0.24, 0.32, 0.42, 0.50, 0.55, 0.61, 0.67, 0.75, 0.88],
+                  ease: "easeInOut"
                 }}
               >
                 {/* Card content - question side */}
@@ -196,32 +197,34 @@ function HeroIllustration() {
                   </p>
                 </div>
                 
-                {/* Green "KNOW" overlay - shows on right swipe */}
+                {/* Green "KNOW" overlay - gradually appears while dragging right */}
                 <motion.div
                   className="absolute inset-0 flex flex-col items-center justify-center bg-green-500/90 text-white rounded-xl"
                   animate={{
-                    opacity: [0, 0, 0.7, 1, 0, 0, 0, 0, 0, 0, 0]
+                    opacity: [0, 0, 0.4, 0.85, 1, 0, 0, 0, 0, 0, 0, 0, 0]
                   }}
                   transition={{ 
-                    duration: 6, 
+                    duration: 7, 
                     repeat: Infinity,
-                    times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
+                    times: [0, 0.07, 0.12, 0.18, 0.24, 0.32, 0.42, 0.50, 0.55, 0.61, 0.67, 0.75, 0.88],
+                    ease: "easeInOut"
                   }}
                 >
                   <Check className="w-6 h-6 mb-1" />
                   <span className="text-[10px] font-bold uppercase tracking-wider">Know</span>
                 </motion.div>
                 
-                {/* Yellow "STILL LEARNING" overlay - shows on left swipe */}
+                {/* Yellow "STILL LEARNING" overlay - gradually appears while dragging left */}
                 <motion.div
                   className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-500/90 text-white rounded-xl"
                   animate={{
-                    opacity: [0, 0, 0, 0, 0, 0, 0.7, 1, 0, 0, 0]
+                    opacity: [0, 0, 0, 0, 0, 0, 0, 0, 0.4, 0.85, 1, 0, 0]
                   }}
                   transition={{ 
-                    duration: 6, 
+                    duration: 7, 
                     repeat: Infinity,
-                    times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
+                    times: [0, 0.07, 0.12, 0.18, 0.24, 0.32, 0.42, 0.50, 0.55, 0.61, 0.67, 0.75, 0.88],
+                    ease: "easeInOut"
                   }}
                 >
                   <RotateCcw className="w-6 h-6 mb-1" />
@@ -245,13 +248,14 @@ function HeroIllustration() {
             <motion.div
               className="absolute top-1/2 -right-6 z-10"
               animate={{ 
-                x: [0, 0, 25, 25, 0, 0, 0, -25, -25, 0, 0],
-                y: [0, 0, -2, -2, 0, 0, 0, -2, -2, 0, 0]
+                x: [0, 0, 15, 28, 28, 0, 0, 0, -15, -28, -28, 0, 0],
+                y: [0, 0, -1, -2, -2, 0, 0, 0, -1, -2, -2, 0, 0]
               }}
               transition={{ 
-                duration: 6, 
+                duration: 7, 
                 repeat: Infinity,
-                times: [0, 0.08, 0.16, 0.22, 0.30, 0.42, 0.50, 0.58, 0.64, 0.72, 0.85]
+                times: [0, 0.07, 0.12, 0.18, 0.24, 0.32, 0.42, 0.50, 0.55, 0.61, 0.67, 0.75, 0.88],
+                ease: "easeInOut"
               }}
             >
               <div className="relative">
