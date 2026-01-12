@@ -446,7 +446,6 @@ export async function registerRoutes(
       res.json({
         username: user.username,
         profileImageUrl: user.profileImageUrl,
-        themePreference: user.themePreference || "system",
         autoDeleteFiles: user.autoDeleteFiles || false,
       });
     } catch (error) {
@@ -458,7 +457,7 @@ export async function registerRoutes(
   app.patch("/api/user/settings", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { username, themePreference, autoDeleteFiles, profileImageUrl } = req.body;
+      const { username, autoDeleteFiles, profileImageUrl } = req.body;
       
       const updates: any = {};
       if (username !== undefined) {
@@ -467,7 +466,6 @@ export async function registerRoutes(
           updates.username = trimmedUsername;
         }
       }
-      if (themePreference !== undefined) updates.themePreference = themePreference;
       if (autoDeleteFiles !== undefined) updates.autoDeleteFiles = autoDeleteFiles;
       if (profileImageUrl !== undefined) updates.profileImageUrl = profileImageUrl;
 
@@ -479,7 +477,6 @@ export async function registerRoutes(
       res.json({
         username: updatedUser.username,
         profileImageUrl: updatedUser.profileImageUrl,
-        themePreference: updatedUser.themePreference || "system",
         autoDeleteFiles: updatedUser.autoDeleteFiles || false,
       });
     } catch (error) {

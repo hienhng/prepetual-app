@@ -59,7 +59,6 @@ export default function Settings() {
   const [uploadingImage, setUploadingImage] = useState(false);
 
   const { data: settings, isLoading } = useQuery<{
-    themePreference: ThemeOption;
     autoDeleteFiles: boolean;
     username: string | null;
     profileImageUrl: string | null;
@@ -73,16 +72,12 @@ export default function Settings() {
       setUsername(settings.username || "");
       setProfileImage(settings.profileImageUrl);
       setAutoDeleteFiles(settings.autoDeleteFiles || false);
-      if (settings.themePreference) {
-        setTheme(settings.themePreference);
-      }
     }
   }, [settings]);
 
   const updateSettingsMutation = useMutation({
     mutationFn: async (data: {
       username?: string;
-      themePreference?: ThemeOption;
       autoDeleteFiles?: boolean;
       profileImageUrl?: string;
       _silent?: boolean;
@@ -174,7 +169,6 @@ export default function Settings() {
 
   const handleThemeChange = (newTheme: ThemeOption) => {
     setTheme(newTheme);
-    updateSettingsMutation.mutate({ themePreference: newTheme, _silent: true });
   };
 
   const handleAutoDeleteChange = (checked: boolean) => {
