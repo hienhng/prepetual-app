@@ -256,12 +256,21 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
       throw new Error("Invalid AI response: missing questions array");
     }
 
+    // Enforce question count limit - AI sometimes generates extra questions
+    let rawQuestions = parsed.questions;
+    if (rawQuestions.length > questionCount) {
+      console.log(`AI generated ${rawQuestions.length} questions, trimming to requested ${questionCount}`);
+      rawQuestions = rawQuestions.slice(0, questionCount);
+    } else if (rawQuestions.length < questionCount) {
+      console.warn(`AI generated only ${rawQuestions.length} questions, requested ${questionCount}`);
+    }
+
     const title = parsed.title?.trim() || "Untitled Quiz";
     const rawCategory = parsed.category?.trim() || "Others/General";
     const category: QuizCategory = QUIZ_CATEGORIES.includes(rawCategory) ? rawCategory : "Others/General";
     const questions: Question[] = [];
 
-    for (const q of parsed.questions) {
+    for (const q of rawQuestions) {
       // Validate required fields
       if (!q.type || !q.question || !q.correctAnswer) {
         console.warn("Skipping malformed question:", q);
