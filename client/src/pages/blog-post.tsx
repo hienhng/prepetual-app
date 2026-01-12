@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, Link } from "wouter";
 import { motion } from "framer-motion";
 import { getBlogPostById, blogPosts, InlineImage } from "@/lib/blog-data";
@@ -28,6 +29,10 @@ function InlineImageComponent({ image }: { image: InlineImage }) {
 export default function BlogPost() {
   const { id } = useParams<{ id: string }>();
   const post = getBlogPostById(id || "");
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
 
   if (!post) {
     return (
