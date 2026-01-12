@@ -35,7 +35,15 @@ const PROGRESS_STEPS: ProgressStep[] = [
 
 export function QuizGenerator() {
   const [, setLocation] = useLocation();
-  const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial, setCurrentQuiz, setIsLoading, isLoading, setLoadingMessage, loadingMessage } = useQuiz();
+  const { 
+    extractedText, setExtractedText, 
+    sourceMaterial, setSourceMaterial, 
+    setCurrentQuiz, 
+    setIsLoading, isLoading, 
+    setLoadingMessage, loadingMessage,
+    processingProgress, setProcessingProgress,
+    currentGenerationStep, setCurrentGenerationStep
+  } = useQuiz();
   const { clearJob } = useUpload();
   const [showFullText, setShowFullText] = useState(false);
   const [questionCount, setQuestionCount] = useState(10);
@@ -43,8 +51,6 @@ export function QuizGenerator() {
   const [difficulty, setDifficulty] = useState<DifficultyLevel>("medium");
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<QuizMode>("generate");
-  const [progress, setProgress] = useState(0);
-  const [currentStep, setCurrentStep] = useState<string>("");
 
   const isOfficeWithImages = sourceMaterial?.isOfficeWithImages || false;
   const documentImages = sourceMaterial?.documentImages || [];
@@ -64,8 +70,8 @@ export function QuizGenerator() {
 
     setError(null);
     setIsLoading(true);
-    setProgress(0);
-    setCurrentStep("reading");
+    setProcessingProgress(0);
+    setCurrentGenerationStep("reading");
     
     if (mode === "import") {
       setLoadingMessage("AI is parsing your questions and finding answers...");
@@ -95,8 +101,8 @@ export function QuizGenerator() {
       } finally {
         setIsLoading(false);
         setLoadingMessage("");
-        setProgress(0);
-        setCurrentStep("");
+        setProcessingProgress(0);
+        setCurrentGenerationStep("");
       }
       return;
     }
@@ -146,8 +152,8 @@ export function QuizGenerator() {
               const data = JSON.parse(line.slice(6));
               
               if (data.type === "progress") {
-                setProgress(data.progress);
-                setCurrentStep(data.step);
+                setProcessingProgress(data.progress);
+                setCurrentGenerationStep(data.step);
                 setLoadingMessage(data.message);
               } else if (data.type === "complete") {
                 setCurrentQuiz(data.quiz);
@@ -170,8 +176,8 @@ export function QuizGenerator() {
     } finally {
       setIsLoading(false);
       setLoadingMessage("");
-      setProgress(0);
-      setCurrentStep("");
+      setProcessingProgress(0);
+      setCurrentGenerationStep("");
     }
   };
 
@@ -480,16 +486,16 @@ export function QuizGenerator() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">{loadingMessage || "Generating..."}</span>
-                    <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
+                    <span className="text-sm text-muted-foreground">{Math.round(processingProgress)}%</span>
                   </div>
-                  <Progress value={progress} className="h-2" />
+                  <Progress value={processingProgress} className="h-2" />
                   
                   <div className="grid grid-cols-3 gap-2 mt-4">
                     {PROGRESS_STEPS.slice(0, 6).map((step) => {
                       const stepIndex = PROGRESS_STEPS.findIndex(s => s.id === step.id);
-                      const currentIndex = PROGRESS_STEPS.findIndex(s => s.id === currentStep);
+                      const currentIndex = PROGRESS_STEPS.findIndex(s => s.id === currentGenerationStep);
                       const isCompleted = stepIndex < currentIndex;
-                      const isCurrent = step.id === currentStep;
+                      const isCurrent = step.id === currentGenerationStep;
                       const StepIcon = step.icon;
                       
                       return (
