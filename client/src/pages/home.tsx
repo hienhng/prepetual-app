@@ -972,17 +972,6 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/blog">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="gap-2 px-8 h-12 w-full sm:w-auto shadow-lg"
-                  data-testid="button-view-blog"
-                >
-                  Read Our Blog
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-              </Link>
               <Button
                 size="lg"
                 onClick={handleGetStarted}

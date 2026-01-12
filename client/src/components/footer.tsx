@@ -26,6 +26,13 @@ export function Footer() {
               About
             </Link>
             <Link 
+              href="/blog" 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              data-testid="link-footer-blog"
+            >
+              Blog
+            </Link>
+            <Link 
               href="/faq" 
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               data-testid="link-footer-faq"

@@ -4,44 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, User, Calendar } from "lucide-react";
 import { Link } from "wouter";
-
-// Import stock images
-import educationTechImg from "@assets/stock_images/education_technology_2b7a5460.jpg";
-import aiRobotImg from "@assets/stock_images/artificial_intellige_de833e12.jpg";
-import organizedDeskImg from "@assets/stock_images/organized_student_de_5cb006a3.jpg";
-
-const blogPosts = [
-  {
-    id: 1,
-    title: "The Best Quizlet Alternatives for 2026",
-    excerpt: "With changes to study tools, students are looking for better ways to learn. Here is why QuizAI is leading the pack.",
-    image: educationTechImg,
-    date: "Jan 10, 2026",
-    author: "Alex Rivers",
-    readTime: "5 min read",
-    category: "EdTech"
-  },
-  {
-    id: 2,
-    title: "How to Convert Raw Notes into Interactive Study Materials",
-    excerpt: "Learn the secrets of using AI to transform your messy lecture notes into structured, interactive quizzes in seconds.",
-    image: aiRobotImg,
-    date: "Jan 08, 2026",
-    author: "Dr. Sarah Chen",
-    readTime: "8 min read",
-    category: "Study Tips"
-  },
-  {
-    id: 3,
-    title: "Organizing Your Digital Study Space for Maximum Focus",
-    excerpt: "A clean digital environment leads to a clear mind. Discover the top tools and habits for digital organization.",
-    image: organizedDeskImg,
-    date: "Jan 05, 2026",
-    author: "Jordan Smith",
-    readTime: "4 min read",
-    category: "Productivity"
-  }
-];
+import { blogPosts } from "@/lib/blog-data";
 
 export default function Blog() {
   return (
@@ -76,18 +39,20 @@ export default function Blog() {
               transition={{ delay: index * 0.1 }}
             >
               <Card className="h-full flex flex-col overflow-hidden hover-elevate transition-all border-border/50">
-                <div className="aspect-video relative overflow-hidden">
-                  <img 
-                    src={post.image} 
-                    alt={post.title}
-                    className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
-                  />
-                  <div className="absolute top-4 left-4">
-                    <Badge className="bg-primary/90 text-primary-foreground backdrop-blur-sm">
-                      {post.category}
-                    </Badge>
+                <Link href={`/blog/${post.id}`} className="block">
+                  <div className="aspect-video relative overflow-hidden">
+                    <img 
+                      src={post.image} 
+                      alt={post.title}
+                      className="object-cover w-full h-full transition-transform duration-500 hover:scale-105"
+                    />
+                    <div className="absolute top-4 left-4">
+                      <Badge className="bg-primary/90 text-primary-foreground backdrop-blur-sm">
+                        {post.category}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
+                </Link>
                 <CardHeader className="flex-1">
                   <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
                     <span className="flex items-center gap-1">
@@ -99,9 +64,11 @@ export default function Blog() {
                       {post.readTime}
                     </span>
                   </div>
-                  <CardTitle className="text-xl leading-snug line-clamp-2">
-                    {post.title}
-                  </CardTitle>
+                  <Link href={`/blog/${post.id}`}>
+                    <CardTitle className="text-xl leading-snug line-clamp-2 hover:text-primary transition-colors cursor-pointer">
+                      {post.title}
+                    </CardTitle>
+                  </Link>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed">
@@ -115,10 +82,12 @@ export default function Blog() {
                     </div>
                     <span className="text-xs font-medium text-foreground">{post.author}</span>
                   </div>
-                  <Button variant="ghost" size="sm" className="gap-2 text-primary hover:text-primary p-0 h-auto">
-                    Read More
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
+                  <Link href={`/blog/${post.id}`}>
+                    <Button variant="ghost" size="sm" className="gap-2 text-primary hover:text-primary p-0 h-auto" data-testid={`button-read-more-${post.id}`}>
+                      Read More
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
                 </CardFooter>
               </Card>
             </motion.div>
