@@ -491,7 +491,12 @@ export async function registerRoutes(
       if (autoDeleteFiles !== undefined) updates.autoDeleteFiles = autoDeleteFiles;
       if (profileImageUrl !== undefined) updates.profileImageUrl = profileImageUrl;
 
-      const updatedUser = await storage.updateUser(userId, updates);
+      const updatedUser = await storage.updateUser(userId, updates).catch(err => {
+        if (err.message?.includes('unique constraint') || err.code === '23505') {
+          throw new Error("Username already taken");
+        }
+        throw err;
+      });
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }

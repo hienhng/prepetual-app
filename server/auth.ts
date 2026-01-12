@@ -6,7 +6,9 @@ import cryptoRandomString from "crypto-random-string";
 import { OAuth2Client } from "google-auth-library";
 import { storage } from "./storage";
 import { sendVerificationEmail, sendPasswordResetEmail } from "./email";
-import { registerSchema, loginSchema } from "@shared/schema";
+import { users, registerSchema, loginSchema } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 const PgSession = connectPgSimple(session);
 
@@ -47,18 +49,37 @@ export function setupAuth(app: Express): void {
       }
 
       const { email, password } = validation.data;
-      const username = email;
-
+      
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
         return res.status(400).json({ message: "Email already registered" });
+      }
+
+      // Default username from email prefix
+      let username = email.split("@")[0];
+      
+      // Check if username is already taken and append random string if it is
+      const isUsernameTaken = async (name: string): Promise<boolean> => {
+        const usersByUsername = await db.select().from(users).where(eq(users.username, name)).limit(1);
+        return usersByUsername.length > 0;
+      };
+
+      let finalUsername = username;
+      let counter = 1;
+      while (await isUsernameTaken(finalUsername)) {
+        finalUsername = `${username}${Math.floor(Math.random() * 10000)}`;
+        counter++;
+        if (counter > 5) {
+          finalUsername = `${username}_${cryptoRandomString({ length: 4, type: "distinguishable" })}`;
+          break;
+        }
       }
 
       const passwordHash = await bcrypt.hash(password, 12);
 
       const user = await storage.createUser({
         email,
-        username,
+        username: finalUsername,
         passwordHash,
         authProvider: "email",
         emailVerified: false,
