@@ -120,7 +120,7 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto overflow-x-hidden p-4 sm:p-6">
         <DialogHeader className="pb-2">
           <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
             <ChartLine className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
@@ -128,7 +128,7 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 sm:space-y-5">
+        <div className="space-y-4 sm:space-y-5 overflow-hidden">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -180,9 +180,9 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
               transition={{ delay: 0.1 }}
             >
               <h4 className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">Accuracy Over Time</h4>
-              <Card>
-                <CardContent className="p-2 sm:p-4 pt-3 sm:pt-4">
-                  <ChartContainer config={chartConfig} className="h-[140px] sm:h-[180px] w-full">
+              <Card className="overflow-hidden">
+                <CardContent className="p-2 sm:p-4 pt-3 sm:pt-4 overflow-hidden">
+                  <ChartContainer config={chartConfig} className="h-[140px] sm:h-[180px] w-full aspect-auto">
                     <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
                       <defs>
                         <linearGradient id="accuracyGradient" x1="0" y1="0" x2="0" y2="1">
