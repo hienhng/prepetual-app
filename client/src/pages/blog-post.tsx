@@ -1,10 +1,29 @@
 import { useParams, Link } from "wouter";
 import { motion } from "framer-motion";
-import { getBlogPostById, blogPosts } from "@/lib/blog-data";
+import { getBlogPostById, blogPosts, InlineImage } from "@/lib/blog-data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Calendar, Clock, User, ArrowRight } from "lucide-react";
+
+function InlineImageComponent({ image }: { image: InlineImage }) {
+  return (
+    <figure className="my-8">
+      <div className="rounded-lg overflow-hidden">
+        <img 
+          src={image.src} 
+          alt={image.alt} 
+          className="w-full h-auto object-cover"
+        />
+      </div>
+      {image.caption && (
+        <figcaption className="text-sm text-muted-foreground text-center mt-3 italic">
+          {image.caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
 
 export default function BlogPost() {
   const { id } = useParams<{ id: string }>();
@@ -84,18 +103,7 @@ export default function BlogPost() {
           <div className="text-lg text-muted-foreground mb-8 font-medium border-l-4 border-primary pl-4">
             {post.excerpt}
           </div>
-          <div 
-            className="[&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-foreground [&>h2]:mt-10 [&>h2]:mb-4
-                       [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:text-foreground [&>h3]:mt-8 [&>h3]:mb-3
-                       [&>h4]:text-lg [&>h4]:font-semibold [&>h4]:text-foreground [&>h4]:mt-6 [&>h4]:mb-2
-                       [&>p]:text-muted-foreground [&>p]:leading-relaxed [&>p]:mb-4
-                       [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-4 [&>ul]:text-muted-foreground
-                       [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-4 [&>ol]:text-muted-foreground
-                       [&>li]:mb-2
-                       [&>strong]:text-foreground [&>strong]:font-semibold
-                       [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-4 [&>blockquote]:italic [&>blockquote]:text-muted-foreground"
-            dangerouslySetInnerHTML={{ __html: formatContent(post.content) }}
-          />
+          {renderContentWithImages(post.content, post.inlineImages || [])}
         </motion.div>
       </article>
 
@@ -132,6 +140,57 @@ export default function BlogPost() {
         </section>
       )}
     </div>
+  );
+}
+
+function renderContentWithImages(content: string, inlineImages: InlineImage[]) {
+  const imagePattern = /\[IMAGE:(\d+)\]/g;
+  const parts: (string | { type: 'image'; index: number })[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = imagePattern.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(content.slice(lastIndex, match.index));
+    }
+    parts.push({ type: 'image', index: parseInt(match[1], 10) });
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < content.length) {
+    parts.push(content.slice(lastIndex));
+  }
+
+  const contentStyles = `[&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-foreground [&>h2]:mt-10 [&>h2]:mb-4
+                         [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:text-foreground [&>h3]:mt-8 [&>h3]:mb-3
+                         [&>h4]:text-lg [&>h4]:font-semibold [&>h4]:text-foreground [&>h4]:mt-6 [&>h4]:mb-2
+                         [&>p]:text-muted-foreground [&>p]:leading-relaxed [&>p]:mb-4
+                         [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-4 [&>ul]:text-muted-foreground
+                         [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-4 [&>ol]:text-muted-foreground
+                         [&>li]:mb-2
+                         [&>strong]:text-foreground [&>strong]:font-semibold
+                         [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-4 [&>blockquote]:italic [&>blockquote]:text-muted-foreground`;
+
+  return (
+    <>
+      {parts.map((part, idx) => {
+        if (typeof part === 'string') {
+          return (
+            <div 
+              key={idx}
+              className={contentStyles}
+              dangerouslySetInnerHTML={{ __html: formatContent(part) }}
+            />
+          );
+        } else {
+          const image = inlineImages[part.index];
+          if (image) {
+            return <InlineImageComponent key={idx} image={image} />;
+          }
+          return null;
+        }
+      })}
+    </>
   );
 }
 

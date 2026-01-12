@@ -7,6 +7,15 @@ import brainMemoryImg from "@assets/stock_images/brain_memory_learnin_6d97ed0d.j
 import technologyAppsImg from "@assets/stock_images/technology_apps_on_s_c5006dad.jpg";
 import timeManagementImg from "@assets/stock_images/time_management_cloc_681d2dae.jpg";
 import groupStudyImg from "@assets/stock_images/group_study_collabor_4040bda8.jpg";
+import flashcardsImg from "@assets/stock_images/flashcards_learning__d59b1982.jpg";
+import mobileAppsImg from "@assets/stock_images/mobile_phone_apps_st_f5343544.jpg";
+import laptopStudyImg from "@assets/stock_images/laptop_computer_stud_429719bb.jpg";
+
+export interface InlineImage {
+  src: string;
+  alt: string;
+  caption?: string;
+}
 
 export interface BlogPost {
   id: string;
@@ -18,6 +27,7 @@ export interface BlogPost {
   author: string;
   readTime: string;
   category: string;
+  inlineImages?: InlineImage[];
 }
 
 export const blogPosts: BlogPost[] = [
@@ -30,11 +40,35 @@ export const blogPosts: BlogPost[] = [
 
 With so many study apps available, choosing the right one can be overwhelming. This guide covers the top Quizlet alternatives to help you find the perfect fit for your learning style.
 
+[IMAGE:0]
+
 ---
 
-## Top Flashcard Apps Compared
+## Top Flashcard & Quiz Apps Compared
 
-### 1. Anki - The Customization King
+### 1. Prepetual - AI-Powered Quiz Generation
+
+**Best for:** Students who want instant quizzes from their own materials
+
+**Pros:**
+- Upload any document (PDF, Word, PowerPoint, images)
+- AI generates multiple question types automatically (MCQ, true/false, short answer)
+- Adjustable difficulty levels (easy, medium, hard)
+- Supports Vietnamese language detection
+- Study mode with flashcard-style learning
+- Import existing exam papers for practice
+
+**Cons:**
+- Newer platform, still growing
+- Quiz-focused rather than pure flashcards
+
+**Verdict:** The fastest way to turn your notes and documents into practice quizzes. Great for students who prefer testing themselves over traditional flashcards.
+
+[IMAGE:1]
+
+---
+
+### 2. Anki - The Customization King
 
 **Best for:** Medical students, language learners, power users
 
@@ -54,7 +88,7 @@ With so many study apps available, choosing the right one can be overwhelming. T
 
 ---
 
-### 2. Knowt - The Free Alternative
+### 3. Knowt - The Free Alternative
 
 **Best for:** Students seeking a free Quizlet replacement
 
@@ -71,9 +105,11 @@ With so many study apps available, choosing the right one can be overwhelming. T
 
 **Verdict:** Knowt has emerged as the go-to free alternative after Quizlet moved core features behind a paywall.
 
+[IMAGE:2]
+
 ---
 
-### 3. Brainscape - The Science-Based Choice
+### 4. Brainscape - The Science-Based Choice
 
 **Best for:** Professional certification prep, medical students
 
@@ -91,7 +127,7 @@ With so many study apps available, choosing the right one can be overwhelming. T
 
 ---
 
-### 4. RemNote - Notes Meet Flashcards
+### 5. RemNote - Notes Meet Flashcards
 
 **Best for:** Students who want unified note-taking and studying
 
@@ -109,7 +145,7 @@ With so many study apps available, choosing the right one can be overwhelming. T
 
 ---
 
-### 5. Mochi - The Beautiful Minimalist
+### 6. Mochi - The Beautiful Minimalist
 
 **Best for:** Language learners, minimalists, Markdown fans
 
@@ -128,7 +164,7 @@ With so many study apps available, choosing the right one can be overwhelming. T
 
 ---
 
-### 6. StudySmarter - The All-in-One Platform
+### 7. StudySmarter - The All-in-One Platform
 
 **Best for:** University students
 
@@ -146,26 +182,9 @@ With so many study apps available, choosing the right one can be overwhelming. T
 
 ---
 
-### 7. Prepetual - AI-Powered Quiz Generation
-
-**Best for:** Students who want quizzes from their own materials
-
-**Pros:**
-- Upload any document (PDF, Word, PowerPoint, images)
-- AI generates multiple question types automatically
-- Supports Vietnamese language detection
-- Study mode with flashcard-style learning
-- Import existing exam papers for practice
-
-**Cons:**
-- Newer platform, still growing
-- Focused on quizzes rather than pure flashcards
-
-**Verdict:** Great for students who want to quickly turn their notes and documents into practice quizzes.
-
----
-
 ## Quick Decision Guide
+
+**Choose Prepetual if:** You want AI to generate quizzes from your documents instantly
 
 **Choose Anki if:** You need maximum customization and long-term retention
 
@@ -177,8 +196,6 @@ With so many study apps available, choosing the right one can be overwhelming. T
 
 **Choose Mochi if:** You value clean design and offline functionality
 
-**Choose Prepetual if:** You want AI to generate quizzes from your documents
-
 ---
 
 ## The Bottom Line
@@ -189,7 +206,12 @@ There's no one-size-fits-all solution. The best study app depends on your learni
     date: "Jan 10, 2026",
     author: "Alex Rivers",
     readTime: "7 min read",
-    category: "EdTech"
+    category: "EdTech",
+    inlineImages: [
+      { src: flashcardsImg, alt: "Flashcards for learning", caption: "Digital flashcards have revolutionized how students study" },
+      { src: mobileAppsImg, alt: "Study apps on mobile", caption: "Modern study apps work seamlessly across all your devices" },
+      { src: laptopStudyImg, alt: "Laptop study setup", caption: "The right tools make studying more efficient" }
+    ]
   },
   {
     id: "convert-notes-to-quizzes",
@@ -774,6 +796,7 @@ Flashcards remain one of the most effective study tools, but the app you choose 
 
 | App | Price | Best For | Difficulty |
 |-----|-------|----------|------------|
+| Prepetual | Free | Quiz generation | Easy |
 | Anki | Free* | Power users | Hard |
 | Quizlet | Freemium | Casual learners | Easy |
 | Brainscape | Freemium | Professional prep | Medium |
@@ -786,6 +809,26 @@ Flashcards remain one of the most effective study tools, but the app you choose 
 ---
 
 ## Detailed Reviews
+
+### Prepetual
+
+**The AI quiz generator**
+
+**Strengths:**
+- Upload any document type (PDF, Word, PowerPoint, images)
+- AI generates multiple question types (MCQ, true/false, short answer)
+- Difficulty level selection (easy, medium, hard)
+- Study mode with flashcard-style flip cards
+- Vietnamese language support with auto-detection
+- Import and digitize existing exam papers
+
+**Weaknesses:**
+- Newer platform, still growing
+- Quiz-focused rather than pure flashcards
+
+**Best for:** Students who want instant practice quizzes from their own materials without manual creation.
+
+---
 
 ### Anki
 
@@ -905,26 +948,6 @@ Flashcards remain one of the most effective study tools, but the app you choose 
 
 ---
 
-### Prepetual
-
-**The AI quiz generator**
-
-**Strengths:**
-- Upload any document type (PDF, Word, PowerPoint, images)
-- AI generates multiple question types (MCQ, true/false, short answer)
-- Difficulty level selection
-- Study mode with flashcard flip
-- Vietnamese language support
-- Import and digitize existing exam papers
-
-**Weaknesses:**
-- Newer platform
-- Quiz-focused rather than pure flashcards
-
-**Best for:** Students who want instant practice quizzes from their materials.
-
----
-
 ## Spaced Repetition Algorithms Compared
 
 **Anki (SM-2):** Most research-backed, highly customizable
@@ -936,7 +959,9 @@ Flashcards remain one of the most effective study tools, but the app you choose 
 
 ## Making Your Choice
 
-**Want maximum power?** Anki
+**Want AI-generated quizzes from documents?** Prepetual
+
+**Want maximum power and customization?** Anki
 
 **Want easy and popular?** Quizlet (with caveats)
 
@@ -945,8 +970,6 @@ Flashcards remain one of the most effective study tools, but the app you choose 
 **Want professional content?** Brainscape
 
 **Want notes + flashcards?** RemNote
-
-**Want AI-generated quizzes from documents?** Prepetual
 
 **Try before you commit.** Most apps offer free tiers - test 2-3 options before settling.
     `,
