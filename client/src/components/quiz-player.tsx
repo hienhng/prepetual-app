@@ -776,7 +776,7 @@ export function QuizPlayer() {
 
       {renderQuestionNav()}
 
-      <div className="fixed bottom-0 left-0 group-data-[state=collapsed]/sidebar-wrapper:lg:left-[var(--sidebar-width-icon,3rem)] group-data-[state=expanded]/sidebar-wrapper:lg:left-[var(--sidebar-width,16rem)] right-0 z-30 bg-background/95 backdrop-blur-md border-t transition-[left] duration-300 ease-in-out">
+      <div className="fixed bottom-0 right-0 left-0 lg:left-[var(--sidebar-width,16rem)] z-30 bg-background/95 backdrop-blur-md border-t transition-[left] duration-300 ease-in-out">
         <div className="max-w-3xl mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-3">
             <Button
@@ -809,27 +809,25 @@ export function QuizPlayer() {
                   onClick={handleCheck}
                   disabled={!canCheck}
                   size="lg"
-                  className="gap-2 rounded-xl min-w-[100px] sm:min-w-[160px] font-semibold"
+                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold"
                   data-testid="button-check"
                 >
                   <CheckCheck className="h-5 w-5" />
-                  <span className="hidden xs:inline">Check</span>
-                  <span className="xs:hidden">OK</span>
+                  Check
                 </Button>
               ) : isLastQuestion ? (
                 <Button
                   onClick={finishQuiz}
                   disabled={isSubmitting || !canFinish}
                   size="lg"
-                  className="gap-2 rounded-xl min-w-[100px] sm:min-w-[160px] font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
                   data-testid="button-finish"
                 >
                   {isSubmitting ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
                     <>
-                      <span className="hidden xs:inline">Results</span>
-                      <span className="xs:hidden">Done</span>
+                      See Results
                     </>
                   )}
                 </Button>
@@ -837,11 +835,10 @@ export function QuizPlayer() {
                 <Button
                   onClick={goToNext}
                   size="lg"
-                  className="gap-2 rounded-xl min-w-[100px] sm:min-w-[160px] font-semibold"
+                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold"
                   data-testid="button-next"
                 >
-                  <span className="hidden xs:inline">Next</span>
-                  <span className="xs:hidden">Go</span>
+                  Continue
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               )}
@@ -855,7 +852,7 @@ export function QuizPlayer() {
               className="gap-2 rounded-xl flex-1 sm:flex-none"
               data-testid="button-skip"
             >
-              <span className="hidden sm:inline">Skip</span>
+              <span className="hidden sm:inline">Next</span>
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
