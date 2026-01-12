@@ -436,6 +436,17 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/user/result-history", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const history = await storage.getUserResultHistory(userId);
+      res.json(history);
+    } catch (error) {
+      console.error("Result history fetch error:", error);
+      res.status(500).json({ message: "Failed to get result history" });
+    }
+  });
+
   app.get("/api/user/settings", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;

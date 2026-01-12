@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AccuracyDialog } from "@/components/accuracy-dialog";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import type { Quiz } from "@shared/schema";
@@ -694,6 +695,7 @@ export default function Dashboard() {
   const { setCurrentQuiz, setSourceMaterial } = useQuiz();
   const { user } = useAuth();
   const [streakCalendarOpen, setStreakCalendarOpen] = useState(false);
+  const [accuracyDialogOpen, setAccuracyDialogOpen] = useState(false);
 
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
     queryKey: ["/api/quizzes"],
@@ -824,6 +826,7 @@ export default function Dashboard() {
                 icon={() => <FontAwesomeIcon icon={faChartSimple} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
                 isActive={(userStats?.totalAttempts ?? 0) > 0}
+                onClick={() => setAccuracyDialogOpen(true)}
               />
             </div>
           </motion.section>
@@ -909,6 +912,13 @@ export default function Dashboard() {
           />
         </DialogContent>
       </Dialog>
+
+      <AccuracyDialog
+        open={accuracyDialogOpen}
+        onOpenChange={setAccuracyDialogOpen}
+        averageAccuracy={userStats?.averageAccuracy ?? 0}
+        totalAttempts={userStats?.totalAttempts ?? 0}
+      />
     </div>
   );
 }
