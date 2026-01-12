@@ -30,6 +30,7 @@ import { QUIZ_CATEGORIES } from "@shared/schema";
 type PublicQuiz = Quiz & { 
   author?: { 
     username: string | null; 
+    email: string | null;
     profileImageUrl: string | null;
   } 
 };
