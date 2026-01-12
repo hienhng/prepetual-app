@@ -4,7 +4,11 @@
 
 QuizAI is a full-stack web application that transforms study materials into interactive quizzes using AI. Users can upload documents (PDFs, Word docs, PowerPoint, Excel, images) to extract text, then generate custom quizzes with multiple question types (multiple choice, true/false, short answer). The app provides an interactive quiz-taking experience with detailed results and explanations.
 
-## Recent Changes (Dec 2025)
+## Recent Changes (Jan 2026)
+
+- **Username System**: All users now have usernames. Email registrations require a username field. Google OAuth users automatically get their Google name as their username.
+
+## Previous Changes (Dec 2025)
 
 - **Custom Email/Password Authentication**: Replaced Replit Auth with custom auth system featuring email/password registration and login, email verification, password reset via email, and Google OAuth support. Uses bcrypt for password hashing and PostgreSQL-backed sessions.
 - **Vietnamese Language Support**: AI auto-detects Vietnamese content and generates questions/explanations in Vietnamese. OCR supports Vietnamese text extraction.
