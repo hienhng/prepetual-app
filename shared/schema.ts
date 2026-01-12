@@ -18,6 +18,7 @@ export const sessions = pgTable(
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique().notNull(),
+  username: varchar("username"),
   passwordHash: varchar("password_hash"),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
@@ -193,6 +194,7 @@ export type SubmitQuizRequest = z.infer<typeof submitQuizRequestSchema>;
 export const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
+  username: z.string().min(2, "Username must be at least 2 characters").max(50, "Username must be at most 50 characters"),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
 });
