@@ -46,6 +46,7 @@ import HelpCenter from "@/pages/help-center";
 import StreakComplete from "@/pages/streak-complete";
 import RevisionSummary from "@/pages/revision-summary";
 import Settings from "@/pages/settings";
+import Blog from "@/pages/blog";
 import NotFound from "@/pages/not-found";
 import { Footer } from "@/components/footer";
 
@@ -92,6 +93,7 @@ function AuthenticatedRouter() {
       <Route path="/streak-complete" component={StreakComplete} />
       <Route path="/revision-summary" component={RevisionSummary} />
       <Route path="/settings" component={Settings} />
+      <Route path="/blog" component={Blog} />
       <Route path="/terms" component={TermsOfService} />
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/about" component={About} />
@@ -108,6 +110,7 @@ function PublicRouter() {
     <Switch>
       {/* Public pages accessible to guests */}
       <Route path="/" component={Home} />
+      <Route path="/blog" component={Blog} />
       <Route path="/terms" component={TermsOfService} />
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/about" component={About} />
@@ -133,6 +136,7 @@ function PublicRouter() {
       <Route path="/edit-quiz">{() => <ProtectedRoute component={EditQuiz} />}</Route>
       <Route path="/streak-complete">{() => <ProtectedRoute component={StreakComplete} />}</Route>
       <Route path="/settings">{() => <ProtectedRoute component={Settings} />}</Route>
+      <Route path="/blog" component={Blog} />
       <Route component={NotFound} />
     </Switch>
   );

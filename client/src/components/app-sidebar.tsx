@@ -65,6 +65,11 @@ const mainNavItems = [
     url: "/feed",
     icon: Compass,
   },
+  {
+    title: "Blog",
+    url: "/blog",
+    icon: BookOpen,
+  },
 ];
 
 const infoNavItems = [
