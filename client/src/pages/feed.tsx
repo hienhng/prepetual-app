@@ -7,7 +7,7 @@ import {
   Sparkles, Clock, Target, Zap, 
   GraduationCap, Beaker, Calculator, Globe2, 
   BookText, Languages, Archive, LayoutGrid, X,
-  Lightbulb, TrendingUp, CheckCircle2, CheckCircle
+  Lightbulb, TrendingUp, CheckCircle2, CheckCircle, BadgeCheck
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire } from "@fortawesome/free-solid-svg-icons";
@@ -187,7 +187,7 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
                 <span className="text-xs text-muted-foreground truncate flex items-center gap-1">
                   {getAuthorName(quiz.author)}
                   {quiz.author?.email === "giahienhn@gmail.com" && (
-                    <CheckCircle className="h-3 w-3 text-blue-500 fill-blue-500/10" />
+                    <BadgeCheck className="h-3 w-3 text-green-500 fill-green-500/30" />
                   )}
                 </span>
               </div>
@@ -236,8 +236,13 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
                 <div className="flex items-center gap-1.5">
                   <p className="text-sm font-medium">{getAuthorName(quiz.author)}</p>
                   {quiz.author?.email === "giahienhn@gmail.com" && (
-                    <CheckCircle className="h-3.5 w-3.5 text-blue-500 fill-blue-500/10" />
+                    <BadgeCheck className="h-3.5 w-3.5 text-green-500 fill-green-500/30" />
                   )}
+                    <span className = "bg-transparent">
+                      <text className = "text-green-500 text-xs">
+                        Curated by Prepetual
+                      </text>
+                    </span>
                 </div>
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                   <CategoryIcon className="h-3 w-3" />
