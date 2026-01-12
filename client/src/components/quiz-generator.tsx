@@ -57,31 +57,39 @@ export function QuizGenerator() {
   const documentImages = sourceMaterial?.documentImages || [];
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
-  // Simulated progress animation - animates through steps while loading
+  // Simulated progress animation - duration based on question count and difficulty
   useEffect(() => {
     if (isLoading && mode === "generate") {
-      const steps = [
-        { step: "starting", progress: 5, delay: 0 },
-        { step: "reading", progress: 10, delay: 500 },
-        { step: "analyzing", progress: 25, delay: 1500 },
-        { step: "preparing", progress: 35, delay: 2500 },
-        { step: "generating", progress: 50, delay: 3500 },
-        { step: "processing", progress: 70, delay: 8000 },
-        { step: "validating", progress: 80, delay: 12000 },
-        { step: "finalizing", progress: 90, delay: 15000 },
+      // Calculate base duration multiplier based on questions and difficulty
+      // Base: 10 questions at medium = 1x, scales up from there
+      const questionMultiplier = questionCount / 10;
+      const difficultyMultiplier = difficulty === "easy" ? 0.7 : difficulty === "medium" ? 1.0 : 1.4;
+      const totalMultiplier = Math.max(0.5, questionMultiplier * difficultyMultiplier);
+      
+      // Base durations in ms, will be scaled by multiplier
+      const baseSteps = [
+        { step: "starting", progress: 5, baseDelay: 0 },
+        { step: "reading", progress: 10, baseDelay: 400 },
+        { step: "analyzing", progress: 25, baseDelay: 1200 },
+        { step: "preparing", progress: 35, baseDelay: 2000 },
+        { step: "generating", progress: 50, baseDelay: 3000 },
+        { step: "processing", progress: 70, baseDelay: 6000 },
+        { step: "validating", progress: 80, baseDelay: 10000 },
+        { step: "finalizing", progress: 90, baseDelay: 14000 },
       ];
 
       // Clear any existing timeouts
       timeoutsRef.current.forEach(t => clearTimeout(t));
       timeoutsRef.current = [];
 
-      // Schedule each step
-      steps.forEach(({ step, progress, delay }) => {
+      // Schedule each step with scaled delays
+      baseSteps.forEach(({ step, progress, baseDelay }) => {
+        const scaledDelay = Math.round(baseDelay * totalMultiplier);
         const timeout = setTimeout(() => {
           setProcessingProgress(progress);
           setCurrentGenerationStep(step);
           setLoadingMessage(getStepMessage(step));
-        }, delay);
+        }, scaledDelay);
         timeoutsRef.current.push(timeout);
       });
 
@@ -90,7 +98,7 @@ export function QuizGenerator() {
         timeoutsRef.current = [];
       };
     }
-  }, [isLoading, mode]);
+  }, [isLoading, mode, questionCount, difficulty]);
 
   const getStepMessage = (step: string): string => {
     const messages: Record<string, string> = {
