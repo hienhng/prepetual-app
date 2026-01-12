@@ -22,6 +22,7 @@ interface ProgressStep {
 }
 
 const PROGRESS_STEPS: ProgressStep[] = [
+  { id: "starting", label: "Starting", icon: Sparkles },
   { id: "reading", label: "Reading material", icon: BookOpen },
   { id: "analyzing", label: "Analyzing content", icon: Brain },
   { id: "preparing", label: "Preparing generation", icon: Settings2 },
@@ -150,8 +151,10 @@ export function QuizGenerator() {
           if (line.startsWith("data: ")) {
             try {
               const data = JSON.parse(line.slice(6));
+              console.log("[SSE] Received:", data);
               
               if (data.type === "progress") {
+                console.log("[SSE] Progress update:", data.step, data.progress);
                 setProcessingProgress(data.progress);
                 setCurrentGenerationStep(data.step);
                 setLoadingMessage(data.message);

@@ -236,12 +236,16 @@ export async function registerRoutes(
 
     const sendProgress = (step: string, progress: number, message: string) => {
       const data = `data: ${JSON.stringify({ type: "progress", step, progress, message })}\n\n`;
+      console.log(`[SSE] Sending progress: ${step} - ${progress}%`);
       res.write(data);
       // Force flush - some Express setups need this
       if (typeof (res as any).flush === 'function') {
         (res as any).flush();
       }
     };
+    
+    // Send initial progress immediately
+    sendProgress("starting", 5, "Starting quiz generation...");
 
     try {
       const validation = generateQuizRequestSchema.safeParse(req.body);
