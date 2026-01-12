@@ -64,13 +64,15 @@ export default function BlogPost() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
           <div className="container mx-auto max-w-4xl">
-            <Link href="/blog">
-              <Button variant="ghost" size="sm" className="mb-4 text-foreground/80 hover:text-foreground" data-testid="button-back-to-blog">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Blog
-              </Button>
-            </Link>
-            <Badge className="mb-4">{post.category}</Badge>
+            <div className="flex items-center gap-4 mb-4">
+              <Link href="/blog">
+                <Button variant="ghost" size="sm" className="text-foreground/80 hover:text-foreground" data-testid="button-back-to-blog">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Blog
+                </Button>
+              </Link>
+              <Badge>{post.category}</Badge>
+            </div>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
