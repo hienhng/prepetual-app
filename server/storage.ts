@@ -36,7 +36,7 @@ export interface IStorage {
   getQuiz(id: string): Promise<Quiz | undefined>;
   getAllQuizzes(): Promise<Quiz[]>;
   getQuizzesByUserId(userId: string): Promise<Quiz[]>;
-  getPublicQuizzes(): Promise<(Quiz & { author?: { firstName: string | null; lastName: string | null; profileImageUrl: string | null } })[]>;
+  getPublicQuizzes(): Promise<(Quiz & { author?: { username: string | null; profileImageUrl: string | null } })[]>;
   updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined>;
   deleteQuiz(id: string): Promise<boolean>;
   saveQuizResult(result: InsertQuizResult): Promise<QuizResult>;
@@ -51,7 +51,7 @@ export interface IStorage {
   updateLastStreakReminderSentAt(userId: string): Promise<void>;
   // Comments
   addComment(comment: InsertComment): Promise<QuizComment>;
-  getCommentsByQuizId(quizId: string): Promise<(QuizComment & { author: { firstName: string | null; lastName: string | null; profileImageUrl: string | null } })[]>;
+  getCommentsByQuizId(quizId: string): Promise<(QuizComment & { author: { username: string | null; profileImageUrl: string | null } })[]>;
   deleteComment(commentId: string, userId: string): Promise<boolean>;
   // Votes
   upsertVote(quizId: string, userId: string, voteType: number): Promise<QuizVote>;
@@ -163,13 +163,12 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(quizzes).where(eq(quizzes.userId, userId)).orderBy(desc(quizzes.createdAt));
   }
 
-  async getPublicQuizzes(): Promise<(Quiz & { author?: { firstName: string | null; lastName: string | null; profileImageUrl: string | null } })[]> {
+  async getPublicQuizzes(): Promise<(Quiz & { author?: { username: string | null; profileImageUrl: string | null } })[]> {
     const results = await db
       .select({
         quiz: quizzes,
         author: {
-          firstName: users.firstName,
-          lastName: users.lastName,
+          username: users.username,
           profileImageUrl: users.profileImageUrl,
         },
       })
@@ -257,13 +256,12 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async getCommentsByQuizId(quizId: string): Promise<(QuizComment & { author: { firstName: string | null; lastName: string | null; profileImageUrl: string | null } })[]> {
+  async getCommentsByQuizId(quizId: string): Promise<(QuizComment & { author: { username: string | null; profileImageUrl: string | null } })[]> {
     const results = await db
       .select({
         comment: quizComments,
         author: {
-          firstName: users.firstName,
-          lastName: users.lastName,
+          username: users.username,
           profileImageUrl: users.profileImageUrl,
         },
       })
@@ -274,7 +272,7 @@ export class DatabaseStorage implements IStorage {
     
     return results.map(r => ({
       ...r.comment,
-      author: r.author || { firstName: null, lastName: null, profileImageUrl: null },
+      author: r.author || { username: null, profileImageUrl: null },
     }));
   }
 

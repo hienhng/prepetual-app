@@ -20,8 +20,6 @@ export const users = pgTable("users", {
   email: varchar("email").unique().notNull(),
   username: varchar("username"),
   passwordHash: varchar("password_hash"),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   emailVerified: boolean("email_verified").default(false),
   googleId: varchar("google_id").unique(),
@@ -194,8 +192,6 @@ export type SubmitQuizRequest = z.infer<typeof submitQuizRequestSchema>;
 export const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
 });
 
 export type RegisterRequest = z.infer<typeof registerSchema>;

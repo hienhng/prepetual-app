@@ -182,8 +182,8 @@ function AuthenticatedHeader() {
   const [location] = useLocation();
 
   const getInitials = () => {
-    if (user?.firstName && user?.lastName) {
-      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    if (user?.username) {
+      return user.username[0].toUpperCase();
     }
     if (user?.email) {
       return user.email[0].toUpperCase();
@@ -223,7 +223,7 @@ function AuthenticatedHeader() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full" data-testid="button-user-menu-mobile">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} className="object-cover" />
+                <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.username || "User"} className="object-cover" />
                 <AvatarFallback>{getInitials()}</AvatarFallback>
               </Avatar>
             </Button>

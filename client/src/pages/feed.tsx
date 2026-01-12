@@ -20,8 +20,7 @@ import type { Quiz } from "@shared/schema";
 
 type PublicQuiz = Quiz & { 
   author?: { 
-    firstName: string | null; 
-    lastName: string | null; 
+    username: string | null; 
     profileImageUrl: string | null;
   } 
 };
@@ -106,19 +105,12 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
 
   const getAuthorName = (author?: PublicQuiz["author"]) => {
     if (!author) return "Anonymous";
-    const firstName = author.firstName || "";
-    const lastName = author.lastName || "";
-    if (firstName || lastName) {
-      return `${firstName} ${lastName}`.trim();
-    }
-    return "Anonymous";
+    return author.username || "Anonymous";
   };
 
   const getAuthorInitials = (author?: PublicQuiz["author"]) => {
-    if (!author) return "A";
-    const first = author.firstName?.[0] || "";
-    const last = author.lastName?.[0] || "";
-    return (first + last).toUpperCase() || "A";
+    if (!author || !author.username) return "A";
+    return author.username[0].toUpperCase();
   };
 
   const getDifficultyConfig = (difficulty?: string | null) => {

@@ -6,7 +6,7 @@ QuizAI is a full-stack web application that transforms study materials into inte
 
 ## Recent Changes (Jan 2026)
 
-- **Username System**: All users now have usernames. Email registrations automatically use the email prefix as the default username. Google OAuth users automatically get their Google name as their username.
+- **Username-Only System**: Removed firstName/lastName fields from user model. Users now only have usernames. Email registrations automatically use the email prefix as the default username. Google OAuth users automatically get their Google name as their username. All UI displays username instead of first/last name combinations. Settings page allows users to update their username.
 
 ## Previous Changes (Dec 2025)
 

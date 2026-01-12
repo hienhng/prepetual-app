@@ -444,8 +444,7 @@ export async function registerRoutes(
         return res.status(404).json({ message: "User not found" });
       }
       res.json({
-        firstName: user.firstName,
-        lastName: user.lastName,
+        username: user.username,
         profileImageUrl: user.profileImageUrl,
         themePreference: user.themePreference || "system",
         autoDeleteFiles: user.autoDeleteFiles || false,
@@ -459,11 +458,15 @@ export async function registerRoutes(
   app.patch("/api/user/settings", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { firstName, lastName, themePreference, autoDeleteFiles, profileImageUrl } = req.body;
+      const { username, themePreference, autoDeleteFiles, profileImageUrl } = req.body;
       
       const updates: any = {};
-      if (firstName !== undefined) updates.firstName = firstName;
-      if (lastName !== undefined) updates.lastName = lastName;
+      if (username !== undefined) {
+        const trimmedUsername = typeof username === "string" ? username.trim() : "";
+        if (trimmedUsername.length > 0) {
+          updates.username = trimmedUsername;
+        }
+      }
       if (themePreference !== undefined) updates.themePreference = themePreference;
       if (autoDeleteFiles !== undefined) updates.autoDeleteFiles = autoDeleteFiles;
       if (profileImageUrl !== undefined) updates.profileImageUrl = profileImageUrl;
@@ -474,8 +477,7 @@ export async function registerRoutes(
       }
       
       res.json({
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
+        username: updatedUser.username,
         profileImageUrl: updatedUser.profileImageUrl,
         themePreference: updatedUser.themePreference || "system",
         autoDeleteFiles: updatedUser.autoDeleteFiles || false,
@@ -611,8 +613,7 @@ export async function registerRoutes(
         ...comment,
         createdAt: comment.createdAt.toISOString(),
         author: {
-          firstName: user?.firstName || null,
-          lastName: user?.lastName || null,
+          username: user?.username || null,
           profileImageUrl: user?.profileImageUrl || null,
         },
       });
@@ -714,7 +715,7 @@ export async function registerRoutes(
             if (lastActivity && lastActivity !== today) {
               await sendStreakReminderEmail(
                 user.email,
-                user.firstName,
+                user.username,
                 streakInfo.currentStreak
               );
               await storage.updateLastStreakReminderSentAt(user.id);
@@ -756,7 +757,7 @@ export async function registerRoutes(
       
       await sendStreakReminderEmail(
         user.email,
-        user.firstName,
+        user.username,
         Math.max(streakInfo.currentStreak, 1) // Use at least 1 for testing
       );
       

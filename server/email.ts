@@ -23,7 +23,7 @@ function getTransporter() {
 export async function sendVerificationEmail(
   to: string,
   token: string,
-  firstName?: string
+  username?: string
 ): Promise<void> {
   const baseUrl = process.env.NODE_ENV === "production"
     ? "https://prepetual.app"
@@ -32,7 +32,7 @@ export async function sendVerificationEmail(
       : "http://localhost:5000";
 
   const verificationUrl = `${baseUrl}/verify-email?token=${token}`;
-  const name = firstName || "there";
+  const name = username || "there";
 
   console.log("[Email] Sending verification email to:", to);
   const transporter = getTransporter();
@@ -102,7 +102,7 @@ export async function sendVerificationEmail(
 
 export async function sendStreakReminderEmail(
   to: string,
-  firstName: string | null,
+  username: string | null | undefined,
   currentStreak: number
 ): Promise<void> {
   const baseUrl = process.env.NODE_ENV === "production"
@@ -112,7 +112,7 @@ export async function sendStreakReminderEmail(
       : "http://localhost:5000";
 
   const dashboardUrl = `${baseUrl}/dashboard`;
-  const name = firstName || "there";
+  const name = username || "there";
   
   // Motivational messages based on streak length
   let headline = "";
@@ -235,7 +235,7 @@ export async function sendStreakReminderEmail(
 export async function sendPasswordResetEmail(
   to: string,
   token: string,
-  firstName?: string
+  username?: string
 ): Promise<void> {
   const baseUrl = process.env.NODE_ENV === "production"
     ? "https://prepetual.app"
@@ -244,7 +244,7 @@ export async function sendPasswordResetEmail(
       : "http://localhost:5000";
 
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
-  const name = firstName || "there";
+  const name = username || "there";
 
   const transporter = getTransporter();
   await transporter.sendMail({

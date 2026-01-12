@@ -46,7 +46,7 @@ export function setupAuth(app: Express): void {
         });
       }
 
-      const { email, password, firstName, lastName } = validation.data;
+      const { email, password } = validation.data;
       const username = email.split('@')[0];
 
       const existingUser = await storage.getUserByEmail(email);
@@ -60,8 +60,6 @@ export function setupAuth(app: Express): void {
         email,
         username,
         passwordHash,
-        firstName: firstName || null,
-        lastName: lastName || null,
         authProvider: "email",
         emailVerified: false,
       });
@@ -70,7 +68,7 @@ export function setupAuth(app: Express): void {
       const token = cryptoRandomString({ length: 64, type: "url-safe" });
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
       await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
-      await sendVerificationEmail(email, token, firstName);
+      await sendVerificationEmail(email, token, username);
 
       req.session.userId = user.id;
 
@@ -80,8 +78,6 @@ export function setupAuth(app: Express): void {
           id: user.id,
           email: user.email,
           username: user.username,
-          firstName: user.firstName,
-          lastName: user.lastName,
           emailVerified: user.emailVerified,
         },
       });
@@ -125,8 +121,6 @@ export function setupAuth(app: Express): void {
           id: user.id,
           email: user.email,
           username: user.username,
-          firstName: user.firstName,
-          lastName: user.lastName,
           emailVerified: user.emailVerified,
           profileImageUrl: user.profileImageUrl,
         },
@@ -183,7 +177,7 @@ export function setupAuth(app: Express): void {
         await storage.createVerificationToken(user.id, token, "password_reset", expiresAt);
 
         try {
-          await sendPasswordResetEmail(email, token, user.firstName || undefined);
+          await sendPasswordResetEmail(email, token, user.username || undefined);
         } catch (emailError) {
           console.error("Failed to send password reset email:", emailError);
         }
@@ -263,8 +257,6 @@ export function setupAuth(app: Express): void {
           user = await storage.createUser({
             email: payload.email,
             username: googleUsername,
-            firstName: payload.given_name || null,
-            lastName: payload.family_name || null,
             profileImageUrl: payload.picture || null,
             googleId: payload.sub,
             authProvider: "google",
@@ -280,8 +272,6 @@ export function setupAuth(app: Express): void {
             id: user.id,
             email: user.email,
             username: user.username,
-            firstName: user.firstName,
-            lastName: user.lastName,
             emailVerified: user.emailVerified,
             profileImageUrl: user.profileImageUrl,
           },
@@ -310,8 +300,6 @@ export function setupAuth(app: Express): void {
         id: user.id,
         email: user.email,
         username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
         emailVerified: user.emailVerified,
         profileImageUrl: user.profileImageUrl,
       });
@@ -341,7 +329,7 @@ export function setupAuth(app: Express): void {
         const token = cryptoRandomString({ length: 64, type: "url-safe" });
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
         await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
-        await sendVerificationEmail(email, token, user.firstName || undefined);
+        await sendVerificationEmail(email, token, user.username || undefined);
         res.json({ message: "Verification email sent successfully" });
       } catch (emailError: any) {
         console.error("Failed to send verification email:", emailError);

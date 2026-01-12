@@ -53,8 +53,7 @@ export default function Settings() {
   const { theme, setTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [firstName, setFirstName] = useState(user?.firstName || "");
-  const [lastName, setLastName] = useState(user?.lastName || "");
+  const [username, setUsername] = useState(user?.username || "");
   const [profileImage, setProfileImage] = useState<string | null>(user?.profileImageUrl || null);
   const [autoDeleteFiles, setAutoDeleteFiles] = useState(user?.autoDeleteFiles || false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -62,8 +61,7 @@ export default function Settings() {
   const { data: settings, isLoading } = useQuery<{
     themePreference: ThemeOption;
     autoDeleteFiles: boolean;
-    firstName: string | null;
-    lastName: string | null;
+    username: string | null;
     profileImageUrl: string | null;
   }>({
     queryKey: ["/api/user/settings"],
@@ -72,8 +70,7 @@ export default function Settings() {
 
   useEffect(() => {
     if (settings) {
-      setFirstName(settings.firstName || "");
-      setLastName(settings.lastName || "");
+      setUsername(settings.username || "");
       setProfileImage(settings.profileImageUrl);
       setAutoDeleteFiles(settings.autoDeleteFiles || false);
       if (settings.themePreference) {
@@ -84,8 +81,7 @@ export default function Settings() {
 
   const updateSettingsMutation = useMutation({
     mutationFn: async (data: {
-      firstName?: string;
-      lastName?: string;
+      username?: string;
       themePreference?: ThemeOption;
       autoDeleteFiles?: boolean;
       profileImageUrl?: string;
@@ -172,8 +168,7 @@ export default function Settings() {
 
   const handleSaveProfile = () => {
     updateSettingsMutation.mutate({
-      firstName: firstName.trim() || undefined,
-      lastName: lastName.trim() || undefined,
+      username: username.trim() || undefined,
     });
   };
 
@@ -188,10 +183,8 @@ export default function Settings() {
   };
 
   const getInitials = () => {
-    const first = firstName || user?.firstName || "";
-    const last = lastName || user?.lastName || "";
-    if (first && last) return `${first[0]}${last[0]}`.toUpperCase();
-    if (first) return first[0].toUpperCase();
+    const name = username || user?.username || "";
+    if (name) return name[0].toUpperCase();
     return user?.email?.[0]?.toUpperCase() || "U";
   };
 
@@ -280,27 +273,15 @@ export default function Settings() {
 
               <Separator />
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Enter your first name"
-                    data-testid="input-first-name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Enter your last name"
-                    data-testid="input-last-name"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
+                  data-testid="input-username"
+                />
               </div>
 
               <Button

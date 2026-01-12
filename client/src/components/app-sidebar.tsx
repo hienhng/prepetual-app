@@ -97,8 +97,8 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed";
 
   const getInitials = () => {
-    if (user?.firstName && user?.lastName) {
-      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    if (user?.username) {
+      return user.username[0].toUpperCase();
     }
     if (user?.email) {
       return user.email[0].toUpperCase();
@@ -212,13 +212,13 @@ export function AppSidebar() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className={`gap-2 min-w-0 ${isCollapsed ? 'justify-center w-10 h-10 p-0' : 'justify-start px-2 flex-1'}`} data-testid="sidebar-user-menu">
                 <Avatar className="h-8 w-8 flex-shrink-0">
-                  <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} className="object-cover" />
+                  <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.username || "User"} className="object-cover" />
                   <AvatarFallback>{getInitials()}</AvatarFallback>
                 </Avatar>
                 {!isCollapsed && (
                   <div className="flex-1 text-left overflow-hidden">
                     <p className="text-sm font-medium truncate">
-                      {user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'User'}
+                      {user?.username || 'User'}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                   </div>
