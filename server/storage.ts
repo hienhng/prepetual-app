@@ -224,7 +224,7 @@ export class DatabaseStorage implements IStorage {
       score: result.score,
       totalQuestions: result.totalQuestions,
       correctAnswers: result.correctAnswers,
-      wrongQuestionIds: result.wrongQuestionIds || []
+      wrongQuestionIds: (result.wrongQuestionIds || []) as string[]
     }).returning();
     return savedResult;
   }

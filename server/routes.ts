@@ -508,7 +508,8 @@ export async function registerRoutes(
       });
     } catch (error) {
       console.error("Settings update error:", error);
-      res.status(500).json({ message: "Failed to update settings" });
+      const errorMessage = error instanceof Error ? error.message : "Failed to update settings";
+      res.status(500).json({ message: errorMessage });
     }
   });
 

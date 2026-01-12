@@ -85,6 +85,10 @@ export default function Settings() {
     }) => {
       const { _silent, ...payload } = data;
       const response = await apiRequest("PATCH", "/api/user/settings", payload);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to save settings");
+      }
       return { result: await response.json(), silent: _silent };
     },
     onSuccess: (data) => {
