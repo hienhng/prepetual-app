@@ -52,7 +52,6 @@ const loginSchema = z.object({
 const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  username: z.string().min(2, "Username must be at least 2 characters").max(50, "Username must be at most 50 characters"),
 });
 
 type LoginFormType = z.infer<typeof loginSchema>;
@@ -352,7 +351,7 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
 
   const form = useForm<RegisterFormType>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { email: "", password: "", username: "" },
+    defaultValues: { email: "", password: "" },
   });
 
   const registerMutation = useMutation({
@@ -495,27 +494,6 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
                           placeholder="Email address"
                           className="pl-10 h-12 sm:h-11 text-base"
                           data-testid="input-register-email"
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="text"
-                          placeholder="Username"
-                          className="pl-10 h-12 sm:h-11 text-base"
-                          data-testid="input-register-username"
                         />
                       </FormControl>
                     </div>
