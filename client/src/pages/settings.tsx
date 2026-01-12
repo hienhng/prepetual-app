@@ -98,10 +98,10 @@ export default function Settings() {
         });
       }
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: "Failed to save settings. Please try again.",
+        description: error.message || "Failed to save settings. Please try again.",
         variant: "destructive",
       });
     },

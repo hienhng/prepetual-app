@@ -217,7 +217,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveQuizResult(result: InsertQuizResult): Promise<QuizResult> {
-    const [savedResult] = await db.insert(quizResults).values(result).returning();
+    const [savedResult] = await db.insert(quizResults).values({
+      ...result,
+      wrongQuestionIds: result.wrongQuestionIds || []
+    }).returning();
     return savedResult;
   }
 
