@@ -146,6 +146,25 @@ With so many study apps available, choosing the right one can be overwhelming. T
 
 ---
 
+### 7. Prepetual - AI-Powered Quiz Generation
+
+**Best for:** Students who want quizzes from their own materials
+
+**Pros:**
+- Upload any document (PDF, Word, PowerPoint, images)
+- AI generates multiple question types automatically
+- Supports Vietnamese language detection
+- Study mode with flashcard-style learning
+- Import existing exam papers for practice
+
+**Cons:**
+- Newer platform, still growing
+- Focused on quizzes rather than pure flashcards
+
+**Verdict:** Great for students who want to quickly turn their notes and documents into practice quizzes.
+
+---
+
 ## Quick Decision Guide
 
 **Choose Anki if:** You need maximum customization and long-term retention
@@ -157,6 +176,8 @@ With so many study apps available, choosing the right one can be overwhelming. T
 **Choose RemNote if:** You want notes and flashcards integrated
 
 **Choose Mochi if:** You value clean design and offline functionality
+
+**Choose Prepetual if:** You want AI to generate quizzes from your documents
 
 ---
 
@@ -204,6 +225,7 @@ Several tools now offer automatic conversion of notes to study materials:
 4. You review and customize as needed
 
 **Tools that offer this:**
+- Prepetual (upload documents, get quizzes instantly)
 - Knowt (from videos and PDFs)
 - Mindgrasp AI (comprehensive conversion)
 - ChatGPT (with the right prompts)
@@ -424,13 +446,13 @@ AI study tools have exploded in popularity. Here's how to use them effectively -
 
 ---
 
-### 3. AI Flashcard Generators
+### 3. AI Flashcard & Quiz Generators
 
-**Knowt, Mindgrasp AI, Studley AI, Penseum**
+**Prepetual, Knowt, Mindgrasp AI, Studley AI, Penseum**
 
 **What they do:**
-- Convert documents into flashcards automatically
-- Generate quiz questions from your materials
+- Convert documents into flashcards or quizzes automatically
+- Generate practice questions from your materials
 - Some offer AI tutoring features
 
 **Pros:**
@@ -491,7 +513,7 @@ AI study tools have exploded in popularity. Here's how to use them effectively -
 2. **Google Gemini** - Integration with Google Docs/Drive
 3. **NotebookLM** - Document analysis
 4. **Grammarly Free** - Writing polish
-5. **Anki or Knowt** - Flashcards and spaced repetition
+5. **Anki, Knowt, or Prepetual** - Flashcards, quizzes, and spaced repetition
 
 ---
 
@@ -883,6 +905,26 @@ Flashcards remain one of the most effective study tools, but the app you choose 
 
 ---
 
+### Prepetual
+
+**The AI quiz generator**
+
+**Strengths:**
+- Upload any document type (PDF, Word, PowerPoint, images)
+- AI generates multiple question types (MCQ, true/false, short answer)
+- Difficulty level selection
+- Study mode with flashcard flip
+- Vietnamese language support
+- Import and digitize existing exam papers
+
+**Weaknesses:**
+- Newer platform
+- Quiz-focused rather than pure flashcards
+
+**Best for:** Students who want instant practice quizzes from their materials.
+
+---
+
 ## Spaced Repetition Algorithms Compared
 
 **Anki (SM-2):** Most research-backed, highly customizable
@@ -903,6 +945,8 @@ Flashcards remain one of the most effective study tools, but the app you choose 
 **Want professional content?** Brainscape
 
 **Want notes + flashcards?** RemNote
+
+**Want AI-generated quizzes from documents?** Prepetual
 
 **Try before you commit.** Most apps offer free tiers - test 2-3 options before settling.
     `,
