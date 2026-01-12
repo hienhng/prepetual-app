@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
+import { useSidebar } from "@/components/ui/sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
 import { MaterialViewerDialog, MaterialViewerSidebar } from "@/components/material-viewer";
@@ -61,6 +62,7 @@ export function QuizPlayer() {
   const [, setLocation] = useLocation();
   const { currentQuiz, userAnswers, setUserAnswer, setQuizResult, sourceMaterial, setRevisedQuestionsCount, setRetryCorrectCount } = useQuiz();
   const { user } = useAuth();
+  const { state: sidebarState, isMobile } = useSidebar();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shortAnswerInput, setShortAnswerInput] = useState("");
@@ -776,7 +778,12 @@ export function QuizPlayer() {
 
       {renderQuestionNav()}
 
-      <div className="fixed bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-30 bg-background/95 backdrop-blur-md border-t transition-[left] duration-300 ease-in-out peer-data-[state=collapsed]:lg:left-[var(--sidebar-width-icon)]">
+      <div 
+        className="fixed bottom-0 right-0 left-0 z-30 bg-background/95 backdrop-blur-md border-t transition-[left] duration-300 ease-in-out"
+        style={{ 
+          left: isMobile ? 0 : sidebarState === 'collapsed' ? 'var(--sidebar-width-icon)' : 'var(--sidebar-width)' 
+        }}
+      >
         <div className="max-w-3xl mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-3">
             <Button
