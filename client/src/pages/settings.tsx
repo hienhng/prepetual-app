@@ -42,6 +42,7 @@ function useTheme() {
   const setTheme = (newTheme: ThemeOption) => {
     setThemeState(newTheme);
     localStorage.setItem("theme", newTheme);
+    window.dispatchEvent(new Event("themechange"));
   };
 
   return { theme, setTheme };
