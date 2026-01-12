@@ -225,6 +225,64 @@ export async function registerRoutes(
     }
   });
 
+  // SSE endpoint for quiz generation with progress updates
+  app.post("/api/generate-quiz-stream", isAuthenticated, async (req: any, res) => {
+    // Set up SSE headers
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    const sendProgress = (step: string, progress: number, message: string) => {
+      res.write(`data: ${JSON.stringify({ type: "progress", step, progress, message })}\n\n`);
+    };
+
+    try {
+      const validation = generateQuizRequestSchema.safeParse(req.body);
+      
+      if (!validation.success) {
+        res.write(`data: ${JSON.stringify({ type: "error", message: validation.error.errors[0]?.message || "Invalid request" })}\n\n`);
+        res.end();
+        return;
+      }
+
+      const { text, questionCount, questionTypes, difficulty, documentImages } = validation.data;
+      const { sourceImageUrl } = req.body;
+      const userId = req.user.claims.sub;
+
+      const { questions, title, category } = await generateQuizQuestions({
+        text,
+        questionCount,
+        questionTypes,
+        difficulty: difficulty as DifficultyLevel,
+        documentImages: documentImages || undefined,
+        onProgress: sendProgress,
+      });
+
+      sendProgress("saving", 98, "Saving your quiz...");
+
+      const quiz = await storage.saveQuiz({
+        userId,
+        title,
+        sourceText: text,
+        sourceImageUrl: sourceImageUrl || null,
+        questions: questions as Question[],
+        difficulty: difficulty || "medium",
+        category,
+        isPublic: 0,
+      });
+
+      sendProgress("complete", 100, "Quiz created successfully!");
+
+      res.write(`data: ${JSON.stringify({ type: "complete", quiz: { ...quiz, createdAt: quiz.createdAt.toISOString() } })}\n\n`);
+      res.end();
+    } catch (error) {
+      console.error("Quiz generation error:", error);
+      res.write(`data: ${JSON.stringify({ type: "error", message: error instanceof Error ? error.message : "Failed to generate quiz" })}\n\n`);
+      res.end();
+    }
+  });
+
   app.post("/api/generate-quiz", isAuthenticated, async (req: any, res) => {
     try {
       const validation = generateQuizRequestSchema.safeParse(req.body);

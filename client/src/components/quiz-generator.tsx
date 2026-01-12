@@ -1,18 +1,37 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import, FileQuestionIcon, Settings2 } from "lucide-react";
+import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import, FileQuestionIcon, Settings2, BookOpen, Brain, Wand2, CheckCircle, Save } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
 import { useQuiz } from "@/lib/quiz-context";
 import { useUpload } from "@/lib/upload-context";
 import { motion, AnimatePresence } from "framer-motion";
 import type { QuestionType, DifficultyLevel } from "@shared/schema";
 
 type QuizMode = "generate" | "import";
+
+interface ProgressStep {
+  id: string;
+  label: string;
+  icon: typeof BookOpen;
+}
+
+const PROGRESS_STEPS: ProgressStep[] = [
+  { id: "reading", label: "Reading material", icon: BookOpen },
+  { id: "analyzing", label: "Analyzing content", icon: Brain },
+  { id: "preparing", label: "Preparing generation", icon: Settings2 },
+  { id: "generating", label: "Generating questions", icon: Wand2 },
+  { id: "processing", label: "Processing response", icon: Sparkles },
+  { id: "validating", label: "Validating questions", icon: CheckCircle },
+  { id: "finalizing", label: "Finalizing quiz", icon: CheckCircle },
+  { id: "saving", label: "Saving quiz", icon: Save },
+  { id: "complete", label: "Complete", icon: CheckCircle },
+];
 
 export function QuizGenerator() {
   const [, setLocation] = useLocation();
@@ -24,6 +43,8 @@ export function QuizGenerator() {
   const [difficulty, setDifficulty] = useState<DifficultyLevel>("medium");
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<QuizMode>("generate");
+  const [progress, setProgress] = useState(0);
+  const [currentStep, setCurrentStep] = useState<string>("");
 
   const isOfficeWithImages = sourceMaterial?.isOfficeWithImages || false;
   const documentImages = sourceMaterial?.documentImages || [];
@@ -43,46 +64,114 @@ export function QuizGenerator() {
 
     setError(null);
     setIsLoading(true);
+    setProgress(0);
+    setCurrentStep("reading");
     
     if (mode === "import") {
       setLoadingMessage("AI is parsing your questions and finding answers...");
-    } else if (isOfficeWithImages) {
-      setLoadingMessage("AI is analyzing text and visual content...");
-    } else {
-      setLoadingMessage("AI is analyzing your content...");
+      // Use non-streaming endpoint for import mode
+      try {
+        const sourceImageUrl = sourceMaterial.type === "image" ? sourceMaterial.imageDataUrl : null;
+        const response = await fetch("/api/import-quiz", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: extractedText, sourceImageUrl, documentImages: isOfficeWithImages ? documentImages : undefined }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to import quiz");
+        }
+
+        const quiz = await response.json();
+        setCurrentQuiz(quiz);
+        clearJob();
+        setExtractedText("");
+        setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
+        queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
+        setLocation("/history");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred while importing the quiz");
+      } finally {
+        setIsLoading(false);
+        setLoadingMessage("");
+        setProgress(0);
+        setCurrentStep("");
+      }
+      return;
     }
 
+    // Use streaming endpoint for generate mode
     try {
-      const endpoint = mode === "import" ? "/api/import-quiz" : "/api/generate-quiz";
       const sourceImageUrl = sourceMaterial.type === "image" ? sourceMaterial.imageDataUrl : null;
-      const body = mode === "import" 
-        ? { text: extractedText, sourceImageUrl, documentImages: isOfficeWithImages ? documentImages : undefined }
-        : { text: extractedText, questionCount, questionTypes, difficulty, sourceImageUrl, documentImages: isOfficeWithImages ? documentImages : undefined };
+      const body = { 
+        text: extractedText, 
+        questionCount, 
+        questionTypes, 
+        difficulty, 
+        sourceImageUrl, 
+        documentImages: isOfficeWithImages ? documentImages : undefined 
+      };
 
-      const response = await fetch(endpoint, {
+      const response = await fetch("/api/generate-quiz-stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
+        credentials: "include",
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to process quiz");
+        throw new Error("Failed to start quiz generation");
       }
 
-      const quiz = await response.json();
-      setCurrentQuiz(quiz);
-      clearJob(); // Clear the upload job after quiz is created
-      // Clear extracted text and source material so create page shows upload box
-      setExtractedText("");
-      setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
-      queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
-      setLocation("/history");
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("Failed to read response");
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.type === "progress") {
+                setProgress(data.progress);
+                setCurrentStep(data.step);
+                setLoadingMessage(data.message);
+              } else if (data.type === "complete") {
+                setCurrentQuiz(data.quiz);
+                clearJob();
+                setExtractedText("");
+                setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
+                queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
+                setLocation("/history");
+              } else if (data.type === "error") {
+                throw new Error(data.message);
+              }
+            } catch (parseError) {
+              // Ignore parse errors for incomplete chunks
+            }
+          }
+        }
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred while processing the quiz");
+      setError(err instanceof Error ? err.message : "An error occurred while generating the quiz");
     } finally {
       setIsLoading(false);
       setLoadingMessage("");
+      setProgress(0);
+      setCurrentStep("");
     }
   };
 
@@ -381,6 +470,57 @@ export function QuizGenerator() {
               )}
             </AnimatePresence>
 
+            <AnimatePresence>
+              {isLoading && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-4 p-4 bg-primary/5 rounded-lg border border-primary/20"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{loadingMessage || "Generating..."}</span>
+                    <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
+                  </div>
+                  <Progress value={progress} className="h-2" />
+                  
+                  <div className="grid grid-cols-3 gap-2 mt-4">
+                    {PROGRESS_STEPS.slice(0, 6).map((step) => {
+                      const stepIndex = PROGRESS_STEPS.findIndex(s => s.id === step.id);
+                      const currentIndex = PROGRESS_STEPS.findIndex(s => s.id === currentStep);
+                      const isCompleted = stepIndex < currentIndex;
+                      const isCurrent = step.id === currentStep;
+                      const StepIcon = step.icon;
+                      
+                      return (
+                        <motion.div
+                          key={step.id}
+                          initial={{ opacity: 0.5 }}
+                          animate={{ 
+                            opacity: isCompleted || isCurrent ? 1 : 0.4,
+                            scale: isCurrent ? 1.02 : 1,
+                          }}
+                          className={`flex items-center gap-2 p-2 rounded-md text-xs transition-colors ${
+                            isCurrent ? "bg-primary/10 text-primary" : 
+                            isCompleted ? "text-primary/70" : "text-muted-foreground"
+                          }`}
+                        >
+                          {isCompleted ? (
+                            <CheckCircle className="h-3.5 w-3.5 text-primary" />
+                          ) : isCurrent ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <StepIcon className="h-3.5 w-3.5" />
+                          )}
+                          <span className="truncate">{step.label}</span>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <Button
               onClick={generateQuiz}
               disabled={isLoading || (mode === "generate" && questionTypes.length === 0)}
@@ -390,7 +530,7 @@ export function QuizGenerator() {
               {isLoading ? (
                 <>
                   <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  {loadingMessage || "Generating..."}
+                  Generating...
                 </>
               ) : (
                 <>

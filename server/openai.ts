@@ -20,20 +20,26 @@ function isRateLimitError(error: any): boolean {
   );
 }
 
+export type ProgressCallback = (step: string, progress: number, message: string) => void;
+
 interface QuizGenerationParams {
   text: string;
   questionCount: number;
   questionTypes: QuestionType[];
   difficulty?: DifficultyLevel;
   documentImages?: string[];
+  onProgress?: ProgressCallback;
 }
 
 export async function generateQuizQuestions(
   params: QuizGenerationParams,
 ): Promise<{ questions: Question[]; title: string; category: QuizCategory }> {
-  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [] } = params;
+  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress } = params;
 
   const hasImages = documentImages.length > 0;
+  
+  // Step 1: Reading material
+  onProgress?.("reading", 10, "Reading your study material...");
   const truncatedText =
     text.length > 8000 ? text.substring(0, 8000) + "..." : text;
 
@@ -181,9 +187,19 @@ OUTPUT FORMAT (JSON):
 Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
 
   try {
+    // Step 2: Analyzing content
+    onProgress?.("analyzing", 25, "Analyzing content structure...");
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Step 3: Preparing AI request
+    onProgress?.("preparing", 35, hasImages ? "Processing visual content..." : "Preparing quiz generation...");
+    
     const response = await pRetry(
       async () => {
         let messages: any[];
+        
+        // Step 4: Generating questions
+        onProgress?.("generating", 50, "AI is generating questions...");
         
         if (hasImages) {
           const imageContent = documentImages.slice(0, 6).map(imageUrl => ({
@@ -227,6 +243,7 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
             }
           } else {
             console.log("Quiz generation AI response received successfully");
+            onProgress?.("processing", 70, "Processing AI response...");
           }
         }
         
@@ -250,6 +267,9 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
       },
     );
 
+    // Step 5: Validating response
+    onProgress?.("validating", 80, "Validating generated questions...");
+    
     const parsed = JSON.parse(response);
 
     if (!parsed.questions || !Array.isArray(parsed.questions)) {
@@ -365,6 +385,9 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
       throw new Error("AI failed to generate valid questions");
     }
 
+    // Step 6: Finalizing
+    onProgress?.("finalizing", 95, "Finalizing your quiz...");
+    
     return { questions, title, category };
   } catch (error) {
     console.error("Error generating quiz:", error);
