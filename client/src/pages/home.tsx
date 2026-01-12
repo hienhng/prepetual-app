@@ -917,10 +917,11 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            className="max-w-2xl mx-auto"
           >
-            <Card className="shadow-xl border-primary/20 overflow-hidden">
+            <Card className="shadow-xl border-primary/20 overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
-              <CardContent className="p-8 relative pl-[5px] pr-[5px]">
+              <CardContent className="p-8 relative">
                 <FileUpload onTextExtracted={handleTextExtracted} />
                 
                 {extractedText && (
