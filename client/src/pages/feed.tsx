@@ -7,7 +7,7 @@ import {
   Sparkles, Clock, Target, Zap, 
   GraduationCap, Beaker, Calculator, Globe2, 
   BookText, Languages, Archive, LayoutGrid, X,
-  Lightbulb, TrendingUp, CheckCircle2
+  Lightbulb, TrendingUp, CheckCircle2, CheckCircle
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire } from "@fortawesome/free-solid-svg-icons";
@@ -183,8 +183,11 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
                     {getAuthorInitials(quiz.author)}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-xs text-muted-foreground truncate">
+                <span className="text-xs text-muted-foreground truncate flex items-center gap-1">
                   {getAuthorName(quiz.author)}
+                  {quiz.author?.username === "giahienhn" && (
+                    <CheckCircle className="h-3 w-3 text-blue-500 fill-blue-500/10" />
+                  )}
                 </span>
               </div>
               <CategoryIcon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
@@ -229,7 +232,12 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm font-medium">{getAuthorName(quiz.author)}</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium">{getAuthorName(quiz.author)}</p>
+                  {quiz.author?.username === "giahienhn" && (
+                    <CheckCircle className="h-3.5 w-3.5 text-blue-500 fill-blue-500/10" />
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                   <CategoryIcon className="h-3 w-3" />
                   {categoryConfig[quiz.category || "Others/General"]?.label || "General"}
