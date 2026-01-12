@@ -587,6 +587,67 @@ export async function registerRoutes(
     }
   });
 
+  // Personalized quiz recommendations
+  app.get("/api/recommendations", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const recommendationData = await storage.getUserRecommendationData(userId);
+      
+      if (!recommendationData.hasData) {
+        return res.json({ 
+          hasData: false, 
+          recommendations: [],
+          message: "Complete a quiz to get personalized recommendations" 
+        });
+      }
+
+      // Get all public quizzes
+      const publicQuizzes = await storage.getPublicQuizzes();
+      
+      // Filter out user's own quizzes and score remaining ones
+      const scoredQuizzes = publicQuizzes
+        .filter(quiz => !recommendationData.recentQuizIds.includes(quiz.id))
+        .map(quiz => {
+          let score = 0;
+          const category = quiz.category || "Others/General";
+          
+          // Boost quizzes in weak categories (needs improvement)
+          if (recommendationData.weakCategories.includes(category)) {
+            score += 3;
+          }
+          
+          // Boost quizzes in user's preferred categories
+          if (recommendationData.userCategories.includes(category)) {
+            score += 2;
+          }
+          
+          // Small boost for newer quizzes
+          const ageInDays = (Date.now() - new Date(quiz.createdAt).getTime()) / (1000 * 60 * 60 * 24);
+          if (ageInDays < 7) score += 1;
+          
+          return { quiz, score };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 6)
+        .map(item => ({
+          ...item.quiz,
+          createdAt: item.quiz.createdAt.toISOString(),
+          recommendationReason: item.score >= 3 ? "needs_improvement" : 
+                               item.score >= 2 ? "matches_interests" : "popular"
+        }));
+
+      res.json({
+        hasData: true,
+        recommendations: scoredQuizzes,
+        userCategories: recommendationData.userCategories,
+        weakCategories: recommendationData.weakCategories,
+      });
+    } catch (error) {
+      console.error("Recommendations error:", error);
+      res.status(500).json({ message: "Failed to get recommendations" });
+    }
+  });
+
   // Comments endpoints
   app.get("/api/quiz/:id/comments", async (req, res) => {
     try {

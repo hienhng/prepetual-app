@@ -59,6 +59,13 @@ export interface IStorage {
   removeVote(quizId: string, userId: string): Promise<boolean>;
   getVotesByQuizId(quizId: string): Promise<{ upvotes: number; downvotes: number; userVote?: number }>;
   getUserVote(quizId: string, userId: string): Promise<number | null>;
+  // Recommendations
+  getUserRecommendationData(userId: string): Promise<{
+    hasData: boolean;
+    userCategories: string[];
+    weakCategories: string[];
+    recentQuizIds: string[];
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -539,6 +546,63 @@ export class DatabaseStorage implements IStorage {
     }
 
     return longestStreak;
+  }
+
+  async getUserRecommendationData(userId: string): Promise<{
+    hasData: boolean;
+    userCategories: string[];
+    weakCategories: string[];
+    recentQuizIds: string[];
+  }> {
+    // Get user's quiz history (categories they've created/taken)
+    const userQuizzes = await this.getQuizzesByUserId(userId);
+    
+    if (userQuizzes.length === 0) {
+      return { hasData: false, userCategories: [], weakCategories: [], recentQuizIds: [] };
+    }
+
+    // Get categories from user's quizzes
+    const userCategories = Array.from(new Set(
+      userQuizzes.map(q => q.category || "Others/General")
+    ));
+
+    // Get quiz IDs for results lookup
+    const quizIds = userQuizzes.map(q => q.id);
+    
+    // Get quiz results to find weak areas
+    const results = await db.select()
+      .from(quizResults)
+      .where(inArray(quizResults.quizId, quizIds));
+
+    // Calculate accuracy per category
+    const categoryStats: Record<string, { correct: number; total: number }> = {};
+    
+    for (const result of results) {
+      const quiz = userQuizzes.find(q => q.id === result.quizId);
+      if (!quiz) continue;
+      
+      const category = quiz.category || "Others/General";
+      if (!categoryStats[category]) {
+        categoryStats[category] = { correct: 0, total: 0 };
+      }
+      categoryStats[category].correct += result.correctAnswers;
+      categoryStats[category].total += result.totalQuestions;
+    }
+
+    // Find weak categories (accuracy below 70%)
+    const weakCategories = Object.entries(categoryStats)
+      .filter(([_, stats]) => stats.total > 0 && (stats.correct / stats.total) < 0.7)
+      .map(([category]) => category);
+
+    // Get recent quiz IDs to avoid recommending what they already have
+    const recentQuizIds = userQuizzes.slice(0, 10).map(q => q.id);
+
+    return {
+      hasData: true,
+      userCategories,
+      weakCategories,
+      recentQuizIds,
+    };
   }
 }
 

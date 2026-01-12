@@ -109,10 +109,12 @@ export type Quiz = typeof quizzes.$inferSelect;
 export const quizResults = pgTable("quiz_results", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   quizId: varchar("quiz_id").notNull().references(() => quizzes.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
   answers: jsonb("answers").notNull().$type<Record<string, string>>(),
   score: integer("score").notNull(),
   totalQuestions: integer("total_questions").notNull(),
   correctAnswers: integer("correct_answers").notNull(),
+  wrongQuestionIds: jsonb("wrong_question_ids").$type<string[]>(),
   completedAt: timestamp("completed_at").defaultNow().notNull(),
 });
 
