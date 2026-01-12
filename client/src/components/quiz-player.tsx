@@ -776,7 +776,7 @@ export function QuizPlayer() {
 
       {renderQuestionNav()}
 
-      <div className="fixed bottom-0 right-0 left-0 lg:left-[var(--sidebar-width,16rem)] z-30 bg-background/95 backdrop-blur-md border-t transition-[left] duration-300 ease-in-out">
+      <div className="fixed bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-30 bg-background/95 backdrop-blur-md border-t transition-[left] duration-300 ease-in-out group-data-[state=collapsed]/sidebar-wrapper:lg:left-[var(--sidebar-width-icon)]">
         <div className="max-w-3xl mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-3">
             <Button
