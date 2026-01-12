@@ -227,14 +227,20 @@ export async function registerRoutes(
 
   // SSE endpoint for quiz generation with progress updates
   app.post("/api/generate-quiz-stream", isAuthenticated, async (req: any, res) => {
-    // Set up SSE headers
+    // Set up SSE headers - disable all buffering
     res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
     res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no"); // Disable nginx buffering
     res.flushHeaders();
 
     const sendProgress = (step: string, progress: number, message: string) => {
-      res.write(`data: ${JSON.stringify({ type: "progress", step, progress, message })}\n\n`);
+      const data = `data: ${JSON.stringify({ type: "progress", step, progress, message })}\n\n`;
+      res.write(data);
+      // Force flush - some Express setups need this
+      if (typeof (res as any).flush === 'function') {
+        (res as any).flush();
+      }
     };
 
     try {
