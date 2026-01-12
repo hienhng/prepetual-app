@@ -843,13 +843,11 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       <section className="py-12 md:py-16 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6">
           <StatsSection />
         </div>
       </section>
-
       <section id="how-it-works" className="py-20 md:py-28">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
           <motion.div 
@@ -872,7 +870,6 @@ export default function Home() {
           <HowItWorksGallery />
         </div>
       </section>
-
       <section className="py-20 md:py-28 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6">
           <motion.div 
@@ -897,7 +894,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       <section className="py-20 md:py-28">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
           <motion.div 
@@ -924,7 +920,7 @@ export default function Home() {
           >
             <Card className="shadow-xl border-primary/20 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
-              <CardContent className="p-6 md:p-8 relative">
+              <CardContent className="p-8 relative pl-[20px] pr-[20px]">
                 <FileUpload onTextExtracted={handleTextExtracted} />
                 
                 {extractedText && (
@@ -949,7 +945,6 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
-
       <section className="py-20 md:py-28 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
         <div className="container mx-auto px-4 sm:px-6">
           <motion.div
@@ -1000,7 +995,6 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
-
       {/* Scroll to top button */}
       <AnimatePresence>
         {showScrollTop && (
@@ -1018,7 +1012,6 @@ export default function Home() {
           </motion.button>
         )}
       </AnimatePresence>
-
       <Footer />
     </div>
   );
