@@ -4,9 +4,9 @@ import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { 
   Search, Play, Loader2, Users, BookOpen, 
-  Sparkles, Clock, Filter, Target, Zap, 
+  Sparkles, Clock, Target, Zap, 
   GraduationCap, Beaker, Calculator, Globe2, 
-  Palette, Music, Code, Heart, Dumbbell, Languages, Archive
+  BookText, Languages, Archive, LayoutGrid
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire } from "@fortawesome/free-solid-svg-icons";
@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { useQuiz } from "@/lib/quiz-context";
 import type { Quiz } from "@shared/schema";
+import { QUIZ_CATEGORIES } from "@shared/schema";
 
 type PublicQuiz = Quiz & { 
   author?: { 
@@ -38,18 +39,15 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3 } },
 };
 
-// const categories = [
-//   { id: "all", label: "All", icon: Sparkles },
-//   { id: "science", label: "Science", icon: Beaker },
-//   { id: "math", label: "Math", icon: Calculator },
-//   { id: "languages", label: "Languages", icon: Languages },
-//   { id: "history", label: "History", icon: Globe2 },
-//   { id: "arts", label: "Arts", icon: Palette },
-//   { id: "tech", label: "Technology", icon: Code },
-//   { id: "health", label: "Health", icon: Heart },
-//   { id: "sports", label: "Sports", icon: Dumbbell },
-//   { id: "music", label: "Music", icon: Music },
-// ];
+const categoryConfig: Record<string, { label: string; icon: typeof Sparkles }> = {
+  "all": { label: "All", icon: LayoutGrid },
+  "Math": { label: "Math", icon: Calculator },
+  "English": { label: "English", icon: BookText },
+  "Science": { label: "Science", icon: Beaker },
+  "Social Studies": { label: "Social Studies", icon: Globe2 },
+  "Global Languages": { label: "Languages", icon: Languages },
+  "Others/General": { label: "General", icon: GraduationCap },
+};
 
 const gradients = [
   "from-violet-500 to-purple-600",
@@ -231,9 +229,21 @@ export default function Feed() {
         quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         quiz.sourceText.toLowerCase().includes(searchQuery.toLowerCase());
       
-      return matchesSearch;
+      const matchesCategory = selectedCategory === "all" || 
+        quiz.category === selectedCategory;
+      
+      return matchesSearch && matchesCategory;
     }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [quizzes, searchQuery]);
+  }, [quizzes, searchQuery, selectedCategory]);
+
+  const categoryCounts = useMemo(() => {
+    if (!quizzes) return {};
+    const counts: Record<string, number> = { all: quizzes.length };
+    for (const cat of QUIZ_CATEGORIES) {
+      counts[cat] = quizzes.filter(q => q.category === cat).length;
+    }
+    return counts;
+  }, [quizzes]);
 
   const stats = useMemo(() => {
     if (!quizzes) return { totalQuizzes: 0, totalQuestions: 0, totalContributors: 0 };
@@ -300,23 +310,31 @@ export default function Feed() {
             transition={{ delay: 0.15 }}
             className="flex items-center justify-center gap-2 flex-wrap"
           >
-            {/* {categories.slice(0, 6).map((category) => {
-              const Icon = category.icon;
-              const isActive = selectedCategory === category.id;
+            {["all", ...QUIZ_CATEGORIES].map((categoryId) => {
+              const config = categoryConfig[categoryId];
+              if (!config) return null;
+              const Icon = config.icon;
+              const isActive = selectedCategory === categoryId;
+              const count = categoryCounts[categoryId] || 0;
               return (
                 <Button
-                  key={category.id}
+                  key={categoryId}
                   variant={isActive ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedCategory(category.id)}
+                  onClick={() => setSelectedCategory(categoryId)}
                   className={`gap-2 ${isActive ? "" : "bg-background/50 backdrop-blur-sm"}`}
-                  data-testid={`button-category-${category.id}`}
+                  data-testid={`button-category-${categoryId}`}
                 >
                   <Icon className="h-4 w-4" />
-                  {category.label}
+                  {config.label}
+                  {count > 0 && (
+                    <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                      {count}
+                    </Badge>
+                  )}
                 </Button>
               );
-            })} */}
+            })}
           </motion.div>
         </div>
       </div>
@@ -349,15 +367,17 @@ export default function Feed() {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-16"
           >
-            {searchQuery ? (
+            {searchQuery || selectedCategory !== "all" ? (
               <>
                 <Search className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">No quizzes found</h3>
                 <p className="text-muted-foreground mb-6">
-                  Try a different search term or browse all quizzes
+                  {selectedCategory !== "all" 
+                    ? `No quizzes in ${categoryConfig[selectedCategory]?.label || selectedCategory} category`
+                    : "Try a different search term or browse all quizzes"}
                 </p>
-                <Button variant="outline" onClick={() => setSearchQuery("")}>
-                  Clear Search
+                <Button variant="outline" onClick={() => { setSearchQuery(""); setSelectedCategory("all"); }}>
+                  Clear Filters
                 </Button>
               </>
             ) : (
