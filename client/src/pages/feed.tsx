@@ -185,7 +185,7 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
                 </Avatar>
                 <span className="text-xs text-muted-foreground truncate flex items-center gap-1">
                   {getAuthorName(quiz.author)}
-                  {quiz.author?.username === "giahienhn" && (
+                  {quiz.author?.email === "giahienhn@gmail.com" && (
                     <CheckCircle className="h-3 w-3 text-blue-500 fill-blue-500/10" />
                   )}
                 </span>
@@ -234,7 +234,7 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
               <div>
                 <div className="flex items-center gap-1.5">
                   <p className="text-sm font-medium">{getAuthorName(quiz.author)}</p>
-                  {quiz.author?.username === "giahienhn" && (
+                  {quiz.author?.email === "giahienhn@gmail.com" && (
                     <CheckCircle className="h-3.5 w-3.5 text-blue-500 fill-blue-500/10" />
                   )}
                 </div>

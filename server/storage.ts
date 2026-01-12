@@ -172,12 +172,13 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(quizzes).where(eq(quizzes.userId, userId)).orderBy(desc(quizzes.createdAt));
   }
 
-  async getPublicQuizzes(): Promise<(Quiz & { author?: { username: string | null; profileImageUrl: string | null } })[]> {
+  async getPublicQuizzes(): Promise<(Quiz & { author?: { username: string | null; email: string | null; profileImageUrl: string | null } })[]> {
     const results = await db
       .select({
         quiz: quizzes,
         author: {
           username: users.username,
+          email: users.email,
           profileImageUrl: users.profileImageUrl,
         },
       })
