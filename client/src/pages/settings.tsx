@@ -84,12 +84,13 @@ export default function Settings() {
       _silent?: boolean;
     }) => {
       const { _silent, ...payload } = data;
-      const response = await apiRequest("PATCH", "/api/user/settings", payload);
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to save settings");
+      try {
+        const response = await apiRequest("PATCH", "/api/user/settings", payload);
+        const json = await response.json();
+        return { result: json, silent: _silent };
+      } catch (error: any) {
+        throw new Error(error.message || "Failed to save settings");
       }
-      return { result: await response.json(), silent: _silent };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/settings"] });
