@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
-import { format, parseISO, subDays } from "date-fns";
+import { motion } from "framer-motion";
+import { format, parseISO } from "date-fns";
 import { TrendingUp, TrendingDown, Target, Trophy, Zap, Star, ChartLine } from "lucide-react";
 import {
   Dialog,
@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import {
   ChartContainer,
   ChartTooltip,
@@ -22,9 +21,6 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  ResponsiveContainer,
-  Bar,
-  BarChart,
 } from "recharts";
 
 interface ResultHistoryItem {
@@ -107,7 +103,7 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
 
   const chartData = history.slice(-20).map((item, index) => ({
     index: index + 1,
-    date: format(parseISO(item.date), "MMM d"),
+    date: format(parseISO(item.date), "M/d"),
     accuracy: item.accuracy,
     quizTitle: item.quizTitle,
   }));
@@ -124,47 +120,47 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ChartLine className="w-5 h-5 text-primary" />
+      <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <ChartLine className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             Your Progress
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-5">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6 border border-primary/20"
+            className="relative overflow-hidden rounded-lg sm:rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 sm:p-5 border border-primary/20"
           >
-            <div className="absolute top-4 right-4 opacity-10">
-              <EncouragementIcon className="w-24 h-24" />
+            <div className="absolute top-2 right-2 sm:top-4 sm:right-4 opacity-10">
+              <EncouragementIcon className="w-16 h-16 sm:w-20 sm:h-20" />
             </div>
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-full bg-primary/20">
-                <EncouragementIcon className="w-6 h-6 text-primary" />
+            <div className="flex items-start gap-3">
+              <div className="p-2 sm:p-2.5 rounded-full bg-primary/20 flex-shrink-0">
+                <EncouragementIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-foreground">{encouragement.title}</h3>
-                <p className="text-muted-foreground mt-1">{encouragement.message}</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground">{encouragement.title}</h3>
+                <p className="text-sm text-muted-foreground mt-0.5 sm:mt-1">{encouragement.message}</p>
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-3 gap-4">
+            <div className="mt-4 sm:mt-5 grid grid-cols-3 gap-2 sm:gap-4">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary">{averageAccuracy}%</div>
-                <div className="text-xs text-muted-foreground mt-1">Avg. Accuracy</div>
+                <div className="text-xl sm:text-2xl font-bold text-primary">{averageAccuracy}%</div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Avg. Accuracy</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-foreground">{totalAttempts}</div>
-                <div className="text-xs text-muted-foreground mt-1">Quizzes Taken</div>
+                <div className="text-xl sm:text-2xl font-bold text-foreground">{totalAttempts}</div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Quizzes Taken</div>
               </div>
               <div className="text-center">
-                <div className="flex items-center justify-center gap-1">
-                  {trend.trend === "up" && <TrendingUp className="w-5 h-5 text-emerald-500" />}
-                  {trend.trend === "down" && <TrendingDown className="w-5 h-5 text-rose-500" />}
-                  <span className={`text-3xl font-bold ${
+                <div className="flex items-center justify-center gap-0.5 sm:gap-1">
+                  {trend.trend === "up" && <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />}
+                  {trend.trend === "down" && <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500" />}
+                  <span className={`text-xl sm:text-2xl font-bold ${
                     trend.trend === "up" ? "text-emerald-500" : 
                     trend.trend === "down" ? "text-rose-500" : "text-muted-foreground"
                   }`}>
@@ -172,7 +168,7 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
                      trend.trend === "down" ? `-${trend.change}%` : "—"}
                   </span>
                 </div>
-                <div className="text-xs text-muted-foreground mt-1">Recent Trend</div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Recent Trend</div>
               </div>
             </div>
           </motion.div>
@@ -183,11 +179,11 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <h4 className="text-sm font-medium text-foreground mb-3">Accuracy Over Time</h4>
+              <h4 className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">Accuracy Over Time</h4>
               <Card>
-                <CardContent className="pt-4">
-                  <ChartContainer config={chartConfig} className="h-[200px] w-full">
-                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CardContent className="p-2 sm:p-4 pt-3 sm:pt-4">
+                  <ChartContainer config={chartConfig} className="h-[140px] sm:h-[180px] w-full">
+                    <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
                       <defs>
                         <linearGradient id="accuracyGradient" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
@@ -197,24 +193,26 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                       <XAxis 
                         dataKey="date" 
-                        tick={{ fontSize: 11 }}
+                        tick={{ fontSize: 9 }}
                         tickLine={false}
                         axisLine={false}
+                        interval="preserveStartEnd"
                       />
                       <YAxis 
                         domain={[0, 100]} 
-                        tick={{ fontSize: 11 }}
+                        tick={{ fontSize: 9 }}
                         tickLine={false}
                         axisLine={false}
                         tickFormatter={(value) => `${value}%`}
+                        width={35}
                       />
                       <ChartTooltip
                         content={
                           <ChartTooltipContent
                             formatter={(value, name, item) => (
                               <div className="space-y-1">
-                                <div className="font-medium">{item.payload.quizTitle}</div>
-                                <div className="text-primary font-bold">{value}% accuracy</div>
+                                <div className="font-medium text-xs">{item.payload.quizTitle}</div>
+                                <div className="text-primary font-bold text-sm">{value}%</div>
                               </div>
                             )}
                           />
@@ -226,8 +224,8 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
                         stroke="hsl(var(--primary))"
                         strokeWidth={2}
                         fill="url(#accuracyGradient)"
-                        dot={{ fill: "hsl(var(--primary))", strokeWidth: 0, r: 3 }}
-                        activeDot={{ r: 5, strokeWidth: 0 }}
+                        dot={{ fill: "hsl(var(--primary))", strokeWidth: 0, r: 2 }}
+                        activeDot={{ r: 4, strokeWidth: 0 }}
                       />
                     </AreaChart>
                   </ChartContainer>
@@ -242,15 +240,15 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <h4 className="text-sm font-medium text-foreground mb-3">Score Distribution</h4>
+              <h4 className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">Score Distribution</h4>
               <Card>
-                <CardContent className="pt-4">
-                  <div className="space-y-3">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="space-y-2 sm:space-y-3">
                     {accuracyDistribution.map((item) => (
-                      <div key={item.range} className="flex items-center gap-3">
-                        <div className="w-16 text-xs text-muted-foreground">{item.range}</div>
+                      <div key={item.range} className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-14 sm:w-16 text-[10px] sm:text-xs text-muted-foreground">{item.range}</div>
                         <div className="flex-1">
-                          <div className="h-6 bg-muted rounded-full overflow-hidden">
+                          <div className="h-5 sm:h-6 bg-muted rounded-full overflow-hidden">
                             <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: `${(item.count / history.length) * 100}%` }}
@@ -260,7 +258,7 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
                             />
                           </div>
                         </div>
-                        <div className="w-10 text-xs text-right font-medium">{item.count}</div>
+                        <div className="w-8 sm:w-10 text-[10px] sm:text-xs text-right font-medium">{item.count}</div>
                       </div>
                     ))}
                   </div>
@@ -275,7 +273,7 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <h4 className="text-sm font-medium text-foreground mb-3">Recent Results</h4>
+              <h4 className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">Recent Results</h4>
               <div className="space-y-2">
                 {recentResults.map((result, index) => (
                   <motion.div
@@ -285,23 +283,23 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
                     transition={{ delay: 0.3 + index * 0.05 }}
                   >
                     <Card className="overflow-hidden">
-                      <CardContent className="p-3">
-                        <div className="flex items-center justify-between gap-3">
+                      <CardContent className="p-2.5 sm:p-3">
+                        <div className="flex items-center justify-between gap-2 sm:gap-3">
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{result.quizTitle}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {format(parseISO(result.date), "MMM d, yyyy 'at' h:mm a")}
+                            <p className="text-xs sm:text-sm font-medium truncate">{result.quizTitle}</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground">
+                              {format(parseISO(result.date), "MMM d, yyyy")}
                             </p>
                           </div>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                             <div className="text-right">
-                              <div className={`text-lg font-bold ${
+                              <div className={`text-base sm:text-lg font-bold ${
                                 result.accuracy >= 80 ? "text-emerald-500" :
                                 result.accuracy >= 60 ? "text-amber-500" : "text-rose-500"
                               }`}>
                                 {result.accuracy}%
                               </div>
-                              <div className="text-xs text-muted-foreground">
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">
                                 {result.correctAnswers}/{result.totalQuestions}
                               </div>
                             </div>
@@ -316,9 +314,9 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
           )}
 
           {history.length === 0 && !isLoading && (
-            <div className="text-center py-8">
-              <Target className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-              <p className="text-muted-foreground">Take some quizzes to see your progress!</p>
+            <div className="text-center py-6 sm:py-8">
+              <Target className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground/50 mx-auto mb-2 sm:mb-3" />
+              <p className="text-sm text-muted-foreground">Take some quizzes to see your progress!</p>
             </div>
           )}
         </div>
