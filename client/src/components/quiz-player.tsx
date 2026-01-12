@@ -809,7 +809,7 @@ export function QuizPlayer() {
                   onClick={handleCheck}
                   disabled={!canCheck}
                   size="lg"
-                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold"
+                  className="gap-2 rounded-xl min-w-[120px] sm:min-w-[160px] font-semibold"
                   data-testid="button-check"
                 >
                   <CheckCheck className="h-5 w-5" />
@@ -820,14 +820,14 @@ export function QuizPlayer() {
                   onClick={finishQuiz}
                   disabled={isSubmitting || !canFinish}
                   size="lg"
-                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+                  className="gap-2 rounded-xl min-w-[120px] sm:min-w-[160px] font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
                   data-testid="button-finish"
                 >
                   {isSubmitting ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
                     <>
-                      See Results
+                      Results
                     </>
                   )}
                 </Button>
@@ -835,10 +835,10 @@ export function QuizPlayer() {
                 <Button
                   onClick={goToNext}
                   size="lg"
-                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold"
+                  className="gap-2 rounded-xl min-w-[120px] sm:min-w-[160px] font-semibold"
                   data-testid="button-next"
                 >
-                  Continue
+                  Next
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               )}
@@ -852,7 +852,7 @@ export function QuizPlayer() {
               className="gap-2 rounded-xl flex-1 sm:flex-none"
               data-testid="button-skip"
             >
-              <span className="hidden sm:inline">Next</span>
+              <span className="hidden sm:inline">Skip</span>
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
