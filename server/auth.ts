@@ -47,7 +47,7 @@ export function setupAuth(app: Express): void {
       }
 
       const { email, password } = validation.data;
-      const username = email.split('@')[0];
+      const username = email;
 
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
