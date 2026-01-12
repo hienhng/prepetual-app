@@ -46,7 +46,7 @@ export function setupAuth(app: Express): void {
         });
       }
 
-      const { email, password, firstName, lastName } = validation.data;
+      const { email, password, username, firstName, lastName } = validation.data;
 
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
@@ -57,6 +57,7 @@ export function setupAuth(app: Express): void {
 
       const user = await storage.createUser({
         email,
+        username,
         passwordHash,
         firstName: firstName || null,
         lastName: lastName || null,
@@ -77,6 +78,7 @@ export function setupAuth(app: Express): void {
         user: {
           id: user.id,
           email: user.email,
+          username: user.username,
           firstName: user.firstName,
           lastName: user.lastName,
           emailVerified: user.emailVerified,
@@ -121,6 +123,7 @@ export function setupAuth(app: Express): void {
         user: {
           id: user.id,
           email: user.email,
+          username: user.username,
           firstName: user.firstName,
           lastName: user.lastName,
           emailVerified: user.emailVerified,
@@ -254,8 +257,11 @@ export function setupAuth(app: Express): void {
           });
           user = await storage.getUser(user.id);
         } else {
+          // Use Google's name as the username
+          const googleUsername = payload.name || payload.given_name || payload.email.split('@')[0];
           user = await storage.createUser({
             email: payload.email,
+            username: googleUsername,
             firstName: payload.given_name || null,
             lastName: payload.family_name || null,
             profileImageUrl: payload.picture || null,
@@ -272,6 +278,7 @@ export function setupAuth(app: Express): void {
           user: {
             id: user.id,
             email: user.email,
+            username: user.username,
             firstName: user.firstName,
             lastName: user.lastName,
             emailVerified: user.emailVerified,
@@ -301,6 +308,7 @@ export function setupAuth(app: Express): void {
       res.json({
         id: user.id,
         email: user.email,
+        username: user.username,
         firstName: user.firstName,
         lastName: user.lastName,
         emailVerified: user.emailVerified,
