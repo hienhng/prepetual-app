@@ -439,7 +439,7 @@ export default function Feed() {
           </motion.div>
         )}
 
-        {user && (
+        {user && recommendations?.hasData && recommendations.recommendations.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -450,57 +450,29 @@ export default function Feed() {
               <h2 className="text-lg font-semibold">Suggested For You</h2>
             </div>
             
-            {isLoadingRecs ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : recommendations?.hasData && recommendations.recommendations.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {recommendations.recommendations.slice(0, 3).map((quiz) => (
-                  <div key={quiz.id} className="relative">
-                    {quiz.recommendationReason === "needs_improvement" && (
-                      <div className="absolute -top-2 -right-2 z-10">
-                        <Badge className="bg-rose-500 text-white border-0 text-[10px] px-2 py-0.5">
-                          <TrendingUp className="h-3 w-3 mr-1" />
-                          Improve
-                        </Badge>
-                      </div>
-                    )}
-                    {quiz.recommendationReason === "matches_interests" && (
-                      <div className="absolute -top-2 -right-2 z-10">
-                        <Badge className="bg-blue-500 text-white border-0 text-[10px] px-2 py-0.5">
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          For You
-                        </Badge>
-                      </div>
-                    )}
-                    <QuizCard quiz={quiz} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <Card className="border-dashed bg-muted/30">
-                <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                    <Target className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-medium mb-1">No recommendations yet</h3>
-                  <p className="text-sm text-muted-foreground max-w-xs">
-                    Complete a quiz to get personalized suggestions based on your interests and areas to improve
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-4"
-                    onClick={() => setLocation("/")}
-                    data-testid="button-create-first-quiz"
-                  >
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Create Your First Quiz
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {recommendations.recommendations.slice(0, 3).map((quiz) => (
+                <div key={quiz.id} className="relative">
+                  {quiz.recommendationReason === "needs_improvement" && (
+                    <div className="absolute -top-2 -right-2 z-10">
+                      <Badge className="bg-rose-500 text-white border-0 text-[10px] px-2 py-0.5">
+                        <TrendingUp className="h-3 w-3 mr-1" />
+                        Improve
+                      </Badge>
+                    </div>
+                  )}
+                  {quiz.recommendationReason === "matches_interests" && (
+                    <div className="absolute -top-2 -right-2 z-10">
+                      <Badge className="bg-blue-500 text-white border-0 text-[10px] px-2 py-0.5">
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        For You
+                      </Badge>
+                    </div>
+                  )}
+                  <QuizCard quiz={quiz} />
+                </div>
+              ))}
+            </div>
           </motion.div>
         )}
 
