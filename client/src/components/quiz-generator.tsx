@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import, FileQuestionIcon, Settings2, BookOpen, Brain, Wand2, CheckCircle, Save } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
@@ -55,6 +55,58 @@ export function QuizGenerator() {
 
   const isOfficeWithImages = sourceMaterial?.isOfficeWithImages || false;
   const documentImages = sourceMaterial?.documentImages || [];
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+
+  // Simulated progress animation - animates through steps while loading
+  useEffect(() => {
+    if (isLoading && mode === "generate") {
+      const steps = [
+        { step: "starting", progress: 5, delay: 0 },
+        { step: "reading", progress: 10, delay: 500 },
+        { step: "analyzing", progress: 25, delay: 1500 },
+        { step: "preparing", progress: 35, delay: 2500 },
+        { step: "generating", progress: 50, delay: 3500 },
+        { step: "processing", progress: 70, delay: 8000 },
+        { step: "validating", progress: 80, delay: 12000 },
+        { step: "finalizing", progress: 90, delay: 15000 },
+      ];
+
+      // Clear any existing timeouts
+      timeoutsRef.current.forEach(t => clearTimeout(t));
+      timeoutsRef.current = [];
+
+      // Schedule each step
+      steps.forEach(({ step, progress, delay }) => {
+        const timeout = setTimeout(() => {
+          setProcessingProgress(progress);
+          setCurrentGenerationStep(step);
+          setLoadingMessage(getStepMessage(step));
+        }, delay);
+        timeoutsRef.current.push(timeout);
+      });
+
+      return () => {
+        timeoutsRef.current.forEach(t => clearTimeout(t));
+        timeoutsRef.current = [];
+      };
+    }
+  }, [isLoading, mode]);
+
+  const getStepMessage = (step: string): string => {
+    const messages: Record<string, string> = {
+      starting: "Starting quiz generation...",
+      reading: "Reading your study material...",
+      analyzing: "Analyzing content structure...",
+      preparing: "Preparing quiz generation...",
+      generating: "AI is generating questions...",
+      processing: "Processing AI response...",
+      validating: "Validating generated questions...",
+      finalizing: "Finalizing your quiz...",
+      saving: "Saving your quiz...",
+      complete: "Quiz created successfully!",
+    };
+    return messages[step] || "Processing...";
+  };
 
   const toggleQuestionType = (type: QuestionType) => {
     setQuestionTypes((prev) => {
@@ -159,6 +211,21 @@ export function QuizGenerator() {
                 setCurrentGenerationStep(data.step);
                 setLoadingMessage(data.message);
               } else if (data.type === "complete") {
+                // Show final completion steps
+                setProcessingProgress(98);
+                setCurrentGenerationStep("saving");
+                setLoadingMessage("Saving your quiz...");
+                
+                // Brief pause to show saving state
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                setProcessingProgress(100);
+                setCurrentGenerationStep("complete");
+                setLoadingMessage("Quiz created successfully!");
+                
+                // Another brief pause before redirect
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
                 setCurrentQuiz(data.quiz);
                 clearJob();
                 setExtractedText("");
