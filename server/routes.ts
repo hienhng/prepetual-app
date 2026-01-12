@@ -314,7 +314,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/submit-quiz", async (req, res) => {
+  app.post("/api/submit-quiz", async (req: any, res) => {
     try {
       const validation = submitQuizRequestSchema.safeParse(req.body);
       
@@ -332,6 +332,7 @@ export async function registerRoutes(
       }
 
       let correctAnswers = 0;
+      const wrongQuestionIds: string[] = [];
       const questions = quiz.questions as Question[];
       
       for (const question of questions) {
@@ -342,16 +343,25 @@ export async function registerRoutes(
           
           if (normalizedUserAnswer === normalizedCorrectAnswer) {
             correctAnswers++;
+          } else {
+            wrongQuestionIds.push(question.id);
           }
+        } else {
+          wrongQuestionIds.push(question.id);
         }
       }
 
+      // Get userId if authenticated
+      const userId = req.user?.claims?.sub || null;
+
       const result = await storage.saveQuizResult({
         quizId,
+        userId,
         answers,
         score: Math.round((correctAnswers / questions.length) * 100),
         totalQuestions: questions.length,
         correctAnswers,
+        wrongQuestionIds,
       });
 
       res.json({
@@ -605,8 +615,9 @@ export async function registerRoutes(
       const publicQuizzes = await storage.getPublicQuizzes();
       
       // Filter out user's own quizzes and score remaining ones
-      const scoredQuizzes = publicQuizzes
-        .filter(quiz => !recommendationData.recentQuizIds.includes(quiz.id))
+      const availableQuizzes = publicQuizzes.filter(quiz => !recommendationData.recentQuizIds.includes(quiz.id));
+      
+      let scoredQuizzes = availableQuizzes
         .map(quiz => {
           let score = 0;
           const category = quiz.category || "Others/General";
@@ -635,6 +646,18 @@ export async function registerRoutes(
           recommendationReason: item.score >= 3 ? "needs_improvement" : 
                                item.score >= 2 ? "matches_interests" : "popular"
         }));
+
+      // Fallback: if no recommendations found after filtering, show newest unvisited quizzes
+      if (scoredQuizzes.length === 0 && availableQuizzes.length > 0) {
+        scoredQuizzes = availableQuizzes
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 6)
+          .map(quiz => ({
+            ...quiz,
+            createdAt: quiz.createdAt.toISOString(),
+            recommendationReason: "popular" as const
+          }));
+      }
 
       res.json({
         hasData: true,

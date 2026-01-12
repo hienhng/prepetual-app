@@ -554,31 +554,60 @@ export class DatabaseStorage implements IStorage {
     weakCategories: string[];
     recentQuizIds: string[];
   }> {
-    // Get user's quiz history (categories they've created/taken)
-    const userQuizzes = await this.getQuizzesByUserId(userId);
+    // Get quizzes the user has taken (from quiz results with userId)
+    const userResults = await db.select()
+      .from(quizResults)
+      .where(eq(quizResults.userId, userId))
+      .orderBy(desc(quizResults.completedAt));
+
+    // Also get quizzes the user has created (ordered by creation date)
+    const userCreatedQuizzes = await this.getQuizzesByUserId(userId);
     
-    if (userQuizzes.length === 0) {
+    // Build recentQuizIds preserving recency order from results first
+    const recentTakenQuizIds: string[] = [];
+    const seenIds = new Set<string>();
+    for (const result of userResults) {
+      if (!seenIds.has(result.quizId)) {
+        recentTakenQuizIds.push(result.quizId);
+        seenIds.add(result.quizId);
+      }
+    }
+    
+    // Add created quiz IDs
+    const createdQuizIds = userCreatedQuizzes.map(q => q.id);
+    for (const id of createdQuizIds) {
+      if (!seenIds.has(id)) {
+        seenIds.add(id);
+      }
+    }
+    
+    const allUserQuizIds = Array.from(seenIds);
+    
+    // User has data if they've created quizzes OR taken quizzes with tracked results
+    const hasCreatedQuizzes = userCreatedQuizzes.length > 0;
+    const hasTakenQuizzes = userResults.length > 0;
+    
+    if (!hasCreatedQuizzes && !hasTakenQuizzes) {
       return { hasData: false, userCategories: [], weakCategories: [], recentQuizIds: [] };
     }
 
-    // Get categories from user's quizzes
+    // Get quiz details for category lookup
+    const quizDetails = await db.select()
+      .from(quizzes)
+      .where(inArray(quizzes.id, allUserQuizIds));
+    
+    const quizMap = new Map(quizDetails.map(q => [q.id, q]));
+
+    // Get categories from quizzes the user has interacted with
     const userCategories = Array.from(new Set(
-      userQuizzes.map(q => q.category || "Others/General")
+      quizDetails.map(q => q.category || "Others/General")
     ));
 
-    // Get quiz IDs for results lookup
-    const quizIds = userQuizzes.map(q => q.id);
-    
-    // Get quiz results to find weak areas
-    const results = await db.select()
-      .from(quizResults)
-      .where(inArray(quizResults.quizId, quizIds));
-
-    // Calculate accuracy per category
+    // Calculate accuracy per category from results
     const categoryStats: Record<string, { correct: number; total: number }> = {};
     
-    for (const result of results) {
-      const quiz = userQuizzes.find(q => q.id === result.quizId);
+    for (const result of userResults) {
+      const quiz = quizMap.get(result.quizId);
       if (!quiz) continue;
       
       const category = quiz.category || "Others/General";
@@ -594,8 +623,8 @@ export class DatabaseStorage implements IStorage {
       .filter(([_, stats]) => stats.total > 0 && (stats.correct / stats.total) < 0.7)
       .map(([category]) => category);
 
-    // Get recent quiz IDs to avoid recommending what they already have
-    const recentQuizIds = userQuizzes.slice(0, 10).map(q => q.id);
+    // Use recency-ordered quiz IDs for exclusion (taken quizzes first, then created)
+    const recentQuizIds = [...recentTakenQuizIds, ...createdQuizIds.filter(id => !recentTakenQuizIds.includes(id))].slice(0, 30);
 
     return {
       hasData: true,

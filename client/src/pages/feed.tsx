@@ -6,10 +6,12 @@ import {
   Search, Play, Loader2, Users, BookOpen, 
   Sparkles, Clock, Target, Zap, 
   GraduationCap, Beaker, Calculator, Globe2, 
-  BookText, Languages, Archive, LayoutGrid, X
+  BookText, Languages, Archive, LayoutGrid, X,
+  Lightbulb, TrendingUp, CheckCircle2
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire } from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -270,13 +272,31 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
   );
 }
 
+type RecommendationQuiz = PublicQuiz & {
+  recommendationReason?: "needs_improvement" | "matches_interests" | "popular";
+};
+
+type RecommendationsResponse = {
+  hasData: boolean;
+  recommendations: RecommendationQuiz[];
+  userCategories?: string[];
+  weakCategories?: string[];
+  message?: string;
+};
+
 export default function Feed() {
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const { user } = useAuth();
 
   const { data: quizzes, isLoading } = useQuery<PublicQuiz[]>({
     queryKey: ["/api/public-quizzes"],
+  });
+
+  const { data: recommendations, isLoading: isLoadingRecs } = useQuery<RecommendationsResponse>({
+    queryKey: ["/api/recommendations"],
+    enabled: !!user,
   });
 
   const filteredQuizzes = useMemo(() => {
@@ -416,6 +436,71 @@ export default function Feed() {
               <Users className="h-4 w-4" />
               <span><strong className="text-foreground">{stats.totalContributors}</strong> creators</span>
             </div>
+          </motion.div>
+        )}
+
+        {user && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <Lightbulb className="h-5 w-5 text-amber-500" />
+              <h2 className="text-lg font-semibold">Suggested For You</h2>
+            </div>
+            
+            {isLoadingRecs ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : recommendations?.hasData && recommendations.recommendations.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {recommendations.recommendations.slice(0, 3).map((quiz) => (
+                  <div key={quiz.id} className="relative">
+                    {quiz.recommendationReason === "needs_improvement" && (
+                      <div className="absolute -top-2 -right-2 z-10">
+                        <Badge className="bg-rose-500 text-white border-0 text-[10px] px-2 py-0.5">
+                          <TrendingUp className="h-3 w-3 mr-1" />
+                          Improve
+                        </Badge>
+                      </div>
+                    )}
+                    {quiz.recommendationReason === "matches_interests" && (
+                      <div className="absolute -top-2 -right-2 z-10">
+                        <Badge className="bg-blue-500 text-white border-0 text-[10px] px-2 py-0.5">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          For You
+                        </Badge>
+                      </div>
+                    )}
+                    <QuizCard quiz={quiz} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Card className="border-dashed bg-muted/30">
+                <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <Target className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-medium mb-1">No recommendations yet</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs">
+                    Complete a quiz to get personalized suggestions based on your interests and areas to improve
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-4"
+                    onClick={() => setLocation("/")}
+                    data-testid="button-create-first-quiz"
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Create Your First Quiz
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </motion.div>
         )}
 
