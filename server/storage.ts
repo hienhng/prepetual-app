@@ -146,6 +146,7 @@ export class DatabaseStorage implements IStorage {
       sourceImageUrl: quiz.sourceImageUrl,
       questions: quiz.questions as Question[],
       difficulty: quiz.difficulty || "medium",
+      category: quiz.category || "Others/General",
       isPublic: quiz.isPublic || 0,
     }).returning();
     return savedQuiz;

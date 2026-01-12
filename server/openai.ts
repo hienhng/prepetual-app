@@ -211,8 +211,11 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
           max_completion_tokens: 8192,
         });
 
+        console.log("Quiz generation AI response received");
+        
         const content = completion.choices[0]?.message?.content;
         if (!content) {
+          console.error("Empty AI response for quiz generation, will retry...");
           throw new Error("No response from AI");
         }
 
@@ -223,8 +226,11 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
         minTimeout: 2000,
         maxTimeout: 60000,
         factor: 2,
-        onFailedAttempt: (error) => {
-          if (!isRateLimitError(error)) {
+        onFailedAttempt: (error: any) => {
+          const errorMessage = error?.message || String(error);
+          console.log(`Quiz generation attempt failed (${error.attemptNumber}/6): ${errorMessage}`);
+          // Allow retry for rate limit errors and empty responses
+          if (!isRateLimitError(error) && !errorMessage.includes("No response from AI")) {
             throw error;
           }
         },
