@@ -305,7 +305,7 @@ Active recall (testing yourself) beats passive review every time. Studies show:
 
 ## Getting Started
 
-Pick one method and try it with your next set of notes. The initial effort pays off massively when exam time comes.
+Pick one method and try it with your next set of notes. For the fastest results, try **Prepetual** to instantly turn your documents into interactive practice quizzes.
     `,
     image: aiRobotImg,
     date: "Jan 08, 2026",
@@ -363,24 +363,26 @@ Studies show that digital clutter can be just as distracting as physical clutter
 
 ---
 
-### 4. Cloud Sync Best Practices
+### 4. Cloud Sync & AI Integration
 
 **Recommended services:**
 - Google Drive (free with .edu email)
 - OneDrive (included with Microsoft 365)
-- iCloud (for Apple ecosystem)
+- Prepetual (for AI quiz generation directly from your stored notes)
 - Notion (for notes and organization combined)
 
 **Why it matters:**
 - Access materials from any device
 - Never lose notes to computer crashes
+- Instantly convert synced notes into study materials with AI tools like Prepetual
 - Easy sharing for group projects
 
 ---
 
 ## Tools for Digital Organization
 
-### Note-Taking
+### Note-Taking & Quiz Generation
+- **Prepetual** - The fastest way to turn your notes into quizzes
 - **Notion** - All-in-one workspace (free for students)
 - **Obsidian** - Local-first with linking
 - **OneNote** - Great for handwriting with stylus
@@ -402,9 +404,10 @@ Studies show that digital clutter can be just as distracting as physical clutter
 End each study session with:
 1. Close unnecessary tabs (or save them)
 2. File new downloads properly
-3. Update your to-do list
-4. Clear your desktop
-5. Review tomorrow's priorities
+3. Use **Prepetual** to generate a quick quiz on what you just studied
+4. Update your to-do list
+5. Clear your desktop
+6. Review tomorrow's priorities
 
 ---
 
