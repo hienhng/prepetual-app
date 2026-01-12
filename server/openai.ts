@@ -1,7 +1,8 @@
 import OpenAI from "openai";
 import pLimit from "p-limit";
 import pRetry from "p-retry";
-import type { Question, QuestionType, DifficultyLevel } from "@shared/schema";
+import type { Question, QuestionType, DifficultyLevel, QuizCategory } from "@shared/schema";
+import { QUIZ_CATEGORIES } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 const openai = new OpenAI({
@@ -29,7 +30,7 @@ interface QuizGenerationParams {
 
 export async function generateQuizQuestions(
   params: QuizGenerationParams,
-): Promise<{ questions: Question[]; title: string }> {
+): Promise<{ questions: Question[]; title: string; category: QuizCategory }> {
   const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [] } = params;
 
   const hasImages = documentImages.length > 0;
@@ -56,7 +57,9 @@ export async function generateQuizQuestions(
     hard: "challenging questions requiring analysis, synthesis, and deep understanding with tricky distractors",
   };
 
-  const prompt = `You are an expert educator. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz.
+  const categoryList = QUIZ_CATEGORIES.join(", ");
+  
+  const prompt = `You are an expert educator. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz and categorize it.
 
 CONTENT:
 ${truncatedText}
@@ -75,6 +78,13 @@ REQUIREMENTS:
 5. Include an explanation for why the correct answer is right
 6. For multiple choice, include explanations for why EACH wrong answer is incorrect
 7. For multiple choice, always provide exactly 4 options
+8. CATEGORY: Assign exactly ONE category from: ${categoryList}
+   - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
+   - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
+   - Science: biology, chemistry, physics, earth science, etc.
+   - Social Studies: history, geography, civics, economics, etc.
+   - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
+   - Others/General: anything that doesn't fit the above categories
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
@@ -85,6 +95,7 @@ CRITICAL RULES:
 OUTPUT FORMAT (JSON):
 {
   "title": "A short descriptive title for the quiz",
+  "category": "One of: ${categoryList}",
   "questions": [
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
@@ -132,6 +143,13 @@ REQUIREMENTS:
 7. For multiple choice, always provide exactly 4 options labeled A, B, C, D
 8. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
 9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
+10. CATEGORY: Assign exactly ONE category from: ${categoryList}
+   - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
+   - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
+   - Science: biology, chemistry, physics, earth science, etc.
+   - Social Studies: history, geography, civics, economics, etc.
+   - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
+   - Others/General: anything that doesn't fit the above categories
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
@@ -142,6 +160,7 @@ CRITICAL RULES:
 OUTPUT FORMAT (JSON):
 {
   "title": "A short descriptive title for the quiz",
+  "category": "One of: ${categoryList}",
   "questions": [
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
@@ -219,6 +238,8 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
     }
 
     const title = parsed.title?.trim() || "Untitled Quiz";
+    const rawCategory = parsed.category?.trim() || "Others/General";
+    const category: QuizCategory = QUIZ_CATEGORIES.includes(rawCategory) ? rawCategory : "Others/General";
     const questions: Question[] = [];
 
     for (const q of parsed.questions) {
@@ -316,7 +337,7 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
       throw new Error("AI failed to generate valid questions");
     }
 
-    return { questions, title };
+    return { questions, title, category };
   } catch (error) {
     console.error("Error generating quiz:", error);
     throw new Error("Failed to generate quiz questions. Please try again.");

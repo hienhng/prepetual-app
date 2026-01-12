@@ -57,6 +57,18 @@ export type VerificationToken = typeof verificationTokens.$inferSelect;
 export type QuestionType = "multiple_choice" | "true_false" | "short_answer";
 export type DifficultyLevel = "easy" | "medium" | "hard";
 
+// Quiz categories - AI will assign one of these based on content
+export const QUIZ_CATEGORIES = [
+  "Math",
+  "English", 
+  "Science",
+  "Social Studies",
+  "Global Languages",
+  "Others/General",
+] as const;
+
+export type QuizCategory = typeof QUIZ_CATEGORIES[number];
+
 // Question schema for validation
 export const questionSchema = z.object({
   id: z.string(),
@@ -80,6 +92,7 @@ export const quizzes = pgTable("quizzes", {
   sourceImageUrl: text("source_image_url"),
   questions: jsonb("questions").notNull().$type<Question[]>(),
   difficulty: text("difficulty").default("medium"),
+  category: text("category").default("Others/General"),
   isPublic: integer("is_public").default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

@@ -239,7 +239,7 @@ export async function registerRoutes(
       const { sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
 
-      const { questions, title } = await generateQuizQuestions({
+      const { questions, title, category } = await generateQuizQuestions({
         text,
         questionCount,
         questionTypes,
@@ -254,6 +254,7 @@ export async function registerRoutes(
         sourceImageUrl: sourceImageUrl || null,
         questions: questions as Question[],
         difficulty: difficulty || "medium",
+        category,
         isPublic: 0,
       });
 
