@@ -238,11 +238,13 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
                   {quiz.author?.email === "giahienhn@gmail.com" && (
                     <BadgeCheck className="h-3.5 w-3.5 text-green-500 fill-green-500/30" />
                   )}
+                  {quiz.author?.email === "giahienhn@gmail.com" && (
                     <span className = "bg-transparent">
                       <text className = "text-green-500 text-xs">
                         Curated by Prepetual
                       </text>
                     </span>
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                   <CategoryIcon className="h-3 w-3" />
