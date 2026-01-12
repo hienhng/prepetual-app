@@ -204,33 +204,46 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
           messages = [{ role: "user", content: prompt }];
         }
         
-        const completion = await openai.chat.completions.create({
-          model: hasImages ? "gpt-4.1" : "gpt-5",
-          messages,
-          response_format: { type: "json_object" },
-          max_completion_tokens: 8192,
-        });
-
-        console.log("Quiz generation AI response received");
+        // Retry loop for empty responses
+        let content: string | null = null;
+        let emptyRetries = 0;
+        const maxEmptyRetries = 3;
         
-        const content = completion.choices[0]?.message?.content;
+        while (!content && emptyRetries < maxEmptyRetries) {
+          const completion = await openai.chat.completions.create({
+            model: hasImages ? "gpt-4.1" : "gpt-5",
+            messages,
+            response_format: { type: "json_object" },
+            max_completion_tokens: 12000,
+          });
+
+          content = completion.choices[0]?.message?.content;
+          
+          if (!content) {
+            emptyRetries++;
+            console.error(`Empty AI response for quiz generation (attempt ${emptyRetries}/${maxEmptyRetries}), retrying...`);
+            if (emptyRetries < maxEmptyRetries) {
+              await new Promise(resolve => setTimeout(resolve, 2000 * emptyRetries));
+            }
+          } else {
+            console.log("Quiz generation AI response received successfully");
+          }
+        }
+        
         if (!content) {
-          console.error("Empty AI response for quiz generation, will retry...");
-          throw new Error("No response from AI");
+          throw new Error("No response from AI after multiple attempts");
         }
 
         return content;
       },
       {
-        retries: 5,
-        minTimeout: 2000,
+        retries: 3,
+        minTimeout: 3000,
         maxTimeout: 60000,
         factor: 2,
         onFailedAttempt: (error: any) => {
-          const errorMessage = error?.message || String(error);
-          console.log(`Quiz generation attempt failed (${error.attemptNumber}/6): ${errorMessage}`);
-          // Allow retry for rate limit errors and empty responses
-          if (!isRateLimitError(error) && !errorMessage.includes("No response from AI")) {
+          console.log(`Quiz generation rate limit retry (attempt ${error.attemptNumber}): ${error.message || error}`);
+          if (!isRateLimitError(error)) {
             throw error;
           }
         },
