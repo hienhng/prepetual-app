@@ -920,7 +920,7 @@ export default function Home() {
           >
             <Card className="shadow-xl border-primary/20 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
-              <CardContent className="p-8 relative pl-[20px] pr-[20px]">
+              <CardContent className="p-8 relative pl-[10px] pr-[10px]">
                 <FileUpload onTextExtracted={handleTextExtracted} />
                 
                 {extractedText && (
