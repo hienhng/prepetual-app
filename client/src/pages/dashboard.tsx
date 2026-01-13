@@ -631,32 +631,32 @@ function QuizCard({
       data-testid={`card-recent-quiz-${quiz.id}`}
       onClick={onTake}
     >
-      <div className="relative flex gap-4 p-4 rounded-xl bg-muted/40 hover:bg-muted/70 transition-all duration-200 border border-transparent hover:border-border/40">
-        <div className="flex flex-col items-center justify-center w-12 flex-shrink-0">
-          <div className={`w-10 h-10 rounded-lg ${difficultyConfig.bg} flex items-center justify-center`}>
-            <CategoryIcon className={`w-5 h-5 ${difficultyConfig.text}`} />
+      <div className="relative flex gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted/70 transition-all duration-200 border border-transparent hover:border-border/40">
+        <div className="flex items-center justify-center flex-shrink-0">
+          <div className={`w-9 h-9 rounded-lg ${difficultyConfig.bg} flex items-center justify-center`}>
+            <CategoryIcon className={`w-4 h-4 ${difficultyConfig.text}`} />
           </div>
         </div>
         
-        <div className="flex-1 min-w-0 py-0.5">
-          <h3 className="font-medium text-foreground truncate mb-1.5 group-hover:text-primary transition-colors">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
             {quiz.title}
           </h3>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span>{questionCount} questions</span>
-            <span className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+            <span>{questionCount}q</span>
+            <span className="flex items-center gap-1">
               <span className={`w-1.5 h-1.5 rounded-full ${difficultyConfig.dot}`} />
               <span className={`capitalize ${difficultyConfig.text} font-medium`}>{quiz.difficulty || "medium"}</span>
             </span>
-            <span>{formatDate(quiz.createdAt)}</span>
+            <span className="hidden sm:inline">{formatDate(quiz.createdAt)}</span>
           </div>
         </div>
         
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-1 flex-shrink-0">
           <Button
             size="icon"
             variant="ghost"
-            className="h-8 w-8"
+            className="h-8 w-8 hidden sm:flex"
             onClick={(e) => { e.stopPropagation(); onStudy(); }}
             data-testid={`button-study-${quiz.id}`}
           >
@@ -664,12 +664,12 @@ function QuizCard({
           </Button>
           <Button
             size="sm"
-            className="h-8"
+            className="h-8 px-3"
             onClick={(e) => { e.stopPropagation(); onTake(); }}
             data-testid={`button-take-${quiz.id}`}
           >
-            <Play className="w-3.5 h-3.5 mr-1.5" />
-            Take
+            <Play className="w-3.5 h-3.5 sm:mr-1.5" />
+            <span className="hidden sm:inline">Take</span>
           </Button>
         </div>
       </div>
