@@ -584,54 +584,78 @@ function QuizCard({
   onStudy: () => void;
   index: number;
 }) {
-  const getDifficultyBg = (difficulty?: string | null) => {
+  const formatDate = (date: Date | string) => {
+    const d = typeof date === "string" ? new Date(date) : date;
+    const now = new Date();
+    const diff = now.getTime() - d.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) return "Today";
+    if (days === 1) return "Yesterday";
+    if (days < 7) return `${days}d ago`;
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
+  const getDifficultyConfig = (difficulty?: string | null) => {
     switch (difficulty) {
-      case "easy": return "bg-emerald-500";
-      case "hard": return "bg-rose-500";
-      default: return "bg-amber-500";
+      case "easy": return { bg: "bg-emerald-500/15", text: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500" };
+      case "hard": return { bg: "bg-rose-500/15", text: "text-rose-600 dark:text-rose-400", dot: "bg-rose-500" };
+      default: return { bg: "bg-amber-500/15", text: "text-amber-600 dark:text-amber-400", dot: "bg-amber-500" };
     }
   };
 
   const questionCount = (quiz.questions as any[]).length;
+  const difficultyConfig = getDifficultyConfig(quiz.difficulty);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay: index * 0.04 }}
-      whileHover={{ x: 4 }}
-      className="group"
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
+      className="group cursor-pointer"
       data-testid={`card-recent-quiz-${quiz.id}`}
+      onClick={onTake}
     >
-      <div className="flex items-center gap-3 py-2.5 px-1">
-        <div className={`w-1 h-8 rounded-full ${getDifficultyBg(quiz.difficulty)} flex-shrink-0`} />
-        
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
-            {quiz.title}
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            {questionCount} questions
-          </p>
+      <div className="relative flex gap-4 p-4 rounded-xl bg-muted/40 hover:bg-muted/70 transition-all duration-200 border border-transparent hover:border-border/40">
+        <div className="flex flex-col items-center justify-center w-12 flex-shrink-0">
+          <div className={`w-10 h-10 rounded-lg ${difficultyConfig.bg} flex items-center justify-center`}>
+            <Target className={`w-5 h-5 ${difficultyConfig.text}`} />
+          </div>
         </div>
         
-        <div className="flex items-center gap-1 flex-shrink-0">
+        <div className="flex-1 min-w-0 py-0.5">
+          <h3 className="font-medium text-foreground truncate mb-1.5 group-hover:text-primary transition-colors">
+            {quiz.title}
+          </h3>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span>{questionCount} questions</span>
+            <span className="flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${difficultyConfig.dot}`} />
+              <span className={`capitalize ${difficultyConfig.text} font-medium`}>{quiz.difficulty || "medium"}</span>
+            </span>
+            <span>{formatDate(quiz.createdAt)}</span>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Button
             size="icon"
             variant="ghost"
-            className="h-7 w-7"
+            className="h-8 w-8"
             onClick={(e) => { e.stopPropagation(); onStudy(); }}
             data-testid={`button-study-${quiz.id}`}
           >
-            <BookOpen className="w-3.5 h-3.5" />
+            <BookOpen className="w-4 h-4" />
           </Button>
           <Button
             size="sm"
-            className="h-7 px-3 text-xs"
+            className="h-8"
             onClick={(e) => { e.stopPropagation(); onTake(); }}
             data-testid={`button-take-${quiz.id}`}
           >
-            <Play className="w-3 h-3 mr-1" />
+            <Play className="w-3.5 h-3.5 mr-1.5" />
             Take
           </Button>
         </div>
@@ -839,35 +863,35 @@ export default function Dashboard() {
           {!hasQuizzes ? (
             <EmptyState onCreateQuiz={() => setLocation("/create")} />
           ) : (
-            <Card className="overflow-hidden">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between gap-4 mb-3">
-                  <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Recent Quizzes</h2>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="h-auto px-2 py-1 text-xs text-muted-foreground hover:text-primary"
-                    onClick={() => setLocation("/history")}
-                    data-testid="button-view-all"
-                  >
-                    View all
-                    <ArrowRight className="w-3 h-3 ml-1" />
-                  </Button>
+            <div>
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <h2 className="font-semibold text-foreground">Recent Quizzes</h2>
                 </div>
-                
-                <div className="space-y-0.5">
-                  {recentQuizzes.map((quiz, index) => (
-                    <QuizCard
-                      key={quiz.id}
-                      quiz={quiz}
-                      index={index}
-                      onTake={() => handleTakeQuiz(quiz)}
-                      onStudy={() => handleStudyQuiz(quiz)}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setLocation("/history")}
+                  data-testid="button-view-all"
+                >
+                  View all
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                {recentQuizzes.map((quiz, index) => (
+                  <QuizCard
+                    key={quiz.id}
+                    quiz={quiz}
+                    index={index}
+                    onTake={() => handleTakeQuiz(quiz)}
+                    onStudy={() => handleStudyQuiz(quiz)}
+                  />
+                ))}
+              </div>
+            </div>
           )}
         </motion.section>
 
