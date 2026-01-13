@@ -643,7 +643,7 @@ function QuizCard({
             {quiz.title}
           </h3>
           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-            <span>{questionCount}q</span>
+            <span>{questionCount} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span></span>
             <span className="flex items-center gap-1">
               <span className={`w-1.5 h-1.5 rounded-full ${difficultyConfig.dot}`} />
               <span className={`capitalize ${difficultyConfig.text} font-medium`}>{quiz.difficulty || "medium"}</span>
