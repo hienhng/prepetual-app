@@ -668,7 +668,7 @@ function QuizCard({
             onClick={(e) => { e.stopPropagation(); onTake(); }}
             data-testid={`button-take-${quiz.id}`}
           >
-            <Play className="w-3.5 h-3.5 sm:mr-1.5" />
+            <Play className="w-3.5 h-3.5 sm:mr-1.5 fill-black" />
             <span className="hidden sm:inline">Take</span>
           </Button>
         </div>
