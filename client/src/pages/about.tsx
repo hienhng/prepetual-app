@@ -31,6 +31,13 @@ const itemVariants = {
 
 const coreFeatures = [
   {
+    icon: Import,
+    title: "Import & Parse Exams",
+    description: "Upload your exam papers or worksheets. Our AI parses questions and finds the correct answers using verified knowledge—no hallucination.",
+    color: "amber",
+    details: ["Parse exam papers", "AI identifies answers", "No hallucination", "Save hours of work"]
+  },
+  {
     icon: Upload,
     title: "Multi-Format Upload",
     description: "Drop PDFs, images, Word docs, PowerPoint, or Excel files. Our OCR extracts text from photos of textbooks too.",
@@ -43,13 +50,6 @@ const coreFeatures = [
     description: "Our AI doesn't just pick keywords—it understands concepts to create meaningful, challenging questions.",
     color: "purple",
     details: ["Multiple choice", "True/False", "Short answer", "3 difficulty levels"]
-  },
-  {
-    icon: Import,
-    title: "Import Existing Quizzes",
-    description: "Have an old exam or worksheet? Upload it and our AI will parse the questions and find the correct answers.",
-    color: "amber",
-    details: ["Parse exam papers", "AI identifies answers", "Edit before taking", "Save to library"]
   },
   {
     icon: BookOpen,
@@ -173,7 +173,7 @@ function FeatureCard({ feature, index }: { feature: typeof coreFeatures[0]; inde
 
 function InteractiveDemo() {
   const [step, setStep] = useState(0);
-  const steps = ["upload", "configure", "generate", "study"];
+  const steps = ["import", "parse", "verify", "study"];
   
   useEffect(() => {
     const timer = setInterval(() => {
@@ -203,41 +203,18 @@ function InteractiveDemo() {
             className="text-center"
           >
             <motion.div 
-              className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-blue-500/20 flex items-center justify-center"
+              className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-amber-500/20 flex items-center justify-center"
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <Upload className="w-10 h-10 text-blue-500" />
+              <Import className="w-10 h-10 text-amber-500" />
             </motion.div>
-            <p className="text-foreground font-semibold">Drop your study materials</p>
-            <p className="text-sm text-muted-foreground">PDFs, images, or documents</p>
+            <p className="text-foreground font-semibold">Import your exam paper</p>
+            <p className="text-sm text-muted-foreground">Upload PDFs, images, or documents</p>
           </motion.div>
         )}
         
         {step === 1 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center"
-          >
-            <div className="flex gap-3 justify-center mb-4">
-              {["Easy", "Medium", "Hard"].map((d, i) => (
-                <motion.div
-                  key={d}
-                  className={`px-4 py-2 rounded-lg border ${i === 1 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-                  animate={{ scale: i === 1 ? [1, 1.05, 1] : 1 }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  {d}
-                </motion.div>
-              ))}
-            </div>
-            <p className="text-foreground font-semibold">Customize your quiz</p>
-            <p className="text-sm text-muted-foreground">Difficulty, question types, count</p>
-          </motion.div>
-        )}
-        
-        {step === 2 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -250,8 +227,32 @@ function InteractiveDemo() {
             >
               <Brain className="w-10 h-10 text-purple-500" />
             </motion.div>
-            <p className="text-foreground font-semibold">AI generates your quiz</p>
-            <p className="text-sm text-muted-foreground">Smart questions in seconds</p>
+            <p className="text-foreground font-semibold">AI parses your questions</p>
+            <p className="text-sm text-muted-foreground">Extracts and structures content</p>
+          </motion.div>
+        )}
+        
+        {step === 2 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center"
+          >
+            <div className="flex gap-3 justify-center mb-4">
+              {["Q1", "Q2", "Q3"].map((q, i) => (
+                <motion.div
+                  key={q}
+                  className="px-4 py-2 rounded-lg border bg-emerald-500/20 flex items-center gap-2"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.3 }}
+                >
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">{q}</span>
+                </motion.div>
+              ))}
+            </div>
+            <p className="text-foreground font-semibold">AI finds correct answers</p>
+            <p className="text-sm text-muted-foreground">No hallucination—verified knowledge</p>
           </motion.div>
         )}
         
@@ -279,7 +280,7 @@ function InteractiveDemo() {
                 <span className="text-emerald-500 font-medium">Quiz</span>
               </motion.div>
             </div>
-            <p className="text-foreground font-semibold">Learn your way</p>
+            <p className="text-foreground font-semibold">Study with confidence</p>
             <p className="text-sm text-muted-foreground">Flashcards or interactive quiz</p>
           </motion.div>
         )}
@@ -290,9 +291,9 @@ function InteractiveDemo() {
 
 function HowItWorksTimeline() {
   const steps = [
-    { icon: Upload, title: "Upload", desc: "Drop any document or image" },
-    { icon: Zap, title: "Configure", desc: "Choose difficulty & question types" },
-    { icon: Brain, title: "Generate", desc: "AI creates personalized questions" },
+    { icon: Import, title: "Import", desc: "Upload your exam or worksheet" },
+    { icon: Brain, title: "Parse", desc: "AI extracts questions automatically" },
+    { icon: CheckCircle2, title: "Verify", desc: "AI finds accurate answers" },
     { icon: GraduationCap, title: "Master", desc: "Study, quiz, and track progress" },
   ];
 
@@ -379,9 +380,11 @@ export default function About() {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
               About <span className="font-brand bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Prepetual</span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-              Transform any study material into personalized, interactive quizzes. 
-              Powered by AI. Built for learners.
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-4">
+              Import your exam papers and worksheets—our AI parses questions and finds accurate answers. No hallucination. No manual pasting.
+            </p>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8">
+              Save hours of work and study with confidence using verified knowledge.
             </p>
             
             <div className="flex flex-wrap justify-center gap-3 mb-8">
