@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import { 
   Plus, BookOpen, Play, Target, 
   Clock, FileText, Loader2, Sparkles, ArrowRight, 
-  Brain, GraduationCap, Lightbulb, ChartNoAxesColumn, ChevronLeft, ChevronRight, X
+  Brain, GraduationCap, Lightbulb, ChartNoAxesColumn, ChevronLeft, ChevronRight, X,
+  Calculator, Languages, FlaskConical, Globe2, HelpCircle, BookText
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
@@ -598,14 +599,33 @@ function QuizCard({
 
   const getDifficultyConfig = (difficulty?: string | null) => {
     switch (difficulty) {
-      case "easy": return { bg: "bg-emerald-500/15", text: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500" };
-      case "hard": return { bg: "bg-rose-500/15", text: "text-rose-600 dark:text-rose-400", dot: "bg-rose-500" };
-      default: return { bg: "bg-amber-500/15", text: "text-amber-600 dark:text-amber-400", dot: "bg-amber-500" };
+      case "easy": return { dot: "bg-emerald-500", text: "text-emerald-600 dark:text-emerald-400" };
+      case "hard": return { dot: "bg-rose-500", text: "text-rose-600 dark:text-rose-400" };
+      default: return { dot: "bg-amber-500", text: "text-amber-600 dark:text-amber-400" };
+    }
+  };
+
+  const getCategoryConfig = (category?: string | null) => {
+    switch (category) {
+      case "Math": 
+        return { icon: Calculator, bg: "bg-blue-500/15", text: "text-blue-600 dark:text-blue-400" };
+      case "English": 
+        return { icon: BookText, bg: "bg-purple-500/15", text: "text-purple-600 dark:text-purple-400" };
+      case "Science": 
+        return { icon: FlaskConical, bg: "bg-emerald-500/15", text: "text-emerald-600 dark:text-emerald-400" };
+      case "Social Studies": 
+        return { icon: Globe2, bg: "bg-orange-500/15", text: "text-orange-600 dark:text-orange-400" };
+      case "Global Languages": 
+        return { icon: Languages, bg: "bg-pink-500/15", text: "text-pink-600 dark:text-pink-400" };
+      default: 
+        return { icon: GraduationCap, bg: "bg-slate-500/15", text: "text-slate-600 dark:text-slate-400" };
     }
   };
 
   const questionCount = (quiz.questions as any[]).length;
   const difficultyConfig = getDifficultyConfig(quiz.difficulty);
+  const categoryConfig = getCategoryConfig(quiz.category);
+  const CategoryIcon = categoryConfig.icon;
 
   return (
     <motion.div
@@ -620,8 +640,8 @@ function QuizCard({
     >
       <div className="relative flex gap-4 p-4 rounded-xl bg-muted/40 hover:bg-muted/70 transition-all duration-200 border border-transparent hover:border-border/40">
         <div className="flex flex-col items-center justify-center w-12 flex-shrink-0">
-          <div className={`w-10 h-10 rounded-lg ${difficultyConfig.bg} flex items-center justify-center`}>
-            <Target className={`w-5 h-5 ${difficultyConfig.text}`} />
+          <div className={`w-10 h-10 rounded-lg ${categoryConfig.bg} flex items-center justify-center`}>
+            <CategoryIcon className={`w-5 h-5 ${categoryConfig.text}`} />
           </div>
         </div>
         
