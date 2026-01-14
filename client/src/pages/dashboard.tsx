@@ -6,7 +6,7 @@ import {
   Plus, BookOpen, Play, Target, 
   Clock, FileText, Loader2, Sparkles, ArrowRight, 
   Brain, GraduationCap, Lightbulb, ChartNoAxesColumn, ChevronLeft, ChevronRight, X,
-  Calculator, Languages, FlaskConical, Globe2, HelpCircle, BookText
+  Calculator, Languages, FlaskConical, Globe2, HelpCircle, BookText, Zap
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
@@ -717,13 +717,13 @@ function ContinueQuizCard({
   onDiscard: () => void;
 }) {
   const progress = Math.round((answeredCount / totalCount) * 100);
+  const remaining = totalCount - answeredCount;
   
-  const getDifficultyColor = (difficulty?: string | null) => {
-    switch (difficulty) {
-      case "easy": return "text-emerald-600 dark:text-emerald-400";
-      case "hard": return "text-rose-600 dark:text-rose-400";
-      default: return "text-amber-600 dark:text-amber-400";
-    }
+  const getEncouragingMessage = () => {
+    if (progress >= 75) return "Almost there! Finish strong!";
+    if (progress >= 50) return "Halfway done! Keep going!";
+    if (progress >= 25) return "Great start! You're doing well!";
+    return "Let's pick up where you left off!";
   };
 
   return (
@@ -732,51 +732,82 @@ function ContinueQuizCard({
       animate={{ opacity: 1, y: 0 }}
       className="relative"
     >
-      <Card className="overflow-hidden border-primary/20 bg-gradient-to-r from-primary/5 via-transparent to-primary/5">
-        <CardContent className="p-3 sm:p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 hidden sm:block">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center">
-                <Play className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+      <Card className="overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-lg shadow-primary/5">
+        <CardContent className="p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            {/* Icon and encouragement */}
+            <div className="flex items-center gap-3 sm:flex-shrink-0">
+              <div className="relative">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md">
+                  <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-primary-foreground" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
+                  {remaining}
+                </div>
+              </div>
+              <div className="sm:hidden flex-1">
+                <h3 className="font-semibold text-foreground truncate text-sm">{quiz.title}</h3>
+                <p className="text-xs text-primary font-medium">{getEncouragingMessage()}</p>
               </div>
             </div>
             
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">{quiz.title}</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {answeredCount}/{totalCount} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span>
-                    <span className={`ml-2 capitalize ${getDifficultyColor(quiz.difficulty)}`}>
-                      {quiz.difficulty || "medium"}
-                    </span>
-                  </p>
+            {/* Content */}
+            <div className="flex-1 min-w-0 space-y-3">
+              <div className="hidden sm:block">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-base text-foreground truncate">{quiz.title}</h3>
+                    <p className="text-sm text-primary font-medium mt-0.5">{getEncouragingMessage()}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                    onClick={(e) => { e.stopPropagation(); onDiscard(); }}
+                    data-testid="button-discard-progress"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
-                  onClick={(e) => { e.stopPropagation(); onDiscard(); }}
-                  data-testid="button-discard-progress"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
               </div>
               
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <Progress value={progress} className="flex-1 h-2" />
-                  <span className="text-xs font-medium text-muted-foreground w-8 sm:w-10 text-right">{progress}%</span>
+              {/* Progress */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    {answeredCount} of {totalCount} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span> completed
+                  </span>
+                  <span className="font-semibold text-primary">{progress}%</span>
                 </div>
-                
+                <div className="relative h-2.5 bg-muted/50 rounded-full overflow-hidden">
+                  <motion.div 
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-primary/80 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                  />
+                </div>
+              </div>
+              
+              {/* Actions */}
+              <div className="flex items-center gap-2">
                 <Button
-                  size="sm"
                   onClick={onContinue}
-                  className="w-full gap-2 h-9"
+                  className="flex-1 gap-2 h-10 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 shadow-md"
                   data-testid="button-continue-quiz"
                 >
-                  <Play className="w-3.5 h-3.5" />
-                  Continue
+                  <Play className="w-4 h-4" />
+                  <span className="font-semibold">Continue Quiz</span>
+                  <ArrowRight className="w-4 h-4 hidden sm:block" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10 sm:hidden text-muted-foreground hover:text-destructive flex-shrink-0"
+                  onClick={(e) => { e.stopPropagation(); onDiscard(); }}
+                  data-testid="button-discard-progress-mobile"
+                >
+                  <X className="w-4 h-4" />
                 </Button>
               </div>
             </div>
@@ -945,11 +976,6 @@ export default function Dashboard() {
         {/* Continue Section - In Progress Quiz */}
         {hasInProgressQuiz && currentQuiz && (
           <motion.section variants={itemVariants}>
-            <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
-              <Play className="w-4 h-4 text-primary" />
-              <span className="sm:hidden">Resume Quiz</span>
-              <span className="hidden sm:inline">Continue Where You Left Off</span>
-            </h2>
             <ContinueQuizCard
               quiz={currentQuiz}
               answeredCount={inProgressAnsweredCount}
