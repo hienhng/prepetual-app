@@ -733,20 +733,20 @@ function ContinueQuizCard({
       className="relative"
     >
       <Card className="overflow-hidden border-primary/20 bg-gradient-to-r from-primary/5 via-transparent to-primary/5">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Play className="w-5 h-5 text-primary" />
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 hidden sm:block">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center">
+                <Play className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
             </div>
             
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2 mb-2">
-                <div className="min-w-0">
-                  <h3 className="font-semibold text-foreground truncate">{quiz.title}</h3>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">{quiz.title}</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {answeredCount} of {totalCount} questions answered
+                    {answeredCount}/{totalCount} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span>
                     <span className={`ml-2 capitalize ${getDifficultyColor(quiz.difficulty)}`}>
                       {quiz.difficulty || "medium"}
                     </span>
@@ -764,19 +764,19 @@ function ContinueQuizCard({
               </div>
               
               <div className="space-y-2">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <Progress value={progress} className="flex-1 h-2" />
-                  <span className="text-xs font-medium text-muted-foreground w-10 text-right">{progress}%</span>
+                  <span className="text-xs font-medium text-muted-foreground w-8 sm:w-10 text-right">{progress}%</span>
                 </div>
                 
                 <Button
                   size="sm"
                   onClick={onContinue}
-                  className="w-full gap-2"
+                  className="w-full gap-2 h-9"
                   data-testid="button-continue-quiz"
                 >
                   <Play className="w-3.5 h-3.5" />
-                  Continue Quiz
+                  Continue
                 </Button>
               </div>
             </div>
@@ -945,9 +945,10 @@ export default function Dashboard() {
         {/* Continue Section - In Progress Quiz */}
         {hasInProgressQuiz && currentQuiz && (
           <motion.section variants={itemVariants}>
-            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
               <Play className="w-4 h-4 text-primary" />
-              Continue Where You Left Off
+              <span className="sm:hidden">Resume Quiz</span>
+              <span className="hidden sm:inline">Continue Where You Left Off</span>
             </h2>
             <ContinueQuizCard
               quiz={currentQuiz}
