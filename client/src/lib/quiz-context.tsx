@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 import type { Quiz, QuizResult, Question } from "@shared/schema";
 
 export type SourceMaterialType = "pdf" | "image" | "document" | null;
@@ -11,12 +11,20 @@ interface SourceMaterial {
   documentImages?: string[];
 }
 
+export interface SavedQuizProgress {
+  quizId: string;
+  quiz: Quiz;
+  answers: Record<string, string>;
+  savedAt: string;
+}
+
 interface QuizState {
   extractedText: string | null;
   sourceMaterial: SourceMaterial;
   currentQuiz: Quiz | null;
   quizResult: QuizResult | null;
   userAnswers: Record<string, string>;
+  savedProgresses: SavedQuizProgress[];
   isLoading: boolean;
   loadingMessage: string;
   processingProgress: number;
@@ -39,6 +47,28 @@ interface QuizContextType extends QuizState {
   setRevisedQuestionsCount: (count: number) => void;
   setRetryCorrectCount: (count: number) => void;
   resetQuiz: () => void;
+  saveCurrentProgress: () => void;
+  loadSavedProgress: (quizId: string) => void;
+  removeSavedProgress: (quizId: string) => void;
+}
+
+const SAVED_PROGRESSES_KEY = "saved_quiz_progresses";
+const MAX_SAVED_PROGRESSES = 10;
+
+function loadSavedProgressesFromStorage(): SavedQuizProgress[] {
+  try {
+    const saved = localStorage.getItem(SAVED_PROGRESSES_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    localStorage.removeItem(SAVED_PROGRESSES_KEY);
+  }
+  return [];
+}
+
+function saveSavedProgressesToStorage(progresses: SavedQuizProgress[]) {
+  localStorage.setItem(SAVED_PROGRESSES_KEY, JSON.stringify(progresses));
 }
 
 const QuizContext = createContext<QuizContextType | undefined>(undefined);
@@ -48,6 +78,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     const savedText = sessionStorage.getItem("extracted_text");
     const savedMaterial = sessionStorage.getItem("source_material");
     const savedQuizProgress = sessionStorage.getItem("quiz_progress");
+    const savedProgresses = loadSavedProgressesFromStorage();
     
     let currentQuiz = null;
     let userAnswers = {};
@@ -68,6 +99,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       currentQuiz,
       quizResult: null,
       userAnswers,
+      savedProgresses,
       isLoading: false,
       loadingMessage: "",
       processingProgress: 0,
@@ -134,6 +166,84 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const saveCurrentProgress = useCallback(() => {
+    setState((prev) => {
+      if (!prev.currentQuiz || Object.keys(prev.userAnswers).length === 0) {
+        return prev;
+      }
+      
+      const quizId = prev.currentQuiz.id;
+      const newProgress: SavedQuizProgress = {
+        quizId,
+        quiz: prev.currentQuiz,
+        answers: prev.userAnswers,
+        savedAt: new Date().toISOString(),
+      };
+      
+      // Remove existing progress for this quiz if it exists
+      let updatedProgresses = prev.savedProgresses.filter(p => p.quizId !== quizId);
+      
+      // Add new progress at the beginning
+      updatedProgresses = [newProgress, ...updatedProgresses];
+      
+      // Keep only the most recent ones
+      if (updatedProgresses.length > MAX_SAVED_PROGRESSES) {
+        updatedProgresses = updatedProgresses.slice(0, MAX_SAVED_PROGRESSES);
+      }
+      
+      saveSavedProgressesToStorage(updatedProgresses);
+      
+      // Clear current session progress
+      sessionStorage.removeItem("quiz_progress");
+      
+      return { 
+        ...prev, 
+        savedProgresses: updatedProgresses,
+        currentQuiz: null,
+        userAnswers: {},
+      };
+    });
+  }, []);
+
+  const loadSavedProgress = useCallback((quizId: string) => {
+    setState((prev) => {
+      const progress = prev.savedProgresses.find(p => p.quizId === quizId);
+      if (!progress) return prev;
+      
+      // Set current quiz and answers from saved progress
+      sessionStorage.setItem("quiz_progress", JSON.stringify({ 
+        quiz: progress.quiz, 
+        answers: progress.answers 
+      }));
+      
+      return {
+        ...prev,
+        currentQuiz: progress.quiz,
+        userAnswers: progress.answers,
+      };
+    });
+  }, []);
+
+  const removeSavedProgress = useCallback((quizId: string) => {
+    setState((prev) => {
+      const updatedProgresses = prev.savedProgresses.filter(p => p.quizId !== quizId);
+      saveSavedProgressesToStorage(updatedProgresses);
+      
+      // If the current quiz matches, clear it too
+      if (prev.currentQuiz?.id === quizId) {
+        sessionStorage.removeItem("quiz_progress");
+        return { 
+          ...prev, 
+          savedProgresses: updatedProgresses,
+          currentQuiz: null,
+          userAnswers: {},
+        };
+      }
+      
+      return { ...prev, savedProgresses: updatedProgresses };
+    });
+  }, []);
+
   const setIsLoading = (loading: boolean) => {
     setState((prev) => ({ ...prev, isLoading: loading }));
   };
@@ -162,7 +272,8 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem("extracted_text");
     sessionStorage.removeItem("source_material");
     sessionStorage.removeItem("quiz_progress");
-    setState({
+    setState((prev) => ({
+      ...prev,
       extractedText: null,
       sourceMaterial: { type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] },
       currentQuiz: null,
@@ -174,7 +285,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       currentGenerationStep: "",
       revisedQuestionsCount: 0,
       retryCorrectCount: 0,
-    });
+    }));
   };
 
   return (
@@ -194,6 +305,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         setRevisedQuestionsCount,
         setRetryCorrectCount,
         resetQuiz,
+        saveCurrentProgress,
+        loadSavedProgress,
+        removeSavedProgress,
       }}
     >
       {children}

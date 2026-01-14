@@ -708,22 +708,42 @@ function ContinueQuizCard({
   answeredCount, 
   totalCount, 
   onContinue, 
-  onDiscard 
+  onDiscard,
+  isCurrent = true,
+  savedAt,
 }: { 
   quiz: Quiz; 
   answeredCount: number; 
   totalCount: number; 
   onContinue: () => void; 
   onDiscard: () => void;
+  isCurrent?: boolean;
+  savedAt?: string;
 }) {
   const progress = Math.round((answeredCount / totalCount) * 100);
   const remaining = totalCount - answeredCount;
   
   const getEncouragingMessage = () => {
-    if (progress >= 75) return "Almost there! Finish strong!";
-    if (progress >= 50) return "Halfway done! Keep going!";
-    if (progress >= 25) return "Great start! You're doing well!";
-    return "Let's pick up where you left off!";
+    if (isCurrent) {
+      if (progress >= 75) return "Almost there! Finish strong!";
+      if (progress >= 50) return "Halfway done! Keep going!";
+      if (progress >= 25) return "Great start! You're doing well!";
+      return "Let's pick up where you left off!";
+    }
+    // For saved quizzes, show time ago
+    if (savedAt) {
+      const saved = new Date(savedAt);
+      const now = new Date();
+      const diffMs = now.getTime() - saved.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+      
+      if (diffMins < 60) return `Saved ${diffMins}m ago - continue now!`;
+      if (diffHours < 24) return `Saved ${diffHours}h ago - pick it up!`;
+      return `Saved ${diffDays}d ago - time to finish!`;
+    }
+    return "Continue where you left off!";
   };
 
   return (
@@ -732,14 +752,22 @@ function ContinueQuizCard({
       animate={{ opacity: 1, y: 0 }}
       className="relative"
     >
-      <Card className="overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-lg shadow-primary/5">
+      <Card className={`overflow-hidden border-2 shadow-lg ${
+        isCurrent 
+          ? 'border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-primary/5' 
+          : 'border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent shadow-amber-500/5'
+      }`}>
         <CardContent className="p-4 sm:p-5">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             {/* Icon and encouragement */}
             <div className="flex items-center gap-3 sm:flex-shrink-0">
               <div className="relative">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md">
-                  <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-primary-foreground" />
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md ${
+                    isCurrent 
+                      ? 'bg-gradient-to-br from-primary to-primary/80' 
+                      : 'bg-gradient-to-br from-amber-500 to-amber-600'
+                  }`}>
+                  <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
                 <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
                   {remaining}
@@ -747,7 +775,7 @@ function ContinueQuizCard({
               </div>
               <div className="sm:hidden flex-1">
                 <h3 className="font-semibold text-foreground truncate text-sm">{quiz.title}</h3>
-                <p className="text-xs text-primary font-medium">{getEncouragingMessage()}</p>
+                <p className={`text-xs font-medium ${isCurrent ? 'text-primary' : 'text-amber-600 dark:text-amber-400'}`}>{getEncouragingMessage()}</p>
               </div>
             </div>
             
@@ -757,7 +785,7 @@ function ContinueQuizCard({
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h3 className="font-semibold text-base text-foreground truncate">{quiz.title}</h3>
-                    <p className="text-sm text-primary font-medium mt-0.5">{getEncouragingMessage()}</p>
+                    <p className={`text-sm font-medium mt-0.5 ${isCurrent ? 'text-primary' : 'text-amber-600 dark:text-amber-400'}`}>{getEncouragingMessage()}</p>
                   </div>
                   <Button
                     variant="ghost"
@@ -777,11 +805,15 @@ function ContinueQuizCard({
                   <span className="text-muted-foreground">
                     {answeredCount} of {totalCount} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span> completed
                   </span>
-                  <span className="font-semibold text-primary">{progress}%</span>
+                  <span className={`font-semibold ${isCurrent ? 'text-primary' : 'text-amber-600 dark:text-amber-400'}`}>{progress}%</span>
                 </div>
                 <div className="relative h-2.5 bg-muted/50 rounded-full overflow-hidden">
                   <motion.div 
-                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-primary/80 rounded-full"
+                    className={`absolute inset-y-0 left-0 rounded-full ${
+                      isCurrent 
+                        ? 'bg-gradient-to-r from-primary to-primary/80' 
+                        : 'bg-gradient-to-r from-amber-500 to-amber-600'
+                    }`}
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
@@ -793,7 +825,11 @@ function ContinueQuizCard({
               <div className="flex items-center gap-2">
                 <Button
                   onClick={onContinue}
-                  className="flex-1 gap-2 h-10 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 shadow-md"
+                  className={`flex-1 gap-2 h-10 shadow-md ${
+                    isCurrent 
+                      ? 'bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80' 
+                      : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white'
+                  }`}
                   data-testid="button-continue-quiz"
                 >
                   <Play className="w-4 h-4" />
@@ -820,10 +856,21 @@ function ContinueQuizCard({
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
-  const { currentQuiz, userAnswers, setCurrentQuiz, setSourceMaterial, resetQuiz, clearUserAnswers } = useQuiz();
+  const { 
+    currentQuiz, 
+    userAnswers, 
+    setCurrentQuiz, 
+    setSourceMaterial, 
+    resetQuiz, 
+    clearUserAnswers,
+    savedProgresses,
+    loadSavedProgress,
+    removeSavedProgress,
+  } = useQuiz();
   const { user } = useAuth();
   const [streakCalendarOpen, setStreakCalendarOpen] = useState(false);
   const [accuracyDialogOpen, setAccuracyDialogOpen] = useState(false);
+  const [savedQuizIndex, setSavedQuizIndex] = useState(0);
 
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
     queryKey: ["/api/quizzes"],
@@ -872,14 +919,64 @@ export default function Dashboard() {
     setLocation("/quiz");
   };
 
+  const handleContinueSavedQuiz = (quizId: string) => {
+    loadSavedProgress(quizId);
+    setLocation("/quiz");
+  };
+
   const handleDiscardProgress = () => {
     clearUserAnswers();
     resetQuiz();
   };
 
+  const handleDiscardSavedProgress = (quizId: string) => {
+    removeSavedProgress(quizId);
+    if (savedQuizIndex > 0 && savedQuizIndex >= savedProgresses.length - 1) {
+      setSavedQuizIndex(Math.max(0, savedQuizIndex - 1));
+    }
+  };
+
   const hasInProgressQuiz = currentQuiz && Object.keys(userAnswers).length > 0;
   const inProgressAnsweredCount = Object.keys(userAnswers).filter(k => !k.startsWith('retry-')).length;
   const inProgressTotalCount = currentQuiz?.questions?.length || 0;
+
+  // Combine current in-progress quiz with saved progresses for carousel
+  const allSavedQuizzes = useMemo(() => {
+    const items: Array<{
+      type: 'current' | 'saved';
+      quizId: string;
+      quiz: Quiz;
+      answers: Record<string, string>;
+      savedAt?: string;
+    }> = [];
+    
+    // Add current in-progress quiz first
+    if (hasInProgressQuiz && currentQuiz) {
+      items.push({
+        type: 'current',
+        quizId: currentQuiz.id,
+        quiz: currentQuiz,
+        answers: userAnswers,
+      });
+    }
+    
+    // Add saved progresses (excluding the current one if it's the same)
+    savedProgresses.forEach(p => {
+      if (!hasInProgressQuiz || p.quizId !== currentQuiz?.id) {
+        items.push({
+          type: 'saved',
+          quizId: p.quizId,
+          quiz: p.quiz,
+          answers: p.answers,
+          savedAt: p.savedAt,
+        });
+      }
+    });
+    
+    return items;
+  }, [hasInProgressQuiz, currentQuiz, userAnswers, savedProgresses]);
+
+  const hasSavedQuizzes = allSavedQuizzes.length > 0;
 
   if (isLoading) {
     return (
@@ -973,16 +1070,79 @@ export default function Dashboard() {
           </motion.section>
         )}
 
-        {/* Continue Section - In Progress Quiz */}
-        {hasInProgressQuiz && currentQuiz && (
+        {/* Continue Section - Saved Quiz Carousel */}
+        {hasSavedQuizzes && (
           <motion.section variants={itemVariants}>
-            <ContinueQuizCard
-              quiz={currentQuiz}
-              answeredCount={inProgressAnsweredCount}
-              totalCount={inProgressTotalCount}
-              onContinue={handleContinueQuiz}
-              onDiscard={handleDiscardProgress}
-            />
+            <div className="relative">
+              {/* Navigation arrows for multiple quizzes */}
+              {allSavedQuizzes.length > 1 && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur shadow-md border"
+                    onClick={() => setSavedQuizIndex(Math.max(0, savedQuizIndex - 1))}
+                    disabled={savedQuizIndex === 0}
+                    data-testid="button-prev-saved-quiz"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur shadow-md border"
+                    onClick={() => setSavedQuizIndex(Math.min(allSavedQuizzes.length - 1, savedQuizIndex + 1))}
+                    disabled={savedQuizIndex === allSavedQuizzes.length - 1}
+                    data-testid="button-next-saved-quiz"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </>
+              )}
+              
+              {/* Quiz card */}
+              {allSavedQuizzes[savedQuizIndex] && (
+                <ContinueQuizCard
+                  quiz={allSavedQuizzes[savedQuizIndex].quiz}
+                  answeredCount={Object.keys(allSavedQuizzes[savedQuizIndex].answers).filter(k => !k.startsWith('retry-')).length}
+                  totalCount={allSavedQuizzes[savedQuizIndex].quiz.questions?.length || 0}
+                  onContinue={() => {
+                    if (allSavedQuizzes[savedQuizIndex].type === 'current') {
+                      handleContinueQuiz();
+                    } else {
+                      handleContinueSavedQuiz(allSavedQuizzes[savedQuizIndex].quizId);
+                    }
+                  }}
+                  onDiscard={() => {
+                    if (allSavedQuizzes[savedQuizIndex].type === 'current') {
+                      handleDiscardProgress();
+                    } else {
+                      handleDiscardSavedProgress(allSavedQuizzes[savedQuizIndex].quizId);
+                    }
+                  }}
+                  isCurrent={allSavedQuizzes[savedQuizIndex].type === 'current'}
+                  savedAt={allSavedQuizzes[savedQuizIndex].savedAt}
+                />
+              )}
+              
+              {/* Pagination dots */}
+              {allSavedQuizzes.length > 1 && (
+                <div className="flex justify-center gap-1.5 mt-3">
+                  {allSavedQuizzes.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSavedQuizIndex(idx)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        idx === savedQuizIndex 
+                          ? 'bg-primary w-4' 
+                          : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                      }`}
+                      data-testid={`dot-saved-quiz-${idx}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </motion.section>
         )}
 

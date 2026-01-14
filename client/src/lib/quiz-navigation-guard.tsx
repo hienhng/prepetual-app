@@ -25,7 +25,7 @@ const QuizNavigationGuardContext = createContext<QuizNavigationGuardContextType 
 export function QuizNavigationGuardProvider({ children }: { children: ReactNode }) {
   const [, setLocation] = useLocation();
   const [location] = useLocation();
-  const { currentQuiz, resetQuiz, clearUserAnswers, userAnswers } = useQuiz();
+  const { currentQuiz, resetQuiz, clearUserAnswers, userAnswers, saveCurrentProgress } = useQuiz();
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
 
@@ -51,6 +51,7 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
   }, [isQuizInProgress]);
 
   const handleSaveAndExit = () => {
+    saveCurrentProgress();
     setShowExitDialog(false);
     if (pendingPath) {
       setLocation(pendingPath);
