@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QuizProvider } from "@/lib/quiz-context";
+import { QuizNavigationGuardProvider } from "@/lib/quiz-navigation-guard";
 import { UploadProvider } from "@/lib/upload-context";
 import { AuthDialogProvider, useAuthDialog } from "@/lib/auth-context";
 import { GlobalUploadIndicator } from "@/components/global-upload-indicator";
@@ -346,11 +347,13 @@ function App() {
       <TooltipProvider>
         <AuthDialogProvider>
           <QuizProvider>
-            <UploadProvider>
-              <AppContent />
-              <GlobalUploadIndicator />
-              <Toaster />
-            </UploadProvider>
+            <QuizNavigationGuardProvider>
+              <UploadProvider>
+                <AppContent />
+                <GlobalUploadIndicator />
+                <Toaster />
+              </UploadProvider>
+            </QuizNavigationGuardProvider>
           </QuizProvider>
         </AuthDialogProvider>
       </TooltipProvider>

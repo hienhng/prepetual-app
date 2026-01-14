@@ -1,27 +1,18 @@
 import { useLocation } from "wouter";
-import { ArrowLeft, FileText, LogOut, Save } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QuizPlayer } from "@/components/quiz-player";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { useEffect } from "react";
+import { useQuizNavigationGuard } from "@/lib/quiz-navigation-guard";
 
 export default function Quiz() {
   const [, setLocation] = useLocation();
-  const { currentQuiz, resetQuiz, clearUserAnswers } = useQuiz();
+  const { currentQuiz, userAnswers } = useQuiz();
   const { user } = useAuth();
-  const [showExitDialog, setShowExitDialog] = useState(false);
+  const { navigateWithGuard } = useQuizNavigationGuard();
 
   useEffect(() => {
     if (!currentQuiz) {
@@ -31,31 +22,21 @@ export default function Quiz() {
 
   // Handle browser back button and beforeunload
   useEffect(() => {
+    const hasProgress = Object.keys(userAnswers).length > 0;
+    
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
+      if (hasProgress) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, []);
+  }, [userAnswers]);
 
   const handleBackClick = () => {
-    setShowExitDialog(true);
-  };
-
-  const handleSaveAndExit = () => {
-    // Keep quiz progress in context, just navigate away
-    setShowExitDialog(false);
-    setLocation(user ? "/dashboard" : "/");
-  };
-
-  const handleQuitAndReset = () => {
-    // Clear all progress and reset
-    clearUserAnswers();
-    resetQuiz();
-    setShowExitDialog(false);
-    setLocation(user ? "/dashboard" : "/");
+    navigateWithGuard(user ? "/dashboard" : "/");
   };
 
   if (!currentQuiz) {
@@ -90,39 +71,6 @@ export default function Quiz() {
 
         <QuizPlayer />
       </div>
-
-      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Leave Quiz?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You have a quiz in progress. Would you like to save your progress for later or quit entirely?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-            <AlertDialogCancel data-testid="button-cancel-exit">
-              Continue Quiz
-            </AlertDialogCancel>
-            <Button
-              variant="outline"
-              onClick={handleSaveAndExit}
-              className="gap-2"
-              data-testid="button-save-exit"
-            >
-              <Save className="h-4 w-4" />
-              Save & Exit
-            </Button>
-            <AlertDialogAction
-              onClick={handleQuitAndReset}
-              className="gap-2 bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              data-testid="button-quit-reset"
-            >
-              <LogOut className="h-4 w-4" />
-              Quit & Reset
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

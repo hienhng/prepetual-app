@@ -17,6 +17,7 @@ import {
   HelpCircle,
   Settings
 } from "lucide-react";
+import { useQuizNavigationGuard } from "@/lib/quiz-navigation-guard";
 import {
   Sidebar,
   SidebarContent,
@@ -94,6 +95,7 @@ export function AppSidebar() {
   const [location] = useLocation();
   const { user } = useAuth();
   const { setOpenMobile, state, toggleSidebar } = useSidebar();
+  const { handleLinkClick } = useQuizNavigationGuard();
   const isCollapsed = state === "collapsed";
 
   const getInitials = () => {
@@ -112,8 +114,8 @@ export function AppSidebar() {
     window.location.href = "/";
   };
 
-  const handleNavClick = () => {
-    setOpenMobile(false);
+  const handleNavClick = (e: React.MouseEvent, path: string) => {
+    handleLinkClick(e, path, () => setOpenMobile(false));
   };
 
   return (
@@ -136,7 +138,7 @@ export function AppSidebar() {
               </div>
             </button>
           ) : (
-            <Link href="/dashboard" className="flex items-center gap-2" onClick={handleNavClick}>
+            <Link href="/dashboard" className="flex items-center gap-2" onClick={(e) => handleNavClick(e, "/dashboard")}>
               <img 
                 src={logoImage} 
                 alt="Prepetual Logo" 
@@ -170,9 +172,8 @@ export function AppSidebar() {
                     asChild 
                     isActive={location === item.url}
                     tooltip={item.title}
-                    /* className="transition-transform duration-200 hover:translate-x-0.5" */
                   >
-                    <Link href={item.url} onClick={handleNavClick} data-testid={`sidebar-link-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                    <Link href={item.url} onClick={(e) => handleNavClick(e, item.url)} data-testid={`sidebar-link-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
                       <item.icon className="w-4 h-4" />
                       <span>{item.title}</span>
                     </Link>
@@ -194,7 +195,7 @@ export function AppSidebar() {
                     isActive={location === item.url}
                     tooltip={item.title}
                   >
-                    <Link href={item.url} onClick={handleNavClick} data-testid={`sidebar-link-${item.title.toLowerCase()}`}>
+                    <Link href={item.url} onClick={(e) => handleNavClick(e, item.url)} data-testid={`sidebar-link-${item.title.toLowerCase()}`}>
                       <item.icon className="w-4 h-4" />
                       <span>{item.title}</span>
                     </Link>
@@ -231,7 +232,7 @@ export function AppSidebar() {
                 {user?.email || "User"}
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/settings" onClick={handleNavClick} data-testid="sidebar-settings">
+                <Link href="/settings" onClick={(e) => handleNavClick(e, "/settings")} data-testid="sidebar-settings">
                   <Settings className="h-4 w-4 mr-2" />
                   Settings
                 </Link>
