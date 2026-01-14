@@ -703,9 +703,93 @@ function LearningTipCard() {
   );
 }
 
+function ContinueQuizCard({ 
+  quiz, 
+  answeredCount, 
+  totalCount, 
+  onContinue, 
+  onDiscard 
+}: { 
+  quiz: Quiz; 
+  answeredCount: number; 
+  totalCount: number; 
+  onContinue: () => void; 
+  onDiscard: () => void;
+}) {
+  const progress = Math.round((answeredCount / totalCount) * 100);
+  
+  const getDifficultyColor = (difficulty?: string | null) => {
+    switch (difficulty) {
+      case "easy": return "text-emerald-600 dark:text-emerald-400";
+      case "hard": return "text-rose-600 dark:text-rose-400";
+      default: return "text-amber-600 dark:text-amber-400";
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative"
+    >
+      <Card className="overflow-hidden border-primary/20 bg-gradient-to-r from-primary/5 via-transparent to-primary/5">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Play className="w-5 h-5 text-primary" />
+              </div>
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-foreground truncate">{quiz.title}</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {answeredCount} of {totalCount} questions answered
+                    <span className={`ml-2 capitalize ${getDifficultyColor(quiz.difficulty)}`}>
+                      {quiz.difficulty || "medium"}
+                    </span>
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                  onClick={(e) => { e.stopPropagation(); onDiscard(); }}
+                  data-testid="button-discard-progress"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <Progress value={progress} className="flex-1 h-2" />
+                  <span className="text-xs font-medium text-muted-foreground w-10 text-right">{progress}%</span>
+                </div>
+                
+                <Button
+                  size="sm"
+                  onClick={onContinue}
+                  className="w-full gap-2"
+                  data-testid="button-continue-quiz"
+                >
+                  <Play className="w-3.5 h-3.5" />
+                  Continue Quiz
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
 export default function Dashboard() {
   const [, setLocation] = useLocation();
-  const { setCurrentQuiz, setSourceMaterial } = useQuiz();
+  const { currentQuiz, userAnswers, setCurrentQuiz, setSourceMaterial, resetQuiz, clearUserAnswers } = useQuiz();
   const { user } = useAuth();
   const [streakCalendarOpen, setStreakCalendarOpen] = useState(false);
   const [accuracyDialogOpen, setAccuracyDialogOpen] = useState(false);
@@ -752,6 +836,19 @@ export default function Dashboard() {
     });
     setLocation("/study");
   };
+
+  const handleContinueQuiz = () => {
+    setLocation("/quiz");
+  };
+
+  const handleDiscardProgress = () => {
+    clearUserAnswers();
+    resetQuiz();
+  };
+
+  const hasInProgressQuiz = currentQuiz && Object.keys(userAnswers).length > 0;
+  const inProgressAnsweredCount = Object.keys(userAnswers).filter(k => !k.startsWith('retry-')).length;
+  const inProgressTotalCount = currentQuiz?.questions?.length || 0;
 
   if (isLoading) {
     return (
@@ -842,6 +939,23 @@ export default function Dashboard() {
                 onClick={() => setAccuracyDialogOpen(true)}
               />
             </div>
+          </motion.section>
+        )}
+
+        {/* Continue Section - In Progress Quiz */}
+        {hasInProgressQuiz && currentQuiz && (
+          <motion.section variants={itemVariants}>
+            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Play className="w-4 h-4 text-primary" />
+              Continue Where You Left Off
+            </h2>
+            <ContinueQuizCard
+              quiz={currentQuiz}
+              answeredCount={inProgressAnsweredCount}
+              totalCount={inProgressTotalCount}
+              onContinue={handleContinueQuiz}
+              onDiscard={handleDiscardProgress}
+            />
           </motion.section>
         )}
 

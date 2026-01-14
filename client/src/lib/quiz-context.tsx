@@ -47,13 +47,27 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<QuizState>(() => {
     const savedText = sessionStorage.getItem("extracted_text");
     const savedMaterial = sessionStorage.getItem("source_material");
+    const savedQuizProgress = sessionStorage.getItem("quiz_progress");
+    
+    let currentQuiz = null;
+    let userAnswers = {};
+    
+    if (savedQuizProgress) {
+      try {
+        const progress = JSON.parse(savedQuizProgress);
+        currentQuiz = progress.quiz || null;
+        userAnswers = progress.answers || {};
+      } catch (e) {
+        sessionStorage.removeItem("quiz_progress");
+      }
+    }
     
     return {
       extractedText: savedText || null,
       sourceMaterial: savedMaterial ? JSON.parse(savedMaterial) : { type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] },
-      currentQuiz: null,
+      currentQuiz,
       quizResult: null,
-      userAnswers: {},
+      userAnswers,
       isLoading: false,
       loadingMessage: "",
       processingProgress: 0,
@@ -88,7 +102,15 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   };
 
   const setCurrentQuiz = (quiz: Quiz | null) => {
-    setState((prev) => ({ ...prev, currentQuiz: quiz }));
+    setState((prev) => {
+      const newState = { ...prev, currentQuiz: quiz };
+      if (quiz) {
+        sessionStorage.setItem("quiz_progress", JSON.stringify({ quiz, answers: prev.userAnswers }));
+      } else {
+        sessionStorage.removeItem("quiz_progress");
+      }
+      return newState;
+    });
   };
 
   const setQuizResult = (result: QuizResult | null) => {
@@ -96,14 +118,20 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   };
 
   const setUserAnswer = (questionId: string, answer: string) => {
-    setState((prev) => ({
-      ...prev,
-      userAnswers: { ...prev.userAnswers, [questionId]: answer },
-    }));
+    setState((prev) => {
+      const newAnswers = { ...prev.userAnswers, [questionId]: answer };
+      if (prev.currentQuiz) {
+        sessionStorage.setItem("quiz_progress", JSON.stringify({ quiz: prev.currentQuiz, answers: newAnswers }));
+      }
+      return { ...prev, userAnswers: newAnswers };
+    });
   };
 
   const clearUserAnswers = () => {
-    setState((prev) => ({ ...prev, userAnswers: {} }));
+    setState((prev) => {
+      sessionStorage.removeItem("quiz_progress");
+      return { ...prev, userAnswers: {} };
+    });
   };
 
   const setIsLoading = (loading: boolean) => {
@@ -133,6 +161,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const resetQuiz = () => {
     sessionStorage.removeItem("extracted_text");
     sessionStorage.removeItem("source_material");
+    sessionStorage.removeItem("quiz_progress");
     setState({
       extractedText: null,
       sourceMaterial: { type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] },
