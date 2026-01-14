@@ -1073,14 +1073,58 @@ export default function Dashboard() {
         {/* Continue Section - Saved Quiz Carousel */}
         {hasSavedQuizzes && (
           <motion.section variants={itemVariants}>
-            <div className="relative">
-              {/* Navigation arrows for multiple quizzes */}
+            <div className="relative overflow-hidden">
+              {/* Swipe handling container */}
+              <motion.div 
+                className="flex cursor-grab active:cursor-grabbing"
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                onDragEnd={(_, info) => {
+                  const swipeThreshold = 50;
+                  if (info.offset.x < -swipeThreshold) {
+                    // Swiped left -> Next
+                    setSavedQuizIndex(Math.min(allSavedQuizzes.length - 1, savedQuizIndex + 1));
+                  } else if (info.offset.x > swipeThreshold) {
+                    // Swiped right -> Prev
+                    setSavedQuizIndex(Math.max(0, savedQuizIndex - 1));
+                  }
+                }}
+              >
+                <div className="w-full flex-shrink-0">
+                  {/* Quiz card */}
+                  {allSavedQuizzes[savedQuizIndex] && (
+                    <ContinueQuizCard
+                      quiz={allSavedQuizzes[savedQuizIndex].quiz}
+                      answeredCount={Object.keys(allSavedQuizzes[savedQuizIndex].answers).filter(k => !k.startsWith('retry-')).length}
+                      totalCount={allSavedQuizzes[savedQuizIndex].quiz.questions?.length || 0}
+                      onContinue={() => {
+                        if (allSavedQuizzes[savedQuizIndex].type === 'current') {
+                          handleContinueQuiz();
+                        } else {
+                          handleContinueSavedQuiz(allSavedQuizzes[savedQuizIndex].quizId);
+                        }
+                      }}
+                      onDiscard={() => {
+                        if (allSavedQuizzes[savedQuizIndex].type === 'current') {
+                          handleDiscardProgress();
+                        } else {
+                          handleDiscardSavedProgress(allSavedQuizzes[savedQuizIndex].quizId);
+                        }
+                      }}
+                      isCurrent={allSavedQuizzes[savedQuizIndex].type === 'current'}
+                      savedAt={allSavedQuizzes[savedQuizIndex].savedAt}
+                    />
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Navigation arrows for multiple quizzes - Hidden on small screens for swipe focus */}
               {allSavedQuizzes.length > 1 && (
                 <>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur shadow-md border"
+                    className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur shadow-md border hidden sm:flex"
                     onClick={() => setSavedQuizIndex(Math.max(0, savedQuizIndex - 1))}
                     disabled={savedQuizIndex === 0}
                     data-testid="button-prev-saved-quiz"
@@ -1090,7 +1134,7 @@ export default function Dashboard() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur shadow-md border"
+                    className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur shadow-md border hidden sm:flex"
                     onClick={() => setSavedQuizIndex(Math.min(allSavedQuizzes.length - 1, savedQuizIndex + 1))}
                     disabled={savedQuizIndex === allSavedQuizzes.length - 1}
                     data-testid="button-next-saved-quiz"
@@ -1099,32 +1143,7 @@ export default function Dashboard() {
                   </Button>
                 </>
               )}
-              
-              {/* Quiz card */}
-              {allSavedQuizzes[savedQuizIndex] && (
-                <ContinueQuizCard
-                  quiz={allSavedQuizzes[savedQuizIndex].quiz}
-                  answeredCount={Object.keys(allSavedQuizzes[savedQuizIndex].answers).filter(k => !k.startsWith('retry-')).length}
-                  totalCount={allSavedQuizzes[savedQuizIndex].quiz.questions?.length || 0}
-                  onContinue={() => {
-                    if (allSavedQuizzes[savedQuizIndex].type === 'current') {
-                      handleContinueQuiz();
-                    } else {
-                      handleContinueSavedQuiz(allSavedQuizzes[savedQuizIndex].quizId);
-                    }
-                  }}
-                  onDiscard={() => {
-                    if (allSavedQuizzes[savedQuizIndex].type === 'current') {
-                      handleDiscardProgress();
-                    } else {
-                      handleDiscardSavedProgress(allSavedQuizzes[savedQuizIndex].quizId);
-                    }
-                  }}
-                  isCurrent={allSavedQuizzes[savedQuizIndex].type === 'current'}
-                  savedAt={allSavedQuizzes[savedQuizIndex].savedAt}
-                />
-              )}
-              
+
               {/* Pagination dots */}
               {allSavedQuizzes.length > 1 && (
                 <div className="flex justify-center gap-1.5 mt-3">
