@@ -1073,88 +1073,78 @@ export default function Dashboard() {
         {/* Continue Section - Saved Quiz Carousel */}
         {hasSavedQuizzes && (
           <motion.section variants={itemVariants}>
-            <div className="relative overflow-hidden">
-              {/* Swipe handling container */}
-              <motion.div 
-                className="flex cursor-grab active:cursor-grabbing"
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                onDragEnd={(_, info) => {
-                  const swipeThreshold = 50;
-                  if (info.offset.x < -swipeThreshold) {
-                    // Swiped left -> Next
-                    setSavedQuizIndex(Math.min(allSavedQuizzes.length - 1, savedQuizIndex + 1));
-                  } else if (info.offset.x > swipeThreshold) {
-                    // Swiped right -> Prev
-                    setSavedQuizIndex(Math.max(0, savedQuizIndex - 1));
-                  }
-                }}
-              >
-                <div className="w-full flex-shrink-0">
-                  {/* Quiz card */}
-                  {allSavedQuizzes[savedQuizIndex] && (
-                    <ContinueQuizCard
-                      quiz={allSavedQuizzes[savedQuizIndex].quiz}
-                      answeredCount={Object.keys(allSavedQuizzes[savedQuizIndex].answers).filter(k => !k.startsWith('retry-')).length}
-                      totalCount={allSavedQuizzes[savedQuizIndex].quiz.questions?.length || 0}
-                      onContinue={() => {
-                        if (allSavedQuizzes[savedQuizIndex].type === 'current') {
-                          handleContinueQuiz();
-                        } else {
-                          handleContinueSavedQuiz(allSavedQuizzes[savedQuizIndex].quizId);
-                        }
-                      }}
-                      onDiscard={() => {
-                        if (allSavedQuizzes[savedQuizIndex].type === 'current') {
-                          handleDiscardProgress();
-                        } else {
-                          handleDiscardSavedProgress(allSavedQuizzes[savedQuizIndex].quizId);
-                        }
-                      }}
-                      isCurrent={allSavedQuizzes[savedQuizIndex].type === 'current'}
-                      savedAt={allSavedQuizzes[savedQuizIndex].savedAt}
-                    />
-                  )}
+            <div className="relative">
+              <div className="overflow-hidden rounded-xl">
+                {/* Slideshow container */}
+                <div 
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{ transform: `translateX(-${savedQuizIndex * 100}%)` }}
+                >
+                  {allSavedQuizzes.map((item, idx) => (
+                    <div key={item.quizId + idx} className="w-full flex-shrink-0">
+                      <ContinueQuizCard
+                        quiz={item.quiz}
+                        answeredCount={Object.keys(item.answers).filter(k => !k.startsWith('retry-')).length}
+                        totalCount={item.quiz.questions?.length || 0}
+                        onContinue={() => {
+                          if (item.type === 'current') {
+                            handleContinueQuiz();
+                          } else {
+                            handleContinueSavedQuiz(item.quizId);
+                          }
+                        }}
+                        onDiscard={() => {
+                          if (item.type === 'current') {
+                            handleDiscardProgress();
+                          } else {
+                            handleDiscardSavedProgress(item.quizId);
+                          }
+                        }}
+                        isCurrent={item.type === 'current'}
+                        savedAt={item.savedAt}
+                      />
+                    </div>
+                  ))}
                 </div>
-              </motion.div>
+              </div>
 
-              {/* Navigation arrows for multiple quizzes - Hidden on small screens for swipe focus */}
+              {/* Navigation arrows for PC users */}
               {allSavedQuizzes.length > 1 && (
                 <>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur shadow-md border hidden sm:flex"
+                    className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-background/90 backdrop-blur shadow-lg border hover:bg-primary hover:text-white transition-all hidden md:flex items-center justify-center"
                     onClick={() => setSavedQuizIndex(Math.max(0, savedQuizIndex - 1))}
                     disabled={savedQuizIndex === 0}
                     data-testid="button-prev-saved-quiz"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-6 h-6" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur shadow-md border hidden sm:flex"
+                    className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-background/90 backdrop-blur shadow-lg border hover:bg-primary hover:text-white transition-all hidden md:flex items-center justify-center"
                     onClick={() => setSavedQuizIndex(Math.min(allSavedQuizzes.length - 1, savedQuizIndex + 1))}
                     disabled={savedQuizIndex === allSavedQuizzes.length - 1}
                     data-testid="button-next-saved-quiz"
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-6 h-6" />
                   </Button>
                 </>
               )}
 
               {/* Pagination dots */}
               {allSavedQuizzes.length > 1 && (
-                <div className="flex justify-center gap-1.5 mt-3">
+                <div className="flex justify-center gap-2 mt-4">
                   {allSavedQuizzes.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSavedQuizIndex(idx)}
-                      className={`w-2 h-2 rounded-full transition-all ${
+                      className={`h-2 rounded-full transition-all duration-300 ${
                         idx === savedQuizIndex 
-                          ? 'bg-primary w-4' 
-                          : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                          ? 'bg-primary w-6' 
+                          : 'bg-muted-foreground/20 hover:bg-muted-foreground/40 w-2'
                       }`}
                       data-testid={`dot-saved-quiz-${idx}`}
                     />
