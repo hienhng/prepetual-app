@@ -1075,10 +1075,21 @@ export default function Dashboard() {
           <motion.section variants={itemVariants}>
             <div className="relative">
               <div className="overflow-hidden rounded-xl">
-                {/* Slideshow container */}
-                <div 
-                  className="flex transition-transform duration-500 ease-in-out"
-                  style={{ transform: `translateX(-${savedQuizIndex * 100}%)` }}
+                {/* Slideshow container with swipe support */}
+                <motion.div 
+                  className="flex cursor-grab active:cursor-grabbing"
+                  style={{ x: -savedQuizIndex * 100 + "%" }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  onDragEnd={(_, info) => {
+                    const swipeThreshold = 50;
+                    if (info.offset.x < -swipeThreshold && savedQuizIndex < allSavedQuizzes.length - 1) {
+                      setSavedQuizIndex(savedQuizIndex + 1);
+                    } else if (info.offset.x > swipeThreshold && savedQuizIndex > 0) {
+                      setSavedQuizIndex(savedQuizIndex - 1);
+                    }
+                  }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   {allSavedQuizzes.map((item, idx) => (
                     <div key={item.quizId + idx} className="w-full flex-shrink-0">
