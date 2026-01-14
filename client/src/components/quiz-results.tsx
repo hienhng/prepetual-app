@@ -22,11 +22,20 @@ export function QuizResults() {
       const today = new Date().toISOString().split('T')[0];
       const resultDate = new Date(quizResult.completedAt).toISOString().split('T')[0];
       
-      if (resultDate === today) {
+      // Check if we've already shown the streak notification today
+      const STREAK_SHOWN_KEY = "prepetual_streak_shown_date";
+      const lastShownDate = localStorage.getItem(STREAK_SHOWN_KEY);
+      
+      if (resultDate === today && lastShownDate !== today) {
         fetch(`/api/user/streak`)
           .then(res => res.json())
           .then(data => {
-            setIsFirstCompletionToday(data.isFirstCompletionToday || false);
+            // Only mark as first completion if server says so AND we haven't shown today
+            if (data.isFirstCompletionToday) {
+              setIsFirstCompletionToday(true);
+              // Mark that we're going to show the streak notification today
+              localStorage.setItem(STREAK_SHOWN_KEY, today);
+            }
           })
           .catch(err => console.error("Failed to fetch streak:", err));
       }
