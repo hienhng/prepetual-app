@@ -15,6 +15,7 @@ export interface SavedQuizProgress {
   quizId: string;
   quiz: Quiz;
   answers: Record<string, string>;
+  checkedQuestions: string[];
   savedAt: string;
 }
 
@@ -24,6 +25,7 @@ interface QuizState {
   currentQuiz: Quiz | null;
   quizResult: QuizResult | null;
   userAnswers: Record<string, string>;
+  checkedQuestions: Set<string>;
   savedProgresses: SavedQuizProgress[];
   isLoading: boolean;
   loadingMessage: string;
@@ -39,6 +41,7 @@ interface QuizContextType extends QuizState {
   setCurrentQuiz: (quiz: Quiz | null) => void;
   setQuizResult: (result: QuizResult | null) => void;
   setUserAnswer: (questionId: string, answer: string) => void;
+  markQuestionChecked: (questionId: string) => void;
   clearUserAnswers: () => void;
   setIsLoading: (loading: boolean) => void;
   setLoadingMessage: (message: string) => void;
@@ -82,12 +85,14 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     
     let currentQuiz = null;
     let userAnswers = {};
+    let checkedQuestions = new Set<string>();
     
     if (savedQuizProgress) {
       try {
         const progress = JSON.parse(savedQuizProgress);
         currentQuiz = progress.quiz || null;
         userAnswers = progress.answers || {};
+        checkedQuestions = new Set(progress.checkedQuestions || []);
       } catch (e) {
         sessionStorage.removeItem("quiz_progress");
       }
@@ -99,6 +104,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       currentQuiz,
       quizResult: null,
       userAnswers,
+      checkedQuestions,
       savedProgresses,
       isLoading: false,
       loadingMessage: "",
@@ -137,7 +143,11 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     setState((prev) => {
       const newState = { ...prev, currentQuiz: quiz };
       if (quiz) {
-        sessionStorage.setItem("quiz_progress", JSON.stringify({ quiz, answers: prev.userAnswers }));
+        sessionStorage.setItem("quiz_progress", JSON.stringify({ 
+          quiz, 
+          answers: prev.userAnswers,
+          checkedQuestions: Array.from(prev.checkedQuestions)
+        }));
       } else {
         sessionStorage.removeItem("quiz_progress");
       }
@@ -153,16 +163,35 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     setState((prev) => {
       const newAnswers = { ...prev.userAnswers, [questionId]: answer };
       if (prev.currentQuiz) {
-        sessionStorage.setItem("quiz_progress", JSON.stringify({ quiz: prev.currentQuiz, answers: newAnswers }));
+        sessionStorage.setItem("quiz_progress", JSON.stringify({ 
+          quiz: prev.currentQuiz, 
+          answers: newAnswers,
+          checkedQuestions: Array.from(prev.checkedQuestions)
+        }));
       }
       return { ...prev, userAnswers: newAnswers };
+    });
+  };
+
+  const markQuestionChecked = (questionId: string) => {
+    setState((prev) => {
+      const newChecked = new Set(prev.checkedQuestions);
+      newChecked.add(questionId);
+      if (prev.currentQuiz) {
+        sessionStorage.setItem("quiz_progress", JSON.stringify({ 
+          quiz: prev.currentQuiz, 
+          answers: prev.userAnswers,
+          checkedQuestions: Array.from(newChecked)
+        }));
+      }
+      return { ...prev, checkedQuestions: newChecked };
     });
   };
 
   const clearUserAnswers = () => {
     setState((prev) => {
       sessionStorage.removeItem("quiz_progress");
-      return { ...prev, userAnswers: {} };
+      return { ...prev, userAnswers: {}, checkedQuestions: new Set() };
     });
   };
 
@@ -177,6 +206,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         quizId,
         quiz: prev.currentQuiz,
         answers: prev.userAnswers,
+        checkedQuestions: Array.from(prev.checkedQuestions),
         savedAt: new Date().toISOString(),
       };
       
@@ -201,6 +231,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         savedProgresses: updatedProgresses,
         currentQuiz: null,
         userAnswers: {},
+        checkedQuestions: new Set(),
       };
     });
   }, []);
@@ -210,16 +241,20 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       const progress = prev.savedProgresses.find(p => p.quizId === quizId);
       if (!progress) return prev;
       
+      const loadedCheckedQuestions = new Set(progress.checkedQuestions || []);
+      
       // Set current quiz and answers from saved progress
       sessionStorage.setItem("quiz_progress", JSON.stringify({ 
         quiz: progress.quiz, 
-        answers: progress.answers 
+        answers: progress.answers,
+        checkedQuestions: progress.checkedQuestions || []
       }));
       
       return {
         ...prev,
         currentQuiz: progress.quiz,
         userAnswers: progress.answers,
+        checkedQuestions: loadedCheckedQuestions,
       };
     });
   }, []);
@@ -237,6 +272,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
           savedProgresses: updatedProgresses,
           currentQuiz: null,
           userAnswers: {},
+          checkedQuestions: new Set(),
         };
       }
       
@@ -279,6 +315,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       currentQuiz: null,
       quizResult: null,
       userAnswers: {},
+      checkedQuestions: new Set(),
       isLoading: false,
       loadingMessage: "",
       processingProgress: 0,
@@ -297,6 +334,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         setCurrentQuiz,
         setQuizResult,
         setUserAnswer,
+        markQuestionChecked,
         clearUserAnswers,
         setIsLoading,
         setLoadingMessage,

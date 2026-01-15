@@ -60,13 +60,12 @@ const getStreakMessage = (streak: number) => {
 
 export function QuizPlayer() {
   const [, setLocation] = useLocation();
-  const { currentQuiz, userAnswers, setUserAnswer, setQuizResult, sourceMaterial, setRevisedQuestionsCount, setRetryCorrectCount } = useQuiz();
+  const { currentQuiz, userAnswers, setUserAnswer, setQuizResult, sourceMaterial, setRevisedQuestionsCount, setRetryCorrectCount, checkedQuestions, markQuestionChecked } = useQuiz();
   const { user } = useAuth();
   const { state: sidebarState, isMobile } = useSidebar();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shortAnswerInput, setShortAnswerInput] = useState("");
-  const [checkedQuestions, setCheckedQuestions] = useState<Set<string>>(new Set());
   const [showMaterial, setShowMaterial] = useState(false);
   const [showMaterialDialog, setShowMaterialDialog] = useState(false);
   const [correctStreak, setCorrectStreak] = useState(0);
@@ -185,7 +184,7 @@ export function QuizPlayer() {
       if (currentQuestion.isRetry) {
         setRetryChecked(prev => new Set(prev).add(currentQuestion.id));
       } else {
-        setCheckedQuestions(prev => new Set(prev).add(currentQuestion.originalId));
+        markQuestionChecked(currentQuestion.originalId);
         
         if (!correct) {
           wrongAnswerIds.current.add(currentQuestion.originalId);
