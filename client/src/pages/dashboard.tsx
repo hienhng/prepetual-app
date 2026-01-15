@@ -628,8 +628,9 @@ function QuizCard({
   onStudy: () => void;
   index: number;
 }) {
-  const difficulty = (quiz.difficulty?.toLowerCase() as "easy" | "medium" | "hard") || "medium";
-  const colors = difficultyColors[difficulty];
+  const difficultyRaw = quiz.difficulty?.toLowerCase() || "medium";
+  const difficulty = (["easy", "medium", "hard"].includes(difficultyRaw) ? difficultyRaw : "medium") as "easy" | "medium" | "hard";
+  const colors = difficultyColors[difficulty] || difficultyColors.medium;
   const CategoryIcon = categoryIcons[quiz.category || "Others/General"] || GraduationCap;
   const questionCount = (quiz.questions as any[]).length;
 
@@ -736,8 +737,9 @@ function ContinueQuizCard({
   const progress = Math.round((answeredCount / totalCount) * 100) || 0;
   const remaining = totalCount - answeredCount;
   
-  const difficulty = (quiz.difficulty?.toLowerCase() as "easy" | "medium" | "hard") || "medium";
-  const colors = difficultyColors[difficulty];
+  const difficultyRaw = quiz.difficulty?.toLowerCase() || "medium";
+  const difficulty = (["easy", "medium", "hard"].includes(difficultyRaw) ? difficultyRaw : "medium") as "easy" | "medium" | "hard";
+  const colors = difficultyColors[difficulty] || difficultyColors.medium;
   const CategoryIcon = categoryIcons[quiz.category || "Others/General"] || GraduationCap;
 
   const timeLabel = savedAt 
