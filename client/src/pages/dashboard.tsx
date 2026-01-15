@@ -1074,22 +1074,34 @@ export default function Dashboard() {
         {hasSavedQuizzes && (
           <motion.section variants={itemVariants}>
             <div className="relative">
-              <div className="overflow-hidden rounded-xl">
-                {/* Slideshow container with swipe support */}
-                <motion.div 
-                  className="flex cursor-grab active:cursor-grabbing"
-                  style={{ x: -savedQuizIndex * 100 + "%" }}
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  onDragEnd={(_, info) => {
-                    const swipeThreshold = 50;
-                    if (info.offset.x < -swipeThreshold && savedQuizIndex < allSavedQuizzes.length - 1) {
+              <div 
+                className="overflow-hidden rounded-xl touch-pan-y"
+                onTouchStart={(e) => {
+                  const touch = e.touches[0];
+                  (e.currentTarget as HTMLElement).dataset.touchStartX = String(touch.clientX);
+                  (e.currentTarget as HTMLElement).dataset.touchStartY = String(touch.clientY);
+                }}
+                onTouchEnd={(e) => {
+                  const startX = Number((e.currentTarget as HTMLElement).dataset.touchStartX);
+                  const startY = Number((e.currentTarget as HTMLElement).dataset.touchStartY);
+                  const touch = e.changedTouches[0];
+                  const diffX = touch.clientX - startX;
+                  const diffY = touch.clientY - startY;
+                  
+                  // Only trigger swipe if horizontal movement is greater than vertical
+                  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    if (diffX < 0 && savedQuizIndex < allSavedQuizzes.length - 1) {
                       setSavedQuizIndex(savedQuizIndex + 1);
-                    } else if (info.offset.x > swipeThreshold && savedQuizIndex > 0) {
+                    } else if (diffX > 0 && savedQuizIndex > 0) {
                       setSavedQuizIndex(savedQuizIndex - 1);
                     }
-                  }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  }
+                }}
+              >
+                {/* Slideshow container */}
+                <div 
+                  className="flex transition-transform duration-500 ease-out"
+                  style={{ transform: `translateX(-${savedQuizIndex * 100}%)` }}
                 >
                   {allSavedQuizzes.map((item, idx) => (
                     <div key={item.quizId + idx} className="w-full flex-shrink-0">
@@ -1116,7 +1128,7 @@ export default function Dashboard() {
                       />
                     </div>
                   ))}
-                </motion.div>
+                </div>
               </div>
 
               {/* Navigation arrows for PC users */}
