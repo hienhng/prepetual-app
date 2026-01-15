@@ -1,5 +1,7 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
-import type { Quiz, QuizResult, Question } from "@shared/schema";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "./queryClient";
+import type { Quiz, QuizResult, Question, QuizProgress } from "@shared/schema";
 
 export type SourceMaterialType = "pdf" | "image" | "document" | null;
 
@@ -55,33 +57,47 @@ interface QuizContextType extends QuizState {
   removeSavedProgress: (quizId: string) => void;
 }
 
-const SAVED_PROGRESSES_KEY = "saved_quiz_progresses";
-const MAX_SAVED_PROGRESSES = 10;
-
-function loadSavedProgressesFromStorage(): SavedQuizProgress[] {
-  try {
-    const saved = localStorage.getItem(SAVED_PROGRESSES_KEY);
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (e) {
-    localStorage.removeItem(SAVED_PROGRESSES_KEY);
-  }
-  return [];
-}
-
-function saveSavedProgressesToStorage(progresses: SavedQuizProgress[]) {
-  localStorage.setItem(SAVED_PROGRESSES_KEY, JSON.stringify(progresses));
-}
-
 const QuizContext = createContext<QuizContextType | undefined>(undefined);
 
+// Type for API response - includes the full quiz object
+interface SavedProgressFromAPI extends QuizProgress {
+  quiz: Quiz;
+}
+
 export function QuizProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
+
+  // Fetch saved progresses from API
+  const { data: apiProgresses = [], refetch: refetchProgresses } = useQuery<SavedProgressFromAPI[]>({
+    queryKey: ["/api/quiz-progress"],
+    staleTime: 30000, // 30 seconds
+  });
+
+  // Mutation to save progress
+  const saveProgressMutation = useMutation({
+    mutationFn: async (data: { quizId: string; answers: Record<string, string>; checkedQuestions: string[] }) => {
+      const response = await apiRequest("POST", "/api/quiz-progress", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/quiz-progress"] });
+    },
+  });
+
+  // Mutation to delete progress
+  const deleteProgressMutation = useMutation({
+    mutationFn: async (quizId: string) => {
+      await apiRequest("DELETE", `/api/quiz-progress/${quizId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/quiz-progress"] });
+    },
+  });
+
   const [state, setState] = useState<QuizState>(() => {
     const savedText = sessionStorage.getItem("extracted_text");
     const savedMaterial = sessionStorage.getItem("source_material");
     const savedQuizProgress = sessionStorage.getItem("quiz_progress");
-    const savedProgresses = loadSavedProgressesFromStorage();
     
     let currentQuiz = null;
     let userAnswers = {};
@@ -105,7 +121,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       quizResult: null,
       userAnswers,
       checkedQuestions,
-      savedProgresses,
+      savedProgresses: [], // Start empty, will be synced from API
       isLoading: false,
       loadingMessage: "",
       processingProgress: 0,
@@ -114,6 +130,24 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       retryCorrectCount: 0,
     };
   });
+
+  // Sync savedProgresses from API data
+  useEffect(() => {
+    const converted: SavedQuizProgress[] = apiProgresses.map((p) => ({
+      quizId: p.quizId,
+      quiz: p.quiz,
+      answers: p.answers,
+      checkedQuestions: p.checkedQuestions || [],
+      savedAt: p.savedAt instanceof Date ? p.savedAt.toISOString() : String(p.savedAt),
+    }));
+    setState((prev) => {
+      // Only update if data actually changed
+      if (JSON.stringify(prev.savedProgresses) !== JSON.stringify(converted)) {
+        return { ...prev, savedProgresses: converted };
+      }
+      return prev;
+    });
+  }, [apiProgresses]);
 
   const setExtractedText = (text: string | null) => {
     setState((prev) => {
@@ -196,45 +230,38 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   };
 
   const saveCurrentProgress = useCallback(() => {
-    setState((prev) => {
-      if (!prev.currentQuiz || Object.keys(prev.userAnswers).length === 0) {
-        return prev;
+    // Get current state values synchronously
+    const currentQuiz = state.currentQuiz;
+    const userAnswers = state.userAnswers;
+    const checkedQuestions = state.checkedQuestions;
+
+    if (!currentQuiz || Object.keys(userAnswers).length === 0) {
+      return;
+    }
+    
+    const quizId = currentQuiz.id;
+    
+    // Save to API
+    saveProgressMutation.mutate({
+      quizId,
+      answers: userAnswers,
+      checkedQuestions: Array.from(checkedQuestions),
+    }, {
+      onSuccess: () => {
+        // Clear current session progress after successful save
+        sessionStorage.removeItem("quiz_progress");
+        setState((prev) => ({ 
+          ...prev, 
+          currentQuiz: null,
+          userAnswers: {},
+          checkedQuestions: new Set(),
+        }));
+      },
+      onError: (error) => {
+        console.error("Failed to save quiz progress:", error);
       }
-      
-      const quizId = prev.currentQuiz.id;
-      const newProgress: SavedQuizProgress = {
-        quizId,
-        quiz: prev.currentQuiz,
-        answers: prev.userAnswers,
-        checkedQuestions: Array.from(prev.checkedQuestions),
-        savedAt: new Date().toISOString(),
-      };
-      
-      // Remove existing progress for this quiz if it exists
-      let updatedProgresses = prev.savedProgresses.filter(p => p.quizId !== quizId);
-      
-      // Add new progress at the beginning
-      updatedProgresses = [newProgress, ...updatedProgresses];
-      
-      // Keep only the most recent ones
-      if (updatedProgresses.length > MAX_SAVED_PROGRESSES) {
-        updatedProgresses = updatedProgresses.slice(0, MAX_SAVED_PROGRESSES);
-      }
-      
-      saveSavedProgressesToStorage(updatedProgresses);
-      
-      // Clear current session progress
-      sessionStorage.removeItem("quiz_progress");
-      
-      return { 
-        ...prev, 
-        savedProgresses: updatedProgresses,
-        currentQuiz: null,
-        userAnswers: {},
-        checkedQuestions: new Set(),
-      };
     });
-  }, []);
+  }, [state.currentQuiz, state.userAnswers, state.checkedQuestions, saveProgressMutation]);
 
   const loadSavedProgress = useCallback((quizId: string) => {
     setState((prev) => {
@@ -260,25 +287,28 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeSavedProgress = useCallback((quizId: string) => {
-    setState((prev) => {
-      const updatedProgresses = prev.savedProgresses.filter(p => p.quizId !== quizId);
-      saveSavedProgressesToStorage(updatedProgresses);
-      
-      // If the current quiz matches, clear it too
-      if (prev.currentQuiz?.id === quizId) {
-        sessionStorage.removeItem("quiz_progress");
-        return { 
-          ...prev, 
-          savedProgresses: updatedProgresses,
-          currentQuiz: null,
-          userAnswers: {},
-          checkedQuestions: new Set(),
-        };
+    // Delete from API with proper callback handling
+    deleteProgressMutation.mutate(quizId, {
+      onSuccess: () => {
+        setState((prev) => {
+          // If the current quiz matches, clear it too
+          if (prev.currentQuiz?.id === quizId) {
+            sessionStorage.removeItem("quiz_progress");
+            return { 
+              ...prev, 
+              currentQuiz: null,
+              userAnswers: {},
+              checkedQuestions: new Set(),
+            };
+          }
+          return prev;
+        });
+      },
+      onError: (error) => {
+        console.error("Failed to delete quiz progress:", error);
       }
-      
-      return { ...prev, savedProgresses: updatedProgresses };
     });
-  }, []);
+  }, [deleteProgressMutation]);
 
   const setIsLoading = (loading: boolean) => {
     setState((prev) => ({ ...prev, isLoading: loading }));

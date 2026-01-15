@@ -71,7 +71,7 @@ export interface IStorage {
   }>;
   // Quiz Progress (saved in-progress quizzes)
   getQuizProgressByUserId(userId: string): Promise<(QuizProgress & { quiz: Quiz })[]>;
-  saveQuizProgress(progress: InsertQuizProgress): Promise<QuizProgress>;
+  saveQuizProgress(progress: InsertQuizProgress): Promise<QuizProgress & { quiz: Quiz }>;
   deleteQuizProgress(userId: string, quizId: string): Promise<boolean>;
 }
 
@@ -668,7 +668,7 @@ export class DatabaseStorage implements IStorage {
     }));
   }
 
-  async saveQuizProgress(progress: InsertQuizProgress): Promise<QuizProgress> {
+  async saveQuizProgress(progress: InsertQuizProgress): Promise<QuizProgress & { quiz: Quiz }> {
     // Upsert: delete existing progress for this user+quiz, then insert new
     await db.delete(quizProgress)
       .where(and(
@@ -685,7 +685,13 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
 
-    return saved;
+    // Fetch the quiz to return joined data
+    const quiz = await this.getQuiz(progress.quizId);
+    if (!quiz) {
+      throw new Error("Quiz not found");
+    }
+
+    return { ...saved, quiz };
   }
 
   async deleteQuizProgress(userId: string, quizId: string): Promise<boolean> {
