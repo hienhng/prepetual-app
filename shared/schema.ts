@@ -160,6 +160,24 @@ export const insertVoteSchema = createInsertSchema(quizVotes).omit({
 export type InsertVote = z.infer<typeof insertVoteSchema>;
 export type QuizVote = typeof quizVotes.$inferSelect;
 
+// Quiz progress table for saving in-progress quizzes (synced across sessions)
+export const quizProgress = pgTable("quiz_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  quizId: varchar("quiz_id").notNull().references(() => quizzes.id, { onDelete: "cascade" }),
+  answers: jsonb("answers").notNull().$type<Record<string, string>>(),
+  checkedQuestions: jsonb("checked_questions").$type<string[]>().default([]),
+  savedAt: timestamp("saved_at").defaultNow().notNull(),
+});
+
+export const insertQuizProgressSchema = createInsertSchema(quizProgress).omit({
+  id: true,
+  savedAt: true,
+});
+
+export type InsertQuizProgress = z.infer<typeof insertQuizProgressSchema>;
+export type QuizProgress = typeof quizProgress.$inferSelect;
+
 // Legacy types for backward compatibility with frontend
 export const quizSchemaLegacy = z.object({
   id: z.string(),

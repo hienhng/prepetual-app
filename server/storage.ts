@@ -6,6 +6,7 @@ import {
   quizResults,
   quizComments,
   quizVotes,
+  quizProgress,
   verificationTokens,
   type User, 
   type UpsertUser, 
@@ -13,10 +14,12 @@ import {
   type QuizResult,
   type QuizComment,
   type QuizVote,
+  type QuizProgress,
   type InsertQuiz,
   type InsertQuizResult,
   type InsertComment,
   type InsertVote,
+  type InsertQuizProgress,
   type Question,
   type VerificationToken
 } from "@shared/schema";
@@ -66,6 +69,10 @@ export interface IStorage {
     weakCategories: string[];
     recentQuizIds: string[];
   }>;
+  // Quiz Progress (saved in-progress quizzes)
+  getQuizProgressByUserId(userId: string): Promise<(QuizProgress & { quiz: Quiz })[]>;
+  saveQuizProgress(progress: InsertQuizProgress): Promise<QuizProgress>;
+  deleteQuizProgress(userId: string, quizId: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -641,6 +648,53 @@ export class DatabaseStorage implements IStorage {
       weakCategories,
       recentQuizIds,
     };
+  }
+
+  // Quiz Progress methods
+  async getQuizProgressByUserId(userId: string): Promise<(QuizProgress & { quiz: Quiz })[]> {
+    const results = await db
+      .select({
+        progress: quizProgress,
+        quiz: quizzes,
+      })
+      .from(quizProgress)
+      .innerJoin(quizzes, eq(quizProgress.quizId, quizzes.id))
+      .where(eq(quizProgress.userId, userId))
+      .orderBy(desc(quizProgress.savedAt));
+
+    return results.map(r => ({
+      ...r.progress,
+      quiz: r.quiz,
+    }));
+  }
+
+  async saveQuizProgress(progress: InsertQuizProgress): Promise<QuizProgress> {
+    // Upsert: delete existing progress for this user+quiz, then insert new
+    await db.delete(quizProgress)
+      .where(and(
+        eq(quizProgress.userId, progress.userId),
+        eq(quizProgress.quizId, progress.quizId)
+      ));
+
+    const [saved] = await db.insert(quizProgress)
+      .values({
+        userId: progress.userId,
+        quizId: progress.quizId,
+        answers: progress.answers,
+        checkedQuestions: progress.checkedQuestions || [],
+      })
+      .returning();
+
+    return saved;
+  }
+
+  async deleteQuizProgress(userId: string, quizId: string): Promise<boolean> {
+    await db.delete(quizProgress)
+      .where(and(
+        eq(quizProgress.userId, userId),
+        eq(quizProgress.quizId, quizId)
+      ));
+    return true;
   }
 }
 
