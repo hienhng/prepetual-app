@@ -628,40 +628,10 @@ function QuizCard({
   onStudy: () => void;
   index: number;
 }) {
-  const formatDate = (date: Date | string) => {
-    const d = typeof date === "string" ? new Date(date) : date;
-    const now = new Date();
-    const diff = now.getTime() - d.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
-    if (days === 0) return "Today";
-    if (days === 1) return "Yesterday";
-    if (days < 7) return `${days}d ago`;
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  };
-
-  const getDifficultyConfig = (difficulty?: string | null) => {
-    switch (difficulty) {
-      case "easy": return { bg: "bg-emerald-500/15", text: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500" };
-      case "hard": return { bg: "bg-rose-500/15", text: "text-rose-600 dark:text-rose-400", dot: "bg-rose-500" };
-      default: return { bg: "bg-amber-500/15", text: "text-amber-600 dark:text-amber-400", dot: "bg-amber-500" };
-    }
-  };
-
-  const getCategoryIcon = (category?: string | null) => {
-    switch (category) {
-      case "Math": return Calculator;
-      case "English": return BookText;
-      case "Science": return FlaskConical;
-      case "Social Studies": return Globe2;
-      case "Global Languages": return Languages;
-      default: return GraduationCap;
-    }
-  };
-
+  const difficulty = (quiz.difficulty?.toLowerCase() as "easy" | "medium" | "hard") || "medium";
+  const colors = difficultyColors[difficulty];
+  const CategoryIcon = categoryIcons[quiz.category || "Others/General"] || GraduationCap;
   const questionCount = (quiz.questions as any[]).length;
-  const difficultyConfig = getDifficultyConfig(quiz.difficulty);
-  const CategoryIcon = getCategoryIcon(quiz.category);
 
   return (
     <motion.div
@@ -676,8 +646,8 @@ function QuizCard({
     >
       <div className="relative flex gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted/70 transition-all duration-200 border border-transparent hover:border-border/40">
         <div className="flex items-center justify-center flex-shrink-0">
-          <div className={`w-9 h-9 rounded-lg ${difficultyConfig.bg} flex items-center justify-center`}>
-            <CategoryIcon className={`w-4 h-4 ${difficultyConfig.text}`} />
+          <div className={`w-9 h-9 rounded-lg ${colors.icon} flex items-center justify-center`}>
+            <CategoryIcon className="w-4 h-4 text-white" />
           </div>
         </div>
         
@@ -688,10 +658,10 @@ function QuizCard({
           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
             <span>{questionCount} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span></span>
             <span className="flex items-center gap-1">
-              <span className={`w-1.5 h-1.5 rounded-full ${difficultyConfig.dot}`} />
-              <span className={`capitalize ${difficultyConfig.text} font-medium`}>{quiz.difficulty || "medium"}</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${colors.badge.split(' ')[0].replace('text-', 'bg-')}`} />
+              <span className={`capitalize ${colors.text} font-medium`}>{difficulty}</span>
             </span>
-            <span className="hidden sm:inline">{formatDate(quiz.createdAt)}</span>
+            <span className="hidden sm:inline">{formatDistanceToNow(new Date(quiz.createdAt))} ago</span>
           </div>
         </div>
         
@@ -763,62 +733,54 @@ function ContinueQuizCard({
   isCurrent?: boolean;
   savedAt?: string;
 }) {
-  const progress = Math.round((answeredCount / totalCount) * 100);
+  const progress = Math.round((answeredCount / totalCount) * 100) || 0;
   const remaining = totalCount - answeredCount;
   
-  const getEncouragingMessage = () => {
-    if (isCurrent) {
-      if (progress >= 75) return "Almost there! Finish strong!";
-      if (progress >= 50) return "Halfway done! Keep going!";
-      if (progress >= 25) return "Great start! You're doing well!";
-      return "Let's pick up where you left off!";
-    }
-    // For saved quizzes, show time ago
-    if (savedAt) {
-      const saved = new Date(savedAt);
-      const now = new Date();
-      const diffMs = now.getTime() - saved.getTime();
-      const diffMins = Math.floor(diffMs / 60000);
-      const diffHours = Math.floor(diffMs / 3600000);
-      const diffDays = Math.floor(diffMs / 86400000);
-      
-      if (diffMins < 60) return `Saved ${diffMins}m ago - continue now!`;
-      if (diffHours < 24) return `Saved ${diffHours}h ago - pick it up!`;
-      return `Saved ${diffDays}d ago - time to finish!`;
-    }
-    return "Continue where you left off!";
-  };
+  const difficulty = (quiz.difficulty?.toLowerCase() as "easy" | "medium" | "hard") || "medium";
+  const colors = difficultyColors[difficulty];
+  const CategoryIcon = categoryIcons[quiz.category || "Others/General"] || GraduationCap;
+
+  const timeLabel = savedAt 
+    ? `Saved ${formatDistanceToNow(new Date(savedAt))} ago`
+    : isCurrent ? 'Active now' : 'Saved recently';
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="relative"
+      whileHover={{ y: -4 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      className="relative group"
     >
-      <Card className={`overflow-hidden border-2 shadow-lg ${
+      <Card className={`overflow-hidden border-2 shadow-lg transition-all duration-300 ${
         isCurrent 
-          ? 'border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-primary/5' 
-          : 'border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent shadow-amber-500/5'
+          ? 'border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-primary/10' 
+          : `${colors.border} bg-gradient-to-br ${colors.from} ${colors.via} to-transparent ${colors.shadow}`
       }`}>
         <CardContent className="p-4 sm:p-5">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             {/* Icon and encouragement */}
             <div className="flex items-center gap-3 sm:flex-shrink-0">
               <div className="relative">
-                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md ${
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110 ${
                     isCurrent 
                       ? 'bg-gradient-to-br from-primary to-primary/80' 
-                      : 'bg-gradient-to-br from-amber-500 to-amber-600'
+                      : colors.icon
                   }`}>
-                  <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                  <CategoryIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
+                <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm ${
+                  isCurrent ? 'bg-primary' : 'bg-foreground/80'
+                }`}>
                   {remaining}
                 </div>
               </div>
-              <div className="sm:hidden flex-1">
-                <h3 className="font-semibold text-foreground truncate text-sm">{quiz.title}</h3>
-                <p className={`text-xs font-medium ${isCurrent ? 'text-primary' : 'text-amber-600 dark:text-amber-400'}`}>{getEncouragingMessage()}</p>
+              <div className="sm:hidden flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <h3 className="font-semibold text-foreground truncate text-sm">{quiz.title}</h3>
+                  <Badge variant="outline" className={`text-[10px] px-1 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
+                    {difficulty}
+                  </Badge>
+                </div>
+                <p className={`text-xs font-medium ${isCurrent ? 'text-primary' : colors.text}`}>{timeLabel} - continue now!</p>
               </div>
             </div>
             
@@ -827,13 +789,18 @@ function ContinueQuizCard({
               <div className="hidden sm:block">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-base text-foreground truncate">{quiz.title}</h3>
-                    <p className={`text-sm font-medium mt-0.5 ${isCurrent ? 'text-primary' : 'text-amber-600 dark:text-amber-400'}`}>{getEncouragingMessage()}</p>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <h3 className="font-semibold text-base text-foreground truncate">{quiz.title}</h3>
+                      <Badge variant="outline" className={`text-[10px] px-1.5 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
+                        {difficulty}
+                      </Badge>
+                    </div>
+                    <p className={`text-sm font-medium ${isCurrent ? 'text-primary' : colors.text}`}>{timeLabel} - continue now!</p>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
                     onClick={(e) => { e.stopPropagation(); onDiscard(); }}
                     data-testid="button-discard-progress"
                   >
@@ -845,17 +812,17 @@ function ContinueQuizCard({
               {/* Progress */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">
+                  <span className="text-muted-foreground font-medium">
                     {answeredCount} of {totalCount} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span> completed
                   </span>
-                  <span className={`font-semibold ${isCurrent ? 'text-primary' : 'text-amber-600 dark:text-amber-400'}`}>{progress}%</span>
+                  <span className={`font-bold ${isCurrent ? 'text-primary' : colors.text}`}>{progress}%</span>
                 </div>
-                <div className="relative h-2.5 bg-muted/50 rounded-full overflow-hidden">
+                <div className="relative h-2.5 bg-muted/30 dark:bg-muted/10 rounded-full overflow-hidden">
                   <motion.div 
                     className={`absolute inset-y-0 left-0 rounded-full ${
                       isCurrent 
                         ? 'bg-gradient-to-r from-primary to-primary/80' 
-                        : 'bg-gradient-to-r from-amber-500 to-amber-600'
+                        : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
                     }`}
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
@@ -868,21 +835,21 @@ function ContinueQuizCard({
               <div className="flex items-center gap-2">
                 <Button
                   onClick={onContinue}
-                  className={`flex-1 gap-2 h-10 shadow-md ${
+                  className={`flex-1 gap-2 h-10 shadow-md transition-all duration-300 active:scale-95 ${
                     isCurrent 
                       ? 'bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80' 
-                      : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white'
+                      : `${colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')} hover:brightness-110 text-white`
                   }`}
                   data-testid="button-continue-quiz"
                 >
-                  <Play className="w-4 h-4" />
-                  <span className="font-semibold">Continue Quiz</span>
-                  <ArrowRight className="w-4 h-4 hidden sm:block" />
+                  <Play className="w-4 h-4 fill-current" />
+                  <span className="font-bold">Continue Quiz</span>
+                  <ArrowRight className="w-4 h-4 hidden sm:block group-hover:translate-x-1 transition-transform" />
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-10 w-10 sm:hidden text-muted-foreground hover:text-destructive flex-shrink-0"
+                  className="h-10 w-10 sm:hidden text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
                   onClick={(e) => { e.stopPropagation(); onDiscard(); }}
                   data-testid="button-discard-progress-mobile"
                 >
