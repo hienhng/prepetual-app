@@ -40,7 +40,7 @@ export default function Quiz() {
     if (user) {
       window.location.href = "/dashboard";
     } else {
-      navigateWithGuard("/");
+      window.location.href = "/";
     }
   };
 
