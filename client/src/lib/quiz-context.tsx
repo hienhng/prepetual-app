@@ -35,6 +35,7 @@ interface QuizState {
   currentGenerationStep: string;
   revisedQuestionsCount: number;
   retryCorrectCount: number;
+  lastSavedAnswersCount: number;
 }
 
 interface QuizContextType extends QuizState {
@@ -55,6 +56,7 @@ interface QuizContextType extends QuizState {
   saveCurrentProgress: () => void;
   loadSavedProgress: (quizId: string) => void;
   removeSavedProgress: (quizId: string) => void;
+  hasUnsavedChanges: boolean;
 }
 
 const QuizContext = createContext<QuizContextType | undefined>(undefined);
@@ -128,6 +130,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       currentGenerationStep: "",
       revisedQuestionsCount: 0,
       retryCorrectCount: 0,
+      lastSavedAnswersCount: Object.keys(userAnswers).length,
     };
   });
 
@@ -175,7 +178,11 @@ export function QuizProvider({ children }: { children: ReactNode }) {
 
   const setCurrentQuiz = (quiz: Quiz | null) => {
     setState((prev) => {
-      const newState = { ...prev, currentQuiz: quiz };
+      const newState = { 
+        ...prev, 
+        currentQuiz: quiz,
+        lastSavedAnswersCount: quiz ? 0 : prev.lastSavedAnswersCount,
+      };
       if (quiz) {
         sessionStorage.setItem("quiz_progress", JSON.stringify({ 
           quiz, 
@@ -269,6 +276,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       if (!progress) return prev;
       
       const loadedCheckedQuestions = new Set(progress.checkedQuestions || []);
+      const answersCount = Object.keys(progress.answers).length;
       
       // Set current quiz and answers from saved progress
       sessionStorage.setItem("quiz_progress", JSON.stringify({ 
@@ -282,6 +290,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         currentQuiz: progress.quiz,
         userAnswers: progress.answers,
         checkedQuestions: loadedCheckedQuestions,
+        lastSavedAnswersCount: answersCount,
       };
     });
   }, []);
@@ -352,8 +361,12 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       currentGenerationStep: "",
       revisedQuestionsCount: 0,
       retryCorrectCount: 0,
+      lastSavedAnswersCount: 0,
     }));
   };
+
+  // Check if there are unsaved changes (new answers since last save)
+  const hasUnsavedChanges = Object.keys(state.userAnswers).length > state.lastSavedAnswersCount;
 
   return (
     <QuizContext.Provider
@@ -376,6 +389,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         saveCurrentProgress,
         loadSavedProgress,
         removeSavedProgress,
+        hasUnsavedChanges,
       }}
     >
       {children}

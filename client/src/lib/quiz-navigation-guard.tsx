@@ -24,12 +24,13 @@ const QuizNavigationGuardContext = createContext<QuizNavigationGuardContextType 
 export function QuizNavigationGuardProvider({ children }: { children: ReactNode }) {
   const [, setLocation] = useLocation();
   const [location] = useLocation();
-  const { currentQuiz, userAnswers, saveCurrentProgress } = useQuiz();
+  const { currentQuiz, hasUnsavedChanges, saveCurrentProgress } = useQuiz();
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const hasAddedHistoryEntry = useRef(false);
 
-  const isQuizInProgress = location === "/quiz" && !!currentQuiz && Object.keys(userAnswers).length > 0;
+  // Only show dialog if there are new unsaved answers
+  const isQuizInProgress = location === "/quiz" && !!currentQuiz && hasUnsavedChanges;
 
   // Handle browser back button
   useEffect(() => {
