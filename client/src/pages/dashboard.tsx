@@ -6,7 +6,8 @@ import {
   Plus, BookOpen, Play, Target, 
   Clock, FileText, Loader2, Sparkles, ArrowRight, 
   Brain, GraduationCap, Lightbulb, ChartNoAxesColumn, ChevronLeft, ChevronRight, X,
-  Calculator, Languages, FlaskConical, Globe2, HelpCircle, BookText, Zap
+  Calculator, Languages, FlaskConical, Globe2, HelpCircle, BookText, Zap,
+  Binary, Book, Globe
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
@@ -27,6 +28,48 @@ import { AccuracyDialog } from "@/components/accuracy-dialog";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import type { Quiz } from "@shared/schema";
+import { formatDistanceToNow } from "date-fns";
+
+// Category to Icon mapping
+const categoryIcons: Record<string, any> = {
+  "Math": Binary,
+  "English": Book,
+  "Science": FlaskConical,
+  "Social Studies": Globe,
+  "Global Languages": Languages,
+  "Others/General": GraduationCap,
+};
+
+// Difficulty to Color mapping
+const difficultyColors: Record<string, { border: string, from: string, via: string, text: string, icon: string, shadow: string, badge: string }> = {
+  "easy": {
+    border: "border-emerald-500/30",
+    from: "from-emerald-500/10",
+    via: "via-emerald-500/5",
+    text: "text-emerald-600 dark:text-emerald-400",
+    icon: "bg-gradient-to-br from-emerald-500 to-emerald-600",
+    shadow: "shadow-emerald-500/5",
+    badge: "bg-emerald-500/10 text-emerald-600 border-emerald-200 dark:border-emerald-900",
+  },
+  "medium": {
+    border: "border-amber-500/30",
+    from: "from-amber-500/10",
+    via: "via-amber-500/5",
+    text: "text-amber-600 dark:text-amber-400",
+    icon: "bg-gradient-to-br from-amber-500 to-amber-600",
+    shadow: "shadow-amber-500/5",
+    badge: "bg-amber-500/10 text-amber-600 border-amber-200 dark:border-amber-900",
+  },
+  "hard": {
+    border: "border-rose-500/30",
+    from: "from-rose-500/10",
+    via: "via-rose-500/5",
+    text: "text-rose-600 dark:text-rose-400",
+    icon: "bg-gradient-to-br from-rose-500 to-rose-600",
+    shadow: "shadow-rose-500/5",
+    badge: "bg-rose-500/10 text-rose-600 border-rose-200 dark:border-rose-900",
+  }
+};
 
 interface StreakData {
   currentStreak: number;
