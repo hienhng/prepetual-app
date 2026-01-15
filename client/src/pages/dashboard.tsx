@@ -868,7 +868,8 @@ function ContinueQuizCard({
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { 
-    currentQuiz, 
+    currentQuiz,
+    currentQuizSavedAt,
     userAnswers, 
     setCurrentQuiz, 
     setSourceMaterial, 
@@ -970,6 +971,7 @@ export default function Dashboard() {
         quizId: currentQuiz.id,
         quiz: currentQuiz,
         answers: userAnswers,
+        savedAt: currentQuizSavedAt || undefined,
       });
     }
     
@@ -987,7 +989,7 @@ export default function Dashboard() {
     });
     
     return items;
-  }, [hasInProgressQuiz, currentQuiz, userAnswers, savedProgresses]);
+  }, [hasInProgressQuiz, currentQuiz, currentQuizSavedAt, userAnswers, savedProgresses]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
