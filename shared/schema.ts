@@ -167,6 +167,9 @@ export const quizProgress = pgTable("quiz_progress", {
   quizId: varchar("quiz_id").notNull().references(() => quizzes.id, { onDelete: "cascade" }),
   answers: jsonb("answers").notNull().$type<Record<string, string>>(),
   checkedQuestions: jsonb("checked_questions").$type<string[]>().default([]),
+  currentIndex: integer("current_index").default(0),
+  retryAnswers: jsonb("retry_answers").$type<Record<string, string>>().default({}),
+  retryCheckedQuestions: jsonb("retry_checked_questions").$type<string[]>().default([]),
   savedAt: timestamp("saved_at").defaultNow().notNull(),
 });
 
