@@ -1,8 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode, type MouseEvent } from "react";
 import { useLocation } from "wouter";
 import { useQuiz } from "@/lib/quiz-context";
-import { LogOut, Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Save } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +24,7 @@ const QuizNavigationGuardContext = createContext<QuizNavigationGuardContextType 
 export function QuizNavigationGuardProvider({ children }: { children: ReactNode }) {
   const [, setLocation] = useLocation();
   const [location] = useLocation();
-  const { currentQuiz, resetQuiz, clearUserAnswers, userAnswers, saveCurrentProgress } = useQuiz();
+  const { currentQuiz, userAnswers, saveCurrentProgress } = useQuiz();
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const hasAddedHistoryEntry = useRef(false);
@@ -86,16 +85,6 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
     }
   };
 
-  const handleQuitAndReset = () => {
-    clearUserAnswers();
-    resetQuiz();
-    setShowExitDialog(false);
-    if (pendingPath) {
-      setLocation(pendingPath);
-      setPendingPath(null);
-    }
-  };
-
   const handleCancel = () => {
     setShowExitDialog(false);
     setPendingPath(null);
@@ -109,29 +98,20 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
           <AlertDialogHeader>
             <AlertDialogTitle>Leave Quiz?</AlertDialogTitle>
             <AlertDialogDescription>
-              You have a quiz in progress. Would you like to save your progress for later or quit entirely?
+              You have a quiz in progress. Would you like to save your progress for later?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel onClick={handleCancel} data-testid="button-cancel-nav-exit">
               Continue Quiz
             </AlertDialogCancel>
-            <Button
-              variant="outline"
+            <AlertDialogAction
               onClick={handleSaveAndExit}
               className="gap-2"
               data-testid="button-save-nav-exit"
             >
               <Save className="h-4 w-4" />
               Save & Exit
-            </Button>
-            <AlertDialogAction
-              onClick={handleQuitAndReset}
-              className="gap-2 bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              data-testid="button-quit-nav-reset"
-            >
-              <LogOut className="h-4 w-4" />
-              Quit & Reset
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
