@@ -998,7 +998,7 @@ export default function Dashboard() {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
       setCanScrollLeft(scrollLeft > 0);
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
-      setActiveIndex(Math.round(scrollLeft / 340));
+      setActiveIndex(Math.round(scrollLeft / clientWidth));
     }
   }, []);
 
@@ -1010,7 +1010,7 @@ export default function Dashboard() {
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 340;
+      const scrollAmount = scrollContainerRef.current.clientWidth;
       scrollContainerRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
@@ -1151,7 +1151,7 @@ export default function Dashboard() {
                 {allSavedQuizzes.map((item, idx) => (
                   <div 
                     key={item.quizId + idx} 
-                    className="min-w-[300px] w-[85vw] max-w-[400px] flex-shrink-0 snap-center"
+                    className="w-full flex-shrink-0 snap-center"
                   >
                     <ContinueQuizCard
                       quiz={item.quiz}
