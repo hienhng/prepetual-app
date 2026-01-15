@@ -744,7 +744,7 @@ function ContinueQuizCard({
 
   const timeLabel = savedAt 
     ? `Saved ${formatDistanceToNow(new Date(savedAt))} ago`
-    : 'Saved recently';
+    : isCurrent ? 'Active now' : 'Saved recently';
 
   return (
     <motion.div
@@ -868,8 +868,7 @@ function ContinueQuizCard({
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { 
-    currentQuiz,
-    currentQuizSavedAt,
+    currentQuiz, 
     userAnswers, 
     setCurrentQuiz, 
     setSourceMaterial, 
@@ -971,7 +970,6 @@ export default function Dashboard() {
         quizId: currentQuiz.id,
         quiz: currentQuiz,
         answers: userAnswers,
-        savedAt: currentQuizSavedAt || undefined,
       });
     }
     
@@ -989,7 +987,7 @@ export default function Dashboard() {
     });
     
     return items;
-  }, [hasInProgressQuiz, currentQuiz, currentQuizSavedAt, userAnswers, savedProgresses]);
+  }, [hasInProgressQuiz, currentQuiz, userAnswers, savedProgresses]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);

@@ -25,7 +25,6 @@ interface QuizState {
   extractedText: string | null;
   sourceMaterial: SourceMaterial;
   currentQuiz: Quiz | null;
-  currentQuizSavedAt: string | null;
   quizResult: QuizResult | null;
   userAnswers: Record<string, string>;
   checkedQuestions: Set<string>;
@@ -103,7 +102,6 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     let currentQuiz = null;
     let userAnswers = {};
     let checkedQuestions = new Set<string>();
-    let currentQuizSavedAt: string | null = null;
     
     if (savedQuizProgress) {
       try {
@@ -111,7 +109,6 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         currentQuiz = progress.quiz || null;
         userAnswers = progress.answers || {};
         checkedQuestions = new Set(progress.checkedQuestions || []);
-        currentQuizSavedAt = progress.savedAt || null;
       } catch (e) {
         sessionStorage.removeItem("quiz_progress");
       }
@@ -121,7 +118,6 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       extractedText: savedText || null,
       sourceMaterial: savedMaterial ? JSON.parse(savedMaterial) : { type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] },
       currentQuiz,
-      currentQuizSavedAt,
       quizResult: null,
       userAnswers,
       checkedQuestions,
@@ -179,19 +175,17 @@ export function QuizProvider({ children }: { children: ReactNode }) {
 
   const setCurrentQuiz = (quiz: Quiz | null) => {
     setState((prev) => {
+      const newState = { ...prev, currentQuiz: quiz };
       if (quiz) {
-        const savedAt = new Date().toISOString();
         sessionStorage.setItem("quiz_progress", JSON.stringify({ 
           quiz, 
           answers: prev.userAnswers,
-          checkedQuestions: Array.from(prev.checkedQuestions),
-          savedAt
+          checkedQuestions: Array.from(prev.checkedQuestions)
         }));
-        return { ...prev, currentQuiz: quiz, currentQuizSavedAt: savedAt };
       } else {
         sessionStorage.removeItem("quiz_progress");
-        return { ...prev, currentQuiz: null, currentQuizSavedAt: null };
       }
+      return newState;
     });
   };
 
@@ -203,14 +197,11 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     setState((prev) => {
       const newAnswers = { ...prev.userAnswers, [questionId]: answer };
       if (prev.currentQuiz) {
-        const savedAt = new Date().toISOString();
         sessionStorage.setItem("quiz_progress", JSON.stringify({ 
           quiz: prev.currentQuiz, 
           answers: newAnswers,
-          checkedQuestions: Array.from(prev.checkedQuestions),
-          savedAt
+          checkedQuestions: Array.from(prev.checkedQuestions)
         }));
-        return { ...prev, userAnswers: newAnswers, currentQuizSavedAt: savedAt };
       }
       return { ...prev, userAnswers: newAnswers };
     });
@@ -221,14 +212,11 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       const newChecked = new Set(prev.checkedQuestions);
       newChecked.add(questionId);
       if (prev.currentQuiz) {
-        const savedAt = new Date().toISOString();
         sessionStorage.setItem("quiz_progress", JSON.stringify({ 
           quiz: prev.currentQuiz, 
           answers: prev.userAnswers,
-          checkedQuestions: Array.from(newChecked),
-          savedAt
+          checkedQuestions: Array.from(newChecked)
         }));
-        return { ...prev, checkedQuestions: newChecked, currentQuizSavedAt: savedAt };
       }
       return { ...prev, checkedQuestions: newChecked };
     });
@@ -237,7 +225,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const clearUserAnswers = () => {
     setState((prev) => {
       sessionStorage.removeItem("quiz_progress");
-      return { ...prev, userAnswers: {}, checkedQuestions: new Set(), currentQuizSavedAt: null };
+      return { ...prev, userAnswers: {}, checkedQuestions: new Set() };
     });
   };
 
@@ -265,7 +253,6 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         setState((prev) => ({ 
           ...prev, 
           currentQuiz: null,
-          currentQuizSavedAt: null,
           userAnswers: {},
           checkedQuestions: new Set(),
         }));
@@ -282,20 +269,17 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       if (!progress) return prev;
       
       const loadedCheckedQuestions = new Set(progress.checkedQuestions || []);
-      const savedAt = progress.savedAt || new Date().toISOString();
       
       // Set current quiz and answers from saved progress
       sessionStorage.setItem("quiz_progress", JSON.stringify({ 
         quiz: progress.quiz, 
         answers: progress.answers,
-        checkedQuestions: progress.checkedQuestions || [],
-        savedAt
+        checkedQuestions: progress.checkedQuestions || []
       }));
       
       return {
         ...prev,
         currentQuiz: progress.quiz,
-        currentQuizSavedAt: savedAt,
         userAnswers: progress.answers,
         checkedQuestions: loadedCheckedQuestions,
       };
@@ -313,7 +297,6 @@ export function QuizProvider({ children }: { children: ReactNode }) {
             return { 
               ...prev, 
               currentQuiz: null,
-              currentQuizSavedAt: null,
               userAnswers: {},
               checkedQuestions: new Set(),
             };
