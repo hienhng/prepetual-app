@@ -1116,7 +1116,7 @@ export default function Dashboard() {
                       />
                     </div>
                   ))}
-                </div>
+                </motion.div>
               </div>
 
               {/* Navigation arrows for PC users */}
