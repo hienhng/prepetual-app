@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -987,6 +987,38 @@ export default function Dashboard() {
     return items;
   }, [hasInProgressQuiz, currentQuiz, userAnswers, savedProgresses]);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const checkScroll = useCallback(() => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
+      setActiveIndex(Math.round(scrollLeft / 340));
+    }
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, [checkScroll, allSavedQuizzes]);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 340;
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+
   const hasSavedQuizzes = allSavedQuizzes.length > 0;
 
   if (isLoading) {
@@ -1083,39 +1115,82 @@ export default function Dashboard() {
 
         {/* Continue Section - Horizontally Scrollable Saved Quizzes */}
         {hasSavedQuizzes && (
-          <motion.section variants={itemVariants}>
-            <div 
-              className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent"
-              style={{ scrollbarWidth: 'thin' }}
-            >
-              {allSavedQuizzes.map((item, idx) => (
-                <div 
-                  key={item.quizId + idx} 
-                  className="min-w-[300px] w-[85vw] max-w-[400px] flex-shrink-0 snap-center"
+          <motion.section variants={itemVariants} className="relative group/carousel">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                <Play className="w-4 h-4 text-primary fill-primary" />
+                Continue Learning
+              </h2>
+              <div className="hidden md:flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className={`h-8 w-8 rounded-full transition-all duration-300 ${!canScrollLeft ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
+                  onClick={() => scroll('left')}
                 >
-                  <ContinueQuizCard
-                    quiz={item.quiz}
-                    answeredCount={Object.keys(item.answers).filter(k => !k.startsWith('retry-')).length}
-                    totalCount={item.quiz.questions?.length || 0}
-                    onContinue={() => {
-                      if (item.type === 'current') {
-                        handleContinueQuiz();
-                      } else {
-                        handleContinueSavedQuiz(item.quizId);
-                      }
-                    }}
-                    onDiscard={() => {
-                      if (item.type === 'current') {
-                        handleDiscardProgress();
-                      } else {
-                        handleDiscardSavedProgress(item.quizId);
-                      }
-                    }}
-                    isCurrent={item.type === 'current'}
-                    savedAt={item.savedAt}
-                  />
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className={`h-8 w-8 rounded-full transition-all duration-300 ${!canScrollRight ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
+                  onClick={() => scroll('right')}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div 
+                ref={scrollContainerRef}
+                onScroll={checkScroll}
+                className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none scroll-smooth"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {allSavedQuizzes.map((item, idx) => (
+                  <div 
+                    key={item.quizId + idx} 
+                    className="min-w-[300px] w-[85vw] max-w-[400px] flex-shrink-0 snap-center"
+                  >
+                    <ContinueQuizCard
+                      quiz={item.quiz}
+                      answeredCount={Object.keys(item.answers).filter(k => !k.startsWith('retry-')).length}
+                      totalCount={item.quiz.questions?.length || 0}
+                      onContinue={() => {
+                        if (item.type === 'current') {
+                          handleContinueQuiz();
+                        } else {
+                          handleContinueSavedQuiz(item.quizId);
+                        }
+                      }}
+                      onDiscard={() => {
+                        if (item.type === 'current') {
+                          handleDiscardProgress();
+                        } else {
+                          handleDiscardSavedProgress(item.quizId);
+                        }
+                      }}
+                      isCurrent={item.type === 'current'}
+                      savedAt={item.savedAt}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Dots for PC */}
+              {allSavedQuizzes.length > 1 && (
+                <div className="hidden md:flex justify-center gap-1.5 mt-2">
+                  {allSavedQuizzes.map((_, i) => (
+                    <div 
+                      key={i} 
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                        activeIndex === i ? 'bg-primary w-3' : 'bg-muted-foreground/30'
+                      }`}
+                    />
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           </motion.section>
         )}
