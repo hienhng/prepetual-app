@@ -870,7 +870,6 @@ export default function Dashboard() {
   const { user } = useAuth();
   const [streakCalendarOpen, setStreakCalendarOpen] = useState(false);
   const [accuracyDialogOpen, setAccuracyDialogOpen] = useState(false);
-  const [savedQuizIndex, setSavedQuizIndex] = useState(0);
 
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
     queryKey: ["/api/quizzes"],
@@ -931,9 +930,6 @@ export default function Dashboard() {
 
   const handleDiscardSavedProgress = (quizId: string) => {
     removeSavedProgress(quizId);
-    if (savedQuizIndex > 0 && savedQuizIndex >= savedProgresses.length - 1) {
-      setSavedQuizIndex(Math.max(0, savedQuizIndex - 1));
-    }
   };
 
   const hasInProgressQuiz = currentQuiz && Object.keys(userAnswers).length > 0;
@@ -1070,110 +1066,41 @@ export default function Dashboard() {
           </motion.section>
         )}
 
-        {/* Continue Section - Saved Quiz Carousel */}
+        {/* Continue Section - Horizontally Scrollable Saved Quizzes */}
         {hasSavedQuizzes && (
           <motion.section variants={itemVariants}>
-            <div className="relative">
-              <div 
-                className="overflow-hidden rounded-xl touch-pan-y"
-                onTouchStart={(e) => {
-                  const touch = e.touches[0];
-                  (e.currentTarget as HTMLElement).dataset.touchStartX = String(touch.clientX);
-                  (e.currentTarget as HTMLElement).dataset.touchStartY = String(touch.clientY);
-                }}
-                onTouchEnd={(e) => {
-                  const startX = Number((e.currentTarget as HTMLElement).dataset.touchStartX);
-                  const startY = Number((e.currentTarget as HTMLElement).dataset.touchStartY);
-                  const touch = e.changedTouches[0];
-                  const diffX = touch.clientX - startX;
-                  const diffY = touch.clientY - startY;
-                  
-                  // Only trigger swipe if horizontal movement is greater than vertical
-                  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-                    if (diffX < 0 && savedQuizIndex < allSavedQuizzes.length - 1) {
-                      setSavedQuizIndex(savedQuizIndex + 1);
-                    } else if (diffX > 0 && savedQuizIndex > 0) {
-                      setSavedQuizIndex(savedQuizIndex - 1);
-                    }
-                  }
-                }}
-              >
-                {/* Slideshow container */}
+            <div 
+              className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent"
+              style={{ scrollbarWidth: 'thin' }}
+            >
+              {allSavedQuizzes.map((item, idx) => (
                 <div 
-                  className="flex transition-transform duration-500 ease-out"
-                  style={{ transform: `translateX(-${savedQuizIndex * 100}%)` }}
+                  key={item.quizId + idx} 
+                  className="min-w-[300px] w-[85vw] max-w-[400px] flex-shrink-0 snap-center"
                 >
-                  {allSavedQuizzes.map((item, idx) => (
-                    <div key={item.quizId + idx} className="w-full flex-shrink-0">
-                      <ContinueQuizCard
-                        quiz={item.quiz}
-                        answeredCount={Object.keys(item.answers).filter(k => !k.startsWith('retry-')).length}
-                        totalCount={item.quiz.questions?.length || 0}
-                        onContinue={() => {
-                          if (item.type === 'current') {
-                            handleContinueQuiz();
-                          } else {
-                            handleContinueSavedQuiz(item.quizId);
-                          }
-                        }}
-                        onDiscard={() => {
-                          if (item.type === 'current') {
-                            handleDiscardProgress();
-                          } else {
-                            handleDiscardSavedProgress(item.quizId);
-                          }
-                        }}
-                        isCurrent={item.type === 'current'}
-                        savedAt={item.savedAt}
-                      />
-                    </div>
-                  ))}
+                  <ContinueQuizCard
+                    quiz={item.quiz}
+                    answeredCount={Object.keys(item.answers).filter(k => !k.startsWith('retry-')).length}
+                    totalCount={item.quiz.questions?.length || 0}
+                    onContinue={() => {
+                      if (item.type === 'current') {
+                        handleContinueQuiz();
+                      } else {
+                        handleContinueSavedQuiz(item.quizId);
+                      }
+                    }}
+                    onDiscard={() => {
+                      if (item.type === 'current') {
+                        handleDiscardProgress();
+                      } else {
+                        handleDiscardSavedProgress(item.quizId);
+                      }
+                    }}
+                    isCurrent={item.type === 'current'}
+                    savedAt={item.savedAt}
+                  />
                 </div>
-              </div>
-
-              {/* Navigation arrows for PC users */}
-              {allSavedQuizzes.length > 1 && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-background/90 backdrop-blur shadow-lg border hover:bg-primary hover:text-white transition-all hidden md:flex items-center justify-center"
-                    onClick={() => setSavedQuizIndex(Math.max(0, savedQuizIndex - 1))}
-                    disabled={savedQuizIndex === 0}
-                    data-testid="button-prev-saved-quiz"
-                  >
-                    <ChevronLeft className="w-6 h-6" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-background/90 backdrop-blur shadow-lg border hover:bg-primary hover:text-white transition-all hidden md:flex items-center justify-center"
-                    onClick={() => setSavedQuizIndex(Math.min(allSavedQuizzes.length - 1, savedQuizIndex + 1))}
-                    disabled={savedQuizIndex === allSavedQuizzes.length - 1}
-                    data-testid="button-next-saved-quiz"
-                  >
-                    <ChevronRight className="w-6 h-6" />
-                  </Button>
-                </>
-              )}
-
-              {/* Pagination dots */}
-              {allSavedQuizzes.length > 1 && (
-                <div className="flex justify-center gap-2 mt-4">
-                  {allSavedQuizzes.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSavedQuizIndex(idx)}
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        idx === savedQuizIndex 
-                          ? 'bg-primary w-6' 
-                          : 'bg-muted-foreground/20 hover:bg-muted-foreground/40 w-2'
-                      }`}
-                      data-testid={`dot-saved-quiz-${idx}`}
-                    />
-                  ))}
-                </div>
-              )}
+              ))}
             </div>
           </motion.section>
         )}
