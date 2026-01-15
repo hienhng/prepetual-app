@@ -725,6 +725,9 @@ function ContinueQuizCard({
   onDiscard,
   isCurrent = true,
   savedAt,
+  isRevising = false,
+  retryAnsweredCount = 0,
+  retryTotalCount = 0,
 }: { 
   quiz: Quiz; 
   answeredCount: number; 
@@ -733,9 +736,15 @@ function ContinueQuizCard({
   onDiscard: () => void;
   isCurrent?: boolean;
   savedAt?: string;
+  isRevising?: boolean;
+  retryAnsweredCount?: number;
+  retryTotalCount?: number;
 }) {
-  const progress = Math.round((answeredCount / totalCount) * 100) || 0;
-  const remaining = totalCount - answeredCount;
+  // When in revision mode, show retry progress instead of original questions progress
+  const displayAnswered = isRevising ? retryAnsweredCount : answeredCount;
+  const displayTotal = isRevising ? retryTotalCount : totalCount;
+  const progress = Math.round((displayAnswered / displayTotal) * 100) || 0;
+  const remaining = displayTotal - displayAnswered;
   
   const difficultyRaw = quiz.difficulty?.toLowerCase() || "medium";
   const difficulty = (["easy", "medium", "hard"].includes(difficultyRaw) ? difficultyRaw : "medium") as "easy" | "medium" | "hard";
@@ -777,9 +786,15 @@ function ContinueQuizCard({
               <div className="sm:hidden flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
                   <h3 className="font-semibold text-foreground truncate text-sm">{quiz.title}</h3>
-                  <Badge variant="outline" className={`text-[10px] px-1 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
-                    {difficulty}
-                  </Badge>
+                  {isRevising ? (
+                    <Badge variant="outline" className="text-[10px] px-1 h-4 leading-none uppercase tracking-wider font-bold bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-900 border-current/20">
+                      Revising
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className={`text-[10px] px-1 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
+                      {difficulty}
+                    </Badge>
+                  )}
                 </div>
                 <p className={`text-xs font-medium ${isCurrent ? 'text-primary' : colors.text}`}>{timeLabel} - continue now!</p>
               </div>
@@ -792,9 +807,15 @@ function ContinueQuizCard({
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <h3 className="font-semibold text-base text-foreground truncate">{quiz.title}</h3>
-                      <Badge variant="outline" className={`text-[10px] px-1.5 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
-                        {difficulty}
-                      </Badge>
+                      {isRevising ? (
+                        <Badge variant="outline" className="text-[10px] px-1.5 h-4 leading-none uppercase tracking-wider font-bold bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-900 border-current/20">
+                          Revising
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className={`text-[10px] px-1.5 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
+                          {difficulty}
+                        </Badge>
+                      )}
                     </div>
                     <p className={`text-sm font-medium ${isCurrent ? 'text-primary' : colors.text}`}>{timeLabel} - continue now!</p>
                   </div>
@@ -814,16 +835,22 @@ function ContinueQuizCard({
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground font-medium">
-                    {answeredCount} of {totalCount} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span> completed
+                    {isRevising ? (
+                      <>{displayAnswered} of {displayTotal} <span className="hidden sm:inline">to review</span><span className="sm:hidden">review</span></>
+                    ) : (
+                      <>{displayAnswered} of {displayTotal} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span> completed</>
+                    )}
                   </span>
-                  <span className={`font-bold ${isCurrent ? 'text-primary' : colors.text}`}>{progress}%</span>
+                  <span className={`font-bold ${isCurrent ? 'text-primary' : isRevising ? 'text-violet-600 dark:text-violet-400' : colors.text}`}>{progress}%</span>
                 </div>
                 <div className="relative h-2.5 bg-muted/30 dark:bg-muted/10 rounded-full overflow-hidden">
                   <motion.div 
                     className={`absolute inset-y-0 left-0 rounded-full ${
                       isCurrent 
                         ? 'bg-gradient-to-r from-primary to-primary/80' 
-                        : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
+                        : isRevising 
+                          ? 'bg-gradient-to-r from-violet-500 to-violet-600'
+                          : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
                     }`}
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
@@ -1150,34 +1177,62 @@ export default function Dashboard() {
                 className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none scroll-smooth"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
-                {allSavedQuizzes.map((item, idx) => (
-                  <div 
-                    key={item.quizId + idx} 
-                    className="w-full flex-shrink-0 snap-center"
-                  >
-                    <ContinueQuizCard
-                      quiz={item.quiz}
-                      answeredCount={Object.keys(item.answers).filter(k => !k.startsWith('retry-')).length}
-                      totalCount={item.quiz.questions?.length || 0}
-                      onContinue={() => {
-                        if (item.type === 'current') {
-                          handleContinueQuiz();
-                        } else {
-                          handleContinueSavedQuiz(item.quizId);
-                        }
-                      }}
-                      onDiscard={() => {
-                        if (item.type === 'current') {
-                          handleDiscardProgress();
-                        } else {
-                          handleDiscardSavedProgress(item.quizId);
-                        }
-                      }}
-                      isCurrent={item.type === 'current'}
-                      savedAt={item.savedAt}
-                    />
-                  </div>
-                ))}
+                {allSavedQuizzes.map((item, idx) => {
+                  const answerKeys = Object.keys(item.answers);
+                  const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
+                  const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
+                  
+                  // Calculate total wrong questions from first attempt by comparing answers to correct answers
+                  let wrongQuestionsCount = 0;
+                  if (retryAnswerKeys.length > 0 && item.quiz.questions) {
+                    const questions = item.quiz.questions as any[];
+                    wrongQuestionsCount = questions.filter(q => {
+                      const userAnswer = item.answers[q.id];
+                      return userAnswer && userAnswer !== q.correctAnswer;
+                    }).length;
+                  }
+                  
+                  // Only consider "revising" if we have retry answers AND can calculate wrong questions total
+                  // This ensures we don't show "0 of 0 to review" for inconsistent data
+                  const isRevising = retryAnswerKeys.length > 0 && wrongQuestionsCount > 0;
+                  
+                  // retryAnsweredCount = number of retry answers given
+                  // retryTotalCount = number of wrong questions from first attempt (the retry questions that need to be answered)
+                  const retryAnsweredCount = retryAnswerKeys.length;
+                  const retryTotalCount = wrongQuestionsCount;
+                  
+                  return (
+                    <div 
+                      key={item.quizId + idx} 
+                      className="w-full flex-shrink-0 snap-center"
+                    >
+                      <ContinueQuizCard
+                        quiz={item.quiz}
+                        answeredCount={originalAnswerKeys.length}
+                        totalCount={item.quiz.questions?.length || 0}
+                        onContinue={() => {
+                          if (item.type === 'current') {
+                            handleContinueQuiz();
+                          } else {
+                            handleContinueSavedQuiz(item.quizId);
+                          }
+                        }}
+                        onDiscard={() => {
+                          if (item.type === 'current') {
+                            handleDiscardProgress();
+                          } else {
+                            handleDiscardSavedProgress(item.quizId);
+                          }
+                        }}
+                        isCurrent={item.type === 'current'}
+                        savedAt={item.savedAt}
+                        isRevising={isRevising}
+                        retryAnsweredCount={retryAnsweredCount}
+                        retryTotalCount={retryTotalCount}
+                      />
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Dots for PC */}
