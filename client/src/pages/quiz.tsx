@@ -36,11 +36,10 @@ export default function Quiz() {
   }, [userAnswers]);
 
   const handleBackClick = () => {
+    navigateWithGuard(user ? "/dashboard" : "/");
     // If we're going to dashboard, we want to ensure fresh data
     if (user) {
       window.location.href = "/dashboard";
-    } else {
-      window.location.href = "/";
     }
   };
 
