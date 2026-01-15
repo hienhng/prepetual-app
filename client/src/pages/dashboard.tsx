@@ -834,10 +834,10 @@ function ContinueQuizCard({
               <div className="flex items-center gap-2">
                 <Button
                   onClick={onContinue}
-                  className={`flex-1 gap-2 h-10 shadow-md transition-all duration-300 active:scale-95 ${
+                  className={`border-none flex-1 gap-2 h-10 shadow-md transition-all duration-300 active:scale-95 ${
                     isCurrent 
                       ? 'bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80' 
-                      : `${colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')} hover:brightness-110 text-white`
+                      : `${colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')} hover:brightness-110 text-white` 
                   }`}
                   data-testid="button-continue-quiz"
                 >
