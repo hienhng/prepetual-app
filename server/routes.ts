@@ -846,6 +846,52 @@ export async function registerRoutes(
     }
   });
 
+  // Quiz Progress endpoints - saved in-progress quizzes (synced across sessions)
+  app.get("/api/quiz-progress", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const progresses = await storage.getQuizProgressByUserId(userId);
+      res.json(progresses);
+    } catch (error) {
+      console.error("Failed to get quiz progress:", error);
+      res.status(500).json({ message: "Failed to get saved progress" });
+    }
+  });
+
+  app.post("/api/quiz-progress", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { quizId, answers, checkedQuestions } = req.body;
+
+      if (!quizId || !answers) {
+        return res.status(400).json({ message: "quizId and answers are required" });
+      }
+
+      const saved = await storage.saveQuizProgress({
+        userId,
+        quizId,
+        answers,
+        checkedQuestions: checkedQuestions || [],
+      });
+
+      res.json(saved);
+    } catch (error) {
+      console.error("Failed to save quiz progress:", error);
+      res.status(500).json({ message: "Failed to save progress" });
+    }
+  });
+
+  app.delete("/api/quiz-progress/:quizId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      await storage.deleteQuizProgress(userId, req.params.quizId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete quiz progress:", error);
+      res.status(500).json({ message: "Failed to delete progress" });
+    }
+  });
+
   // Streak reminder endpoint (can be called by a cron job or manually)
   app.post("/api/send-streak-reminders", async (req: any, res) => {
     try {
