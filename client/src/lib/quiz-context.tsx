@@ -18,6 +18,9 @@ export interface SavedQuizProgress {
   quiz: Quiz;
   answers: Record<string, string>;
   checkedQuestions: string[];
+  currentIndex: number;
+  retryAnswers: Record<string, string>;
+  retryCheckedQuestions: string[];
   savedAt: string;
 }
 
@@ -36,6 +39,9 @@ interface QuizState {
   revisedQuestionsCount: number;
   retryCorrectCount: number;
   lastSavedAnswersCount: number;
+  restoredCurrentIndex: number | null;
+  restoredRetryAnswers: Record<string, string> | null;
+  restoredRetryCheckedQuestions: string[] | null;
 }
 
 interface QuizContextType extends QuizState {
@@ -53,9 +59,10 @@ interface QuizContextType extends QuizState {
   setRevisedQuestionsCount: (count: number) => void;
   setRetryCorrectCount: (count: number) => void;
   resetQuiz: () => void;
-  saveCurrentProgress: () => void;
+  saveCurrentProgress: (currentIndex: number, retryAnswers: Record<string, string>, retryCheckedQuestions: string[]) => void;
   loadSavedProgress: (quizId: string) => void;
   removeSavedProgress: (quizId: string) => void;
+  clearRestoredState: () => void;
   hasUnsavedChanges: boolean;
 }
 
@@ -77,7 +84,14 @@ export function QuizProvider({ children }: { children: ReactNode }) {
 
   // Mutation to save progress
   const saveProgressMutation = useMutation({
-    mutationFn: async (data: { quizId: string; answers: Record<string, string>; checkedQuestions: string[] }) => {
+    mutationFn: async (data: { 
+      quizId: string; 
+      answers: Record<string, string>; 
+      checkedQuestions: string[];
+      currentIndex: number;
+      retryAnswers: Record<string, string>;
+      retryCheckedQuestions: string[];
+    }) => {
       const response = await apiRequest("POST", "/api/quiz-progress", data);
       return response.json();
     },
@@ -131,6 +145,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       revisedQuestionsCount: 0,
       retryCorrectCount: 0,
       lastSavedAnswersCount: Object.keys(userAnswers).length,
+      restoredCurrentIndex: null,
+      restoredRetryAnswers: null,
+      restoredRetryCheckedQuestions: null,
     };
   });
 
@@ -141,6 +158,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       quiz: p.quiz,
       answers: p.answers,
       checkedQuestions: p.checkedQuestions || [],
+      currentIndex: p.currentIndex ?? 0,
+      retryAnswers: p.retryAnswers ?? {},
+      retryCheckedQuestions: p.retryCheckedQuestions ?? [],
       savedAt: p.savedAt instanceof Date ? p.savedAt.toISOString() : String(p.savedAt),
     }));
     setState((prev) => {
@@ -236,7 +256,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const saveCurrentProgress = useCallback(() => {
+  const saveCurrentProgress = useCallback((currentIndex: number, retryAnswers: Record<string, string>, retryCheckedQuestions: string[]) => {
     // Get current state values synchronously
     const currentQuiz = state.currentQuiz;
     const userAnswers = state.userAnswers;
@@ -248,11 +268,14 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     
     const quizId = currentQuiz.id;
     
-    // Save to API
+    // Save to API with full quiz state including retry information
     saveProgressMutation.mutate({
       quizId,
       answers: userAnswers,
       checkedQuestions: Array.from(checkedQuestions),
+      currentIndex,
+      retryAnswers,
+      retryCheckedQuestions,
     }, {
       onSuccess: () => {
         // Clear current session progress after successful save
@@ -262,6 +285,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
           currentQuiz: null,
           userAnswers: {},
           checkedQuestions: new Set(),
+          restoredCurrentIndex: null,
+          restoredRetryAnswers: null,
+          restoredRetryCheckedQuestions: null,
         }));
       },
       onError: (error) => {
@@ -291,8 +317,20 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         userAnswers: progress.answers,
         checkedQuestions: loadedCheckedQuestions,
         lastSavedAnswersCount: answersCount,
+        restoredCurrentIndex: progress.currentIndex ?? 0,
+        restoredRetryAnswers: progress.retryAnswers ?? {},
+        restoredRetryCheckedQuestions: progress.retryCheckedQuestions ?? [],
       };
     });
+  }, []);
+
+  const clearRestoredState = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      restoredCurrentIndex: null,
+      restoredRetryAnswers: null,
+      restoredRetryCheckedQuestions: null,
+    }));
   }, []);
 
   const removeSavedProgress = useCallback((quizId: string) => {
@@ -362,6 +400,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       revisedQuestionsCount: 0,
       retryCorrectCount: 0,
       lastSavedAnswersCount: 0,
+      restoredCurrentIndex: null,
+      restoredRetryAnswers: null,
+      restoredRetryCheckedQuestions: null,
     }));
   };
 
@@ -389,6 +430,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         saveCurrentProgress,
         loadSavedProgress,
         removeSavedProgress,
+        clearRestoredState,
         hasUnsavedChanges,
       }}
     >
