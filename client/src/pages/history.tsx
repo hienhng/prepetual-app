@@ -25,7 +25,7 @@ type QuizWithAttempts = Quiz & { attemptCount?: number };
 
 export default function HistoryPage() {
   const [, setLocation] = useLocation();
-  const { setCurrentQuiz, setSourceMaterial } = useQuiz();
+  const { setCurrentQuiz, setSourceMaterial, savedProgresses, loadSavedProgress } = useQuiz();
   const { toast } = useToast();
   const [quizToDelete, setQuizToDelete] = useState<QuizWithAttempts | null>(null);
 
@@ -78,15 +78,21 @@ export default function HistoryPage() {
   });
 
   const handleRetake = (quiz: Quiz) => {
-    setCurrentQuiz({
-      ...quiz,
-      createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
-    } as any);
-    setSourceMaterial({
-      type: quiz.sourceImageUrl ? "image" : null,
-      text: quiz.sourceText,
-      imageDataUrl: quiz.sourceImageUrl || null,
-    });
+    // Check if there's saved progress for this quiz
+    const hasSavedProgress = savedProgresses.some(p => p.quizId === quiz.id);
+    if (hasSavedProgress) {
+      loadSavedProgress(quiz.id);
+    } else {
+      setCurrentQuiz({
+        ...quiz,
+        createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
+      } as any);
+      setSourceMaterial({
+        type: quiz.sourceImageUrl ? "image" : null,
+        text: quiz.sourceText,
+        imageDataUrl: quiz.sourceImageUrl || null,
+      });
+    }
     setLocation("/quiz");
   };
 
