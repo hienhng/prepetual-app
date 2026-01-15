@@ -42,6 +42,10 @@ interface QuizState {
   restoredCurrentIndex: number | null;
   restoredRetryAnswers: Record<string, string> | null;
   restoredRetryCheckedQuestions: string[] | null;
+  // Quiz player state for saving progress
+  playerCurrentIndex: number;
+  playerRetryAnswers: Record<string, string>;
+  playerRetryCheckedQuestions: string[];
 }
 
 interface QuizContextType extends QuizState {
@@ -59,10 +63,11 @@ interface QuizContextType extends QuizState {
   setRevisedQuestionsCount: (count: number) => void;
   setRetryCorrectCount: (count: number) => void;
   resetQuiz: () => void;
-  saveCurrentProgress: (currentIndex: number, retryAnswers: Record<string, string>, retryCheckedQuestions: string[]) => void;
+  saveCurrentProgress: () => void;
   loadSavedProgress: (quizId: string) => void;
   removeSavedProgress: (quizId: string) => void;
   clearRestoredState: () => void;
+  syncPlayerState: (currentIndex: number, retryAnswers: Record<string, string>, retryCheckedQuestions: string[]) => void;
   hasUnsavedChanges: boolean;
 }
 
@@ -148,6 +153,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       restoredCurrentIndex: null,
       restoredRetryAnswers: null,
       restoredRetryCheckedQuestions: null,
+      playerCurrentIndex: 0,
+      playerRetryAnswers: {},
+      playerRetryCheckedQuestions: [],
     };
   });
 
@@ -202,6 +210,12 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         ...prev, 
         currentQuiz: quiz,
         lastSavedAnswersCount: quiz ? 0 : prev.lastSavedAnswersCount,
+        // Clear player state when quiz is cleared
+        ...(quiz === null ? {
+          playerCurrentIndex: 0,
+          playerRetryAnswers: {},
+          playerRetryCheckedQuestions: [],
+        } : {}),
       };
       if (quiz) {
         sessionStorage.setItem("quiz_progress", JSON.stringify({ 
@@ -256,11 +270,23 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const saveCurrentProgress = useCallback((currentIndex: number, retryAnswers: Record<string, string>, retryCheckedQuestions: string[]) => {
+  const syncPlayerState = useCallback((currentIndex: number, retryAnswers: Record<string, string>, retryCheckedQuestions: string[]) => {
+    setState((prev) => ({
+      ...prev,
+      playerCurrentIndex: currentIndex,
+      playerRetryAnswers: retryAnswers,
+      playerRetryCheckedQuestions: retryCheckedQuestions,
+    }));
+  }, []);
+
+  const saveCurrentProgress = useCallback(() => {
     // Get current state values synchronously
     const currentQuiz = state.currentQuiz;
     const userAnswers = state.userAnswers;
     const checkedQuestions = state.checkedQuestions;
+    const currentIndex = state.playerCurrentIndex;
+    const retryAnswers = state.playerRetryAnswers;
+    const retryCheckedQuestions = state.playerRetryCheckedQuestions;
 
     if (!currentQuiz || Object.keys(userAnswers).length === 0) {
       return;
@@ -288,13 +314,16 @@ export function QuizProvider({ children }: { children: ReactNode }) {
           restoredCurrentIndex: null,
           restoredRetryAnswers: null,
           restoredRetryCheckedQuestions: null,
+          playerCurrentIndex: 0,
+          playerRetryAnswers: {},
+          playerRetryCheckedQuestions: [],
         }));
       },
       onError: (error) => {
         console.error("Failed to save quiz progress:", error);
       }
     });
-  }, [state.currentQuiz, state.userAnswers, state.checkedQuestions, saveProgressMutation]);
+  }, [state.currentQuiz, state.userAnswers, state.checkedQuestions, state.playerCurrentIndex, state.playerRetryAnswers, state.playerRetryCheckedQuestions, saveProgressMutation]);
 
   const loadSavedProgress = useCallback((quizId: string) => {
     setState((prev) => {
@@ -403,6 +432,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       restoredCurrentIndex: null,
       restoredRetryAnswers: null,
       restoredRetryCheckedQuestions: null,
+      playerCurrentIndex: 0,
+      playerRetryAnswers: {},
+      playerRetryCheckedQuestions: [],
     }));
   };
 
@@ -431,6 +463,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         loadSavedProgress,
         removeSavedProgress,
         clearRestoredState,
+        syncPlayerState,
         hasUnsavedChanges,
       }}
     >

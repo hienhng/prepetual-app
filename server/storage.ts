@@ -682,6 +682,9 @@ export class DatabaseStorage implements IStorage {
         quizId: progress.quizId,
         answers: progress.answers,
         checkedQuestions: progress.checkedQuestions || [],
+        currentIndex: progress.currentIndex ?? 0,
+        retryAnswers: progress.retryAnswers ?? {},
+        retryCheckedQuestions: progress.retryCheckedQuestions ?? [],
       })
       .returning();
 

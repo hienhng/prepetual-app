@@ -861,7 +861,7 @@ export async function registerRoutes(
   app.post("/api/quiz-progress", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { quizId, answers, checkedQuestions } = req.body;
+      const { quizId, answers, checkedQuestions, currentIndex, retryAnswers, retryCheckedQuestions } = req.body;
 
       if (!quizId || !answers) {
         return res.status(400).json({ message: "quizId and answers are required" });
@@ -872,6 +872,9 @@ export async function registerRoutes(
         quizId,
         answers,
         checkedQuestions: checkedQuestions || [],
+        currentIndex: currentIndex ?? 0,
+        retryAnswers: retryAnswers ?? {},
+        retryCheckedQuestions: retryCheckedQuestions ?? [],
       });
 
       res.json(saved);

@@ -60,7 +60,22 @@ const getStreakMessage = (streak: number) => {
 
 export function QuizPlayer() {
   const [, setLocation] = useLocation();
-  const { currentQuiz, userAnswers, setUserAnswer, setQuizResult, sourceMaterial, setRevisedQuestionsCount, setRetryCorrectCount, checkedQuestions, markQuestionChecked } = useQuiz();
+  const { 
+    currentQuiz, 
+    userAnswers, 
+    setUserAnswer, 
+    setQuizResult, 
+    sourceMaterial, 
+    setRevisedQuestionsCount, 
+    setRetryCorrectCount, 
+    checkedQuestions, 
+    markQuestionChecked,
+    restoredCurrentIndex,
+    restoredRetryAnswers,
+    restoredRetryCheckedQuestions,
+    clearRestoredState,
+    syncPlayerState,
+  } = useQuiz();
   const { user } = useAuth();
   const { state: sidebarState, isMobile } = useSidebar();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -75,12 +90,75 @@ export function QuizPlayer() {
   const wrongAnswerIds = useRef<Set<string>>(new Set());
   const [retryAnswers, setRetryAnswers] = useState<Record<string, string>>({});
   const [retryChecked, setRetryChecked] = useState<Set<string>>(new Set());
+  const hasRestoredRef = useRef(false);
   
   const isGuest = !user;
 
   if (!currentQuiz) {
     return null;
   }
+  
+  // Initialize from restored state on mount (from saved progress)
+  useEffect(() => {
+    if (hasRestoredRef.current || !currentQuiz) return;
+    
+    // Derive wrongAnswerIds from userAnswers by comparing to correct answers
+    // This handles both: 1) Legacy progress without retry state, 2) Fresh restore with explicit state
+    const questions = currentQuiz.questions;
+    const derivedWrongIds = new Set<string>();
+    
+    for (const q of questions) {
+      const userAnswer = userAnswers[q.id];
+      if (userAnswer && checkedQuestions.has(q.id)) {
+        const isCorrect = userAnswer.toLowerCase().trim() === q.correctAnswer.toLowerCase().trim();
+        if (!isCorrect) {
+          derivedWrongIds.add(q.id);
+        }
+      }
+    }
+    
+    // Also include original question IDs from restored retry answers (keys are "retry-{originalId}")
+    if (restoredRetryAnswers) {
+      for (const retryKey of Object.keys(restoredRetryAnswers)) {
+        if (retryKey.startsWith("retry-")) {
+          const originalId = retryKey.replace("retry-", "");
+          derivedWrongIds.add(originalId);
+        }
+      }
+    }
+    
+    // Populate wrongAnswerIds from derived + restored state
+    wrongAnswerIds.current = derivedWrongIds;
+    
+    // Restore retry state if available
+    if (restoredRetryAnswers && Object.keys(restoredRetryAnswers).length > 0) {
+      setRetryAnswers(restoredRetryAnswers);
+    }
+    
+    if (restoredRetryCheckedQuestions && restoredRetryCheckedQuestions.length > 0) {
+      setRetryChecked(new Set(restoredRetryCheckedQuestions));
+    }
+    
+    // Restore current index if available
+    if (restoredCurrentIndex !== null && restoredCurrentIndex > 0) {
+      setCurrentIndex(restoredCurrentIndex);
+    }
+    
+    hasRestoredRef.current = true;
+    clearRestoredState();
+  }, [currentQuiz, userAnswers, checkedQuestions, restoredCurrentIndex, restoredRetryAnswers, restoredRetryCheckedQuestions, clearRestoredState]);
+
+  // Sync player state to context for save functionality
+  useEffect(() => {
+    syncPlayerState(currentIndex, retryAnswers, Array.from(retryChecked));
+  }, [currentIndex, retryAnswers, retryChecked, syncPlayerState]);
+
+  // Cleanup: reset hasRestoredRef when quiz changes (to allow fresh restoration)
+  useEffect(() => {
+    return () => {
+      hasRestoredRef.current = false;
+    };
+  }, [currentQuiz?.id]);
 
   const originalQuestions = currentQuiz.questions;
   
