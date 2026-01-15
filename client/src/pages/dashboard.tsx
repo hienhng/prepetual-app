@@ -744,7 +744,7 @@ function ContinueQuizCard({
 
   const timeLabel = savedAt 
     ? `Saved ${formatDistanceToNow(new Date(savedAt))} ago`
-    : isCurrent ? 'Active now' : 'Saved recently';
+    : 'Saved recently';
 
   return (
     <motion.div
