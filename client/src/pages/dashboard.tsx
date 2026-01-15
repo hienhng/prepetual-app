@@ -495,7 +495,7 @@ function QuickActionCard({
         />
       )}
       <Card 
-        className={`relative cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 ${
+        className={`relative cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl  ${
           isPrimary 
             ? "bg-gradient-to-br from-primary via-primary to-primary/90 border-0 shadow-lg shadow-primary/20" 
             : "border-border/50"
@@ -746,7 +746,6 @@ function ContinueQuizCard({
 
   return (
     <motion.div
-      whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="relative group"
     >
