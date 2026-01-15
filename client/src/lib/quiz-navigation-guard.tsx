@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode, type MouseEvent } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode, type MouseEvent } from "react";
 import { useLocation } from "wouter";
 import { useQuiz } from "@/lib/quiz-context";
 import { LogOut, Save } from "lucide-react";
@@ -28,8 +28,35 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
   const { currentQuiz, resetQuiz, clearUserAnswers, userAnswers, saveCurrentProgress } = useQuiz();
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
+  const hasAddedHistoryEntry = useRef(false);
 
   const isQuizInProgress = location === "/quiz" && !!currentQuiz && Object.keys(userAnswers).length > 0;
+
+  // Handle browser back button
+  useEffect(() => {
+    if (isQuizInProgress && !hasAddedHistoryEntry.current) {
+      // Push an extra history entry so we can intercept back button
+      window.history.pushState({ quizGuard: true }, "", window.location.href);
+      hasAddedHistoryEntry.current = true;
+    }
+
+    if (!isQuizInProgress) {
+      hasAddedHistoryEntry.current = false;
+    }
+
+    const handlePopState = (e: PopStateEvent) => {
+      if (isQuizInProgress) {
+        // Re-push the history entry to prevent navigation
+        window.history.pushState({ quizGuard: true }, "", window.location.href);
+        // Show the dialog
+        setPendingPath("/dashboard");
+        setShowExitDialog(true);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [isQuizInProgress]);
 
   const navigateWithGuard = useCallback((path: string) => {
     if (isQuizInProgress && path !== "/quiz" && path !== "/results") {
