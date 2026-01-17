@@ -29,8 +29,8 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const hasAddedHistoryEntry = useRef(false);
 
-  // Only show dialog if there are new unsaved answers
-  const isQuizInProgress = location === "/quiz" && !!currentQuiz && hasUnsavedChanges;
+  // Show dialog if user is on quiz page with an active quiz that has any answers
+  const isQuizInProgress = location === "/quiz" && !!currentQuiz && Object.keys(userAnswers).length > 0;
   
   // Check if user is in revision mode (completed first attempt with wrong answers)
   const isInRevisionMode = useMemo(() => {

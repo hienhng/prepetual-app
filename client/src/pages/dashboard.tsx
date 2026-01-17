@@ -994,6 +994,10 @@ export default function Dashboard() {
   };
 
   const handleDiscardProgress = () => {
+    // Also delete from API if the current quiz has saved progress
+    if (currentQuiz?.id) {
+      removeSavedProgress(currentQuiz.id);
+    }
     clearUserAnswers();
     resetQuiz();
   };
