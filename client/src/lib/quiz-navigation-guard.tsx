@@ -150,7 +150,7 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={isInRevisionMode ? handleExitRevision : handleSaveAndExit}
-              className={isInRevisionMode ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 gap-2" : "gap-2"}
+              className={isInRevisionMode ? "border-destructive bg-destructive text-destructive-foreground hover:bg-destructive/90 gap-2" : "gap-2"}
               data-testid={isInRevisionMode ? "button-confirm-revision-exit" : "button-save-nav-exit"}
             >
               {isInRevisionMode ? (

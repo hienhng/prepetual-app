@@ -30,6 +30,16 @@ const encouragingMessages = {
     "You're on fire!",
     "Impressive!",
   ],
+  retryCorrect: [
+    "Look at that improvement!",
+    "You learned from the last one! Amazing!",
+    "Second time's the charm! Great job!",
+    "You've mastered this now!",
+    "Growth mindset in action!",
+    "Persistence pays off! Well done!",
+    "You didn't give up and it shows!",
+    "That's how you learn! Fantastic!",
+  ],
   incorrect: [
     "Don't worry, keep learning!",
     "You'll get the next one!",
@@ -45,7 +55,7 @@ const encouragingMessages = {
   ],
 };
 
-const getRandomMessage = (type: "correct" | "incorrect") => {
+const getRandomMessage = (type: "correct" | "incorrect" | "retryCorrect") => {
   const messages = encouragingMessages[type];
   return messages[Math.floor(Math.random() * messages.length)];
 };
@@ -245,7 +255,14 @@ export function QuizPlayer() {
       if (correct) {
         newStreak = correctStreak + 1;
         setCorrectStreak(newStreak);
-        message = getStreakMessage(newStreak) || getRandomMessage("correct");
+        
+        // Use special message for retry questions gotten correct
+        if (currentQuestion.isRetry) {
+          message = getRandomMessage("retryCorrect");
+        } else {
+          message = getStreakMessage(newStreak) || getRandomMessage("correct");
+        }
+        
         if (newStreak >= 3) {
           triggerConfetti();
         }
