@@ -6,6 +6,7 @@ QuizAI is a full-stack web application that transforms study materials into inte
 
 ## Recent Changes (Jan 2026)
 
+- **Revision State Persistence**: Quiz revision mode (retrying missed questions) now persists across browser sessions. The `retryAnswers` and `retryCheckedQuestions` are saved to the database, so users can close their browser and return to their revision progress later.
 - **Quiz Categories**: Each quiz is now automatically categorized by AI into one of: Math, English, Science, Social Studies, Global Languages, or Others/General. Categories are stored in the database and can be viewed but the UI currently doesn't display them. The `QUIZ_CATEGORIES` constant in `shared/schema.ts` defines all available categories.
 - **Accuracy Progress Dialog**: Dashboard now has a clickable accuracy card that opens a dialog showing detailed progress charts, trend analysis, score distribution, and recent results.
 - **Username-Only System**: Removed firstName/lastName fields from user model. Users now only have usernames. Email registrations automatically use the email prefix as the default username. Google OAuth users automatically get their Google name as their username. All UI displays username instead of first/last name combinations. Settings page allows users to update their username.

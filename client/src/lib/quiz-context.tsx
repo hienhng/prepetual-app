@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "./queryClient";
 import type { Quiz, QuizResult, Question, QuizProgress } from "@shared/schema";
@@ -160,6 +160,11 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     };
   });
 
+  // Refs for retry state to avoid stale closures in saveCurrentProgress
+  const retryAnswersRef = useRef<Record<string, string>>({});
+  const retryCheckedQuestionsRef = useRef<string[]>([]);
+  const currentIndexRef = useRef<number>(0);
+
   // Sync savedProgresses from API data
   useEffect(() => {
     const converted: SavedQuizProgress[] = apiProgresses.map((p) => ({
@@ -284,6 +289,11 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   };
 
   const syncPlayerState = useCallback((currentIndex: number, retryAnswers: Record<string, string>, retryCheckedQuestions: string[]) => {
+    // Update refs for immediate access in saveCurrentProgress
+    currentIndexRef.current = currentIndex;
+    retryAnswersRef.current = retryAnswers;
+    retryCheckedQuestionsRef.current = retryCheckedQuestions;
+    
     setState((prev) => ({
       ...prev,
       playerCurrentIndex: currentIndex,
@@ -297,7 +307,11 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     const currentQuiz = state.currentQuiz;
     const userAnswers = state.userAnswers;
     const checkedQuestions = state.checkedQuestions;
-    const currentIndex = state.playerCurrentIndex;
+    
+    // Read from refs to get the latest values (avoids stale closure issues)
+    const currentIndex = currentIndexRef.current;
+    const retryAnswers = retryAnswersRef.current;
+    const retryCheckedQuestions = retryCheckedQuestionsRef.current;
 
     if (!currentQuiz || Object.keys(userAnswers).length === 0) {
       return;
@@ -305,14 +319,14 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     
     const quizId = currentQuiz.id;
     
-    // Save to API with quiz state (retry progress is NOT saved - it's session-only)
+    // Save to API with quiz state including retry progress for revision mode persistence
     saveProgressMutation.mutate({
       quizId,
       answers: userAnswers,
       checkedQuestions: Array.from(checkedQuestions),
       currentIndex,
-      retryAnswers: {}, // Don't persist retry answers
-      retryCheckedQuestions: [], // Don't persist retry checked questions
+      retryAnswers: retryAnswers,
+      retryCheckedQuestions: retryCheckedQuestions,
     }, {
       onSuccess: () => {
         // Clear current session progress after successful save
@@ -334,7 +348,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         console.error("Failed to save quiz progress:", error);
       }
     });
-  }, [state.currentQuiz, state.userAnswers, state.checkedQuestions, state.playerCurrentIndex, state.playerRetryAnswers, state.playerRetryCheckedQuestions, saveProgressMutation]);
+  }, [state.currentQuiz, state.userAnswers, state.checkedQuestions, saveProgressMutation]);
 
   const loadSavedProgress = useCallback((quizId: string) => {
     setState((prev) => {
@@ -343,6 +357,11 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       
       const loadedCheckedQuestions = new Set(progress.checkedQuestions || []);
       const answersCount = Object.keys(progress.answers).length;
+      
+      // Initialize refs with restored retry data
+      currentIndexRef.current = progress.currentIndex ?? 0;
+      retryAnswersRef.current = progress.retryAnswers ?? {};
+      retryCheckedQuestionsRef.current = progress.retryCheckedQuestions ?? [];
       
       // Set current quiz and answers from saved progress
       sessionStorage.setItem("quiz_progress", JSON.stringify({ 
@@ -378,6 +397,11 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         retryCheckedQuestions: [], // Clear retry checked questions
       });
     }
+    
+    // Reset refs when clearing restored state
+    currentIndexRef.current = 0;
+    retryAnswersRef.current = {};
+    retryCheckedQuestionsRef.current = [];
     
     setState((prev) => ({
       ...prev,
