@@ -75,7 +75,6 @@ export function QuizPlayer() {
     restoredRetryCheckedQuestions,
     clearRestoredState,
     syncPlayerState,
-    removeSavedProgress,
   } = useQuiz();
   const { user } = useAuth();
   const { state: sidebarState, isMobile } = useSidebar();
@@ -337,10 +336,6 @@ export function QuizPlayer() {
       }
 
       const result = await response.json();
-      
-      // Clear saved progress from API after successful submission
-      // Note: Don't clear userAnswers here - results page needs them for display
-      removeSavedProgress(currentQuiz.id);
       
       setQuizResult(result);
       setLocation("/results");

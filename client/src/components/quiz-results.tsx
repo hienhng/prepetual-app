@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 
 export function QuizResults() {
   const [, setLocation] = useLocation();
-  const { currentQuiz, quizResult, userAnswers, clearUserAnswers, revisedQuestionsCount } = useQuiz();
+  const { currentQuiz, quizResult, userAnswers, clearUserAnswers, revisedQuestionsCount, removeSavedProgress } = useQuiz();
   const { user } = useAuth();
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
@@ -88,6 +88,11 @@ export function QuizResults() {
   };
 
   const handleContinue = () => {
+    // Clear saved progress from API when leaving results
+    if (currentQuiz?.id) {
+      removeSavedProgress(currentQuiz.id);
+    }
+    
     // Check if we should show revision summary (weekly revisions > 5)
     const WEEKLY_REVISIONS_KEY = "prepetual_weekly_revisions";
     let shouldShowRevision = false;
