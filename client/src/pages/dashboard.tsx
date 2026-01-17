@@ -990,8 +990,6 @@ export default function Dashboard() {
     const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
     const hasRetryProgress = retryAnswerKeys.length > 0;
     
-    console.log('isQuizInRevisionMode check:', { checkedQuestionsCount, totalQuestions, wrongQuestionsCount, hasCompletedFirstAttempt, hasWrongAnswersToRetry, hasRetryProgress });
-    
     return (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
   };
 
@@ -1274,19 +1272,6 @@ export default function Dashboard() {
                   const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
                   const hasRetryProgress = retryAnswerKeys.length > 0;
                   const isRevising = (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
-                  
-                  // DEBUG: Log revision status
-                  console.log(`Quiz ${item.quizId.slice(0, 8)}:`, {
-                    type: item.type,
-                    checkedQuestionsCount,
-                    totalQuestions,
-                    wrongQuestionsCount,
-                    hasRetryProgress,
-                    hasCompletedFirstAttempt,
-                    hasWrongAnswersToRetry,
-                    isRevising,
-                    answers: Object.keys(item.answers).slice(0, 5), // first 5 answer keys
-                  });
                   
                   // retryAnsweredCount = number of retry answers given
                   // retryTotalCount = number of wrong questions from first attempt (the retry questions that need to be answered)
