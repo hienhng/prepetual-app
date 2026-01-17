@@ -880,7 +880,8 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { 
     currentQuiz, 
-    userAnswers, 
+    userAnswers,
+    checkedQuestions,
     setCurrentQuiz, 
     setSourceMaterial, 
     resetQuiz, 
@@ -971,6 +972,7 @@ export default function Dashboard() {
       quizId: string;
       quiz: Quiz;
       answers: Record<string, string>;
+      checkedQuestions: string[];
       savedAt?: string;
     }> = [];
     
@@ -981,6 +983,7 @@ export default function Dashboard() {
         quizId: currentQuiz.id,
         quiz: currentQuiz,
         answers: userAnswers,
+        checkedQuestions: Array.from(checkedQuestions),
       });
     }
     
@@ -992,13 +995,14 @@ export default function Dashboard() {
           quizId: p.quizId,
           quiz: p.quiz,
           answers: p.answers,
+          checkedQuestions: p.checkedQuestions || [],
           savedAt: p.savedAt,
         });
       }
     });
     
     return items;
-  }, [hasInProgressQuiz, currentQuiz, userAnswers, savedProgresses]);
+  }, [hasInProgressQuiz, currentQuiz, userAnswers, checkedQuestions, savedProgresses]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -1165,20 +1169,26 @@ export default function Dashboard() {
                   const answerKeys = Object.keys(item.answers);
                   const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
                   const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
+                  const totalQuestions = item.quiz.questions?.length || 0;
+                  const checkedQuestionsCount = item.checkedQuestions?.length || 0;
                   
                   // Calculate total wrong questions from first attempt by comparing answers to correct answers
                   let wrongQuestionsCount = 0;
-                  if (retryAnswerKeys.length > 0 && item.quiz.questions) {
+                  if (item.quiz.questions) {
                     const questions = item.quiz.questions as any[];
                     wrongQuestionsCount = questions.filter(q => {
                       const userAnswer = item.answers[q.id];
-                      return userAnswer && userAnswer !== q.correctAnswer;
+                      return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
                     }).length;
                   }
                   
-                  // Only consider "revising" if we have retry answers AND can calculate wrong questions total
-                  // This ensures we don't show "0 of 0 to review" for inconsistent data
-                  const isRevising = retryAnswerKeys.length > 0 && wrongQuestionsCount > 0;
+                  // User is in revision mode if:
+                  // 1. All original questions are checked (completed first attempt) AND there are wrong answers to retry
+                  // 2. OR there are already retry answers (actively revising)
+                  const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
+                  const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
+                  const hasRetryProgress = retryAnswerKeys.length > 0;
+                  const isRevising = (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
                   
                   // retryAnsweredCount = number of retry answers given
                   // retryTotalCount = number of wrong questions from first attempt (the retry questions that need to be answered)
