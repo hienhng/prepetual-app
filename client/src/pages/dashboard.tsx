@@ -831,41 +831,46 @@ function ContinueQuizCard({
                 </div>
               </div>
               
-              {/* Progress */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground font-medium">
-                    {isRevising ? (
-                      <>{displayAnswered} of {displayTotal} <span className="hidden sm:inline">to review</span><span className="sm:hidden">review</span></>
-                    ) : (
-                      <>{displayAnswered} of {displayTotal} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span> completed</>
-                    )}
+              {/* Progress - hide progress bar in revision mode */}
+              {isRevising ? (
+                <div className="flex items-center gap-2 py-1.5 px-3 rounded-lg bg-violet-500/10 dark:bg-violet-500/15 border border-violet-200/50 dark:border-violet-800/30">
+                  <div className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
+                  <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
+                    {displayTotal} question{displayTotal !== 1 ? 's' : ''} to review
                   </span>
-                  <span className={`font-bold ${isRevising ? 'text-violet-600 dark:text-violet-400' : colors.text}`}>{progress}%</span>
                 </div>
-                <div className="relative h-2.5 bg-muted/30 dark:bg-muted/10 rounded-full overflow-hidden">
-                  <motion.div 
-                    className={`absolute inset-y-0 left-0 rounded-full ${
-                      isRevising 
-                        ? 'bg-gradient-to-r from-violet-500 to-violet-600'
-                        : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
-                    }`}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                  />
+              ) : (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground font-medium">
+                      {displayAnswered} of {displayTotal} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span> completed
+                    </span>
+                    <span className={`font-bold ${colors.text}`}>{progress}%</span>
+                  </div>
+                  <div className="relative h-2.5 bg-muted/30 dark:bg-muted/10 rounded-full overflow-hidden">
+                    <motion.div 
+                      className={`absolute inset-y-0 left-0 rounded-full ${colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
               
               {/* Actions */}
               <div className="flex items-center gap-2">
                 <Button
                   onClick={onContinue}
-                  className={`border-none flex-1 gap-2 h-10 shadow-md transition-all duration-300 active:scale-95 ${colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')} hover:brightness-110 text-white`}
+                  className={`border-none flex-1 gap-2 h-10 shadow-md transition-all duration-300 active:scale-95 ${
+                    isRevising 
+                      ? 'bg-gradient-to-r from-violet-500 to-violet-600' 
+                      : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
+                  } hover:brightness-110 text-white`}
                   data-testid="button-continue-quiz"
                 >
                   <Play className="w-4 h-4 fill-current" />
-                  <span className="font-bold">Continue Quiz</span>
+                  <span className="font-bold">{isRevising ? 'Continue Review' : 'Continue Quiz'}</span>
                   <ArrowRight className="w-4 h-4 hidden sm:block group-hover:translate-x-1 transition-transform" />
                 </Button>
                 <Button
