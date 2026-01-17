@@ -1019,18 +1019,16 @@ export default function Dashboard() {
     }
   };
 
-  // Confirm revision exit - clear only retry progress, keep original answers
+  // Confirm revision exit - delete the entire quiz progress
   const handleConfirmRevisionExit = () => {
     const { quizId, type } = revisionExitWarning;
     
-    if (type === 'current' && currentQuiz) {
-      // For current quiz: clear retry progress and reset quiz
-      clearRetryProgress();
-      clearUserAnswers();
-      resetQuiz();
+    if (type === 'current') {
+      // For current quiz: delete entire progress
+      handleDiscardProgress();
     } else if (type === 'saved' && quizId) {
-      // For saved progress: clear retry data but keep original answers  
-      clearRestoredState(quizId);
+      // For saved progress: delete entire saved progress
+      handleDiscardSavedProgress(quizId);
     }
     
     setRevisionExitWarning({ open: false, quizId: null, type: null });
@@ -1421,9 +1419,9 @@ export default function Dashboard() {
       >
         <AlertDialogContent data-testid="dialog-revision-exit-warning">
           <AlertDialogHeader>
-            <AlertDialogTitle>Exit Revision Mode?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Quiz Progress?</AlertDialogTitle>
             <AlertDialogDescription>
-              You're currently revising incorrect answers. If you exit now, your revision progress will be lost, but your original answers will be preserved.
+              You're currently revising this quiz. Deleting will remove all your progress including your original answers and revision progress.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1435,7 +1433,7 @@ export default function Dashboard() {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               data-testid="button-confirm-revision-exit"
             >
-              Exit and Lose Revision Progress
+              Delete All Progress
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

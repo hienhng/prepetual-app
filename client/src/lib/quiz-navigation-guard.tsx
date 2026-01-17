@@ -118,10 +118,8 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
     setPendingPath(null);
   };
 
-  // For revision mode: exit and lose retry progress but keep original answers
+  // For revision mode: just exit without saving (retry progress is session-only)
   const handleExitRevision = () => {
-    // Just save without retry progress (which is already excluded in saveCurrentProgress)
-    saveCurrentProgress();
     setShowExitDialog(false);
     if (pendingPath) {
       setLocation(pendingPath);
