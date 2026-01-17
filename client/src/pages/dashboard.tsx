@@ -753,33 +753,23 @@ function ContinueQuizCard({
 
   const timeLabel = savedAt 
     ? `Saved ${formatDistanceToNow(new Date(savedAt))} ago`
-    : isCurrent ? 'Active now' : 'Saved recently';
+    : 'In progress';
 
   return (
     <motion.div
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="relative group"
     >
-      <Card className={`overflow-hidden border-2 shadow-lg transition-all duration-300 ${
-        isCurrent 
-          ? 'border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-primary/10' 
-          : `${colors.border} bg-gradient-to-br ${colors.from} ${colors.via} to-transparent ${colors.shadow}`
-      }`}>
+      <Card className={`overflow-hidden border-2 shadow-lg transition-all duration-300 ${colors.border} bg-gradient-to-br ${colors.from} ${colors.via} to-transparent ${colors.shadow}`}>
         <CardContent className="p-4 sm:p-5">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             {/* Icon and encouragement */}
             <div className="flex items-center gap-3 sm:flex-shrink-0">
               <div className="relative">
-                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110 ${
-                    isCurrent 
-                      ? 'bg-gradient-to-br from-primary to-primary/80' 
-                      : colors.icon
-                  }`}>
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110 ${colors.icon}`}>
                   <CategoryIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm ${
-                  isCurrent ? 'bg-primary' : 'bg-foreground/80'
-                }`}>
+                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm bg-foreground/80">
                   {remaining}
                 </div>
               </div>
@@ -796,7 +786,7 @@ function ContinueQuizCard({
                     </Badge>
                   )}
                 </div>
-                <p className={`text-xs font-medium ${isCurrent ? 'text-primary' : colors.text}`}>{timeLabel} - continue now!</p>
+                <p className={`text-xs font-medium ${colors.text}`}>{timeLabel} - continue now!</p>
               </div>
             </div>
             
@@ -817,7 +807,7 @@ function ContinueQuizCard({
                         </Badge>
                       )}
                     </div>
-                    <p className={`text-sm font-medium ${isCurrent ? 'text-primary' : colors.text}`}>{timeLabel} - continue now!</p>
+                    <p className={`text-sm font-medium ${colors.text}`}>{timeLabel} - continue now!</p>
                   </div>
                   <Button
                     variant="ghost"
@@ -841,16 +831,14 @@ function ContinueQuizCard({
                       <>{displayAnswered} of {displayTotal} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span> completed</>
                     )}
                   </span>
-                  <span className={`font-bold ${isCurrent ? 'text-primary' : isRevising ? 'text-violet-600 dark:text-violet-400' : colors.text}`}>{progress}%</span>
+                  <span className={`font-bold ${isRevising ? 'text-violet-600 dark:text-violet-400' : colors.text}`}>{progress}%</span>
                 </div>
                 <div className="relative h-2.5 bg-muted/30 dark:bg-muted/10 rounded-full overflow-hidden">
                   <motion.div 
                     className={`absolute inset-y-0 left-0 rounded-full ${
-                      isCurrent 
-                        ? 'bg-gradient-to-r from-primary to-primary/80' 
-                        : isRevising 
-                          ? 'bg-gradient-to-r from-violet-500 to-violet-600'
-                          : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
+                      isRevising 
+                        ? 'bg-gradient-to-r from-violet-500 to-violet-600'
+                        : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
                     }`}
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
@@ -863,11 +851,7 @@ function ContinueQuizCard({
               <div className="flex items-center gap-2">
                 <Button
                   onClick={onContinue}
-                  className={`border-none flex-1 gap-2 h-10 shadow-md transition-all duration-300 active:scale-95 ${
-                    isCurrent 
-                      ? 'bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80' 
-                      : `${colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')} hover:brightness-110 text-white` 
-                  }`}
+                  className={`border-none flex-1 gap-2 h-10 shadow-md transition-all duration-300 active:scale-95 ${colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')} hover:brightness-110 text-white`}
                   data-testid="button-continue-quiz"
                 >
                   <Play className="w-4 h-4 fill-current" />
