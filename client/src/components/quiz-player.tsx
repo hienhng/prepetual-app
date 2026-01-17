@@ -886,20 +886,20 @@ export function QuizPlayer() {
               onClick={goToPrevious}
               disabled={currentIndex === 0}
               size="lg"
-              className="gap-2 rounded-xl flex-1 sm:flex-none"
+              className="gap-2 rounded-xl flex-1 sm:flex-none h-12 sm:h-11"
               data-testid="button-previous"
             >
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden sm:inline">Back</span>
             </Button>
 
-            <div className="flex items-center gap-2 flex-1 sm:flex-none justify-center">
+            <div className="flex items-center gap-2 flex-[2] sm:flex-none justify-center">
               {hasMaterial && (
                 <Button
                   variant="outline"
                   onClick={() => setShowMaterialDialog(true)}
                   size="lg"
-                  className="rounded-xl lg:hidden"
+                  className="rounded-xl lg:hidden h-12 w-12 sm:h-11 sm:w-11"
                   data-testid="button-view-material-mobile"
                 >
                   <FileText className="h-4 w-4" />
@@ -911,7 +911,7 @@ export function QuizPlayer() {
                   onClick={handleCheck}
                   disabled={!canCheck}
                   size="lg"
-                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold"
+                  className="gap-2 rounded-xl flex-1 sm:min-w-[160px] font-semibold h-12 sm:h-11"
                   data-testid="button-check"
                 >
                   <CheckCheck className="h-5 w-5" />
@@ -922,7 +922,7 @@ export function QuizPlayer() {
                   onClick={finishQuiz}
                   disabled={isSubmitting || !canFinish}
                   size="lg"
-                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+                  className="gap-2 rounded-xl flex-1 sm:min-w-[160px] font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-12 sm:h-11"
                   data-testid="button-finish"
                 >
                   {isSubmitting ? (
@@ -937,7 +937,7 @@ export function QuizPlayer() {
                 <Button
                   onClick={goToNext}
                   size="lg"
-                  className="gap-2 rounded-xl min-w-[140px] sm:min-w-[160px] font-semibold"
+                  className="gap-2 rounded-xl flex-1 sm:min-w-[160px] font-semibold h-12 sm:h-11"
                   data-testid="button-next"
                 >
                   Continue
@@ -951,7 +951,7 @@ export function QuizPlayer() {
               onClick={goToNext}
               disabled={currentIndex >= allQuestions.length - 1}
               size="lg"
-              className="gap-2 rounded-xl flex-1 sm:flex-none"
+              className="gap-2 rounded-xl flex-1 sm:flex-none h-12 sm:h-11"
               data-testid="button-skip"
             >
               <span className="hidden sm:inline">Next</span>
