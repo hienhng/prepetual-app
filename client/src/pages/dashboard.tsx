@@ -1065,11 +1065,19 @@ export default function Dashboard() {
     // Add saved progresses (excluding the current one if it's the same)
     savedProgresses.forEach(p => {
       if (!hasInProgressQuiz || p.quizId !== currentQuiz?.id) {
+        // Merge retryAnswers into answers with 'retry-' prefix for revision detection
+        const mergedAnswers: Record<string, string> = { ...p.answers };
+        if (p.retryAnswers) {
+          Object.entries(p.retryAnswers).forEach(([key, value]) => {
+            mergedAnswers[`retry-${key}`] = value;
+          });
+        }
+        
         items.push({
           type: 'saved',
           quizId: p.quizId,
           quiz: p.quiz,
-          answers: p.answers,
+          answers: mergedAnswers,
           checkedQuestions: p.checkedQuestions || [],
           savedAt: p.savedAt,
         });
