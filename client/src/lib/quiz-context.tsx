@@ -298,8 +298,6 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     const userAnswers = state.userAnswers;
     const checkedQuestions = state.checkedQuestions;
     const currentIndex = state.playerCurrentIndex;
-    const retryAnswers = state.playerRetryAnswers;
-    const retryCheckedQuestions = state.playerRetryCheckedQuestions;
 
     if (!currentQuiz || Object.keys(userAnswers).length === 0) {
       return;
@@ -307,14 +305,14 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     
     const quizId = currentQuiz.id;
     
-    // Save to API with full quiz state including retry information
+    // Save to API with quiz state (retry progress is NOT saved - it's session-only)
     saveProgressMutation.mutate({
       quizId,
       answers: userAnswers,
       checkedQuestions: Array.from(checkedQuestions),
       currentIndex,
-      retryAnswers,
-      retryCheckedQuestions,
+      retryAnswers: {}, // Don't persist retry answers
+      retryCheckedQuestions: [], // Don't persist retry checked questions
     }, {
       onSuccess: () => {
         // Clear current session progress after successful save

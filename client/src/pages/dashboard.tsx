@@ -973,22 +973,24 @@ export default function Dashboard() {
   const isQuizInRevisionMode = (item: { quiz: Quiz; answers: Record<string, string>; checkedQuestions: string[] }) => {
     const answerKeys = Object.keys(item.answers);
     const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
-    const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
     const totalQuestions = item.quiz.questions?.length || 0;
     const checkedQuestionsCount = item.checkedQuestions?.length || 0;
     
-    // Calculate wrong answers from first attempt
+    // Calculate wrong answers from first attempt (case-insensitive comparison)
     let wrongQuestionsCount = 0;
-    for (const key of originalAnswerKeys) {
-      const question = (item.quiz.questions as any[])?.find((q: any) => q.id === key);
-      if (question && item.answers[key] !== question.correctAnswer) {
-        wrongQuestionsCount++;
-      }
+    if (item.quiz.questions) {
+      const questions = item.quiz.questions as any[];
+      wrongQuestionsCount = questions.filter(q => {
+        const userAnswer = item.answers[q.id];
+        return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
+      }).length;
     }
     
     const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
     const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
     const hasRetryProgress = retryAnswerKeys.length > 0;
+    
+    console.log('isQuizInRevisionMode check:', { checkedQuestionsCount, totalQuestions, wrongQuestionsCount, hasCompletedFirstAttempt, hasWrongAnswersToRetry, hasRetryProgress });
     
     return (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
   };
