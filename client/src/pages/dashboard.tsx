@@ -24,6 +24,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { AccuracyDialog } from "@/components/accuracy-dialog";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
@@ -886,13 +896,20 @@ export default function Dashboard() {
     setSourceMaterial, 
     resetQuiz, 
     clearUserAnswers,
+    clearRetryProgress,
     savedProgresses,
     loadSavedProgress,
     removeSavedProgress,
+    clearRestoredState,
   } = useQuiz();
   const { user } = useAuth();
   const [streakCalendarOpen, setStreakCalendarOpen] = useState(false);
   const [accuracyDialogOpen, setAccuracyDialogOpen] = useState(false);
+  const [revisionExitWarning, setRevisionExitWarning] = useState<{ open: boolean; quizId: string | null; type: 'current' | 'saved' | null }>({ 
+    open: false, 
+    quizId: null, 
+    type: null 
+  });
 
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
     queryKey: ["/api/quizzes"],
@@ -952,6 +969,30 @@ export default function Dashboard() {
     setLocation("/quiz");
   };
 
+  // Helper to check if a quiz item is in revision mode
+  const isQuizInRevisionMode = (item: { quiz: Quiz; answers: Record<string, string>; checkedQuestions: string[] }) => {
+    const answerKeys = Object.keys(item.answers);
+    const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
+    const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
+    const totalQuestions = item.quiz.questions?.length || 0;
+    const checkedQuestionsCount = item.checkedQuestions?.length || 0;
+    
+    // Calculate wrong answers from first attempt
+    let wrongQuestionsCount = 0;
+    for (const key of originalAnswerKeys) {
+      const question = (item.quiz.questions as any[])?.find((q: any) => q.id === key);
+      if (question && item.answers[key] !== question.correctAnswer) {
+        wrongQuestionsCount++;
+      }
+    }
+    
+    const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
+    const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
+    const hasRetryProgress = retryAnswerKeys.length > 0;
+    
+    return (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
+  };
+
   const handleDiscardProgress = () => {
     clearUserAnswers();
     resetQuiz();
@@ -959,6 +1000,40 @@ export default function Dashboard() {
 
   const handleDiscardSavedProgress = (quizId: string) => {
     removeSavedProgress(quizId);
+  };
+
+  // Handle discard with revision warning
+  const handleAttemptDiscard = (item: { type: 'current' | 'saved'; quizId: string; quiz: Quiz; answers: Record<string, string>; checkedQuestions: string[] }) => {
+    const isRevising = isQuizInRevisionMode(item);
+    
+    if (isRevising) {
+      // Show warning dialog for revision mode exit
+      setRevisionExitWarning({ open: true, quizId: item.quizId, type: item.type });
+    } else {
+      // No revision progress to lose, discard normally
+      if (item.type === 'current') {
+        handleDiscardProgress();
+      } else {
+        handleDiscardSavedProgress(item.quizId);
+      }
+    }
+  };
+
+  // Confirm revision exit - clear only retry progress, keep original answers
+  const handleConfirmRevisionExit = () => {
+    const { quizId, type } = revisionExitWarning;
+    
+    if (type === 'current' && currentQuiz) {
+      // For current quiz: clear retry progress and reset quiz
+      clearRetryProgress();
+      clearUserAnswers();
+      resetQuiz();
+    } else if (type === 'saved' && quizId) {
+      // For saved progress: clear retry data but keep original answers  
+      clearRestoredState(quizId);
+    }
+    
+    setRevisionExitWarning({ open: false, quizId: null, type: null });
   };
 
   const hasInProgressQuiz = currentQuiz && Object.keys(userAnswers).length > 0;
@@ -1211,13 +1286,7 @@ export default function Dashboard() {
                             handleContinueSavedQuiz(item.quizId);
                           }
                         }}
-                        onDiscard={() => {
-                          if (item.type === 'current') {
-                            handleDiscardProgress();
-                          } else {
-                            handleDiscardSavedProgress(item.quizId);
-                          }
-                        }}
+                        onDiscard={() => handleAttemptDiscard(item)}
                         isCurrent={item.type === 'current'}
                         savedAt={item.savedAt}
                         isRevising={isRevising}
@@ -1337,6 +1406,32 @@ export default function Dashboard() {
         averageAccuracy={userStats?.averageAccuracy ?? 0}
         totalAttempts={userStats?.totalAttempts ?? 0}
       />
+
+      <AlertDialog 
+        open={revisionExitWarning.open} 
+        onOpenChange={(open) => !open && setRevisionExitWarning({ open: false, quizId: null, type: null })}
+      >
+        <AlertDialogContent data-testid="dialog-revision-exit-warning">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Exit Revision Mode?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You're currently revising incorrect answers. If you exit now, your revision progress will be lost, but your original answers will be preserved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-revision-exit">
+              Keep Revising
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmRevisionExit}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-revision-exit"
+            >
+              Exit and Lose Revision Progress
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

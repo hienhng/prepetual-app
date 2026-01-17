@@ -56,6 +56,7 @@ interface QuizContextType extends QuizState {
   setUserAnswer: (questionId: string, answer: string) => void;
   markQuestionChecked: (questionId: string) => void;
   clearUserAnswers: () => void;
+  clearRetryProgress: () => void;
   setIsLoading: (loading: boolean) => void;
   setLoadingMessage: (message: string) => void;
   setProcessingProgress: (progress: number) => void;
@@ -66,7 +67,7 @@ interface QuizContextType extends QuizState {
   saveCurrentProgress: () => void;
   loadSavedProgress: (quizId: string) => void;
   removeSavedProgress: (quizId: string) => void;
-  clearRestoredState: () => void;
+  clearRestoredState: (quizId: string) => void;
   syncPlayerState: (currentIndex: number, retryAnswers: Record<string, string>, retryCheckedQuestions: string[]) => void;
   hasUnsavedChanges: boolean;
 }
@@ -270,6 +271,18 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const clearRetryProgress = () => {
+    setState((prev) => {
+      return {
+        ...prev,
+        restoredRetryAnswers: null,
+        restoredRetryCheckedQuestions: null,
+        playerRetryAnswers: {},
+        playerRetryCheckedQuestions: [],
+      };
+    });
+  };
+
   const syncPlayerState = useCallback((currentIndex: number, retryAnswers: Record<string, string>, retryCheckedQuestions: string[]) => {
     setState((prev) => ({
       ...prev,
@@ -353,14 +366,28 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const clearRestoredState = useCallback(() => {
+  const clearRestoredState = useCallback((quizId: string) => {
+    // Update the saved progress in API to clear retry data while preserving original answers
+    const progress = state.savedProgresses.find(p => p.quizId === quizId);
+    if (progress) {
+      // Save updated progress without retry data
+      saveProgressMutation.mutate({
+        quizId,
+        answers: progress.answers,
+        checkedQuestions: progress.checkedQuestions,
+        currentIndex: 0, // Reset to beginning
+        retryAnswers: {}, // Clear retry answers
+        retryCheckedQuestions: [], // Clear retry checked questions
+      });
+    }
+    
     setState((prev) => ({
       ...prev,
       restoredCurrentIndex: null,
       restoredRetryAnswers: null,
       restoredRetryCheckedQuestions: null,
     }));
-  }, []);
+  }, [state.savedProgresses, saveProgressMutation]);
 
   const removeSavedProgress = useCallback((quizId: string) => {
     // Delete from API with proper callback handling
@@ -452,6 +479,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         setUserAnswer,
         markQuestionChecked,
         clearUserAnswers,
+        clearRetryProgress,
         setIsLoading,
         setLoadingMessage,
         setProcessingProgress,
