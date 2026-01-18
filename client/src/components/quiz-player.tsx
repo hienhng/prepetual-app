@@ -438,32 +438,7 @@ export function QuizPlayer() {
   };
 
   const renderFeedback = () => {
-    if (!isChecked) return null;
-    
-    const correct = isCorrect();
-    const questionFeedback = feedbackMessages[currentQuestion.id];
-    const streakAtTime = questionFeedback?.streakAtTime || 0;
-    
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="mt-6 space-y-3"
-      >
-        <div className="flex items-center gap-2">
-          {correct && streakAtTime >= 2 && (
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              className="flex items-center gap-1 px-2 py-0.5 bg-orange-500/20 rounded-full"
-            >
-              <Flame className="h-4 w-4 text-orange-500" />
-              <span className="text-xs font-bold text-orange-600 dark:text-orange-400">{streakAtTime}</span>
-            </motion.div>
-          )}
-        </div>
-      </motion.div>
-    );
+    return null;
   };
 
   const toggleExplanation = (key: string) => {
@@ -962,7 +937,7 @@ export function QuizPlayer() {
                       {isRetryQuestion ? (
                         <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400">
                           <RotateCcw className="h-3 w-3 mr-1" />
-                          Q{displayQuestionNum} - Second Chance
+                          Give it another try
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="font-semibold">
