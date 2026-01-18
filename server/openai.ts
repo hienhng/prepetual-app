@@ -719,9 +719,9 @@ INSTRUCTIONS:
     const response = await pRetry(
       async () => {
         const completion = await openai.chat.completions.create({
-          model: "gpt-5",
+          model: "gpt-4.1",
           messages,
-          max_completion_tokens: 500,
+          max_tokens: 500,
         });
         return completion.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
       },
