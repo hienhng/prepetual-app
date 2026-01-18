@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose, RotateCcw, Zap, Trophy, Target, ChevronUp, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -107,6 +107,7 @@ export function QuizPlayer() {
   const [retryAnswers, setRetryAnswers] = useState<Record<string, string>>({});
   const [retryChecked, setRetryChecked] = useState<Set<string>>(new Set());
   const hasRestoredRef = useRef(false);
+  const [expandedExplanations, setExpandedExplanations] = useState<Set<string>>(new Set());
   
   const isGuest = !user;
 
@@ -465,16 +466,6 @@ export function QuizPlayer() {
                   Correct answer: <span className="font-semibold text-foreground">{currentQuestion.correctAnswer}</span>
                 </p>
               )}
-              {currentQuestion.explanation && (!isGuest || isRetryQuestion) && (
-                <motion.p 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-sm text-muted-foreground mt-3 leading-relaxed"
-                >
-                  {currentQuestion.explanation}
-                </motion.p>
-              )}
               {currentQuestion.explanation && isGuest && !isRetryQuestion && (
                 <div className="flex items-center gap-2 text-muted-foreground mt-3">
                   <Lock className="h-3 w-3" />
@@ -485,95 +476,147 @@ export function QuizPlayer() {
           </div>
         </motion.div>
         
-        {wrongExplanation && (!isGuest || isRetryQuestion) && (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="rounded-2xl p-4 sm:p-5 bg-gradient-to-r from-amber-500/15 to-yellow-500/10 border border-amber-500/30"
-          >
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-500">
-                <BookCheck className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-amber-600 dark:text-amber-400">
-                  Why this was incorrect
-                </p>
-                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                  {wrongExplanation}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
       </motion.div>
     );
+  };
+
+  const toggleExplanation = (key: string) => {
+    setExpandedExplanations(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
   };
 
   const renderAnswerOptions = () => {
     if (currentQuestion.type === "true_false") {
       return (
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          {["True", "False"].map((option) => {
+          {["True", "False"].map((option, index) => {
             const isSelected = selectedAnswer === option;
             const isCorrectOpt = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
+            const showCorrectExplanation = isChecked && isCorrectOpt && currentQuestion.explanation && (!isGuest || isRetryQuestion);
+            const wrongExplanationForOption = isChecked && isSelected && !isCorrectOpt ? getWrongAnswerExplanation(option) : null;
+            const showWrongExplanation = wrongExplanationForOption && (!isGuest || isRetryQuestion);
+            const explanationKey = `${currentQuestion.id}-tf-${option}`;
+            const isExpanded = expandedExplanations.has(explanationKey);
+            const hasExplanation = showCorrectExplanation || showWrongExplanation;
             
             return (
-              <motion.button
-                key={option}
-                whileHover={!isChecked ? { scale: 1.02 } : {}}
-                whileTap={!isChecked ? { scale: 0.98 } : {}}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                onClick={() => handleSelectAnswer(option)}
-                disabled={isChecked}
-                data-testid={`option-${option.toLowerCase()}`}
-                className={`
-                  relative p-5 sm:p-8 rounded-2xl text-left
-                  ${!isChecked ? "cursor-pointer" : "cursor-default"}
-                  ${isChecked && isCorrectOpt 
-                    ? "bg-green-500/15 border-2 border-green-500 shadow-lg shadow-green-500/10" 
-                    : isChecked && isSelected && !isCorrectOpt
-                      ? "bg-red-500/15 border-2 border-red-500 shadow-lg shadow-red-500/10"
-                      : isSelected
-                        ? "bg-primary/10 border-2 border-primary shadow-lg shadow-primary/10"
-                        : "bg-card border-2 border-border hover:border-primary/50 hover:bg-muted/50"
-                  }
-                `}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-lg sm:text-xl font-semibold">{option}</span>
-                  <AnimatePresence>
-                    {isChecked && isCorrectOpt && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center"
-                      >
-                        <Check className="h-5 w-5 text-white" />
-                      </motion.div>
-                    )}
-                    {isChecked && isSelected && !isCorrectOpt && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center"
-                      >
-                        <X className="h-5 w-5 text-white" />
-                      </motion.div>
-                    )}
-                    {!isChecked && isSelected && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="w-8 h-8 rounded-full bg-primary flex items-center justify-center"
-                      >
-                        <Check className="h-5 w-5 text-primary-foreground" />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.button>
+              <div key={option} className="flex flex-col">
+                <motion.button
+                  whileHover={!isChecked ? { scale: 1.02 } : {}}
+                  whileTap={!isChecked ? { scale: 0.98 } : {}}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  onClick={() => handleSelectAnswer(option)}
+                  disabled={isChecked}
+                  data-testid={`option-${option.toLowerCase()}`}
+                  className={`
+                    relative p-5 sm:p-8 text-left
+                    ${hasExplanation ? "rounded-t-2xl" : "rounded-2xl"}
+                    ${!isChecked ? "cursor-pointer" : "cursor-default"}
+                    ${isChecked && isCorrectOpt 
+                      ? "bg-green-500/15 border-2 border-green-500 shadow-lg shadow-green-500/10" 
+                      : isChecked && isSelected && !isCorrectOpt
+                        ? "bg-red-500/15 border-2 border-red-500 shadow-lg shadow-red-500/10"
+                        : isSelected
+                          ? "bg-primary/10 border-2 border-primary shadow-lg shadow-primary/10"
+                          : "bg-card border-2 border-border hover:border-primary/50 hover:bg-muted/50"
+                    }
+                    ${hasExplanation ? "border-b-0" : ""}
+                  `}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-lg sm:text-xl font-semibold">{option}</span>
+                    <AnimatePresence>
+                      {isChecked && isCorrectOpt && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center"
+                        >
+                          <Check className="h-5 w-5 text-white" />
+                        </motion.div>
+                      )}
+                      {isChecked && isSelected && !isCorrectOpt && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center"
+                        >
+                          <X className="h-5 w-5 text-white" />
+                        </motion.div>
+                      )}
+                      {!isChecked && isSelected && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="w-8 h-8 rounded-full bg-primary flex items-center justify-center"
+                        >
+                          <Check className="h-5 w-5 text-primary-foreground" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.button>
+                
+                {/* Explanation dropdown for True/False */}
+                {hasExplanation && (
+                  <div className={`
+                    border-2 border-t-0 rounded-b-2xl overflow-hidden
+                    ${isCorrectOpt ? "border-green-500 bg-green-500/5" : "border-red-500 bg-red-500/5"}
+                  `}>
+                    <button
+                      onClick={() => toggleExplanation(explanationKey)}
+                      className={`
+                        w-full px-3 py-2 flex items-center justify-between text-xs sm:text-sm font-medium transition-colors
+                        ${isCorrectOpt 
+                          ? "text-green-700 dark:text-green-400 hover:bg-green-500/10" 
+                          : "text-red-700 dark:text-red-400 hover:bg-red-500/10"
+                        }
+                      `}
+                      data-testid={`toggle-explanation-${option.toLowerCase()}`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        {isCorrectOpt ? (
+                          <Lightbulb className="h-3.5 w-3.5" />
+                        ) : (
+                          <AlertCircle className="h-3.5 w-3.5" />
+                        )}
+                        <span className="hidden sm:inline">{isCorrectOpt ? "Why correct" : "Why incorrect"}</span>
+                        <span className="sm:hidden">{isCorrectOpt ? "Why?" : "Why?"}</span>
+                      </div>
+                      {isExpanded ? (
+                        <ChevronUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                    
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-3 pb-3 pt-1">
+                            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                              {isCorrectOpt ? currentQuestion.explanation : wrongExplanationForOption}
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
@@ -581,6 +624,10 @@ export function QuizPlayer() {
     }
 
     if (currentQuestion.type === "short_answer") {
+      const showShortAnswerExplanation = isChecked && currentQuestion.explanation && (!isGuest || isRetryQuestion);
+      const explanationKey = `${currentQuestion.id}-short-answer`;
+      const isExpanded = expandedExplanations.has(explanationKey);
+      
       return (
         <div className="space-y-4">
           <Input
@@ -591,6 +638,45 @@ export function QuizPlayer() {
             disabled={isChecked}
             data-testid="input-short-answer"
           />
+          
+          {/* Explanation for short answer */}
+          {showShortAnswerExplanation && (
+            <div className="border-2 border-green-500 bg-green-500/5 rounded-xl overflow-hidden">
+              <button
+                onClick={() => toggleExplanation(explanationKey)}
+                className="w-full px-4 py-2.5 flex items-center justify-between text-sm font-medium transition-colors text-green-700 dark:text-green-400 hover:bg-green-500/10"
+                data-testid="toggle-explanation-short-answer"
+              >
+                <div className="flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4" />
+                  <span>Explanation</span>
+                </div>
+                {isExpanded ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </button>
+              
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 pb-4 pt-1">
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {currentQuestion.explanation}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
       );
     }
@@ -602,80 +688,140 @@ export function QuizPlayer() {
         {currentQuestion.options?.map((option, index) => {
           const isSelected = selectedAnswer === option;
           const isCorrectOpt = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
+          const showCorrectExplanation = isChecked && isCorrectOpt && currentQuestion.explanation && (!isGuest || isRetryQuestion);
+          const wrongExplanationForOption = isChecked && isSelected && !isCorrectOpt ? getWrongAnswerExplanation(option) : null;
+          const showWrongExplanation = wrongExplanationForOption && (!isGuest || isRetryQuestion);
+          const explanationKey = `${currentQuestion.id}-${index}`;
+          const isExpanded = expandedExplanations.has(explanationKey);
+          const hasExplanation = showCorrectExplanation || showWrongExplanation;
           
           return (
-            <motion.button
-              key={index}
-              whileHover={!isChecked ? { scale: 1.03, x: 4 } : {}}
-              whileTap={!isChecked ? { scale: 0.98 } : {}}
-              transition={{ 
-                type: "spring", 
-                stiffness: 400, 
-                damping: 25,
-                layout: { duration: 0 } 
-              }}
-              onClick={() => handleSelectAnswer(option)}
-              disabled={isChecked}
-              data-testid={`option-${index}`}
-              className={`
-                w-full relative p-4 sm:p-5 rounded-xl text-left
-                ${!isChecked ? "cursor-pointer" : "cursor-default"}
-                ${isChecked && isCorrectOpt 
-                  ? "bg-green-500/15 border-2 border-green-500" 
-                  : isChecked && isSelected && !isCorrectOpt
-                    ? "bg-red-500/15 border-2 border-red-500"
-                    : isSelected
-                      ? "bg-primary/10 border-2 border-primary"
-                      : "bg-card border-2 border-border hover:border-primary/50 hover:bg-muted/30"
-                }
-              `}
-            >
-              <div className="flex items-center gap-4">
-                <div className={`
-                  w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0 transition-all
-                  ${isChecked && isCorrectOpt
-                    ? "bg-green-500 text-white"
+            <div key={index} className="space-y-0">
+              <motion.button
+                whileHover={!isChecked ? { scale: 1.03, x: 4 } : {}}
+                whileTap={!isChecked ? { scale: 0.98 } : {}}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 400, 
+                  damping: 25,
+                  layout: { duration: 0 } 
+                }}
+                onClick={() => handleSelectAnswer(option)}
+                disabled={isChecked}
+                data-testid={`option-${index}`}
+                className={`
+                  w-full relative p-4 sm:p-5 text-left
+                  ${hasExplanation ? "rounded-t-xl rounded-b-none" : "rounded-xl"}
+                  ${!isChecked ? "cursor-pointer" : "cursor-default"}
+                  ${isChecked && isCorrectOpt 
+                    ? "bg-green-500/15 border-2 border-green-500 border-b-0" 
                     : isChecked && isSelected && !isCorrectOpt
-                      ? "bg-red-500 text-white"
+                      ? "bg-red-500/15 border-2 border-red-500 border-b-0"
                       : isSelected
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
+                        ? "bg-primary/10 border-2 border-primary"
+                        : "bg-card border-2 border-border hover:border-primary/50 hover:bg-muted/30"
                   }
-                `}>
-                  {optionLabels[index]}
+                `}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`
+                    w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0 transition-all
+                    ${isChecked && isCorrectOpt
+                      ? "bg-green-500 text-white"
+                      : isChecked && isSelected && !isCorrectOpt
+                        ? "bg-red-500 text-white"
+                        : isSelected
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                    }
+                  `}>
+                    {optionLabels[index]}
+                  </div>
+                  <span className="text-sm sm:text-base flex-1 font-medium">{option}</span>
+                  <AnimatePresence>
+                    {isChecked && isCorrectOpt && (
+                      <motion.div
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        className="w-7 h-7 rounded-full bg-green-500 flex items-center justify-center"
+                      >
+                        <Check className="h-4 w-4 text-white" />
+                      </motion.div>
+                    )}
+                    {isChecked && isSelected && !isCorrectOpt && (
+                      <motion.div
+                        initial={{ scale: 0, rotate: 180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center"
+                      >
+                        <X className="h-4 w-4 text-white" />
+                      </motion.div>
+                    )}
+                    {!isChecked && isSelected && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="w-7 h-7 rounded-full bg-primary flex items-center justify-center"
+                      >
+                        <Check className="h-4 w-4 text-primary-foreground" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-                <span className="text-sm sm:text-base flex-1 font-medium">{option}</span>
-                <AnimatePresence>
-                  {isChecked && isCorrectOpt && (
-                    <motion.div
-                      initial={{ scale: 0, rotate: -180 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      className="w-7 h-7 rounded-full bg-green-500 flex items-center justify-center"
-                    >
-                      <Check className="h-4 w-4 text-white" />
-                    </motion.div>
-                  )}
-                  {isChecked && isSelected && !isCorrectOpt && (
-                    <motion.div
-                      initial={{ scale: 0, rotate: 180 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center"
-                    >
-                      <X className="h-4 w-4 text-white" />
-                    </motion.div>
-                  )}
-                  {!isChecked && isSelected && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="w-7 h-7 rounded-full bg-primary flex items-center justify-center"
-                    >
-                      <Check className="h-4 w-4 text-primary-foreground" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.button>
+              </motion.button>
+              
+              {/* Explanation dropdown for this option */}
+              {hasExplanation && (
+                <div className={`
+                  border-2 border-t-0 rounded-b-xl overflow-hidden
+                  ${isCorrectOpt ? "border-green-500 bg-green-500/5" : "border-red-500 bg-red-500/5"}
+                `}>
+                  <button
+                    onClick={() => toggleExplanation(explanationKey)}
+                    className={`
+                      w-full px-4 py-2.5 flex items-center justify-between text-sm font-medium transition-colors
+                      ${isCorrectOpt 
+                        ? "text-green-700 dark:text-green-400 hover:bg-green-500/10" 
+                        : "text-red-700 dark:text-red-400 hover:bg-red-500/10"
+                      }
+                    `}
+                    data-testid={`toggle-explanation-${index}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {isCorrectOpt ? (
+                        <Lightbulb className="h-4 w-4" />
+                      ) : (
+                        <AlertCircle className="h-4 w-4" />
+                      )}
+                      <span>{isCorrectOpt ? "Why this is correct" : "Why this is incorrect"}</span>
+                    </div>
+                    {isExpanded ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                  </button>
+                  
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-4 pb-4 pt-1">
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {isCorrectOpt ? currentQuestion.explanation : wrongExplanationForOption}
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
