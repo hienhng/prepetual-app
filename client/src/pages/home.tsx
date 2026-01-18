@@ -290,27 +290,48 @@ function HeroIllustration() {
 function HowItWorksGallery() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   const stages = [
     { 
       icon: Upload, 
       label: "Upload", 
-      desc: "Drop your study materials (PDF, Images, Word, PPT)", 
+      desc: "Drop your study materials - PDFs, images, Word docs, or PowerPoint files", 
       color: "text-blue-500", 
       bg: "bg-blue-500/10",
+      borderColor: "border-blue-500/30",
       content: (
-        <div className="text-center">
+        <div className="text-center w-full">
           <motion.div 
-            className="w-24 h-24 mx-auto mb-4 rounded-2xl bg-blue-500/10 border-2 border-dashed border-blue-500/30 flex items-center justify-center"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
+            className="w-28 h-28 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border-2 border-dashed border-blue-500/40 flex items-center justify-center relative overflow-hidden"
+            whileHover={{ scale: 1.05, borderStyle: "solid" }}
+            transition={{ type: "spring", stiffness: 300 }}
           >
-            <Upload className="w-10 h-10 text-blue-500" />
+            <motion.div 
+              className="absolute inset-0 bg-blue-500/5"
+              animate={{ opacity: [0, 0.5, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            <motion.div
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <Upload className="w-12 h-12 text-blue-500" />
+            </motion.div>
           </motion.div>
-          <p className="text-lg font-semibold text-foreground mb-2">Drop your study materials</p>
+          <p className="text-base font-semibold text-foreground mb-3">Drop your study materials</p>
           <div className="flex flex-wrap justify-center gap-2">
-            {['PDF', 'Images', 'Word', 'PowerPoint'].map((f) => (
-              <Badge key={f} variant="secondary" className="text-xs">{f}</Badge>
+            {['PDF', 'Images', 'Word', 'PPT'].map((f, idx) => (
+              <motion.div
+                key={f}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+              >
+                <Badge variant="secondary" className="text-xs px-3 py-1.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                  {f}
+                </Badge>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -319,30 +340,40 @@ function HowItWorksGallery() {
     { 
       icon: Eye, 
       label: "Extract", 
-      desc: "Our AI reads and analyzes your content instantly", 
+      desc: "Our AI reads and analyzes your content instantly with precision", 
       color: "text-amber-500", 
       bg: "bg-amber-500/10",
+      borderColor: "border-amber-500/30",
       content: (
-        <div className="w-full max-w-md">
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
+        <div className="w-full max-w-sm mx-auto">
+          <div className="space-y-3 mb-5">
+            {[100, 85, 60].map((width, i) => (
               <motion.div 
                 key={i} 
-                className="h-4 bg-gradient-to-r from-muted to-transparent rounded-full"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: i * 0.2, duration: 0.5 }}
-                style={{ transformOrigin: "left" }}
-              />
+                className="h-3 bg-gradient-to-r from-amber-500/30 via-amber-500/20 to-transparent rounded-full overflow-hidden"
+                style={{ width: `${width}%` }}
+              >
+                <motion.div
+                  className="h-full bg-gradient-to-r from-amber-500/60 to-amber-500/30 rounded-full"
+                  initial={{ x: "-100%" }}
+                  animate={{ x: "100%" }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                />
+              </motion.div>
             ))}
           </div>
           <motion.div 
-            className="mt-6 flex items-center gap-2 text-amber-500"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
+            className="flex items-center justify-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20"
+            animate={{ opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 2, repeat: Infinity }}
           >
-            <Eye className="w-5 h-5" />
-            <span className="text-sm font-medium">Reading and analyzing...</span>
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            >
+              <Eye className="w-5 h-5 text-amber-500" />
+            </motion.div>
+            <span className="text-sm font-medium text-amber-600 dark:text-amber-400">Analyzing your content...</span>
           </motion.div>
         </div>
       )
@@ -350,63 +381,85 @@ function HowItWorksGallery() {
     { 
       icon: Brain, 
       label: "Generate", 
-      desc: "AI transforms text into meaningful questions", 
+      desc: "AI transforms your text into personalized quiz questions", 
       color: "text-purple-500", 
       bg: "bg-purple-500/10",
+      borderColor: "border-purple-500/30",
       content: (
-        <div className="w-full max-w-md space-y-3">
+        <div className="w-full max-w-sm mx-auto space-y-3">
           {[
-            { type: 'Multiple Choice', q: 'What is the main concept?' },
-            { type: 'True/False', q: 'This statement is correct?' },
+            { type: 'Multiple Choice', q: 'What is the main concept discussed?', color: 'purple' },
+            { type: 'True/False', q: 'This statement accurately reflects...', color: 'violet' },
           ].map((item, i) => (
             <motion.div 
               key={i}
-              className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/20"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.3 }}
+              className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20 text-left"
+              initial={{ opacity: 0, x: -20, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ delay: i * 0.2, type: "spring", stiffness: 200 }}
+              whileHover={{ scale: 1.02, borderColor: "rgba(168, 85, 247, 0.4)" }}
             >
-              <Badge variant="outline" className="mb-2 text-purple-500 border-purple-500/30 text-xs">
+              <Badge variant="outline" className="mb-2 text-purple-500 border-purple-500/30 text-xs bg-purple-500/10">
                 {item.type}
               </Badge>
               <p className="text-sm font-medium text-foreground">{item.q}</p>
             </motion.div>
           ))}
-          <motion.p 
-            className="text-sm text-purple-500 flex items-center gap-2"
+          <motion.div 
+            className="flex items-center justify-center gap-2 pt-2"
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
-            <Brain className="w-4 h-4" />
-            Generating more questions...
-          </motion.p>
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 1, repeat: Infinity }}
+            >
+              <Brain className="w-4 h-4 text-purple-500" />
+            </motion.div>
+            <span className="text-sm text-purple-500">Generating more...</span>
+          </motion.div>
         </div>
       )
     },
     { 
       icon: GraduationCap, 
       label: "Learn", 
-      desc: "Master your subjects with quizzes and flashcards", 
+      desc: "Master your subjects with interactive quizzes and flashcards", 
       color: "text-green-500", 
       bg: "bg-green-500/10",
+      borderColor: "border-green-500/30",
       content: (
-        <div className="text-center">
+        <div className="text-center w-full">
           <motion.div 
-            className="w-24 h-24 mx-auto mb-4 rounded-full bg-green-500/10 flex items-center justify-center"
+            className="w-28 h-28 mx-auto mb-5 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center relative"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ type: "spring" }}
+            transition={{ type: "spring", stiffness: 200 }}
           >
-            <Trophy className="w-10 h-10 text-green-500" />
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-green-500/30"
+              animate={{ scale: [1, 1.1, 1], opacity: [1, 0, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Trophy className="w-12 h-12 text-green-500" />
+            </motion.div>
           </motion.div>
-          <p className="text-lg font-semibold text-foreground mb-2">Ready to learn!</p>
+          <p className="text-base font-semibold text-foreground mb-4">Ready to learn!</p>
           <div className="flex justify-center gap-3">
-            <Badge className="bg-green-500/10 text-green-600 border-green-500/30">
-              <Play className="w-3 h-3 mr-1" /> Quiz
-            </Badge>
-            <Badge className="bg-orange-500/10 text-orange-600 border-orange-500/30">
-              <BookOpen className="w-3 h-3 mr-1" /> Study
-            </Badge>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Badge className="bg-green-500/15 text-green-600 dark:text-green-400 border border-green-500/30 px-4 py-1.5 cursor-pointer">
+                <Play className="w-3.5 h-3.5 mr-1.5" /> Take Quiz
+              </Badge>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Badge className="bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/30 px-4 py-1.5 cursor-pointer">
+                <BookOpen className="w-3.5 h-3.5 mr-1.5" /> Study
+              </Badge>
+            </motion.div>
           </div>
         </div>
       )
@@ -421,86 +474,172 @@ function HowItWorksGallery() {
     setActiveStep(index);
   };
 
+  const goToStep = (index: number) => {
+    if (!containerRef.current) return;
+    containerRef.current.scrollTo({ left: index * containerRef.current.offsetWidth, behavior: 'smooth' });
+  };
+
+  const goNext = () => {
+    if (activeStep < stages.length - 1) {
+      goToStep(activeStep + 1);
+    }
+  };
+
+  const goPrev = () => {
+    if (activeStep > 0) {
+      goToStep(activeStep - 1);
+    }
+  };
+
   return (
-    <div className="relative">
+    <div 
+      className="relative"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Progress bar */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-muted rounded-full overflow-hidden z-20">
+        <motion.div 
+          className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500"
+          initial={{ width: "25%" }}
+          animate={{ width: `${((activeStep + 1) / stages.length) * 100}%` }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        />
+      </div>
+
+      {/* Navigation arrows */}
+      <AnimatePresence>
+        {activeStep > 0 && (
+          <motion.button
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: isHovered ? 1 : 0.5, x: 0 }}
+            exit={{ opacity: 0, x: 10 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={goPrev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
+            aria-label="Previous step"
+            data-testid="button-carousel-prev"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+      
+      <AnimatePresence>
+        {activeStep < stages.length - 1 && (
+          <motion.button
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: isHovered ? 1 : 0.5, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={goNext}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
+            aria-label="Next step"
+            data-testid="button-carousel-next"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <div 
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-6 pb-12"
+        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-6 pb-8 pt-4"
         style={{ scrollBehavior: 'smooth' }}
       >
         {stages.map((stage, i) => {
-          const colorMap: Record<string, { glow: string; ring: string; gradient: string }> = {
-            'text-blue-500': { glow: 'shadow-blue-500/30', ring: 'ring-blue-500/20', gradient: 'from-blue-500/10 via-transparent to-blue-500/5' },
-            'text-amber-500': { glow: 'shadow-amber-500/30', ring: 'ring-amber-500/20', gradient: 'from-amber-500/10 via-transparent to-amber-500/5' },
-            'text-purple-500': { glow: 'shadow-purple-500/30', ring: 'ring-purple-500/20', gradient: 'from-purple-500/10 via-transparent to-purple-500/5' },
-            'text-green-500': { glow: 'shadow-green-500/30', ring: 'ring-green-500/20', gradient: 'from-green-500/10 via-transparent to-green-500/5' },
-          };
-          const colors = colorMap[stage.color] || colorMap['text-blue-500'];
+          const isActive = activeStep === i;
           
           return (
             <div key={stage.label} className="min-w-full snap-center px-4">
               <motion.div
                 className="relative h-full"
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, type: "spring", stiffness: 100 }}
               >
-                <Card className={`relative border-2 border-transparent hover:border-primary/20 bg-gradient-to-br ${colors.gradient} to-card overflow-hidden h-full min-h-[400px] transition-all duration-300 group`}>
-                  {/* Animated background glow */}
+                <Card className={`relative border-2 ${isActive ? stage.borderColor : 'border-transparent'} bg-card overflow-hidden h-full min-h-[420px] transition-all duration-500 group shadow-xl`}>
+                  {/* Gradient background overlay */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${stage.bg} to-transparent opacity-30 pointer-events-none`} />
+                  
+                  {/* Animated corner glow */}
                   <motion.div
-                    className={`absolute -top-20 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full ${stage.bg} blur-3xl opacity-50`}
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                    transition={{ duration: 4, repeat: Infinity }}
+                    className={`absolute -top-24 -right-24 w-48 h-48 rounded-full ${stage.bg} blur-3xl`}
+                    animate={{ 
+                      scale: isActive ? [1, 1.3, 1] : 1,
+                      opacity: isActive ? [0.3, 0.5, 0.3] : 0.2
+                    }}
+                    transition={{ duration: 3, repeat: Infinity }}
                   />
                   
-                  {/* Floating decorative particles */}
+                  {/* Floating decorative elements */}
                   <motion.div
-                    className={`absolute top-10 right-10 w-3 h-3 rounded-full ${stage.bg}`}
-                    animate={{ y: [0, -10, 0], x: [0, 5, 0] }}
+                    className={`absolute top-12 right-12 w-2 h-2 rounded-full ${stage.bg}`}
+                    animate={{ y: [0, -8, 0], opacity: [0.5, 1, 0.5] }}
                     transition={{ duration: 3, repeat: Infinity }}
                   />
                   <motion.div
-                    className={`absolute bottom-20 left-10 w-2 h-2 rounded-full ${stage.bg}`}
-                    animate={{ y: [0, 8, 0], x: [0, -3, 0] }}
+                    className={`absolute bottom-24 left-12 w-1.5 h-1.5 rounded-full ${stage.bg}`}
+                    animate={{ y: [0, 6, 0] }}
                     transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
                   />
-                  <motion.div
-                    className={`absolute top-1/3 right-8 w-1.5 h-1.5 rounded-full ${stage.bg}`}
-                    animate={{ y: [0, -6, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                  />
                   
-                  <CardContent className="relative p-8 flex flex-col items-center justify-center text-center h-full z-10">
-                    {/* Floating step icon */}
+                  <CardContent className="relative p-8 md:p-10 flex flex-col items-center justify-center text-center h-full z-10">
+                    {/* Step indicator with icon */}
                     <motion.div
-                      className="relative mb-6"
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                      className="relative mb-8"
+                      animate={isActive ? { y: [0, -6, 0] } : {}}
+                      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
                     >
-                      <div className={`w-16 h-16 rounded-2xl ${stage.bg} ${colors.glow} shadow-lg flex items-center justify-center ring-4 ${colors.ring}`}>
-                        <stage.icon className={`w-8 h-8 ${stage.color}`} />
+                      {/* Glow ring */}
+                      <motion.div
+                        className={`absolute inset-0 rounded-2xl ${stage.bg} blur-xl`}
+                        animate={isActive ? { scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] } : {}}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                      <div className={`relative w-20 h-20 rounded-2xl ${stage.bg} flex items-center justify-center border-2 ${stage.borderColor} shadow-lg`}>
+                        <stage.icon className={`w-10 h-10 ${stage.color}`} />
                       </div>
                       {/* Step number badge */}
-                      <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full bg-card border-2 border-current ${stage.color} flex items-center justify-center text-xs font-bold shadow-md`}>
+                      <motion.div 
+                        className={`absolute -top-2 -right-2 w-7 h-7 rounded-full bg-card border-2 ${stage.borderColor} flex items-center justify-center text-sm font-bold shadow-lg ${stage.color}`}
+                        whileHover={{ scale: 1.1 }}
+                      >
                         {i + 1}
-                      </div>
+                      </motion.div>
                     </motion.div>
                     
                     {/* Title and description */}
-                    <div className="mb-6">
-                      <h3 className={`text-xl font-bold mb-2 ${stage.color}`}>
+                    <div className="mb-8">
+                      <motion.h3 
+                        className={`text-2xl font-bold mb-3 ${stage.color}`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                      >
                         {stage.label}
-                      </h3>
-                      <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">{stage.desc}</p>
+                      </motion.h3>
+                      <p className="text-muted-foreground max-w-md text-sm md:text-base leading-relaxed">{stage.desc}</p>
                     </div>
-                    
-                    {/* Separator line with gradient */}
-                    <div className={`w-16 h-0.5 rounded-full bg-gradient-to-r ${stage.color === 'text-blue-500' ? 'from-blue-500/50 to-transparent' : stage.color === 'text-amber-500' ? 'from-amber-500/50 to-transparent' : stage.color === 'text-purple-500' ? 'from-purple-500/50 to-transparent' : 'from-green-500/50 to-transparent'} mb-6`} />
                     
                     {/* Content area */}
                     <div className="flex-1 flex items-center justify-center w-full">
-                      {stage.content}
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={stage.label}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.3 }}
+                          className="w-full"
+                        >
+                          {stage.content}
+                        </motion.div>
+                      </AnimatePresence>
                     </div>
                   </CardContent>
                 </Card>
@@ -510,18 +649,40 @@ function HowItWorksGallery() {
         })}
       </div>
 
-      <div className="flex justify-center gap-2 mt-4">
-        {stages.map((_, i) => (
+      {/* Step indicators */}
+      <div className="flex justify-center items-center gap-3 mt-4">
+        {stages.map((stage, i) => (
           <button
             key={i}
-            onClick={() => {
-              containerRef.current?.scrollTo({ left: i * containerRef.current.offsetWidth, behavior: 'smooth' });
-            }}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              activeStep === i ? 'w-8 bg-primary' : 'bg-primary/20'
+            onClick={() => goToStep(i)}
+            className={`group relative flex items-center gap-2 transition-all duration-300 ${
+              activeStep === i ? 'scale-100' : 'scale-90 opacity-70 hover:opacity-100'
             }`}
-            aria-label={`Go to step ${i + 1}`}
-          />
+            aria-label={`Go to step ${i + 1}: ${stage.label}`}
+            data-testid={`button-step-indicator-${i}`}
+          >
+            <motion.div
+              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                activeStep === i 
+                  ? `${stage.bg} ${stage.borderColor} border-2 shadow-lg` 
+                  : 'bg-muted border border-transparent'
+              }`}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <stage.icon className={`w-5 h-5 ${activeStep === i ? stage.color : 'text-muted-foreground'}`} />
+            </motion.div>
+            {activeStep === i && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                className={`text-sm font-medium ${stage.color} hidden sm:block`}
+              >
+                {stage.label}
+              </motion.span>
+            )}
+          </button>
         ))}
       </div>
       
