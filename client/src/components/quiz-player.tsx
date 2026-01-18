@@ -294,6 +294,37 @@ export function QuizPlayer() {
           wrongAnswerIds.current.add(currentQuestion.originalId);
         }
       }
+      
+      // Auto-expand explanations when answer is checked
+      if (currentQuestion.explanation && (!isGuest || currentQuestion.isRetry)) {
+        const keysToExpand: string[] = [];
+        
+        if (currentQuestion.type === "true_false") {
+          // Expand both correct and wrong (if selected) explanations
+          const correctOption = currentQuestion.correctAnswer.toLowerCase() === "true" ? "True" : "False";
+          keysToExpand.push(`${currentQuestion.id}-tf-${correctOption}`);
+          if (!correct && answerToCheck) {
+            keysToExpand.push(`${currentQuestion.id}-tf-${answerToCheck}`);
+          }
+        } else if (currentQuestion.type === "short_answer") {
+          keysToExpand.push(`${currentQuestion.id}-short-answer`);
+        } else if (currentQuestion.options) {
+          // Multiple choice - find correct option index and selected wrong index
+          currentQuestion.options.forEach((opt, idx) => {
+            const isCorrectOpt = opt.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
+            const isSelectedWrong = opt === answerToCheck && !correct;
+            if (isCorrectOpt || isSelectedWrong) {
+              keysToExpand.push(`${currentQuestion.id}-${idx}`);
+            }
+          });
+        }
+        
+        setExpandedExplanations(prev => {
+          const next = new Set(prev);
+          keysToExpand.forEach(key => next.add(key));
+          return next;
+        });
+      }
     }
   };
 
@@ -587,8 +618,8 @@ export function QuizPlayer() {
                         ) : (
                           <AlertCircle className="h-3.5 w-3.5" />
                         )}
-                        <span className="hidden sm:inline">{isCorrectOpt ? "Why correct" : "Why incorrect"}</span>
-                        <span className="sm:hidden">{isCorrectOpt ? "Why?" : "Why?"}</span>
+                        <span className="hidden sm:inline">{isCorrectOpt ? "Great job! Here's why" : "Learn from this"}</span>
+                        <span className="sm:hidden">{isCorrectOpt ? "Nice!" : "Learn"}</span>
                       </div>
                       {isExpanded ? (
                         <ChevronUp className="h-3.5 w-3.5" />
@@ -793,7 +824,7 @@ export function QuizPlayer() {
                       ) : (
                         <AlertCircle className="h-4 w-4" />
                       )}
-                      <span>{isCorrectOpt ? "Why this is correct" : "Why this is incorrect"}</span>
+                      <span>{isCorrectOpt ? "Great job! Here's why" : "Learn from this"}</span>
                     </div>
                     {isExpanded ? (
                       <ChevronUp className="h-4 w-4" />
