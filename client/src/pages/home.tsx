@@ -699,94 +699,124 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
     amber: "#f59e0b",
   };
   const fillColor = colorMap[color] || "#3b82f6";
+  const cardBg = "hsl(var(--card))";
+  const borderColor = "hsl(var(--border))";
+  const mutedColor = "hsl(var(--muted))";
   
   if (feature === "Multi-Format Upload") {
     return (
-      <svg viewBox="0 0 200 150" className="w-full h-full">
-        <rect x="30" y="20" width="50" height="65" rx="4" fill={fillColor} opacity="0.2" stroke={fillColor} strokeWidth="2"/>
-        <text x="55" y="55" textAnchor="middle" fill={fillColor} fontSize="12" fontWeight="bold">PDF</text>
-        <rect x="75" y="35" width="50" height="65" rx="4" fill={fillColor} opacity="0.3" stroke={fillColor} strokeWidth="2"/>
-        <text x="100" y="70" textAnchor="middle" fill={fillColor} fontSize="12" fontWeight="bold">DOC</text>
-        <rect x="120" y="50" width="50" height="65" rx="4" fill={fillColor} opacity="0.4" stroke={fillColor} strokeWidth="2"/>
-        <text x="145" y="85" textAnchor="middle" fill={fillColor} fontSize="12" fontWeight="bold">IMG</text>
-        <path d="M100 115 L100 135 M90 125 L100 135 L110 125" stroke={fillColor} strokeWidth="3" fill="none" strokeLinecap="round"/>
+      <svg viewBox="0 0 200 160" className="w-full h-full">
+        <rect x="20" y="15" width="160" height="110" rx="12" fill={cardBg} stroke={borderColor} strokeWidth="2" strokeDasharray="6,4"/>
+        <circle cx="100" cy="55" r="22" fill={mutedColor}/>
+        <path d="M100 45 L100 65 M92 53 L100 45 L108 53" stroke={fillColor} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+        <text x="100" y="90" textAnchor="middle" fill="currentColor" fontSize="9" opacity="0.7">Drop files here</text>
+        <rect x="40" y="130" width="32" height="18" rx="9" fill={fillColor} opacity="0.15"/>
+        <text x="56" y="142" textAnchor="middle" fill={fillColor} fontSize="7" fontWeight="600">PDF</text>
+        <rect x="78" y="130" width="44" height="18" rx="9" fill={fillColor} opacity="0.15"/>
+        <text x="100" y="142" textAnchor="middle" fill={fillColor} fontSize="7" fontWeight="600">DOCX</text>
+        <rect x="128" y="130" width="32" height="18" rx="9" fill={fillColor} opacity="0.15"/>
+        <text x="144" y="142" textAnchor="middle" fill={fillColor} fontSize="7" fontWeight="600">IMG</text>
       </svg>
     );
   }
   
   if (feature === "AI Quiz Generation") {
     return (
-      <svg viewBox="0 0 200 150" className="w-full h-full">
-        <circle cx="100" cy="60" r="35" fill={fillColor} opacity="0.2" stroke={fillColor} strokeWidth="2"/>
-        <circle cx="100" cy="60" r="20" fill={fillColor} opacity="0.3"/>
-        <circle cx="92" cy="55" r="4" fill="white"/>
-        <circle cx="108" cy="55" r="4" fill="white"/>
-        <path d="M90 70 Q100 80 110 70" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
-        <rect x="40" y="105" width="120" height="25" rx="4" fill={fillColor} opacity="0.2" stroke={fillColor} strokeWidth="1.5"/>
-        <circle cx="52" cy="117" r="6" fill={fillColor} opacity="0.5"/>
-        <line x1="65" y1="117" x2="145" y2="117" stroke={fillColor} strokeWidth="2" opacity="0.5"/>
+      <svg viewBox="0 0 200 160" className="w-full h-full">
+        <rect x="20" y="10" width="160" height="140" rx="12" fill={cardBg} stroke={borderColor} strokeWidth="1.5"/>
+        <rect x="30" y="20" width="50" height="16" rx="8" fill={fillColor}/>
+        <text x="55" y="31" textAnchor="middle" fill="white" fontSize="7" fontWeight="600">Question 3</text>
+        <rect x="30" y="45" width="140" height="8" rx="2" fill={mutedColor}/>
+        <rect x="30" y="57" width="100" height="8" rx="2" fill={mutedColor}/>
+        <rect x="30" y="75" width="140" height="28" rx="8" fill={cardBg} stroke={borderColor} strokeWidth="1.5"/>
+        <circle cx="44" cy="89" r="6" fill={mutedColor}/>
+        <text x="44" y="92" textAnchor="middle" fill="currentColor" fontSize="7" fontWeight="600">A</text>
+        <rect x="55" y="85" width="80" height="8" rx="2" fill={mutedColor}/>
+        <rect x="30" y="108" width="140" height="28" rx="8" fill={fillColor} opacity="0.15" stroke={fillColor} strokeWidth="2"/>
+        <circle cx="44" cy="122" r="6" fill={fillColor}/>
+        <text x="44" y="125" textAnchor="middle" fill="white" fontSize="7" fontWeight="600">B</text>
+        <rect x="55" y="118" width="90" height="8" rx="2" fill={fillColor} opacity="0.3"/>
+        <circle cx="156" cy="122" r="8" fill={fillColor}/>
+        <path d="M152 122 L155 125 L161 118" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
       </svg>
     );
   }
   
   if (feature === "Study Mode") {
     return (
-      <svg viewBox="0 0 200 150" className="w-full h-full">
-        <rect x="55" y="25" width="90" height="100" rx="8" fill={fillColor} opacity="0.15" stroke={fillColor} strokeWidth="2" transform="rotate(-8 100 75)"/>
-        <rect x="55" y="25" width="90" height="100" rx="8" fill="white" stroke={fillColor} strokeWidth="2"/>
-        <text x="100" y="65" textAnchor="middle" fill={fillColor} fontSize="10" fontWeight="500">Question?</text>
-        <line x1="70" y1="80" x2="130" y2="80" stroke={fillColor} strokeWidth="1" opacity="0.3"/>
-        <text x="100" y="100" textAnchor="middle" fill={fillColor} fontSize="8" opacity="0.6">Tap to flip</text>
-        <path d="M30 75 L15 60 M30 75 L15 90" stroke={fillColor} strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.4"/>
-        <path d="M170 75 L185 60 M170 75 L185 90" stroke={fillColor} strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.4"/>
+      <svg viewBox="0 0 200 160" className="w-full h-full">
+        <rect x="45" y="20" width="110" height="120" rx="12" fill={cardBg} stroke={borderColor} strokeWidth="1.5" transform="rotate(-5 100 80)" opacity="0.5"/>
+        <rect x="45" y="20" width="110" height="120" rx="12" fill={cardBg} stroke={fillColor} strokeWidth="2"/>
+        <text x="100" y="45" textAnchor="middle" fill={fillColor} fontSize="8" fontWeight="600" opacity="0.6">QUESTION</text>
+        <rect x="60" y="55" width="80" height="6" rx="2" fill={mutedColor}/>
+        <rect x="70" y="65" width="60" height="6" rx="2" fill={mutedColor}/>
+        <line x1="60" y1="85" x2="140" y2="85" stroke={borderColor} strokeWidth="1"/>
+        <text x="100" y="105" textAnchor="middle" fill="currentColor" fontSize="8" opacity="0.5">Tap to reveal</text>
+        <circle cx="25" cy="80" r="16" fill="#ef4444" opacity="0.15" stroke="#ef4444" strokeWidth="1.5"/>
+        <path d="M20 75 L30 85 M30 75 L20 85" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="175" cy="80" r="16" fill="#22c55e" opacity="0.15" stroke="#22c55e" strokeWidth="1.5"/>
+        <path d="M170 80 L174 84 L181 76" stroke="#22c55e" strokeWidth="2" fill="none" strokeLinecap="round"/>
       </svg>
     );
   }
   
   if (feature === "Spaced Repetition") {
     return (
-      <svg viewBox="0 0 200 150" className="w-full h-full">
-        <path d="M40 75 Q100 20 160 75 Q100 130 40 75" fill="none" stroke={fillColor} strokeWidth="2" strokeDasharray="5,5" opacity="0.4"/>
-        <circle cx="40" cy="75" r="15" fill={fillColor} opacity="0.3" stroke={fillColor} strokeWidth="2"/>
-        <text x="40" y="80" textAnchor="middle" fill={fillColor} fontSize="16">1</text>
-        <circle cx="100" cy="35" r="15" fill={fillColor} opacity="0.5" stroke={fillColor} strokeWidth="2"/>
-        <text x="100" y="40" textAnchor="middle" fill={fillColor} fontSize="16">2</text>
-        <circle cx="160" cy="75" r="15" fill={fillColor} opacity="0.7" stroke={fillColor} strokeWidth="2"/>
-        <text x="160" y="80" textAnchor="middle" fill={fillColor} fontSize="16">3</text>
-        <circle cx="100" cy="115" r="15" fill={fillColor} stroke={fillColor} strokeWidth="2"/>
-        <path d="M95 115 L100 120 L108 108" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+      <svg viewBox="0 0 200 160" className="w-full h-full">
+        <rect x="20" y="15" width="160" height="130" rx="12" fill={cardBg} stroke={borderColor} strokeWidth="1.5"/>
+        <rect x="30" y="25" width="140" height="8" rx="4" fill={mutedColor}/>
+        <rect x="30" y="25" width="98" height="8" rx="4" fill={fillColor}/>
+        <text x="100" y="50" textAnchor="middle" fill="currentColor" fontSize="8" opacity="0.6">Round 2 of 3</text>
+        <rect x="35" y="62" width="55" height="35" rx="8" fill="#22c55e" opacity="0.15" stroke="#22c55e" strokeWidth="1.5"/>
+        <circle cx="50" cy="80" r="8" fill="#22c55e"/>
+        <path d="M46 80 L49 83 L55 76" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+        <text x="75" y="82" textAnchor="middle" fill="#22c55e" fontSize="7" fontWeight="600">3</text>
+        <rect x="110" y="62" width="55" height="35" rx="8" fill={fillColor} opacity="0.15" stroke={fillColor} strokeWidth="1.5"/>
+        <circle cx="125" cy="80" r="8" fill={fillColor}/>
+        <path d="M121 77 L129 83 M121 83 L129 77" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+        <text x="150" y="82" textAnchor="middle" fill={fillColor} fontSize="7" fontWeight="600">2</text>
+        <rect x="35" y="105" width="130" height="30" rx="8" fill={fillColor}/>
+        <text x="100" y="124" textAnchor="middle" fill="white" fontSize="9" fontWeight="600">Retry Missed Questions</text>
       </svg>
     );
   }
   
   if (feature === "Community Sharing") {
     return (
-      <svg viewBox="0 0 200 150" className="w-full h-full">
-        <circle cx="100" cy="55" r="20" fill={fillColor} opacity="0.3" stroke={fillColor} strokeWidth="2"/>
-        <circle cx="100" cy="48" r="8" fill={fillColor}/>
-        <path d="M85 68 Q100 78 115 68" fill={fillColor}/>
-        <circle cx="50" cy="95" r="15" fill={fillColor} opacity="0.2" stroke={fillColor} strokeWidth="1.5"/>
-        <circle cx="50" cy="90" r="6" fill={fillColor} opacity="0.5"/>
-        <path d="M40 102 Q50 110 60 102" fill={fillColor} opacity="0.5"/>
-        <circle cx="150" cy="95" r="15" fill={fillColor} opacity="0.2" stroke={fillColor} strokeWidth="1.5"/>
-        <circle cx="150" cy="90" r="6" fill={fillColor} opacity="0.5"/>
-        <path d="M140 102 Q150 110 160 102" fill={fillColor} opacity="0.5"/>
-        <line x1="75" y1="65" x2="60" y2="82" stroke={fillColor} strokeWidth="2" strokeDasharray="3,3"/>
-        <line x1="125" y1="65" x2="140" y2="82" stroke={fillColor} strokeWidth="2" strokeDasharray="3,3"/>
+      <svg viewBox="0 0 200 160" className="w-full h-full">
+        <rect x="20" y="15" width="160" height="130" rx="12" fill={cardBg} stroke={borderColor} strokeWidth="1.5"/>
+        <rect x="30" y="25" width="100" height="6" rx="2" fill={mutedColor}/>
+        <rect x="30" y="35" width="70" height="6" rx="2" fill={mutedColor}/>
+        <rect x="30" y="50" width="140" height="40" rx="8" fill={mutedColor} opacity="0.5"/>
+        <rect x="38" y="58" width="90" height="6" rx="2" fill={mutedColor}/>
+        <rect x="38" y="68" width="70" height="6" rx="2" fill={mutedColor}/>
+        <rect x="38" y="78" width="50" height="6" rx="2" fill={mutedColor}/>
+        <rect x="30" y="100" width="80" height="30" rx="8" fill={fillColor}/>
+        <circle cx="50" cy="115" r="8" fill="white" opacity="0.3"/>
+        <path d="M47 112 L47 118 M47 112 L50 115 L47 118 M53 112 L53 118" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+        <text x="80" y="118" textAnchor="middle" fill="white" fontSize="8" fontWeight="600">Share</text>
+        <rect x="120" y="100" width="50" height="30" rx="8" fill={cardBg} stroke={borderColor} strokeWidth="1.5"/>
+        <text x="145" y="118" textAnchor="middle" fill="currentColor" fontSize="8">Copy</text>
       </svg>
     );
   }
   
   if (feature === "Streak Tracking") {
     return (
-      <svg viewBox="0 0 200 150" className="w-full h-full">
-        <path d="M100 20 Q85 50 95 70 Q80 60 90 90 Q75 80 85 110 Q95 100 100 130 Q105 100 115 110 Q125 80 110 90 Q120 60 105 70 Q115 50 100 20" fill={fillColor} opacity="0.3" stroke={fillColor} strokeWidth="2"/>
-        <path d="M100 45 Q92 60 97 75 Q88 68 95 90 Q100 85 100 105 Q100 85 105 90 Q112 68 103 75 Q108 60 100 45" fill={fillColor}/>
-        <text x="30" y="135" fill={fillColor} fontSize="14" fontWeight="bold">Mon</text>
-        <text x="65" y="135" fill={fillColor} fontSize="14" fontWeight="bold">Tue</text>
-        <text x="100" y="135" fill={fillColor} fontSize="14" fontWeight="bold">Wed</text>
-        <text x="135" y="135" fill={fillColor} fontSize="14" fontWeight="bold">Thu</text>
-        <text x="170" y="135" fill={fillColor} fontSize="14" fontWeight="bold">Fri</text>
+      <svg viewBox="0 0 200 160" className="w-full h-full">
+        <rect x="20" y="15" width="160" height="130" rx="12" fill={cardBg} stroke={borderColor} strokeWidth="1.5"/>
+        <circle cx="100" cy="60" r="30" fill={fillColor} opacity="0.15" stroke={fillColor} strokeWidth="2"/>
+        <path d="M100 40 Q93 52 96 60 Q90 55 94 68 Q100 64 100 78 Q100 64 106 68 Q110 55 104 60 Q107 52 100 40" fill={fillColor}/>
+        <text x="100" y="102" textAnchor="middle" fill="currentColor" fontSize="20" fontWeight="700">7</text>
+        <text x="100" y="115" textAnchor="middle" fill="currentColor" fontSize="8" opacity="0.6">day streak</text>
+        <g transform="translate(35, 130)">
+          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+            <g key={i} transform={`translate(${i * 19}, 0)`}>
+              <circle cx="8" cy="8" r="7" fill={i < 5 ? fillColor : mutedColor} opacity={i < 5 ? 1 : 0.3}/>
+              {i < 5 && <path d="M5 8 L7 10 L11 5" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>}
+            </g>
+          ))}
+        </g>
       </svg>
     );
   }
