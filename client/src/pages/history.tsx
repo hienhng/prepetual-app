@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
-import { History, Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, Archive, CirclePlus, Globe, GlobeLock, Target } from "lucide-react";
+import { History, Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, Archive, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, HelpCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -141,6 +141,18 @@ export default function HistoryPage() {
     }
   };
 
+  const getCategoryIcon = (category?: string | null) => {
+    switch (category) {
+      case "Math": return <Calculator className="h-20 w-20" />;
+      case "English": return <Languages className="h-20 w-20" />;
+      case "Science": return <FlaskConical className="h-20 w-20" />;
+      case "Social Studies": return <Landmark className="h-20 w-20" />;
+      case "Global Languages": return <Languages className="h-20 w-20" />;
+      case "Others/General": return <LayoutGrid className="h-20 w-20" />;
+      default: return <HelpCircle className="h-20 w-20" />;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16 flex items-center justify-center">
@@ -202,7 +214,11 @@ export default function HistoryPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className="group overflow-hidden border-border/40 transition-all hover:border-primary/20 hover:shadow-md dark:bg-card/50" data-testid={`card-quiz-${quiz.id}`}>
+                <Card className="group relative overflow-hidden border-border/40 transition-all hover:border-primary/20 hover:shadow-md dark:bg-card/50" data-testid={`card-quiz-${quiz.id}`}>
+                  {/* Faded Category Icon Background */}
+                  <div className="absolute -right-6 -bottom-6 text-primary/5 dark:text-primary/10 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none">
+                    {getCategoryIcon(quiz.category)}
+                  </div>
                   <CardContent className="p-0">
                     <div className="flex flex-col sm:flex-row">
                       {/* Left Info Section */}
