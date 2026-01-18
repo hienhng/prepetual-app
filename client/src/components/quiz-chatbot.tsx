@@ -103,29 +103,48 @@ function CutePenguin({ size = 64, className = "" }: { size?: number; className?:
     <svg 
       width={size} 
       height={size} 
-      viewBox="0 0 100 100" 
+      viewBox="0 0 120 120" 
       fill="none" 
       className={className}
     >
-      <ellipse cx="50" cy="62" rx="28" ry="30" fill="#2d3436" />
-      <ellipse cx="50" cy="65" rx="18" ry="22" fill="#f5f6fa" />
-      <circle cx="50" cy="35" r="22" fill="#2d3436" />
-      <ellipse cx="50" cy="38" rx="14" ry="11" fill="#f5f6fa" />
-      <ellipse cx="42" cy="32" rx="6" ry="7" fill="#f5f6fa" />
-      <ellipse cx="58" cy="32" rx="6" ry="7" fill="#f5f6fa" />
-      <circle cx="42" cy="32" r="4" fill="#2d3436" />
-      <circle cx="58" cy="32" r="4" fill="#2d3436" />
-      <circle cx="44" cy="30" r="1.5" fill="#fff" />
-      <circle cx="60" cy="30" r="1.5" fill="#fff" />
-      <ellipse cx="50" cy="42" rx="5" ry="3.5" fill="#ff9f43" />
-      <path d="M45 40 L50 48 L55 40" fill="#ff9f43" />
-      <ellipse cx="35" cy="32" rx="4" ry="3" fill="#fab1a0" />
-      <ellipse cx="65" cy="32" rx="4" ry="3" fill="#fab1a0" />
-      <path d="M20 50 Q14 62 22 78" stroke="#2d3436" strokeWidth="8" strokeLinecap="round" fill="none" />
-      <path d="M80 50 Q86 62 78 78" stroke="#2d3436" strokeWidth="8" strokeLinecap="round" fill="none" />
-      <ellipse cx="38" cy="92" rx="8" ry="5" fill="#ff9f43" />
-      <ellipse cx="62" cy="92" rx="8" ry="5" fill="#ff9f43" />
-      <path d="M42 18 Q50 8 58 18" stroke="#2d3436" strokeWidth="3" strokeLinecap="round" fill="none" />
+      {/* Body - main oval */}
+      <ellipse cx="60" cy="72" rx="32" ry="38" fill="#1e272e" />
+      {/* White belly */}
+      <ellipse cx="60" cy="76" rx="20" ry="28" fill="#f8f9fa" />
+      
+      {/* Head */}
+      <circle cx="60" cy="38" r="26" fill="#1e272e" />
+      
+      {/* Face white patch */}
+      <ellipse cx="60" cy="42" rx="16" ry="13" fill="#f8f9fa" />
+      
+      {/* Eyes - white background */}
+      <ellipse cx="50" cy="36" rx="7" ry="8" fill="#f8f9fa" />
+      <ellipse cx="70" cy="36" rx="7" ry="8" fill="#f8f9fa" />
+      
+      {/* Eyes - pupils */}
+      <circle cx="51" cy="37" r="4.5" fill="#1e272e" />
+      <circle cx="69" cy="37" r="4.5" fill="#1e272e" />
+      
+      {/* Eye sparkles */}
+      <circle cx="53" cy="35" r="1.8" fill="#fff" />
+      <circle cx="71" cy="35" r="1.8" fill="#fff" />
+      
+      {/* Beak */}
+      <ellipse cx="60" cy="50" rx="6" ry="4" fill="#f39c12" />
+      <path d="M54 48 L60 58 L66 48" fill="#f39c12" />
+      
+      {/* Rosy cheeks */}
+      <ellipse cx="40" cy="40" rx="5" ry="4" fill="#fab1a0" opacity="0.8" />
+      <ellipse cx="80" cy="40" rx="5" ry="4" fill="#fab1a0" opacity="0.8" />
+      
+      {/* Flippers */}
+      <ellipse cx="26" cy="68" rx="8" ry="22" fill="#1e272e" transform="rotate(-15 26 68)" />
+      <ellipse cx="94" cy="68" rx="8" ry="22" fill="#1e272e" transform="rotate(15 94 68)" />
+      
+      {/* Feet */}
+      <ellipse cx="48" cy="108" rx="10" ry="6" fill="#f39c12" />
+      <ellipse cx="72" cy="108" rx="10" ry="6" fill="#f39c12" />
     </svg>
   );
 }
