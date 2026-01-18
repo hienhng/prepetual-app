@@ -761,9 +761,7 @@ function ContinueQuizCard({
   const colors = difficultyColors[difficulty] || difficultyColors.medium;
   const CategoryIcon = categoryIcons[quiz.category || "Others/General"] || GraduationCap;
 
-  const timeLabel = savedAt 
-    ? `Saved ${formatDistanceToNow(new Date(savedAt))} ago`
-    : 'In progress';
+  const timeLabel = `Saved ${formatDistanceToNow(new Date(savedAt || new Date()))} ago`;
 
   return (
     <motion.div
@@ -910,7 +908,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const [streakCalendarOpen, setStreakCalendarOpen] = useState(false);
   const [accuracyDialogOpen, setAccuracyDialogOpen] = useState(false);
-  const [revisionExitWarning, setRevisionExitWarning] = useState<{ open: boolean; quizId: string | null; type: 'current' | 'saved' | null }>({ 
+  const [revisionExitWarning, setRevisionExitWarning] = useState<{ open: boolean; quizId: string | null; type: 'saved' | null }>({ 
     open: false, 
     quizId: null, 
     type: null 
@@ -1012,31 +1010,23 @@ export default function Dashboard() {
   };
 
   // Handle discard with revision warning
-  const handleAttemptDiscard = (item: { type: 'current' | 'saved'; quizId: string; quiz: Quiz; answers: Record<string, string>; checkedQuestions: string[] }) => {
+  const handleAttemptDiscard = (item: { type: 'saved'; quizId: string; quiz: Quiz; answers: Record<string, string>; checkedQuestions: string[] }) => {
     const isRevising = isQuizInRevisionMode(item);
     
     if (isRevising) {
       // Show warning dialog for revision mode exit
-      setRevisionExitWarning({ open: true, quizId: item.quizId, type: item.type });
+      setRevisionExitWarning({ open: true, quizId: item.quizId, type: 'saved' });
     } else {
       // No revision progress to lose, discard normally
-      if (item.type === 'current') {
-        handleDiscardProgress();
-      } else {
-        handleDiscardSavedProgress(item.quizId);
-      }
+      handleDiscardSavedProgress(item.quizId);
     }
   };
 
   // Confirm revision exit - delete the entire quiz progress
   const handleConfirmRevisionExit = () => {
-    const { quizId, type } = revisionExitWarning;
+    const { quizId } = revisionExitWarning;
     
-    if (type === 'current') {
-      // For current quiz: delete entire progress
-      handleDiscardProgress();
-    } else if (type === 'saved' && quizId) {
-      // For saved progress: delete entire saved progress
+    if (quizId) {
       handleDiscardSavedProgress(quizId);
     }
     
@@ -1047,52 +1037,39 @@ export default function Dashboard() {
   const inProgressAnsweredCount = Object.keys(userAnswers).filter(k => !k.startsWith('retry-')).length;
   const inProgressTotalCount = currentQuiz?.questions?.length || 0;
 
-  // Combine current in-progress quiz with saved progresses for carousel
+  // Show only saved progresses from the database in the carousel
   const allSavedQuizzes = useMemo(() => {
     const items: Array<{
-      type: 'current' | 'saved';
+      type: 'saved';
       quizId: string;
       quiz: Quiz;
       answers: Record<string, string>;
       checkedQuestions: string[];
-      savedAt?: string;
+      savedAt: string;
     }> = [];
     
-    // Add current in-progress quiz first
-    if (hasInProgressQuiz && currentQuiz) {
-      items.push({
-        type: 'current',
-        quizId: currentQuiz.id,
-        quiz: currentQuiz,
-        answers: userAnswers,
-        checkedQuestions: Array.from(checkedQuestions),
-      });
-    }
-    
-    // Add saved progresses (excluding the current one if it's the same)
+    // Only show saved progresses from the API (with savedAt timestamps)
     savedProgresses.forEach(p => {
-      if (!hasInProgressQuiz || p.quizId !== currentQuiz?.id) {
-        // Merge retryAnswers into answers with 'retry-' prefix for revision detection
-        const mergedAnswers: Record<string, string> = { ...p.answers };
-        if (p.retryAnswers) {
-          Object.entries(p.retryAnswers).forEach(([key, value]) => {
-            mergedAnswers[`retry-${key}`] = value;
-          });
-        }
-        
-        items.push({
-          type: 'saved',
-          quizId: p.quizId,
-          quiz: p.quiz,
-          answers: mergedAnswers,
-          checkedQuestions: p.checkedQuestions || [],
-          savedAt: p.savedAt,
+      // Merge retryAnswers into answers with 'retry-' prefix for revision detection
+      const mergedAnswers: Record<string, string> = { ...p.answers };
+      if (p.retryAnswers) {
+        Object.entries(p.retryAnswers).forEach(([key, value]) => {
+          mergedAnswers[`retry-${key}`] = value;
         });
       }
+      
+      items.push({
+        type: 'saved',
+        quizId: p.quizId,
+        quiz: p.quiz,
+        answers: mergedAnswers,
+        checkedQuestions: p.checkedQuestions || [],
+        savedAt: p.savedAt,
+      });
     });
     
     return items;
-  }, [hasInProgressQuiz, currentQuiz, userAnswers, checkedQuestions, savedProgresses]);
+  }, [savedProgresses]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -1294,15 +1271,9 @@ export default function Dashboard() {
                         quiz={item.quiz}
                         answeredCount={originalAnswerKeys.length}
                         totalCount={item.quiz.questions?.length || 0}
-                        onContinue={() => {
-                          if (item.type === 'current') {
-                            handleContinueQuiz();
-                          } else {
-                            handleContinueSavedQuiz(item.quizId);
-                          }
-                        }}
+                        onContinue={() => handleContinueSavedQuiz(item.quizId)}
                         onDiscard={() => handleAttemptDiscard(item)}
-                        isCurrent={item.type === 'current'}
+                        isCurrent={false}
                         savedAt={item.savedAt}
                         isRevising={isRevising}
                         retryAnsweredCount={retryAnsweredCount}
