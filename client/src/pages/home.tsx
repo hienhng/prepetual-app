@@ -1297,7 +1297,7 @@ export default function Home() {
           <HowItWorksGallery />
         </div>
       </section>
-      <section className="py-20 md:py-28 bg-muted/30">
+      <section className="py-20 md:py-28 bg-muted/30 min-h-[900px] md:min-h-[750px]">
         <div className="container mx-auto px-4 sm:px-6">
           <motion.div 
             className="text-center mb-14"
