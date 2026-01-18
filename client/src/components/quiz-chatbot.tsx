@@ -210,21 +210,41 @@ function TypingIndicator() {
   );
 }
 
-function TutorAvatar({ isAnimating = false, large = false }: { isAnimating?: boolean; large?: boolean }) {
+function TutorAvatar({ isAnimating = false, isSuccess = false, large = false }: { isAnimating?: boolean; isSuccess?: boolean; large?: boolean }) {
   const containerSize = large ? "w-24 h-24" : "w-11 h-11";
   const penguinSize = large ? 60 : 32;
   
   return (
     <motion.div 
       className={`relative ${containerSize} rounded-2xl bg-gradient-to-br from-sky-100 via-cyan-50 to-blue-100 dark:from-slate-600 dark:via-slate-500 dark:to-slate-600 flex items-center justify-center shrink-0 shadow-lg overflow-hidden border-2 border-sky-200/50 dark:border-slate-500/50`}
-      animate={isAnimating ? {
+      animate={isSuccess ? {
+        scale: [1, 1.2, 1],
+        rotate: [0, -10, 10, -10, 0],
+      } : isAnimating ? {
         y: [0, -4, 0],
       } : {}}
-      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+      transition={isSuccess ? {
+        duration: 0.5,
+        times: [0, 0.2, 0.5, 0.8, 1],
+      } : {
+        duration: 1.5, 
+        repeat: Infinity, 
+        ease: "easeInOut" 
+      }}
     >
       <motion.div
-        animate={isAnimating ? { rotate: [0, -8, 8, 0] } : {}}
-        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+        animate={isAnimating ? { 
+          rotate: [0, -8, 8, 0],
+          x: [-1, 1, -1] 
+        } : isSuccess ? {
+          scale: [1, 1.3, 1],
+          y: [0, -5, 0]
+        } : {}}
+        transition={{ 
+          duration: isAnimating ? 2.5 : 0.4, 
+          repeat: isAnimating ? Infinity : 0, 
+          ease: "easeInOut" 
+        }}
       >
         <CutePenguin size={penguinSize} />
       </motion.div>
@@ -236,6 +256,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -271,6 +292,8 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
 
       const data = await response.json();
       setMessages((prev) => [...prev, { role: "assistant", content: data.response, timestamp: Date.now() }]);
+      setIsSuccess(true);
+      setTimeout(() => setIsSuccess(false), 1000);
     } catch (error: any) {
       setMessages((prev) => [
         ...prev,
@@ -440,7 +463,10 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                     className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     {message.role === "assistant" && (
-                      <TutorAvatar isAnimating={index === messages.length - 1} />
+                      <TutorAvatar 
+                        isAnimating={isLoading && index === messages.length} 
+                        isSuccess={isSuccess && index === messages.length - 1} 
+                      />
                     )}
                     <motion.div
                       className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
