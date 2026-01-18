@@ -685,40 +685,6 @@ function HowItWorksGallery() {
           </button>
         ))}
       </div>
-      
-      {/* Navigation buttons */}
-      <div className="absolute top-1/2 -translate-y-1/2 -left-4 md:-left-12 lg:-left-16 z-10 hidden sm:block">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full bg-background/80 backdrop-blur-sm border shadow-sm"
-          onClick={() => {
-            containerRef.current?.scrollTo({ 
-              left: (activeStep - 1) * containerRef.current.offsetWidth, 
-              behavior: 'smooth' 
-            });
-          }}
-          disabled={activeStep === 0}
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </Button>
-      </div>
-      <div className="absolute top-1/2 -translate-y-1/2 -right-4 md:-right-12 lg:-right-16 z-10 hidden sm:block">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full bg-background/80 backdrop-blur-sm border shadow-sm"
-          onClick={() => {
-            containerRef.current?.scrollTo({ 
-              left: (activeStep + 1) * containerRef.current.offsetWidth, 
-              behavior: 'smooth' 
-            });
-          }}
-          disabled={activeStep === stages.length - 1}
-        >
-          <ChevronRight className="h-6 w-6" />
-        </Button>
-      </div>
     </div>
   );
 }
