@@ -502,7 +502,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
             </motion.div>
             <div className="text-left flex-1">
               <SheetTitle className="text-white text-xl font-bold tracking-tight flex items-center gap-2">
-                Penny
+                Pip
                 <Snowflake className="w-4 h-4 opacity-80" />
               </SheetTitle>
               <p className="text-sm text-white/90 mt-1">Your arctic study buddy</p>
@@ -581,7 +581,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                I'm Penny, your arctic study companion! Ask me anything about this quiz - I'll help you learn without giving away the answers.
+                I'm Pip, your arctic study companion! Ask me anything about this quiz - I'll help you learn without giving away the answers.
               </motion.p>
               
               <div className="flex flex-col gap-2 w-full max-w-[280px]">
@@ -692,7 +692,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask Penny anything..."
+              placeholder="Ask Pip anything..."
               className="flex-1 h-12 rounded-xl border-sky-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus-visible:ring-sky-400/30 focus-visible:border-sky-400 transition-all placeholder:text-muted-foreground/60"
               disabled={isLoading}
               data-testid="input-chatbot-message"
