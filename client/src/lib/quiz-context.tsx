@@ -219,12 +219,22 @@ export function QuizProvider({ children }: { children: ReactNode }) {
 
   const setCurrentQuiz = (quiz: Quiz | null) => {
     setState((prev) => {
+      // Check if this is a different quiz - if so, clear answers
+      const isDifferentQuiz = quiz && prev.currentQuiz && quiz.id !== prev.currentQuiz.id;
+      const isNewQuiz = quiz && !prev.currentQuiz;
+      const shouldClearAnswers = isDifferentQuiz || isNewQuiz;
+      
+      const newAnswers = shouldClearAnswers ? {} : prev.userAnswers;
+      const newCheckedQuestions = shouldClearAnswers ? new Set<string>() : prev.checkedQuestions;
+      
       const newState = { 
         ...prev, 
         currentQuiz: quiz,
+        userAnswers: newAnswers,
+        checkedQuestions: newCheckedQuestions,
         lastSavedAnswersCount: quiz ? 0 : prev.lastSavedAnswersCount,
-        // Clear player state when quiz is cleared
-        ...(quiz === null ? {
+        // Clear player state when quiz is cleared or changed
+        ...(quiz === null || shouldClearAnswers ? {
           playerCurrentIndex: 0,
           playerRetryAnswers: {},
           playerRetryCheckedQuestions: [],
@@ -233,8 +243,8 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       if (quiz) {
         sessionStorage.setItem("quiz_progress", JSON.stringify({ 
           quiz, 
-          answers: prev.userAnswers,
-          checkedQuestions: Array.from(prev.checkedQuestions)
+          answers: newAnswers,
+          checkedQuestions: Array.from(newCheckedQuestions)
         }));
       } else {
         sessionStorage.removeItem("quiz_progress");
