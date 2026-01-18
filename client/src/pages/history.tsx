@@ -141,15 +141,23 @@ export default function HistoryPage() {
     }
   };
 
-  const getCategoryIcon = (category?: string | null) => {
+  const getCategoryIcon = (category?: string | null, size: string = "h-20 w-20") => {
     switch (category) {
-      case "Math": return <Calculator className="h-20 w-20" />;
-      case "English": return <Languages className="h-20 w-20" />;
-      case "Science": return <FlaskConical className="h-20 w-20" />;
-      case "Social Studies": return <Landmark className="h-20 w-20" />;
-      case "Global Languages": return <Languages className="h-20 w-20" />;
-      case "Others/General": return <LayoutGrid className="h-20 w-20" />;
-      default: return <HelpCircle className="h-20 w-20" />;
+      case "Math": return <Calculator className={size} />;
+      case "English": return <Languages className={size} />;
+      case "Science": return <FlaskConical className={size} />;
+      case "Social Studies": return <Landmark className={size} />;
+      case "Global Languages": return <Languages className={size} />;
+      case "Others/General": return <LayoutGrid className={size} />;
+      default: return <HelpCircle className={size} />;
+    }
+  };
+
+  const getDifficultyColor = (difficulty?: string | null) => {
+    switch (difficulty) {
+      case "easy": return "bg-green-500/20 text-green-600 dark:bg-green-500/30 dark:text-green-400";
+      case "hard": return "bg-red-500/20 text-red-600 dark:bg-red-500/30 dark:text-red-400";
+      default: return "bg-yellow-500/20 text-yellow-600 dark:bg-yellow-500/30 dark:text-yellow-400";
     }
   };
 
@@ -220,8 +228,8 @@ export default function HistoryPage() {
                       {/* Left Info Section */}
                       <div className="flex-1 p-5 sm:p-6 space-y-4 relative overflow-hidden">
                         {/* Faded Category Icon Background */}
-                        <div className="absolute -right-4 -bottom-4 text-primary/10 dark:text-primary/20 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none">
-                          {getCategoryIcon(quiz.category)}
+                        <div className={`absolute -right-4 top-1/2 -translate-y-1/2 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none p-4 rounded-full ${getDifficultyColor(quiz.difficulty)}`}>
+                          {getCategoryIcon(quiz.category, "h-12 w-12")}
                         </div>
                         <div className="relative z-10">
                           <div className="flex items-start justify-between gap-4">
