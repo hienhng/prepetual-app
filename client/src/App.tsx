@@ -291,9 +291,6 @@ function AuthenticatedLayout() {
     return (
       <>
         <div className="min-h-screen w-full">
-          <header className="fixed top-0 right-0 z-50 p-3">
-            <ThemeToggle />
-          </header>
           <main className="flex-1">
             <AuthenticatedRouter />
           </main>

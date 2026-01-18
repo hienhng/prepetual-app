@@ -69,6 +69,8 @@ const getStreakMessage = (streak: number) => {
   return encouragingMessages.streak[3];
 };
 
+import { ThemeToggle } from "@/components/theme-toggle";
+
 export function QuizPlayer() {
   const [, setLocation] = useLocation();
   const { 
@@ -773,6 +775,7 @@ export function QuizPlayer() {
                       <span className="text-sm font-semibold">{displayQuestionNum}/{originalQuestionCount}</span>
                       <ChevronUp className={`h-4 w-4 transition-transform ${showQuestionNav ? "rotate-180" : ""}`} />
                     </button>
+                    <ThemeToggle />
                   </div>
                   <div className="flex items-center gap-3">
                     {correctStreak >= 2 && (
