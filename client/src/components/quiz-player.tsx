@@ -18,6 +18,7 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import confetti from "canvas-confetti";
+import { QuizChatbot } from "@/components/quiz-chatbot";
 
 const encouragingMessages = {
   correct: [
@@ -968,6 +969,13 @@ export function QuizPlayer() {
       <MaterialViewerDialog
         isOpen={showMaterialDialog}
         onClose={() => setShowMaterialDialog(false)}
+      />
+
+      <QuizChatbot
+        quizTitle={currentQuiz.title}
+        questions={currentQuiz.questions}
+        currentQuestionIndex={Math.min(currentIndex, currentQuiz.questions.length - 1)}
+        sourceMaterial={sourceMaterial?.text || undefined}
       />
     </>
   );

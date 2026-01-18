@@ -7,7 +7,7 @@ import multer from "multer";
 import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { parseOffice } from "officeparser";
-import { generateQuizQuestions, importExistingQuiz } from "./openai";
+import { generateQuizQuestions, importExistingQuiz, quizChatResponse } from "./openai";
 import { generateQuizRequestSchema, submitQuizRequestSchema } from "@shared/schema";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs";
@@ -1000,6 +1000,31 @@ export async function registerRoutes(
       res.status(500).json({ 
         message: "Failed to send message. Please try again later." 
       });
+    }
+  });
+
+  // Quiz AI Chat Assistant
+  app.post("/api/quiz-chat", async (req, res) => {
+    try {
+      const { quizTitle, questions, currentQuestionIndex, userMessage, chatHistory, sourceMaterial } = req.body;
+      
+      if (!quizTitle || !questions || currentQuestionIndex === undefined || !userMessage) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      
+      const response = await quizChatResponse({
+        quizTitle,
+        questions,
+        currentQuestionIndex,
+        userMessage,
+        chatHistory: chatHistory || [],
+        sourceMaterial,
+      });
+      
+      res.json({ response });
+    } catch (error: any) {
+      console.error("Quiz chat error:", error);
+      res.status(500).json({ message: error.message || "Failed to get AI response" });
     }
   });
 

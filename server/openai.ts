@@ -669,3 +669,80 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
   }
 }
 
+export interface QuizChatParams {
+  quizTitle: string;
+  questions: Question[];
+  currentQuestionIndex: number;
+  userMessage: string;
+  chatHistory: Array<{ role: "user" | "assistant"; content: string }>;
+  sourceMaterial?: string;
+}
+
+export async function quizChatResponse(params: QuizChatParams): Promise<string> {
+  const { quizTitle, questions, currentQuestionIndex, userMessage, chatHistory, sourceMaterial } = params;
+  
+  const safeIndex = Math.max(0, Math.min(currentQuestionIndex, questions.length - 1));
+  const currentQuestion = questions[safeIndex];
+  
+  const quizContext = `You are a helpful study assistant for a quiz titled "${quizTitle}".
+
+QUIZ OVERVIEW:
+- Total questions: ${questions.length}
+- Current question: #${currentQuestionIndex + 1}
+
+CURRENT QUESTION:
+Type: ${currentQuestion.type}
+Question: ${currentQuestion.question}
+${currentQuestion.options ? `Options: ${currentQuestion.options.join(", ")}` : ""}
+
+ALL QUIZ QUESTIONS (for context):
+${questions.map((q, i) => `Q${i + 1}: ${q.question}`).join("\n")}
+
+${sourceMaterial ? `SOURCE MATERIAL (original study content):\n${sourceMaterial.substring(0, 4000)}${sourceMaterial.length > 4000 ? "..." : ""}` : ""}
+
+INSTRUCTIONS:
+- Help the student understand concepts without giving away answers directly
+- If asked for the answer, guide them with hints instead
+- Explain concepts from the source material when relevant
+- Be encouraging and supportive
+- Keep responses concise but helpful
+- If they ask about a specific question, reference it by number
+- Respond in the same language as the quiz content`;
+
+  const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+    { role: "system", content: quizContext },
+    ...chatHistory.slice(-10).map(msg => ({ role: msg.role as "user" | "assistant", content: msg.content })),
+    { role: "user", content: userMessage }
+  ];
+
+  try {
+    const response = await pRetry(
+      async () => {
+        const completion = await openai.chat.completions.create({
+          model: "gpt-5",
+          messages,
+          max_completion_tokens: 500,
+        });
+        return completion.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
+      },
+      {
+        retries: 3,
+        minTimeout: 2000,
+        maxTimeout: 10000,
+        factor: 2,
+        onFailedAttempt: (error: any) => {
+          console.log(`Quiz chat retry (attempt ${error.attemptNumber}): ${error.message || error}`);
+          if (!isRateLimitError(error)) {
+            throw error;
+          }
+        },
+      }
+    );
+    
+    return response;
+  } catch (error: any) {
+    console.error("Quiz chat error:", error);
+    throw new Error("Failed to get AI response. Please try again.");
+  }
+}
+
