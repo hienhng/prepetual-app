@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Loader2, User, Sparkles, Lightbulb, HelpCircle, BookOpen } from "lucide-react";
+import { GiPenguin } from "react-icons/gi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -122,85 +123,24 @@ function TypingIndicator() {
   );
 }
 
-function PenguinMascot({ size = 24, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg 
-      width={size} 
-      height={size} 
-      viewBox="0 0 64 64" 
-      fill="none" 
-      className={className}
-    >
-      <ellipse cx="32" cy="38" rx="20" ry="22" fill="#1a1a2e" />
-      <ellipse cx="32" cy="40" rx="14" ry="16" fill="#f8f9fa" />
-      <circle cx="32" cy="18" r="16" fill="#1a1a2e" />
-      <ellipse cx="32" cy="20" rx="10" ry="8" fill="#f8f9fa" />
-      <motion.g
-        animate={{ scaleY: [1, 0.1, 1] }}
-        transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-      >
-        <ellipse cx="26" cy="17" rx="4" ry="5" fill="#f8f9fa" />
-        <ellipse cx="38" cy="17" rx="4" ry="5" fill="#f8f9fa" />
-        <circle cx="26" cy="17" r="2.5" fill="#1a1a2e" />
-        <circle cx="38" cy="17" r="2.5" fill="#1a1a2e" />
-        <circle cx="27" cy="16" r="1" fill="#fff" />
-        <circle cx="39" cy="16" r="1" fill="#fff" />
-      </motion.g>
-      <ellipse cx="32" cy="24" rx="3" ry="2" fill="#ff9f43" />
-      <path d="M29 23 L32 28 L35 23" fill="#ff9f43" />
-      <motion.ellipse 
-        cx="22" cy="18" 
-        rx="2" ry="1.5" 
-        fill="#ff6b9d"
-        animate={{ opacity: [0.4, 0.8, 0.4] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      />
-      <motion.ellipse 
-        cx="42" cy="18" 
-        rx="2" ry="1.5" 
-        fill="#ff6b9d"
-        animate={{ opacity: [0.4, 0.8, 0.4] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      />
-      <motion.path
-        d="M10 32 Q6 40 12 50"
-        stroke="#1a1a2e"
-        strokeWidth="6"
-        strokeLinecap="round"
-        fill="none"
-        animate={{ rotate: [0, -5, 0, 5, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        style={{ transformOrigin: "12px 40px" }}
-      />
-      <motion.path
-        d="M54 32 Q58 40 52 50"
-        stroke="#1a1a2e"
-        strokeWidth="6"
-        strokeLinecap="round"
-        fill="none"
-        animate={{ rotate: [0, 5, 0, -5, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        style={{ transformOrigin: "52px 40px" }}
-      />
-      <ellipse cx="26" cy="58" rx="5" ry="3" fill="#ff9f43" />
-      <ellipse cx="38" cy="58" rx="5" ry="3" fill="#ff9f43" />
-    </svg>
-  );
-}
-
 function TutorAvatar({ isAnimating = false, large = false }: { isAnimating?: boolean; large?: boolean }) {
   const size = large ? "w-20 h-20" : "w-10 h-10";
-  const penguinSize = large ? 52 : 28;
+  const iconSize = large ? 48 : 24;
   
   return (
     <motion.div 
-      className={`relative ${size} rounded-2xl bg-gradient-to-br from-sky-100 via-blue-50 to-indigo-100 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 flex items-center justify-center shrink-0 shadow-lg overflow-hidden`}
+      className={`relative ${size} rounded-2xl bg-gradient-to-br from-sky-200 via-blue-100 to-indigo-200 dark:from-slate-600 dark:via-slate-500 dark:to-slate-600 flex items-center justify-center shrink-0 shadow-lg overflow-hidden`}
       animate={isAnimating ? {
-        y: [0, -2, 0],
+        y: [0, -3, 0],
       } : {}}
       transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
     >
-      <PenguinMascot size={penguinSize} />
+      <motion.div
+        animate={isAnimating ? { rotate: [0, -5, 5, 0] } : {}}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <GiPenguin size={iconSize} className="text-slate-800 dark:text-slate-100" />
+      </motion.div>
       <motion.div
         className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-background"
         animate={{ scale: [1, 1.2, 1] }}
@@ -293,7 +233,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
               }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             >
-              <PenguinMascot size={42} />
+              <GiPenguin size={36} className="text-white" />
             </motion.div>
             <div className="text-left flex-1">
               <SheetTitle className="text-white text-xl font-bold tracking-tight">Penny the Penguin</SheetTitle>
@@ -340,7 +280,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
               >
                 <motion.div 
-                  className="w-28 h-28 rounded-3xl bg-gradient-to-br from-sky-100 via-blue-50 to-indigo-100 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 flex items-center justify-center shadow-xl overflow-hidden"
+                  className="w-28 h-28 rounded-3xl bg-gradient-to-br from-sky-200 via-blue-100 to-indigo-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 flex items-center justify-center shadow-xl overflow-hidden"
                   animate={{ 
                     boxShadow: [
                       "0 10px 40px -10px rgba(139, 92, 246, 0.25)",
@@ -350,7 +290,12 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                   }}
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  <PenguinMascot size={72} />
+                  <motion.div
+                    animate={{ rotate: [0, -8, 8, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <GiPenguin size={64} className="text-slate-800 dark:text-slate-100" />
+                  </motion.div>
                 </motion.div>
                 <motion.div
                   className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg"
