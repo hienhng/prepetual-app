@@ -441,9 +441,7 @@ export function QuizPlayer() {
     if (!isChecked) return null;
     
     const correct = isCorrect();
-    const wrongExplanation = !correct && selectedAnswer && getWrongAnswerExplanation(selectedAnswer);
     const questionFeedback = feedbackMessages[currentQuestion.id];
-    const feedbackMessage = questionFeedback?.message || (correct ? "Correct!" : "Incorrect");
     const streakAtTime = questionFeedback?.streakAtTime || 0;
     
     return (
@@ -452,61 +450,18 @@ export function QuizPlayer() {
         animate={{ opacity: 1, scale: 1 }}
         className="mt-6 space-y-3"
       >
-        <motion.div
-          initial={{ x: correct ? 20 : -20 }}
-          animate={{ x: 0 }}
-          className={`rounded-2xl p-4 sm:p-5 ${
-            correct 
-              ? "bg-gradient-to-r from-green-500/20 to-emerald-500/10 border border-green-500/30" 
-              : "bg-gradient-to-r from-red-500/20 to-rose-500/10 border border-red-500/30"
-          }`}
-        >
-          <div className="flex items-start gap-3">
-            <motion.div 
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 500, damping: 25 }}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                correct ? "bg-green-500" : "bg-red-500"
-              }`}
+        <div className="flex items-center gap-2">
+          {correct && streakAtTime >= 2 && (
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              className="flex items-center gap-1 px-2 py-0.5 bg-orange-500/20 rounded-full"
             >
-              {correct ? (
-                <Check className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-              ) : (
-                <X className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-              )}
+              <Flame className="h-4 w-4 text-orange-500" />
+              <span className="text-xs font-bold text-orange-600 dark:text-orange-400">{streakAtTime}</span>
             </motion.div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <p className={`text-lg sm:text-xl font-bold ${correct ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                  {feedbackMessage}
-                </p>
-                {correct && streakAtTime >= 2 && (
-                  <motion.div
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    className="flex items-center gap-1 px-2 py-0.5 bg-orange-500/20 rounded-full"
-                  >
-                    <Flame className="h-4 w-4 text-orange-500" />
-                    <span className="text-xs font-bold text-orange-600 dark:text-orange-400">{streakAtTime}</span>
-                  </motion.div>
-                )}
-              </div>
-              {!correct && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  Correct answer: <span className="font-semibold text-foreground">{currentQuestion.correctAnswer}</span>
-                </p>
-              )}
-              {currentQuestion.explanation && isGuest && !isRetryQuestion && (
-                <div className="flex items-center gap-2 text-muted-foreground mt-3">
-                  <Lock className="h-3 w-3" />
-                  <p className="text-xs italic">Sign up to see explanations</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </motion.div>
-        
+          )}
+        </div>
       </motion.div>
     );
   };
