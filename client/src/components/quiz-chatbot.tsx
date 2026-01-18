@@ -82,6 +82,10 @@ function renderMathInText(text: string): string {
     }
   });
   
+  result = result.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  
+  result = result.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  
   return result;
 }
 
