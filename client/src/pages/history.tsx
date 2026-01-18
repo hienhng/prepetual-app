@@ -214,44 +214,46 @@ export default function HistoryPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className="group relative overflow-hidden border-border/40 transition-all hover:border-primary/20 hover:shadow-md dark:bg-card/50" data-testid={`card-quiz-${quiz.id}`}>
-                  {/* Faded Category Icon Background */}
-                  <div className="absolute -right-6 -bottom-6 text-primary/5 dark:text-primary/10 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none">
-                    {getCategoryIcon(quiz.category)}
-                  </div>
+                <Card className="group overflow-hidden border-border/40 transition-all hover:border-primary/20 hover:shadow-md dark:bg-card/50" data-testid={`card-quiz-${quiz.id}`}>
                   <CardContent className="p-0">
                     <div className="flex flex-col sm:flex-row">
                       {/* Left Info Section */}
-                      <div className="flex-1 p-5 sm:p-6 space-y-4">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="space-y-1">
-                            <h3 className="text-lg font-bold tracking-tight group-hover:text-primary transition-colors leading-tight">{quiz.title}</h3>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-                              <span className="flex items-center gap-1.5">
-                                <Clock className="h-3.5 w-3.5" />
-                                {formatDate(quiz.createdAt)}
-                              </span>
-                              <span>•</span>
-                              <span className="flex items-center gap-1.5">
-                                <FileText className="h-3.5 w-3.5" />
-                                {(quiz.questions as any[]).length} questions
-                              </span>
-                            </div>
-                          </div>
-                          {getDifficultyBadge(quiz.difficulty)}
+                      <div className="flex-1 p-5 sm:p-6 space-y-4 relative overflow-hidden">
+                        {/* Faded Category Icon Background */}
+                        <div className="absolute -right-4 -bottom-4 text-primary/10 dark:text-primary/20 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none">
+                          {getCategoryIcon(quiz.category)}
                         </div>
-
-                        <div className="flex items-center gap-4 pt-1">
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/5 border border-primary/10 text-xs font-semibold text-primary">
-                            <Target className="h-3.5 w-3.5" />
-                            {quiz.attemptCount || 0} {quiz.attemptCount === 1 ? "attempt" : "attempts"}
-                          </div>
-                          {quiz.isPublic === 1 && (
-                            <div className="flex items-center gap-1.5 text-xs font-medium text-green-600 dark:text-green-400">
-                              <Globe className="h-3.5 w-3.5" />
-                              Publicly Shared
+                        <div className="relative z-10">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="space-y-1">
+                              <h3 className="text-lg font-bold tracking-tight group-hover:text-primary transition-colors leading-tight">{quiz.title}</h3>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+                                <span className="flex items-center gap-1.5">
+                                  <Clock className="h-3.5 w-3.5" />
+                                  {formatDate(quiz.createdAt)}
+                                </span>
+                                <span>•</span>
+                                <span className="flex items-center gap-1.5">
+                                  <FileText className="h-3.5 w-3.5" />
+                                  {(quiz.questions as any[]).length} questions
+                                </span>
+                              </div>
                             </div>
-                          )}
+                            {getDifficultyBadge(quiz.difficulty)}
+                          </div>
+
+                          <div className="flex items-center gap-4 pt-1">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/5 border border-primary/10 text-xs font-semibold text-primary">
+                              <Target className="h-3.5 w-3.5" />
+                              {quiz.attemptCount || 0} {quiz.attemptCount === 1 ? "attempt" : "attempts"}
+                            </div>
+                            {quiz.isPublic === 1 && (
+                              <div className="flex items-center gap-1.5 text-xs font-medium text-green-600 dark:text-green-400">
+                                <Globe className="h-3.5 w-3.5" />
+                                Publicly Shared
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
 
