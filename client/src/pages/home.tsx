@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation, Link } from "wouter";
 import { 
-  ArrowRight, ArrowUp, CheckCircle2, Upload, Brain, Zap, BookOpen, 
+  ArrowRight, ArrowUp, ArrowLeft, CheckCircle2, Upload, Brain, Zap, BookOpen, 
   Share2, RotateCcw, Sparkles, Play, Eye, Target, Users, Star,
   ChevronRight, ChevronLeft, Layers, GraduationCap, Trophy, Flame, MousePointer2, Check
 } from "lucide-react";
@@ -689,88 +689,299 @@ function HowItWorksGallery() {
   );
 }
 
+function FeatureIllustration({ feature, color }: { feature: string; color: string }) {
+  const colorMap: Record<string, string> = {
+    blue: "#3b82f6",
+    purple: "#a855f7",
+    orange: "#f97316",
+    rose: "#f43f5e",
+    emerald: "#10b981",
+    amber: "#f59e0b",
+  };
+  const fillColor = colorMap[color] || "#3b82f6";
+  
+  if (feature === "Multi-Format Upload") {
+    return (
+      <svg viewBox="0 0 200 150" className="w-full h-full">
+        <rect x="30" y="20" width="50" height="65" rx="4" fill={fillColor} opacity="0.2" stroke={fillColor} strokeWidth="2"/>
+        <text x="55" y="55" textAnchor="middle" fill={fillColor} fontSize="12" fontWeight="bold">PDF</text>
+        <rect x="75" y="35" width="50" height="65" rx="4" fill={fillColor} opacity="0.3" stroke={fillColor} strokeWidth="2"/>
+        <text x="100" y="70" textAnchor="middle" fill={fillColor} fontSize="12" fontWeight="bold">DOC</text>
+        <rect x="120" y="50" width="50" height="65" rx="4" fill={fillColor} opacity="0.4" stroke={fillColor} strokeWidth="2"/>
+        <text x="145" y="85" textAnchor="middle" fill={fillColor} fontSize="12" fontWeight="bold">IMG</text>
+        <path d="M100 115 L100 135 M90 125 L100 135 L110 125" stroke={fillColor} strokeWidth="3" fill="none" strokeLinecap="round"/>
+      </svg>
+    );
+  }
+  
+  if (feature === "AI Quiz Generation") {
+    return (
+      <svg viewBox="0 0 200 150" className="w-full h-full">
+        <circle cx="100" cy="60" r="35" fill={fillColor} opacity="0.2" stroke={fillColor} strokeWidth="2"/>
+        <circle cx="100" cy="60" r="20" fill={fillColor} opacity="0.3"/>
+        <circle cx="92" cy="55" r="4" fill="white"/>
+        <circle cx="108" cy="55" r="4" fill="white"/>
+        <path d="M90 70 Q100 80 110 70" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
+        <rect x="40" y="105" width="120" height="25" rx="4" fill={fillColor} opacity="0.2" stroke={fillColor} strokeWidth="1.5"/>
+        <circle cx="52" cy="117" r="6" fill={fillColor} opacity="0.5"/>
+        <line x1="65" y1="117" x2="145" y2="117" stroke={fillColor} strokeWidth="2" opacity="0.5"/>
+      </svg>
+    );
+  }
+  
+  if (feature === "Study Mode") {
+    return (
+      <svg viewBox="0 0 200 150" className="w-full h-full">
+        <rect x="55" y="25" width="90" height="100" rx="8" fill={fillColor} opacity="0.15" stroke={fillColor} strokeWidth="2" transform="rotate(-8 100 75)"/>
+        <rect x="55" y="25" width="90" height="100" rx="8" fill="white" stroke={fillColor} strokeWidth="2"/>
+        <text x="100" y="65" textAnchor="middle" fill={fillColor} fontSize="10" fontWeight="500">Question?</text>
+        <line x1="70" y1="80" x2="130" y2="80" stroke={fillColor} strokeWidth="1" opacity="0.3"/>
+        <text x="100" y="100" textAnchor="middle" fill={fillColor} fontSize="8" opacity="0.6">Tap to flip</text>
+        <path d="M30 75 L15 60 M30 75 L15 90" stroke={fillColor} strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.4"/>
+        <path d="M170 75 L185 60 M170 75 L185 90" stroke={fillColor} strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.4"/>
+      </svg>
+    );
+  }
+  
+  if (feature === "Spaced Repetition") {
+    return (
+      <svg viewBox="0 0 200 150" className="w-full h-full">
+        <path d="M40 75 Q100 20 160 75 Q100 130 40 75" fill="none" stroke={fillColor} strokeWidth="2" strokeDasharray="5,5" opacity="0.4"/>
+        <circle cx="40" cy="75" r="15" fill={fillColor} opacity="0.3" stroke={fillColor} strokeWidth="2"/>
+        <text x="40" y="80" textAnchor="middle" fill={fillColor} fontSize="16">1</text>
+        <circle cx="100" cy="35" r="15" fill={fillColor} opacity="0.5" stroke={fillColor} strokeWidth="2"/>
+        <text x="100" y="40" textAnchor="middle" fill={fillColor} fontSize="16">2</text>
+        <circle cx="160" cy="75" r="15" fill={fillColor} opacity="0.7" stroke={fillColor} strokeWidth="2"/>
+        <text x="160" y="80" textAnchor="middle" fill={fillColor} fontSize="16">3</text>
+        <circle cx="100" cy="115" r="15" fill={fillColor} stroke={fillColor} strokeWidth="2"/>
+        <path d="M95 115 L100 120 L108 108" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+      </svg>
+    );
+  }
+  
+  if (feature === "Community Sharing") {
+    return (
+      <svg viewBox="0 0 200 150" className="w-full h-full">
+        <circle cx="100" cy="55" r="20" fill={fillColor} opacity="0.3" stroke={fillColor} strokeWidth="2"/>
+        <circle cx="100" cy="48" r="8" fill={fillColor}/>
+        <path d="M85 68 Q100 78 115 68" fill={fillColor}/>
+        <circle cx="50" cy="95" r="15" fill={fillColor} opacity="0.2" stroke={fillColor} strokeWidth="1.5"/>
+        <circle cx="50" cy="90" r="6" fill={fillColor} opacity="0.5"/>
+        <path d="M40 102 Q50 110 60 102" fill={fillColor} opacity="0.5"/>
+        <circle cx="150" cy="95" r="15" fill={fillColor} opacity="0.2" stroke={fillColor} strokeWidth="1.5"/>
+        <circle cx="150" cy="90" r="6" fill={fillColor} opacity="0.5"/>
+        <path d="M140 102 Q150 110 160 102" fill={fillColor} opacity="0.5"/>
+        <line x1="75" y1="65" x2="60" y2="82" stroke={fillColor} strokeWidth="2" strokeDasharray="3,3"/>
+        <line x1="125" y1="65" x2="140" y2="82" stroke={fillColor} strokeWidth="2" strokeDasharray="3,3"/>
+      </svg>
+    );
+  }
+  
+  if (feature === "Streak Tracking") {
+    return (
+      <svg viewBox="0 0 200 150" className="w-full h-full">
+        <path d="M100 20 Q85 50 95 70 Q80 60 90 90 Q75 80 85 110 Q95 100 100 130 Q105 100 115 110 Q125 80 110 90 Q120 60 105 70 Q115 50 100 20" fill={fillColor} opacity="0.3" stroke={fillColor} strokeWidth="2"/>
+        <path d="M100 45 Q92 60 97 75 Q88 68 95 90 Q100 85 100 105 Q100 85 105 90 Q112 68 103 75 Q108 60 100 45" fill={fillColor}/>
+        <text x="30" y="135" fill={fillColor} fontSize="14" fontWeight="bold">Mon</text>
+        <text x="65" y="135" fill={fillColor} fontSize="14" fontWeight="bold">Tue</text>
+        <text x="100" y="135" fill={fillColor} fontSize="14" fontWeight="bold">Wed</text>
+        <text x="135" y="135" fill={fillColor} fontSize="14" fontWeight="bold">Thu</text>
+        <text x="170" y="135" fill={fillColor} fontSize="14" fontWeight="bold">Fri</text>
+      </svg>
+    );
+  }
+  
+  return null;
+}
+
 function FeatureShowcase() {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  
   const features = [
     {
       icon: Upload,
       title: "Multi-Format Upload",
       description: "PDFs, images, Word, PowerPoint, Excel. Our OCR handles photos of textbooks too.",
       color: "blue",
+      details: "Upload any document format and our intelligent parser extracts the text content. For images and scanned documents, our OCR (Optical Character Recognition) technology accurately reads text from photos of textbooks, handwritten notes, and more.",
     },
     {
       icon: Brain,
       title: "AI Quiz Generation",
       description: "Intelligent AI creates meaningful questions that test real understanding.",
       color: "purple",
+      details: "Our AI analyzes your content to generate diverse question types: multiple choice, true/false, and short answer. Questions are designed to test comprehension, not just memorization, with adjustable difficulty levels.",
     },
     {
       icon: BookOpen,
       title: "Study Mode",
       description: "Swipe-based flashcards with 'known' and 'learning' progress tracking.",
       color: "orange",
+      details: "Flip through questions as flashcards. Mark each card as 'known' or 'still learning' to track your progress. Cards you're still learning will appear more frequently until you master them.",
     },
     {
       icon: RotateCcw,
       title: "Spaced Repetition",
       description: "Missed questions come back in retry rounds until you master them.",
       color: "rose",
+      details: "Questions you answer incorrectly automatically appear in retry rounds. This spaced repetition approach ensures you keep practicing difficult concepts until they stick, maximizing long-term retention.",
     },
     {
       icon: Share2,
       title: "Community Sharing",
       description: "Share quizzes, browse public ones, vote and comment.",
       color: "emerald",
+      details: "Share your quizzes with friends or make them public for others to use. Discover quizzes created by the community, sorted by subject and popularity. Collaborate and learn together.",
     },
     {
       icon: Flame,
       title: "Streak Tracking",
       description: "Build daily learning habits with streak goals and reminders.",
       color: "amber",
+      details: "Stay motivated with daily streak tracking. Set personal goals, receive friendly reminders, and watch your consistency grow. Building a study habit has never been more rewarding.",
     },
   ];
 
-  const colorClasses: Record<string, { text: string; border: string; bg: string; glow: string }> = {
-    blue: { text: "text-blue-500", border: "border-blue-500/20", bg: "bg-blue-500/10", glow: "group-hover:shadow-blue-500/20" },
-    purple: { text: "text-purple-500", border: "border-purple-500/20", bg: "bg-purple-500/10", glow: "group-hover:shadow-purple-500/20" },
-    orange: { text: "text-orange-500", border: "border-orange-500/20", bg: "bg-orange-500/10", glow: "group-hover:shadow-orange-500/20" },
-    rose: { text: "text-rose-500", border: "border-rose-500/20", bg: "bg-rose-500/10", glow: "group-hover:shadow-rose-500/20" },
-    emerald: { text: "text-emerald-500", border: "border-emerald-500/20", bg: "bg-emerald-500/10", glow: "group-hover:shadow-emerald-500/20" },
-    amber: { text: "text-amber-500", border: "border-amber-500/20", bg: "bg-amber-500/10", glow: "group-hover:shadow-amber-500/20" },
+  const colorClasses: Record<string, { text: string; border: string; bg: string; glow: string; solidBg: string }> = {
+    blue: { text: "text-blue-500", border: "border-blue-500/20", bg: "bg-blue-500/10", glow: "group-hover:shadow-blue-500/20", solidBg: "bg-blue-500" },
+    purple: { text: "text-purple-500", border: "border-purple-500/20", bg: "bg-purple-500/10", glow: "group-hover:shadow-purple-500/20", solidBg: "bg-purple-500" },
+    orange: { text: "text-orange-500", border: "border-orange-500/20", bg: "bg-orange-500/10", glow: "group-hover:shadow-orange-500/20", solidBg: "bg-orange-500" },
+    rose: { text: "text-rose-500", border: "border-rose-500/20", bg: "bg-rose-500/10", glow: "group-hover:shadow-rose-500/20", solidBg: "bg-rose-500" },
+    emerald: { text: "text-emerald-500", border: "border-emerald-500/20", bg: "bg-emerald-500/10", glow: "group-hover:shadow-emerald-500/20", solidBg: "bg-emerald-500" },
+    amber: { text: "text-amber-500", border: "border-amber-500/20", bg: "bg-amber-500/10", glow: "group-hover:shadow-amber-500/20", solidBg: "bg-amber-500" },
   };
 
   return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      {features.map((feature, index) => {
-        const colors = colorClasses[feature.color];
-        return (
-          <motion.div
-            key={feature.title}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ delay: index * 0.08, type: "spring", stiffness: 100 }}
+    <div className="relative min-h-[400px]">
+      <AnimatePresence mode="wait">
+        {expandedIndex === null ? (
+          <motion.div 
+            key="grid"
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
           >
-            <Card className={`h-full group cursor-default transition-all duration-300 border ${colors.border} bg-card hover:shadow-xl ${colors.glow} hover:-translate-y-1`}>
-              <CardContent className="p-6 relative overflow-hidden">
-                <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full ${colors.bg} blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                <motion.div 
-                  className={`relative w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center mb-5 border ${colors.border}`}
-                  whileHover={{ scale: 1.1, rotate: 8 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
+            {features.map((feature, index) => {
+              const colors = colorClasses[feature.color];
+              return (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ delay: index * 0.08, type: "spring", stiffness: 100 }}
+                  onClick={() => setExpandedIndex(index)}
                 >
-                  <feature.icon className={`w-7 h-7 ${colors.text}`} />
+                  <Card className={`h-full group cursor-pointer transition-all duration-300 border ${colors.border} bg-card hover:shadow-xl ${colors.glow} hover:-translate-y-1`}>
+                    <CardContent className="p-6 relative overflow-hidden">
+                      <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full ${colors.bg} blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                      <motion.div 
+                        className={`relative w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center mb-5 border ${colors.border}`}
+                        whileHover={{ scale: 1.1, rotate: 8 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                      >
+                        <feature.icon className={`w-7 h-7 ${colors.text}`} />
+                      </motion.div>
+                      <h3 className="relative text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
+                        {feature.title}
+                      </h3>
+                      <p className="relative text-sm text-muted-foreground leading-relaxed">
+                        {feature.description}
+                      </p>
+                      <div className="mt-4 flex items-center gap-1 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span>Click to learn more</span>
+                        <ChevronRight className="w-3 h-3" />
+                      </div>
+                    </CardContent>
+                  </Card>
                 </motion.div>
-                <h3 className="relative text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
-                  {feature.title}
-                </h3>
-                <p className="relative text-sm text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
-              </CardContent>
-            </Card>
+              );
+            })}
           </motion.div>
-        );
-      })}
+        ) : (
+          <motion.div
+            key="expanded"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 200, damping: 25 }}
+            className="w-full"
+          >
+            {(() => {
+              const feature = features[expandedIndex];
+              const colors = colorClasses[feature.color];
+              return (
+                <Card className={`w-full border-2 ${colors.border} bg-card shadow-2xl`}>
+                  <CardContent className="p-8 relative overflow-hidden">
+                    <div className={`absolute -top-20 -right-20 w-64 h-64 rounded-full ${colors.bg} blur-3xl opacity-50`} />
+                    <div className={`absolute -bottom-20 -left-20 w-48 h-48 rounded-full ${colors.bg} blur-3xl opacity-30`} />
+                    
+                    <div className="relative grid md:grid-cols-2 gap-8 items-center">
+                      <div className="order-2 md:order-1">
+                        <motion.div 
+                          className={`inline-flex w-16 h-16 rounded-2xl ${colors.bg} items-center justify-center mb-6 border ${colors.border}`}
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+                        >
+                          <feature.icon className={`w-8 h-8 ${colors.text}`} />
+                        </motion.div>
+                        
+                        <motion.h3 
+                          className="text-2xl md:text-3xl font-bold text-foreground mb-4"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.15 }}
+                        >
+                          {feature.title}
+                        </motion.h3>
+                        
+                        <motion.p 
+                          className="text-base text-muted-foreground leading-relaxed mb-6"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.2 }}
+                        >
+                          {feature.details}
+                        </motion.p>
+                        
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.25 }}
+                        >
+                          <Button
+                            variant="outline"
+                            onClick={() => setExpandedIndex(null)}
+                            className="gap-2"
+                            data-testid="button-feature-back"
+                          >
+                            <ArrowLeft className="w-4 h-4" />
+                            Back to all features
+                          </Button>
+                        </motion.div>
+                      </div>
+                      
+                      <motion.div 
+                        className="order-1 md:order-2 flex items-center justify-center"
+                        initial={{ opacity: 0, x: 30 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ type: "spring", stiffness: 100, delay: 0.1 }}
+                      >
+                        <div className={`w-full max-w-[280px] aspect-square rounded-2xl ${colors.bg} border ${colors.border} p-6 flex items-center justify-center`}>
+                          <FeatureIllustration feature={feature.title} color={feature.color} />
+                        </div>
+                      </motion.div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
