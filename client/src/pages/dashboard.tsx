@@ -393,8 +393,8 @@ function StreakCalendar({
           />
         </motion.div>
         <div className="flex-1">
-          <span className={`text-3xl font-bold ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
-            {currentStreak} day streak
+          <span className={`text-2xl font-bold ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
+             {currentStreak} day streak
           </span>
           {isActive ? (
             <p className="text-sm text-muted-foreground mt-1">{trivia}</p>
@@ -1284,19 +1284,19 @@ export default function Dashboard() {
                 })}
               </div>
 
-              {/* Dots for PC */}
-              {allSavedQuizzes.length > 1 && (
-                <div className="hidden md:flex justify-center gap-1.5 mt-2">
-                  {allSavedQuizzes.map((_, i) => (
-                    <div 
-                      key={i} 
-                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                        activeIndex === i ? 'bg-primary w-3' : 'bg-muted-foreground/30'
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
+            {/* Dots for PC & Mobile */}
+            {allSavedQuizzes.length > 1 && (
+              <div className="flex justify-center gap-1.5 mt-2">
+                {allSavedQuizzes.map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                      activeIndex === i ? 'bg-primary w-3' : 'bg-muted-foreground/30'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
             </div>
           </motion.section>
         )}

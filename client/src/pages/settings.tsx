@@ -376,8 +376,7 @@ export default function Settings() {
                 >
                   <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-amber-600 dark:text-amber-400">
-                    When enabled, your uploaded documents will be deleted immediately after quiz generation. 
-                    The quiz content will still be saved.
+                                        Your uploads enhance your experience by making it more personalized and improved.
                   </p>
                 </motion.div>
               )}
