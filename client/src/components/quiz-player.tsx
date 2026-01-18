@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose, RotateCcw, Zap, Trophy, Target, ChevronUp, Star, Flame, BadgeCheck, BookCheck, Lock } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose, RotateCcw, Zap, Trophy, Target, ChevronUp, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -99,6 +99,7 @@ export function QuizPlayer() {
   const [correctStreak, setCorrectStreak] = useState(0);
   const [feedbackMessages, setFeedbackMessages] = useState<Record<string, { message: string; streakAtTime: number }>>({}); 
   const [showQuestionNav, setShowQuestionNav] = useState(false);
+  const [showChatbot, setShowChatbot] = useState(false);
   
   const wrongAnswerIds = useRef<Set<string>>(new Set());
   const [retryAnswers, setRetryAnswers] = useState<Record<string, string>>({});
@@ -899,6 +900,15 @@ export function QuizPlayer() {
             </Button>
 
             <div className="flex items-center gap-2 flex-[2] sm:flex-none justify-center">
+              <Button
+                variant="outline"
+                onClick={() => setShowChatbot(true)}
+                size="lg"
+                className="rounded-xl h-12 w-12 sm:h-11 sm:w-11"
+                data-testid="button-open-chatbot"
+              >
+                <MessageCircle className="h-4 w-4" />
+              </Button>
               {hasMaterial && (
                 <Button
                   variant="outline"
@@ -976,6 +986,8 @@ export function QuizPlayer() {
         questions={currentQuiz.questions}
         currentQuestionIndex={Math.min(currentIndex, currentQuiz.questions.length - 1)}
         sourceMaterial={sourceMaterial?.text || undefined}
+        isOpen={showChatbot}
+        onClose={() => setShowChatbot(false)}
       />
     </>
   );
