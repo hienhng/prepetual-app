@@ -226,12 +226,12 @@ export default function HistoryPage() {
                   <CardContent className="p-0">
                     <div className="flex flex-col sm:flex-row">
                       {/* Left Info Section */}
-                      <div className="flex-1 p-5 sm:p-6 space-y-4 relative overflow-hidden pl-20">
-                        {/* Faded Category Icon Background */}
-                        <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none p-4 rounded-full ${getDifficultyColor(quiz.difficulty)}`}>
-                          {getCategoryIcon(quiz.category, "h-12 w-12")}
+                      <div className="flex-1 p-5 sm:p-6 space-y-4 relative overflow-hidden flex items-center gap-4">
+                        {/* Difficulty Colored Icon Background */}
+                        <div className={`flex-shrink-0 flex items-center justify-center h-14 w-14 rounded-full transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12 ${getDifficultyColor(quiz.difficulty)}`}>
+                          {getCategoryIcon(quiz.category, "h-7 w-7")}
                         </div>
-                        <div className="relative z-10">
+                        <div className="relative z-10 flex-1">
                           <div className="flex items-start justify-between gap-4">
                             <div className="space-y-1">
                               <h3 className="text-lg font-bold tracking-tight group-hover:text-primary transition-colors leading-tight">{quiz.title}</h3>
