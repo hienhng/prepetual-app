@@ -707,7 +707,11 @@ INSTRUCTIONS:
 - Be encouraging and supportive
 - Keep responses concise but helpful
 - If they ask about a specific question, reference it by number
-- Respond in the same language as the quiz content`;
+- Respond in the same language as the quiz content
+- IMPORTANT: When explaining mathematical formulas, equations, or expressions, use LaTeX notation:
+  - Use $...$ for inline math (e.g., $x^2 + y^2 = z^2$)
+  - Use $$...$$ for display/block math (e.g., $$\\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$)
+  - Examples: fractions like $\\frac{a}{b}$, square roots like $\\sqrt{x}$, exponents like $x^n$, subscripts like $x_i$, Greek letters like $\\alpha$, $\\beta$, integrals like $\\int_a^b f(x)dx$, sums like $\\sum_{i=1}^n$`;
 
   const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
     { role: "system", content: quizContext },

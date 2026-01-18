@@ -6,6 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiRequest } from "@/lib/queryClient";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 import type { Question } from "@shared/schema";
 
 interface ChatMessage {
@@ -27,6 +29,70 @@ const suggestions = [
   { text: "Give me a hint", icon: HelpCircle },
   { text: "Key concept?", icon: BookOpen },
 ];
+
+function renderMathInText(text: string): string {
+  let result = text;
+  
+  result = result.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => {
+    try {
+      return katex.renderToString(math.trim(), { 
+        displayMode: true, 
+        throwOnError: false,
+        trust: true
+      });
+    } catch {
+      return `$$${math}$$`;
+    }
+  });
+  
+  result = result.replace(/\$([^\$\n]+?)\$/g, (_, math) => {
+    try {
+      return katex.renderToString(math.trim(), { 
+        displayMode: false, 
+        throwOnError: false,
+        trust: true
+      });
+    } catch {
+      return `$${math}$`;
+    }
+  });
+  
+  result = result.replace(/\\\[([\s\S]*?)\\\]/g, (_, math) => {
+    try {
+      return katex.renderToString(math.trim(), { 
+        displayMode: true, 
+        throwOnError: false,
+        trust: true
+      });
+    } catch {
+      return `\\[${math}\\]`;
+    }
+  });
+  
+  result = result.replace(/\\\(([\s\S]*?)\\\)/g, (_, math) => {
+    try {
+      return katex.renderToString(math.trim(), { 
+        displayMode: false, 
+        throwOnError: false,
+        trust: true
+      });
+    } catch {
+      return `\\(${math}\\)`;
+    }
+  });
+  
+  return result;
+}
+
+function MathText({ content, className }: { content: string; className?: string }) {
+  const html = renderMathInText(content);
+  return (
+    <span 
+      className={className}
+      dangerouslySetInnerHTML={{ __html: html }} 
+    />
+  );
+}
 
 export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, sourceMaterial, isOpen, onClose }: QuizChatbotProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -116,7 +182,9 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
               <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-primary">{currentQuestionIndex + 1}</span>
               </div>
-              <p className="text-sm line-clamp-2 text-muted-foreground">{currentQuestion.question}</p>
+              <div className="text-sm line-clamp-2 text-muted-foreground">
+                <MathText content={currentQuestion.question} />
+              </div>
             </div>
           </motion.div>
         )}
@@ -200,7 +268,9 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                           : "bg-muted/80 rounded-bl-md border border-border/50"
                       }`}
                     >
-                      <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                      <div className="whitespace-pre-wrap leading-relaxed [&_.katex-display]:my-2 [&_.katex]:text-[0.95em]">
+                        <MathText content={message.content} />
+                      </div>
                     </div>
                     {message.role === "user" && (
                       <motion.div 
