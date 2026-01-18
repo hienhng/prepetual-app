@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { QuizPlayer } from "@/components/quiz-player";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
-import { useSidebar } from "@/components/ui/sidebar";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useQuizNavigationGuard } from "@/lib/quiz-navigation-guard";
@@ -14,11 +13,6 @@ export default function Quiz() {
   const { currentQuiz, userAnswers } = useQuiz();
   const { user } = useAuth();
   const { navigateWithGuard } = useQuizNavigationGuard();
-  const { setOpen } = useSidebar();
-
-  useEffect(() => {
-    setOpen(false);
-  }, [setOpen]);
 
   useEffect(() => {
     if (!currentQuiz) {

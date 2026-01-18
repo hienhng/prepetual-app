@@ -280,11 +280,27 @@ function AuthenticatedLayout() {
   const { user } = useAuth();
   const [location] = useLocation();
   const showFooter = location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
+  const hideSidebar = location === "/quiz" || location === "/results" || location === "/revision-summary";
 
   const sidebarStyle = {
     "--sidebar-width": "16rem",
     "--sidebar-width-icon": "3rem",
   } as React.CSSProperties;
+
+  if (hideSidebar) {
+    return (
+      <>
+        <div className="min-h-screen w-full">
+          <main className="flex-1">
+            <AuthenticatedRouter />
+          </main>
+        </div>
+        {user && !user.emailVerified && (
+          <VerificationPrompt email={user.email} open={true} />
+        )}
+      </>
+    );
+  }
 
   return (
     <>
