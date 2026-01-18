@@ -845,52 +845,53 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
       <svg viewBox="0 0 180 140" className="w-full h-full">
         <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
         
-        {/* Pip penguin - matching CutePenguin component design */}
-        <g transform="translate(25, 15) scale(0.8)">
+        {/* Pip penguin - centered, matching CutePenguin component */}
+        <g transform="translate(90, 70)">
           {/* Left flipper */}
-          <ellipse cx="18" cy="52" rx="10" ry="20" fill="#2d3436" transform="rotate(-25 18 52)"/>
+          <ellipse cx="-26" cy="2" rx="8" ry="16" fill="#2d3436" transform="rotate(-25 -26 2)"/>
           {/* Right flipper */}
-          <ellipse cx="82" cy="52" rx="10" ry="20" fill="#2d3436" transform="rotate(25 82 52)"/>
+          <ellipse cx="26" cy="2" rx="8" ry="16" fill="#2d3436" transform="rotate(25 26 2)"/>
           {/* Main body - black outer */}
-          <ellipse cx="50" cy="55" rx="30" ry="35" fill="#2d3436"/>
+          <ellipse cx="0" cy="5" rx="24" ry="28" fill="#2d3436"/>
           {/* White belly */}
-          <ellipse cx="50" cy="58" rx="22" ry="28" fill="#ffffff" stroke="#e0e0e0" strokeWidth="0.5"/>
+          <ellipse cx="0" cy="8" rx="18" ry="22" fill="#ffffff" stroke="#e0e0e0" strokeWidth="0.5"/>
           {/* Head - black */}
-          <path d="M24 42 Q24 18 50 18 Q76 18 76 42 Q76 52 50 52 Q24 52 24 42" fill="#2d3436"/>
+          <path d="M-20 -8 Q-20 -28 0 -28 Q20 -28 20 -8 Q20 0 0 0 Q-20 0 -20 -8" fill="#2d3436"/>
           {/* White face area */}
-          <ellipse cx="50" cy="40" rx="18" ry="15" fill="#ffffff"/>
+          <ellipse cx="0" cy="-10" rx="14" ry="12" fill="#ffffff"/>
           {/* Left eye white */}
-          <ellipse cx="40" cy="38" rx="7" ry="8" fill="#ffffff"/>
+          <ellipse cx="-7" cy="-12" rx="5" ry="6" fill="#ffffff"/>
           {/* Right eye white */}
-          <ellipse cx="60" cy="38" rx="7" ry="8" fill="#ffffff"/>
+          <ellipse cx="7" cy="-12" rx="5" ry="6" fill="#ffffff"/>
           {/* Left pupil */}
-          <circle cx="41" cy="39" r="4" fill="#2d3436"/>
+          <circle cx="-6" cy="-11" r="3" fill="#2d3436"/>
           {/* Right pupil */}
-          <circle cx="59" cy="39" r="4" fill="#2d3436"/>
+          <circle cx="6" cy="-11" r="3" fill="#2d3436"/>
           {/* Left eye highlight */}
-          <circle cx="43" cy="37" r="1.5" fill="#ffffff"/>
+          <circle cx="-4" cy="-13" r="1.2" fill="#ffffff"/>
           {/* Right eye highlight */}
-          <circle cx="61" cy="37" r="1.5" fill="#ffffff"/>
+          <circle cx="8" cy="-13" r="1.2" fill="#ffffff"/>
           {/* Orange beak */}
-          <ellipse cx="50" cy="48" rx="4" ry="2.5" fill="#f97316"/>
+          <ellipse cx="0" cy="-3" rx="3" ry="2" fill="#f97316"/>
           {/* Feet */}
-          <ellipse cx="38" cy="88" rx="8" ry="4" fill="#f97316"/>
-          <ellipse cx="62" cy="88" rx="8" ry="4" fill="#f97316"/>
+          <ellipse cx="-10" cy="32" rx="6" ry="3" fill="#f97316"/>
+          <ellipse cx="10" cy="32" rx="6" ry="3" fill="#f97316"/>
         </g>
         
-        {/* Chat bubble */}
-        <rect x="105" y="20" width="55" height="40" rx="8" fill={c} opacity="0.15" stroke={c} strokeWidth="1"/>
-        <rect x="113" y="30" width="38" height="3" rx="1.5" fill={c} opacity="0.5"/>
-        <rect x="113" y="38" width="28" height="3" rx="1.5" fill={c} opacity="0.4"/>
-        <rect x="113" y="46" width="32" height="3" rx="1.5" fill={c} opacity="0.3"/>
-        <path d="M105 42 L95 48 L105 54" fill={c} opacity="0.15"/>
+        {/* Chat bubble - positioned top right, with tail pointing to Pip */}
+        <g transform="translate(118, 18)">
+          <rect x="0" y="0" width="44" height="32" rx="6" fill={c} opacity="0.12" stroke={c} strokeWidth="1"/>
+          <path d="M0 16 L-8 20 L0 24" fill={c} opacity="0.12"/>
+          <rect x="6" y="8" width="32" height="3" rx="1.5" fill={c} opacity="0.5"/>
+          <rect x="6" y="14" width="24" height="3" rx="1.5" fill={c} opacity="0.4"/>
+          <rect x="6" y="20" width="28" height="3" rx="1.5" fill={c} opacity="0.3"/>
+        </g>
         
-        {/* Ask Pip button */}
-        <rect x="105" y="72" width="55" height="28" rx="8" fill={c}/>
-        <text x="132" y="90" textAnchor="middle" fontSize="9" fill="white" fontWeight="600">Ask Pip</text>
-        
-        {/* Label */}
-        <text x="55" y="128" textAnchor="middle" fontSize="8" fill={c} fontWeight="600">Pip</text>
+        {/* Ask Pip button - centered below */}
+        <g transform="translate(90, 118)">
+          <rect x="-28" y="0" width="56" height="20" rx="6" fill={c}/>
+          <text x="0" y="14" textAnchor="middle" fontSize="8" fill="white" fontWeight="600">Ask Pip</text>
+        </g>
       </svg>
     );
   }
@@ -969,78 +970,44 @@ function FeatureShowcase() {
         {expandedIndex === null ? (
           <motion.div 
             key="grid"
-            className="flex flex-col gap-5"
+            className="grid gap-4 sm:gap-5"
+            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             layout
           >
-            {/* First row - 4 cards on desktop, 2 on tablet, 1 on mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {features.slice(0, 4).map((feature, index) => {
-                const colors = colorClasses[feature.color];
-                return (
-                  <motion.div
-                    key={feature.title}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ delay: index * 0.08, type: "spring", stiffness: 100 }}
-                    onClick={() => setExpandedIndex(index)}
-                  >
-                    <Card className={`h-full group cursor-pointer transition-all duration-300 border ${colors.border} bg-card hover:shadow-xl ${colors.glow} hover:-translate-y-1`}>
-                      <CardContent className="p-4 relative overflow-hidden min-h-[100px]">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center border ${colors.border} shrink-0`}>
-                            <feature.icon className={`w-5 h-5 ${colors.text}`} />
-                          </div>
-                          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors leading-tight">
-                            {feature.title}
-                          </h3>
+            {features.map((feature, index) => {
+              const colors = colorClasses[feature.color];
+              return (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ delay: index * 0.06, type: "spring", stiffness: 100 }}
+                  onClick={() => setExpandedIndex(index)}
+                  className="flex"
+                >
+                  <Card className={`w-full group cursor-pointer transition-all duration-300 border ${colors.border} bg-card hover:shadow-xl ${colors.glow} hover:-translate-y-1`}>
+                    <CardContent className="p-4 flex flex-col h-full">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center border ${colors.border} shrink-0`}>
+                          <feature.icon className={`w-5 h-5 ${colors.text}`} />
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {feature.description}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </div>
-            {/* Second row - 3 cards centered */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:max-w-[75%] lg:mx-auto">
-              {features.slice(4).map((feature, index) => {
-                const colors = colorClasses[feature.color];
-                const actualIndex = index + 4;
-                return (
-                  <motion.div
-                    key={feature.title}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ delay: actualIndex * 0.08, type: "spring", stiffness: 100 }}
-                    onClick={() => setExpandedIndex(actualIndex)}
-                  >
-                    <Card className={`h-full group cursor-pointer transition-all duration-300 border ${colors.border} bg-card hover:shadow-xl ${colors.glow} hover:-translate-y-1`}>
-                      <CardContent className="p-4 relative overflow-hidden min-h-[100px]">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center border ${colors.border} shrink-0`}>
-                            <feature.icon className={`w-5 h-5 ${colors.text}`} />
-                          </div>
-                          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors leading-tight">
-                            {feature.title}
-                          </h3>
-                        </div>
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {feature.description}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </div>
+                        <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors leading-tight">
+                          {feature.title}
+                        </h3>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2 flex-1">
+                        {feature.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
           </motion.div>
         ) : (
           <motion.div
