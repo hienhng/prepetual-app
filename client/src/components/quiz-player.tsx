@@ -885,26 +885,26 @@ export function QuizPlayer() {
           left: !sidebarContext || isMobile ? 0 : sidebarState === 'collapsed' ? 'var(--sidebar-width-icon)' : 'var(--sidebar-width)' 
         }}
       >
-        <div className="max-w-3xl mx-auto px-4 py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-3">
+        <div className="max-w-3xl mx-auto px-2 sm:px-4 py-2 sm:py-4">
+          <div className="flex items-center justify-between gap-1.5 sm:gap-3">
             <Button
               variant="outline"
               onClick={goToPrevious}
               disabled={currentIndex === 0}
-              size="lg"
-              className="gap-2 rounded-xl flex-1 sm:flex-none h-12 sm:h-11"
+              size="icon"
+              className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-11 sm:w-auto sm:px-4 shrink-0"
               data-testid="button-previous"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline ml-2">Back</span>
             </Button>
 
-            <div className="flex items-center gap-2 flex-[2] sm:flex-none justify-center">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center">
               <Button
                 variant="outline"
                 onClick={() => setShowChatbot(true)}
-                size="lg"
-                className="rounded-xl h-12 w-12 sm:h-11 sm:w-11"
+                size="icon"
+                className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-11 sm:w-11 shrink-0"
                 data-testid="button-open-chatbot"
               >
                 <MessageCircle className="h-4 w-4" />
@@ -913,8 +913,8 @@ export function QuizPlayer() {
                 <Button
                   variant="outline"
                   onClick={() => setShowMaterialDialog(true)}
-                  size="lg"
-                  className="rounded-xl lg:hidden h-12 w-12 sm:h-11 sm:w-11"
+                  size="icon"
+                  className="rounded-lg sm:rounded-xl lg:hidden h-9 w-9 sm:h-11 sm:w-11 shrink-0"
                   data-testid="button-view-material-mobile"
                 >
                   <FileText className="h-4 w-4" />
@@ -925,38 +925,33 @@ export function QuizPlayer() {
                 <Button
                   onClick={handleCheck}
                   disabled={!canCheck}
-                  size="lg"
-                  className="gap-2 rounded-xl flex-1 sm:min-w-[160px] font-semibold h-12 sm:h-11"
+                  className="gap-1 sm:gap-2 rounded-lg sm:rounded-xl flex-1 max-w-[140px] sm:max-w-none sm:min-w-[160px] font-semibold h-9 sm:h-11 text-sm sm:text-base px-3 sm:px-4"
                   data-testid="button-check"
                 >
-                  <CheckCheck className="h-5 w-5" />
+                  <CheckCheck className="h-4 w-4 sm:h-5 sm:w-5" />
                   Check
                 </Button>
               ) : isLastQuestion ? (
                 <Button
                   onClick={finishQuiz}
                   disabled={isSubmitting || !canFinish}
-                  size="lg"
-                  className="gap-2 rounded-xl flex-1 sm:min-w-[160px] font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-12 sm:h-11"
+                  className="gap-1 sm:gap-2 rounded-lg sm:rounded-xl flex-1 max-w-[140px] sm:max-w-none sm:min-w-[160px] font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-9 sm:h-11 text-sm sm:text-base px-3 sm:px-4"
                   data-testid="button-finish"
                 >
                   {isSubmitting ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
                   ) : (
-                    <>
-                      See Results
-                    </>
+                    <>Results</>
                   )}
                 </Button>
               ) : (
                 <Button
                   onClick={goToNext}
-                  size="lg"
-                  className="gap-2 rounded-xl flex-1 sm:min-w-[160px] font-semibold h-12 sm:h-11"
+                  className="gap-1 sm:gap-2 rounded-lg sm:rounded-xl flex-1 max-w-[140px] sm:max-w-none sm:min-w-[160px] font-semibold h-9 sm:h-11 text-sm sm:text-base px-3 sm:px-4"
                   data-testid="button-next"
                 >
                   Continue
-                  <ArrowRight className="h-5 w-5" />
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               )}
             </div>
@@ -965,11 +960,11 @@ export function QuizPlayer() {
               variant="outline"
               onClick={goToNext}
               disabled={currentIndex >= allQuestions.length - 1}
-              size="lg"
-              className="gap-2 rounded-xl flex-1 sm:flex-none h-12 sm:h-11"
+              size="icon"
+              className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-11 sm:w-auto sm:px-4 shrink-0"
               data-testid="button-skip"
             >
-              <span className="hidden sm:inline">Next</span>
+              <span className="hidden sm:inline mr-2">Next</span>
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
