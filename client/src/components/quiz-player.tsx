@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
-import { useSidebar } from "@/components/ui/sidebar";
+import { useSidebarOptional } from "@/components/ui/sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
 import { MaterialViewerDialog, MaterialViewerSidebar } from "@/components/material-viewer";
@@ -87,7 +87,9 @@ export function QuizPlayer() {
     syncPlayerState,
   } = useQuiz();
   const { user } = useAuth();
-  const { state: sidebarState, isMobile } = useSidebar();
+  const sidebarContext = useSidebarOptional();
+  const sidebarState = sidebarContext?.state ?? "expanded";
+  const isMobile = sidebarContext?.isMobile ?? false;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shortAnswerInput, setShortAnswerInput] = useState("");
