@@ -155,9 +155,18 @@ export default function HistoryPage() {
 
   const getDifficultyBg = (difficulty?: string | null) => {
     switch (difficulty) {
-      case "easy": return "bg-green-500/5 dark:bg-green-500/10";
-      case "hard": return "bg-red-500/5 dark:bg-red-500/10";
-      default: return "bg-yellow-500/5 dark:bg-yellow-500/10";
+      case "easy": return {
+        section: "bg-green-500/5 dark:bg-green-500/10",
+        icon: "text-green-500/20 dark:text-green-500/30"
+      };
+      case "hard": return {
+        section: "bg-red-500/5 dark:bg-red-500/10",
+        icon: "text-red-500/20 dark:text-red-500/30"
+      };
+      default: return {
+        section: "bg-yellow-500/5 dark:bg-yellow-500/10",
+        icon: "text-yellow-500/20 dark:text-yellow-500/30"
+      };
     }
   };
 
@@ -226,9 +235,9 @@ export default function HistoryPage() {
                   <CardContent className="p-0">
                     <div className="flex flex-col sm:flex-row">
                       {/* Left Info Section */}
-                      <div className={`flex-1 p-5 sm:p-6 space-y-4 relative overflow-hidden ${getDifficultyBg(quiz.difficulty)}`}>
+                      <div className={`flex-1 p-5 sm:p-6 space-y-4 relative overflow-hidden ${getDifficultyBg(quiz.difficulty).section}`}>
                         {/* Faded Category Icon Background */}
-                        <div className="absolute -right-4 top-1/2 -translate-y-1/2 text-primary/10 dark:text-primary/20 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none">
+                        <div className={`absolute -right-4 top-1/2 -translate-y-1/2 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none ${getDifficultyBg(quiz.difficulty).icon}`}>
                           {getCategoryIcon(quiz.category, "h-24 w-24")}
                         </div>
                         <div className="relative z-10">
