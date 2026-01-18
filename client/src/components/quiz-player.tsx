@@ -909,12 +909,8 @@ export function QuizPlayer() {
                 className="rounded-full h-9 sm:h-11 px-3 sm:px-4 shrink-0 bg-background/50 backdrop-blur-sm border-2 hover:bg-primary/5 gap-2 font-semibold shadow-sm transition-all hover:shadow-md group"
                 data-testid="button-ask-penny"
               >
-                <div className="relative flex items-center justify-center">
+                <div className="flex items-center justify-center">
                   <CutePenguin size={22} className="sm:w-6 sm:h-6" />
-                  <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
                 </div>
                 <span className="hidden sm:inline">Ask Penny</span>
               </Button>

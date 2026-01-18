@@ -228,13 +228,6 @@ function TutorAvatar({ isAnimating = false, large = false }: { isAnimating?: boo
       >
         <CutePenguin size={penguinSize} />
       </motion.div>
-      <motion.div
-        className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 border-2 border-white dark:border-slate-700 flex items-center justify-center"
-        animate={{ scale: [1, 1.15, 1] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <div className="w-1.5 h-1.5 rounded-full bg-white" />
-      </motion.div>
     </motion.div>
   );
 }
@@ -324,14 +317,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                 Penny
                 <Snowflake className="w-4 h-4 opacity-80" />
               </SheetTitle>
-              <div className="flex items-center gap-2 mt-1">
-                <motion.div 
-                  className="w-2.5 h-2.5 rounded-full bg-emerald-300"
-                  animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                />
-                <p className="text-sm text-white/90">Your arctic study buddy</p>
-              </div>
+              <p className="text-sm text-white/90 mt-1">Your arctic study buddy</p>
             </div>
           </div>
         </SheetHeader>
