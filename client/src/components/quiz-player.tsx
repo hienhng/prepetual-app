@@ -18,7 +18,7 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import confetti from "canvas-confetti";
-import { QuizChatbot } from "@/components/quiz-chatbot";
+import { QuizChatbot, CutePenguin } from "@/components/quiz-chatbot";
 
 const encouragingMessages = {
   correct: [
@@ -900,15 +900,37 @@ export function QuizPlayer() {
             </Button>
 
             <div className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center">
-              <Button
-                variant="outline"
-                onClick={() => setShowChatbot(true)}
-                size="icon"
-                className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-11 sm:w-11 shrink-0"
-                data-testid="button-open-chatbot"
+              <motion.div
+                className="relative"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <MessageCircle className="h-4 w-4" />
-              </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowChatbot(true)}
+                  className="rounded-xl h-9 sm:h-11 px-2 sm:px-3 shrink-0 bg-gradient-to-br from-sky-50 to-cyan-50 dark:from-slate-800 dark:to-slate-700 border-sky-200 dark:border-slate-600 hover:border-sky-300 dark:hover:border-slate-500 hover:from-sky-100 hover:to-cyan-100 dark:hover:from-slate-700 dark:hover:to-slate-600 gap-1.5 sm:gap-2 group relative overflow-visible"
+                  data-testid="button-open-chatbot"
+                >
+                  <div className="relative">
+                    <CutePenguin size={22} className="sm:w-6 sm:h-6" />
+                    <motion.div
+                      className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400"
+                      animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    />
+                  </div>
+                  <span className="hidden sm:inline text-sm font-medium bg-gradient-to-r from-sky-600 to-cyan-600 bg-clip-text text-transparent">
+                    Ask Penny
+                  </span>
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-3 h-3 text-sky-400 hidden sm:block"
+                    animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.1, 1] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  >
+                    <Sparkles className="w-3 h-3" />
+                  </motion.div>
+                </Button>
+              </motion.div>
               {hasMaterial && (
                 <Button
                   variant="outline"

@@ -98,7 +98,7 @@ function MathText({ content, className }: { content: string; className?: string 
   );
 }
 
-function CutePenguin({ size = 64, className = "" }: { size?: number; className?: string }) {
+export function CutePenguin({ size = 64, className = "" }: { size?: number; className?: string }) {
   return (
     <svg 
       width={size} 
