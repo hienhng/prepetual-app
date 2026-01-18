@@ -618,8 +618,8 @@ export function QuizPlayer() {
                         ) : (
                           <AlertCircle className="h-3.5 w-3.5" />
                         )}
-                        <span className="hidden sm:inline">{isCorrectOpt ? "Great job! Here's why" : "Learn from this"}</span>
-                        <span className="sm:hidden">{isCorrectOpt ? "Nice!" : "Learn"}</span>
+                        <span className="hidden sm:inline">{isCorrectOpt && isSelected ? "Great job! Here's why" : isCorrectOpt ? "The correct answer" : "Learn from this"}</span>
+                        <span className="sm:hidden">{isCorrectOpt && isSelected ? "Nice!" : isCorrectOpt ? "Answer" : "Learn"}</span>
                       </div>
                       {isExpanded ? (
                         <ChevronUp className="h-3.5 w-3.5" />
@@ -824,7 +824,7 @@ export function QuizPlayer() {
                       ) : (
                         <AlertCircle className="h-4 w-4" />
                       )}
-                      <span>{isCorrectOpt ? "Great job! Here's why" : "Learn from this"}</span>
+                      <span>{isCorrectOpt && isSelected ? "Great job! Here's why" : isCorrectOpt ? "The correct answer" : "Learn from this"}</span>
                     </div>
                     {isExpanded ? (
                       <ChevronUp className="h-4 w-4" />
