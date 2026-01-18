@@ -901,7 +901,7 @@ function FeatureShowcase() {
   };
 
   return (
-    <div className="relative min-h-[520px] md:min-h-[420px]">
+    <motion.div className="relative" layout>
       <AnimatePresence mode="wait">
         {expandedIndex === null ? (
           <motion.div 
@@ -911,6 +911,7 @@ function FeatureShowcase() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
+            layout
           >
             {features.map((feature, index) => {
               const colors = colorClasses[feature.color];
