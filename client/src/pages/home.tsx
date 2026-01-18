@@ -569,56 +569,50 @@ function FeatureShowcase() {
       title: "Multi-Format Upload",
       description: "PDFs, images, Word, PowerPoint, Excel. Our OCR handles photos of textbooks too.",
       color: "blue",
-      gradient: "from-blue-500/20 to-blue-600/5",
     },
     {
       icon: Brain,
       title: "AI Quiz Generation",
       description: "Intelligent AI creates meaningful questions that test real understanding.",
       color: "purple",
-      gradient: "from-purple-500/20 to-purple-600/5",
     },
     {
       icon: BookOpen,
       title: "Study Mode",
       description: "Swipe-based flashcards with 'known' and 'learning' progress tracking.",
       color: "orange",
-      gradient: "from-orange-500/20 to-orange-600/5",
     },
     {
       icon: RotateCcw,
       title: "Spaced Repetition",
       description: "Missed questions come back in retry rounds until you master them.",
       color: "rose",
-      gradient: "from-rose-500/20 to-rose-600/5",
     },
     {
       icon: Share2,
       title: "Community Sharing",
       description: "Share quizzes, browse public ones, vote and comment.",
       color: "emerald",
-      gradient: "from-emerald-500/20 to-emerald-600/5",
     },
     {
       icon: Flame,
       title: "Streak Tracking",
       description: "Build daily learning habits with streak goals and reminders.",
       color: "amber",
-      gradient: "from-amber-500/20 to-amber-600/5",
     },
   ];
 
-  const colorClasses: Record<string, { text: string; border: string; bg: string }> = {
-    blue: { text: "text-blue-500", border: "border-blue-500/30", bg: "bg-blue-500/10" },
-    purple: { text: "text-purple-500", border: "border-purple-500/30", bg: "bg-purple-500/10" },
-    orange: { text: "text-orange-500", border: "border-orange-500/30", bg: "bg-orange-500/10" },
-    rose: { text: "text-rose-500", border: "border-rose-500/30", bg: "bg-rose-500/10" },
-    emerald: { text: "text-emerald-500", border: "border-emerald-500/30", bg: "bg-emerald-500/10" },
-    amber: { text: "text-amber-500", border: "border-amber-500/30", bg: "bg-amber-500/10" },
+  const colorClasses: Record<string, { text: string; border: string; bg: string; glow: string }> = {
+    blue: { text: "text-blue-500", border: "border-blue-500/20", bg: "bg-blue-500/10", glow: "group-hover:shadow-blue-500/20" },
+    purple: { text: "text-purple-500", border: "border-purple-500/20", bg: "bg-purple-500/10", glow: "group-hover:shadow-purple-500/20" },
+    orange: { text: "text-orange-500", border: "border-orange-500/20", bg: "bg-orange-500/10", glow: "group-hover:shadow-orange-500/20" },
+    rose: { text: "text-rose-500", border: "border-rose-500/20", bg: "bg-rose-500/10", glow: "group-hover:shadow-rose-500/20" },
+    emerald: { text: "text-emerald-500", border: "border-emerald-500/20", bg: "bg-emerald-500/10", glow: "group-hover:shadow-emerald-500/20" },
+    amber: { text: "text-amber-500", border: "border-amber-500/20", bg: "bg-amber-500/10", glow: "group-hover:shadow-amber-500/20" },
   };
 
   return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
       {features.map((feature, index) => {
         const colors = colorClasses[feature.color];
         return (
@@ -626,21 +620,23 @@ function FeatureShowcase() {
             key={feature.title}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ delay: index * 0.08, type: "spring", stiffness: 100 }}
           >
-            <Card className={`h-full group hover:shadow-xl transition-all duration-300 border-transparent hover:${colors.border} bg-gradient-to-br ${feature.gradient} to-card`}>
-              <CardContent className="p-6">
+            <Card className={`h-full group cursor-default transition-all duration-300 border ${colors.border} bg-card hover:shadow-xl ${colors.glow} hover:-translate-y-1`}>
+              <CardContent className="p-6 relative overflow-hidden">
+                <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full ${colors.bg} blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                 <motion.div 
-                  className={`w-12 h-12 rounded-xl ${colors.bg} flex items-center justify-center mb-4`}
-                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  className={`relative w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center mb-5 border ${colors.border}`}
+                  whileHover={{ scale: 1.1, rotate: 8 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 >
-                  <feature.icon className={`w-6 h-6 ${colors.text}`} />
+                  <feature.icon className={`w-7 h-7 ${colors.text}`} />
                 </motion.div>
-                <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                <h3 className="relative text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
                   {feature.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="relative text-sm text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
               </CardContent>
@@ -652,11 +648,42 @@ function FeatureShowcase() {
   );
 }
 
+function AnimatedCounter({ value, duration = 2 }: { value: string; duration?: number }) {
+  const [displayValue, setDisplayValue] = useState("0");
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  
+  useEffect(() => {
+    if (!isInView) return;
+    
+    if (value === "∞" || value === "100%") {
+      setDisplayValue(value);
+      return;
+    }
+    
+    const numericValue = parseInt(value.replace(/[^0-9]/g, ''));
+    const suffix = value.replace(/[0-9]/g, '');
+    
+    let startTime: number;
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      const current = Math.floor(numericValue * easeOutQuart);
+      setDisplayValue(current + suffix);
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, [isInView, value, duration]);
+  
+  return <div ref={ref}>{displayValue}</div>;
+}
+
 function StatsSection() {
   const stats = [
-    { value: "100%", label: "Free Forever", icon: Star },
-    { value: "10+", label: "Languages", icon: Users },
-    { value: "∞", label: "Unlimited Quizzes", icon: Layers },
+    { value: "100%", label: "Free Forever", icon: Star, color: "from-amber-500 to-orange-500" },
+    { value: "10+", label: "Languages", icon: Users, color: "from-blue-500 to-cyan-500" },
+    { value: "∞", label: "Unlimited Quizzes", icon: Layers, color: "from-purple-500 to-pink-500" },
   ];
 
   return (
@@ -667,17 +694,23 @@ function StatsSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: index * 0.1 }}
-          className="text-center"
+          transition={{ delay: index * 0.15, type: "spring", stiffness: 100 }}
+          className="group text-center relative"
         >
           <motion.div 
-            className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-3 rounded-2xl bg-primary/10 flex items-center justify-center"
-            whileHover={{ scale: 1.1, rotate: 5 }}
+            className="relative w-16 h-16 md:w-20 md:h-20 mx-auto mb-4"
+            whileHover={{ scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
-            <stat.icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
+            <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${stat.color} opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-300`} />
+            <div className="relative w-full h-full rounded-2xl bg-card border border-border/50 flex items-center justify-center shadow-lg group-hover:border-primary/30 transition-colors duration-300">
+              <stat.icon className="w-7 h-7 md:w-9 md:h-9 text-primary" />
+            </div>
           </motion.div>
-          <div className="text-2xl md:text-4xl font-bold text-primary mb-1">{stat.value}</div>
-          <div className="text-xs md:text-sm text-muted-foreground">{stat.label}</div>
+          <div className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-2">
+            <AnimatedCounter value={stat.value} />
+          </div>
+          <div className="text-sm md:text-base text-muted-foreground font-medium">{stat.label}</div>
         </motion.div>
       ))}
     </div>
@@ -851,15 +884,22 @@ export default function Home() {
       <section id="how-it-works" className="py-20 md:py-28">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
           <motion.div 
-            className="text-center mb-12"
+            className="text-center mb-14"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30">
-              How It Works
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 200 }}
+            >
+              <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30 bg-primary/5">
+                How It Works
+              </Badge>
+            </motion.div>
+            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
               From Documents to Mastery
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -873,15 +913,22 @@ export default function Home() {
       <section className="py-20 md:py-28 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6">
           <motion.div 
-            className="text-center mb-12"
+            className="text-center mb-14"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30">
-              Features
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 200 }}
+            >
+              <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30 bg-primary/5">
+                Features
+              </Badge>
+            </motion.div>
+            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
               Everything You Need to Learn Smarter
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -894,17 +941,28 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="py-20 md:py-28">
-        <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+      <section className="py-20 md:py-28 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+        </div>
+        <div className="container relative mx-auto px-4 sm:px-6 max-w-4xl">
           <motion.div 
             className="text-center mb-12"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30">
-              Try It Now
-            </Badge>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 200 }}
+            >
+              <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30 bg-primary/5">
+                Try It Now
+              </Badge>
+            </motion.div>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Upload Your First Document
             </h2>
@@ -914,40 +972,67 @@ export default function Home() {
           </motion.div>
           
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ type: "spring", stiffness: 100 }}
             className="max-w-2xl mx-auto"
           >
-            <Card className="shadow-xl border-primary/20 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
-              <CardContent className="p-8 relative">
-                <FileUpload onTextExtracted={handleTextExtracted} />
-                
-                {extractedText && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-6"
-                  >
-                    <Button
-                      size="lg"
-                      onClick={handleContinueToGenerate}
-                      className="w-full gap-2 h-12"
-                      data-testid="button-continue-generate"
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-primary/10 to-primary/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Card className="relative shadow-2xl border-primary/20 overflow-hidden bg-card/95 backdrop-blur-sm">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+                <CardContent className="p-8 relative">
+                  <FileUpload onTextExtracted={handleTextExtracted} />
+                  
+                  {extractedText && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-6"
                     >
-                      Continue to Generate Quiz
-                      <ArrowRight className="h-5 w-5" />
-                    </Button>
-                  </motion.div>
-                )}
-              </CardContent>
-            </Card>
+                      <Button
+                        size="lg"
+                        onClick={handleContinueToGenerate}
+                        className="w-full gap-2 h-12 shadow-lg shadow-primary/20"
+                        data-testid="button-continue-generate"
+                      >
+                        Continue to Generate Quiz
+                        <ArrowRight className="h-5 w-5" />
+                      </Button>
+                    </motion.div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </motion.div>
         </div>
       </section>
-      <section className="py-20 md:py-28 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
-        <div className="container mx-auto px-4 sm:px-6">
+      <section className="py-20 md:py-28 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent" />
+        <div className="absolute inset-0 pointer-events-none">
+          <motion.div 
+            className="absolute top-10 left-10 w-2 h-2 rounded-full bg-primary/40"
+            animate={{ y: [0, -20, 0], opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 4, repeat: Infinity }}
+          />
+          <motion.div 
+            className="absolute top-1/3 right-20 w-3 h-3 rounded-full bg-primary/30"
+            animate={{ y: [0, 15, 0], opacity: [0.3, 0.8, 0.3] }}
+            transition={{ duration: 5, repeat: Infinity, delay: 1 }}
+          />
+          <motion.div 
+            className="absolute bottom-20 left-1/4 w-2 h-2 rounded-full bg-primary/30"
+            animate={{ y: [0, -10, 0], x: [0, 5, 0] }}
+            transition={{ duration: 3.5, repeat: Infinity, delay: 0.5 }}
+          />
+          <motion.div 
+            className="absolute bottom-1/3 right-1/4 w-1.5 h-1.5 rounded-full bg-primary/40"
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 3, repeat: Infinity, delay: 2 }}
+          />
+        </div>
+        <div className="container relative mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -955,42 +1040,55 @@ export default function Home() {
             className="text-center max-w-2xl mx-auto"
           >
             <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="mb-6"
+              className="relative mb-8"
+              initial={{ scale: 0.8, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 200 }}
             >
-              <div className="w-20 h-20 mx-auto rounded-2xl bg-primary/20 flex items-center justify-center">
-                <GraduationCap className="w-10 h-10 text-primary" />
-              </div>
+              <div className="absolute inset-0 w-24 h-24 mx-auto rounded-3xl bg-primary/20 blur-2xl" />
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="relative"
+              >
+                <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center shadow-xl">
+                  <GraduationCap className="w-12 h-12 text-primary" />
+                </div>
+              </motion.div>
             </motion.div>
             
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
               Ready to Study Smarter?
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="text-lg text-muted-foreground mb-10 max-w-lg mx-auto">
               Join students who are transforming their study materials into effective, personalized quizzes.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
-                size="lg"
-                onClick={handleGetStarted}
-                className="gap-2 px-8 h-12 w-full sm:w-auto shadow-lg shadow-primary/20"
-                data-testid="button-cta-get-started"
-              >
-                Get Started Free
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-              <Link href="/about">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="gap-2 w-full sm:w-auto h-12"
-                  data-testid="button-learn-more"
+                  onClick={handleGetStarted}
+                  className="gap-2 px-10 h-14 w-full sm:w-auto text-base shadow-xl shadow-primary/30"
+                  data-testid="button-cta-get-started"
                 >
-                  Learn More
-                  <ChevronRight className="h-5 w-5" />
+                  Get Started Free
+                  <ArrowRight className="h-5 w-5" />
                 </Button>
+              </motion.div>
+              <Link href="/about">
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="gap-2 w-full sm:w-auto h-14 px-8 text-base"
+                    data-testid="button-learn-more"
+                  >
+                    Learn More
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                </motion.div>
               </Link>
             </div>
           </motion.div>
