@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, useMemo, type ReactNode, type MouseEvent } from "react";
 import { useLocation } from "wouter";
 import { useQuiz } from "@/lib/quiz-context";
+import { useAuth } from "@/hooks/useAuth";
 import { Save, AlertTriangle } from "lucide-react";
 import {
   AlertDialog,
@@ -25,12 +26,16 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
   const [, setLocation] = useLocation();
   const [location] = useLocation();
   const { currentQuiz, hasUnsavedChanges, saveCurrentProgress, getPlayerProgress, userAnswers, checkedQuestions, playerRetryAnswers } = useQuiz();
+  const { user } = useAuth();
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const hasAddedHistoryEntry = useRef(false);
+  
+  // Guests cannot save progress, so skip the guard entirely
+  const isGuest = !user;
 
-  // Show dialog if user is on quiz page with an active quiz that has any answers
-  const isQuizInProgress = location === "/quiz" && !!currentQuiz && Object.keys(userAnswers).length > 0;
+  // Show dialog if user is on quiz page with an active quiz that has any answers (only for authenticated users)
+  const isQuizInProgress = !isGuest && location === "/quiz" && !!currentQuiz && Object.keys(userAnswers).length > 0;
   
   // Check if user is in revision mode (completed first attempt with wrong answers)
   const isInRevisionMode = useMemo(() => {

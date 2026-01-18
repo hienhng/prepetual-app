@@ -878,7 +878,7 @@ export function QuizPlayer() {
       <div 
         className="fixed bottom-0 right-0 left-0 z-30 bg-background/95 backdrop-blur-md border-t transition-[left] duration-300 ease-in-out"
         style={{ 
-          left: isMobile ? 0 : sidebarState === 'collapsed' ? 'var(--sidebar-width-icon)' : 'var(--sidebar-width)' 
+          left: !sidebarContext || isMobile ? 0 : sidebarState === 'collapsed' ? 'var(--sidebar-width-icon)' : 'var(--sidebar-width)' 
         }}
       >
         <div className="max-w-3xl mx-auto px-4 py-3 sm:py-4">
