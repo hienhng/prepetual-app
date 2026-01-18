@@ -48,6 +48,12 @@ interface QuizState {
   playerRetryCheckedQuestions: string[];
 }
 
+interface SaveProgressParams {
+  currentIndex: number;
+  retryAnswers: Record<string, string>;
+  retryCheckedQuestions: string[];
+}
+
 interface QuizContextType extends QuizState {
   setExtractedText: (text: string | null) => void;
   setSourceMaterial: (material: SourceMaterial) => void;
@@ -64,12 +70,13 @@ interface QuizContextType extends QuizState {
   setRevisedQuestionsCount: (count: number) => void;
   setRetryCorrectCount: (count: number) => void;
   resetQuiz: () => void;
-  saveCurrentProgress: () => void;
+  saveCurrentProgress: (params?: SaveProgressParams) => void;
   loadSavedProgress: (quizId: string) => void;
   removeSavedProgress: (quizId: string) => void;
   clearRestoredState: (quizId: string) => void;
   syncPlayerState: (currentIndex: number, retryAnswers: Record<string, string>, retryCheckedQuestions: string[]) => void;
   hasUnsavedChanges: boolean;
+  getPlayerProgress: () => SaveProgressParams;
 }
 
 const QuizContext = createContext<QuizContextType | undefined>(undefined);
@@ -302,16 +309,35 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
-  const saveCurrentProgress = useCallback(() => {
+  // Helper to get current player progress for saving
+  const getPlayerProgress = useCallback((): SaveProgressParams => {
+    // Use refs if available (quiz player has synced), otherwise use restored state
+    const hasRefsData = Object.keys(retryAnswersRef.current).length > 0 || retryCheckedQuestionsRef.current.length > 0 || currentIndexRef.current > 0;
+    
+    if (hasRefsData) {
+      return {
+        currentIndex: currentIndexRef.current,
+        retryAnswers: retryAnswersRef.current,
+        retryCheckedQuestions: retryCheckedQuestionsRef.current,
+      };
+    }
+    
+    // Fall back to restored state if refs are empty
+    return {
+      currentIndex: state.restoredCurrentIndex ?? state.playerCurrentIndex,
+      retryAnswers: state.restoredRetryAnswers ?? state.playerRetryAnswers,
+      retryCheckedQuestions: state.restoredRetryCheckedQuestions ?? state.playerRetryCheckedQuestions,
+    };
+  }, [state.restoredCurrentIndex, state.restoredRetryAnswers, state.restoredRetryCheckedQuestions, state.playerCurrentIndex, state.playerRetryAnswers, state.playerRetryCheckedQuestions]);
+
+  const saveCurrentProgress = useCallback((params?: SaveProgressParams) => {
     // Get current state values synchronously
     const currentQuiz = state.currentQuiz;
     const userAnswers = state.userAnswers;
     const checkedQuestions = state.checkedQuestions;
     
-    // Read from refs to get the latest values (avoids stale closure issues)
-    const currentIndex = currentIndexRef.current;
-    const retryAnswers = retryAnswersRef.current;
-    const retryCheckedQuestions = retryCheckedQuestionsRef.current;
+    // Use explicit params if provided, otherwise get from helper
+    const { currentIndex, retryAnswers, retryCheckedQuestions } = params ?? getPlayerProgress();
 
     if (!currentQuiz || Object.keys(userAnswers).length === 0) {
       return;
@@ -331,6 +357,11 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       onSuccess: () => {
         // Clear current session progress after successful save
         sessionStorage.removeItem("quiz_progress");
+        // Reset refs to empty after save
+        currentIndexRef.current = 0;
+        retryAnswersRef.current = {};
+        retryCheckedQuestionsRef.current = [];
+        
         setState((prev) => ({ 
           ...prev, 
           currentQuiz: null,
@@ -348,7 +379,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         console.error("Failed to save quiz progress:", error);
       }
     });
-  }, [state.currentQuiz, state.userAnswers, state.checkedQuestions, saveProgressMutation]);
+  }, [state.currentQuiz, state.userAnswers, state.checkedQuestions, getPlayerProgress, saveProgressMutation]);
 
   const loadSavedProgress = useCallback((quizId: string) => {
     setState((prev) => {
@@ -515,6 +546,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         clearRestoredState,
         syncPlayerState,
         hasUnsavedChanges,
+        getPlayerProgress,
       }}
     >
       {children}

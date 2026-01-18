@@ -24,7 +24,7 @@ const QuizNavigationGuardContext = createContext<QuizNavigationGuardContextType 
 export function QuizNavigationGuardProvider({ children }: { children: ReactNode }) {
   const [, setLocation] = useLocation();
   const [location] = useLocation();
-  const { currentQuiz, hasUnsavedChanges, saveCurrentProgress, userAnswers, checkedQuestions, playerRetryAnswers } = useQuiz();
+  const { currentQuiz, hasUnsavedChanges, saveCurrentProgress, getPlayerProgress, userAnswers, checkedQuestions, playerRetryAnswers } = useQuiz();
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const hasAddedHistoryEntry = useRef(false);
@@ -105,7 +105,8 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
   }, [isQuizInProgress]);
 
   const handleSaveAndExit = () => {
-    saveCurrentProgress();
+    // Pass explicit player progress to ensure revision state is saved correctly
+    saveCurrentProgress(getPlayerProgress());
     setShowExitDialog(false);
     if (pendingPath) {
       setLocation(pendingPath);
@@ -118,8 +119,10 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
     setPendingPath(null);
   };
 
-  // For revision mode: just exit without saving (retry progress is session-only)
+  // For revision mode: save progress including revision state before exiting
   const handleExitRevision = () => {
+    // Pass explicit player progress to ensure revision state is saved correctly
+    saveCurrentProgress(getPlayerProgress());
     setShowExitDialog(false);
     if (pendingPath) {
       setLocation(pendingPath);
@@ -134,12 +137,11 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
         <AlertDialogContent data-testid={isInRevisionMode ? "dialog-revision-exit-warning" : "dialog-quiz-exit"}>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              {isInRevisionMode && <AlertTriangle className="h-5 w-5 text-amber-500" />}
-              {isInRevisionMode ? "Exit Revision Mode?" : "Leave Quiz?"}
+              {isInRevisionMode ? "Save Revision Progress?" : "Leave Quiz?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {isInRevisionMode 
-                ? "You're currently revising incorrect answers. If you exit now, your revision progress will be lost, but your original answers will be preserved."
+                ? "You're currently revising incorrect answers. Your revision progress will be saved so you can continue later."
                 : "You have a quiz in progress. Would you like to save your progress for later?"
               }
             </AlertDialogDescription>
@@ -150,17 +152,11 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={isInRevisionMode ? handleExitRevision : handleSaveAndExit}
-              className={isInRevisionMode ? "border-destructive bg-destructive text-destructive-foreground hover:bg-destructive/90 gap-2" : "gap-2"}
+              className="gap-2"
               data-testid={isInRevisionMode ? "button-confirm-revision-exit" : "button-save-nav-exit"}
             >
-              {isInRevisionMode ? (
-                <>Exit and Lose Revision Progress</>
-              ) : (
-                <>
-                  <Save className="h-4 w-4" />
-                  Save & Exit
-                </>
-              )}
+              <Save className="h-4 w-4" />
+              Save & Exit
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
