@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Loader2, User, Sparkles, Lightbulb, HelpCircle, BookOpen } from "lucide-react";
-import { GiPenguin } from "react-icons/gi";
+import { Send, Loader2, User, Snowflake, Lightbulb, HelpCircle, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,9 +26,9 @@ interface QuizChatbotProps {
 }
 
 const suggestions = [
-  { text: "Explain this", icon: Lightbulb, color: "from-amber-400 to-orange-500" },
-  { text: "Give me a hint", icon: HelpCircle, color: "from-emerald-400 to-teal-500" },
-  { text: "Key concept?", icon: BookOpen, color: "from-blue-400 to-indigo-500" },
+  { text: "Explain this", icon: Lightbulb, color: "from-amber-300 to-yellow-400" },
+  { text: "Give me a hint", icon: HelpCircle, color: "from-sky-300 to-cyan-400" },
+  { text: "Key concept?", icon: BookOpen, color: "from-teal-300 to-emerald-400" },
 ];
 
 function renderMathInText(text: string): string {
@@ -84,7 +83,6 @@ function renderMathInText(text: string): string {
   });
   
   result = result.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  
   result = result.replace(/\*([^*]+)\*/g, '<em>$1</em>');
   
   return result;
@@ -100,21 +98,82 @@ function MathText({ content, className }: { content: string; className?: string 
   );
 }
 
+function CutePenguin({ size = 64, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 100 100" 
+      fill="none" 
+      className={className}
+    >
+      <ellipse cx="50" cy="62" rx="28" ry="30" fill="#2d3436" />
+      <ellipse cx="50" cy="65" rx="18" ry="22" fill="#f5f6fa" />
+      <circle cx="50" cy="35" r="22" fill="#2d3436" />
+      <ellipse cx="50" cy="38" rx="14" ry="11" fill="#f5f6fa" />
+      <ellipse cx="42" cy="32" rx="6" ry="7" fill="#f5f6fa" />
+      <ellipse cx="58" cy="32" rx="6" ry="7" fill="#f5f6fa" />
+      <circle cx="42" cy="32" r="4" fill="#2d3436" />
+      <circle cx="58" cy="32" r="4" fill="#2d3436" />
+      <circle cx="44" cy="30" r="1.5" fill="#fff" />
+      <circle cx="60" cy="30" r="1.5" fill="#fff" />
+      <ellipse cx="50" cy="42" rx="5" ry="3.5" fill="#ff9f43" />
+      <path d="M45 40 L50 48 L55 40" fill="#ff9f43" />
+      <ellipse cx="35" cy="32" rx="4" ry="3" fill="#fab1a0" />
+      <ellipse cx="65" cy="32" rx="4" ry="3" fill="#fab1a0" />
+      <path d="M20 50 Q14 62 22 78" stroke="#2d3436" strokeWidth="8" strokeLinecap="round" fill="none" />
+      <path d="M80 50 Q86 62 78 78" stroke="#2d3436" strokeWidth="8" strokeLinecap="round" fill="none" />
+      <ellipse cx="38" cy="92" rx="8" ry="5" fill="#ff9f43" />
+      <ellipse cx="62" cy="92" rx="8" ry="5" fill="#ff9f43" />
+      <path d="M42 18 Q50 8 58 18" stroke="#2d3436" strokeWidth="3" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
+function SnowflakeDecor() {
+  return (
+    <>
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute text-white/30"
+          style={{
+            left: `${15 + i * 15}%`,
+            top: `${10 + (i % 3) * 25}%`,
+          }}
+          animate={{
+            y: [0, 10, 0],
+            opacity: [0.2, 0.5, 0.2],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 4 + i * 0.5,
+            repeat: Infinity,
+            delay: i * 0.3,
+          }}
+        >
+          <Snowflake size={12 + i * 2} />
+        </motion.div>
+      ))}
+    </>
+  );
+}
+
 function TypingIndicator() {
   return (
-    <div className="flex items-center gap-1 px-1">
+    <div className="flex items-center gap-1.5 px-1">
       {[0, 1, 2].map((i) => (
         <motion.div
           key={i}
-          className="w-2 h-2 rounded-full bg-gradient-to-r from-violet-400 to-purple-500"
+          className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-sky-400 to-cyan-400"
           animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.5, 1, 0.5],
+            y: [0, -6, 0],
+            scale: [1, 1.2, 1],
           }}
           transition={{
-            duration: 1,
+            duration: 0.8,
             repeat: Infinity,
-            delay: i * 0.2,
+            delay: i * 0.15,
             ease: "easeInOut",
           }}
         />
@@ -124,28 +183,30 @@ function TypingIndicator() {
 }
 
 function TutorAvatar({ isAnimating = false, large = false }: { isAnimating?: boolean; large?: boolean }) {
-  const size = large ? "w-20 h-20" : "w-10 h-10";
-  const iconSize = large ? 48 : 24;
+  const containerSize = large ? "w-24 h-24" : "w-11 h-11";
+  const penguinSize = large ? 60 : 32;
   
   return (
     <motion.div 
-      className={`relative ${size} rounded-2xl bg-gradient-to-br from-sky-200 via-blue-100 to-indigo-200 dark:from-slate-600 dark:via-slate-500 dark:to-slate-600 flex items-center justify-center shrink-0 shadow-lg overflow-hidden`}
+      className={`relative ${containerSize} rounded-2xl bg-gradient-to-br from-sky-100 via-cyan-50 to-blue-100 dark:from-slate-600 dark:via-slate-500 dark:to-slate-600 flex items-center justify-center shrink-0 shadow-lg overflow-hidden border-2 border-sky-200/50 dark:border-slate-500/50`}
       animate={isAnimating ? {
-        y: [0, -3, 0],
+        y: [0, -4, 0],
       } : {}}
       transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
     >
       <motion.div
-        animate={isAnimating ? { rotate: [0, -5, 5, 0] } : {}}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        animate={isAnimating ? { rotate: [0, -8, 8, 0] } : {}}
+        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
       >
-        <GiPenguin size={iconSize} className="text-slate-800 dark:text-slate-100" />
+        <CutePenguin size={penguinSize} />
       </motion.div>
       <motion.div
-        className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-background"
-        animate={{ scale: [1, 1.2, 1] }}
+        className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 border-2 border-white dark:border-slate-700 flex items-center justify-center"
+        animate={{ scale: [1, 1.15, 1] }}
         transition={{ duration: 2, repeat: Infinity }}
-      />
+      >
+        <div className="w-1.5 h-1.5 rounded-full bg-white" />
+      </motion.div>
     </motion.div>
   );
 }
@@ -192,7 +253,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
     } catch (error: any) {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Sorry, I couldn't process your request. Please try again.", timestamp: Date.now() },
+        { role: "assistant", content: "Brr! Something went cold. Please try again!", timestamp: Date.now() },
       ]);
     } finally {
       setIsLoading(false);
@@ -211,39 +272,37 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="right" className="w-full sm:max-w-[420px] p-0 flex flex-col overflow-hidden border-l-0 shadow-2xl">
-        <SheetHeader className="px-5 py-5 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 text-white shrink-0 relative overflow-hidden">
+        <SheetHeader className="px-5 py-5 bg-gradient-to-br from-sky-400 via-cyan-500 to-blue-600 text-white shrink-0 relative overflow-hidden">
+          <SnowflakeDecor />
           <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/10 to-transparent" />
             <motion.div 
-              className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-white/10 blur-2xl"
-              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-              transition={{ duration: 4, repeat: Infinity }}
-            />
-            <motion.div 
-              className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-indigo-400/20 blur-xl"
-              animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
+              className="absolute -top-16 -right-16 w-32 h-32 rounded-full bg-white/10 blur-2xl"
+              animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
               transition={{ duration: 5, repeat: Infinity }}
             />
           </div>
           
           <div className="flex items-center gap-4 relative z-10">
             <motion.div 
-              className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xl border border-white/20 overflow-hidden"
-              animate={{ 
-                y: [0, -3, 0]
-              }}
+              className="w-16 h-16 rounded-2xl bg-white/25 backdrop-blur-sm flex items-center justify-center shadow-xl border border-white/30 overflow-hidden"
+              animate={{ y: [0, -4, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             >
-              <GiPenguin size={36} className="text-white" />
+              <CutePenguin size={48} />
             </motion.div>
             <div className="text-left flex-1">
-              <SheetTitle className="text-white text-xl font-bold tracking-tight">Penny the Penguin</SheetTitle>
+              <SheetTitle className="text-white text-xl font-bold tracking-tight flex items-center gap-2">
+                Penny
+                <Snowflake className="w-4 h-4 opacity-80" />
+              </SheetTitle>
               <div className="flex items-center gap-2 mt-1">
                 <motion.div 
-                  className="w-2 h-2 rounded-full bg-emerald-400"
+                  className="w-2.5 h-2.5 rounded-full bg-emerald-300"
                   animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 />
-                <p className="text-sm text-white/80">Online and ready to help</p>
+                <p className="text-sm text-white/90">Your arctic study buddy</p>
               </div>
             </div>
           </div>
@@ -253,11 +312,11 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
           <motion.div 
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="px-4 py-3 border-b bg-muted/30 shrink-0"
+            className="px-4 py-3 border-b bg-gradient-to-r from-sky-50/80 to-cyan-50/80 dark:from-slate-800/80 dark:to-slate-700/80 shrink-0"
           >
             <div className="flex items-start gap-3">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center shrink-0">
-                <span className="text-xs font-bold text-violet-600 dark:text-violet-400">{currentQuestionIndex + 1}</span>
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center shrink-0 shadow-sm">
+                <span className="text-xs font-bold text-white">{currentQuestionIndex + 1}</span>
               </div>
               <div className="text-sm line-clamp-2 text-muted-foreground leading-relaxed">
                 <MathText content={currentQuestion.question} />
@@ -266,7 +325,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
           </motion.div>
         )}
 
-        <ScrollArea className="flex-1 px-4 py-4" ref={scrollAreaRef}>
+        <ScrollArea className="flex-1 px-4 py-4 bg-gradient-to-b from-sky-50/30 to-transparent dark:from-slate-900/30" ref={scrollAreaRef}>
           {messages.length === 0 ? (
             <motion.div 
               initial={{ opacity: 0 }}
@@ -276,43 +335,43 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
             >
               <motion.div 
                 className="relative mb-6"
-                animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
               >
                 <motion.div 
-                  className="w-28 h-28 rounded-3xl bg-gradient-to-br from-sky-200 via-blue-100 to-indigo-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 flex items-center justify-center shadow-xl overflow-hidden"
+                  className="w-32 h-32 rounded-[2rem] bg-gradient-to-br from-sky-100 via-cyan-50 to-blue-100 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 flex items-center justify-center shadow-xl overflow-hidden border-3 border-sky-200/60 dark:border-slate-500/50"
                   animate={{ 
                     boxShadow: [
-                      "0 10px 40px -10px rgba(139, 92, 246, 0.25)",
-                      "0 20px 50px -10px rgba(139, 92, 246, 0.4)",
-                      "0 10px 40px -10px rgba(139, 92, 246, 0.25)"
+                      "0 10px 40px -10px rgba(14, 165, 233, 0.3)",
+                      "0 20px 50px -10px rgba(14, 165, 233, 0.5)",
+                      "0 10px 40px -10px rgba(14, 165, 233, 0.3)"
                     ]
                   }}
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 >
                   <motion.div
-                    animate={{ rotate: [0, -8, 8, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    animate={{ rotate: [0, -5, 5, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    <GiPenguin size={64} className="text-slate-800 dark:text-slate-100" />
+                    <CutePenguin size={80} />
                   </motion.div>
                 </motion.div>
                 <motion.div
-                  className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg"
-                  animate={{ scale: [1, 1.15, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center shadow-lg border-2 border-white dark:border-slate-700"
+                  animate={{ rotate: [0, 15, -15, 0] }}
+                  transition={{ duration: 3, repeat: Infinity }}
                 >
-                  <Sparkles className="w-4 h-4 text-white" />
+                  <Snowflake className="w-5 h-5 text-white" />
                 </motion.div>
               </motion.div>
               
               <motion.h3 
-                className="text-xl font-bold mb-2 bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+                className="text-xl font-bold mb-2 bg-gradient-to-r from-sky-600 to-cyan-600 bg-clip-text text-transparent"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                Hey there!
+                Hey there, friend!
               </motion.h3>
               <motion.p 
                 className="text-sm text-muted-foreground max-w-[260px] mb-8 leading-relaxed"
@@ -320,7 +379,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                I'm your personal study buddy. Ask me anything about this quiz - I'll help you understand without spoiling the answers.
+                I'm Penny, your arctic study companion! Ask me anything about this quiz - I'll help you learn without giving away the answers.
               </motion.p>
               
               <div className="flex flex-col gap-2 w-full max-w-[280px]">
@@ -333,14 +392,14 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                   >
                     <Button
                       variant="outline"
-                      className="w-full justify-start gap-3 h-12 rounded-xl border-border/50 hover:border-violet-300 dark:hover:border-violet-700 hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-all group"
+                      className="w-full justify-start gap-3 h-12 rounded-xl border-sky-200/60 dark:border-slate-600 hover:border-sky-300 dark:hover:border-slate-500 hover:bg-sky-50/50 dark:hover:bg-slate-800/50 transition-all group"
                       onClick={() => {
                         setInputValue(suggestion.text);
                         inputRef.current?.focus();
                       }}
                       data-testid={`button-suggestion-${suggestion.text.replace(/\s+/g, "-").toLowerCase()}`}
                     >
-                      <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${suggestion.color} flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow`}>
+                      <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${suggestion.color} flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow`}>
                         <suggestion.icon className="w-4 h-4 text-white" />
                       </div>
                       <span className="font-medium">{suggestion.text}</span>
@@ -372,8 +431,8 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                     <motion.div
                       className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
                         message.role === "user"
-                          ? "bg-gradient-to-br from-violet-600 to-purple-600 text-white rounded-br-md shadow-violet-500/20"
-                          : "bg-card border border-border/50 rounded-bl-md"
+                          ? "bg-gradient-to-br from-sky-500 to-cyan-600 text-white rounded-br-md shadow-sky-500/20"
+                          : "bg-white dark:bg-slate-800 border border-sky-100 dark:border-slate-700 rounded-bl-md"
                       }`}
                       whileHover={{ scale: 1.01 }}
                       transition={{ type: "spring", stiffness: 400, damping: 25 }}
@@ -384,12 +443,12 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                     </motion.div>
                     {message.role === "user" && (
                       <motion.div 
-                        className="w-9 h-9 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0 shadow-md"
+                        className="w-11 h-11 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0 shadow-md border border-slate-200/50 dark:border-slate-600/50"
                         initial={{ scale: 0, rotate: -180 }}
                         animate={{ scale: 1, rotate: 0 }}
                         transition={{ type: "spring", stiffness: 400, damping: 20 }}
                       >
-                        <User className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                        <User className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                       </motion.div>
                     )}
                   </motion.div>
@@ -404,7 +463,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                 >
                   <TutorAvatar isAnimating />
                   <motion.div 
-                    className="bg-card border border-border/50 rounded-2xl rounded-bl-md px-4 py-3"
+                    className="bg-white dark:bg-slate-800 border border-sky-100 dark:border-slate-700 rounded-2xl rounded-bl-md px-4 py-3"
                     animate={{ opacity: [0.7, 1, 0.7] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
@@ -417,7 +476,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
         </ScrollArea>
 
         <motion.div 
-          className="p-4 border-t bg-background/95 backdrop-blur-md shrink-0"
+          className="p-4 border-t bg-gradient-to-r from-sky-50/80 to-cyan-50/80 dark:from-slate-800/80 dark:to-slate-900/80 backdrop-blur-md shrink-0"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
@@ -428,8 +487,8 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me anything..."
-              className="flex-1 h-12 rounded-xl border-border/50 bg-muted/50 focus-visible:ring-violet-500/30 focus-visible:border-violet-400 transition-all placeholder:text-muted-foreground/60"
+              placeholder="Ask Penny anything..."
+              className="flex-1 h-12 rounded-xl border-sky-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus-visible:ring-sky-400/30 focus-visible:border-sky-400 transition-all placeholder:text-muted-foreground/60"
               disabled={isLoading}
               data-testid="input-chatbot-message"
             />
@@ -438,7 +497,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                 size="icon"
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isLoading}
-                className="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25 transition-all hover:shadow-violet-500/40 disabled:opacity-50 disabled:shadow-none"
+                className="h-12 w-12 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-600 hover:from-sky-400 hover:to-cyan-500 shadow-lg shadow-sky-500/25 transition-all hover:shadow-sky-500/40 disabled:opacity-50 disabled:shadow-none"
                 data-testid="button-chatbot-send"
               >
                 {isLoading ? (
