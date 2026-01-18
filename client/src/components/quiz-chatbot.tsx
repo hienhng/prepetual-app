@@ -98,7 +98,12 @@ function MathText({ content, className }: { content: string; className?: string 
   );
 }
 
-export function CutePenguin({ size = 64, className = "" }: { size?: number; className?: string }) {
+type PenguinEmotion = "idle" | "thinking" | "happy";
+
+export function CutePenguin({ size = 64, className = "", emotion = "idle" }: { size?: number; className?: string; emotion?: PenguinEmotion }) {
+  const isThinking = emotion === "thinking";
+  const isHappy = emotion === "happy";
+  
   return (
     <svg 
       width={size} 
@@ -107,10 +112,41 @@ export function CutePenguin({ size = 64, className = "" }: { size?: number; clas
       fill="none" 
       className={className}
     >
-      {/* Left flipper */}
-      <ellipse cx="18" cy="52" rx="12" ry="24" fill="#2d3436" transform="rotate(-25 18 52)" />
-      {/* Right flipper */}
-      <ellipse cx="82" cy="52" rx="12" ry="24" fill="#2d3436" transform="rotate(25 82 52)" />
+      {/* Left flipper - animated */}
+      <motion.ellipse 
+        cx="18" cy="52" rx="12" ry="24" fill="#2d3436"
+        animate={isThinking ? {
+          rotate: [-25, -35, -25],
+          y: [0, -3, 0],
+        } : isHappy ? {
+          rotate: [-25, -55, -25],
+          y: [0, -8, 0],
+        } : { rotate: -25 }}
+        transition={{ 
+          duration: isThinking ? 1.5 : 0.5, 
+          repeat: isThinking ? Infinity : isHappy ? 2 : 0,
+          ease: "easeInOut"
+        }}
+        style={{ originX: "18px", originY: "52px" }}
+      />
+      {/* Right flipper - animated */}
+      <motion.ellipse 
+        cx="82" cy="52" rx="12" ry="24" fill="#2d3436"
+        animate={isThinking ? {
+          rotate: [25, 35, 25],
+          y: [0, -3, 0],
+        } : isHappy ? {
+          rotate: [25, 55, 25],
+          y: [0, -8, 0],
+        } : { rotate: 25 }}
+        transition={{ 
+          duration: isThinking ? 1.5 : 0.5, 
+          repeat: isThinking ? Infinity : isHappy ? 2 : 0,
+          ease: "easeInOut",
+          delay: isThinking ? 0.2 : 0
+        }}
+        style={{ originX: "82px", originY: "52px" }}
+      />
       
       {/* Main body - black outer */}
       <ellipse cx="50" cy="55" rx="35" ry="40" fill="#2d3436" />
@@ -124,23 +160,138 @@ export function CutePenguin({ size = 64, className = "" }: { size?: number; clas
       {/* White face area */}
       <ellipse cx="50" cy="42" rx="22" ry="18" fill="#ffffff" />
       
-      {/* Left eye white */}
-      <ellipse cx="38" cy="40" rx="9" ry="10" fill="#ffffff" />
-      {/* Right eye white */}
-      <ellipse cx="62" cy="40" rx="9" ry="10" fill="#ffffff" />
+      {/* Blush cheeks - only when happy */}
+      <motion.ellipse 
+        cx="28" cy="48" rx="6" ry="4" fill="#ffb6c1"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHappy ? 0.7 : 0 }}
+        transition={{ duration: 0.3 }}
+      />
+      <motion.ellipse 
+        cx="72" cy="48" rx="6" ry="4" fill="#ffb6c1"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHappy ? 0.7 : 0 }}
+        transition={{ duration: 0.3 }}
+      />
       
-      {/* Left pupil */}
-      <circle cx="39" cy="41" r="5" fill="#2d3436" />
-      {/* Right pupil */}
-      <circle cx="61" cy="41" r="5" fill="#2d3436" />
+      {/* Left eye white - animated size when happy */}
+      <motion.ellipse 
+        cx="38" cy="40" rx="9" ry="10" fill="#ffffff"
+        animate={isHappy ? { 
+          ry: [10, 12, 10],
+          rx: [9, 10, 9]
+        } : {}}
+        transition={{ duration: 0.4, repeat: isHappy ? 1 : 0 }}
+      />
+      {/* Right eye white - animated size when happy */}
+      <motion.ellipse 
+        cx="62" cy="40" rx="9" ry="10" fill="#ffffff"
+        animate={isHappy ? { 
+          ry: [10, 12, 10],
+          rx: [9, 10, 9]
+        } : {}}
+        transition={{ duration: 0.4, repeat: isHappy ? 1 : 0 }}
+      />
       
-      {/* Left eye highlight */}
-      <circle cx="41" cy="39" r="2" fill="#ffffff" />
-      {/* Right eye highlight */}
-      <circle cx="63" cy="39" r="2" fill="#ffffff" />
+      {/* Left pupil - animated position */}
+      <motion.circle 
+        cx="39" cy="41" r="5" fill="#2d3436"
+        animate={isThinking ? {
+          cx: [39, 36, 42, 39],
+          cy: [41, 38, 38, 41],
+        } : isHappy ? {
+          r: [5, 6, 5],
+          cy: [41, 39, 41],
+        } : {}}
+        transition={{ 
+          duration: isThinking ? 2 : 0.5, 
+          repeat: isThinking ? Infinity : isHappy ? 1 : 0,
+          ease: "easeInOut"
+        }}
+      />
+      {/* Right pupil - animated position */}
+      <motion.circle 
+        cx="61" cy="41" r="5" fill="#2d3436"
+        animate={isThinking ? {
+          cx: [61, 58, 64, 61],
+          cy: [41, 38, 38, 41],
+        } : isHappy ? {
+          r: [5, 6, 5],
+          cy: [41, 39, 41],
+        } : {}}
+        transition={{ 
+          duration: isThinking ? 2 : 0.5, 
+          repeat: isThinking ? Infinity : isHappy ? 1 : 0,
+          ease: "easeInOut"
+        }}
+      />
       
-      {/* Beak - diamond shape */}
-      <path d="M50 46 L44 52 L50 58 L56 52 Z" fill="#f5a623" />
+      {/* Left eye highlight - follows pupil */}
+      <motion.circle 
+        cx="41" cy="39" r="2" fill="#ffffff"
+        animate={isThinking ? {
+          cx: [41, 38, 44, 41],
+          cy: [39, 36, 36, 39],
+        } : isHappy ? {
+          r: [2, 3, 2],
+        } : {}}
+        transition={{ 
+          duration: isThinking ? 2 : 0.5, 
+          repeat: isThinking ? Infinity : isHappy ? 1 : 0,
+          ease: "easeInOut"
+        }}
+      />
+      {/* Right eye highlight - follows pupil */}
+      <motion.circle 
+        cx="63" cy="39" r="2" fill="#ffffff"
+        animate={isThinking ? {
+          cx: [63, 60, 66, 63],
+          cy: [39, 36, 36, 39],
+        } : isHappy ? {
+          r: [2, 3, 2],
+        } : {}}
+        transition={{ 
+          duration: isThinking ? 2 : 0.5, 
+          repeat: isThinking ? Infinity : isHappy ? 1 : 0,
+          ease: "easeInOut"
+        }}
+      />
+      
+      {/* Sparkle stars when happy */}
+      <motion.path 
+        d="M25 28 L27 32 L31 32 L28 35 L29 39 L25 36 L21 39 L22 35 L19 32 L23 32 Z" 
+        fill="#ffd700"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ 
+          opacity: isHappy ? [0, 1, 0] : 0,
+          scale: isHappy ? [0, 1.2, 0] : 0,
+          rotate: isHappy ? [0, 20, 0] : 0
+        }}
+        transition={{ duration: 0.8, delay: 0.1 }}
+        style={{ originX: "25px", originY: "33px" }}
+      />
+      <motion.path 
+        d="M75 28 L77 32 L81 32 L78 35 L79 39 L75 36 L71 39 L72 35 L69 32 L73 32 Z" 
+        fill="#ffd700"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ 
+          opacity: isHappy ? [0, 1, 0] : 0,
+          scale: isHappy ? [0, 1.2, 0] : 0,
+          rotate: isHappy ? [0, -20, 0] : 0
+        }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        style={{ originX: "75px", originY: "33px" }}
+      />
+      
+      {/* Beak - animated when happy */}
+      <motion.path 
+        d="M50 46 L44 52 L50 58 L56 52 Z" 
+        fill="#f5a623"
+        animate={isHappy ? {
+          d: ["M50 46 L44 52 L50 58 L56 52 Z", "M50 44 L42 51 L50 60 L58 51 Z", "M50 46 L44 52 L50 58 L56 52 Z"]
+        } : {}}
+        transition={{ duration: 0.4, repeat: isHappy ? 1 : 0 }}
+      />
       
       {/* Head shine/highlight */}
       <ellipse cx="35" cy="25" rx="8" ry="4" fill="#4a5568" opacity="0.4" transform="rotate(-30 35 25)" />
@@ -154,6 +305,35 @@ export function CutePenguin({ size = 64, className = "" }: { size?: number; clas
       <path d="M30 94 L26 92 M33 95 L29 94 M36 95 L33 95" stroke="#f5a623" strokeWidth="2" strokeLinecap="round" />
       {/* Foot toes - right */}
       <path d="M70 94 L74 92 M67 95 L71 94 M64 95 L67 95" stroke="#f5a623" strokeWidth="2" strokeLinecap="round" />
+      
+      {/* Thinking dots above head */}
+      <motion.circle 
+        cx="70" cy="8" r="3" fill="#a0aec0"
+        initial={{ opacity: 0 }}
+        animate={{ 
+          opacity: isThinking ? [0, 1, 0] : 0,
+          y: isThinking ? [0, -3, 0] : 0
+        }}
+        transition={{ duration: 1.5, repeat: isThinking ? Infinity : 0, delay: 0 }}
+      />
+      <motion.circle 
+        cx="78" cy="5" r="4" fill="#a0aec0"
+        initial={{ opacity: 0 }}
+        animate={{ 
+          opacity: isThinking ? [0, 1, 0] : 0,
+          y: isThinking ? [0, -3, 0] : 0
+        }}
+        transition={{ duration: 1.5, repeat: isThinking ? Infinity : 0, delay: 0.3 }}
+      />
+      <motion.circle 
+        cx="88" cy="2" r="5" fill="#a0aec0"
+        initial={{ opacity: 0 }}
+        animate={{ 
+          opacity: isThinking ? [0, 1, 0] : 0,
+          y: isThinking ? [0, -3, 0] : 0
+        }}
+        transition={{ duration: 1.5, repeat: isThinking ? Infinity : 0, delay: 0.6 }}
+      />
     </svg>
   );
 }
@@ -214,40 +394,25 @@ function TutorAvatar({ isAnimating = false, isSuccess = false, large = false }: 
   const containerSize = large ? "w-24 h-24" : "w-11 h-11";
   const penguinSize = large ? 60 : 32;
   
+  const emotion: PenguinEmotion = isSuccess ? "happy" : isAnimating ? "thinking" : "idle";
+  
   return (
     <motion.div 
-      className={`relative ${containerSize} rounded-2xl bg-gradient-to-br from-sky-100 via-cyan-50 to-blue-100 dark:from-slate-600 dark:via-slate-500 dark:to-slate-600 flex items-center justify-center shrink-0 shadow-lg overflow-hidden border-2 border-sky-200/50 dark:border-slate-500/50`}
+      className={`relative ${containerSize} rounded-2xl bg-gradient-to-br from-sky-100 via-cyan-50 to-blue-100 dark:from-slate-600 dark:via-slate-500 dark:to-slate-600 flex items-center justify-center shrink-0 shadow-lg overflow-visible border-2 border-sky-200/50 dark:border-slate-500/50`}
       animate={isSuccess ? {
-        scale: [1, 1.2, 1],
-        rotate: [0, -10, 10, -10, 0],
+        scale: [1, 1.15, 1],
       } : isAnimating ? {
-        y: [0, -4, 0],
+        y: [0, -3, 0],
       } : {}}
       transition={isSuccess ? {
-        duration: 0.5,
-        times: [0, 0.2, 0.5, 0.8, 1],
+        duration: 0.6,
       } : {
         duration: 1.5, 
         repeat: Infinity, 
         ease: "easeInOut" 
       }}
     >
-      <motion.div
-        animate={isAnimating ? { 
-          rotate: [0, -8, 8, 0],
-          x: [-1, 1, -1] 
-        } : isSuccess ? {
-          scale: [1, 1.3, 1],
-          y: [0, -5, 0]
-        } : {}}
-        transition={{ 
-          duration: isAnimating ? 2.5 : 0.4, 
-          repeat: isAnimating ? Infinity : 0, 
-          ease: "easeInOut" 
-        }}
-      >
-        <CutePenguin size={penguinSize} />
-      </motion.div>
+      <CutePenguin size={penguinSize} emotion={emotion} />
     </motion.div>
   );
 }
