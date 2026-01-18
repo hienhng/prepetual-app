@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Plus, Minus, HelpCircle, BookOpen, Lock, FileText, Brain, Share2, BarChart3, Globe, Edit3 } from "lucide-react";
+import { ArrowLeft, Plus, Minus, HelpCircle, BookOpen, Lock, FileText, Brain, Share2, BarChart3, Globe, Edit3, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,6 +54,12 @@ const faqs = [
     question: "Editing quizzes - Can I change the questions?",
     answer: "Yes! You can modify any AI-generated question, add your own, or remove questions before you start taking the quiz or sharing it.",
     icon: Edit3
+  },
+  {
+    id: "item-9",
+    question: "Pip AI Assistant - How can it help me?",
+    answer: "Pip is your personal study companion available during any quiz. Pip can explain complex concepts, provide hints, and even render mathematical formulas. Pip's goal is to help you learn, so it will guide you toward the answer without simply giving it away.",
+    icon: MessageCircle
   }
 ];
 
