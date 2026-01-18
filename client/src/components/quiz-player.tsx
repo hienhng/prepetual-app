@@ -110,9 +110,9 @@ export function QuizPlayer() {
     return null;
   }
   
-  // Initialize from restored state on mount (from saved progress)
+  // Initialize from restored state on mount (from saved progress) - only for authenticated users
   useEffect(() => {
-    if (hasRestoredRef.current || !currentQuiz) return;
+    if (hasRestoredRef.current || !currentQuiz || isGuest) return;
     
     // Derive wrongAnswerIds from userAnswers by comparing to correct answers
     // This handles both: 1) Legacy progress without retry state, 2) Fresh restore with explicit state
@@ -158,12 +158,14 @@ export function QuizPlayer() {
     
     hasRestoredRef.current = true;
     clearRestoredState(currentQuiz.id);
-  }, [currentQuiz, userAnswers, checkedQuestions, restoredCurrentIndex, restoredRetryAnswers, restoredRetryCheckedQuestions, clearRestoredState]);
+  }, [currentQuiz, userAnswers, checkedQuestions, restoredCurrentIndex, restoredRetryAnswers, restoredRetryCheckedQuestions, clearRestoredState, isGuest]);
 
-  // Sync player state to context for save functionality
+  // Sync player state to context for save functionality (only for authenticated users)
   useEffect(() => {
-    syncPlayerState(currentIndex, retryAnswers, Array.from(retryChecked));
-  }, [currentIndex, retryAnswers, retryChecked, syncPlayerState]);
+    if (!isGuest) {
+      syncPlayerState(currentIndex, retryAnswers, Array.from(retryChecked));
+    }
+  }, [currentIndex, retryAnswers, retryChecked, syncPlayerState, isGuest]);
 
   // Cleanup: reset hasRestoredRef when quiz changes (to allow fresh restoration)
   useEffect(() => {
