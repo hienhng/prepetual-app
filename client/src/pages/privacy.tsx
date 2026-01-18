@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Shield, Lock, Eye, Database, Globe, UserCheck, Bell, MessageCircle } from "lucide-react";
+import { ArrowLeft, Shield, Lock, Eye, Database, Globe, UserCheck, Bell, MessageCircle, Bot } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -54,12 +54,18 @@ export default function PrivacyPolicy() {
     },
     {
       id: "5",
+      title: "Pip AI Assistant",
+      icon: Bot,
+      content: "Our AI study assistant, Pip, uses your quiz content and conversation history within each session to provide helpful explanations and hints. Chat conversations with Pip are not stored permanently and are cleared when you close the quiz. Pip does not have access to your personal account information beyond your current quiz context."
+    },
+    {
+      id: "6",
       title: "Data Retention",
       icon: Shield,
       content: "We retain your account information and quizzes for as long as your account is active. Uploaded documents may be temporarily stored for processing and then deleted. You can request deletion of your data at any time."
     },
     {
-      id: "6",
+      id: "7",
       title: "Security",
       icon: UserCheck,
       content: "We implement industry-standard security measures to protect your data, including encryption in transit and at rest, secure authentication, and regular security audits."

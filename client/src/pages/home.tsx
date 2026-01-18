@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { 
   ArrowRight, ArrowUp, ArrowLeft, CheckCircle2, Upload, Brain, Zap, BookOpen, 
   Share2, RotateCcw, Sparkles, Play, Eye, Target, Users, Star,
-  ChevronRight, ChevronLeft, Layers, GraduationCap, Trophy, Flame, MousePointer2, Check
+  ChevronRight, ChevronLeft, Layers, GraduationCap, Trophy, Flame, MousePointer2, Check, MessageCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -840,6 +840,30 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
     );
   }
   
+  if (feature === "Pip AI Assistant") {
+    return (
+      <svg viewBox="0 0 180 140" className="w-full h-full">
+        <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
+        <ellipse cx="70" cy="65" rx="35" ry="40" fill={c} opacity="0.9"/>
+        <ellipse cx="70" cy="65" rx="28" ry="32" fill="white"/>
+        <circle cx="60" cy="55" r="5" fill="#1a1a2e"/>
+        <circle cx="80" cy="55" r="5" fill="#1a1a2e"/>
+        <circle cx="62" cy="53" r="1.5" fill="white"/>
+        <circle cx="82" cy="53" r="1.5" fill="white"/>
+        <ellipse cx="70" cy="68" rx="4" ry="2.5" fill="#f97316"/>
+        <ellipse cx="70" cy="90" rx="20" ry="8" fill={c} opacity="0.8"/>
+        <text x="70" y="115" textAnchor="middle" fontSize="9" fill={c} fontWeight="700">Pip</text>
+        <rect x="110" y="25" width="50" height="35" rx="8" fill={c} opacity="0.15" stroke={c} strokeWidth="1"/>
+        <rect x="118" y="33" width="34" height="3" rx="1.5" fill={c} opacity="0.4"/>
+        <rect x="118" y="40" width="26" height="3" rx="1.5" fill={c} opacity="0.3"/>
+        <rect x="118" y="47" width="30" height="3" rx="1.5" fill={c} opacity="0.25"/>
+        <path d="M110 45 L100 50 L110 55" fill={c} opacity="0.15"/>
+        <rect x="110" y="70" width="50" height="25" rx="6" fill={c}/>
+        <text x="135" y="86" textAnchor="middle" fontSize="7" fill="white" fontWeight="500">Ask Pip</text>
+      </svg>
+    );
+  }
+  
   return null;
 }
 
@@ -889,6 +913,13 @@ function FeatureShowcase() {
       color: "amber",
       details: "Stay motivated with daily streak tracking. Set personal goals, receive friendly reminders, and watch your consistency grow. Building a study habit has never been more rewarding.",
     },
+    {
+      icon: MessageCircle,
+      title: "Pip AI Assistant",
+      description: "Your personal study companion.",
+      color: "cyan",
+      details: "Meet Pip, your friendly arctic study buddy! Pip understands your quiz context and helps explain difficult concepts, provides hints when you're stuck, and supports math formulas. Pip guides you to the answer without giving it away.",
+    },
   ];
 
   const colorClasses: Record<string, { text: string; border: string; bg: string; glow: string; solidBg: string }> = {
@@ -898,6 +929,7 @@ function FeatureShowcase() {
     rose: { text: "text-rose-500", border: "border-rose-500/20", bg: "bg-rose-500/10", glow: "group-hover:shadow-rose-500/20", solidBg: "bg-rose-500" },
     emerald: { text: "text-emerald-500", border: "border-emerald-500/20", bg: "bg-emerald-500/10", glow: "group-hover:shadow-emerald-500/20", solidBg: "bg-emerald-500" },
     amber: { text: "text-amber-500", border: "border-amber-500/20", bg: "bg-amber-500/10", glow: "group-hover:shadow-amber-500/20", solidBg: "bg-amber-500" },
+    cyan: { text: "text-cyan-500", border: "border-cyan-500/20", bg: "bg-cyan-500/10", glow: "group-hover:shadow-cyan-500/20", solidBg: "bg-cyan-500" },
   };
 
   return (

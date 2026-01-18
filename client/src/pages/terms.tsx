@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, FileText, CheckCircle, Scale, UserPlus, FileSignature, AlertCircle, Info, HelpCircle } from "lucide-react";
+import { ArrowLeft, FileText, CheckCircle, Scale, UserPlus, FileSignature, AlertCircle, Info, HelpCircle, Bot } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -66,6 +66,12 @@ export default function TermsOfService() {
     },
     {
       id: "7",
+      title: "Pip AI Assistant",
+      icon: Bot,
+      content: "Pip is our AI study companion designed to help you learn. Pip provides hints and explanations but is intentionally designed not to give direct answers. While Pip strives to be helpful and accurate, responses are AI-generated and should be verified for critical educational content. Pip's goal is to guide your learning journey, not replace independent study and verification."
+    },
+    {
+      id: "8",
       title: "Limitation of Liability",
       icon: Scale,
       content: "In no event shall Prepetual or its affiliates be liable for any indirect, incidental, or consequential damages arising from your use of the service."

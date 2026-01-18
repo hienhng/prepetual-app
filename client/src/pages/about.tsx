@@ -3,7 +3,7 @@ import {
   ArrowLeft, Sparkles, Rocket, Target, Users, Lightbulb, Shield, 
   Upload, Brain, Zap, GraduationCap, BookOpen, BarChart3, Share2, 
   Globe, CheckCircle2, FileText, MessageSquare, ThumbsUp, Pencil,
-  Layers, Clock, Flame, Import, Play, RotateCcw, Eye, ArrowRight
+  Layers, Clock, Flame, Import, Play, RotateCcw, Eye, ArrowRight, Bot
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -72,6 +72,13 @@ const coreFeatures = [
     color: "emerald",
     details: ["Shareable links", "Public quizzes", "Upvote/downvote", "Comments"]
   },
+  {
+    icon: Bot,
+    title: "Pip AI Assistant",
+    description: "Your friendly arctic study buddy! Pip helps explain concepts, gives hints, and supports math formulas—without giving away answers.",
+    color: "cyan",
+    details: ["Context-aware help", "Math formula support", "Guided learning", "No answer spoilers"]
+  },
 ];
 
 const stats = [
@@ -125,6 +132,7 @@ function FeatureCard({ feature, index }: { feature: typeof coreFeatures[0]; inde
     orange: { bg: "bg-orange-500/10", text: "text-orange-500", border: "border-orange-500/20" },
     rose: { bg: "bg-rose-500/10", text: "text-rose-500", border: "border-rose-500/20" },
     emerald: { bg: "bg-emerald-500/10", text: "text-emerald-500", border: "border-emerald-500/20" },
+    cyan: { bg: "bg-cyan-500/10", text: "text-cyan-500", border: "border-cyan-500/20" },
   };
   const colors = colorClasses[feature.color];
 
