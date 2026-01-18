@@ -850,42 +850,42 @@ function FeatureShowcase() {
     {
       icon: Upload,
       title: "Multi-Format Upload",
-      description: "PDFs, images, Word, PowerPoint, Excel. Our OCR handles photos of textbooks too.",
+      description: "PDFs, images, Word, Excel supported.",
       color: "blue",
       details: "Upload any document format and our intelligent parser extracts the text content. For images and scanned documents, our OCR (Optical Character Recognition) technology accurately reads text from photos of textbooks, handwritten notes, and more.",
     },
     {
       icon: Brain,
       title: "AI Quiz Generation",
-      description: "Intelligent AI creates meaningful questions that test real understanding.",
+      description: "AI creates meaningful questions.",
       color: "purple",
       details: "Our AI analyzes your content to generate diverse question types: multiple choice, true/false, and short answer. Questions are designed to test comprehension, not just memorization, with adjustable difficulty levels.",
     },
     {
       icon: BookOpen,
       title: "Study Mode",
-      description: "Swipe-based flashcards with 'known' and 'learning' progress tracking.",
+      description: "Flashcards with progress tracking.",
       color: "orange",
       details: "Flip through questions as flashcards. Mark each card as 'known' or 'still learning' to track your progress. Cards you're still learning will appear more frequently until you master them.",
     },
     {
       icon: RotateCcw,
       title: "Spaced Repetition",
-      description: "Missed questions come back in retry rounds until you master them.",
+      description: "Retry missed questions until mastered.",
       color: "rose",
       details: "Questions you answer incorrectly automatically appear in retry rounds. This spaced repetition approach ensures you keep practicing difficult concepts until they stick, maximizing long-term retention.",
     },
     {
       icon: Share2,
       title: "Community Sharing",
-      description: "Share quizzes, browse public ones, vote and comment.",
+      description: "Share and discover public quizzes.",
       color: "emerald",
       details: "Share your quizzes with friends or make them public for others to use. Discover quizzes created by the community, sorted by subject and popularity. Collaborate and learn together.",
     },
     {
       icon: Flame,
       title: "Streak Tracking",
-      description: "Build daily learning habits with streak goals and reminders.",
+      description: "Build daily learning habits.",
       color: "amber",
       details: "Stay motivated with daily streak tracking. Set personal goals, receive friendly reminders, and watch your consistency grow. Building a study habit has never been more rewarding.",
     },
@@ -925,25 +925,18 @@ function FeatureShowcase() {
                   onClick={() => setExpandedIndex(index)}
                 >
                   <Card className={`h-full group cursor-pointer transition-all duration-300 border ${colors.border} bg-card hover:shadow-xl ${colors.glow} hover:-translate-y-1`}>
-                    <CardContent className="p-6 relative overflow-hidden">
-                      <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full ${colors.bg} blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                      <motion.div 
-                        className={`relative w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center mb-5 border ${colors.border}`}
-                        whileHover={{ scale: 1.1, rotate: 8 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                      >
-                        <feature.icon className={`w-7 h-7 ${colors.text}`} />
-                      </motion.div>
-                      <h3 className="relative text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
-                        {feature.title}
-                      </h3>
-                      <p className="relative text-sm text-muted-foreground leading-relaxed">
+                    <CardContent className="p-4 relative overflow-hidden">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center border ${colors.border} shrink-0`}>
+                          <feature.icon className={`w-5 h-5 ${colors.text}`} />
+                        </div>
+                        <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
+                          {feature.title}
+                        </h3>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
                         {feature.description}
                       </p>
-                      <div className="mt-4 flex items-center gap-1 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span>Click to learn more</span>
-                        <ChevronRight className="w-3 h-3" />
-                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -1298,7 +1291,7 @@ export default function Home() {
           <HowItWorksGallery />
         </div>
       </section>
-      <section className="py-20 md:py-28 bg-muted/30 min-h-[1000px] md:min-h-[850px]">
+      <section className="py-20 md:py-28 bg-muted/30 min-h-[800px] md:min-h-[650px]">
         <div className="container mx-auto px-4 sm:px-6">
           <motion.div 
             className="text-center mb-14"
