@@ -698,122 +698,141 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
     emerald: "#10b981",
     amber: "#f59e0b",
   };
-  const fillColor = colorMap[color] || "#3b82f6";
-  const cardBg = "hsl(var(--card))";
-  const borderColor = "hsl(var(--border))";
-  const mutedColor = "hsl(var(--muted))";
+  const c = colorMap[color] || "#3b82f6";
   
   if (feature === "Multi-Format Upload") {
     return (
-      <svg viewBox="0 0 200 160" className="w-full h-full">
-        <rect x="20" y="15" width="160" height="110" rx="12" fill={cardBg} stroke={borderColor} strokeWidth="2" strokeDasharray="6,4"/>
-        <circle cx="100" cy="55" r="22" fill={mutedColor}/>
-        <path d="M100 45 L100 65 M92 53 L100 45 L108 53" stroke={fillColor} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-        <text x="100" y="90" textAnchor="middle" fill="currentColor" fontSize="9" opacity="0.7">Drop files here</text>
-        <rect x="40" y="130" width="32" height="18" rx="9" fill={fillColor} opacity="0.15"/>
-        <text x="56" y="142" textAnchor="middle" fill={fillColor} fontSize="7" fontWeight="600">PDF</text>
-        <rect x="78" y="130" width="44" height="18" rx="9" fill={fillColor} opacity="0.15"/>
-        <text x="100" y="142" textAnchor="middle" fill={fillColor} fontSize="7" fontWeight="600">DOCX</text>
-        <rect x="128" y="130" width="32" height="18" rx="9" fill={fillColor} opacity="0.15"/>
-        <text x="144" y="142" textAnchor="middle" fill={fillColor} fontSize="7" fontWeight="600">IMG</text>
+      <svg viewBox="0 0 180 140" className="w-full h-full">
+        <defs>
+          <linearGradient id="uploadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={c} stopOpacity="0.1"/>
+            <stop offset="100%" stopColor={c} stopOpacity="0.05"/>
+          </linearGradient>
+        </defs>
+        <rect x="15" y="10" width="150" height="95" rx="10" fill="url(#uploadGrad)" stroke={c} strokeWidth="1.5" strokeDasharray="4 3" opacity="0.8"/>
+        <circle cx="90" cy="45" r="18" fill={c} opacity="0.12"/>
+        <path d="M90 38 L90 52" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+        <path d="M84 44 L90 38 L96 44" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        <text x="90" y="72" textAnchor="middle" fontSize="8" fill="currentColor" opacity="0.5" fontWeight="500">Drop file or click</text>
+        <g transform="translate(30, 112)">
+          <rect width="35" height="16" rx="8" fill={c} opacity="0.1"/>
+          <text x="17.5" y="11" textAnchor="middle" fontSize="7" fill={c} fontWeight="600">PDF</text>
+        </g>
+        <g transform="translate(72, 112)">
+          <rect width="35" height="16" rx="8" fill={c} opacity="0.1"/>
+          <text x="17.5" y="11" textAnchor="middle" fontSize="7" fill={c} fontWeight="600">DOC</text>
+        </g>
+        <g transform="translate(114, 112)">
+          <rect width="35" height="16" rx="8" fill={c} opacity="0.1"/>
+          <text x="17.5" y="11" textAnchor="middle" fontSize="7" fill={c} fontWeight="600">IMG</text>
+        </g>
       </svg>
     );
   }
   
   if (feature === "AI Quiz Generation") {
     return (
-      <svg viewBox="0 0 200 160" className="w-full h-full">
-        <rect x="20" y="10" width="160" height="140" rx="12" fill={cardBg} stroke={borderColor} strokeWidth="1.5"/>
-        <rect x="30" y="20" width="50" height="16" rx="8" fill={fillColor}/>
-        <text x="55" y="31" textAnchor="middle" fill="white" fontSize="7" fontWeight="600">Question 3</text>
-        <rect x="30" y="45" width="140" height="8" rx="2" fill={mutedColor}/>
-        <rect x="30" y="57" width="100" height="8" rx="2" fill={mutedColor}/>
-        <rect x="30" y="75" width="140" height="28" rx="8" fill={cardBg} stroke={borderColor} strokeWidth="1.5"/>
-        <circle cx="44" cy="89" r="6" fill={mutedColor}/>
-        <text x="44" y="92" textAnchor="middle" fill="currentColor" fontSize="7" fontWeight="600">A</text>
-        <rect x="55" y="85" width="80" height="8" rx="2" fill={mutedColor}/>
-        <rect x="30" y="108" width="140" height="28" rx="8" fill={fillColor} opacity="0.15" stroke={fillColor} strokeWidth="2"/>
-        <circle cx="44" cy="122" r="6" fill={fillColor}/>
-        <text x="44" y="125" textAnchor="middle" fill="white" fontSize="7" fontWeight="600">B</text>
-        <rect x="55" y="118" width="90" height="8" rx="2" fill={fillColor} opacity="0.3"/>
-        <circle cx="156" cy="122" r="8" fill={fillColor}/>
-        <path d="M152 122 L155 125 L161 118" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+      <svg viewBox="0 0 180 140" className="w-full h-full">
+        <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
+        <rect x="22" y="16" width="40" height="14" rx="7" fill={c}/>
+        <text x="42" y="26" textAnchor="middle" fontSize="7" fill="white" fontWeight="600">Q3 / 10</text>
+        <rect x="22" y="38" width="136" height="4" rx="2" fill="currentColor" opacity="0.08"/>
+        <rect x="22" y="46" width="100" height="4" rx="2" fill="currentColor" opacity="0.08"/>
+        <rect x="22" y="60" width="136" height="28" rx="6" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.12"/>
+        <circle cx="34" cy="74" r="5" fill="currentColor" opacity="0.08"/>
+        <text x="34" y="77" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.4">A</text>
+        <rect x="44" y="71" width="80" height="5" rx="2" fill="currentColor" opacity="0.08"/>
+        <rect x="22" y="96" width="136" height="28" rx="6" fill={c} opacity="0.08" stroke={c} strokeWidth="1.5"/>
+        <circle cx="34" cy="110" r="5" fill={c}/>
+        <text x="34" y="113" textAnchor="middle" fontSize="6" fill="white" fontWeight="600">B</text>
+        <rect x="44" y="107" width="90" height="5" rx="2" fill={c} opacity="0.2"/>
+        <circle cx="146" cy="110" r="6" fill={c}/>
+        <path d="M143 110 L145 112 L149 107" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     );
   }
   
   if (feature === "Study Mode") {
     return (
-      <svg viewBox="0 0 200 160" className="w-full h-full">
-        <rect x="45" y="20" width="110" height="120" rx="12" fill={cardBg} stroke={borderColor} strokeWidth="1.5" transform="rotate(-5 100 80)" opacity="0.5"/>
-        <rect x="45" y="20" width="110" height="120" rx="12" fill={cardBg} stroke={fillColor} strokeWidth="2"/>
-        <text x="100" y="45" textAnchor="middle" fill={fillColor} fontSize="8" fontWeight="600" opacity="0.6">QUESTION</text>
-        <rect x="60" y="55" width="80" height="6" rx="2" fill={mutedColor}/>
-        <rect x="70" y="65" width="60" height="6" rx="2" fill={mutedColor}/>
-        <line x1="60" y1="85" x2="140" y2="85" stroke={borderColor} strokeWidth="1"/>
-        <text x="100" y="105" textAnchor="middle" fill="currentColor" fontSize="8" opacity="0.5">Tap to reveal</text>
-        <circle cx="25" cy="80" r="16" fill="#ef4444" opacity="0.15" stroke="#ef4444" strokeWidth="1.5"/>
-        <path d="M20 75 L30 85 M30 75 L20 85" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"/>
-        <circle cx="175" cy="80" r="16" fill="#22c55e" opacity="0.15" stroke="#22c55e" strokeWidth="1.5"/>
-        <path d="M170 80 L174 84 L181 76" stroke="#22c55e" strokeWidth="2" fill="none" strokeLinecap="round"/>
+      <svg viewBox="0 0 180 140" className="w-full h-full">
+        <rect x="38" y="15" width="104" height="110" rx="8" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.1" transform="rotate(-4 90 70)"/>
+        <rect x="38" y="15" width="104" height="110" rx="8" fill="none" stroke={c} strokeWidth="1.5"/>
+        <text x="90" y="35" textAnchor="middle" fontSize="7" fill={c} fontWeight="600" opacity="0.5" letterSpacing="1">QUESTION</text>
+        <rect x="50" y="45" width="80" height="4" rx="2" fill="currentColor" opacity="0.1"/>
+        <rect x="58" y="54" width="64" height="4" rx="2" fill="currentColor" opacity="0.08"/>
+        <line x1="50" y1="72" x2="130" y2="72" stroke="currentColor" strokeWidth="0.5" opacity="0.1"/>
+        <text x="90" y="92" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.35">tap to flip</text>
+        <circle cx="12" cy="70" r="12" fill="#ef4444" opacity="0.08" stroke="#ef4444" strokeWidth="1"/>
+        <path d="M8 66 L16 74 M16 66 L8 74" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round"/>
+        <text x="12" y="95" textAnchor="middle" fontSize="6" fill="#ef4444" opacity="0.6">Still</text>
+        <text x="12" y="102" textAnchor="middle" fontSize="6" fill="#ef4444" opacity="0.6">learning</text>
+        <circle cx="168" cy="70" r="12" fill="#22c55e" opacity="0.08" stroke="#22c55e" strokeWidth="1"/>
+        <path d="M163 70 L166 73 L173 66" stroke="#22c55e" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+        <text x="168" y="95" textAnchor="middle" fontSize="6" fill="#22c55e" opacity="0.6">Know</text>
+        <text x="168" y="102" textAnchor="middle" fontSize="6" fill="#22c55e" opacity="0.6">this</text>
       </svg>
     );
   }
   
   if (feature === "Spaced Repetition") {
     return (
-      <svg viewBox="0 0 200 160" className="w-full h-full">
-        <rect x="20" y="15" width="160" height="130" rx="12" fill={cardBg} stroke={borderColor} strokeWidth="1.5"/>
-        <rect x="30" y="25" width="140" height="8" rx="4" fill={mutedColor}/>
-        <rect x="30" y="25" width="98" height="8" rx="4" fill={fillColor}/>
-        <text x="100" y="50" textAnchor="middle" fill="currentColor" fontSize="8" opacity="0.6">Round 2 of 3</text>
-        <rect x="35" y="62" width="55" height="35" rx="8" fill="#22c55e" opacity="0.15" stroke="#22c55e" strokeWidth="1.5"/>
-        <circle cx="50" cy="80" r="8" fill="#22c55e"/>
-        <path d="M46 80 L49 83 L55 76" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-        <text x="75" y="82" textAnchor="middle" fill="#22c55e" fontSize="7" fontWeight="600">3</text>
-        <rect x="110" y="62" width="55" height="35" rx="8" fill={fillColor} opacity="0.15" stroke={fillColor} strokeWidth="1.5"/>
-        <circle cx="125" cy="80" r="8" fill={fillColor}/>
-        <path d="M121 77 L129 83 M121 83 L129 77" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-        <text x="150" y="82" textAnchor="middle" fill={fillColor} fontSize="7" fontWeight="600">2</text>
-        <rect x="35" y="105" width="130" height="30" rx="8" fill={fillColor}/>
-        <text x="100" y="124" textAnchor="middle" fill="white" fontSize="9" fontWeight="600">Retry Missed Questions</text>
+      <svg viewBox="0 0 180 140" className="w-full h-full">
+        <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
+        <rect x="24" y="18" width="132" height="6" rx="3" fill="currentColor" opacity="0.06"/>
+        <rect x="24" y="18" width="88" height="6" rx="3" fill={c} opacity="0.8"/>
+        <text x="90" y="38" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.5">Revision Round 2 of 3</text>
+        <g transform="translate(24, 50)">
+          <rect width="60" height="40" rx="6" fill="#22c55e" opacity="0.06" stroke="#22c55e" strokeWidth="1"/>
+          <circle cx="18" cy="20" r="7" fill="#22c55e"/>
+          <path d="M14 20 L17 23 L22 17" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+          <text x="40" y="18" textAnchor="middle" fontSize="12" fill="#22c55e" fontWeight="700">4</text>
+          <text x="40" y="28" textAnchor="middle" fontSize="6" fill="#22c55e" opacity="0.7">correct</text>
+        </g>
+        <g transform="translate(96, 50)">
+          <rect width="60" height="40" rx="6" fill={c} opacity="0.06" stroke={c} strokeWidth="1"/>
+          <circle cx="18" cy="20" r="7" fill={c}/>
+          <path d="M14 17 L22 23 M22 17 L14 23" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+          <text x="40" y="18" textAnchor="middle" fontSize="12" fill={c} fontWeight="700">2</text>
+          <text x="40" y="28" textAnchor="middle" fontSize="6" fill={c} opacity="0.7">to retry</text>
+        </g>
+        <rect x="24" y="100" width="132" height="26" rx="6" fill={c}/>
+        <text x="90" y="117" textAnchor="middle" fontSize="8" fill="white" fontWeight="600">Retry Missed Questions</text>
       </svg>
     );
   }
   
   if (feature === "Community Sharing") {
     return (
-      <svg viewBox="0 0 200 160" className="w-full h-full">
-        <rect x="20" y="15" width="160" height="130" rx="12" fill={cardBg} stroke={borderColor} strokeWidth="1.5"/>
-        <rect x="30" y="25" width="100" height="6" rx="2" fill={mutedColor}/>
-        <rect x="30" y="35" width="70" height="6" rx="2" fill={mutedColor}/>
-        <rect x="30" y="50" width="140" height="40" rx="8" fill={mutedColor} opacity="0.5"/>
-        <rect x="38" y="58" width="90" height="6" rx="2" fill={mutedColor}/>
-        <rect x="38" y="68" width="70" height="6" rx="2" fill={mutedColor}/>
-        <rect x="38" y="78" width="50" height="6" rx="2" fill={mutedColor}/>
-        <rect x="30" y="100" width="80" height="30" rx="8" fill={fillColor}/>
-        <circle cx="50" cy="115" r="8" fill="white" opacity="0.3"/>
-        <path d="M47 112 L47 118 M47 112 L50 115 L47 118 M53 112 L53 118" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-        <text x="80" y="118" textAnchor="middle" fill="white" fontSize="8" fontWeight="600">Share</text>
-        <rect x="120" y="100" width="50" height="30" rx="8" fill={cardBg} stroke={borderColor} strokeWidth="1.5"/>
-        <text x="145" y="118" textAnchor="middle" fill="currentColor" fontSize="8">Copy</text>
+      <svg viewBox="0 0 180 140" className="w-full h-full">
+        <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
+        <text x="24" y="26" fontSize="9" fill="currentColor" fontWeight="600">Biology Quiz</text>
+        <text x="24" y="38" fontSize="7" fill="currentColor" opacity="0.4">10 questions</text>
+        <rect x="24" y="48" width="132" height="40" rx="6" fill="currentColor" opacity="0.04"/>
+        <rect x="32" y="56" width="90" height="4" rx="2" fill="currentColor" opacity="0.08"/>
+        <rect x="32" y="64" width="70" height="4" rx="2" fill="currentColor" opacity="0.06"/>
+        <rect x="32" y="72" width="50" height="4" rx="2" fill="currentColor" opacity="0.04"/>
+        <rect x="24" y="98" width="70" height="28" rx="6" fill={c}/>
+        <path d="M44 109 L44 117 M44 109 L48 113 L44 117 M52 109 L52 117" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+        <text x="72" y="116" textAnchor="middle" fontSize="8" fill="white" fontWeight="500">Share</text>
+        <rect x="102" y="98" width="54" height="28" rx="6" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.2"/>
+        <text x="129" y="116" textAnchor="middle" fontSize="8" fill="currentColor" opacity="0.6">Copy link</text>
       </svg>
     );
   }
   
   if (feature === "Streak Tracking") {
     return (
-      <svg viewBox="0 0 200 160" className="w-full h-full">
-        <rect x="20" y="15" width="160" height="130" rx="12" fill={cardBg} stroke={borderColor} strokeWidth="1.5"/>
-        <circle cx="100" cy="60" r="30" fill={fillColor} opacity="0.15" stroke={fillColor} strokeWidth="2"/>
-        <path d="M100 40 Q93 52 96 60 Q90 55 94 68 Q100 64 100 78 Q100 64 106 68 Q110 55 104 60 Q107 52 100 40" fill={fillColor}/>
-        <text x="100" y="102" textAnchor="middle" fill="currentColor" fontSize="20" fontWeight="700">7</text>
-        <text x="100" y="115" textAnchor="middle" fill="currentColor" fontSize="8" opacity="0.6">day streak</text>
-        <g transform="translate(35, 130)">
-          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-            <g key={i} transform={`translate(${i * 19}, 0)`}>
-              <circle cx="8" cy="8" r="7" fill={i < 5 ? fillColor : mutedColor} opacity={i < 5 ? 1 : 0.3}/>
-              {i < 5 && <path d="M5 8 L7 10 L11 5" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>}
+      <svg viewBox="0 0 180 140" className="w-full h-full">
+        <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
+        <circle cx="90" cy="50" r="28" fill={c} opacity="0.08" stroke={c} strokeWidth="1.5"/>
+        <path d="M90 32 Q83 44 86 52 Q80 47 84 60 Q90 56 90 70 Q90 56 96 60 Q100 47 94 52 Q97 44 90 32" fill={c}/>
+        <text x="90" y="95" textAnchor="middle" fontSize="22" fill="currentColor" fontWeight="700">7</text>
+        <text x="90" y="108" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.45">day streak</text>
+        <g transform="translate(27, 118)">
+          {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+            <g key={i} transform={`translate(${i * 18}, 0)`}>
+              <circle cx="7" cy="7" r="6" fill={i < 5 ? c : "currentColor"} opacity={i < 5 ? 1 : 0.08}/>
+              {i < 5 && <path d="M4 7 L6 9 L10 4" stroke="white" strokeWidth="1.2" fill="none" strokeLinecap="round"/>}
             </g>
           ))}
         </g>
@@ -882,7 +901,7 @@ function FeatureShowcase() {
   };
 
   return (
-    <div className="relative min-h-[400px]">
+    <div className="relative min-h-[520px] md:min-h-[420px]">
       <AnimatePresence mode="wait">
         {expandedIndex === null ? (
           <motion.div 
@@ -1000,7 +1019,7 @@ function FeatureShowcase() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ type: "spring", stiffness: 100, delay: 0.1 }}
                       >
-                        <div className={`w-full max-w-[280px] aspect-square rounded-2xl ${colors.bg} border ${colors.border} p-6 flex items-center justify-center`}>
+                        <div className={`w-full max-w-[320px] aspect-[4/3] rounded-2xl ${colors.bg} border ${colors.border} p-4 flex items-center justify-center`}>
                           <FeatureIllustration feature={feature.title} color={feature.color} />
                         </div>
                       </motion.div>
