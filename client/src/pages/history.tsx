@@ -141,24 +141,23 @@ export default function HistoryPage() {
     }
   };
 
-  const getCategoryIcon = (category?: string | null, className?: string) => {
-    const classes = className || "h-20 w-20";
+  const getCategoryIcon = (category?: string | null, size: string = "h-20 w-20") => {
     switch (category) {
-      case "Math": return <Calculator className={classes} />;
-      case "English": return <Languages className={classes} />;
-      case "Science": return <FlaskConical className={classes} />;
-      case "Social Studies": return <Landmark className={classes} />;
-      case "Global Languages": return <Languages className={classes} />;
-      case "Others/General": return <LayoutGrid className={classes} />;
-      default: return <HelpCircle className={classes} />;
+      case "Math": return <Calculator className={size} />;
+      case "English": return <Languages className={size} />;
+      case "Science": return <FlaskConical className={size} />;
+      case "Social Studies": return <Landmark className={size} />;
+      case "Global Languages": return <Languages className={size} />;
+      case "Others/General": return <LayoutGrid className={size} />;
+      default: return <HelpCircle className={size} />;
     }
   };
 
   const getDifficultyColor = (difficulty?: string | null) => {
     switch (difficulty) {
-      case "easy": return "bg-transparent group-hover:bg-green-500/15 transition-colors duration-500";
-      case "hard": return "bg-transparent group-hover:bg-red-500/15 transition-colors duration-500";
-      default: return "bg-transparent group-hover:bg-yellow-500/15 transition-colors duration-500";
+      case "easy": return "bg-green-500/20 text-green-600 dark:bg-green-500/30 dark:text-green-400";
+      case "hard": return "bg-red-500/20 text-red-600 dark:bg-red-500/30 dark:text-red-400";
+      default: return "bg-yellow-500/20 text-yellow-600 dark:bg-yellow-500/30 dark:text-yellow-400";
     }
   };
 
@@ -229,8 +228,8 @@ export default function HistoryPage() {
                       {/* Left Info Section */}
                       <div className="flex-1 p-5 sm:p-6 space-y-4 relative overflow-hidden">
                         {/* Faded Category Icon Background */}
-                        <div className={`absolute -right-6 top-1/2 -translate-y-1/2 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none p-6 rounded-full ${getDifficultyColor(quiz.difficulty)}`}>
-                          {getCategoryIcon(quiz.category, "h-14 w-14 text-foreground")}
+                        <div className={`absolute -right-4 top-1/2 -translate-y-1/2 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none p-4 rounded-full ${getDifficultyColor(quiz.difficulty)}`}>
+                          {getCategoryIcon(quiz.category, "h-12 w-12")}
                         </div>
                         <div className="relative z-10">
                           <div className="flex items-start justify-between gap-4">
