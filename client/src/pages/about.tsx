@@ -241,7 +241,7 @@ export default function About() {
               className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-background mb-8 border border-primary/20 overflow-hidden shadow-2xl relative z-10"
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+              transition={{ type: "spring", stiffness: 200}}
               whileHover={{ scale: 1.1, rotate: 5 }}
             >
               <img 
