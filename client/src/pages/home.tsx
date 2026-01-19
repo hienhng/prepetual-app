@@ -697,6 +697,8 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
     rose: "#f43f5e",
     emerald: "#10b981",
     amber: "#f59e0b",
+    cyan: "#06b6d4",
+    indigo: "#6366f1",
   };
   const c = colorMap[color] || "#3b82f6";
   
@@ -891,6 +893,54 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
         <g transform="translate(90, 118)">
           <rect x="-28" y="0" width="56" height="20" rx="6" fill={c}/>
           <text x="0" y="14" textAnchor="middle" fontSize="8" fill="white" fontWeight="600">Ask Pip</text>
+        </g>
+      </svg>
+    );
+  }
+  
+  if (feature === "Progress Tracking") {
+    return (
+      <svg viewBox="0 0 180 140" className="w-full h-full">
+        <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
+        
+        {/* Stats cards row */}
+        <g transform="translate(24, 18)">
+          {/* Quizzes stat */}
+          <rect width="40" height="36" rx="6" fill={c} opacity="0.08" stroke={c} strokeWidth="1"/>
+          <text x="20" y="16" textAnchor="middle" fontSize="12" fill={c} fontWeight="700">12</text>
+          <text x="20" y="28" textAnchor="middle" fontSize="6" fill={c} opacity="0.7">Quizzes</text>
+        </g>
+        
+        <g transform="translate(70, 18)">
+          {/* Streak stat */}
+          <rect width="40" height="36" rx="6" fill="#f59e0b" opacity="0.08" stroke="#f59e0b" strokeWidth="1"/>
+          <text x="20" y="16" textAnchor="middle" fontSize="12" fill="#f59e0b" fontWeight="700">7</text>
+          <text x="20" y="28" textAnchor="middle" fontSize="6" fill="#f59e0b" opacity="0.7">Streak</text>
+        </g>
+        
+        <g transform="translate(116, 18)">
+          {/* Accuracy stat */}
+          <rect width="40" height="36" rx="6" fill="#22c55e" opacity="0.08" stroke="#22c55e" strokeWidth="1"/>
+          <text x="20" y="16" textAnchor="middle" fontSize="12" fill="#22c55e" fontWeight="700">85%</text>
+          <text x="20" y="28" textAnchor="middle" fontSize="6" fill="#22c55e" opacity="0.7">Accuracy</text>
+        </g>
+        
+        {/* Progress chart area */}
+        <rect x="24" y="62" width="132" height="60" rx="6" fill="currentColor" opacity="0.04"/>
+        <text x="32" y="76" fontSize="7" fill="currentColor" opacity="0.5" fontWeight="500">Weekly Progress</text>
+        
+        {/* Simple bar chart */}
+        <g transform="translate(32, 84)">
+          {[35, 45, 30, 55, 40, 50, 28].map((h, i) => (
+            <rect key={i} x={i * 17} y={30 - h * 0.5} width="12" height={h * 0.5} rx="2" fill={c} opacity={0.3 + i * 0.1}/>
+          ))}
+        </g>
+        
+        {/* Day labels */}
+        <g transform="translate(36, 118)">
+          {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+            <text key={i} x={i * 17} y="8" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.4">{d}</text>
+          ))}
         </g>
       </svg>
     );
