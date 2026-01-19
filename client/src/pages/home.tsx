@@ -705,28 +705,35 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
   if (feature === "Multi-Format Upload") {
     return (
       <svg viewBox="0 0 180 140" className="w-full h-full">
-        <defs>
-          <linearGradient id="uploadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={c} stopOpacity="0.1"/>
-            <stop offset="100%" stopColor={c} stopOpacity="0.05"/>
-          </linearGradient>
-        </defs>
-        <rect x="15" y="10" width="150" height="95" rx="10" fill="url(#uploadGrad)" stroke={c} strokeWidth="1.5" strokeDasharray="4 3" opacity="0.8"/>
-        <circle cx="90" cy="45" r="18" fill={c} opacity="0.12"/>
-        <path d="M90 38 L90 52" stroke={c} strokeWidth="2" strokeLinecap="round"/>
-        <path d="M84 44 L90 38 L96 44" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-        <text x="90" y="72" textAnchor="middle" fontSize="8" fill="currentColor" opacity="0.5" fontWeight="500">Drop file or click</text>
-        <g transform="translate(30, 112)">
-          <rect width="35" height="16" rx="8" fill={c} opacity="0.1"/>
-          <text x="17.5" y="11" textAnchor="middle" fontSize="7" fill={c} fontWeight="600">PDF</text>
+        {/* Card with dashed border - matches file-upload.tsx dropzone */}
+        <rect x="15" y="8" width="150" height="100" rx="12" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 4" opacity="0.3"/>
+        <rect x="15" y="8" width="150" height="100" rx="12" fill="currentColor" opacity="0.02"/>
+        
+        {/* Large circular icon container - matches bg-muted rounded-full */}
+        <circle cx="90" cy="42" r="22" fill="currentColor" opacity="0.08"/>
+        <path d="M90 32 L90 52" stroke={c} strokeWidth="2.5" strokeLinecap="round"/>
+        <path d="M82 40 L90 32 L98 40" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        
+        {/* Text labels */}
+        <text x="90" y="74" textAnchor="middle" fontSize="8" fill="currentColor" fontWeight="600">Upload your study material</text>
+        <text x="90" y="86" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.5">Drag and drop or click to browse</text>
+        
+        {/* File type badges - matches Badge variant="secondary" */}
+        <g transform="translate(22, 116)">
+          <rect width="32" height="16" rx="8" fill="currentColor" opacity="0.08"/>
+          <text x="16" y="11" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.7" fontWeight="500">PDF</text>
         </g>
-        <g transform="translate(72, 112)">
-          <rect width="35" height="16" rx="8" fill={c} opacity="0.1"/>
-          <text x="17.5" y="11" textAnchor="middle" fontSize="7" fill={c} fontWeight="600">DOC</text>
+        <g transform="translate(58, 116)">
+          <rect width="34" height="16" rx="8" fill="currentColor" opacity="0.08"/>
+          <text x="17" y="11" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.7" fontWeight="500">DOCX</text>
         </g>
-        <g transform="translate(114, 112)">
-          <rect width="35" height="16" rx="8" fill={c} opacity="0.1"/>
-          <text x="17.5" y="11" textAnchor="middle" fontSize="7" fill={c} fontWeight="600">IMG</text>
+        <g transform="translate(96, 116)">
+          <rect width="32" height="16" rx="8" fill="currentColor" opacity="0.08"/>
+          <text x="16" y="11" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.7" fontWeight="500">PPTX</text>
+        </g>
+        <g transform="translate(132, 116)">
+          <rect width="36" height="16" rx="8" fill="currentColor" opacity="0.08"/>
+          <text x="18" y="11" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.7" fontWeight="500">Images</text>
         </g>
       </svg>
     );
@@ -735,21 +742,36 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
   if (feature === "AI Quiz Generation") {
     return (
       <svg viewBox="0 0 180 140" className="w-full h-full">
-        <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
-        <rect x="22" y="16" width="40" height="14" rx="7" fill={c}/>
-        <text x="42" y="26" textAnchor="middle" fontSize="7" fill="white" fontWeight="600">Q3 / 10</text>
-        <rect x="22" y="38" width="136" height="4" rx="2" fill="currentColor" opacity="0.08"/>
-        <rect x="22" y="46" width="100" height="4" rx="2" fill="currentColor" opacity="0.08"/>
-        <rect x="22" y="60" width="136" height="28" rx="6" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.12"/>
-        <circle cx="34" cy="74" r="5" fill="currentColor" opacity="0.08"/>
-        <text x="34" y="77" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.4">A</text>
-        <rect x="44" y="71" width="80" height="5" rx="2" fill="currentColor" opacity="0.08"/>
-        <rect x="22" y="96" width="136" height="28" rx="6" fill={c} opacity="0.08" stroke={c} strokeWidth="1.5"/>
-        <circle cx="34" cy="110" r="5" fill={c}/>
-        <text x="34" y="113" textAnchor="middle" fontSize="6" fill="white" fontWeight="600">B</text>
-        <rect x="44" y="107" width="90" height="5" rx="2" fill={c} opacity="0.2"/>
-        <circle cx="146" cy="110" r="6" fill={c}/>
-        <path d="M143 110 L145 112 L149 107" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* Card container */}
+        <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
+        
+        {/* Question number badge - matches Badge with primary bg */}
+        <rect x="22" y="16" width="46" height="18" rx="9" fill={c}/>
+        <text x="45" y="28" textAnchor="middle" fontSize="8" fill="white" fontWeight="600">Q3 / 10</text>
+        
+        {/* Question type badge */}
+        <rect x="74" y="16" width="58" height="18" rx="9" fill="currentColor" opacity="0.08"/>
+        <text x="103" y="28" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.6" fontWeight="500">Multiple Choice</text>
+        
+        {/* Question text area */}
+        <rect x="22" y="42" width="136" height="24" rx="6" fill="currentColor" opacity="0.04"/>
+        <rect x="28" y="50" width="100" height="4" rx="2" fill="currentColor" opacity="0.15"/>
+        <rect x="28" y="58" width="70" height="4" rx="2" fill="currentColor" opacity="0.1"/>
+        
+        {/* Answer option A - unselected */}
+        <rect x="22" y="72" width="136" height="24" rx="8" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.2"/>
+        <circle cx="36" cy="84" r="6" fill="currentColor" opacity="0.08"/>
+        <text x="36" y="87" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.5" fontWeight="500">A</text>
+        <rect x="48" y="81" width="80" height="5" rx="2" fill="currentColor" opacity="0.1"/>
+        
+        {/* Answer option B - correct answer with green styling */}
+        <rect x="22" y="102" width="136" height="24" rx="8" fill="#22c55e" opacity="0.12" stroke="#22c55e" strokeWidth="2"/>
+        <circle cx="36" cy="114" r="6" fill="#22c55e"/>
+        <text x="36" y="117" textAnchor="middle" fontSize="7" fill="white" fontWeight="600">B</text>
+        <rect x="48" y="111" width="90" height="5" rx="2" fill="#22c55e" opacity="0.3"/>
+        {/* Checkmark circle */}
+        <circle cx="146" cy="114" r="7" fill="#22c55e"/>
+        <path d="M142 114 L145 117 L150 111" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     );
   }
@@ -757,21 +779,48 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
   if (feature === "Study Mode") {
     return (
       <svg viewBox="0 0 180 140" className="w-full h-full">
-        <rect x="38" y="15" width="104" height="110" rx="8" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.1" transform="rotate(-4 90 70)"/>
-        <rect x="38" y="15" width="104" height="110" rx="8" fill="none" stroke={c} strokeWidth="1.5"/>
-        <text x="90" y="35" textAnchor="middle" fontSize="7" fill={c} fontWeight="600" opacity="0.5" letterSpacing="1">QUESTION</text>
-        <rect x="50" y="45" width="80" height="4" rx="2" fill="currentColor" opacity="0.1"/>
+        {/* Shadow card behind - slight rotation */}
+        <rect x="40" y="18" width="100" height="100" rx="12" fill="currentColor" opacity="0.05" transform="rotate(-3 90 68)"/>
+        
+        {/* Main flashcard - matches study.tsx Card styling */}
+        <rect x="40" y="15" width="100" height="100" rx="12" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.2"/>
+        <rect x="40" y="15" width="100" height="100" rx="12" fill="currentColor" opacity="0.02"/>
+        
+        {/* Question label */}
+        <text x="90" y="35" textAnchor="middle" fontSize="7" fill={c} fontWeight="700" opacity="0.6" letterSpacing="2">QUESTION</text>
+        
+        {/* Question text placeholder */}
+        <rect x="52" y="46" width="76" height="4" rx="2" fill="currentColor" opacity="0.12"/>
         <rect x="58" y="54" width="64" height="4" rx="2" fill="currentColor" opacity="0.08"/>
-        <line x1="50" y1="72" x2="130" y2="72" stroke="currentColor" strokeWidth="0.5" opacity="0.1"/>
-        <text x="90" y="92" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.35">tap to flip</text>
-        <circle cx="12" cy="70" r="12" fill="#ef4444" opacity="0.08" stroke="#ef4444" strokeWidth="1"/>
-        <path d="M8 66 L16 74 M16 66 L8 74" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round"/>
-        <text x="12" y="95" textAnchor="middle" fontSize="6" fill="#ef4444" opacity="0.6">Still</text>
-        <text x="12" y="102" textAnchor="middle" fontSize="6" fill="#ef4444" opacity="0.6">learning</text>
-        <circle cx="168" cy="70" r="12" fill="#22c55e" opacity="0.08" stroke="#22c55e" strokeWidth="1"/>
-        <path d="M163 70 L166 73 L173 66" stroke="#22c55e" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-        <text x="168" y="95" textAnchor="middle" fontSize="6" fill="#22c55e" opacity="0.6">Know</text>
-        <text x="168" y="102" textAnchor="middle" fontSize="6" fill="#22c55e" opacity="0.6">this</text>
+        
+        {/* Divider line */}
+        <line x1="52" y1="68" x2="128" y2="68" stroke="currentColor" strokeWidth="0.5" opacity="0.15"/>
+        
+        {/* Tap to flip hint */}
+        <text x="90" y="88" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.35">tap to flip</text>
+        
+        {/* Left overlay - Still Learning (yellow) - matches study.tsx */}
+        <g opacity="0.9">
+          <rect x="4" y="50" width="28" height="40" rx="8" fill="#eab308" opacity="0.15"/>
+          <circle cx="18" cy="62" r="8" fill="#eab308" opacity="0.2"/>
+          <path d="M14 59 L14 65 M14 59 L18 63 L14 67" stroke="#eab308" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" transform="rotate(180 16 62)"/>
+          <text x="18" y="80" textAnchor="middle" fontSize="5" fill="#eab308" fontWeight="600">Still</text>
+          <text x="18" y="86" textAnchor="middle" fontSize="5" fill="#eab308" fontWeight="600">Learning</text>
+        </g>
+        
+        {/* Right overlay - Know (green) - matches study.tsx */}
+        <g opacity="0.9">
+          <rect x="148" y="50" width="28" height="40" rx="8" fill="#22c55e" opacity="0.15"/>
+          <circle cx="162" cy="62" r="8" fill="#22c55e" opacity="0.2"/>
+          <path d="M158 62 L161 65 L166 59" stroke="#22c55e" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+          <text x="162" y="80" textAnchor="middle" fontSize="5" fill="#22c55e" fontWeight="600">Know</text>
+          <text x="162" y="86" textAnchor="middle" fontSize="5" fill="#22c55e" fontWeight="600">This</text>
+        </g>
+        
+        {/* Progress bar at bottom */}
+        <rect x="40" y="122" width="100" height="4" rx="2" fill="currentColor" opacity="0.1"/>
+        <rect x="40" y="122" width="60" height="4" rx="2" fill={c}/>
+        <text x="90" y="134" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.4">Card 3 of 5</text>
       </svg>
     );
   }
@@ -779,26 +828,37 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
   if (feature === "Spaced Repetition") {
     return (
       <svg viewBox="0 0 180 140" className="w-full h-full">
-        <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
-        <rect x="24" y="18" width="132" height="6" rx="3" fill="currentColor" opacity="0.06"/>
-        <rect x="24" y="18" width="88" height="6" rx="3" fill={c} opacity="0.8"/>
-        <text x="90" y="38" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.5">Revision Round 2 of 3</text>
-        <g transform="translate(24, 50)">
-          <rect width="60" height="40" rx="6" fill="#22c55e" opacity="0.06" stroke="#22c55e" strokeWidth="1"/>
-          <circle cx="18" cy="20" r="7" fill="#22c55e"/>
-          <path d="M14 20 L17 23 L22 17" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-          <text x="40" y="18" textAnchor="middle" fontSize="12" fill="#22c55e" fontWeight="700">4</text>
-          <text x="40" y="28" textAnchor="middle" fontSize="6" fill="#22c55e" opacity="0.7">correct</text>
+        {/* Card container */}
+        <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
+        
+        {/* Progress bar at top - matches quiz-player revision progress */}
+        <rect x="24" y="16" width="132" height="6" rx="3" fill="currentColor" opacity="0.08"/>
+        <rect x="24" y="16" width="88" height="6" rx="3" fill={c}/>
+        
+        {/* Revision round text */}
+        <text x="90" y="36" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.5" fontWeight="500">Revision Round 2 of 3</text>
+        
+        {/* Correct answers card - green theme */}
+        <g transform="translate(24, 46)">
+          <rect width="60" height="44" rx="8" fill="#22c55e" opacity="0.08" stroke="#22c55e" strokeWidth="1.5"/>
+          <circle cx="18" cy="22" r="8" fill="#22c55e"/>
+          <path d="M14 22 L17 25 L22 18" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+          <text x="42" y="20" textAnchor="middle" fontSize="14" fill="#22c55e" fontWeight="700">4</text>
+          <text x="42" y="32" textAnchor="middle" fontSize="6" fill="#22c55e" opacity="0.8" fontWeight="500">correct</text>
         </g>
-        <g transform="translate(96, 50)">
-          <rect width="60" height="40" rx="6" fill={c} opacity="0.06" stroke={c} strokeWidth="1"/>
-          <circle cx="18" cy="20" r="7" fill={c}/>
-          <path d="M14 17 L22 23 M22 17 L14 23" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-          <text x="40" y="18" textAnchor="middle" fontSize="12" fill={c} fontWeight="700">2</text>
-          <text x="40" y="28" textAnchor="middle" fontSize="6" fill={c} opacity="0.7">to retry</text>
+        
+        {/* To retry card - rose/red theme */}
+        <g transform="translate(96, 46)">
+          <rect width="60" height="44" rx="8" fill={c} opacity="0.08" stroke={c} strokeWidth="1.5"/>
+          <circle cx="18" cy="22" r="8" fill={c}/>
+          <path d="M14 18 L22 26 M22 18 L14 26" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+          <text x="42" y="20" textAnchor="middle" fontSize="14" fill={c} fontWeight="700">2</text>
+          <text x="42" y="32" textAnchor="middle" fontSize="6" fill={c} opacity="0.8" fontWeight="500">to retry</text>
         </g>
-        <rect x="24" y="100" width="132" height="26" rx="6" fill={c}/>
-        <text x="90" y="117" textAnchor="middle" fontSize="8" fill="white" fontWeight="600">Retry Missed Questions</text>
+        
+        {/* Primary action button - matches Button styling */}
+        <rect x="24" y="100" width="132" height="28" rx="8" fill={c}/>
+        <text x="90" y="118" textAnchor="middle" fontSize="8" fill="white" fontWeight="600">Retry Missed Questions</text>
       </svg>
     );
   }
@@ -806,18 +866,30 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
   if (feature === "Community Sharing") {
     return (
       <svg viewBox="0 0 180 140" className="w-full h-full">
-        <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
-        <text x="24" y="26" fontSize="9" fill="currentColor" fontWeight="600">Biology Quiz</text>
-        <text x="24" y="38" fontSize="7" fill="currentColor" opacity="0.4">10 questions</text>
-        <rect x="24" y="48" width="132" height="40" rx="6" fill="currentColor" opacity="0.04"/>
-        <rect x="32" y="56" width="90" height="4" rx="2" fill="currentColor" opacity="0.08"/>
-        <rect x="32" y="64" width="70" height="4" rx="2" fill="currentColor" opacity="0.06"/>
-        <rect x="32" y="72" width="50" height="4" rx="2" fill="currentColor" opacity="0.04"/>
-        <rect x="24" y="98" width="70" height="28" rx="6" fill={c}/>
-        <path d="M44 109 L44 117 M44 109 L48 113 L44 117 M52 109 L52 117" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-        <text x="72" y="116" textAnchor="middle" fontSize="8" fill="white" fontWeight="500">Share</text>
-        <rect x="102" y="98" width="54" height="28" rx="6" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.2"/>
-        <text x="129" y="116" textAnchor="middle" fontSize="8" fill="currentColor" opacity="0.6">Copy link</text>
+        {/* Card container */}
+        <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
+        
+        {/* Quiz title and info */}
+        <text x="24" y="28" fontSize="10" fill="currentColor" fontWeight="600">Biology Quiz</text>
+        <rect x="24" y="36" width="50" height="14" rx="7" fill="currentColor" opacity="0.08"/>
+        <text x="49" y="46" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.6" fontWeight="500">10 questions</text>
+        
+        {/* Quiz preview area */}
+        <rect x="24" y="56" width="132" height="36" rx="8" fill="currentColor" opacity="0.04"/>
+        <rect x="32" y="64" width="90" height="4" rx="2" fill="currentColor" opacity="0.1"/>
+        <rect x="32" y="72" width="70" height="4" rx="2" fill="currentColor" opacity="0.07"/>
+        <rect x="32" y="80" width="50" height="4" rx="2" fill="currentColor" opacity="0.05"/>
+        
+        {/* Share button - emerald green matching the feature color */}
+        <rect x="24" y="100" width="68" height="28" rx="8" fill={c}/>
+        <g transform="translate(40, 108)">
+          <path d="M0 8 L8 8 M0 8 L4 4 M0 8 L4 12" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+        </g>
+        <text x="66" y="118" textAnchor="middle" fontSize="8" fill="white" fontWeight="600">Share</text>
+        
+        {/* Copy link button - outline style */}
+        <rect x="100" y="100" width="56" height="28" rx="8" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.25"/>
+        <text x="128" y="118" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.6" fontWeight="500">Copy link</text>
       </svg>
     );
   }
@@ -825,16 +897,25 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
   if (feature === "Streak Tracking") {
     return (
       <svg viewBox="0 0 180 140" className="w-full h-full">
-        <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
-        <circle cx="90" cy="50" r="28" fill={c} opacity="0.08" stroke={c} strokeWidth="1.5"/>
-        <path d="M90 32 Q83 44 86 52 Q80 47 84 60 Q90 56 90 70 Q90 56 96 60 Q100 47 94 52 Q97 44 90 32" fill={c}/>
-        <text x="90" y="95" textAnchor="middle" fontSize="22" fill="currentColor" fontWeight="700">7</text>
-        <text x="90" y="108" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.45">day streak</text>
+        {/* Card container */}
+        <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
+        
+        {/* Flame icon in glowing circle - matches dashboard StatCard */}
+        <circle cx="90" cy="48" r="28" fill={c} opacity="0.1"/>
+        <circle cx="90" cy="48" r="24" fill={c} opacity="0.15"/>
+        {/* Flame shape */}
+        <path d="M90 30 Q82 44 86 52 Q80 46 84 62 Q88 58 90 68 Q92 58 96 62 Q100 46 94 52 Q98 44 90 30" fill={c}/>
+        
+        {/* Large streak number - matches dashboard display */}
+        <text x="90" y="96" textAnchor="middle" fontSize="26" fill="currentColor" fontWeight="700">7</text>
+        <text x="90" y="110" textAnchor="middle" fontSize="8" fill="currentColor" opacity="0.5" fontWeight="500">day streak</text>
+        
+        {/* Week days with checkmarks - matches StreakCalendar */}
         <g transform="translate(27, 118)">
           {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
             <g key={i} transform={`translate(${i * 18}, 0)`}>
-              <circle cx="7" cy="7" r="6" fill={i < 5 ? c : "currentColor"} opacity={i < 5 ? 1 : 0.08}/>
-              {i < 5 && <path d="M4 7 L6 9 L10 4" stroke="white" strokeWidth="1.2" fill="none" strokeLinecap="round"/>}
+              <circle cx="7" cy="7" r="7" fill={i < 5 ? c : "currentColor"} opacity={i < 5 ? 1 : 0.1}/>
+              {i < 5 && <path d="M4 7 L6 9 L10 4" stroke="white" strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>}
             </g>
           ))}
         </g>
@@ -845,54 +926,62 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
   if (feature === "Pip AI Assistant") {
     return (
       <svg viewBox="0 0 180 140" className="w-full h-full">
-        <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
+        {/* Card container */}
+        <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
         
-        {/* Pip penguin - centered, matching CutePenguin component */}
-        <g transform="translate(90, 70)">
+        {/* Pip penguin - matching CutePenguin component exactly */}
+        <g transform="translate(60, 68)">
           {/* Left flipper */}
-          <ellipse cx="-26" cy="2" rx="8" ry="16" fill="#2d3436" transform="rotate(-25 -26 2)"/>
+          <ellipse cx="-20" cy="2" rx="6" ry="12" fill="#2d3436" transform="rotate(-25 -20 2)"/>
           {/* Right flipper */}
-          <ellipse cx="26" cy="2" rx="8" ry="16" fill="#2d3436" transform="rotate(25 26 2)"/>
+          <ellipse cx="20" cy="2" rx="6" ry="12" fill="#2d3436" transform="rotate(25 20 2)"/>
           {/* Main body - black outer */}
-          <ellipse cx="0" cy="5" rx="24" ry="28" fill="#2d3436"/>
+          <ellipse cx="0" cy="4" rx="18" ry="22" fill="#2d3436"/>
           {/* White belly */}
-          <ellipse cx="0" cy="8" rx="18" ry="22" fill="#ffffff" stroke="#e0e0e0" strokeWidth="0.5"/>
+          <ellipse cx="0" cy="6" rx="14" ry="17" fill="#ffffff"/>
           {/* Head - black */}
-          <path d="M-20 -8 Q-20 -28 0 -28 Q20 -28 20 -8 Q20 0 0 0 Q-20 0 -20 -8" fill="#2d3436"/>
+          <path d="M-15 -6 Q-15 -22 0 -22 Q15 -22 15 -6 Q15 0 0 0 Q-15 0 -15 -6" fill="#2d3436"/>
           {/* White face area */}
-          <ellipse cx="0" cy="-10" rx="14" ry="12" fill="#ffffff"/>
-          {/* Left eye white */}
-          <ellipse cx="-7" cy="-12" rx="5" ry="6" fill="#ffffff"/>
-          {/* Right eye white */}
-          <ellipse cx="7" cy="-12" rx="5" ry="6" fill="#ffffff"/>
-          {/* Left pupil */}
-          <circle cx="-6" cy="-11" r="3" fill="#2d3436"/>
-          {/* Right pupil */}
-          <circle cx="6" cy="-11" r="3" fill="#2d3436"/>
-          {/* Left eye highlight */}
-          <circle cx="-4" cy="-13" r="1.2" fill="#ffffff"/>
-          {/* Right eye highlight */}
-          <circle cx="8" cy="-13" r="1.2" fill="#ffffff"/>
+          <ellipse cx="0" cy="-8" rx="11" ry="9" fill="#ffffff"/>
+          {/* Left eye */}
+          <ellipse cx="-5" cy="-9" rx="4" ry="4.5" fill="#ffffff"/>
+          <circle cx="-4" cy="-8" r="2.5" fill="#2d3436"/>
+          <circle cx="-3" cy="-10" r="1" fill="#ffffff"/>
+          {/* Right eye */}
+          <ellipse cx="5" cy="-9" rx="4" ry="4.5" fill="#ffffff"/>
+          <circle cx="4" cy="-8" r="2.5" fill="#2d3436"/>
+          <circle cx="5" cy="-10" r="1" fill="#ffffff"/>
           {/* Orange beak */}
-          <ellipse cx="0" cy="-3" rx="3" ry="2" fill="#f97316"/>
+          <ellipse cx="0" cy="-2" rx="2.5" ry="1.5" fill="#f97316"/>
           {/* Feet */}
-          <ellipse cx="-10" cy="32" rx="6" ry="3" fill="#f97316"/>
-          <ellipse cx="10" cy="32" rx="6" ry="3" fill="#f97316"/>
+          <ellipse cx="-8" cy="25" rx="5" ry="2.5" fill="#f97316"/>
+          <ellipse cx="8" cy="25" rx="5" ry="2.5" fill="#f97316"/>
         </g>
         
-        {/* Chat bubble - positioned top right, with tail pointing to Pip */}
-        <g transform="translate(118, 18)">
-          <rect x="0" y="0" width="44" height="32" rx="6" fill={c} opacity="0.12" stroke={c} strokeWidth="1"/>
-          <path d="M0 16 L-8 20 L0 24" fill={c} opacity="0.12"/>
-          <rect x="6" y="8" width="32" height="3" rx="1.5" fill={c} opacity="0.5"/>
-          <rect x="6" y="14" width="24" height="3" rx="1.5" fill={c} opacity="0.4"/>
-          <rect x="6" y="20" width="28" height="3" rx="1.5" fill={c} opacity="0.3"/>
+        {/* Chat bubble - positioned to the right */}
+        <g transform="translate(95, 22)">
+          <rect x="0" y="0" width="60" height="44" rx="8" fill={c} opacity="0.1" stroke={c} strokeWidth="1.5"/>
+          <polygon points="0,20 -8,24 0,28" fill={c} opacity="0.1"/>
+          <rect x="8" y="10" width="44" height="4" rx="2" fill={c} opacity="0.4"/>
+          <rect x="8" y="18" width="36" height="4" rx="2" fill={c} opacity="0.3"/>
+          <rect x="8" y="26" width="40" height="4" rx="2" fill={c} opacity="0.25"/>
+          <rect x="8" y="34" width="28" height="4" rx="2" fill={c} opacity="0.2"/>
         </g>
         
-        {/* Ask Pip button - centered below */}
-        <g transform="translate(90, 118)">
-          <rect x="-28" y="0" width="56" height="20" rx="6" fill={c}/>
-          <text x="0" y="14" textAnchor="middle" fontSize="8" fill="white" fontWeight="600">Ask Pip</text>
+        {/* Suggestion chips - matches quiz-chatbot.tsx */}
+        <g transform="translate(95, 74)">
+          <rect x="0" y="0" width="56" height="16" rx="8" fill={c} opacity="0.1" stroke={c} strokeWidth="1"/>
+          <text x="28" y="11" textAnchor="middle" fontSize="6" fill={c} fontWeight="500">Explain this</text>
+        </g>
+        <g transform="translate(95, 94)">
+          <rect x="0" y="0" width="56" height="16" rx="8" fill={c} opacity="0.1" stroke={c} strokeWidth="1"/>
+          <text x="28" y="11" textAnchor="middle" fontSize="6" fill={c} fontWeight="500">Give a hint</text>
+        </g>
+        
+        {/* Ask Pip button */}
+        <g transform="translate(24, 114)">
+          <rect x="0" y="0" width="56" height="18" rx="6" fill={c}/>
+          <text x="28" y="12" textAnchor="middle" fontSize="7" fill="white" fontWeight="600">Ask Pip</text>
         </g>
       </svg>
     );
@@ -901,45 +990,46 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
   if (feature === "Progress Tracking") {
     return (
       <svg viewBox="0 0 180 140" className="w-full h-full">
-        <rect x="15" y="8" width="150" height="124" rx="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
+        {/* Card container */}
+        <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
         
-        {/* Stats cards row */}
-        <g transform="translate(24, 18)">
-          {/* Quizzes stat */}
-          <rect width="40" height="36" rx="6" fill={c} opacity="0.08" stroke={c} strokeWidth="1"/>
-          <text x="20" y="16" textAnchor="middle" fontSize="12" fill={c} fontWeight="700">12</text>
-          <text x="20" y="28" textAnchor="middle" fontSize="6" fill={c} opacity="0.7">Quizzes</text>
+        {/* Stats cards row - matches dashboard StatCard styling */}
+        <g transform="translate(22, 16)">
+          {/* Quizzes stat - indigo gradient */}
+          <rect width="44" height="38" rx="8" fill={c}/>
+          <text x="22" y="14" textAnchor="middle" fontSize="6" fill="white" opacity="0.8" fontWeight="500">Quizzes</text>
+          <text x="22" y="30" textAnchor="middle" fontSize="14" fill="white" fontWeight="700">12</text>
         </g>
         
-        <g transform="translate(70, 18)">
-          {/* Streak stat */}
-          <rect width="40" height="36" rx="6" fill="#f59e0b" opacity="0.08" stroke="#f59e0b" strokeWidth="1"/>
-          <text x="20" y="16" textAnchor="middle" fontSize="12" fill="#f59e0b" fontWeight="700">7</text>
-          <text x="20" y="28" textAnchor="middle" fontSize="6" fill="#f59e0b" opacity="0.7">Streak</text>
+        <g transform="translate(70, 16)">
+          {/* Streak stat - amber gradient */}
+          <rect width="44" height="38" rx="8" fill="#f59e0b"/>
+          <text x="22" y="14" textAnchor="middle" fontSize="6" fill="white" opacity="0.8" fontWeight="500">Streak</text>
+          <text x="22" y="30" textAnchor="middle" fontSize="14" fill="white" fontWeight="700">7</text>
         </g>
         
-        <g transform="translate(116, 18)">
-          {/* Accuracy stat */}
-          <rect width="40" height="36" rx="6" fill="#22c55e" opacity="0.08" stroke="#22c55e" strokeWidth="1"/>
-          <text x="20" y="16" textAnchor="middle" fontSize="12" fill="#22c55e" fontWeight="700">85%</text>
-          <text x="20" y="28" textAnchor="middle" fontSize="6" fill="#22c55e" opacity="0.7">Accuracy</text>
+        <g transform="translate(118, 16)">
+          {/* Accuracy stat - green gradient */}
+          <rect width="44" height="38" rx="8" fill="#22c55e"/>
+          <text x="22" y="14" textAnchor="middle" fontSize="6" fill="white" opacity="0.8" fontWeight="500">Accuracy</text>
+          <text x="22" y="30" textAnchor="middle" fontSize="14" fill="white" fontWeight="700">85%</text>
         </g>
         
-        {/* Progress chart area */}
-        <rect x="24" y="62" width="132" height="60" rx="6" fill="currentColor" opacity="0.04"/>
-        <text x="32" y="76" fontSize="7" fill="currentColor" opacity="0.5" fontWeight="500">Weekly Progress</text>
+        {/* Progress chart area - matches dashboard card */}
+        <rect x="22" y="62" width="136" height="66" rx="8" fill="currentColor" opacity="0.04"/>
+        <text x="30" y="78" fontSize="7" fill="currentColor" opacity="0.6" fontWeight="600">Weekly Progress</text>
         
-        {/* Simple bar chart */}
-        <g transform="translate(32, 84)">
-          {[35, 45, 30, 55, 40, 50, 28].map((h, i) => (
-            <rect key={i} x={i * 17} y={30 - h * 0.5} width="12" height={h * 0.5} rx="2" fill={c} opacity={0.3 + i * 0.1}/>
+        {/* Bar chart - matches Recharts style */}
+        <g transform="translate(30, 88)">
+          {[35, 48, 32, 58, 42, 52, 30].map((h, i) => (
+            <rect key={i} x={i * 17} y={32 - h * 0.55} width="13" height={h * 0.55} rx="3" fill={c} opacity={0.5 + i * 0.07}/>
           ))}
         </g>
         
         {/* Day labels */}
-        <g transform="translate(36, 118)">
+        <g transform="translate(36, 122)">
           {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-            <text key={i} x={i * 17} y="8" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.4">{d}</text>
+            <text key={i} x={i * 17} y="6" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.45" fontWeight="500">{d}</text>
           ))}
         </g>
       </svg>
