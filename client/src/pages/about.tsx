@@ -1,65 +1,22 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
-  ArrowLeft, Sparkles, Rocket, Target, Shield, 
-  Upload, Brain, GraduationCap, BookOpen, Share2, 
-  Globe, CheckCircle2, MessageCircle,
-  Flame, RotateCcw, ArrowRight, Zap, ChevronDown
+  ArrowLeft, Rocket, Target, Heart, 
+  ArrowRight, ChevronDown, Sparkles, Users, BookOpen, Zap
 } from "lucide-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFire } from "@fortawesome/free-solid-svg-icons";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import brandLogo from "@assets/favicon_prepetual_1768124938772.png";
-
-const features = [
-  {
-    icon: Upload,
-    title: "Upload Anything",
-    description: "PDFs, images, Word docs, PowerPoint, Excel—we handle it all. Our OCR even extracts text from photos of textbooks.",
-    color: "blue",
-  },
-  {
-    icon: Brain,
-    title: "AI-Powered Questions",
-    description: "Our AI understands concepts, not just keywords. Get meaningful, challenging questions tailored to your content.",
-    color: "purple",
-  },
-  {
-    icon: BookOpen,
-    title: "Study Your Way",
-    description: "Flashcards with swipe gestures, interactive quizzes, or revision mode. Choose what works best for you.",
-    color: "orange",
-  },
-  {
-    icon: RotateCcw,
-    title: "Master Every Concept",
-    description: "Missed a question? It comes back until you get it right. Spaced repetition ensures nothing slips through.",
-    color: "rose",
-  },
-  {
-    icon: MessageCircle,
-    title: "Pip, Your Study Buddy",
-    description: "Stuck on a concept? Pip the penguin explains things without giving away answers. Math formulas included.",
-    color: "cyan",
-  },
-  {
-    icon: Target,
-    title: "Track Your Progress",
-    description: "Streaks, accuracy stats, and quiz history. Know exactly where you stand before exam day.",
-    color: "amber",
-  },
-];
 
 function ScrollSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <motion.section
-      initial={{ opacity: 0, y: 60 }}
+      initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.7, ease: "easeOut" }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
       className={className}
     >
       {children}
@@ -67,73 +24,15 @@ function ScrollSection({ children, className = "" }: { children: React.ReactNode
   );
 }
 
-function FeatureSection({ feature, index }: { feature: typeof features[0]; index: number }) {
-  const isEven = index % 2 === 0;
-  const colorClasses: Record<string, { bg: string; text: string; gradient: string }> = {
-    blue: { bg: "bg-blue-500/10", text: "text-blue-500", gradient: "from-blue-500/20 to-transparent" },
-    purple: { bg: "bg-purple-500/10", text: "text-purple-500", gradient: "from-purple-500/20 to-transparent" },
-    orange: { bg: "bg-orange-500/10", text: "text-orange-500", gradient: "from-orange-500/20 to-transparent" },
-    rose: { bg: "bg-rose-500/10", text: "text-rose-500", gradient: "from-rose-500/20 to-transparent" },
-    cyan: { bg: "bg-cyan-500/10", text: "text-cyan-500", gradient: "from-cyan-500/20 to-transparent" },
-    amber: { bg: "bg-amber-500/10", text: "text-amber-500", gradient: "from-amber-500/20 to-transparent" },
-  };
-  const colors = colorClasses[feature.color];
-
-  return (
-    <ScrollSection className="py-16 md:py-24">
-      <div className={`flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-8 md:gap-16`}>
-        <motion.div 
-          className="flex-1 text-center md:text-left"
-          initial={{ opacity: 0, x: isEven ? -30 : 30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <div className={`inline-flex w-16 h-16 rounded-2xl ${colors.bg} items-center justify-center mb-6`}>
-            <feature.icon className={`w-8 h-8 ${colors.text}`} />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            {feature.title}
-          </h2>
-          <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
-            {feature.description}
-          </p>
-        </motion.div>
-        
-        <motion.div 
-          className="flex-1 w-full max-w-md"
-          initial={{ opacity: 0, x: isEven ? 30 : -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <div className={`aspect-square rounded-3xl bg-gradient-to-br ${colors.gradient} border border-border/50 flex items-center justify-center`}>
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <feature.icon className={`w-24 h-24 ${colors.text} opacity-50`} />
-            </motion.div>
-          </div>
-        </motion.div>
-      </div>
-    </ScrollSection>
-  );
-}
-
 export default function About() {
   const [, setLocation] = useLocation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
-  const opacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.1], [1, 0.95]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div
           className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-3xl"
@@ -145,15 +44,10 @@ export default function About() {
           animate={{ scale: [1.2, 1, 1.2], opacity: [0.3, 0.5, 0.3] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div
-          className="absolute bottom-1/4 right-0 w-[300px] h-[300px] rounded-full bg-cyan-500/5 blur-3xl"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        />
       </div>
 
       <div className="relative z-10">
-        <div className="container mx-auto px-4 max-w-5xl">
+        <div className="container mx-auto px-4 max-w-4xl">
           <div className="py-6">
             <Link href="/">
               <Button variant="ghost" data-testid="button-back-home">
@@ -164,13 +58,15 @@ export default function About() {
           </div>
 
           <motion.section 
-            className="min-h-[80vh] flex flex-col items-center justify-center text-center py-16"
-            style={{ opacity, scale }}
+            className="min-h-[70vh] flex flex-col items-center justify-center text-center py-16"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
           >
             <motion.div 
-              className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-background mb-8 border border-primary/20 overflow-hidden shadow-2xl"
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
+              className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-background mb-6 border border-primary/20 overflow-hidden shadow-xl"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
             >
               <img 
@@ -181,8 +77,8 @@ export default function About() {
             </motion.div>
             
             <motion.h1 
-              className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6"
-              initial={{ opacity: 0, y: 30 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
@@ -190,32 +86,19 @@ export default function About() {
             </motion.h1>
             
             <motion.p 
-              className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10"
+              className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              Transform any study material into personalized quizzes. 
-              Powered by AI, designed for students who want to ace their exams.
+              Helping students turn any study material into exam-ready practice—without the busywork.
             </motion.p>
 
             <motion.div
-              className="flex flex-wrap justify-center gap-3 mb-12"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <Button size="lg" onClick={() => setLocation("/")} data-testid="button-get-started">
-                Get Started Free
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </motion.div>
-
-            <motion.div
-              className="text-muted-foreground"
+              className="mt-12 text-muted-foreground"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
+              transition={{ delay: 0.7 }}
             >
               <motion.div
                 animate={{ y: [0, 8, 0] }}
@@ -223,75 +106,142 @@ export default function About() {
               >
                 <ChevronDown className="w-6 h-6 mx-auto" />
               </motion.div>
-              <span className="text-sm">Scroll to explore</span>
             </motion.div>
           </motion.section>
 
-          <ScrollSection className="py-16 md:py-24 border-t border-border/50">
-            <div className="text-center mb-12">
-              <Badge variant="outline" className="mb-4">Why Prepetual?</Badge>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Study smarter, not harder
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                We built Prepetual because we believe every student deserves tools that actually help them learn—not just memorize.
-              </p>
-            </div>
-            
-            <div className="flex flex-wrap justify-center gap-6">
-              {[
-                { icon: Sparkles, label: "100% Free", sublabel: "No subscriptions ever" },
-                { icon: Globe, label: "10+ Languages", sublabel: "Auto-detected" },
-                { icon: Zap, label: "Instant Quizzes", sublabel: "Seconds, not hours" },
-                { icon: Shield, label: "Privacy First", sublabel: "Your data stays yours" },
-              ].map((item, i) => (
-                <motion.div
-                  key={item.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="flex items-center gap-3 px-5 py-3 rounded-full bg-muted/50 border border-border/50"
-                >
-                  <item.icon className="w-5 h-5 text-primary" />
-                  <div className="text-left">
-                    <div className="font-medium text-foreground text-sm">{item.label}</div>
-                    <div className="text-xs text-muted-foreground">{item.sublabel}</div>
-                  </div>
-                </motion.div>
-              ))}
+          <ScrollSection className="py-20 border-t border-border/30">
+            <div className="flex items-start gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Target className="w-7 h-7 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                  Our Mission
+                </h2>
+                <p className="text-lg text-muted-foreground leading-relaxed mb-4">
+                  We believe exam preparation shouldn't be about copying questions into flashcard apps or spending hours making study guides. It should be about actually <span className="text-foreground font-medium">learning</span>.
+                </p>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Prepetual exists to remove the friction between having study material and being ready for your exam. Upload your notes, textbook pages, or past papers—and within seconds, you have a personalized quiz that adapts to how you learn.
+                </p>
+              </div>
             </div>
           </ScrollSection>
 
-          <div className="border-t border-border/50">
-            {features.map((feature, index) => (
-              <FeatureSection key={feature.title} feature={feature} index={index} />
-            ))}
-          </div>
-
-          <ScrollSection className="py-24 border-t border-border/50">
-            <div className="text-center">
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                className="mb-8"
-              >
-                <Rocket className="w-16 h-16 text-primary mx-auto" />
-              </motion.div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Ready to ace your next exam?
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-md mx-auto mb-8">
-                Join students who are studying smarter with AI-powered quizzes.
-              </p>
-              <Button size="lg" onClick={() => setLocation("/")} data-testid="button-start-now">
-                Create Your First Quiz
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+          <ScrollSection className="py-20 border-t border-border/30">
+            <div className="flex items-start gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center shrink-0">
+                <BookOpen className="w-7 h-7 text-purple-500" />
+              </div>
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                  What We Offer
+                </h2>
+                <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
+                  <p>
+                    <span className="text-foreground font-medium">AI-powered quiz generation</span> that understands your content—not just keywords. Whether you're studying biology, history, or calculus, our AI creates questions that test real understanding.
+                  </p>
+                  <p>
+                    <span className="text-foreground font-medium">Multiple study modes</span> to match how you learn best. Take timed quizzes for exam simulation, flip through flashcards for quick review, or use revision mode to hammer down the concepts you keep missing.
+                  </p>
+                  <p>
+                    <span className="text-foreground font-medium">Pip, your AI study companion</span>, is there when you're stuck. Ask for hints, get explanations, or have concepts broken down step-by-step—without spoiling the answer.
+                  </p>
+                  <p>
+                    <span className="text-foreground font-medium">Progress tracking</span> that shows you exactly where you stand. See your accuracy trends, maintain your study streak, and know which topics need more attention before the big day.
+                  </p>
+                </div>
+              </div>
             </div>
           </ScrollSection>
 
-          <div className="h-16" />
+          <ScrollSection className="py-20 border-t border-border/30">
+            <div className="flex items-start gap-6 mb-10">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                <Sparkles className="w-7 h-7 text-amber-500" />
+              </div>
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                  What Makes Us Different
+                </h2>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  There are plenty of flashcard and quiz apps out there. Here's why students choose Prepetual:
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4 ml-0 md:ml-20">
+              <Card className="border-emerald-500/20 bg-emerald-500/5">
+                <CardContent className="p-5">
+                  <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-emerald-500" />
+                    Zero setup time
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Other apps make you type every question and answer by hand. With Prepetual, you upload your material and get a complete quiz in seconds. Your time should be spent learning, not copying.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-blue-500/20 bg-blue-500/5">
+                <CardContent className="p-5">
+                  <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <Target className="w-5 h-5 text-blue-500" />
+                    Built for exams, not memorization
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Our AI generates questions that test comprehension, not just recall. You'll face the same types of questions you'll see on exam day—multiple choice, true/false, and short answer—with explanations that actually teach.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-cyan-500/20 bg-cyan-500/5">
+                <CardContent className="p-5">
+                  <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <Users className="w-5 h-5 text-cyan-500" />
+                    A study buddy that doesn't give up
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Pip is available 24/7, never judges, and actually helps you think through problems instead of just showing the answer. It's like having a patient tutor who understands exactly what you're studying.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-rose-500/20 bg-rose-500/5">
+                <CardContent className="p-5">
+                  <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-rose-500" />
+                    Actually free
+                  </h3>
+                  <p className="text-muted-foreground">
+                    No premium tiers. No "unlock more questions" paywalls. No trial periods. Prepetual is free because we believe every student deserves great study tools, regardless of their budget.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </ScrollSection>
+
+          <ScrollSection className="py-24 border-t border-border/30 text-center">
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="mb-6"
+            >
+              <Rocket className="w-14 h-14 text-primary mx-auto" />
+            </motion.div>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+              Ready to study smarter?
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-md mx-auto mb-8">
+              Upload your first document and see how Prepetual can transform your exam prep.
+            </p>
+            <Button size="lg" onClick={() => setLocation("/")} data-testid="button-start-now">
+              Get Started Free
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </ScrollSection>
+
+          <div className="h-12" />
         </div>
       </div>
     </div>
