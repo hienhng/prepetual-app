@@ -833,7 +833,7 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
                   </div>
                 </div>
               </div>
-              <Button size="sm" className={`w-full ${c.bg} hover:${c.bg}/90 text-white text-[9px] h-7`}>
+              <Button size="sm" className={`w-full ${c.bg} hover:${c.bg}/90 text-white text-[9px] h-7 border-0`}>
                 <RotateCcw className="w-3 h-3 mr-1" />
                 Retry Missed Questions
               </Button>
@@ -860,11 +860,11 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
                 <div className="h-1 bg-foreground/6 rounded w-1/2" />
               </div>
               <div className="flex gap-2">
-                <Button size="sm" className={`flex-1 ${c.bg} hover:${c.bg}/90 text-white text-[9px] h-7`}>
+                <Button size="sm" className={`flex-1 ${c.bg} hover:${c.bg}/90 text-white text-[9px] h-7 border-0`}>
                   <Share2 className="w-3 h-3 mr-1" />
                   Share
                 </Button>
-                <Button size="sm" variant="outline" className="flex-1 text-[9px] h-7">
+                <Button size="sm" variant="outline" className={`flex-1 text-[9px] h-7 ${c.border} ${c.text}`}>
                   Copy link
                 </Button>
               </div>
@@ -928,7 +928,7 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
                   </div>
                 </div>
               </div>
-              <Button size="sm" className={`w-full mt-2 ${c.bg} hover:${c.bg}/90 text-white text-[9px] h-7`}>
+              <Button size="sm" className={`w-full mt-2 ${c.bg} hover:${c.bg}/90 text-white text-[9px] h-7 border-0`}>
                 <MessageCircle className="w-3 h-3 mr-1" />
                 Ask Pip
               </Button>
