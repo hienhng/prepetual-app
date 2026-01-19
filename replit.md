@@ -1,8 +1,8 @@
-# QuizAI - AI-Powered Quiz Generator
+# Prepetual - AI-Powered Exam Prep
 
 ## Overview
 
-QuizAI is a full-stack web application that transforms study materials into interactive quizzes using AI. Users can upload documents (PDFs, Word docs, PowerPoint, Excel, images) to extract text, then generate custom quizzes with multiple question types (multiple choice, true/false, short answer). The app provides an interactive quiz-taking experience with detailed results and explanations.
+Prepetual is a full-stack web application designed to help students prepare for upcoming exams. It transforms study materials into interactive practice quizzes using AI. Users can upload documents (PDFs, Word docs, PowerPoint, Excel, images) to extract text, then generate custom quizzes with multiple question types (multiple choice, true/false, short answer). The app provides an interactive quiz-taking experience with detailed results, explanations, and an AI assistant named "Pip" to help explain concepts without giving away answers.
 
 ## Recent Changes (Jan 2026)
 

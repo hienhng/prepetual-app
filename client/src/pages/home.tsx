@@ -1234,19 +1234,19 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <Sparkles className="h-4 w-4" />
-                <span>AI-Powered Study Assistant</span>
+                <GraduationCap className="h-4 w-4" />
+                <span>AI-Powered Exam Prep</span>
               </motion.div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight">
-                Turn notes into{" "}
+                Ace your next{" "}
                 <motion.span 
                   className="relative cursor-default inline-block"
                   whileHover="hovered"
                   initial="initial"
                 >
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-amber-500">
-                    quizzes
+                    exam
                   </span>
                   <motion.span
                     className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-amber-500 rounded-full origin-left"
@@ -1263,11 +1263,11 @@ export default function Home() {
                   />
                 </motion.span>
                 <br />
-                <span className="text-muted-foreground text-3xl sm:text-4xl lg:text-5xl">in seconds</span>
+                <span className="text-muted-foreground text-3xl sm:text-4xl lg:text-5xl">with AI practice quizzes</span>
               </h1>
               
               <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 mb-8">
-                Upload any study material and let AI create personalized practice quizzes. Study smarter, not harder.
+                Upload your notes and textbooks to create personalized practice tests. Prepare for any upcoming exam with confidence.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8">
@@ -1347,10 +1347,10 @@ export default function Home() {
               </Badge>
             </motion.div>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-              From Documents to Mastery
+              From Notes to Exam Ready
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Four simple steps to transform any study material into an interactive learning experience.
+              Four simple steps to turn any study material into practice tests for your upcoming exams.
             </p>
           </motion.div>
           
@@ -1376,10 +1376,10 @@ export default function Home() {
               </Badge>
             </motion.div>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-              Everything You Need to Learn Smarter
+              Everything You Need to Ace Your Exams
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Powerful tools designed to make studying more effective and enjoyable.
+              Powerful tools designed to help students prepare for any test or exam with confidence.
             </p>
           </motion.div>
           
@@ -1411,10 +1411,10 @@ export default function Home() {
               </Badge>
             </motion.div>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Upload Your First Document
+              Start Preparing for Your Exam
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              See how easy it is. Drop a file and watch the magic happen.
+              Upload your notes, textbook chapters, or study guides and create practice tests instantly.
             </p>
           </motion.div>
           
