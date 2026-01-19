@@ -900,11 +900,14 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
         {/* Card container */}
         <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
         
-        {/* Flame icon in glowing circle - matches dashboard StatCard */}
+        {/* FontAwesome Flame icon - matches dashboard StatCard */}
         <circle cx="90" cy="48" r="28" fill={c} opacity="0.1"/>
         <circle cx="90" cy="48" r="24" fill={c} opacity="0.15"/>
-        {/* Flame shape */}
-        <path d="M90 30 Q82 44 86 52 Q80 46 84 62 Q88 58 90 68 Q92 58 96 62 Q100 46 94 52 Q98 44 90 30" fill={c}/>
+        <foreignObject x="74" y="32" width="32" height="32">
+          <div className="w-full h-full flex items-center justify-center text-[#f59e0b]">
+            <FontAwesomeIcon icon={faFire} className="w-6 h-6" />
+          </div>
+        </foreignObject>
         
         {/* Large streak number - matches dashboard display */}
         <text x="90" y="96" textAnchor="middle" fontSize="26" fill="currentColor" fontWeight="700">7</text>
