@@ -952,6 +952,13 @@ function FeatureShowcase() {
       color: "cyan",
       details: "Meet Pip, your friendly arctic study buddy! Pip understands your quiz context and helps explain difficult concepts, provides hints when you're stuck, and supports math formulas. Pip guides you to the answer without giving it away.",
     },
+    {
+      icon: Target,
+      title: "Progress Tracking",
+      description: "Monitor your exam readiness.",
+      color: "indigo",
+      details: "Track your accuracy, streak, and quiz history all in one dashboard. See which topics need more practice and watch your scores improve over time as you prepare for your exams.",
+    },
   ];
 
   const colorClasses: Record<string, { text: string; border: string; bg: string; glow: string; solidBg: string }> = {
@@ -962,6 +969,7 @@ function FeatureShowcase() {
     emerald: { text: "text-emerald-500", border: "border-emerald-500/20", bg: "bg-emerald-500/10", glow: "group-hover:shadow-emerald-500/20", solidBg: "bg-emerald-500" },
     amber: { text: "text-amber-500", border: "border-amber-500/20", bg: "bg-amber-500/10", glow: "group-hover:shadow-amber-500/20", solidBg: "bg-amber-500" },
     cyan: { text: "text-cyan-500", border: "border-cyan-500/20", bg: "bg-cyan-500/10", glow: "group-hover:shadow-cyan-500/20", solidBg: "bg-cyan-500" },
+    indigo: { text: "text-indigo-500", border: "border-indigo-500/20", bg: "bg-indigo-500/10", glow: "group-hover:shadow-indigo-500/20", solidBg: "bg-indigo-500" },
   };
 
   return (
@@ -1284,7 +1292,7 @@ export default function Home() {
                   size="lg"
                   variant="outline"
                   onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="gap-2 w-full sm:w-auto h-12"
+                  className="gap-2 w-full sm:w-auto h-12 text-base"
                   data-testid="button-hero-learn-more"
                 >
                   See How It Works
