@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Loader2, User, Snowflake, Lightbulb, HelpCircle, BookOpen } from "lucide-react";
+import { Send, Loader2, User, Snowflake, Lightbulb, HelpCircle, BookOpen, Forward, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -693,7 +693,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask Pip anything..."
-              className="flex-1 h-12 rounded-xl border-sky-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus-visible:ring-sky-400/30 focus-visible:border-sky-400 transition-all placeholder:text-muted-foreground/60"
+              className="flex-1 h-12 rounded-3xl border-sky-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus-visible:ring-sky-400/30 focus-visible:border-sky-400 transition-all placeholder:text-muted-foreground/60"
               disabled={isLoading}
               data-testid="input-chatbot-message"
             />
@@ -702,13 +702,13 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                 size="icon"
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isLoading}
-                className="h-12 w-12 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-600 hover:from-sky-400 hover:to-cyan-500 shadow-lg shadow-sky-500/25 transition-all hover:shadow-sky-500/40 disabled:opacity-50 disabled:shadow-none"
+                className="border-none h-12 w-12 rounded-3xl bg-gradient-to-br from-sky-500 to-cyan-600 hover:from-sky-400 hover:to-cyan-500 shadow-lg shadow-sky-500/25 transition-all hover:shadow-sky-500/40 disabled:opacity-50 disabled:shadow-none"
                 data-testid="button-chatbot-send"
               >
                 {isLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                  <Send className="h-5 w-5" />
+                  <ArrowUp className="h-5 w-5" />
                 )}
               </Button>
             </motion.div>
