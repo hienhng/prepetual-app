@@ -693,352 +693,299 @@ function HowItWorksGallery() {
 }
 
 function FeatureIllustration({ feature, color }: { feature: string; color: string }) {
-  const colorMap: Record<string, string> = {
-    blue: "#3b82f6",
-    purple: "#a855f7",
-    orange: "#f97316",
-    rose: "#f43f5e",
-    emerald: "#10b981",
-    amber: "#f59e0b",
-    cyan: "#06b6d4",
-    indigo: "#6366f1",
+  const colorClasses: Record<string, { bg: string; text: string; border: string }> = {
+    blue: { bg: "bg-blue-500", text: "text-blue-500", border: "border-blue-500/30" },
+    purple: { bg: "bg-purple-500", text: "text-purple-500", border: "border-purple-500/30" },
+    orange: { bg: "bg-orange-500", text: "text-orange-500", border: "border-orange-500/30" },
+    rose: { bg: "bg-rose-500", text: "text-rose-500", border: "border-rose-500/30" },
+    emerald: { bg: "bg-emerald-500", text: "text-emerald-500", border: "border-emerald-500/30" },
+    amber: { bg: "bg-amber-500", text: "text-amber-500", border: "border-amber-500/30" },
+    cyan: { bg: "bg-cyan-500", text: "text-cyan-500", border: "border-cyan-500/30" },
+    indigo: { bg: "bg-indigo-500", text: "text-indigo-500", border: "border-indigo-500/30" },
   };
-  const c = colorMap[color] || "#3b82f6";
+  const c = colorClasses[color] || colorClasses.blue;
   
   if (feature === "Multi-Format Upload") {
     return (
-      <svg viewBox="0 0 180 140" className="w-full h-full">
-        {/* Card with dashed border - matches file-upload.tsx dropzone */}
-        <rect x="15" y="8" width="150" height="100" rx="12" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 4" opacity="0.3"/>
-        <rect x="15" y="8" width="150" height="100" rx="12" fill="currentColor" opacity="0.02"/>
-        
-        {/* Large circular icon container - matches bg-muted rounded-full */}
-        <circle cx="90" cy="42" r="22" fill="currentColor" opacity="0.08"/>
-        <path d="M90 32 L90 52" stroke={c} strokeWidth="2.5" strokeLinecap="round"/>
-        <path d="M82 40 L90 32 L98 40" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-        
-        {/* Text labels */}
-        <text x="90" y="74" textAnchor="middle" fontSize="8" fill="currentColor" fontWeight="600">Upload your study material</text>
-        <text x="90" y="86" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.5">Drag and drop or click to browse</text>
-        
-        {/* File type badges - matches Badge variant="secondary" */}
-        <g transform="translate(22, 116)">
-          <rect width="32" height="16" rx="8" fill="currentColor" opacity="0.08"/>
-          <text x="16" y="11" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.7" fontWeight="500">PDF</text>
-        </g>
-        <g transform="translate(58, 116)">
-          <rect width="34" height="16" rx="8" fill="currentColor" opacity="0.08"/>
-          <text x="17" y="11" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.7" fontWeight="500">DOCX</text>
-        </g>
-        <g transform="translate(96, 116)">
-          <rect width="32" height="16" rx="8" fill="currentColor" opacity="0.08"/>
-          <text x="16" y="11" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.7" fontWeight="500">PPTX</text>
-        </g>
-        <g transform="translate(132, 116)">
-          <rect width="36" height="16" rx="8" fill="currentColor" opacity="0.08"/>
-          <text x="18" y="11" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.7" fontWeight="500">Images</text>
-        </g>
-      </svg>
+      <div className="w-full h-full flex items-center justify-center p-2 pointer-events-none">
+        <div className="w-full max-w-[240px] transform scale-[0.85]">
+          <Card className="border-2 border-dashed border-border/50 bg-card/50">
+            <CardContent className="p-4 flex flex-col items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                <Upload className={`w-5 h-5 ${c.text}`} />
+              </div>
+              <p className="text-[10px] font-medium text-foreground text-center">Upload your study material</p>
+              <p className="text-[8px] text-muted-foreground text-center">Drag and drop or click</p>
+              <div className="flex flex-wrap gap-1 justify-center mt-1">
+                <Badge variant="secondary" className="text-[7px] px-1.5 py-0">PDF</Badge>
+                <Badge variant="secondary" className="text-[7px] px-1.5 py-0">DOCX</Badge>
+                <Badge variant="secondary" className="text-[7px] px-1.5 py-0">PPTX</Badge>
+                <Badge variant="secondary" className="text-[7px] px-1.5 py-0">Images</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     );
   }
   
   if (feature === "AI Quiz Generation") {
     return (
-      <svg viewBox="0 0 180 140" className="w-full h-full">
-        {/* Card container */}
-        <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
-        
-        {/* Question number badge - matches Badge with primary bg */}
-        <rect x="22" y="16" width="46" height="18" rx="9" fill={c}/>
-        <text x="45" y="28" textAnchor="middle" fontSize="8" fill="white" fontWeight="600">Q3 / 10</text>
-        
-        {/* Question type badge */}
-        <rect x="74" y="16" width="58" height="18" rx="9" fill="currentColor" opacity="0.08"/>
-        <text x="103" y="28" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.6" fontWeight="500">Multiple Choice</text>
-        
-        {/* Question text area */}
-        <rect x="22" y="42" width="136" height="24" rx="6" fill="currentColor" opacity="0.04"/>
-        <rect x="28" y="50" width="100" height="4" rx="2" fill="currentColor" opacity="0.15"/>
-        <rect x="28" y="58" width="70" height="4" rx="2" fill="currentColor" opacity="0.1"/>
-        
-        {/* Answer option A - unselected */}
-        <rect x="22" y="72" width="136" height="24" rx="8" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.2"/>
-        <circle cx="36" cy="84" r="6" fill="currentColor" opacity="0.08"/>
-        <text x="36" y="87" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.5" fontWeight="500">A</text>
-        <rect x="48" y="81" width="80" height="5" rx="2" fill="currentColor" opacity="0.1"/>
-        
-        {/* Answer option B - correct answer with green styling */}
-        <rect x="22" y="102" width="136" height="24" rx="8" fill="#22c55e" opacity="0.12" stroke="#22c55e" strokeWidth="2"/>
-        <circle cx="36" cy="114" r="6" fill="#22c55e"/>
-        <text x="36" y="117" textAnchor="middle" fontSize="7" fill="white" fontWeight="600">B</text>
-        <rect x="48" y="111" width="90" height="5" rx="2" fill="#22c55e" opacity="0.3"/>
-        {/* Checkmark circle */}
-        <circle cx="146" cy="114" r="7" fill="#22c55e"/>
-        <path d="M142 114 L145 117 L150 111" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
+      <div className="w-full h-full flex items-center justify-center p-2 pointer-events-none">
+        <div className="w-full max-w-[240px] transform scale-[0.85]">
+          <Card className="border bg-card">
+            <CardContent className="p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <Badge className={`${c.bg} text-white text-[8px] px-1.5`}>Q3 / 10</Badge>
+                <Badge variant="secondary" className="text-[7px] px-1.5">Multiple Choice</Badge>
+              </div>
+              <div className="bg-muted/30 rounded-md p-2">
+                <div className="h-1.5 bg-foreground/15 rounded w-3/4 mb-1" />
+                <div className="h-1.5 bg-foreground/10 rounded w-1/2" />
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 p-1.5 rounded-md border border-border/50">
+                  <div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center text-[7px] font-medium text-muted-foreground">A</div>
+                  <div className="h-1.5 bg-foreground/10 rounded flex-1" />
+                </div>
+                <div className="flex items-center gap-2 p-1.5 rounded-md border-2 border-green-500 bg-green-500/10">
+                  <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-[7px] font-medium text-white">B</div>
+                  <div className="h-1.5 bg-green-500/30 rounded flex-1" />
+                  <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
+                    <Check className="w-2.5 h-2.5 text-white" />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     );
   }
   
   if (feature === "Study Mode") {
     return (
-      <svg viewBox="0 0 180 140" className="w-full h-full">
-        {/* Shadow card behind - slight rotation */}
-        <rect x="40" y="18" width="100" height="100" rx="12" fill="currentColor" opacity="0.05" transform="rotate(-3 90 68)"/>
-        
-        {/* Main flashcard - matches study.tsx Card styling */}
-        <rect x="40" y="15" width="100" height="100" rx="12" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.2"/>
-        <rect x="40" y="15" width="100" height="100" rx="12" fill="currentColor" opacity="0.02"/>
-        
-        {/* Question label */}
-        <text x="90" y="35" textAnchor="middle" fontSize="7" fill={c} fontWeight="700" opacity="0.6" letterSpacing="2">QUESTION</text>
-        
-        {/* Question text placeholder */}
-        <rect x="52" y="46" width="76" height="4" rx="2" fill="currentColor" opacity="0.12"/>
-        <rect x="58" y="54" width="64" height="4" rx="2" fill="currentColor" opacity="0.08"/>
-        
-        {/* Divider line */}
-        <line x1="52" y1="68" x2="128" y2="68" stroke="currentColor" strokeWidth="0.5" opacity="0.15"/>
-        
-        {/* Tap to flip hint */}
-        <text x="90" y="88" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.35">tap to flip</text>
-        
-        {/* Left overlay - Still Learning (yellow) - matches study.tsx */}
-        <g opacity="0.9">
-          <rect x="4" y="50" width="28" height="40" rx="8" fill="#eab308" opacity="0.15"/>
-          <circle cx="18" cy="62" r="8" fill="#eab308" opacity="0.2"/>
-          <path d="M14 59 L14 65 M14 59 L18 63 L14 67" stroke="#eab308" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" transform="rotate(180 16 62)"/>
-          <text x="18" y="80" textAnchor="middle" fontSize="5" fill="#eab308" fontWeight="600">Still</text>
-          <text x="18" y="86" textAnchor="middle" fontSize="5" fill="#eab308" fontWeight="600">Learning</text>
-        </g>
-        
-        {/* Right overlay - Know (green) - matches study.tsx */}
-        <g opacity="0.9">
-          <rect x="148" y="50" width="28" height="40" rx="8" fill="#22c55e" opacity="0.15"/>
-          <circle cx="162" cy="62" r="8" fill="#22c55e" opacity="0.2"/>
-          <path d="M158 62 L161 65 L166 59" stroke="#22c55e" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-          <text x="162" y="80" textAnchor="middle" fontSize="5" fill="#22c55e" fontWeight="600">Know</text>
-          <text x="162" y="86" textAnchor="middle" fontSize="5" fill="#22c55e" fontWeight="600">This</text>
-        </g>
-        
-        {/* Progress bar at bottom */}
-        <rect x="40" y="122" width="100" height="4" rx="2" fill="currentColor" opacity="0.1"/>
-        <rect x="40" y="122" width="60" height="4" rx="2" fill={c}/>
-        <text x="90" y="134" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.4">Card 3 of 5</text>
-      </svg>
+      <div className="w-full h-full flex items-center justify-center p-2 pointer-events-none">
+        <div className="relative w-full max-w-[200px] transform scale-[0.85]">
+          <div className="absolute -left-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 opacity-70">
+            <div className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center">
+              <ArrowLeft className="w-3 h-3 text-yellow-500" />
+            </div>
+            <span className="text-[6px] text-yellow-600 font-medium">Still</span>
+            <span className="text-[6px] text-yellow-600 font-medium">Learning</span>
+          </div>
+          <Card className="border bg-card shadow-lg rotate-1">
+            <CardContent className="p-3 flex flex-col items-center">
+              <span className={`text-[7px] uppercase tracking-widest ${c.text} font-bold mb-2`}>Question</span>
+              <div className="w-full space-y-1 mb-2">
+                <div className="h-1.5 bg-foreground/12 rounded w-full" />
+                <div className="h-1.5 bg-foreground/8 rounded w-3/4 mx-auto" />
+              </div>
+              <div className="w-full h-px bg-border my-2" />
+              <span className="text-[8px] text-muted-foreground">tap to flip</span>
+            </CardContent>
+          </Card>
+          <div className="absolute -right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 opacity-70">
+            <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
+              <Check className="w-3 h-3 text-green-500" />
+            </div>
+            <span className="text-[6px] text-green-600 font-medium">Know</span>
+            <span className="text-[6px] text-green-600 font-medium">This</span>
+          </div>
+          <div className="mt-2 flex items-center justify-center gap-1">
+            <div className="h-1 bg-muted rounded-full w-16">
+              <div className={`h-1 ${c.bg} rounded-full w-3/5`} />
+            </div>
+            <span className="text-[7px] text-muted-foreground">3/5</span>
+          </div>
+        </div>
+      </div>
     );
   }
   
   if (feature === "Spaced Repetition") {
     return (
-      <svg viewBox="0 0 180 140" className="w-full h-full">
-        {/* Card container */}
-        <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
-        
-        {/* Progress bar at top - matches quiz-player revision progress */}
-        <rect x="24" y="16" width="132" height="6" rx="3" fill="currentColor" opacity="0.08"/>
-        <rect x="24" y="16" width="88" height="6" rx="3" fill={c}/>
-        
-        {/* Revision round text */}
-        <text x="90" y="36" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.5" fontWeight="500">Revision Round 2 of 3</text>
-        
-        {/* Correct answers card - green theme */}
-        <g transform="translate(24, 46)">
-          <rect width="60" height="44" rx="8" fill="#22c55e" opacity="0.08" stroke="#22c55e" strokeWidth="1.5"/>
-          <circle cx="18" cy="22" r="8" fill="#22c55e"/>
-          <path d="M14 22 L17 25 L22 18" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-          <text x="42" y="20" textAnchor="middle" fontSize="14" fill="#22c55e" fontWeight="700">4</text>
-          <text x="42" y="32" textAnchor="middle" fontSize="6" fill="#22c55e" opacity="0.8" fontWeight="500">correct</text>
-        </g>
-        
-        {/* To retry card - rose/red theme */}
-        <g transform="translate(96, 46)">
-          <rect width="60" height="44" rx="8" fill={c} opacity="0.08" stroke={c} strokeWidth="1.5"/>
-          <circle cx="18" cy="22" r="8" fill={c}/>
-          <path d="M14 18 L22 26 M22 18 L14 26" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-          <text x="42" y="20" textAnchor="middle" fontSize="14" fill={c} fontWeight="700">2</text>
-          <text x="42" y="32" textAnchor="middle" fontSize="6" fill={c} opacity="0.8" fontWeight="500">to retry</text>
-        </g>
-        
-        {/* Primary action button - matches Button styling */}
-        <rect x="24" y="100" width="132" height="28" rx="8" fill={c}/>
-        <text x="90" y="118" textAnchor="middle" fontSize="8" fill="white" fontWeight="600">Retry Missed Questions</text>
-      </svg>
+      <div className="w-full h-full flex items-center justify-center p-2 pointer-events-none">
+        <div className="w-full max-w-[240px] transform scale-[0.85]">
+          <Card className="border bg-card">
+            <CardContent className="p-3 space-y-2">
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className={`h-full ${c.bg} rounded-full w-2/3`} />
+              </div>
+              <p className="text-[8px] text-muted-foreground text-center">Revision Round 2 of 3</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-2 rounded-md border-2 border-green-500/30 bg-green-500/5 flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                    <Check className="w-3 h-3 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-green-500">4</p>
+                    <p className="text-[7px] text-green-600">correct</p>
+                  </div>
+                </div>
+                <div className={`p-2 rounded-md border-2 ${c.border} ${c.bg}/5 flex items-center gap-2`}>
+                  <div className={`w-5 h-5 rounded-full ${c.bg} flex items-center justify-center`}>
+                    <X className="w-3 h-3 text-white" />
+                  </div>
+                  <div>
+                    <p className={`text-sm font-bold ${c.text}`}>2</p>
+                    <p className={`text-[7px] ${c.text}`}>to retry</p>
+                  </div>
+                </div>
+              </div>
+              <Button size="sm" className={`w-full ${c.bg} hover:${c.bg}/90 text-white text-[9px] h-7`}>
+                <RotateCcw className="w-3 h-3 mr-1" />
+                Retry Missed Questions
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     );
   }
   
   if (feature === "Community Sharing") {
     return (
-      <svg viewBox="0 0 180 140" className="w-full h-full">
-        {/* Card container */}
-        <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
-        
-        {/* Quiz title and info */}
-        <text x="24" y="28" fontSize="10" fill="currentColor" fontWeight="600">Biology Quiz</text>
-        <rect x="24" y="36" width="50" height="14" rx="7" fill="currentColor" opacity="0.08"/>
-        <text x="49" y="46" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.6" fontWeight="500">10 questions</text>
-        
-        {/* Quiz preview area */}
-        <rect x="24" y="56" width="132" height="36" rx="8" fill="currentColor" opacity="0.04"/>
-        <rect x="32" y="64" width="90" height="4" rx="2" fill="currentColor" opacity="0.1"/>
-        <rect x="32" y="72" width="70" height="4" rx="2" fill="currentColor" opacity="0.07"/>
-        <rect x="32" y="80" width="50" height="4" rx="2" fill="currentColor" opacity="0.05"/>
-        
-        {/* Share button - emerald green matching the feature color */}
-        <rect x="24" y="100" width="68" height="28" rx="8" fill={c}/>
-        <g transform="translate(40, 108)">
-          <path d="M0 8 L8 8 M0 8 L4 4 M0 8 L4 12" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-        </g>
-        <text x="66" y="118" textAnchor="middle" fontSize="8" fill="white" fontWeight="600">Share</text>
-        
-        {/* Copy link button - outline style */}
-        <rect x="100" y="100" width="56" height="28" rx="8" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.25"/>
-        <text x="128" y="118" textAnchor="middle" fontSize="7" fill="currentColor" opacity="0.6" fontWeight="500">Copy link</text>
-      </svg>
+      <div className="w-full h-full flex items-center justify-center p-2 pointer-events-none">
+        <div className="w-full max-w-[240px] transform scale-[0.85]">
+          <Card className="border bg-card">
+            <CardContent className="p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <h4 className="text-[10px] font-semibold">Biology Quiz</h4>
+                <Badge variant="secondary" className="text-[7px] px-1.5">10 questions</Badge>
+              </div>
+              <div className="bg-muted/30 rounded-md p-2 space-y-1">
+                <div className="h-1 bg-foreground/10 rounded w-full" />
+                <div className="h-1 bg-foreground/8 rounded w-3/4" />
+                <div className="h-1 bg-foreground/6 rounded w-1/2" />
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" className={`flex-1 ${c.bg} hover:${c.bg}/90 text-white text-[9px] h-7`}>
+                  <Share2 className="w-3 h-3 mr-1" />
+                  Share
+                </Button>
+                <Button size="sm" variant="outline" className="flex-1 text-[9px] h-7">
+                  Copy link
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     );
   }
   
   if (feature === "Streak Tracking") {
     return (
-      <svg viewBox="0 0 180 140" className="w-full h-full">
-        {/* Card container */}
-        <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
-        
-        {/* FontAwesome Flame icon - matches dashboard StatCard */}
-        <circle cx="90" cy="48" r="28" fill={c} opacity="0.1"/>
-        <circle cx="90" cy="48" r="24" fill={c} opacity="0.15"/>
-        <foreignObject x="74" y="32" width="32" height="32">
-          <div className="w-full h-full flex items-center justify-center text-[#f59e0b]">
-            <FontAwesomeIcon icon={faFire} className="w-6 h-6" />
-          </div>
-        </foreignObject>
-        
-        {/* Large streak number - matches dashboard display */}
-        <text x="90" y="96" textAnchor="middle" fontSize="26" fill="currentColor" fontWeight="700">7</text>
-        <text x="90" y="110" textAnchor="middle" fontSize="8" fill="currentColor" opacity="0.5" fontWeight="500">day streak</text>
-        
-        {/* Week days with checkmarks - matches StreakCalendar */}
-        <g transform="translate(27, 118)">
-          {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-            <g key={i} transform={`translate(${i * 18}, 0)`}>
-              <circle cx="7" cy="7" r="7" fill={i < 5 ? c : "currentColor"} opacity={i < 5 ? 1 : 0.1}/>
-              {i < 5 && <path d="M4 7 L6 9 L10 4" stroke="white" strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>}
-            </g>
-          ))}
-        </g>
-      </svg>
+      <div className="w-full h-full flex items-center justify-center p-2 pointer-events-none">
+        <div className="w-full max-w-[240px] transform scale-[0.85]">
+          <Card className="border bg-card">
+            <CardContent className="p-4 flex flex-col items-center">
+              <div className={`w-12 h-12 rounded-full ${c.bg}/10 flex items-center justify-center mb-2`}>
+                <div className={`w-10 h-10 rounded-full ${c.bg}/15 flex items-center justify-center`}>
+                  <FontAwesomeIcon icon={faFire} className={`w-5 h-5 ${c.text}`} />
+                </div>
+              </div>
+              <p className="text-2xl font-bold text-foreground">7</p>
+              <p className="text-[9px] text-muted-foreground">day streak</p>
+              <div className="flex gap-1 mt-3">
+                {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <div className={`w-4 h-4 rounded-full flex items-center justify-center ${i < 5 ? c.bg : "bg-muted"}`}>
+                      {i < 5 && <Check className="w-2.5 h-2.5 text-white" />}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     );
   }
   
   if (feature === "Pip AI Assistant") {
     return (
-      <svg viewBox="0 0 180 140" className="w-full h-full">
-        {/* Card container */}
-        <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
-        
-        {/* Pip penguin - matching CutePenguin component exactly */}
-        <g transform="translate(60, 68)">
-          {/* Left flipper */}
-          <ellipse cx="-20" cy="2" rx="6" ry="12" fill="#2d3436" transform="rotate(-25 -20 2)"/>
-          {/* Right flipper */}
-          <ellipse cx="20" cy="2" rx="6" ry="12" fill="#2d3436" transform="rotate(25 20 2)"/>
-          {/* Main body - black outer */}
-          <ellipse cx="0" cy="4" rx="18" ry="22" fill="#2d3436"/>
-          {/* White belly */}
-          <ellipse cx="0" cy="6" rx="14" ry="17" fill="#ffffff"/>
-          {/* Head - black */}
-          <path d="M-15 -6 Q-15 -22 0 -22 Q15 -22 15 -6 Q15 0 0 0 Q-15 0 -15 -6" fill="#2d3436"/>
-          {/* White face area */}
-          <ellipse cx="0" cy="-8" rx="11" ry="9" fill="#ffffff"/>
-          {/* Left eye */}
-          <ellipse cx="-5" cy="-9" rx="4" ry="4.5" fill="#ffffff"/>
-          <circle cx="-4" cy="-8" r="2.5" fill="#2d3436"/>
-          <circle cx="-3" cy="-10" r="1" fill="#ffffff"/>
-          {/* Right eye */}
-          <ellipse cx="5" cy="-9" rx="4" ry="4.5" fill="#ffffff"/>
-          <circle cx="4" cy="-8" r="2.5" fill="#2d3436"/>
-          <circle cx="5" cy="-10" r="1" fill="#ffffff"/>
-          {/* Orange beak */}
-          <ellipse cx="0" cy="-2" rx="2.5" ry="1.5" fill="#f97316"/>
-          {/* Feet */}
-          <ellipse cx="-8" cy="25" rx="5" ry="2.5" fill="#f97316"/>
-          <ellipse cx="8" cy="25" rx="5" ry="2.5" fill="#f97316"/>
-        </g>
-        
-        {/* Chat bubble - positioned to the right */}
-        <g transform="translate(95, 22)">
-          <rect x="0" y="0" width="60" height="44" rx="8" fill={c} opacity="0.1" stroke={c} strokeWidth="1.5"/>
-          <polygon points="0,20 -8,24 0,28" fill={c} opacity="0.1"/>
-          <rect x="8" y="10" width="44" height="4" rx="2" fill={c} opacity="0.4"/>
-          <rect x="8" y="18" width="36" height="4" rx="2" fill={c} opacity="0.3"/>
-          <rect x="8" y="26" width="40" height="4" rx="2" fill={c} opacity="0.25"/>
-          <rect x="8" y="34" width="28" height="4" rx="2" fill={c} opacity="0.2"/>
-        </g>
-        
-        {/* Suggestion chips - matches quiz-chatbot.tsx */}
-        <g transform="translate(95, 74)">
-          <rect x="0" y="0" width="56" height="16" rx="8" fill={c} opacity="0.1" stroke={c} strokeWidth="1"/>
-          <text x="28" y="11" textAnchor="middle" fontSize="6" fill={c} fontWeight="500">Explain this</text>
-        </g>
-        <g transform="translate(95, 94)">
-          <rect x="0" y="0" width="56" height="16" rx="8" fill={c} opacity="0.1" stroke={c} strokeWidth="1"/>
-          <text x="28" y="11" textAnchor="middle" fontSize="6" fill={c} fontWeight="500">Give a hint</text>
-        </g>
-        
-        {/* Ask Pip button */}
-        <g transform="translate(24, 114)">
-          <rect x="0" y="0" width="56" height="18" rx="6" fill={c}/>
-          <text x="28" y="12" textAnchor="middle" fontSize="7" fill="white" fontWeight="600">Ask Pip</text>
-        </g>
-      </svg>
+      <div className="w-full h-full flex items-center justify-center p-2 pointer-events-none">
+        <div className="w-full max-w-[260px] transform scale-[0.8]">
+          <Card className="border bg-card">
+            <CardContent className="p-3">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-100 to-cyan-200 dark:from-cyan-900 dark:to-cyan-800 flex items-center justify-center shrink-0">
+                  <span className="text-lg">🐧</span>
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className={`p-2 rounded-lg ${c.bg}/10 border ${c.border}`}>
+                    <div className="space-y-1">
+                      <div className={`h-1.5 ${c.bg}/40 rounded w-full`} />
+                      <div className={`h-1.5 ${c.bg}/30 rounded w-4/5`} />
+                      <div className={`h-1.5 ${c.bg}/20 rounded w-3/5`} />
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    <Badge variant="outline" className={`text-[7px] px-1.5 ${c.border} ${c.text}`}>Explain this</Badge>
+                    <Badge variant="outline" className={`text-[7px] px-1.5 ${c.border} ${c.text}`}>Give a hint</Badge>
+                  </div>
+                </div>
+              </div>
+              <Button size="sm" className={`w-full mt-2 ${c.bg} hover:${c.bg}/90 text-white text-[9px] h-7`}>
+                <MessageCircle className="w-3 h-3 mr-1" />
+                Ask Pip
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     );
   }
   
   if (feature === "Progress Tracking") {
     return (
-      <svg viewBox="0 0 180 140" className="w-full h-full">
-        {/* Card container */}
-        <rect x="15" y="8" width="150" height="124" rx="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.15"/>
-        
-        {/* Stats cards row - matches dashboard StatCard styling */}
-        <g transform="translate(22, 16)">
-          {/* Quizzes stat - indigo gradient */}
-          <rect width="44" height="38" rx="8" fill={c}/>
-          <text x="22" y="14" textAnchor="middle" fontSize="6" fill="white" opacity="0.8" fontWeight="500">Quizzes</text>
-          <text x="22" y="30" textAnchor="middle" fontSize="14" fill="white" fontWeight="700">12</text>
-        </g>
-        
-        <g transform="translate(70, 16)">
-          {/* Streak stat - amber gradient */}
-          <rect width="44" height="38" rx="8" fill="#f59e0b"/>
-          <text x="22" y="14" textAnchor="middle" fontSize="6" fill="white" opacity="0.8" fontWeight="500">Streak</text>
-          <text x="22" y="30" textAnchor="middle" fontSize="14" fill="white" fontWeight="700">7</text>
-        </g>
-        
-        <g transform="translate(118, 16)">
-          {/* Accuracy stat - green gradient */}
-          <rect width="44" height="38" rx="8" fill="#22c55e"/>
-          <text x="22" y="14" textAnchor="middle" fontSize="6" fill="white" opacity="0.8" fontWeight="500">Accuracy</text>
-          <text x="22" y="30" textAnchor="middle" fontSize="14" fill="white" fontWeight="700">85%</text>
-        </g>
-        
-        {/* Progress chart area - matches dashboard card */}
-        <rect x="22" y="62" width="136" height="66" rx="8" fill="currentColor" opacity="0.04"/>
-        <text x="30" y="78" fontSize="7" fill="currentColor" opacity="0.6" fontWeight="600">Weekly Progress</text>
-        
-        {/* Bar chart - matches Recharts style */}
-        <g transform="translate(30, 88)">
-          {[35, 48, 32, 58, 42, 52, 30].map((h, i) => (
-            <rect key={i} x={i * 17} y={32 - h * 0.55} width="13" height={h * 0.55} rx="3" fill={c} opacity={0.5 + i * 0.07}/>
-          ))}
-        </g>
-        
-        {/* Day labels */}
-        <g transform="translate(36, 122)">
-          {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-            <text key={i} x={i * 17} y="6" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.45" fontWeight="500">{d}</text>
-          ))}
-        </g>
-      </svg>
+      <div className="w-full h-full flex items-center justify-center p-2 pointer-events-none">
+        <div className="w-full max-w-[260px] transform scale-[0.8]">
+          <div className="space-y-2">
+            <div className="grid grid-cols-3 gap-1.5">
+              <Card className={`${c.bg} border-0`}>
+                <CardContent className="p-2 text-center">
+                  <p className="text-[7px] text-white/80">Quizzes</p>
+                  <p className="text-sm font-bold text-white">12</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-amber-500 border-0">
+                <CardContent className="p-2 text-center">
+                  <p className="text-[7px] text-white/80">Streak</p>
+                  <p className="text-sm font-bold text-white">7</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-green-500 border-0">
+                <CardContent className="p-2 text-center">
+                  <p className="text-[7px] text-white/80">Accuracy</p>
+                  <p className="text-sm font-bold text-white">85%</p>
+                </CardContent>
+              </Card>
+            </div>
+            <Card className="border bg-card">
+              <CardContent className="p-2">
+                <p className="text-[8px] font-medium text-muted-foreground mb-2">Weekly Progress</p>
+                <div className="flex items-end justify-between gap-1 h-10">
+                  {[35, 48, 32, 58, 42, 52, 30].map((h, i) => (
+                    <div 
+                      key={i} 
+                      className={`flex-1 ${c.bg} rounded-t`}
+                      style={{ height: `${h}%`, opacity: 0.5 + i * 0.07 }}
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-between mt-1">
+                  {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+                    <span key={i} className="text-[6px] text-muted-foreground flex-1 text-center">{d}</span>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
     );
   }
   
