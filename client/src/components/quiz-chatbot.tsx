@@ -422,14 +422,14 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -527,7 +527,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
           </motion.div>
         )}
 
-        <ScrollArea className="flex-1 px-4 py-4 bg-gradient-to-b from-sky-50/30 to-transparent dark:from-slate-900/30" ref={scrollAreaRef}>
+        <ScrollArea className="flex-1 px-4 py-4 bg-gradient-to-b from-sky-50/30 to-transparent dark:from-slate-900/30">
           {messages.length === 0 ? (
             <motion.div 
               initial={{ opacity: 0 }}
@@ -612,13 +612,12 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
             </motion.div>
           ) : (
             <div className="space-y-4">
-              <AnimatePresence mode="popLayout">
+              <AnimatePresence initial={false}>
                 {messages.map((message, index) => (
                   <motion.div
-                    key={index}
+                    key={`${message.timestamp}-${index}`}
                     initial={{ opacity: 0, y: 20, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ 
                       type: "spring", 
                       stiffness: 400, 
@@ -676,6 +675,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                   </motion.div>
                 </motion.div>
               )}
+              <div ref={messagesEndRef} />
             </div>
           )}
         </ScrollArea>
