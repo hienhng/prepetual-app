@@ -170,9 +170,9 @@ function StatCard({
           <div className={`p-4 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="mb-1 transition-colors text-white/80 text-[12px] text-left font-semibold">{label}</p>
+                <p className="mb-0.5 transition-colors text-white/60 text-[10px] text-left font-medium uppercase tracking-wider">{label}</p>
                 <motion.p 
-                  className={`text-3xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
+                  className={`text-2xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
@@ -649,7 +649,6 @@ function QuizCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
-      whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
       className="group cursor-pointer"
       data-testid={`card-recent-quiz-${quiz.id}`}
