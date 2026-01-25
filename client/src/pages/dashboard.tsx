@@ -727,6 +727,44 @@ function LearningTipCard() {
   );
 }
 
+function CircularProgress({ progress, size = 48, strokeWidth = 4, color }: { progress: number; size?: number; strokeWidth?: number; color: string }) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (progress / 100) * circumference;
+  
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          className="text-muted/20"
+        />
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1, ease: "easeOut" }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-xs font-bold text-foreground">{progress}%</span>
+      </div>
+    </div>
+  );
+}
+
 function ContinueQuizCard({ 
   quiz, 
   answeredCount, 
@@ -750,7 +788,6 @@ function ContinueQuizCard({
   retryAnsweredCount?: number;
   retryTotalCount?: number;
 }) {
-  // When in revision mode, show retry progress instead of original questions progress
   const displayAnswered = isRevising ? retryAnsweredCount : answeredCount;
   const displayTotal = isRevising ? retryTotalCount : totalCount;
   const progress = Math.round((displayAnswered / displayTotal) * 100) || 0;
@@ -760,126 +797,146 @@ function ContinueQuizCard({
   const difficulty = (["easy", "medium", "hard"].includes(difficultyRaw) ? difficultyRaw : "medium") as "easy" | "medium" | "hard";
   const colors = difficultyColors[difficulty] || difficultyColors.medium;
   const CategoryIcon = categoryIcons[quiz.category || "Others/General"] || GraduationCap;
+  
+  const gradientColor = isRevising 
+    ? "rgb(139 92 246)" 
+    : difficulty === "easy" 
+      ? "rgb(16 185 129)" 
+      : difficulty === "hard" 
+        ? "rgb(244 63 94)" 
+        : "rgb(245 158 11)";
 
-  const timeLabel = `Saved ${formatDistanceToNow(new Date(savedAt || new Date()))} ago`;
+  const timeAgo = formatDistanceToNow(new Date(savedAt || new Date()));
 
   return (
     <motion.div
+      whileHover={{ y: -2 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      className="relative group"
+      className="relative group cursor-pointer"
+      onClick={onContinue}
     >
-      <Card className={`overflow-hidden border-2 shadow-lg transition-all duration-300 ${colors.border} bg-gradient-to-br ${colors.from} ${colors.via} to-transparent ${colors.shadow}`}>
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            {/* Icon and encouragement */}
-            <div className="flex items-center gap-3 sm:flex-shrink-0">
-              <div className="relative">
-                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110 ${colors.icon}`}>
-                  <CategoryIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm bg-foreground/80">
-                  {remaining}
-                </div>
-              </div>
-              <div className="sm:hidden flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <h3 className="font-semibold text-foreground truncate text-sm">{quiz.title}</h3>
-                  {isRevising ? (
-                    <Badge variant="outline" className="text-[10px] px-1 h-4 leading-none uppercase tracking-wider font-bold bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-900 border-current/20">
-                      Revising
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className={`text-[10px] px-1 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
-                      {difficulty}
-                    </Badge>
-                  )}
-                </div>
-                <p className={`text-xs font-medium ${colors.text}`}>{timeLabel} - continue now!</p>
-              </div>
-            </div>
+      {/* Animated glow border */}
+      <motion.div 
+        className={`absolute -inset-[2px] rounded-2xl opacity-60 blur-sm ${
+          isRevising 
+            ? 'bg-gradient-to-r from-violet-500 via-purple-500 to-violet-500' 
+            : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
+        }`}
+        animate={{ 
+          opacity: [0.4, 0.7, 0.4],
+        }}
+        transition={{ 
+          duration: 2, 
+          repeat: Infinity, 
+          ease: "easeInOut" 
+        }}
+      />
+      
+      <Card className="relative overflow-hidden border-0 shadow-xl bg-card">
+        <CardContent className="p-0">
+          <div className="flex items-stretch">
+            {/* Left accent strip */}
+            <div className={`w-1.5 ${isRevising ? 'bg-gradient-to-b from-violet-500 to-purple-600' : colors.icon}`} />
             
-            {/* Content */}
-            <div className="flex-1 min-w-0 space-y-3">
-              <div className="hidden sm:block">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className="font-semibold text-base text-foreground truncate">{quiz.title}</h3>
-                      {isRevising ? (
-                        <Badge variant="outline" className="text-[10px] px-1.5 h-4 leading-none uppercase tracking-wider font-bold bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-900 border-current/20">
-                          Revising
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className={`text-[10px] px-1.5 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
-                          {difficulty}
-                        </Badge>
-                      )}
+            <div className="flex-1 p-4 sm:p-5">
+              <div className="flex items-start gap-4">
+                {/* Circular progress with icon */}
+                <div className="relative flex-shrink-0">
+                  <CircularProgress 
+                    progress={progress} 
+                    size={56} 
+                    strokeWidth={4} 
+                    color={gradientColor}
+                  />
+                  <div className={`absolute inset-0 flex items-center justify-center rounded-full ${
+                    isRevising ? 'bg-violet-500/10' : colors.from.replace('from-', 'bg-').replace('/10', '/5')
+                  }`}>
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <CategoryIcon className={`w-5 h-5 ${isRevising ? 'text-violet-500' : colors.text}`} />
+                    </motion.div>
+                  </div>
+                </div>
+                
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-foreground truncate text-base leading-tight mb-1">
+                        {quiz.title}
+                      </h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {isRevising ? (
+                          <Badge className="gap-1 text-[10px] px-2 py-0.5 bg-violet-500/15 text-violet-600 dark:text-violet-400 border-violet-300 dark:border-violet-800">
+                            <motion.div 
+                              className="w-1.5 h-1.5 rounded-full bg-violet-500"
+                              animate={{ opacity: [1, 0.4, 1] }}
+                              transition={{ duration: 1.5, repeat: Infinity }}
+                            />
+                            REVISING
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className={`text-[10px] px-2 py-0.5 uppercase tracking-wider font-bold ${colors.badge}`}>
+                            {difficulty}
+                          </Badge>
+                        )}
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {timeAgo}
+                        </span>
+                      </div>
                     </div>
-                    <p className={`text-sm font-medium ${colors.text}`}>{timeLabel} - continue now!</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground/50 hover:text-destructive flex-shrink-0 transition-colors opacity-0 group-hover:opacity-100"
+                      onClick={(e) => { e.stopPropagation(); onDiscard(); }}
+                      data-testid="button-discard-progress"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
-                    onClick={(e) => { e.stopPropagation(); onDiscard(); }}
-                    data-testid="button-discard-progress"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Progress - hide progress bar in revision mode */}
-              {isRevising ? (
-                <div className="flex items-center gap-2 py-1.5 px-3 rounded-lg bg-violet-500/10 dark:bg-violet-500/15 border border-violet-200/50 dark:border-violet-800/30">
-                  <div className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
-                  <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
-                    {displayTotal} question{displayTotal !== 1 ? 's' : ''} to review
-                  </span>
-                </div>
-              ) : (
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground font-medium">
-                      {displayAnswered} of {displayTotal} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span> completed
-                    </span>
-                    <span className={`font-bold ${colors.text}`}>{progress}%</span>
+                  
+                  {/* Status message */}
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm text-muted-foreground">
+                      {isRevising ? (
+                        <span className="flex items-center gap-1.5">
+                          <Zap className="w-3.5 h-3.5 text-violet-500" />
+                          <span><strong className="text-foreground">{remaining}</strong> question{remaining !== 1 ? 's' : ''} left to review</span>
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1.5">
+                          <Target className="w-3.5 h-3.5 text-primary" />
+                          <span><strong className="text-foreground">{remaining}</strong> of {displayTotal} remaining</span>
+                        </span>
+                      )}
+                    </p>
+                    
+                    {/* Continue button */}
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button
+                        size="sm"
+                        className={`gap-1.5 h-8 px-4 shadow-md ${
+                          isRevising 
+                            ? 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700' 
+                            : colors.icon
+                        } border-0 text-white`}
+                        onClick={(e) => { e.stopPropagation(); onContinue(); }}
+                        data-testid="button-continue-quiz"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span className="font-semibold">{isRevising ? 'Review' : 'Continue'}</span>
+                        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                      </Button>
+                    </motion.div>
                   </div>
-                  <div className="relative h-2.5 bg-muted/30 dark:bg-muted/10 rounded-full overflow-hidden">
-                    <motion.div 
-                      className={`absolute inset-y-0 left-0 rounded-full ${colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')}`}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progress}%` }}
-                      transition={{ duration: 0.8, ease: "easeOut" }}
-                    />
-                  </div>
                 </div>
-              )}
-              
-              {/* Actions */}
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={onContinue}
-                  className={`border-none flex-1 gap-2 h-10 shadow-md transition-all duration-300 active:scale-95 ${
-                    isRevising 
-                      ? 'bg-gradient-to-r from-violet-500 to-violet-600' 
-                      : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
-                  } hover:brightness-110 text-white`}
-                  data-testid="button-continue-quiz"
-                >
-                  <Play className="w-4 h-4 fill-current" />
-                  <span className="font-bold">{isRevising ? 'Continue Review' : 'Continue Quiz'}</span>
-                  <ArrowRight className="w-4 h-4 hidden sm:block group-hover:translate-x-1 transition-transform" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-10 w-10 sm:hidden text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
-                  onClick={(e) => { e.stopPropagation(); onDiscard(); }}
-                  data-testid="button-discard-progress-mobile"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
               </div>
             </div>
           </div>
