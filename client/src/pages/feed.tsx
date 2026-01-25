@@ -104,9 +104,9 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
 
   const getDifficultyConfig = (difficulty?: string | null) => {
     switch (difficulty) {
-      case "easy": return { label: "Easy", color: "text-emerald-400", bg: "bg-emerald-500/20" };
-      case "hard": return { label: "Hard", color: "text-rose-400", bg: "bg-rose-500/20" };
-      default: return { label: "Medium", color: "text-amber-400", bg: "bg-amber-500/20" };
+      case "easy": return { label: "Easy", color: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500" };
+      case "hard": return { label: "Hard", color: "text-rose-600 dark:text-rose-400", dot: "bg-rose-500" };
+      default: return { label: "Medium", color: "text-amber-600 dark:text-amber-400", dot: "bg-amber-500" };
     }
   };
 
@@ -115,8 +115,14 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
     return config?.icon || GraduationCap;
   };
 
+  const getCategoryGradient = (category?: string | null) => {
+    const config = categoryConfig[category || "Others/General"];
+    return config?.gradient || "from-slate-500 to-slate-600";
+  };
+
   const diffConfig = getDifficultyConfig(quiz.difficulty);
   const gradient = getGradientForQuiz(quiz.id);
+  const categoryGradient = getCategoryGradient(quiz.category);
   const questionCount = (quiz.questions as any[]).length;
   const CategoryIcon = getCategoryIcon(quiz.category);
   const isCurated = quiz.author?.email === "giahienhn@gmail.com";
@@ -126,62 +132,56 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        whileHover={{ y: -4 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-        className="group cursor-pointer"
+        whileHover={{ y: -3 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="group cursor-pointer h-full"
         onClick={() => setIsDialogOpen(true)}
       >
         <Card 
-          className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-shadow duration-300"
+          className="overflow-hidden h-full bg-card hover:bg-muted/30 border border-border/50 hover:border-border transition-all duration-300 hover:shadow-lg"
           data-testid={`card-quiz-${quiz.id}`}
         >
-          <div className={`relative h-36 bg-gradient-to-br ${gradient} p-4 flex flex-col justify-between`}>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-            <div className="absolute inset-0 opacity-30">
-              <div className="absolute top-4 right-4 w-24 h-24 rounded-full bg-white/20 blur-3xl" />
-            </div>
-            
-            <div className="relative flex items-start justify-between">
-              <Badge 
-                variant="secondary" 
-                className="bg-white/20 text-white border-0 backdrop-blur-sm text-xs font-medium"
-              >
-                {questionCount} {questionCount === 1 ? "Q" : "Qs"}
-              </Badge>
-              {isCurated && (
-                <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm text-xs font-medium gap-1">
-                  <Star className="h-3 w-3 fill-current" />
-                  Curated
-                </Badge>
-              )}
+          <CardContent className="p-5 flex flex-col h-full">
+            <div className="flex items-start gap-4 mb-4">
+              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${categoryGradient} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                <CategoryIcon className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                  {quiz.title}
+                </h3>
+              </div>
             </div>
 
-            <div className="relative">
-              <h3 className="text-white font-bold text-base leading-snug line-clamp-2 drop-shadow-sm">
-                {quiz.title}
-              </h3>
-            </div>
-          </div>
-
-          <CardContent className="p-4 bg-card">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-7 w-7 ring-2 ring-background">
-                  <AvatarImage src={quiz.author?.profileImageUrl || undefined} />
-                  <AvatarFallback className="text-xs bg-muted">
-                    {getAuthorInitials(quiz.author)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm text-muted-foreground flex items-center gap-1">
-                  {getAuthorName(quiz.author)}
-                  {isCurated && (
-                    <BadgeCheck className="h-3.5 w-3.5 text-green-500 fill-green-500/30" />
-                  )}
+            <div className="mt-auto space-y-3">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="font-medium">{questionCount} questions</span>
+                <span className="text-border">•</span>
+                <span className={`flex items-center gap-1.5 ${diffConfig.color}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${diffConfig.dot}`} />
+                  {diffConfig.label}
                 </span>
               </div>
-              <Badge className={`${diffConfig.bg} ${diffConfig.color} border-0 text-xs`}>
-                {diffConfig.label}
-              </Badge>
+              
+              <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={quiz.author?.profileImageUrl || undefined} />
+                    <AvatarFallback className="text-[10px] bg-muted">
+                      {getAuthorInitials(quiz.author)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs text-muted-foreground truncate max-w-[100px]">
+                    {getAuthorName(quiz.author)}
+                  </span>
+                  {isCurated && (
+                    <BadgeCheck className="h-3.5 w-3.5 text-green-500 fill-green-500/30 flex-shrink-0" />
+                  )}
+                </div>
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Play className="h-3.5 w-3.5 text-primary ml-0.5" />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -189,81 +189,69 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md p-0 overflow-hidden">
-          <div className={`relative h-44 bg-gradient-to-br ${gradient} p-6 flex flex-col justify-end`}>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
-            <div className="absolute inset-0 opacity-40">
-              <div className="absolute top-6 right-6 w-32 h-32 rounded-full bg-white/20 blur-3xl" />
-            </div>
-            
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-3">
-                <Badge className="bg-white/25 text-white border-0 backdrop-blur-sm">
-                  {questionCount} {questionCount === 1 ? "question" : "questions"}
-                </Badge>
-                <Badge className={`${diffConfig.bg} ${diffConfig.color} border-0`}>
-                  {diffConfig.label}
-                </Badge>
+          <div className="p-6 pb-4">
+            <div className="flex items-start gap-4 mb-5">
+              <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${categoryGradient} flex items-center justify-center flex-shrink-0 shadow-md`}>
+                <CategoryIcon className="h-7 w-7 text-white" />
               </div>
-              <DialogHeader className="text-left">
-                <DialogTitle className="text-white text-xl font-bold drop-shadow-md leading-tight">
-                  {quiz.title}
-                </DialogTitle>
-              </DialogHeader>
+              <div className="flex-1 min-w-0">
+                <DialogHeader className="text-left">
+                  <DialogTitle className="text-xl font-bold leading-snug">
+                    {quiz.title}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
+                  <span>{questionCount} questions</span>
+                  <span className={`flex items-center gap-1.5 ${diffConfig.color}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${diffConfig.dot}`} />
+                    {diffConfig.label}
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div className="p-6 space-y-5">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-11 w-11 ring-2 ring-border">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 mb-5">
+              <Avatar className="h-10 w-10">
                 <AvatarImage src={quiz.author?.profileImageUrl || undefined} />
                 <AvatarFallback className="bg-muted">
                   {getAuthorInitials(quiz.author)}
                 </AvatarFallback>
               </Avatar>
-              <div>
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <p className="font-medium">{getAuthorName(quiz.author)}</p>
+                  <p className="font-medium text-sm">{getAuthorName(quiz.author)}</p>
                   {isCurated && (
                     <>
                       <BadgeCheck className="h-4 w-4 text-green-500 fill-green-500/30" />
-                      <span className="text-xs text-green-500 font-medium">Curated</span>
+                      <span className="text-xs text-green-600 dark:text-green-400 font-medium">Curated</span>
                     </>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                  <CategoryIcon className="h-3.5 w-3.5" />
+                <p className="text-xs text-muted-foreground">
                   {categoryConfig[quiz.category || "Others/General"]?.label || "General"}
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
-                <Button
-                  variant="outline"
-                  className="w-full h-24 flex-col gap-2 border-2 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all"
-                  onClick={handleStudyQuiz}
-                  data-testid={`button-study-${quiz.id}`}
-                >
-                  <div className="w-11 h-11 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <BookOpen className="h-5 w-5 text-blue-500" />
-                  </div>
-                  <span className="font-medium">Study Mode</span>
-                </Button>
-              </motion.div>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                className="h-14 gap-2 hover:bg-blue-500/5 hover:border-blue-500/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                onClick={handleStudyQuiz}
+                data-testid={`button-study-${quiz.id}`}
+              >
+                <BookOpen className="h-4 w-4" />
+                <span className="font-medium">Study</span>
+              </Button>
 
-              <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
-                <Button
-                  className="w-full h-24 flex-col gap-2 bg-primary hover:bg-primary/90 transition-all"
-                  onClick={handleTakeQuiz}
-                  data-testid={`button-play-${quiz.id}`}
-                >
-                  <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center">
-                    <Play className="h-5 w-5" />
-                  </div>
-                  <span className="font-medium">Take Quiz</span>
-                </Button>
-              </motion.div>
+              <Button
+                className="h-14 gap-2"
+                onClick={handleTakeQuiz}
+                data-testid={`button-play-${quiz.id}`}
+              >
+                <Play className="h-4 w-4" />
+                <span className="font-medium">Take Quiz</span>
+              </Button>
             </div>
           </div>
         </DialogContent>
