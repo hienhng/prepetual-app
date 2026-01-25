@@ -12,6 +12,7 @@ import { generateQuizRequestSchema, submitQuizRequestSchema } from "@shared/sche
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs";
 import crypto from "crypto";
+import { YoutubeTranscript } from "youtube-transcript";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -126,6 +127,74 @@ export async function registerRoutes(
     res.json({
       googleClientId: process.env.GOOGLE_CLIENT_ID || "",
     });
+  });
+
+  // YouTube transcript extraction endpoint
+  app.post("/api/youtube-transcript", async (req, res) => {
+    try {
+      const { url } = req.body;
+      
+      if (!url || typeof url !== "string") {
+        return res.status(400).json({ message: "YouTube URL is required" });
+      }
+
+      // Extract video ID from various YouTube URL formats
+      const videoIdMatch = url.match(
+        /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+      );
+      
+      if (!videoIdMatch || !videoIdMatch[1]) {
+        return res.status(400).json({ message: "Invalid YouTube URL. Please provide a valid YouTube video link." });
+      }
+
+      const videoId = videoIdMatch[1];
+      
+      try {
+        const transcript = await YoutubeTranscript.fetchTranscript(videoId);
+        
+        if (!transcript || transcript.length === 0) {
+          return res.status(400).json({ 
+            message: "Could not fetch transcript. This video may not have captions available." 
+          });
+        }
+
+        // Combine transcript segments into full text
+        const fullText = transcript
+          .map((segment: { text: string }) => segment.text)
+          .join(" ")
+          .replace(/\s+/g, " ")
+          .trim();
+
+        if (fullText.length < 50) {
+          return res.status(400).json({
+            message: "Transcript is too short to generate a meaningful quiz.",
+          });
+        }
+
+        res.json({ 
+          text: fullText,
+          videoId,
+          segmentCount: transcript.length
+        });
+      } catch (transcriptError: any) {
+        console.error("YouTube transcript error:", transcriptError);
+        
+        if (transcriptError.message?.includes("disabled")) {
+          return res.status(400).json({ 
+            message: "Captions are disabled for this video. Please try a different video." 
+          });
+        }
+        
+        return res.status(400).json({ 
+          message: "Could not fetch transcript. Please ensure the video has captions enabled." 
+        });
+      }
+    } catch (error) {
+      console.error("YouTube transcript error:", error);
+      res.status(500).json({
+        message: error instanceof Error ? error.message : "Failed to fetch YouTube transcript",
+      });
+    }
   });
 
   app.post("/api/extract-text", upload.single("file"), async (req, res) => {

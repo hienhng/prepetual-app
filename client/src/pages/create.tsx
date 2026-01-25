@@ -3,12 +3,16 @@ import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Upload, FileText, Image, Sparkles, ArrowRight, 
-  CheckCircle2, Loader2, X, FileUp, Wand2, Eye
+  CheckCircle2, Loader2, X, FileUp, Wand2, Eye,
+  Type, Youtube, Link, AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FileUpload } from "@/components/file-upload";
 import { useQuiz } from "@/lib/quiz-context";
 import { useUpload } from "@/lib/upload-context";
@@ -43,20 +47,32 @@ const itemVariants = {
   },
 };
 
+type SourceInputType = "upload" | "manual" | "youtube" | null;
+
 export default function Create() {
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial, isLoading } = useQuiz();
   const { activeJob, clearJob } = useUpload();
   const [isReady, setIsReady] = useState(false);
   const redirectedRef = useRef(false);
+  const [activeTab, setActiveTab] = useState("upload");
+  
+  // Track the actual source of extracted content (not just the active tab)
+  const [sourceInputType, setSourceInputType] = useState<SourceInputType>(null);
+  
+  // Manual text input state
+  const [manualText, setManualText] = useState("");
+  
+  // YouTube URL state
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [isLoadingYoutube, setIsLoadingYoutube] = useState(false);
+  const [youtubeError, setYoutubeError] = useState<string | null>(null);
 
-  // Only redirect to generate page if quiz generation is actively happening (not during upload)
   useEffect(() => {
     if (isLoading && !redirectedRef.current) {
       redirectedRef.current = true;
       setLocation("/generate");
     }
-    // Reset ref when not loading
     if (!isLoading) {
       redirectedRef.current = false;
     }
@@ -72,6 +88,7 @@ export default function Create() {
 
   const handleTextExtracted = (text: string, isOfficeWithImages?: boolean, documentImages?: string[]) => {
     setExtractedText(text);
+    setSourceInputType("upload");
     if (isOfficeWithImages && documentImages && documentImages.length > 0) {
       setSourceMaterial({
         type: "document",
@@ -91,6 +108,60 @@ export default function Create() {
     }
   };
 
+  const handleManualTextSubmit = () => {
+    if (manualText.trim().length < 50) {
+      return;
+    }
+    setExtractedText(manualText.trim());
+    setSourceInputType("manual");
+    setSourceMaterial({
+      type: "document",
+      text: manualText.trim(),
+      imageDataUrl: null,
+      isOfficeWithImages: false,
+      documentImages: [],
+    });
+  };
+
+  const handleYoutubeSubmit = async () => {
+    if (!youtubeUrl.trim()) {
+      setYoutubeError("Please enter a YouTube URL");
+      return;
+    }
+
+    setIsLoadingYoutube(true);
+    setYoutubeError(null);
+
+    try {
+      const response = await fetch("/api/youtube-transcript", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: youtubeUrl.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setYoutubeError(data.message || "Failed to fetch video transcript");
+        return;
+      }
+
+      setExtractedText(data.text);
+      setSourceInputType("youtube");
+      setSourceMaterial({
+        type: "document",
+        text: data.text,
+        imageDataUrl: null,
+        isOfficeWithImages: false,
+        documentImages: [],
+      });
+    } catch (error) {
+      setYoutubeError("Network error. Please try again.");
+    } finally {
+      setIsLoadingYoutube(false);
+    }
+  };
+
   const handleContinueToGenerate = () => {
     setLocation("/generate");
   };
@@ -100,6 +171,10 @@ export default function Create() {
     setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
     clearJob();
     setIsReady(false);
+    setManualText("");
+    setYoutubeUrl("");
+    setYoutubeError(null);
+    setSourceInputType(null);
   };
 
   const getWordCount = (text: string) => {
@@ -111,6 +186,12 @@ export default function Create() {
     return text.substring(0, maxLength).trim() + "...";
   };
 
+  const getSourceLabel = () => {
+    if (sourceInputType === "youtube") return "YouTube video";
+    if (sourceInputType === "manual") return "pasted text";
+    return sourceMaterial?.type === "image" ? "image" : "document";
+  };
+
   return (
     <div className="container mx-auto px-4 py-6 md:py-8 max-w-3xl">
       <motion.div
@@ -119,28 +200,171 @@ export default function Create() {
         animate="visible"
         className="space-y-6"
       >
-        {/* Header */}
         <motion.div variants={itemVariants} className="text-center">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
             Create a New Quiz
           </h1>
           <p className="text-muted-foreground">
-            Upload your study materials and let AI generate personalized questions
+            Upload materials, paste text, or use a YouTube video to generate questions
           </p>
         </motion.div>
 
-        {/* Upload Section */}
         <motion.div variants={itemVariants}>
           <AnimatePresence mode="wait">
             {!isReady ? (
               <motion.div
-                key="upload"
+                key="input"
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.3 }}
               >
-                <FileUpload onTextExtracted={handleTextExtracted} />
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 mb-6">
+                    <TabsTrigger value="upload" className="gap-2" data-testid="tab-upload">
+                      <Upload className="h-4 w-4" />
+                      <span className="hidden sm:inline">Upload File</span>
+                      <span className="sm:hidden">Upload</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="manual" className="gap-2" data-testid="tab-manual">
+                      <Type className="h-4 w-4" />
+                      <span className="hidden sm:inline">Paste Text</span>
+                      <span className="sm:hidden">Text</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="youtube" className="gap-2" data-testid="tab-youtube">
+                      <Youtube className="h-4 w-4" />
+                      <span className="hidden sm:inline">YouTube</span>
+                      <span className="sm:hidden">Video</span>
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="upload" className="mt-0">
+                    <FileUpload onTextExtracted={handleTextExtracted} />
+                  </TabsContent>
+
+                  <TabsContent value="manual" className="mt-0">
+                    <Card className="border-2 border-dashed">
+                      <CardContent className="p-6 space-y-4">
+                        <div className="text-center mb-4">
+                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                            <Type className="h-6 w-6 text-primary" />
+                          </div>
+                          <h3 className="font-medium text-foreground">Paste Your Study Material</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Copy and paste notes, textbook content, or any text you want to study
+                          </p>
+                        </div>
+                        
+                        <Textarea
+                          placeholder="Paste your study material here... (minimum 50 characters)"
+                          value={manualText}
+                          onChange={(e) => setManualText(e.target.value)}
+                          className="min-h-[200px] resize-none"
+                          data-testid="textarea-manual-text"
+                        />
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">
+                            {getWordCount(manualText)} words
+                          </span>
+                          <Button
+                            onClick={handleManualTextSubmit}
+                            disabled={manualText.trim().length < 50}
+                            className="gap-2"
+                            data-testid="button-submit-manual-text"
+                          >
+                            <CheckCircle2 className="h-4 w-4" />
+                            Use This Text
+                          </Button>
+                        </div>
+                        
+                        {manualText.length > 0 && manualText.trim().length < 50 && (
+                          <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-2" data-testid="text-manual-validation">
+                            <AlertCircle className="h-4 w-4" />
+                            Please enter at least 50 characters
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="youtube" className="mt-0">
+                    <Card className="border-2 border-dashed">
+                      <CardContent className="p-6 space-y-4">
+                        <div className="text-center mb-4">
+                          <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-3">
+                            <Youtube className="h-6 w-6 text-destructive" />
+                          </div>
+                          <h3 className="font-medium text-foreground">YouTube Video Quiz</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Enter a YouTube URL to extract the transcript and generate a quiz
+                          </p>
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <div className="relative flex-1">
+                            <Link className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="https://www.youtube.com/watch?v=..."
+                              value={youtubeUrl}
+                              onChange={(e) => {
+                                setYoutubeUrl(e.target.value);
+                                setYoutubeError(null);
+                              }}
+                              className="pl-10"
+                              data-testid="input-youtube-url"
+                            />
+                          </div>
+                          <Button
+                            onClick={handleYoutubeSubmit}
+                            disabled={isLoadingYoutube || !youtubeUrl.trim()}
+                            className="gap-2"
+                            data-testid="button-fetch-youtube"
+                          >
+                            {isLoadingYoutube ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Fetching...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="h-4 w-4" />
+                                Get Transcript
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                        
+                        {youtubeError && (
+                          <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20" data-testid="text-youtube-error">
+                            <p className="text-sm text-destructive flex items-center gap-2">
+                              <AlertCircle className="h-4 w-4" />
+                              {youtubeError}
+                            </p>
+                          </div>
+                        )}
+                        
+                        <div className="pt-4 border-t">
+                          <h4 className="text-sm font-medium text-foreground mb-2">Supported formats:</h4>
+                          <ul className="text-sm text-muted-foreground space-y-1">
+                            <li className="flex items-center gap-2">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                              youtube.com/watch?v=...
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                              youtu.be/...
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                              Videos with captions enabled
+                            </li>
+                          </ul>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
               </motion.div>
             ) : (
               <motion.div
@@ -153,16 +377,15 @@ export default function Create() {
                 <Card className="overflow-visible border-green-500/30 bg-green-500/5">
                   <CardContent className="p-6">
                     <div className="space-y-4">
-                      {/* Success Header */}
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-center gap-3">
                           <div className="p-2 rounded-lg bg-green-500/10">
                             <CheckCircle2 className="w-5 h-5 text-green-500" />
                           </div>
                           <div>
-                            <h3 className="font-semibold text-foreground">Content Extracted</h3>
+                            <h3 className="font-semibold text-foreground">Content Ready</h3>
                             <p className="text-sm text-muted-foreground">
-                              {getWordCount(extractedText || "")} words extracted from your {sourceMaterial?.type === "image" ? "image" : "document"}
+                              {getWordCount(extractedText || "")} words from your {getSourceLabel()}
                             </p>
                           </div>
                         </div>
@@ -178,9 +401,9 @@ export default function Create() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Remove document?</AlertDialogTitle>
+                              <AlertDialogTitle>Remove content?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This will remove the extracted content and you will need to upload it again to generate a quiz.
+                                This will remove the extracted content and you will need to add it again to generate a quiz.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -193,7 +416,6 @@ export default function Create() {
                         </AlertDialog>
                       </div>
 
-                      {/* Preview */}
                       {sourceMaterial?.isOfficeWithImages && sourceMaterial?.documentImages && sourceMaterial.documentImages.length > 0 ? (
                         <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
                           <div className="flex items-center gap-3 mb-3">
@@ -230,10 +452,19 @@ export default function Create() {
                         </div>
                       )}
 
-                      {/* File Type Badge */}
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="gap-1">
-                          {sourceMaterial?.type === "image" ? (
+                      <div className="flex items-center gap-2" data-testid="badges-source-info">
+                        <Badge variant="secondary" className="gap-1" data-testid="badge-source-type">
+                          {sourceInputType === "youtube" ? (
+                            <>
+                              <Youtube className="w-3 h-3" />
+                              YouTube
+                            </>
+                          ) : sourceInputType === "manual" ? (
+                            <>
+                              <Type className="w-3 h-3" />
+                              Text
+                            </>
+                          ) : sourceMaterial?.type === "image" ? (
                             <>
                               <Image className="w-3 h-3" />
                               Image
@@ -245,7 +476,7 @@ export default function Create() {
                             </>
                           )}
                         </Badge>
-                        <Badge variant="outline" className="text-green-600 border-green-500/30 bg-green-500/10">
+                        <Badge variant="outline" className="text-green-600 border-green-500/30 bg-green-500/10" data-testid="badge-ready">
                           Ready to generate
                         </Badge>
                       </div>
@@ -257,7 +488,6 @@ export default function Create() {
           </AnimatePresence>
         </motion.div>
 
-        {/* Continue Button */}
         <AnimatePresence>
           {isReady && (
             <motion.div
@@ -284,7 +514,6 @@ export default function Create() {
           )}
         </AnimatePresence>
 
-        {/* Tips Section */}
         {!isReady && (
           <motion.div variants={itemVariants}>
             <Card className="overflow-visible bg-muted/30 border-muted">
@@ -304,7 +533,7 @@ export default function Create() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Global language support for various regions</span>
+                    <span>YouTube videos with captions work best for video quizzes</span>
                   </li>
                 </ul>
               </CardContent>
@@ -312,18 +541,22 @@ export default function Create() {
           </motion.div>
         )}
 
-        {/* Supported Formats */}
         {!isReady && (
           <motion.div variants={itemVariants} className="flex justify-center">
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap justify-center">
               <div className="flex items-center gap-1.5">
                 <FileText className="w-4 h-4" />
-                <span>PDF (slides, notes)</span>
+                <span>PDF, DOCX, PPTX</span>
               </div>
               <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
               <div className="flex items-center gap-1.5">
                 <Image className="w-4 h-4" />
-                <span>PNG, JPG (phone photos)</span>
+                <span>PNG, JPG</span>
+              </div>
+              <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+              <div className="flex items-center gap-1.5">
+                <Youtube className="w-4 h-4" />
+                <span>YouTube</span>
               </div>
             </div>
           </motion.div>
