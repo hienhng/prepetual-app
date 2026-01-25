@@ -170,7 +170,7 @@ function StatCard({
           <div className={`p-5 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className={`text-sm font-medium mb-1 transition-colors ${isActive ? "text-white/80" : "text-muted-foreground"}`}>{label}</p>
+                <p className="mb-1 transition-colors text-white/80 text-[12px] font-normal text-left">{label}</p>
                 <motion.p 
                   className={`text-3xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
                   initial={{ scale: 0.5, opacity: 0 }}
@@ -764,7 +764,7 @@ function ContinueQuizCard({
 
   return (
     <motion.div
-      whileHover={{ y: -3 }}
+      whileHover={{ y: 0 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="relative group"
     >
@@ -1147,19 +1147,19 @@ export default function Dashboard() {
           <motion.section variants={itemVariants}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
-                label="Created"
+                label="CREATED"
                 value={totalQuizzes}
                 icon={() => <FontAwesomeIcon icon={faFileLines} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-blue-500 to-blue-600"
               />
               <StatCard
-                label="Questions"
+                label="QUESTIONS"
                 value={totalQuestions}
                 icon={() => <FontAwesomeIcon icon={faMessage} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-violet-500 to-violet-600"
               />
               <StatCard
-                label="Streak"
+                label="STREAK"
                 value={streakData?.currentStreak ?? 0}
                 icon={() => <FontAwesomeIcon icon={faFire} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-orange-500 to-orange-600"
@@ -1167,7 +1167,7 @@ export default function Dashboard() {
                 onClick={() => setStreakCalendarOpen(true)}
               />
               <StatCard
-                label="Accuracy"
+                label="ACCURACY"
                 value={userStats?.totalAttempts ? `${userStats.averageAccuracy}%` : "-"}
                 icon={() => <FontAwesomeIcon icon={faChartSimple} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
