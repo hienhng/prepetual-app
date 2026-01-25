@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, Camera, Save, Moon, Sun, Monitor, Trash2, 
   Loader2, Check, AlertCircle, ShieldCheck, ShieldX, Sparkles
@@ -71,6 +71,13 @@ export default function Settings() {
     queryKey: ["/api/user/settings"],
     enabled: !!user,
   });
+
+  const hasUnsavedChanges = settings ? (
+    (username !== (settings.username || "")) ||
+    (autoDeleteFiles !== (settings.autoDeleteFiles || false)) ||
+    (confettiEnabled !== (settings.consecutiveCorrectConfetti !== false)) ||
+    (skipRevision !== (settings.skipRevisionQuestions || false))
+  ) : false;
 
   useEffect(() => {
     if (settings) {
@@ -440,25 +447,30 @@ export default function Settings() {
         </motion.div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
-      >
-        <Button
-          onClick={handleSaveAllPreferences}
-          disabled={updateSettingsMutation.isPending}
-          className="gap-2 shadow-lg"
-          data-testid="button-save-all-preferences"
-        >
-          {updateSettingsMutation.isPending ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Save className="w-4 h-4" />
-          )}
-          Save Preferences
-        </Button>
-      </motion.div>
+      <AnimatePresence>
+        {hasUnsavedChanges && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+          >
+            <Button
+              onClick={handleSaveAllPreferences}
+              disabled={updateSettingsMutation.isPending}
+              className="gap-2 shadow-lg"
+              data-testid="button-save-all-preferences"
+            >
+              {updateSettingsMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              Save Preferences
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
