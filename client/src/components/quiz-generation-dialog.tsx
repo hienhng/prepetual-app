@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lightbulb } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import logoImage from "@assets/image_1765894870887.png";
+import logoImage from "@assets/image-removebg-preview_(2)_1769320540513.png";
 
 const STEP_MESSAGES: Record<string, string> = {
   starting: "Starting quiz generation...",
@@ -20,21 +20,33 @@ const STEP_MESSAGES: Record<string, string> = {
 
 function AnimatedLogo() {
   return (
-    <div className="relative w-20 h-20 flex items-center justify-center">
+    <div className="relative w-24 h-24 flex items-center justify-center">
       <img 
         src={logoImage} 
         alt="Prepetual" 
         className="w-full h-full object-contain"
       />
       
-      <div className="absolute inset-0 overflow-hidden rounded-full">
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 80 80">
+      <div 
+        className="absolute inset-0 overflow-hidden pointer-events-none"
+        style={{ 
+          maskImage: `url(${logoImage})`,
+          WebkitMaskImage: `url(${logoImage})`,
+          maskSize: 'contain',
+          WebkitMaskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          WebkitMaskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          WebkitMaskPosition: 'center',
+        }}
+      >
+        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
           <defs>
             <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="white" stopOpacity="0" />
-              <stop offset="30%" stopColor="white" stopOpacity="0.6" />
-              <stop offset="50%" stopColor="white" stopOpacity="0.8" />
-              <stop offset="70%" stopColor="white" stopOpacity="0.6" />
+              <stop offset="35%" stopColor="white" stopOpacity="0.7" />
+              <stop offset="50%" stopColor="white" stopOpacity="1" />
+              <stop offset="65%" stopColor="white" stopOpacity="0.7" />
               <stop offset="100%" stopColor="white" stopOpacity="0" />
             </linearGradient>
           </defs>
@@ -42,18 +54,17 @@ function AnimatedLogo() {
           {[0, 1, 2].map((i) => (
             <motion.rect
               key={i}
-              y={12 + i * 22}
-              width="25"
-              height="16"
+              y={10 + i * 30}
+              width="30"
+              height="25"
               fill="url(#trailGradient)"
-              style={{ mixBlendMode: "overlay" }}
-              initial={{ x: -30 }}
-              animate={{ x: 110 }}
+              initial={{ x: -35 }}
+              animate={{ x: 135 }}
               transition={{
-                duration: 1.2,
+                duration: 1.4,
                 repeat: Infinity,
                 ease: "linear",
-                delay: i * 0.35,
+                delay: i * 0.4,
               }}
             />
           ))}
