@@ -52,23 +52,19 @@ function AnimatedLogo() {
         />
         
         <g mask="url(#logoMask)">
-          {[0, 1, 2].map((i) => (
-            <motion.rect
-              key={i}
-              y={15 + i * 28}
-              width="35"
-              height="22"
-              fill="url(#trailGradient)"
-              initial={{ x: -40 }}
-              animate={{ x: 140 }}
-              transition={{
-                duration: 1.3,
-                repeat: Infinity,
-                ease: "linear",
-                delay: i * 0.38,
-              }}
-            />
-          ))}
+          <motion.rect
+            y="0"
+            width="40"
+            height="100"
+            fill="url(#trailGradient)"
+            initial={{ x: -50 }}
+            animate={{ x: 150 }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
         </g>
       </svg>
     </div>
