@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lightbulb } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import logoImage from "@assets/image_1765894870887.png";
 
 const STEP_MESSAGES: Record<string, string> = {
   starting: "Starting quiz generation...",
@@ -18,58 +19,45 @@ const STEP_MESSAGES: Record<string, string> = {
 
 function AnimatedLogo() {
   return (
-    <div className="relative w-48 h-16 flex items-center justify-center">
-      <svg viewBox="0 0 200 50" className="w-full h-full">
+    <div className="relative w-20 h-20 flex items-center justify-center">
+      <div className="absolute inset-0 rounded-full overflow-hidden">
+        <img 
+          src={logoImage} 
+          alt="Prepetual" 
+          className="w-full h-full object-cover"
+        />
+      </div>
+      
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 80 80">
         <defs>
-          <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-            <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity="1" />
-            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+          <linearGradient id="trailGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="white" stopOpacity="0" />
+            <stop offset="50%" stopColor="white" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="white" stopOpacity="0" />
           </linearGradient>
-          <mask id="textMask">
-            <text
-              x="100"
-              y="35"
-              textAnchor="middle"
-              className="font-brand"
-              fontSize="32"
-              fontWeight="bold"
-              fill="white"
-            >
-              Prepetual
-            </text>
+          <mask id="circleMask">
+            <circle cx="40" cy="40" r="38" fill="white" />
           </mask>
         </defs>
         
-        <text
-          x="100"
-          y="35"
-          textAnchor="middle"
-          className="font-brand"
-          fontSize="32"
-          fontWeight="bold"
-          fill="hsl(var(--primary))"
-          opacity="0.2"
-        >
-          Prepetual
-        </text>
-        
-        <g mask="url(#textMask)">
+        <g mask="url(#circleMask)">
           {[0, 1, 2].map((i) => (
-            <motion.rect
+            <motion.line
               key={i}
-              x="-60"
-              y="0"
-              width="60"
-              height="50"
-              fill="url(#trailGradient)"
-              initial={{ x: -60 }}
-              animate={{ x: 260 }}
+              x1="-20"
+              y1={20 + i * 20}
+              x2="0"
+              y2={20 + i * 20}
+              stroke="url(#trailGradient1)"
+              strokeWidth="8"
+              strokeLinecap="round"
+              initial={{ x1: -20, x2: 0 }}
+              animate={{ x1: 100, x2: 120 }}
               transition={{
-                duration: 2,
+                duration: 1.2,
                 repeat: Infinity,
                 ease: "linear",
-                delay: i * 0.6,
+                delay: i * 0.35,
               }}
             />
           ))}
@@ -146,9 +134,10 @@ export function QuizGenerationDialog({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center"
+          className="fixed top-0 left-0 right-0 bottom-0 z-[100] flex items-center justify-center"
+          style={{ position: 'fixed', inset: 0 }}
         >
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-md" />
+          <div className="absolute top-0 left-0 right-0 bottom-0 bg-background/90 backdrop-blur-lg" />
           
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
