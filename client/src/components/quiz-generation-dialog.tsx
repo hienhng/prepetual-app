@@ -196,51 +196,58 @@ export function QuizGenerationDialog({
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="relative z-10 w-full max-w-md mx-4"
           >
-            <div className="bg-card border rounded-2xl shadow-2xl overflow-hidden">
-              <div className="p-8 text-center">
-                <div className="mb-8 flex justify-center">
+            <div className="relative bg-card/40 border border-white/10 rounded-3xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden backdrop-blur-2xl">
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+              
+              <div className="p-10 text-center relative z-10">
+                <div className="mb-10 flex justify-center">
                   <AnimatedLogo />
                 </div>
 
-                <h2 className="text-xl font-semibold text-foreground mb-6">
-                  {mode === "import" ? "Importing Your Quiz" : "Generating Your Quiz"}
+                <h2 className="text-2xl font-bold tracking-tight text-foreground mb-8">
+                  {mode === "import" ? "Perfecting Your Quiz" : "Crafting Your Quiz"}
                 </h2>
 
-                <div className="mb-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">Progress</span>
-                    <span className="text-sm font-bold text-primary">{Math.round(progress)}%</span>
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-3 px-1">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">Progress</span>
+                    <span className="text-sm font-bold text-primary tabular-nums">{Math.round(progress)}%</span>
                   </div>
-                  <Progress value={progress} className="h-2 [&>div]:transition-all [&>div]:duration-100 [&>div]:ease-out" />
+                  <div className="relative">
+                    <Progress value={progress} className="h-1.5 bg-primary/10 [&>div]:transition-all [&>div]:duration-300 [&>div]:ease-out [&>div]:shadow-[0_0_15px_rgba(var(--primary),0.5)]" />
+                  </div>
                 </div>
 
                 <AnimatePresence mode="wait">
                   <motion.p
                     key={currentStep}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    transition={{ duration: 0.2 }}
-                    className="text-sm text-muted-foreground mt-3"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    transition={{ duration: 0.4, ease: "circOut" }}
+                    className="text-sm font-medium text-primary/80 min-h-[1.25rem]"
                   >
                     {stepMessage}
                   </motion.p>
                 </AnimatePresence>
               </div>
 
-              <div className="px-8 pb-8 pt-0 text-center min-h-[4.5rem]">
-                <AnimatePresence mode="wait">
-                  <motion.p
-                    key={currentTipIndex}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: tipVisible ? 1 : 0, y: tipVisible ? 0 : -10 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-xs italic text-muted-foreground leading-relaxed"
-                  >
-                    {STUDY_TIPS[currentTipIndex]}
-                  </motion.p>
-                </AnimatePresence>
+              <div className="px-10 pb-10 pt-0 text-center relative z-10">
+                <div className="h-px w-12 bg-primary/20 mx-auto mb-6" />
+                <div className="min-h-[3.5rem] flex items-center justify-center">
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={currentTipIndex}
+                      initial={{ opacity: 0, filter: "blur(4px)" }}
+                      animate={{ opacity: tipVisible ? 1 : 0, filter: tipVisible ? "blur(0px)" : "blur(4px)" }}
+                      exit={{ opacity: 0, filter: "blur(4px)" }}
+                      transition={{ duration: 0.5 }}
+                      className="text-xs italic text-muted-foreground/60 leading-relaxed max-w-[280px]"
+                    >
+                      "{STUDY_TIPS[currentTipIndex]}"
+                    </motion.p>
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
           </motion.div>
