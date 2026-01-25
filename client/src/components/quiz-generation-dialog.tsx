@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lightbulb } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -127,17 +128,16 @@ export function QuizGenerationDialog({
 
   const stepMessage = STEP_MESSAGES[currentStep] || message || "Processing...";
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed top-0 left-0 right-0 bottom-0 z-[100] flex items-center justify-center"
-          style={{ position: 'fixed', inset: 0 }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center"
         >
-          <div className="absolute top-0 left-0 right-0 bottom-0 bg-background/90 backdrop-blur-lg" />
+          <div className="fixed inset-0 bg-background/90 backdrop-blur-lg" />
           
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -204,6 +204,7 @@ export function QuizGenerationDialog({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
