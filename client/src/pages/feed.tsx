@@ -237,7 +237,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             <div className="absolute top-4 right-4 flex gap-2">
               {isCurated && (
-                <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm text-xs gap-1">
+                <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm text-xs gap-1 mt-[20px] mb-[20px]">
                   <Star className="h-3 w-3 fill-current" />
                   Curated
                 </Badge>
