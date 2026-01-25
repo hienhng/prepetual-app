@@ -21,55 +21,56 @@ const STEP_MESSAGES: Record<string, string> = {
 function AnimatedLogo() {
   return (
     <div className="relative w-24 h-24 flex items-center justify-center">
-      <img 
-        src={logoImage} 
-        alt="Prepetual" 
-        className="w-full h-full object-contain"
-      />
-      
-      <div 
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-        style={{ 
-          maskImage: `url(${logoImage})`,
-          WebkitMaskImage: `url(${logoImage})`,
-          maskSize: 'contain',
-          WebkitMaskSize: 'contain',
-          maskRepeat: 'no-repeat',
-          WebkitMaskRepeat: 'no-repeat',
-          maskPosition: 'center',
-          WebkitMaskPosition: 'center',
-        }}
-      >
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="white" stopOpacity="0" />
-              <stop offset="35%" stopColor="white" stopOpacity="0.7" />
-              <stop offset="50%" stopColor="white" stopOpacity="1" />
-              <stop offset="65%" stopColor="white" stopOpacity="0.7" />
-              <stop offset="100%" stopColor="white" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          
+      <svg className="w-full h-full" viewBox="0 0 100 100">
+        <defs>
+          <mask id="logoMask">
+            <image 
+              href={logoImage} 
+              x="0" 
+              y="0" 
+              width="100" 
+              height="100" 
+              preserveAspectRatio="xMidYMid meet"
+            />
+          </mask>
+          <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="white" stopOpacity="0" />
+            <stop offset="35%" stopColor="white" stopOpacity="0.5" />
+            <stop offset="50%" stopColor="white" stopOpacity="0.9" />
+            <stop offset="65%" stopColor="white" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="white" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        
+        <image 
+          href={logoImage} 
+          x="0" 
+          y="0" 
+          width="100" 
+          height="100" 
+          preserveAspectRatio="xMidYMid meet"
+        />
+        
+        <g mask="url(#logoMask)">
           {[0, 1, 2].map((i) => (
             <motion.rect
               key={i}
-              y={10 + i * 30}
-              width="30"
-              height="25"
+              y={15 + i * 28}
+              width="35"
+              height="22"
               fill="url(#trailGradient)"
-              initial={{ x: -35 }}
-              animate={{ x: 135 }}
+              initial={{ x: -40 }}
+              animate={{ x: 140 }}
               transition={{
-                duration: 1.4,
+                duration: 1.3,
                 repeat: Infinity,
                 ease: "linear",
-                delay: i * 0.4,
+                delay: i * 0.38,
               }}
             />
           ))}
-        </svg>
-      </div>
+        </g>
+      </svg>
     </div>
   );
 }
