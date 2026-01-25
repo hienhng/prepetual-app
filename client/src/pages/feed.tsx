@@ -398,19 +398,10 @@ export default function Feed() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-10"
         >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
-              <Compass className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                <span className="font-brand">Prepetual</span> Discover
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Explore community quizzes and challenge yourself
-              </p>
-            </div>
-          </div>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Discover</h1>
+          <p className="text-muted-foreground">
+            Explore quizzes shared by the <span className="font-brand">Prepetual</span> community
+          </p>
         </motion.div>
 
         <motion.div
