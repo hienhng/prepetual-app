@@ -12,7 +12,7 @@ import { generateQuizRequestSchema, submitQuizRequestSchema } from "@shared/sche
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs";
 import crypto from "crypto";
-import { YoutubeTranscript } from "youtube-transcript";
+import { fetchTranscript } from "youtube-transcript-plus";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -150,7 +150,11 @@ export async function registerRoutes(
       const videoId = videoIdMatch[1];
       
       try {
-        const transcript = await YoutubeTranscript.fetchTranscript(videoId);
+        // Use youtube-transcript-plus with custom user agent for better reliability
+        const transcript = await fetchTranscript(videoId, {
+          lang: 'en',
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        });
         
         if (!transcript || transcript.length === 0) {
           return res.status(400).json({ 
@@ -179,9 +183,15 @@ export async function registerRoutes(
       } catch (transcriptError: any) {
         console.error("YouTube transcript error:", transcriptError);
         
-        if (transcriptError.message?.includes("disabled")) {
+        if (transcriptError.message?.includes("disabled") || transcriptError.message?.includes("Disabled")) {
           return res.status(400).json({ 
             message: "Captions are disabled for this video. Please try a different video." 
+          });
+        }
+        
+        if (transcriptError.message?.includes("not available") || transcriptError.message?.includes("Not available")) {
+          return res.status(400).json({ 
+            message: "Transcript not available for this video. Please try a video with captions." 
           });
         }
         
