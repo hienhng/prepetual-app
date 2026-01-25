@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { FileText, Image, X } from "lucide-react";
+import { FileText, Image, X, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuiz, type SourceMaterialType } from "@/lib/quiz-context";
+import { apiRequest } from "@/lib/queryClient";
 
 interface MaterialViewerProps {
   isOpen?: boolean;
@@ -22,6 +23,30 @@ function MaterialContent({
   imageDataUrl: string | null; 
 }) {
   const [viewMode, setViewMode] = useState<"text" | "image">("text");
+  const [showSummary, setShowSummary] = useState(false);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [isSummarizing, setIsSummarizing] = useState(false);
+
+  const handleSummarize = async () => {
+    if (!text) return;
+    
+    if (summary) {
+      setShowSummary(!showSummary);
+      return;
+    }
+    
+    setIsSummarizing(true);
+    try {
+      const response = await apiRequest("POST", "/api/summarize-text", { text });
+      const data = await response.json();
+      setSummary(data.summary);
+      setShowSummary(true);
+    } catch (error) {
+      console.error("Failed to summarize:", error);
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
 
   if (!text && !imageDataUrl) {
     return (
@@ -32,24 +57,47 @@ function MaterialContent({
     );
   }
 
+  const SummarizeButton = () => (
+    <Button
+      size="sm"
+      variant={showSummary ? "default" : "outline"}
+      onClick={handleSummarize}
+      disabled={isSummarizing || !text || text.length < 100}
+      className="gap-1.5"
+      data-testid="button-summarize"
+    >
+      {isSummarizing ? (
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      ) : (
+        <Sparkles className="h-3.5 w-3.5" />
+      )}
+      {showSummary ? "Full Text" : "Summarize"}
+    </Button>
+  );
+
+  const displayText = showSummary && summary ? summary : text;
+
   if (imageDataUrl) {
     return (
       <div className="h-full flex flex-col">
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "text" | "image")} className="w-full h-full flex flex-col">
-          <TabsList className="w-full mb-4 flex-shrink-0">
-            <TabsTrigger value="text" className="flex-1 gap-2" data-testid="tab-text">
-              <FileText className="h-4 w-4" />
-              Extracted Text
-            </TabsTrigger>
-            <TabsTrigger value="image" className="flex-1 gap-2" data-testid="tab-image">
-              <Image className="h-4 w-4" />
-              Original Image
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex items-center gap-2 mb-4 flex-shrink-0">
+            <TabsList className="flex-1">
+              <TabsTrigger value="text" className="flex-1 gap-2" data-testid="tab-text">
+                <FileText className="h-4 w-4" />
+                Text
+              </TabsTrigger>
+              <TabsTrigger value="image" className="flex-1 gap-2" data-testid="tab-image">
+                <Image className="h-4 w-4" />
+                Image
+              </TabsTrigger>
+            </TabsList>
+            {viewMode === "text" && <SummarizeButton />}
+          </div>
           <TabsContent value="text" className="mt-0 flex-1 min-h-0">
             <ScrollArea className="h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-14rem)]">
               <div className="text-sm leading-relaxed whitespace-pre-wrap pr-4" data-testid="material-text">
-                {text}
+                {displayText}
               </div>
             </ScrollArea>
           </TabsContent>
@@ -69,11 +117,16 @@ function MaterialContent({
   }
 
   return (
-    <ScrollArea className="h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-10rem)]">
-      <div className="text-sm leading-relaxed whitespace-pre-wrap pr-4" data-testid="material-text">
-        {text}
+    <div className="h-full flex flex-col">
+      <div className="flex justify-end mb-3 flex-shrink-0">
+        <SummarizeButton />
       </div>
-    </ScrollArea>
+      <ScrollArea className="h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-12rem)]">
+        <div className="text-sm leading-relaxed whitespace-pre-wrap pr-4" data-testid="material-text">
+          {displayText}
+        </div>
+      </ScrollArea>
+    </div>
   );
 }
 

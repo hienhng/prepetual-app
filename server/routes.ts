@@ -601,6 +601,49 @@ export async function registerRoutes(
     }
   });
 
+  // Summarize text endpoint
+  app.post("/api/summarize-text", async (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text || typeof text !== "string") {
+        return res.status(400).json({ message: "Text is required" });
+      }
+      
+      if (text.length < 100) {
+        return res.status(400).json({ message: "Text is too short to summarize" });
+      }
+      
+      const completion = await openaiClient.chat.completions.create({
+        model: "gpt-4.1-nano",
+        messages: [
+          {
+            role: "system",
+            content: `You are a helpful study assistant. Summarize the given study material into clear, concise key points. 
+Keep the summary focused on the main concepts and important details that would be useful for exam preparation.
+If the text is in a language other than English, keep the summary in that same language.
+Format with bullet points for easy reading. Keep it under 500 words.`
+          },
+          {
+            role: "user",
+            content: text
+          }
+        ],
+        max_tokens: 800,
+        temperature: 0.3,
+      });
+      
+      const summary = completion.choices[0]?.message?.content || "Could not generate summary.";
+      
+      res.json({ summary });
+    } catch (error) {
+      console.error("Summarize error:", error);
+      res.status(500).json({
+        message: error instanceof Error ? error.message : "Failed to summarize text",
+      });
+    }
+  });
+
   app.post("/api/submit-quiz", async (req: any, res) => {
     try {
       const validation = submitQuizRequestSchema.safeParse(req.body);
