@@ -79,11 +79,11 @@ const infoNavItems = [
     url: "/help",
     icon: HelpCircle,
   },
-  {
-    title: "About",
-    url: "/about",
-    icon: Info,
-  },
+  // {
+  //   title: "About",
+  //   url: "/about",
+  //   icon: Info,
+  // },
   {
     title: "Contact",
     url: "/contact",

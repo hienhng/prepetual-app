@@ -1,13 +1,14 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, Play, Loader2, Users, BookOpen, 
   Sparkles, Clock, Target, Zap, 
   GraduationCap, Beaker, Calculator, Globe2, 
-  BookText, Languages, Archive, LayoutGrid, X,
-  Lightbulb, TrendingUp, CheckCircle2, CheckCircle, BadgeCheck
+  BookText, Languages, LayoutGrid, Filter,
+  Lightbulb, TrendingUp, CheckCircle2, BadgeCheck,
+  ChevronRight, Star, ArrowRight
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire } from "@fortawesome/free-solid-svg-icons";
@@ -35,27 +36,14 @@ type PublicQuiz = Quiz & {
   } 
 };
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.04 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3 } },
-};
-
-const categoryConfig: Record<string, { label: string; icon: typeof Sparkles }> = {
-  "all": { label: "All", icon: LayoutGrid },
-  "Math": { label: "Math", icon: Calculator },
-  "English": { label: "English", icon: BookText },
-  "Science": { label: "Science", icon: Beaker },
-  "Social Studies": { label: "Social Studies", icon: Globe2 },
-  "Global Languages": { label: "Languages", icon: Languages },
-  "Others/General": { label: "General", icon: GraduationCap },
+const categoryConfig: Record<string, { label: string; icon: typeof Sparkles; color: string }> = {
+  "all": { label: "All", icon: LayoutGrid, color: "from-slate-500 to-slate-600" },
+  "Math": { label: "Math", icon: Calculator, color: "from-blue-500 to-indigo-600" },
+  "English": { label: "English", icon: BookText, color: "from-amber-500 to-orange-600" },
+  "Science": { label: "Science", icon: Beaker, color: "from-emerald-500 to-teal-600" },
+  "Social Studies": { label: "Social Studies", icon: Globe2, color: "from-purple-500 to-violet-600" },
+  "Global Languages": { label: "Languages", icon: Languages, color: "from-pink-500 to-rose-600" },
+  "Others/General": { label: "General", icon: GraduationCap, color: "from-cyan-500 to-blue-600" },
 };
 
 const gradients = [
@@ -79,7 +67,7 @@ function getGradientForQuiz(quizId: string): string {
   return gradients[Math.abs(hash) % gradients.length];
 }
 
-function QuizCard({ quiz }: { quiz: PublicQuiz }) {
+function QuizCard({ quiz, featured = false }: { quiz: PublicQuiz; featured?: boolean }) {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial } = useQuiz();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -118,9 +106,9 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
 
   const getDifficultyConfig = (difficulty?: string | null) => {
     switch (difficulty) {
-      case "easy": return { label: "Easy", color: "text-emerald-400", bg: "bg-emerald-500/20" };
-      case "hard": return { label: "Hard", color: "text-rose-400", bg: "bg-rose-500/20" };
-      default: return { label: "Medium", color: "text-amber-400", bg: "bg-amber-500/20" };
+      case "easy": return { label: "Easy", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20" };
+      case "hard": return { label: "Hard", color: "text-rose-500", bg: "bg-rose-500/10", border: "border-rose-500/20" };
+      default: return { label: "Medium", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20" };
     }
   };
 
@@ -133,83 +121,118 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
   const gradient = getGradientForQuiz(quiz.id);
   const questionCount = (quiz.questions as any[]).length;
   const CategoryIcon = getCategoryIcon(quiz.category);
+  const isCurated = quiz.author?.email === "giahienhn@gmail.com";
 
   return (
     <>
       <motion.div
-        variants={itemVariants}
-        className="group cursor-pointer"
-        whileHover={{ y: -4 }}
-        whileTap={{ scale: 0.98 }}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -3 }}
+        transition={{ duration: 0.2 }}
+        className="group cursor-pointer h-full"
         onClick={() => setIsDialogOpen(true)}
       >
         <Card 
-          className="overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300"
+          className={`overflow-hidden border-0 h-full transition-all duration-300 ${
+            featured 
+              ? "shadow-lg hover:shadow-xl" 
+              : "bg-muted/30 hover:bg-muted/50 shadow-sm hover:shadow-md"
+          }`}
           data-testid={`card-quiz-${quiz.id}`}
         >
-          <div className={`relative h-32 sm:h-36 bg-gradient-to-br ${gradient} p-3 flex flex-col justify-between`}>
-            <div className="absolute inset-0 bg-black/5" />
-            <div className="absolute inset-0 opacity-40">
-              <div className="absolute top-2 right-2 w-20 h-20 rounded-full bg-white/10 blur-2xl" />
-              <div className="absolute bottom-0 left-0 w-16 h-16 rounded-full bg-white/10 blur-xl" />
-            </div>
-            
-            <div className="relative flex items-start justify-between gap-2">
-              <Badge 
-                variant="secondary" 
-                className="bg-white/25 text-white border-0 backdrop-blur-sm text-[10px] font-medium px-2 py-0.5"
-              >
-                {questionCount}Q
-              </Badge>
-              <Badge className={`${diffConfig.bg} ${diffConfig.color} border-0 text-[10px] font-medium px-2 py-0.5`}>
-                {diffConfig.label}
-              </Badge>
-            </div>
-
-            <div className="relative mt-auto">
-              <h3 className="text-white font-bold text-sm sm:text-base leading-tight line-clamp-2 drop-shadow-md">
-                {quiz.title}
-              </h3>
-            </div>
-
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-          </div>
-
-          <CardContent className="p-2.5 bg-card">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
-                <Avatar className="h-5 w-5 flex-shrink-0">
-                  <AvatarImage src={quiz.author?.profileImageUrl || undefined} />
-                  <AvatarFallback className="text-[9px] bg-muted">
-                    {getAuthorInitials(quiz.author)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-xs text-muted-foreground truncate flex items-center gap-1">
-                  {getAuthorName(quiz.author)}
-                  {quiz.author?.email === "giahienhn@gmail.com" && (
-                    <BadgeCheck className="h-3 w-3 text-green-500 fill-green-500/30" />
-                  )}
-                </span>
+          {featured ? (
+            <div className={`relative h-28 bg-gradient-to-br ${gradient} p-3 flex flex-col justify-between`}>
+              <div className="absolute inset-0 bg-black/5" />
+              <div className="absolute inset-0 opacity-30">
+                <div className="absolute top-1 right-1 w-16 h-16 rounded-full bg-white/20 blur-2xl" />
               </div>
-              <CategoryIcon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              
+              <div className="relative flex items-start justify-between gap-2">
+                <Badge 
+                  variant="secondary" 
+                  className="bg-white/20 text-white border-0 backdrop-blur-sm text-[10px] font-medium px-1.5 py-0"
+                >
+                  {questionCount}Q
+                </Badge>
+                {isCurated && (
+                  <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm text-[10px] font-medium px-1.5 py-0 gap-1">
+                    <Star className="h-2.5 w-2.5 fill-current" />
+                    Curated
+                  </Badge>
+                )}
+              </div>
+
+              <div className="relative mt-auto">
+                <h3 className="text-white font-semibold text-sm leading-tight line-clamp-2 drop-shadow-sm">
+                  {quiz.title}
+                </h3>
+              </div>
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
             </div>
-          </CardContent>
+          ) : (
+            <div className="p-3 flex flex-col h-full">
+              <div className="flex items-start gap-2.5 mb-2">
+                <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${gradient} flex items-center justify-center flex-shrink-0`}>
+                  <CategoryIcon className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-medium text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                    {quiz.title}
+                  </h3>
+                </div>
+              </div>
+              
+              <div className="mt-auto flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${diffConfig.color} ${diffConfig.bg} ${diffConfig.border}`}>
+                    {diffConfig.label}
+                  </Badge>
+                  <span className="text-[10px] text-muted-foreground">{questionCount}Q</span>
+                </div>
+                {isCurated && (
+                  <BadgeCheck className="h-3.5 w-3.5 text-green-500 fill-green-500/30" />
+                )}
+              </div>
+            </div>
+          )}
+
+          {featured && (
+            <CardContent className="p-2.5 bg-card">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Avatar className="h-5 w-5 flex-shrink-0">
+                    <AvatarImage src={quiz.author?.profileImageUrl || undefined} />
+                    <AvatarFallback className="text-[9px] bg-muted">
+                      {getAuthorInitials(quiz.author)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs text-muted-foreground truncate">
+                    {getAuthorName(quiz.author)}
+                  </span>
+                </div>
+                <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${diffConfig.color} ${diffConfig.bg} ${diffConfig.border}`}>
+                  {diffConfig.label}
+                </Badge>
+              </div>
+            </CardContent>
+          )}
         </Card>
       </motion.div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md p-0 overflow-hidden">
-          <div className={`relative h-40 bg-gradient-to-br ${gradient} p-6 flex flex-col justify-end`}>
+          <div className={`relative h-36 bg-gradient-to-br ${gradient} p-5 flex flex-col justify-end`}>
             <div className="absolute inset-0 bg-black/10" />
             <div className="absolute inset-0 opacity-40">
-              <div className="absolute top-4 right-4 w-32 h-32 rounded-full bg-white/10 blur-3xl" />
-              <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/10 blur-2xl" />
+              <div className="absolute top-4 right-4 w-28 h-28 rounded-full bg-white/10 blur-3xl" />
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             
             <div className="relative">
               <div className="flex items-center gap-2 mb-2">
-                <Badge className="bg-white/25 text-white border-0 backdrop-blur-sm text-xs">
+                <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm text-xs">
                   {questionCount} {questionCount === 1 ? "question" : "questions"}
                 </Badge>
                 <Badge className={`${diffConfig.bg} ${diffConfig.color} border-0 text-xs`}>
@@ -217,16 +240,16 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
                 </Badge>
               </div>
               <DialogHeader className="text-left">
-                <DialogTitle className="text-white text-xl font-bold drop-shadow-md leading-tight">
+                <DialogTitle className="text-white text-lg font-bold drop-shadow-md leading-tight">
                   {quiz.title}
                 </DialogTitle>
               </DialogHeader>
             </div>
           </div>
 
-          <div className="p-6 space-y-4">
+          <div className="p-5 space-y-4">
             <div className="flex items-center gap-3 pb-4 border-b">
-              <Avatar className="h-10 w-10">
+              <Avatar className="h-9 w-9">
                 <AvatarImage src={quiz.author?.profileImageUrl || undefined} />
                 <AvatarFallback className="text-sm bg-muted">
                   {getAuthorInitials(quiz.author)}
@@ -235,15 +258,11 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
               <div>
                 <div className="flex items-center gap-1.5">
                   <p className="text-sm font-medium">{getAuthorName(quiz.author)}</p>
-                  {quiz.author?.email === "giahienhn@gmail.com" && (
-                    <BadgeCheck className="h-3.5 w-3.5 text-green-500 fill-green-500/30" />
-                  )}
-                  {quiz.author?.email === "giahienhn@gmail.com" && (
-                    <span className = "bg-transparent">
-                      <text className = "text-green-500 text-xs">
-                        Curated by Prepetual
-                      </text>
-                    </span>
+                  {isCurated && (
+                    <>
+                      <BadgeCheck className="h-3.5 w-3.5 text-green-500 fill-green-500/30" />
+                      <span className="text-xs text-green-500">Curated</span>
+                    </>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5">
@@ -254,32 +273,28 @@ function QuizCard({ quiz }: { quiz: PublicQuiz }) {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button
-                  variant="outline"
-                  className="w-full h-24 flex-col gap-2 border-2 hover:border-primary/50 hover:bg-primary/5"
-                  onClick={handleStudyQuiz}
-                  data-testid={`button-study-${quiz.id}`}
-                >
-                  <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <BookOpen className="h-5 w-5 text-blue-500" />
-                  </div>
-                  <span className="font-medium">Study Mode</span>
-                </Button>
-              </motion.div>
+              <Button
+                variant="outline"
+                className="h-20 flex-col gap-1.5 border hover:border-primary/50 hover:bg-primary/5"
+                onClick={handleStudyQuiz}
+                data-testid={`button-study-${quiz.id}`}
+              >
+                <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                  <BookOpen className="h-4 w-4 text-blue-500" />
+                </div>
+                <span className="text-xs font-medium">Study</span>
+              </Button>
 
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button
-                  className="w-full h-24 flex-col gap-2 bg-primary hover:bg-primary/90"
-                  onClick={handleTakeQuiz}
-                  data-testid={`button-play-${quiz.id}`}
-                >
-                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                    <Play className="h-5 w-5" />
-                  </div>
-                  <span className="font-medium">Take Quiz</span>
-                </Button>
-              </motion.div>
+              <Button
+                className="h-20 flex-col gap-1.5 bg-primary hover:bg-primary/90"
+                onClick={handleTakeQuiz}
+                data-testid={`button-play-${quiz.id}`}
+              >
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                  <Play className="h-4 w-4" />
+                </div>
+                <span className="text-xs font-medium">Take Quiz</span>
+              </Button>
             </div>
           </div>
         </DialogContent>
@@ -310,7 +325,7 @@ export default function Feed() {
     queryKey: ["/api/public-quizzes"],
   });
 
-  const { data: recommendations, isLoading: isLoadingRecs } = useQuery<RecommendationsResponse>({
+  const { data: recommendations } = useQuery<RecommendationsResponse>({
     queryKey: ["/api/recommendations"],
     enabled: !!user,
   });
@@ -352,8 +367,8 @@ export default function Feed() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Discovering quizzes...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">Loading quizzes...</p>
         </div>
       </div>
     );
@@ -361,126 +376,114 @@ export default function Feed() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative overflow-hidden bg-gradient-to-b from-primary/5 via-background to-background">
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute top-20 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
-        
-        <div className="container relative mx-auto px-4 sm:px-6 pt-8 pb-6 max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-8"
-          >
-            <h1 className="text-3xl sm:text-4xl font-bold mb-3">
-              Discover Quizzes
-            </h1>
-            <p className="text-muted-foreground max-w-lg mx-auto">
-              Explore community-created quizzes and test your knowledge
-            </p>
-          </motion.div>
+      <div className="container mx-auto px-4 sm:px-6 py-6 max-w-6xl">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Discover</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Explore community quizzes and test your knowledge
+              </p>
+            </div>
+            
+            {stats.totalQuizzes > 0 && (
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <Target className="h-3.5 w-3.5" />
+                  <span><strong className="text-foreground">{stats.totalQuizzes}</strong> quizzes</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Zap className="h-3.5 w-3.5" />
+                  <span><strong className="text-foreground">{stats.totalQuestions}</strong> questions</span>
+                </div>
+                <div className="flex items-center gap-1.5 hidden sm:flex">
+                  <Users className="h-3.5 w-3.5" />
+                  <span><strong className="text-foreground">{stats.totalContributors}</strong> creators</span>
+                </div>
+              </div>
+            )}
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="max-w-2xl mx-auto mb-6"
-          >
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search quizzes by title or topic..."
+                placeholder="Search quizzes..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 text-base bg-background/80 border-border/50 focus:border-primary"
+                className="pl-9 h-9 bg-muted/50 border-0 focus:bg-background focus:ring-1 focus:ring-primary/20"
                 data-testid="input-search-quizzes"
               />
             </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="flex items-center justify-center gap-2 flex-wrap"
-          >
-            {["all", ...QUIZ_CATEGORIES].map((categoryId) => {
-              const config = categoryConfig[categoryId];
-              if (!config) return null;
-              const Icon = config.icon;
-              const isActive = selectedCategory === categoryId;
-              const count = categoryCounts[categoryId] || 0;
-              return (
-                <Button
-                  key={categoryId}
-                  variant={isActive ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(categoryId)}
-                  className={`gap-2 ${isActive ? "" : "bg-background/50 backdrop-blur-sm"}`}
-                  data-testid={`button-category-${categoryId}`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {config.label}
-                  {count > 0 && (
-                    <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                      {count}
-                    </Badge>
-                  )}
-                </Button>
-              );
-            })}
-          </motion.div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 sm:px-6 py-8 max-w-7xl">
-        {stats.totalQuizzes > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-6 mb-8 text-sm text-muted-foreground"
-          >
-            <div className="flex items-center gap-2">
-              <Target className="h-4 w-4" />
-              <span><strong className="text-foreground">{stats.totalQuizzes}</strong> quizzes</span>
+            
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
+              {["all", ...QUIZ_CATEGORIES].map((categoryId) => {
+                const config = categoryConfig[categoryId];
+                if (!config) return null;
+                const Icon = config.icon;
+                const isActive = selectedCategory === categoryId;
+                const count = categoryCounts[categoryId] || 0;
+                
+                return (
+                  <Button
+                    key={categoryId}
+                    variant={isActive ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(categoryId)}
+                    className={`gap-1.5 h-8 px-3 flex-shrink-0 ${
+                      isActive ? "" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                    data-testid={`button-category-${categoryId}`}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    <span className="text-xs">{config.label}</span>
+                    {count > 0 && isActive && (
+                      <Badge variant="secondary" className="ml-0.5 h-4 px-1 text-[10px] bg-white/20">
+                        {count}
+                      </Badge>
+                    )}
+                  </Button>
+                );
+              })}
             </div>
-            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4" />
-              <span><strong className="text-foreground">{stats.totalQuestions}</strong> questions</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span><strong className="text-foreground">{stats.totalContributors}</strong> creators</span>
-            </div>
-          </motion.div>
-        )}
+          </div>
+        </motion.div>
 
         {user && recommendations?.hasData && recommendations.recommendations.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            transition={{ delay: 0.05 }}
+            className="mb-6"
           >
-            <div className="flex items-center gap-2 mb-4">
-              <Lightbulb className="h-5 w-5 text-amber-500" />
-              <h2 className="text-lg font-semibold">Suggested For You</h2>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-amber-500/10 flex items-center justify-center">
+                  <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
+                </div>
+                <h2 className="text-sm font-semibold">Recommended for You</h2>
+              </div>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recommendations.recommendations.slice(0, 3).map((quiz) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {recommendations.recommendations.slice(0, 4).map((quiz) => (
                 <div key={quiz.id} className="relative">
                   {quiz.recommendationReason === "needs_improvement" && (
-                    <div className="absolute -top-2 -right-2 z-10">
-                      <Badge className="bg-rose-500 text-white border-0 text-[10px] px-2 py-0.5">
-                        <TrendingUp className="h-3 w-3 mr-1" />
-                        Improve
+                    <div className="absolute -top-1.5 -right-1.5 z-10">
+                      <Badge className="bg-rose-500 text-white border-0 text-[9px] px-1.5 py-0 gap-0.5">
+                        <TrendingUp className="h-2.5 w-2.5" />
+                        Practice
                       </Badge>
                     </div>
                   )}
                   {quiz.recommendationReason === "matches_interests" && (
-                    <div className="absolute -top-2 -right-2 z-10">
-                      <Badge className="bg-blue-500 text-white border-0 text-[10px] px-2 py-0.5">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                    <div className="absolute -top-1.5 -right-1.5 z-10">
+                      <Badge className="bg-blue-500 text-white border-0 text-[9px] px-1.5 py-0 gap-0.5">
+                        <CheckCircle2 className="h-2.5 w-2.5" />
                         For You
                       </Badge>
                     </div>
@@ -494,103 +497,98 @@ export default function Feed() {
 
         {filteredQuizzes.length === 0 ? (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-16"
           >
             {searchQuery || selectedCategory !== "all" ? (
               <>
-                <Search className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No quizzes found</h3>
-                <p className="text-muted-foreground mb-6">
+                <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                  <Search className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-1">No quizzes found</h3>
+                <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">
                   {selectedCategory !== "all" 
-                    ? `No quizzes in ${categoryConfig[selectedCategory]?.label || selectedCategory} category`
-                    : "Try a different search term or browse all quizzes"}
+                    ? `No quizzes in ${categoryConfig[selectedCategory]?.label || selectedCategory}`
+                    : "Try a different search term"}
                 </p>
-                <Button variant="outline" onClick={() => { setSearchQuery(""); setSelectedCategory("all"); }}>
+                <Button variant="outline" size="sm" onClick={() => { setSearchQuery(""); setSelectedCategory("all"); }}>
                   Clear Filters
                 </Button>
               </>
             ) : (
               <>
-                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                  <GraduationCap className="h-10 w-10 text-primary" />
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <GraduationCap className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">No quizzes yet</h3>
-                <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-                  Be the first to share your knowledge with the community!
+                <h3 className="text-lg font-semibold mb-1">No quizzes yet</h3>
+                <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">
+                  Be the first to share your knowledge!
                 </p>
-                <Button onClick={() => setLocation("/create")} className="gap-2" data-testid="button-create-quiz">
-                  <Sparkles className="h-4 w-4" />
-                  Create a Quiz
+                <Button onClick={() => setLocation("/create")} size="sm" className="gap-1.5" data-testid="button-create-quiz">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Create Quiz
                 </Button>
               </>
             )}
           </motion.div>
         ) : (
-          <>
+          <div className="space-y-6">
             {filteredQuizzes.length >= 4 && (
-              <motion.div
+              <motion.section
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-8"
+                transition={{ delay: 0.1 }}
               >
-                <div className="flex items-center gap-2 mb-4">
-                  <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" />
-                  <h2 className="text-lg font-semibold">Featured</h2>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-md bg-orange-500/10 flex items-center justify-center">
+                      <FontAwesomeIcon icon={faFire} className="h-3.5 w-3.5 text-orange-500" />
+                    </div>
+                    <h2 className="text-sm font-semibold">Featured</h2>
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                   {filteredQuizzes.slice(0, 4).map((quiz) => (
-                    <QuizCard key={quiz.id} quiz={quiz} />
+                    <QuizCard key={quiz.id} quiz={quiz} featured />
                   ))}
                 </div>
-              </motion.div>
+              </motion.section>
             )}
 
-            <motion.div
+            <motion.section
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+              transition={{ delay: 0.15 }}
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="h-5 w-5 text-muted-foreground" />
-                <h2 className="text-lg font-semibold">
-                  {filteredQuizzes.length >= 4 ? "All Quizzes" : "Recent Quizzes"}
-                </h2>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-md bg-muted flex items-center justify-center">
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+                  <h2 className="text-sm font-semibold">
+                    {filteredQuizzes.length >= 4 ? "Browse All" : "Recent Quizzes"}
+                  </h2>
+                  <span className="text-xs text-muted-foreground">
+                    ({(filteredQuizzes.length >= 4 ? filteredQuizzes.length - 4 : filteredQuizzes.length)} quizzes)
+                  </span>
+                </div>
               </div>
-              <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
-              >
-                {(filteredQuizzes.length >= 4 ? filteredQuizzes.slice(4) : filteredQuizzes).map((quiz) => (
-                  <QuizCard key={quiz.id} quiz={quiz} />
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {(filteredQuizzes.length >= 4 ? filteredQuizzes.slice(4) : filteredQuizzes).map((quiz, index) => (
+                  <motion.div
+                    key={quiz.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.02 * Math.min(index, 10) }}
+                  >
+                    <QuizCard quiz={quiz} />
+                  </motion.div>
                 ))}
-              </motion.div>
-            </motion.div>
-          </>
-        )}
-
-        {filteredQuizzes.length > 0 && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-center mt-12 pt-8 border-t"
-          >
-            <p className="text-sm text-muted-foreground mb-4">
-              Have study materials to share? Create your own quiz!
-            </p>
-            <Button variant="default" onClick={() => setLocation("/create")} className="gap-2">
-              <Sparkles className="h-4 w-4" />
-              Create a Quiz
-            </Button>
-            <Button variant="outline" onClick={() => setLocation("/history")} className="gap-2 ml-5">
-              <Archive className="h-4 w-4" />
-              Your Quizzes
-            </Button>
-          </motion.div>
+              </div>
+            </motion.section>
+          </div>
         )}
       </div>
     </div>
