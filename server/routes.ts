@@ -281,10 +281,25 @@ export async function registerRoutes(
       // First try to get captions
       try {
         // Use youtube-transcript-plus with custom user agent for better reliability
-        const transcript = await fetchTranscript(videoId, {
-          lang: 'en',
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        });
+        // Try without specifying language first to get any available transcript
+        let transcript;
+        const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+        
+        try {
+          // First try without language (gets default/auto-generated)
+          transcript = await fetchTranscript(videoId, { userAgent });
+        } catch (langError: any) {
+          // If error mentions available languages, try those
+          const errorMsg = langError.message || '';
+          const langMatch = errorMsg.match(/Available languages?: ([a-z, ]+)/i);
+          if (langMatch) {
+            const availableLangs = langMatch[1].split(',').map((l: string) => l.trim());
+            console.log(`[YouTube] Trying available language: ${availableLangs[0]}`);
+            transcript = await fetchTranscript(videoId, { lang: availableLangs[0], userAgent });
+          } else {
+            throw langError;
+          }
+        }
         
         if (!transcript || transcript.length === 0) {
           // Captions not available, return with fallback option (only for authenticated users)
