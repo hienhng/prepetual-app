@@ -160,33 +160,40 @@ function StatCard({
 }) {
   return (
     <motion.div 
-      whileHover={{ y: -4, scale: 1.02 }} 
-      transition={{ duration: 0.2 }}
+      whileHover={{ y: -3, scale: 1.01 }} 
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.15 }}
       onClick={onClick}
       className={onClick ? "cursor-pointer" : ""}
     >
-      <Card className="overflow-visible border-0 shadow-md">
-        <CardContent className="p-0">
-          <div className={`p-5 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className={`text-sm font-medium mb-1 transition-colors ${isActive ? "text-white/80" : "text-muted-foreground"}`}>{label}</p>
-                <motion.p 
-                  className={`text-3xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-                >
-                  {value}
-                </motion.p>
-              </div>
-              <div className="p-3 rounded-xl transition-all duration-500 flex items-center justify-center bg-white/20 backdrop-blur-sm scale-110 shadow-lg text-[#ffffff]">
-                <Icon className="w-6 h-6 transition-colors text-white" />
-              </div>
+      <div className={`relative overflow-hidden rounded-xl transition-all duration-300 ${isActive ? gradient : "bg-muted"}`}>
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/20 -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/10 translate-y-1/2 -translate-x-1/2" />
+        </div>
+        
+        <div className="relative p-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className={`text-xs font-medium uppercase tracking-wide mb-0.5 transition-colors ${isActive ? "text-white/70" : "text-muted-foreground"}`}>
+                {label}
+              </p>
+              <motion.p 
+                className={`text-2xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+              >
+                {value}
+              </motion.p>
+            </div>
+            <div className={`p-2.5 rounded-lg transition-all flex items-center justify-center ${isActive ? "bg-white/20 backdrop-blur-sm" : "bg-muted-foreground/10"}`}>
+              <Icon className={`w-5 h-5 transition-colors ${isActive ? "text-white" : "text-muted-foreground"}`} />
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </motion.div>
   );
 }
@@ -649,38 +656,47 @@ function QuizCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
-      whileHover={{ scale: 1.01 }}
-      whileTap={{ scale: 0.99 }}
+      whileHover={{ x: 4 }}
+      whileTap={{ scale: 0.995 }}
       className="group cursor-pointer"
       data-testid={`card-recent-quiz-${quiz.id}`}
       onClick={onTake}
     >
-      <div className="relative flex gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted/70 transition-all duration-200 border border-transparent hover:border-border/40">
-        <div className="flex items-center justify-center flex-shrink-0">
-          <div className={`w-9 h-9 rounded-lg ${colors.icon} flex items-center justify-center`}>
-            <CategoryIcon className="w-4 h-4 text-white" />
+      <div className={`relative flex gap-3 p-3 rounded-xl bg-gradient-to-r from-muted/50 to-muted/30 hover:from-muted/70 hover:to-muted/50 transition-all duration-200 border border-transparent hover:border-border/50 hover:shadow-sm`}>
+        {/* Left accent bar */}
+        <div className={`absolute left-0 top-2 bottom-2 w-1 rounded-full ${colors.icon}`} />
+        
+        <div className="flex items-center justify-center flex-shrink-0 ml-2">
+          <div className={`w-10 h-10 rounded-xl ${colors.icon} flex items-center justify-center shadow-sm`}>
+            <CategoryIcon className="w-5 h-5 text-white" />
           </div>
         </div>
         
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
+          <h3 className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
             {quiz.title}
           </h3>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-            <span>{questionCount} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span></span>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
             <span className="flex items-center gap-1">
-              <span className={`w-1.5 h-1.5 rounded-full ${colors.badge.split(' ')[0].replace('text-', 'bg-')}`} />
+              <FileText className="w-3 h-3" />
+              {questionCount}
+            </span>
+            <span className="flex items-center gap-1">
+              <span className={`w-1.5 h-1.5 rounded-full ${colors.icon}`} />
               <span className={`capitalize ${colors.text} font-medium`}>{difficulty}</span>
             </span>
-            <span className="hidden sm:inline">{formatDistanceToNow(new Date(quiz.createdAt))} ago</span>
+            <span className="hidden sm:flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {formatDistanceToNow(new Date(quiz.createdAt))} ago
+            </span>
           </div>
         </div>
         
-        <div className="flex items-center gap-1 flex-shrink-0">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           <Button
             size="icon"
             variant="ghost"
-            className="h-8 w-8 hidden sm:flex"
+            className="h-8 w-8 hidden sm:flex hover:bg-background/80"
             onClick={(e) => { e.stopPropagation(); onStudy(); }}
             data-testid={`button-study-${quiz.id}`}
           >
@@ -688,11 +704,11 @@ function QuizCard({
           </Button>
           <Button
             size="sm"
-            className="h-8 px-3"
+            className="h-8 px-3 gap-1.5 shadow-sm"
             onClick={(e) => { e.stopPropagation(); onTake(); }}
             data-testid={`button-take-${quiz.id}`}
           >
-            <Play className="w-3.5 h-3.5 sm:mr-1.5 fill-black" />
+            <Play className="w-3.5 h-3.5 fill-current" />
             <span className="hidden sm:inline">Take</span>
           </Button>
         </div>
@@ -708,21 +724,27 @@ function LearningTipCard() {
 
   return (
     <motion.section variants={itemVariants}>
-      <Card className="overflow-visible bg-gradient-to-r from-primary/5 via-transparent to-primary/5 border-primary/10">
-        <CardContent className="p-5">
+      <div className="relative overflow-hidden rounded-xl border border-amber-200/50 dark:border-amber-900/30 bg-gradient-to-br from-amber-50 via-amber-50/50 to-orange-50/30 dark:from-amber-950/30 dark:via-amber-950/20 dark:to-orange-950/10">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-200/30 dark:from-amber-800/20 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
+        
+        <div className="relative p-5">
           <div className="flex items-start gap-4">
-            <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
-              <Lightbulb className="w-5 h-5 text-primary" />
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/20 flex-shrink-0">
+              <Lightbulb className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <h3 className="font-medium text-foreground mb-1">Learning Tip</h3>
-              <p className="text-sm text-muted-foreground">
+            <div className="min-w-0">
+              <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1.5 flex items-center gap-2">
+                Learning Tip
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              </h3>
+              <p className="text-sm text-amber-800/80 dark:text-amber-200/70 leading-relaxed">
                 {randomTip}
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </motion.section>
   );
 }
@@ -1140,24 +1162,37 @@ export default function Dashboard() {
       >
         {/* Welcome Section */}
         <motion.section variants={itemVariants}>
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
-                {getGreeting()}
-              </h1>
-              <p className="text-muted-foreground">
-                {hasQuizzes 
-                  ? "Continue where you left off or create something new."
-                  : "Let's create your first quiz and start learning."
-                }
-              </p>
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-transparent to-violet-500/5 border border-border/50 p-6">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-violet-500/10 to-transparent rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+            
+            <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
+                  {getGreeting()}
+                  <span className="inline-block ml-2 animate-pulse">
+                    {new Date().getHours() < 12 ? "☀️" : new Date().getHours() < 17 ? "🌤️" : "🌙"}
+                  </span>
+                </h1>
+                <p className="text-muted-foreground">
+                  {hasQuizzes 
+                    ? "Continue where you left off or create something new."
+                    : "Let's create your first quiz and start learning."
+                  }
+                </p>
+              </div>
+              {hasQuizzes && (
+                <Button 
+                  onClick={() => setLocation("/create")} 
+                  className="gap-2 shadow-lg"
+                  data-testid="button-create-new"
+                >
+                  <Plus className="w-4 h-4" />
+                  New Quiz
+                </Button>
+              )}
             </div>
-            {/* {hasQuizzes && (
-              <Button onClick={() => setLocation("/create")} data-testid="button-create-new">
-                <Plus className="w-4 h-4 mr-2" />
-                New Quiz
-              </Button>
-            )} */}
           </div>
         </motion.section>
 
@@ -1335,21 +1370,24 @@ export default function Dashboard() {
             <div>
               <div className="flex items-center justify-between gap-4 mb-4">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                  <h2 className="font-semibold text-foreground">Recent Quizzes</h2>
+                  <div className="p-1.5 rounded-lg bg-primary/10">
+                    <Clock className="w-4 h-4 text-primary" />
+                  </div>
+                  <h2 className="font-bold text-foreground">Recent Quizzes</h2>
                 </div>
                 <Button 
                   variant="ghost" 
                   size="sm"
+                  className="gap-1 text-muted-foreground hover:text-foreground"
                   onClick={() => setLocation("/history")}
                   data-testid="button-view-all"
                 >
                   View all
-                  <ArrowRight className="w-4 h-4 ml-1" />
+                  <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {recentQuizzes.map((quiz, index) => (
                   <QuizCard
                     key={quiz.id}
