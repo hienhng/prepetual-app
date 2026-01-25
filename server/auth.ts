@@ -323,6 +323,9 @@ export function setupAuth(app: Express): void {
         username: user.username,
         emailVerified: user.emailVerified,
         profileImageUrl: user.profileImageUrl,
+        autoDeleteFiles: user.autoDeleteFiles || false,
+        consecutiveCorrectConfetti: user.consecutiveCorrectConfetti !== false,
+        skipRevisionQuestions: user.skipRevisionQuestions || false,
       });
     } catch (error) {
       console.error("Get user error:", error);
