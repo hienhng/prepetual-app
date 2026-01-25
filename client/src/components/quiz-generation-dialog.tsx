@@ -1,27 +1,83 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, CheckCircle, BookOpen, Brain, Settings2, Wand2, Sparkles, Save, Lightbulb } from "lucide-react";
+import { Lightbulb } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { CutePenguin } from "@/components/quiz-chatbot";
 
-interface ProgressStep {
-  id: string;
-  label: string;
-  icon: typeof BookOpen;
+const STEP_MESSAGES: Record<string, string> = {
+  starting: "Starting quiz generation...",
+  reading: "Reading your study material...",
+  analyzing: "Analyzing content structure...",
+  preparing: "Preparing quiz generation...",
+  generating: "AI is generating questions...",
+  processing: "Processing AI response...",
+  validating: "Validating generated questions...",
+  finalizing: "Finalizing your quiz...",
+  saving: "Saving your quiz...",
+  complete: "Quiz created successfully!",
+};
+
+function AnimatedLogo() {
+  return (
+    <div className="relative w-48 h-16 flex items-center justify-center">
+      <svg viewBox="0 0 200 50" className="w-full h-full">
+        <defs>
+          <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+            <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity="1" />
+            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+          </linearGradient>
+          <mask id="textMask">
+            <text
+              x="100"
+              y="35"
+              textAnchor="middle"
+              className="font-brand"
+              fontSize="32"
+              fontWeight="bold"
+              fill="white"
+            >
+              Prepetual
+            </text>
+          </mask>
+        </defs>
+        
+        <text
+          x="100"
+          y="35"
+          textAnchor="middle"
+          className="font-brand"
+          fontSize="32"
+          fontWeight="bold"
+          fill="hsl(var(--primary))"
+          opacity="0.2"
+        >
+          Prepetual
+        </text>
+        
+        <g mask="url(#textMask)">
+          {[0, 1, 2].map((i) => (
+            <motion.rect
+              key={i}
+              x="-60"
+              y="0"
+              width="60"
+              height="50"
+              fill="url(#trailGradient)"
+              initial={{ x: -60 }}
+              animate={{ x: 260 }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "linear",
+                delay: i * 0.6,
+              }}
+            />
+          ))}
+        </g>
+      </svg>
+    </div>
+  );
 }
-
-const PROGRESS_STEPS: ProgressStep[] = [
-  { id: "starting", label: "Starting", icon: Sparkles },
-  { id: "reading", label: "Reading material", icon: BookOpen },
-  { id: "analyzing", label: "Analyzing content", icon: Brain },
-  { id: "preparing", label: "Preparing generation", icon: Settings2 },
-  { id: "generating", label: "Generating questions", icon: Wand2 },
-  { id: "processing", label: "Processing response", icon: Sparkles },
-  { id: "validating", label: "Validating questions", icon: CheckCircle },
-  { id: "finalizing", label: "Finalizing quiz", icon: CheckCircle },
-  { id: "saving", label: "Saving quiz", icon: Save },
-  { id: "complete", label: "Complete", icon: CheckCircle },
-];
 
 const STUDY_TIPS = [
   "Break your study sessions into 25-minute chunks with short breaks in between.",
@@ -81,6 +137,8 @@ export function QuizGenerationDialog({
 
   if (!isOpen) return null;
 
+  const stepMessage = STEP_MESSAGES[currentStep] || message || "Processing...";
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -97,68 +155,38 @@ export function QuizGenerationDialog({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="relative z-10 w-full max-w-lg mx-4"
+            className="relative z-10 w-full max-w-md mx-4"
           >
             <div className="bg-card border rounded-2xl shadow-2xl overflow-hidden">
               <div className="p-8 text-center">
-                <motion.div 
-                  className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center"
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <CutePenguin size={64} emotion="thinking" />
-                </motion.div>
-
-                <h2 className="text-2xl font-bold text-foreground mb-2">
-                  {mode === "import" ? "Importing Quiz" : "Generating Quiz"}
-                </h2>
-                <p className="text-muted-foreground mb-6">
-                  {message || "Please wait while we prepare your quiz..."}
-                </p>
-
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-muted-foreground">Progress</span>
-                    <span className="text-sm font-bold text-primary">{Math.round(progress)}%</span>
-                  </div>
-                  <Progress value={progress} className="h-3" />
+                <div className="mb-8 flex justify-center">
+                  <AnimatedLogo />
                 </div>
 
-                {mode === "generate" && (
-                  <div className="grid grid-cols-2 gap-2 mb-6">
-                    {PROGRESS_STEPS.slice(0, 8).map((step) => {
-                      const stepIndex = PROGRESS_STEPS.findIndex(s => s.id === step.id);
-                      const currentIndex = PROGRESS_STEPS.findIndex(s => s.id === currentStep);
-                      const isCompleted = stepIndex < currentIndex;
-                      const isCurrent = step.id === currentStep;
-                      const StepIcon = step.icon;
-                      
-                      return (
-                        <motion.div
-                          key={step.id}
-                          initial={{ opacity: 0.5 }}
-                          animate={{ 
-                            opacity: isCompleted || isCurrent ? 1 : 0.4,
-                            scale: isCurrent ? 1.02 : 1,
-                          }}
-                          className={`flex items-center gap-2 p-2.5 rounded-lg text-xs transition-colors ${
-                            isCurrent ? "bg-primary/15 text-primary border border-primary/30" : 
-                            isCompleted ? "bg-primary/5 text-primary/80" : "text-muted-foreground"
-                          }`}
-                        >
-                          {isCompleted ? (
-                            <CheckCircle className="h-4 w-4 text-primary shrink-0" />
-                          ) : isCurrent ? (
-                            <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                          ) : (
-                            <StepIcon className="h-4 w-4 shrink-0" />
-                          )}
-                          <span className="truncate font-medium">{step.label}</span>
-                        </motion.div>
-                      );
-                    })}
+                <h2 className="text-xl font-semibold text-foreground mb-6">
+                  {mode === "import" ? "Importing Your Quiz" : "Generating Your Quiz"}
+                </h2>
+
+                <div className="mb-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-muted-foreground">Progress</span>
+                    <span className="text-sm font-bold text-primary">{Math.round(progress)}%</span>
                   </div>
-                )}
+                  <Progress value={progress} className="h-2" />
+                </div>
+
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={currentStep}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-sm text-muted-foreground mt-3"
+                  >
+                    {stepMessage}
+                  </motion.p>
+                </AnimatePresence>
               </div>
 
               <div className="bg-muted/50 border-t px-6 py-5">
