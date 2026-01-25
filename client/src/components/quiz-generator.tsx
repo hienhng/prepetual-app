@@ -1,38 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import, FileQuestionIcon, Settings2, BookOpen, Brain, Wand2, CheckCircle, Save } from "lucide-react";
+import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import, FileQuestionIcon, Settings2 } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Progress } from "@/components/ui/progress";
 import { useQuiz } from "@/lib/quiz-context";
 import { useUpload } from "@/lib/upload-context";
 import { motion, AnimatePresence } from "framer-motion";
+import { QuizGenerationDialog } from "@/components/quiz-generation-dialog";
 import type { QuestionType, DifficultyLevel } from "@shared/schema";
 
 type QuizMode = "generate" | "import";
-
-interface ProgressStep {
-  id: string;
-  label: string;
-  icon: typeof BookOpen;
-}
-
-const PROGRESS_STEPS: ProgressStep[] = [
-  { id: "starting", label: "Starting", icon: Sparkles },
-  { id: "reading", label: "Reading material", icon: BookOpen },
-  { id: "analyzing", label: "Analyzing content", icon: Brain },
-  { id: "preparing", label: "Preparing generation", icon: Settings2 },
-  { id: "generating", label: "Generating questions", icon: Wand2 },
-  { id: "processing", label: "Processing response", icon: Sparkles },
-  { id: "validating", label: "Validating questions", icon: CheckCircle },
-  { id: "finalizing", label: "Finalizing quiz", icon: CheckCircle },
-  { id: "saving", label: "Saving quiz", icon: Save },
-  { id: "complete", label: "Complete", icon: CheckCircle },
-];
 
 export function QuizGenerator() {
   const [, setLocation] = useLocation();
@@ -554,74 +535,14 @@ export function QuizGenerator() {
               )}
             </AnimatePresence>
 
-            <AnimatePresence>
-              {isLoading && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="space-y-4 p-4 bg-primary/5 rounded-lg border border-primary/20"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{loadingMessage || "Generating..."}</span>
-                    <span className="text-sm text-muted-foreground">{Math.round(processingProgress)}%</span>
-                  </div>
-                  <Progress value={processingProgress} className="h-2" />
-                  
-                  <div className="grid grid-cols-3 gap-2 mt-4">
-                    {PROGRESS_STEPS.slice(0, 6).map((step) => {
-                      const stepIndex = PROGRESS_STEPS.findIndex(s => s.id === step.id);
-                      const currentIndex = PROGRESS_STEPS.findIndex(s => s.id === currentGenerationStep);
-                      const isCompleted = stepIndex < currentIndex;
-                      const isCurrent = step.id === currentGenerationStep;
-                      const StepIcon = step.icon;
-                      
-                      return (
-                        <motion.div
-                          key={step.id}
-                          initial={{ opacity: 0.5 }}
-                          animate={{ 
-                            opacity: isCompleted || isCurrent ? 1 : 0.4,
-                            scale: isCurrent ? 1.02 : 1,
-                          }}
-                          className={`flex items-center gap-2 p-2 rounded-md text-xs transition-colors ${
-                            isCurrent ? "bg-primary/10 text-primary" : 
-                            isCompleted ? "text-primary/70" : "text-muted-foreground"
-                          }`}
-                        >
-                          {isCompleted ? (
-                            <CheckCircle className="h-3.5 w-3.5 text-primary" />
-                          ) : isCurrent ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <StepIcon className="h-3.5 w-3.5" />
-                          )}
-                          <span className="truncate">{step.label}</span>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             <Button
               onClick={generateQuiz}
               disabled={isLoading || (mode === "generate" && questionTypes.length === 0)}
               className="w-full py-6 text-lg font-semibold"
               data-testid="button-generate-quiz"
             >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-5 w-5 mr-2" />
-                  Generate Quiz
-                </>
-              )}
+              <Sparkles className="h-5 w-5 mr-2" />
+              Generate Quiz
             </Button>
           </CardContent>
         </Card>
@@ -677,22 +598,21 @@ export function QuizGenerator() {
                 className="w-full py-6 text-lg font-semibold"
                 data-testid="button-import-quiz"
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    {loadingMessage || "Importing..."}
-                  </>
-                ) : (
-                  <>
-                    <Import className="h-5 w-5 mr-2" />
-                    Import Quiz
-                  </>
-                )}
+                <Import className="h-5 w-5 mr-2" />
+                Import Quiz
               </Button>
             </CardContent>
           </Card>
         </motion.div>
       )}
+
+      <QuizGenerationDialog
+        isOpen={isLoading}
+        progress={processingProgress}
+        currentStep={currentGenerationStep}
+        message={loadingMessage}
+        mode={mode}
+      />
     </div>
   );
 }
