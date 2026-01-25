@@ -20,7 +20,7 @@ const STEP_MESSAGES: Record<string, string> = {
 
 function AnimatedLogo() {
   return (
-    <div className="relative w-24 h-24 flex items-center justify-center">
+    <div className="relative w-36 h-36 flex items-center justify-center">
       <svg className="w-full h-full" viewBox="0 0 100 100">
         <defs>
           <mask id="logoMask">
