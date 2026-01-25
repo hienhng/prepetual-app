@@ -160,24 +160,33 @@ function StatCard({
 }) {
   return (
     <motion.div 
-      whileHover={{ y: -2 }} 
-      transition={{ duration: 0.15 }}
+      whileHover={{ y: -4, scale: 1.02 }} 
+      transition={{ duration: 0.2 }}
       onClick={onClick}
       className={onClick ? "cursor-pointer" : ""}
     >
-      <div className={`p-2.5 sm:p-3 rounded-lg transition-all duration-300 ${isActive ? gradient : "bg-muted/60"}`}>
-        <div className="flex items-center gap-2">
-          <div className={`p-1.5 rounded-md flex-shrink-0 ${isActive ? "bg-white/20" : "bg-muted-foreground/10"}`}>
-            <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-muted-foreground"}`} />
+      <Card className="overflow-visible border-0 shadow-md">
+        <CardContent className="p-0">
+          <div className={`p-5 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className={`text-sm font-medium mb-1 transition-colors ${isActive ? "text-white/80" : "text-muted-foreground"}`}>{label}</p>
+                <motion.p 
+                  className={`text-3xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+                >
+                  {value}
+                </motion.p>
+              </div>
+              <div className="p-3 rounded-xl transition-all duration-500 flex items-center justify-center bg-white/20 backdrop-blur-sm scale-110 shadow-lg text-[#ffffff]">
+                <Icon className="w-6 h-6 transition-colors text-white" />
+              </div>
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className={`text-[10px] sm:text-xs font-medium transition-colors ${isActive ? "text-white/80" : "text-muted-foreground"}`}>{label}</p>
-            <p className={`text-base sm:text-lg font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}>
-              {value}
-            </p>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }
@@ -477,37 +486,58 @@ function QuickActionCard({
   
   return (
     <motion.div 
-      whileHover={{ scale: 1.01 }} 
-      whileTap={{ scale: 0.99 }}
-      transition={{ duration: 0.15 }}
-      className="w-full"
+      whileHover={{ scale: 1.02 }} 
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.2 }}
+      className={isPrimary ? "relative group" : ""}
     >
-      <div 
-        className={`relative cursor-pointer rounded-lg transition-all duration-200 ${
+      {isPrimary && (
+        <motion.div 
+          className="absolute -inset-0.5 bg-gradient-to-r from-primary via-quiz-purple to-primary rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-tilt"
+          animate={{ 
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
+          }}
+          transition={{ 
+            duration: 5, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
+        />
+      )}
+      <Card 
+        className={`relative cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl  ${
           isPrimary 
-            ? "bg-gradient-to-r from-primary to-primary/90 shadow-sm" 
-            : "bg-muted/50 hover:bg-muted/70"
+            ? "bg-gradient-to-br from-primary via-primary to-primary/90 border-0 shadow-lg shadow-primary/20" 
+            : "border-border/50"
         }`}
         onClick={onClick}
         data-testid={testId}
       >
-        <div className="p-3 sm:p-4">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg flex-shrink-0 ${isPrimary ? "bg-white/20" : "bg-primary/10"}`}>
-              <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${isPrimary ? "text-white" : "text-primary"}`} />
-            </div>
+        <CardContent className="p-6 relative z-20">
+          <div className="flex items-center gap-4">
+            <motion.div 
+              className={`p-3 rounded-xl ${isPrimary ? "bg-white/20 backdrop-blur-sm border border-white/20" : "bg-primary/10"}`}
+              whileHover={{ rotate: isPrimary ? 90 : 0, scale: 1.1 }}
+              transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
+            >
+              <Icon className={`w-6 h-6 ${isPrimary ? "text-white" : "text-primary"}`} />
+            </motion.div>
             <div className="flex-1 min-w-0">
-              <h3 className={`font-semibold text-sm sm:text-base leading-tight ${isPrimary ? "text-white" : "text-foreground"}`}>
-                {title}
-              </h3>
-              <p className={`text-xs sm:text-sm truncate ${isPrimary ? "text-white/80" : "text-muted-foreground"}`}>
+              <div className="flex items-center gap-2 mb-0.5">
+                <h3 className={`font-bold text-lg leading-tight ${isPrimary ? "text-white" : "text-foreground"}`}>
+                  {title}
+                </h3>
+              </div>
+              <p className={`text-sm font-medium tracking-tight truncate ${isPrimary ? "text-white/90" : "text-muted-foreground"}`}>
                 {description}
               </p>
             </div>
-            <ArrowRight className={`w-4 h-4 flex-shrink-0 ${isPrimary ? "text-white/80" : "text-muted-foreground"}`} />
+            <div className={`p-2 rounded-full transition-colors ${isPrimary ? "bg-white/20 hover:bg-white/30" : "bg-muted"}`}>
+              <ArrowRight className={`w-5 h-5 flex-shrink-0 ${isPrimary ? "text-white" : "text-muted-foreground"}`} />
+            </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }
@@ -678,19 +708,21 @@ function LearningTipCard() {
 
   return (
     <motion.section variants={itemVariants}>
-      <div className="rounded-lg bg-primary/5 border border-primary/10 p-3 sm:p-4">
-        <div className="flex items-start gap-3">
-          <div className="p-1.5 rounded-md bg-primary/10 flex-shrink-0">
-            <Lightbulb className="w-4 h-4 text-primary" />
+      <Card className="overflow-visible bg-gradient-to-r from-primary/5 via-transparent to-primary/5 border-primary/10">
+        <CardContent className="p-5">
+          <div className="flex items-start gap-4">
+            <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+              <Lightbulb className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-medium text-foreground mb-1">Learning Tip</h3>
+              <p className="text-sm text-muted-foreground">
+                {randomTip}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h3 className="font-medium text-sm text-foreground">Learning Tip</h3>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              {randomTip}
-            </p>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </motion.section>
   );
 }
@@ -736,59 +768,59 @@ function ContinueQuizCard({
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="relative group"
     >
-      <Card className={`overflow-hidden border-2 shadow-md transition-all duration-300 ${colors.border} bg-gradient-to-br ${colors.from} ${colors.via} to-transparent ${colors.shadow}`}>
-        <CardContent className="p-3 sm:p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+      <Card className={`overflow-hidden border-2 shadow-lg transition-all duration-300 ${colors.border} bg-gradient-to-br ${colors.from} ${colors.via} to-transparent ${colors.shadow}`}>
+        <CardContent className="p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             {/* Icon and encouragement */}
-            <div className="flex items-center gap-2.5 sm:flex-shrink-0">
+            <div className="flex items-center gap-3 sm:flex-shrink-0">
               <div className="relative">
-                <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110 ${colors.icon}`}>
-                  <CategoryIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110 ${colors.icon}`}>
+                  <CategoryIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm bg-foreground/80">
+                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm bg-foreground/80">
                   {remaining}
                 </div>
               </div>
               <div className="sm:hidden flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
+                <div className="flex items-center gap-2 mb-0.5">
                   <h3 className="font-semibold text-foreground truncate text-sm">{quiz.title}</h3>
                   {isRevising ? (
-                    <Badge variant="outline" className="text-[9px] px-1 h-4 leading-none uppercase tracking-wider font-bold bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-900 border-current/20">
+                    <Badge variant="outline" className="text-[10px] px-1 h-4 leading-none uppercase tracking-wider font-bold bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-900 border-current/20">
                       Revising
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className={`text-[9px] px-1 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
+                    <Badge variant="outline" className={`text-[10px] px-1 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
                       {difficulty}
                     </Badge>
                   )}
                 </div>
-                <p className={`text-xs font-medium ${colors.text}`}>{timeLabel}</p>
+                <p className={`text-xs font-medium ${colors.text}`}>{timeLabel} - continue now!</p>
               </div>
             </div>
             
             {/* Content */}
-            <div className="flex-1 min-w-0 space-y-2">
+            <div className="flex-1 min-w-0 space-y-3">
               <div className="hidden sm:block">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 mb-0.5">
-                      <h3 className="font-semibold text-sm text-foreground truncate">{quiz.title}</h3>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <h3 className="font-semibold text-base text-foreground truncate">{quiz.title}</h3>
                       {isRevising ? (
-                        <Badge variant="outline" className="text-[9px] px-1 h-4 leading-none uppercase tracking-wider font-bold bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-900 border-current/20">
+                        <Badge variant="outline" className="text-[10px] px-1.5 h-4 leading-none uppercase tracking-wider font-bold bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-900 border-current/20">
                           Revising
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className={`text-[9px] px-1 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
+                        <Badge variant="outline" className={`text-[10px] px-1.5 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
                           {difficulty}
                         </Badge>
                       )}
                     </div>
-                    <p className={`text-xs font-medium ${colors.text}`}>{timeLabel}</p>
+                    <p className={`text-sm font-medium ${colors.text}`}>{timeLabel} - continue now!</p>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
                     onClick={(e) => { e.stopPropagation(); onDiscard(); }}
                     data-testid="button-discard-progress"
                   >
@@ -799,21 +831,21 @@ function ContinueQuizCard({
               
               {/* Progress - hide progress bar in revision mode */}
               {isRevising ? (
-                <div className="flex items-center gap-1.5 py-1 px-2 rounded-md bg-violet-500/10 dark:bg-violet-500/15 border border-violet-200/50 dark:border-violet-800/30">
-                  <div className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
-                  <span className="text-xs font-medium text-violet-700 dark:text-violet-300">
+                <div className="flex items-center gap-2 py-1.5 px-3 rounded-lg bg-violet-500/10 dark:bg-violet-500/15 border border-violet-200/50 dark:border-violet-800/30">
+                  <div className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
+                  <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
                     {displayTotal} question{displayTotal !== 1 ? 's' : ''} to review
                   </span>
                 </div>
               ) : (
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground font-medium">
-                      {displayAnswered}/{displayTotal} completed
+                      {displayAnswered} of {displayTotal} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span> completed
                     </span>
                     <span className={`font-bold ${colors.text}`}>{progress}%</span>
                   </div>
-                  <div className="relative h-2 bg-muted/30 dark:bg-muted/10 rounded-full overflow-hidden">
+                  <div className="relative h-2.5 bg-muted/30 dark:bg-muted/10 rounded-full overflow-hidden">
                     <motion.div 
                       className={`absolute inset-y-0 left-0 rounded-full ${colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')}`}
                       initial={{ width: 0 }}
@@ -828,8 +860,7 @@ function ContinueQuizCard({
               <div className="flex items-center gap-2">
                 <Button
                   onClick={onContinue}
-                  size="sm"
-                  className={`border-none flex-1 gap-1.5 shadow-sm transition-all duration-300 active:scale-95 ${
+                  className={`border-none flex-1 gap-2 h-10 shadow-md transition-all duration-300 active:scale-95 ${
                     isRevising 
                       ? 'bg-gradient-to-r from-violet-500 to-violet-600' 
                       : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
@@ -837,12 +868,13 @@ function ContinueQuizCard({
                   data-testid="button-continue-quiz"
                 >
                   <Play className="w-4 h-4 fill-current" />
-                  <span className="font-semibold">{isRevising ? 'Continue Review' : 'Continue'}</span>
+                  <span className="font-bold">{isRevising ? 'Continue Review' : 'Continue Quiz'}</span>
+                  <ArrowRight className="w-4 h-4 hidden sm:block group-hover:translate-x-1 transition-transform" />
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="sm:hidden text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
+                  className="h-10 w-10 sm:hidden text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
                   onClick={(e) => { e.stopPropagation(); onDiscard(); }}
                   data-testid="button-discard-progress-mobile"
                 >
@@ -1099,12 +1131,12 @@ export default function Dashboard() {
   
 
   return (
-    <div className="container mx-auto px-4 py-4 md:py-6 max-w-5xl">
+    <div className="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="space-y-5"
+        className="space-y-8"
       >
         {/* Welcome Section */}
         <motion.section variants={itemVariants}>
@@ -1129,140 +1161,142 @@ export default function Dashboard() {
           </div>
         </motion.section>
 
-        {/* Stats & Continue Learning - Side by Side on Large Screens */}
+        {/* Stats Section */}
         {hasQuizzes && (
           <motion.section variants={itemVariants}>
-            <div className={`grid gap-4 ${hasSavedQuizzes ? 'lg:grid-cols-2' : ''}`}>
-              {/* Stats Cards */}
-              <div className="grid grid-cols-2 gap-3">
-                <StatCard
-                  label="Created"
-                  value={totalQuizzes}
-                  icon={() => <FontAwesomeIcon icon={faFileLines} className="h-6 w-6" />}
-                  gradient="bg-gradient-to-br from-blue-500 to-blue-600"
-                />
-                <StatCard
-                  label="Questions"
-                  value={totalQuestions}
-                  icon={() => <FontAwesomeIcon icon={faMessage} className="h-6 w-6" />}
-                  gradient="bg-gradient-to-br from-violet-500 to-violet-600"
-                />
-                <StatCard
-                  label="Streak"
-                  value={streakData?.currentStreak ?? 0}
-                  icon={() => <FontAwesomeIcon icon={faFire} className="h-6 w-6" />}
-                  gradient="bg-gradient-to-br from-orange-500 to-orange-600"
-                  isActive={streakData?.isActive ?? false}
-                  onClick={() => setStreakCalendarOpen(true)}
-                />
-                <StatCard
-                  label="Accuracy"
-                  value={userStats?.totalAttempts ? `${userStats.averageAccuracy}%` : "-"}
-                  icon={() => <FontAwesomeIcon icon={faChartSimple} className="h-6 w-6" />}
-                  gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
-                  isActive={(userStats?.totalAttempts ?? 0) > 0}
-                  onClick={() => setAccuracyDialogOpen(true)}
-                />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                label="Created"
+                value={totalQuizzes}
+                icon={() => <FontAwesomeIcon icon={faFileLines} className="h-6 w-6" />}
+                gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+              />
+              <StatCard
+                label="Questions"
+                value={totalQuestions}
+                icon={() => <FontAwesomeIcon icon={faMessage} className="h-6 w-6" />}
+                gradient="bg-gradient-to-br from-violet-500 to-violet-600"
+              />
+              <StatCard
+                label="Streak"
+                value={streakData?.currentStreak ?? 0}
+                icon={() => <FontAwesomeIcon icon={faFire} className="h-6 w-6" />}
+                gradient="bg-gradient-to-br from-orange-500 to-orange-600"
+                isActive={streakData?.isActive ?? false}
+                onClick={() => setStreakCalendarOpen(true)}
+              />
+              <StatCard
+                label="Accuracy"
+                value={userStats?.totalAttempts ? `${userStats.averageAccuracy}%` : "-"}
+                icon={() => <FontAwesomeIcon icon={faChartSimple} className="h-6 w-6" />}
+                gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
+                isActive={(userStats?.totalAttempts ?? 0) > 0}
+                onClick={() => setAccuracyDialogOpen(true)}
+              />
+            </div>
+          </motion.section>
+        )}
+
+        {/* Continue Section - Horizontally Scrollable Saved Quizzes */}
+        {hasSavedQuizzes && (
+          <motion.section variants={itemVariants} className="relative group/carousel">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                <Play className="w-4 h-4 text-primary fill-primary" />
+                Continue Learning
+              </h2>
+              <div className="hidden md:flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className={`h-8 w-8 rounded-full transition-all duration-300 ${!canScrollLeft ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
+                  onClick={() => scroll('left')}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className={`h-8 w-8 rounded-full transition-all duration-300 ${!canScrollRight ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
+                  onClick={() => scroll('right')}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div 
+                ref={scrollContainerRef}
+                onScroll={checkScroll}
+                className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none scroll-smooth"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {allSavedQuizzes.map((item, idx) => {
+                  const answerKeys = Object.keys(item.answers);
+                  const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
+                  const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
+                  const totalQuestions = item.quiz.questions?.length || 0;
+                  const checkedQuestionsCount = item.checkedQuestions?.length || 0;
+                  
+                  // Calculate total wrong questions from first attempt by comparing answers to correct answers
+                  let wrongQuestionsCount = 0;
+                  if (item.quiz.questions) {
+                    const questions = item.quiz.questions as any[];
+                    wrongQuestionsCount = questions.filter(q => {
+                      const userAnswer = item.answers[q.id];
+                      return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
+                    }).length;
+                  }
+                  
+                  // User is in revision mode if:
+                  // 1. All original questions are checked (completed first attempt) AND there are wrong answers to retry
+                  // 2. OR there are already retry answers (actively revising)
+                  const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
+                  const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
+                  const hasRetryProgress = retryAnswerKeys.length > 0;
+                  const isRevising = (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
+                  
+                  // retryAnsweredCount = number of retry answers given
+                  // retryTotalCount = number of wrong questions from first attempt (the retry questions that need to be answered)
+                  const retryAnsweredCount = retryAnswerKeys.length;
+                  const retryTotalCount = wrongQuestionsCount;
+                  
+                  return (
+                    <div 
+                      key={item.quizId + idx} 
+                      className="w-full flex-shrink-0 snap-center"
+                    >
+                      <ContinueQuizCard
+                        quiz={item.quiz}
+                        answeredCount={originalAnswerKeys.length}
+                        totalCount={item.quiz.questions?.length || 0}
+                        onContinue={() => handleContinueSavedQuiz(item.quizId)}
+                        onDiscard={() => handleAttemptDiscard(item)}
+                        isCurrent={false}
+                        savedAt={item.savedAt}
+                        isRevising={isRevising}
+                        retryAnsweredCount={retryAnsweredCount}
+                        retryTotalCount={retryTotalCount}
+                      />
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Continue Learning Section */}
-              {hasSavedQuizzes && (
-                <div className="relative group/carousel">
-                  <div className="flex items-center justify-between mb-3">
-                    <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                      <Play className="w-4 h-4 text-primary fill-primary" />
-                      Continue Learning
-                    </h2>
-                    {allSavedQuizzes.length > 1 && (
-                      <div className="flex items-center gap-1.5">
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          className={`h-7 w-7 rounded-full transition-all duration-300 ${!canScrollLeft ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
-                          onClick={() => scroll('left')}
-                        >
-                          <ChevronLeft className="w-3 h-3" />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          className={`h-7 w-7 rounded-full transition-all duration-300 ${!canScrollRight ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
-                          onClick={() => scroll('right')}
-                        >
-                          <ChevronRight className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="relative">
-                    <div 
-                      ref={scrollContainerRef}
-                      onScroll={checkScroll}
-                      className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-none scroll-smooth"
-                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                    >
-                      {allSavedQuizzes.map((item, idx) => {
-                        const answerKeys = Object.keys(item.answers);
-                        const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
-                        const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
-                        const totalQuestions = item.quiz.questions?.length || 0;
-                        const checkedQuestionsCount = item.checkedQuestions?.length || 0;
-                        
-                        let wrongQuestionsCount = 0;
-                        if (item.quiz.questions) {
-                          const questions = item.quiz.questions as any[];
-                          wrongQuestionsCount = questions.filter(q => {
-                            const userAnswer = item.answers[q.id];
-                            return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
-                          }).length;
-                        }
-                        
-                        const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
-                        const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
-                        const hasRetryProgress = retryAnswerKeys.length > 0;
-                        const isRevising = (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
-                        
-                        const retryAnsweredCount = retryAnswerKeys.length;
-                        const retryTotalCount = wrongQuestionsCount;
-                        
-                        return (
-                          <div 
-                            key={item.quizId + idx} 
-                            className="w-full flex-shrink-0 snap-center"
-                          >
-                            <ContinueQuizCard
-                              quiz={item.quiz}
-                              answeredCount={originalAnswerKeys.length}
-                              totalCount={item.quiz.questions?.length || 0}
-                              onContinue={() => handleContinueSavedQuiz(item.quizId)}
-                              onDiscard={() => handleAttemptDiscard(item)}
-                              isCurrent={false}
-                              savedAt={item.savedAt}
-                              isRevising={isRevising}
-                              retryAnsweredCount={retryAnsweredCount}
-                              retryTotalCount={retryTotalCount}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {allSavedQuizzes.length > 1 && (
-                      <div className="flex justify-center gap-1.5 mt-1">
-                        {allSavedQuizzes.map((_, i) => (
-                          <div 
-                            key={i} 
-                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                              activeIndex === i ? 'bg-primary w-3' : 'bg-muted-foreground/30'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+            {/* Dots for PC & Mobile */}
+            {allSavedQuizzes.length > 1 && (
+              <div className="flex justify-center gap-1.5 mt-2">
+                {allSavedQuizzes.map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                      activeIndex === i ? 'bg-primary w-3' : 'bg-muted-foreground/30'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
             </div>
           </motion.section>
         )}
