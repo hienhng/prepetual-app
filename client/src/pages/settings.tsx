@@ -80,6 +80,18 @@ export default function Settings() {
   ) : false;
 
   useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  useEffect(() => {
     if (settings) {
       setUsername(settings.username || "");
       setProfileImage(settings.profileImageUrl);
@@ -453,8 +465,12 @@ export default function Settings() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2"
           >
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs">
+              <AlertCircle className="w-3 h-3" />
+              <span>You have unsaved changes</span>
+            </div>
             <Button
               onClick={handleSaveAllPreferences}
               disabled={updateSettingsMutation.isPending}
