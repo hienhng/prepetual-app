@@ -28,6 +28,7 @@ export const users = pgTable("users", {
   streakReminderEnabled: boolean("streak_reminder_enabled").default(true),
   themePreference: varchar("theme_preference").default("system"),
   autoDeleteFiles: boolean("auto_delete_files").default(false),
+  consecutiveCorrectConfetti: boolean("consecutive_correct_confetti").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

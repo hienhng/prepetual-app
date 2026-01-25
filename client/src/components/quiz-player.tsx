@@ -272,7 +272,7 @@ export function QuizPlayer() {
           message = getStreakMessage(newStreak) || getRandomMessage("correct");
         }
         
-        if (newStreak >= 3) {
+        if (newStreak >= 3 && user?.consecutiveCorrectConfetti !== false) {
           triggerConfetti();
         }
       } else {

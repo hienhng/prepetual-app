@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { 
   User, Camera, Save, Moon, Sun, Monitor, Trash2, 
-  Loader2, Check, AlertCircle, ShieldCheck, ShieldX
+  Loader2, Check, AlertCircle, ShieldCheck, ShieldX, Sparkles
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,10 +57,12 @@ export default function Settings() {
   const [username, setUsername] = useState(user?.username || "");
   const [profileImage, setProfileImage] = useState<string | null>(user?.profileImageUrl || null);
   const [autoDeleteFiles, setAutoDeleteFiles] = useState(user?.autoDeleteFiles || false);
+  const [confettiEnabled, setConfettiEnabled] = useState(user?.consecutiveCorrectConfetti !== false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
   const { data: settings, isLoading } = useQuery<{
     autoDeleteFiles: boolean;
+    consecutiveCorrectConfetti: boolean;
     username: string | null;
     profileImageUrl: string | null;
   }>({
@@ -73,6 +75,7 @@ export default function Settings() {
       setUsername(settings.username || "");
       setProfileImage(settings.profileImageUrl);
       setAutoDeleteFiles(settings.autoDeleteFiles || false);
+      setConfettiEnabled(settings.consecutiveCorrectConfetti !== false);
     }
   }, [settings]);
 
@@ -80,6 +83,7 @@ export default function Settings() {
     mutationFn: async (data: {
       username?: string;
       autoDeleteFiles?: boolean;
+      consecutiveCorrectConfetti?: boolean;
       profileImageUrl?: string;
       _silent?: boolean;
     }) => {
@@ -180,6 +184,11 @@ export default function Settings() {
   const handleAutoDeleteChange = (checked: boolean) => {
     setAutoDeleteFiles(checked);
     updateSettingsMutation.mutate({ autoDeleteFiles: checked, _silent: true });
+  };
+
+  const handleConfettiChange = (checked: boolean) => {
+    setConfettiEnabled(checked);
+    updateSettingsMutation.mutate({ consecutiveCorrectConfetti: checked, _silent: true });
   };
 
   const getInitials = () => {
@@ -336,6 +345,36 @@ export default function Settings() {
                     </button>
                   );
                 })}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5" />
+                Quiz Experience
+              </CardTitle>
+              <CardDescription>
+                Customize your quiz taking experience
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="confetti-toggle" className="text-base">
+                    Consecutive correct confetti
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Show confetti when you answer 3 or more questions correctly in a row
+                  </p>
+                </div>
+                <Switch
+                  id="confetti-toggle"
+                  checked={confettiEnabled}
+                  onCheckedChange={handleConfettiChange}
+                  data-testid="switch-confetti-toggle"
+                />
               </div>
             </CardContent>
           </Card>
