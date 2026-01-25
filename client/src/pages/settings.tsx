@@ -175,9 +175,12 @@ export default function Settings() {
     }
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveAllPreferences = () => {
     updateSettingsMutation.mutate({
       username: username.trim() || undefined,
+      autoDeleteFiles,
+      consecutiveCorrectConfetti: confettiEnabled,
+      skipRevisionQuestions: skipRevision,
     });
   };
 
@@ -187,17 +190,14 @@ export default function Settings() {
 
   const handleAutoDeleteChange = (checked: boolean) => {
     setAutoDeleteFiles(checked);
-    updateSettingsMutation.mutate({ autoDeleteFiles: checked, _silent: true });
   };
 
   const handleConfettiChange = (checked: boolean) => {
     setConfettiEnabled(checked);
-    updateSettingsMutation.mutate({ consecutiveCorrectConfetti: checked, _silent: true });
   };
 
   const handleSkipRevisionChange = (checked: boolean) => {
     setSkipRevision(checked);
-    updateSettingsMutation.mutate({ skipRevisionQuestions: checked, _silent: true });
   };
 
   const getInitials = () => {
@@ -301,20 +301,6 @@ export default function Settings() {
                   data-testid="input-username"
                 />
               </div>
-
-              <Button
-                onClick={handleSaveProfile}
-                disabled={updateSettingsMutation.isPending}
-                className="gap-2"
-                data-testid="button-save-profile"
-              >
-                {updateSettingsMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4" />
-                )}
-                Save Profile
-              </Button>
             </CardContent>
           </Card>
 
@@ -449,8 +435,33 @@ export default function Settings() {
               )}
             </CardContent>
           </Card>
+
+          <div className="h-20" />
         </motion.div>
       </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/80 backdrop-blur-lg border-t"
+      >
+        <div className="container mx-auto max-w-2xl">
+          <Button
+            onClick={handleSaveAllPreferences}
+            disabled={updateSettingsMutation.isPending}
+            className="w-full gap-2"
+            size="lg"
+            data-testid="button-save-all-preferences"
+          >
+            {updateSettingsMutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            Save All Preferences
+          </Button>
+        </div>
+      </motion.div>
     </div>
   );
 }
