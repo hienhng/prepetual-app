@@ -160,27 +160,33 @@ function StatCard({
 }) {
   return (
     <motion.div 
-      whileHover={{ scale: 1.02 }} 
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.15 }}
+      whileHover={{ y: -4, scale: 1.02 }} 
+      transition={{ duration: 0.2 }}
       onClick={onClick}
       className={onClick ? "cursor-pointer" : ""}
     >
-      <div className={`rounded-lg p-3 ${isActive ? gradient : "bg-muted"}`}>
-        <div className="flex items-center justify-between gap-2">
-          <div className="min-w-0">
-            <p className={`text-[10px] font-medium uppercase tracking-wide ${isActive ? "text-white/70" : "text-muted-foreground"}`}>
-              {label}
-            </p>
-            <p className={`text-xl font-bold ${isActive ? "text-white" : "text-foreground"}`}>
-              {value}
-            </p>
+      <Card className="overflow-visible border-0 shadow-md">
+        <CardContent className="p-0">
+          <div className={`p-5 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className={`text-sm font-medium mb-1 transition-colors ${isActive ? "text-white/80" : "text-muted-foreground"}`}>{label}</p>
+                <motion.p 
+                  className={`text-3xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+                >
+                  {value}
+                </motion.p>
+              </div>
+              <div className="p-3 rounded-xl transition-all duration-500 flex items-center justify-center bg-white/20 backdrop-blur-sm scale-110 shadow-lg text-[#ffffff]">
+                <Icon className="w-6 h-6 transition-colors text-white" />
+              </div>
+            </div>
           </div>
-          <div className={`p-2 rounded-md ${isActive ? "bg-white/20" : "bg-muted-foreground/10"}`}>
-            <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-muted-foreground"}`} />
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }
@@ -480,34 +486,58 @@ function QuickActionCard({
   
   return (
     <motion.div 
-      whileHover={{ scale: 1.01 }} 
-      whileTap={{ scale: 0.99 }}
-      transition={{ duration: 0.15 }}
+      whileHover={{ scale: 1.02 }} 
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.2 }}
+      className={isPrimary ? "relative group" : ""}
     >
-      <div 
-        className={`cursor-pointer rounded-lg p-3 transition-colors ${
+      {isPrimary && (
+        <motion.div 
+          className="absolute -inset-0.5 bg-gradient-to-r from-primary via-quiz-purple to-primary rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-tilt"
+          animate={{ 
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
+          }}
+          transition={{ 
+            duration: 5, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
+        />
+      )}
+      <Card 
+        className={`relative cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl  ${
           isPrimary 
-            ? "bg-gradient-to-r from-primary to-primary/90" 
-            : "bg-muted/50 hover:bg-muted/70"
+            ? "bg-gradient-to-br from-primary via-primary to-primary/90 border-0 shadow-lg shadow-primary/20" 
+            : "border-border/50"
         }`}
         onClick={onClick}
         data-testid={testId}
       >
-        <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-md ${isPrimary ? "bg-white/20" : "bg-primary/10"}`}>
-            <Icon className={`w-4 h-4 ${isPrimary ? "text-white" : "text-primary"}`} />
+        <CardContent className="p-6 relative z-20">
+          <div className="flex items-center gap-4">
+            <motion.div 
+              className={`p-3 rounded-xl ${isPrimary ? "bg-white/20 backdrop-blur-sm border border-white/20" : "bg-primary/10"}`}
+              whileHover={{ rotate: isPrimary ? 90 : 0, scale: 1.1 }}
+              transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
+            >
+              <Icon className={`w-6 h-6 ${isPrimary ? "text-white" : "text-primary"}`} />
+            </motion.div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-0.5">
+                <h3 className={`font-bold text-lg leading-tight ${isPrimary ? "text-white" : "text-foreground"}`}>
+                  {title}
+                </h3>
+              </div>
+              <p className={`text-sm font-medium tracking-tight truncate ${isPrimary ? "text-white/90" : "text-muted-foreground"}`}>
+                {description}
+              </p>
+            </div>
+            <div className={`p-2 rounded-full transition-colors ${isPrimary ? "bg-white/20 hover:bg-white/30" : "bg-muted"}`}>
+              <ArrowRight className={`w-5 h-5 flex-shrink-0 ${isPrimary ? "text-white" : "text-muted-foreground"}`} />
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className={`text-sm font-semibold ${isPrimary ? "text-white" : "text-foreground"}`}>
-              {title}
-            </h3>
-            <p className={`text-xs truncate ${isPrimary ? "text-white/80" : "text-muted-foreground"}`}>
-              {description}
-            </p>
-          </div>
-          <ArrowRight className={`w-4 h-4 flex-shrink-0 ${isPrimary ? "text-white/80" : "text-muted-foreground"}`} />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }
@@ -616,29 +646,33 @@ function QuizCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, delay: index * 0.03 }}
-      whileHover={{ x: 2 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
       className="group cursor-pointer"
       data-testid={`card-recent-quiz-${quiz.id}`}
       onClick={onTake}
     >
-      <div className="relative flex items-center gap-3 p-2.5 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors">
-        {/* Left accent bar */}
-        <div className={`absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full ${colors.icon}`} />
-        
-        <div className={`w-8 h-8 rounded-md ${colors.icon} flex items-center justify-center flex-shrink-0 ml-1.5`}>
-          <CategoryIcon className="w-4 h-4 text-white" />
+      <div className="relative flex gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted/70 transition-all duration-200 border border-transparent hover:border-border/40">
+        <div className="flex items-center justify-center flex-shrink-0">
+          <div className={`w-9 h-9 rounded-lg ${colors.icon} flex items-center justify-center`}>
+            <CategoryIcon className="w-4 h-4 text-white" />
+          </div>
         </div>
         
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
             {quiz.title}
           </h3>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>{questionCount}q</span>
-            <span className={`capitalize ${colors.text}`}>{difficulty}</span>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+            <span>{questionCount} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span></span>
+            <span className="flex items-center gap-1">
+              <span className={`w-1.5 h-1.5 rounded-full ${colors.badge.split(' ')[0].replace('text-', 'bg-')}`} />
+              <span className={`capitalize ${colors.text} font-medium`}>{difficulty}</span>
+            </span>
+            <span className="hidden sm:inline">{formatDistanceToNow(new Date(quiz.createdAt))} ago</span>
           </div>
         </div>
         
@@ -646,19 +680,19 @@ function QuizCard({
           <Button
             size="icon"
             variant="ghost"
-            className="h-7 w-7 hidden sm:flex"
+            className="h-8 w-8 hidden sm:flex"
             onClick={(e) => { e.stopPropagation(); onStudy(); }}
             data-testid={`button-study-${quiz.id}`}
           >
-            <BookOpen className="w-3.5 h-3.5" />
+            <BookOpen className="w-4 h-4" />
           </Button>
           <Button
             size="sm"
-            className="h-7 px-2.5 text-xs"
+            className="h-8 px-3"
             onClick={(e) => { e.stopPropagation(); onTake(); }}
             data-testid={`button-take-${quiz.id}`}
           >
-            <Play className="w-3 h-3 fill-current sm:mr-1" />
+            <Play className="w-3.5 h-3.5 sm:mr-1.5 fill-black" />
             <span className="hidden sm:inline">Take</span>
           </Button>
         </div>
@@ -674,14 +708,21 @@ function LearningTipCard() {
 
   return (
     <motion.section variants={itemVariants}>
-      <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-900/30">
-        <div className="p-1.5 rounded-md bg-gradient-to-br from-amber-400 to-orange-500 flex-shrink-0">
-          <Lightbulb className="w-4 h-4 text-white" />
-        </div>
-        <p className="text-sm text-amber-800 dark:text-amber-200/80 leading-relaxed">
-          {randomTip}
-        </p>
-      </div>
+      <Card className="overflow-visible bg-gradient-to-r from-primary/5 via-transparent to-primary/5 border-primary/10">
+        <CardContent className="p-5">
+          <div className="flex items-start gap-4">
+            <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+              <Lightbulb className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-medium text-foreground mb-1">Learning Tip</h3>
+              <p className="text-sm text-muted-foreground">
+                {randomTip}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </motion.section>
   );
 }
@@ -1095,33 +1136,28 @@ export default function Dashboard() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="space-y-6"
+        className="space-y-8"
       >
         {/* Welcome Section */}
         <motion.section variants={itemVariants}>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold text-foreground">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
                 {getGreeting()}
               </h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground">
                 {hasQuizzes 
                   ? "Continue where you left off or create something new."
                   : "Let's create your first quiz and start learning."
                 }
               </p>
             </div>
-            {hasQuizzes && (
-              <Button 
-                size="sm"
-                onClick={() => setLocation("/create")} 
-                className="gap-1.5 self-start sm:self-auto"
-                data-testid="button-create-new"
-              >
-                <Plus className="w-4 h-4" />
+            {/* {hasQuizzes && (
+              <Button onClick={() => setLocation("/create")} data-testid="button-create-new">
+                <Plus className="w-4 h-4 mr-2" />
                 New Quiz
               </Button>
-            )}
+            )} */}
           </div>
         </motion.section>
 
@@ -1297,21 +1333,23 @@ export default function Dashboard() {
             <EmptyState onCreateQuiz={() => setLocation("/create")} />
           ) : (
             <div>
-              <div className="flex items-center justify-between gap-4 mb-3">
-                <h2 className="text-sm font-semibold text-foreground">Recent Quizzes</h2>
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <h2 className="font-semibold text-foreground">Recent Quizzes</h2>
+                </div>
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
                   onClick={() => setLocation("/history")}
                   data-testid="button-view-all"
                 >
                   View all
-                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
               
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 {recentQuizzes.map((quiz, index) => (
                   <QuizCard
                     key={quiz.id}
