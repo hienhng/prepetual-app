@@ -13,6 +13,98 @@ import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs";
 import crypto from "crypto";
 import { fetchTranscript } from "youtube-transcript-plus";
+import ytdl from "@distube/ytdl-core";
+import { Readable } from "stream";
+import OpenAI from "openai";
+import fs from "fs";
+import path from "path";
+import os from "os";
+
+const openaiClient = new OpenAI({
+  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+});
+
+const MAX_AUDIO_SIZE_MB = 20; // Max 20MB audio file
+const MAX_DOWNLOAD_TIMEOUT_MS = 60000; // 60 second timeout for downloads
+
+async function transcribeYouTubeAudio(videoId: string): Promise<string> {
+  const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  const tempDir = os.tmpdir();
+  const tempFilePath = path.join(tempDir, `youtube_${videoId}_${Date.now()}.mp3`);
+  
+  try {
+    // First check video info to validate duration
+    const info = await ytdl.getInfo(videoUrl);
+    const durationSeconds = parseInt(info.videoDetails.lengthSeconds, 10);
+    
+    // Limit to 15 minutes max for transcription
+    if (durationSeconds > 900) {
+      throw new Error("Video is too long. Audio transcription is limited to videos under 15 minutes.");
+    }
+    
+    // Download audio stream with size limit and timeout
+    const audioStream = ytdl(videoUrl, {
+      filter: 'audioonly',
+      quality: 'lowestaudio',
+    });
+    
+    // Write to temp file with size limit
+    const writeStream = fs.createWriteStream(tempFilePath);
+    let downloadedBytes = 0;
+    const maxBytes = MAX_AUDIO_SIZE_MB * 1024 * 1024;
+    
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        audioStream.destroy();
+        writeStream.close();
+        reject(new Error("Download timed out. Please try a shorter video."));
+      }, MAX_DOWNLOAD_TIMEOUT_MS);
+      
+      audioStream.on('data', (chunk: Buffer) => {
+        downloadedBytes += chunk.length;
+        if (downloadedBytes > maxBytes) {
+          clearTimeout(timeout);
+          audioStream.destroy();
+          writeStream.close();
+          reject(new Error("Audio file too large. Please try a shorter video."));
+        }
+      });
+      
+      audioStream.pipe(writeStream);
+      writeStream.on('finish', () => {
+        clearTimeout(timeout);
+        resolve();
+      });
+      writeStream.on('error', (err) => {
+        clearTimeout(timeout);
+        reject(err);
+      });
+      audioStream.on('error', (err) => {
+        clearTimeout(timeout);
+        reject(err);
+      });
+    });
+    
+    // Transcribe using OpenAI Whisper
+    const transcription = await openaiClient.audio.transcriptions.create({
+      file: fs.createReadStream(tempFilePath),
+      model: "gpt-4o-mini-transcribe",
+      response_format: "json",
+    });
+    
+    return transcription.text;
+  } finally {
+    // Clean up temp file
+    try {
+      if (fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+      }
+    } catch (e) {
+      console.error("Failed to clean up temp file:", e);
+    }
+  }
+}
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -132,7 +224,7 @@ export async function registerRoutes(
   // YouTube transcript extraction endpoint
   app.post("/api/youtube-transcript", async (req, res) => {
     try {
-      const { url } = req.body;
+      const { url, useAudioTranscription } = req.body;
       
       if (!url || typeof url !== "string") {
         return res.status(400).json({ message: "YouTube URL is required" });
@@ -149,6 +241,44 @@ export async function registerRoutes(
 
       const videoId = videoIdMatch[1];
       
+      // If user explicitly requested audio transcription, skip caption fetch
+      if (useAudioTranscription) {
+        // Audio transcription requires authentication due to cost
+        const isAuthenticated = typeof (req as any).isAuthenticated === 'function' && (req as any).isAuthenticated();
+        if (!isAuthenticated) {
+          return res.status(401).json({ 
+            message: "Please log in to use audio transcription." 
+          });
+        }
+        
+        try {
+          const userId = (req as any).user?.id;
+          console.log(`[YouTube] Using audio transcription for video ${videoId} by user ${userId}`);
+          const transcribedText = await transcribeYouTubeAudio(videoId);
+          
+          if (transcribedText.length < 50) {
+            return res.status(400).json({
+              message: "Transcribed audio is too short to generate a meaningful quiz.",
+            });
+          }
+          
+          return res.json({ 
+            text: transcribedText,
+            videoId,
+            method: "audio_transcription"
+          });
+        } catch (audioError: any) {
+          console.error("Audio transcription error:", audioError);
+          const errorMessage = audioError.message || "Could not transcribe video audio.";
+          return res.status(400).json({ 
+            message: errorMessage.includes("too long") || errorMessage.includes("too large") || errorMessage.includes("timed out")
+              ? errorMessage
+              : "Could not transcribe video audio. The video may be private or unavailable."
+          });
+        }
+      }
+      
+      // First try to get captions
       try {
         // Use youtube-transcript-plus with custom user agent for better reliability
         const transcript = await fetchTranscript(videoId, {
@@ -157,8 +287,11 @@ export async function registerRoutes(
         });
         
         if (!transcript || transcript.length === 0) {
+          // Captions not available, return with fallback option (only for authenticated users)
+          const isAuthenticatedForFallback = typeof (req as any).isAuthenticated === 'function' && (req as any).isAuthenticated();
           return res.status(400).json({ 
-            message: "Could not fetch transcript. This video may not have captions available." 
+            message: "No captions found for this video.",
+            canUseAudioTranscription: isAuthenticatedForFallback
           });
         }
 
@@ -178,25 +311,17 @@ export async function registerRoutes(
         res.json({ 
           text: fullText,
           videoId,
-          segmentCount: transcript.length
+          segmentCount: transcript.length,
+          method: "captions"
         });
       } catch (transcriptError: any) {
         console.error("YouTube transcript error:", transcriptError);
         
-        if (transcriptError.message?.includes("disabled") || transcriptError.message?.includes("Disabled")) {
-          return res.status(400).json({ 
-            message: "Captions are disabled for this video. Please try a different video." 
-          });
-        }
-        
-        if (transcriptError.message?.includes("not available") || transcriptError.message?.includes("Not available")) {
-          return res.status(400).json({ 
-            message: "Transcript not available for this video. Please try a video with captions." 
-          });
-        }
-        
+        // Return with option to use audio transcription as fallback (only for authenticated users)
+        const isAuthenticated = typeof (req as any).isAuthenticated === 'function' && (req as any).isAuthenticated();
         return res.status(400).json({ 
-          message: "Could not fetch transcript. Please ensure the video has captions enabled." 
+          message: "Captions not available for this video.",
+          canUseAudioTranscription: isAuthenticated
         });
       }
     } catch (error) {
