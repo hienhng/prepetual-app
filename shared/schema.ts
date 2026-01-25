@@ -29,6 +29,7 @@ export const users = pgTable("users", {
   themePreference: varchar("theme_preference").default("system"),
   autoDeleteFiles: boolean("auto_delete_files").default(false),
   consecutiveCorrectConfetti: boolean("consecutive_correct_confetti").default(true),
+  skipRevisionQuestions: boolean("skip_revision_questions").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

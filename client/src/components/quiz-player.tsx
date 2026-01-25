@@ -181,9 +181,12 @@ export function QuizPlayer() {
 
   const originalQuestions = currentQuiz.questions;
   
+  const skipRevision = user?.skipRevisionQuestions === true;
+  
   const allQuestions = useMemo(() => {
-    // Only registered users get a 2nd attempt for wrong answers
-    const wrongQuestions = !isGuest ? originalQuestions.filter(q => wrongAnswerIds.current.has(q.id)) : [];
+    // Only registered users get a 2nd attempt for wrong answers (unless they've disabled revision)
+    const shouldIncludeRetry = !isGuest && !skipRevision;
+    const wrongQuestions = shouldIncludeRetry ? originalQuestions.filter(q => wrongAnswerIds.current.has(q.id)) : [];
     const retryQuestions = wrongQuestions.map(q => ({
       ...q,
       id: `retry-${q.id}`,
@@ -191,7 +194,7 @@ export function QuizPlayer() {
       isRetry: true as const,
     }));
     return [...originalQuestions.map(q => ({ ...q, isRetry: false as const, originalId: q.id })), ...retryQuestions];
-  }, [originalQuestions, wrongAnswerIds.current.size, isGuest]);
+  }, [originalQuestions, wrongAnswerIds.current.size, isGuest, skipRevision]);
 
   const currentQuestion = allQuestions[currentIndex];
   const isRetryQuestion = currentQuestion?.isRetry;

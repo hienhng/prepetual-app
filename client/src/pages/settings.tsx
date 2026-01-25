@@ -58,11 +58,13 @@ export default function Settings() {
   const [profileImage, setProfileImage] = useState<string | null>(user?.profileImageUrl || null);
   const [autoDeleteFiles, setAutoDeleteFiles] = useState(user?.autoDeleteFiles || false);
   const [confettiEnabled, setConfettiEnabled] = useState(user?.consecutiveCorrectConfetti !== false);
+  const [skipRevision, setSkipRevision] = useState(user?.skipRevisionQuestions || false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
   const { data: settings, isLoading } = useQuery<{
     autoDeleteFiles: boolean;
     consecutiveCorrectConfetti: boolean;
+    skipRevisionQuestions: boolean;
     username: string | null;
     profileImageUrl: string | null;
   }>({
@@ -76,6 +78,7 @@ export default function Settings() {
       setProfileImage(settings.profileImageUrl);
       setAutoDeleteFiles(settings.autoDeleteFiles || false);
       setConfettiEnabled(settings.consecutiveCorrectConfetti !== false);
+      setSkipRevision(settings.skipRevisionQuestions || false);
     }
   }, [settings]);
 
@@ -84,6 +87,7 @@ export default function Settings() {
       username?: string;
       autoDeleteFiles?: boolean;
       consecutiveCorrectConfetti?: boolean;
+      skipRevisionQuestions?: boolean;
       profileImageUrl?: string;
       _silent?: boolean;
     }) => {
@@ -189,6 +193,11 @@ export default function Settings() {
   const handleConfettiChange = (checked: boolean) => {
     setConfettiEnabled(checked);
     updateSettingsMutation.mutate({ consecutiveCorrectConfetti: checked, _silent: true });
+  };
+
+  const handleSkipRevisionChange = (checked: boolean) => {
+    setSkipRevision(checked);
+    updateSettingsMutation.mutate({ skipRevisionQuestions: checked, _silent: true });
   };
 
   const getInitials = () => {
@@ -374,6 +383,25 @@ export default function Settings() {
                   checked={confettiEnabled}
                   onCheckedChange={handleConfettiChange}
                   data-testid="switch-confetti-toggle"
+                />
+              </div>
+
+              <Separator />
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="skip-revision-toggle" className="text-base">
+                    Skip revision questions
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Go straight to results without retrying missed questions
+                  </p>
+                </div>
+                <Switch
+                  id="skip-revision-toggle"
+                  checked={skipRevision}
+                  onCheckedChange={handleSkipRevisionChange}
+                  data-testid="switch-skip-revision"
                 />
               </div>
             </CardContent>
