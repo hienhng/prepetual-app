@@ -1050,7 +1050,7 @@ export function QuizPlayer() {
                 <Button
                   onClick={finishQuiz}
                   disabled={isSubmitting || !canFinish}
-                  className="gap-1 sm:gap-2 rounded-lg sm:rounded-xl flex-1 max-w-[140px] sm:max-w-none sm:min-w-[160px] font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-9 sm:h-11 text-sm sm:text-base px-3 sm:px-4"
+                  className="gap-1 sm:gap-2 rounded-lg sm:rounded-xl flex-1 max-w-[140px] sm:max-w-none sm:min-w-[160px] font-semibold bg-primary hover:from-primary/90 hover:primary/90 h-9 sm:h-11 text-sm sm:text-base px-3 sm:px-4"
                   data-testid="button-finish"
                 >
                   {isSubmitting ? (
