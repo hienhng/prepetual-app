@@ -38,43 +38,63 @@ export function QuizGenerator() {
   const documentImages = sourceMaterial?.documentImages || [];
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
-  // Simulated progress animation - duration based on question count and difficulty
+  // Smooth progress animation with step messages
   useEffect(() => {
     if (isLoading && mode === "generate") {
-      // Calculate base duration multiplier based on questions and difficulty
-      // Base: 10 questions at medium = 1x, scales up from there
       const questionMultiplier = questionCount / 10;
       const difficultyMultiplier = difficulty === "easy" ? 0.7 : difficulty === "medium" ? 1.0 : 1.4;
       const totalMultiplier = Math.max(0.5, questionMultiplier * difficultyMultiplier);
       
-      // Base durations in ms, will be scaled by multiplier
-      const baseSteps = [
-        { step: "starting", progress: 5, baseDelay: 0 },
-        { step: "reading", progress: 10, baseDelay: 400 },
-        { step: "analyzing", progress: 25, baseDelay: 1200 },
-        { step: "preparing", progress: 35, baseDelay: 2000 },
-        { step: "generating", progress: 50, baseDelay: 3000 },
-        { step: "processing", progress: 70, baseDelay: 6000 },
-        { step: "validating", progress: 80, baseDelay: 10000 },
-        { step: "finalizing", progress: 90, baseDelay: 14000 },
+      // Total duration for the animation (will cap at 90%)
+      const totalDuration = 15000 * totalMultiplier;
+      const updateInterval = 50; // Update every 50ms for smooth animation
+      const maxProgress = 90;
+      
+      // Step thresholds for messages
+      const steps = [
+        { threshold: 5, step: "starting" },
+        { threshold: 15, step: "reading" },
+        { threshold: 30, step: "analyzing" },
+        { threshold: 45, step: "preparing" },
+        { threshold: 60, step: "generating" },
+        { threshold: 75, step: "processing" },
+        { threshold: 85, step: "validating" },
+        { threshold: 90, step: "finalizing" },
       ];
 
-      // Clear any existing timeouts
+      let startTime = Date.now();
+      let currentStepIndex = 0;
+
+      // Clear any existing intervals
       timeoutsRef.current.forEach(t => clearTimeout(t));
       timeoutsRef.current = [];
 
-      // Schedule each step with scaled delays
-      baseSteps.forEach(({ step, progress, baseDelay }) => {
-        const scaledDelay = Math.round(baseDelay * totalMultiplier);
-        const timeout = setTimeout(() => {
-          setProcessingProgress(progress);
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        // Use easeOutQuad for natural deceleration as it approaches max
+        const linearProgress = Math.min(elapsed / totalDuration, 1);
+        const easedProgress = linearProgress * (2 - linearProgress); // easeOutQuad
+        const progress = Math.min(easedProgress * maxProgress, maxProgress);
+        
+        setProcessingProgress(progress);
+        
+        // Update step message when crossing thresholds
+        while (currentStepIndex < steps.length && progress >= steps[currentStepIndex].threshold) {
+          const step = steps[currentStepIndex].step;
           setCurrentGenerationStep(step);
           setLoadingMessage(getStepMessage(step));
-        }, scaledDelay);
-        timeoutsRef.current.push(timeout);
-      });
+          currentStepIndex++;
+        }
+        
+        if (progress >= maxProgress) {
+          clearInterval(interval);
+        }
+      }, updateInterval);
+
+      timeoutsRef.current.push(interval as unknown as NodeJS.Timeout);
 
       return () => {
+        clearInterval(interval);
         timeoutsRef.current.forEach(t => clearTimeout(t));
         timeoutsRef.current = [];
       };

@@ -161,7 +161,7 @@ export function QuizGenerationDialog({
                     <span className="text-sm text-muted-foreground">Progress</span>
                     <span className="text-sm font-bold text-primary">{Math.round(progress)}%</span>
                   </div>
-                  <Progress value={progress} className="h-2" />
+                  <Progress value={progress} className="h-2 [&>div]:transition-all [&>div]:duration-100 [&>div]:ease-out" />
                 </div>
 
                 <AnimatePresence mode="wait">
