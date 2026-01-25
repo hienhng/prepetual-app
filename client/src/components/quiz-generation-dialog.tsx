@@ -228,27 +228,19 @@ export function QuizGenerationDialog({
                 </AnimatePresence>
               </div>
 
-              <div className="bg-muted/50 border-t px-6 py-5">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
-                    <Lightbulb className="w-4 h-4 text-amber-500" />
-                  </div>
-                  <div className="flex-1 min-h-[3rem]">
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Study Tip</p>
-                    <AnimatePresence mode="wait">
-                      <motion.p
-                        key={currentTipIndex}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: tipVisible ? 1 : 0, y: tipVisible ? 0 : -10 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.3 }}
-                        className="text-sm text-foreground leading-relaxed"
-                      >
-                        {STUDY_TIPS[currentTipIndex]}
-                      </motion.p>
-                    </AnimatePresence>
-                  </div>
-                </div>
+              <div className="px-8 pb-8 pt-0 text-center min-h-[4.5rem]">
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={currentTipIndex}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: tipVisible ? 1 : 0, y: tipVisible ? 0 : -10 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="text-xs italic text-muted-foreground leading-relaxed"
+                  >
+                    {STUDY_TIPS[currentTipIndex]}
+                  </motion.p>
+                </AnimatePresence>
               </div>
             </div>
           </motion.div>
