@@ -167,7 +167,7 @@ function StatCard({
     >
       <Card className="overflow-visible border-0 shadow-md">
         <CardContent className="p-0">
-          <div className={`p-5 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
+          <div className={`p-4 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="mb-1 transition-colors text-white/80 text-[12px] text-left font-semibold">{label}</p>
