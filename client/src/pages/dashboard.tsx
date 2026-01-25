@@ -775,7 +775,7 @@ function ContinueQuizCard({
             <div className="flex items-center gap-2.5 sm:flex-shrink-0">
               <div className="relative">
                 <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110 ${colors.icon}`}>
-                  <CategoryIcon className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white" />
+                  <CategoryIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm bg-foreground/80">
                   {remaining}
@@ -820,11 +820,11 @@ function ContinueQuizCard({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
+                    className="text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
                     onClick={(e) => { e.stopPropagation(); onDiscard(); }}
                     data-testid="button-discard-progress"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
@@ -868,17 +868,17 @@ function ContinueQuizCard({
                   } hover:brightness-110 text-white`}
                   data-testid="button-continue-quiz"
                 >
-                  <Play className="w-3.5 h-3.5 fill-current" />
-                  <span className="font-semibold text-xs">{isRevising ? 'Continue Review' : 'Continue'}</span>
+                  <Play className="w-4 h-4 fill-current" />
+                  <span className="font-semibold">{isRevising ? 'Continue Review' : 'Continue'}</span>
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-8 w-8 sm:hidden text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
+                  className="sm:hidden text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
                   onClick={(e) => { e.stopPropagation(); onDiscard(); }}
                   data-testid="button-discard-progress-mobile"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-4 h-4" />
                 </Button>
               </div>
             </div>
