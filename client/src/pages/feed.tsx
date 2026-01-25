@@ -403,7 +403,9 @@ export default function Feed() {
               <Compass className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Discover</h1>
+              <h1 className="text-2xl font-bold text-foreground">
+                <span className="font-brand">Prepetual</span> Discover
+              </h1>
               <p className="text-sm text-muted-foreground">
                 Explore community quizzes and challenge yourself
               </p>
