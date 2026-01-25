@@ -537,6 +537,8 @@ export async function registerRoutes(
         username: user.username,
         profileImageUrl: user.profileImageUrl,
         autoDeleteFiles: user.autoDeleteFiles || false,
+        consecutiveCorrectConfetti: user.consecutiveCorrectConfetti !== false,
+        skipRevisionQuestions: user.skipRevisionQuestions || false,
       });
     } catch (error) {
       console.error("Settings fetch error:", error);
@@ -547,7 +549,7 @@ export async function registerRoutes(
   app.patch("/api/user/settings", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { username, autoDeleteFiles, profileImageUrl } = req.body;
+      const { username, autoDeleteFiles, profileImageUrl, consecutiveCorrectConfetti, skipRevisionQuestions } = req.body;
       
       const updates: any = {};
       if (username !== undefined) {
@@ -558,6 +560,8 @@ export async function registerRoutes(
       }
       if (autoDeleteFiles !== undefined) updates.autoDeleteFiles = autoDeleteFiles;
       if (profileImageUrl !== undefined) updates.profileImageUrl = profileImageUrl;
+      if (consecutiveCorrectConfetti !== undefined) updates.consecutiveCorrectConfetti = consecutiveCorrectConfetti;
+      if (skipRevisionQuestions !== undefined) updates.skipRevisionQuestions = skipRevisionQuestions;
 
       const updatedUser = await storage.updateUser(userId, updates).catch(err => {
         if (err.message?.includes('unique constraint') || err.code === '23505') {
@@ -573,6 +577,8 @@ export async function registerRoutes(
         username: updatedUser.username,
         profileImageUrl: updatedUser.profileImageUrl,
         autoDeleteFiles: updatedUser.autoDeleteFiles || false,
+        consecutiveCorrectConfetti: updatedUser.consecutiveCorrectConfetti !== false,
+        skipRevisionQuestions: updatedUser.skipRevisionQuestions || false,
       });
     } catch (error) {
       console.error("Settings update error:", error);

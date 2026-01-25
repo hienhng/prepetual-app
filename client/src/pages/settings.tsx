@@ -443,24 +443,21 @@ export default function Settings() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/80 backdrop-blur-lg border-t"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
       >
-        <div className="container mx-auto max-w-2xl">
-          <Button
-            onClick={handleSaveAllPreferences}
-            disabled={updateSettingsMutation.isPending}
-            className="w-full gap-2"
-            size="lg"
-            data-testid="button-save-all-preferences"
-          >
-            {updateSettingsMutation.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            Save All Preferences
-          </Button>
-        </div>
+        <Button
+          onClick={handleSaveAllPreferences}
+          disabled={updateSettingsMutation.isPending}
+          className="gap-2 shadow-lg"
+          data-testid="button-save-all-preferences"
+        >
+          {updateSettingsMutation.isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Save className="w-4 h-4" />
+          )}
+          Save Preferences
+        </Button>
       </motion.div>
     </div>
   );
