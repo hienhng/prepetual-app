@@ -21,52 +21,99 @@ const STEP_MESSAGES: Record<string, string> = {
 function AnimatedLogo() {
   return (
     <div className="relative w-36 h-36 flex items-center justify-center">
-      <svg className="w-full h-full" viewBox="0 0 100 100">
-        <defs>
-          <mask id="logoMask">
-            <image 
-              href={logoImage} 
-              x="0" 
-              y="0" 
-              width="100" 
-              height="100" 
-              preserveAspectRatio="xMidYMid meet"
-            />
-          </mask>
-          <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="white" stopOpacity="0" />
-            <stop offset="35%" stopColor="white" stopOpacity="0.5" />
-            <stop offset="50%" stopColor="white" stopOpacity="0.9" />
-            <stop offset="65%" stopColor="white" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        
-        <image 
-          href={logoImage} 
-          x="0" 
-          y="0" 
-          width="100" 
-          height="100" 
-          preserveAspectRatio="xMidYMid meet"
-        />
-        
-        <g mask="url(#logoMask)">
-          <motion.rect
-            y="0"
-            width="40"
-            height="100"
-            fill="url(#trailGradient)"
-            initial={{ x: -50 }}
-            animate={{ x: 150 }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "linear",
-            }}
+      <motion.div
+        className="absolute inset-0 rounded-full bg-yellow-400/20 blur-xl"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+      
+      <motion.div
+        className="absolute inset-4 rounded-full bg-yellow-400/10 blur-lg"
+        animate={{
+          scale: [1.1, 1, 1.1],
+          opacity: [0.2, 0.4, 0.2],
+        }}
+        transition={{
+          duration: 2.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 0.3,
+        }}
+      />
+      
+      <motion.div
+        className="relative w-full h-full"
+        animate={{
+          scale: [1, 1.03, 1],
+        }}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <svg className="w-full h-full drop-shadow-lg" viewBox="0 0 100 100">
+          <defs>
+            <mask id="logoMask">
+              <image 
+                href={logoImage} 
+                x="0" 
+                y="0" 
+                width="100" 
+                height="100" 
+                preserveAspectRatio="xMidYMid meet"
+              />
+            </mask>
+            <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="white" stopOpacity="0" />
+              <stop offset="30%" stopColor="white" stopOpacity="0.6" />
+              <stop offset="50%" stopColor="white" stopOpacity="1" />
+              <stop offset="70%" stopColor="white" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="white" stopOpacity="0" />
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <image 
+            href={logoImage} 
+            x="0" 
+            y="0" 
+            width="100" 
+            height="100" 
+            preserveAspectRatio="xMidYMid meet"
+            filter="url(#glow)"
           />
-        </g>
-      </svg>
+          
+          <g mask="url(#logoMask)">
+            <motion.rect
+              y="0"
+              width="35"
+              height="100"
+              fill="url(#trailGradient)"
+              initial={{ x: -45 }}
+              animate={{ x: 145 }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          </g>
+        </svg>
+      </motion.div>
     </div>
   );
 }
