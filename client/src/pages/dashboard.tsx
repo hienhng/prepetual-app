@@ -167,12 +167,12 @@ function StatCard({
     >
       <Card className="overflow-visible border-0 shadow-md">
         <CardContent className="p-0">
-          <div className={`p-5 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
-            <div className="flex items-center justify-between gap-3">
+          <div className={`p-3 sm:p-4 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
+            <div className="flex items-center justify-between gap-2">
               <div>
-                <p className={`text-sm font-medium mb-1 transition-colors ${isActive ? "text-white/80" : "text-muted-foreground"}`}>{label}</p>
+                <p className={`text-xs sm:text-sm font-medium mb-0.5 transition-colors ${isActive ? "text-white/80" : "text-muted-foreground"}`}>{label}</p>
                 <motion.p 
-                  className={`text-3xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
+                  className={`text-xl sm:text-2xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
@@ -180,8 +180,8 @@ function StatCard({
                   {value}
                 </motion.p>
               </div>
-              <div className="p-3 rounded-xl transition-all duration-500 flex items-center justify-center bg-white/20 backdrop-blur-sm scale-110 shadow-lg text-[#ffffff]">
-                <Icon className="w-6 h-6 transition-colors text-white" />
+              <div className="p-2 sm:p-2.5 rounded-lg transition-all duration-500 flex items-center justify-center bg-white/20 backdrop-blur-sm shadow-lg text-[#ffffff]">
+                <Icon className="w-5 h-5 transition-colors text-white" />
               </div>
             </div>
           </div>
@@ -768,84 +768,84 @@ function ContinueQuizCard({
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="relative group"
     >
-      <Card className={`overflow-hidden border-2 shadow-lg transition-all duration-300 ${colors.border} bg-gradient-to-br ${colors.from} ${colors.via} to-transparent ${colors.shadow}`}>
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+      <Card className={`overflow-hidden border-2 shadow-md transition-all duration-300 ${colors.border} bg-gradient-to-br ${colors.from} ${colors.via} to-transparent ${colors.shadow}`}>
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             {/* Icon and encouragement */}
-            <div className="flex items-center gap-3 sm:flex-shrink-0">
+            <div className="flex items-center gap-2.5 sm:flex-shrink-0">
               <div className="relative">
-                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110 ${colors.icon}`}>
-                  <CategoryIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110 ${colors.icon}`}>
+                  <CategoryIcon className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm bg-foreground/80">
+                <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm bg-foreground/80">
                   {remaining}
                 </div>
               </div>
               <div className="sm:hidden flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
+                <div className="flex items-center gap-1.5 mb-0.5">
                   <h3 className="font-semibold text-foreground truncate text-sm">{quiz.title}</h3>
                   {isRevising ? (
-                    <Badge variant="outline" className="text-[10px] px-1 h-4 leading-none uppercase tracking-wider font-bold bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-900 border-current/20">
+                    <Badge variant="outline" className="text-[9px] px-1 h-4 leading-none uppercase tracking-wider font-bold bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-900 border-current/20">
                       Revising
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className={`text-[10px] px-1 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
+                    <Badge variant="outline" className={`text-[9px] px-1 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
                       {difficulty}
                     </Badge>
                   )}
                 </div>
-                <p className={`text-xs font-medium ${colors.text}`}>{timeLabel} - continue now!</p>
+                <p className={`text-xs font-medium ${colors.text}`}>{timeLabel}</p>
               </div>
             </div>
             
             {/* Content */}
-            <div className="flex-1 min-w-0 space-y-3">
+            <div className="flex-1 min-w-0 space-y-2">
               <div className="hidden sm:block">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className="font-semibold text-base text-foreground truncate">{quiz.title}</h3>
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <h3 className="font-semibold text-sm text-foreground truncate">{quiz.title}</h3>
                       {isRevising ? (
-                        <Badge variant="outline" className="text-[10px] px-1.5 h-4 leading-none uppercase tracking-wider font-bold bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-900 border-current/20">
+                        <Badge variant="outline" className="text-[9px] px-1 h-4 leading-none uppercase tracking-wider font-bold bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-900 border-current/20">
                           Revising
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className={`text-[10px] px-1.5 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
+                        <Badge variant="outline" className={`text-[9px] px-1 h-4 leading-none uppercase tracking-wider font-bold ${colors.badge} border-current/20`}>
                           {difficulty}
                         </Badge>
                       )}
                     </div>
-                    <p className={`text-sm font-medium ${colors.text}`}>{timeLabel} - continue now!</p>
+                    <p className={`text-xs font-medium ${colors.text}`}>{timeLabel}</p>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
+                    className="h-6 w-6 text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
                     onClick={(e) => { e.stopPropagation(); onDiscard(); }}
                     data-testid="button-discard-progress"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3.5 h-3.5" />
                   </Button>
                 </div>
               </div>
               
               {/* Progress - hide progress bar in revision mode */}
               {isRevising ? (
-                <div className="flex items-center gap-2 py-1.5 px-3 rounded-lg bg-violet-500/10 dark:bg-violet-500/15 border border-violet-200/50 dark:border-violet-800/30">
-                  <div className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
-                  <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
+                <div className="flex items-center gap-1.5 py-1 px-2 rounded-md bg-violet-500/10 dark:bg-violet-500/15 border border-violet-200/50 dark:border-violet-800/30">
+                  <div className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
+                  <span className="text-xs font-medium text-violet-700 dark:text-violet-300">
                     {displayTotal} question{displayTotal !== 1 ? 's' : ''} to review
                   </span>
                 </div>
               ) : (
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground font-medium">
-                      {displayAnswered} of {displayTotal} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span> completed
+                      {displayAnswered}/{displayTotal} completed
                     </span>
                     <span className={`font-bold ${colors.text}`}>{progress}%</span>
                   </div>
-                  <div className="relative h-2.5 bg-muted/30 dark:bg-muted/10 rounded-full overflow-hidden">
+                  <div className="relative h-2 bg-muted/30 dark:bg-muted/10 rounded-full overflow-hidden">
                     <motion.div 
                       className={`absolute inset-y-0 left-0 rounded-full ${colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')}`}
                       initial={{ width: 0 }}
@@ -860,25 +860,25 @@ function ContinueQuizCard({
               <div className="flex items-center gap-2">
                 <Button
                   onClick={onContinue}
-                  className={`border-none flex-1 gap-2 h-10 shadow-md transition-all duration-300 active:scale-95 ${
+                  size="sm"
+                  className={`border-none flex-1 gap-1.5 shadow-sm transition-all duration-300 active:scale-95 ${
                     isRevising 
                       ? 'bg-gradient-to-r from-violet-500 to-violet-600' 
                       : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
                   } hover:brightness-110 text-white`}
                   data-testid="button-continue-quiz"
                 >
-                  <Play className="w-4 h-4 fill-current" />
-                  <span className="font-bold">{isRevising ? 'Continue Review' : 'Continue Quiz'}</span>
-                  <ArrowRight className="w-4 h-4 hidden sm:block group-hover:translate-x-1 transition-transform" />
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span className="font-semibold text-xs">{isRevising ? 'Continue Review' : 'Continue'}</span>
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-10 w-10 sm:hidden text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
+                  className="h-8 w-8 sm:hidden text-muted-foreground hover:text-destructive flex-shrink-0 transition-colors"
                   onClick={(e) => { e.stopPropagation(); onDiscard(); }}
                   data-testid="button-discard-progress-mobile"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
@@ -1131,12 +1131,12 @@ export default function Dashboard() {
   
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
+    <div className="container mx-auto px-4 py-4 md:py-6 max-w-5xl">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="space-y-8"
+        className="space-y-5"
       >
         {/* Welcome Section */}
         <motion.section variants={itemVariants}>
