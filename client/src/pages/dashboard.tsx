@@ -160,33 +160,24 @@ function StatCard({
 }) {
   return (
     <motion.div 
-      whileHover={{ y: -4, scale: 1.02 }} 
-      transition={{ duration: 0.2 }}
+      whileHover={{ y: -2 }} 
+      transition={{ duration: 0.15 }}
       onClick={onClick}
       className={onClick ? "cursor-pointer" : ""}
     >
-      <Card className="overflow-visible border-0 shadow-md">
-        <CardContent className="p-0">
-          <div className={`p-3 sm:p-4 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <p className={`text-xs sm:text-sm font-medium mb-0.5 transition-colors ${isActive ? "text-white/80" : "text-muted-foreground"}`}>{label}</p>
-                <motion.p 
-                  className={`text-xl sm:text-2xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-                >
-                  {value}
-                </motion.p>
-              </div>
-              <div className="p-2 sm:p-2.5 rounded-lg transition-all duration-500 flex items-center justify-center bg-white/20 backdrop-blur-sm shadow-lg text-[#ffffff]">
-                <Icon className="w-5 h-5 transition-colors text-white" />
-              </div>
-            </div>
+      <div className={`p-2.5 sm:p-3 rounded-lg transition-all duration-300 ${isActive ? gradient : "bg-muted/60"}`}>
+        <div className="flex items-center gap-2">
+          <div className={`p-1.5 rounded-md flex-shrink-0 ${isActive ? "bg-white/20" : "bg-muted-foreground/10"}`}>
+            <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-muted-foreground"}`} />
           </div>
-        </CardContent>
-      </Card>
+          <div className="min-w-0">
+            <p className={`text-[10px] sm:text-xs font-medium transition-colors ${isActive ? "text-white/80" : "text-muted-foreground"}`}>{label}</p>
+            <p className={`text-base sm:text-lg font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}>
+              {value}
+            </p>
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 }
@@ -486,58 +477,37 @@ function QuickActionCard({
   
   return (
     <motion.div 
-      whileHover={{ scale: 1.02 }} 
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2 }}
-      className={isPrimary ? "relative group" : ""}
+      whileHover={{ scale: 1.01 }} 
+      whileTap={{ scale: 0.99 }}
+      transition={{ duration: 0.15 }}
+      className="w-full"
     >
-      {isPrimary && (
-        <motion.div 
-          className="absolute -inset-0.5 bg-gradient-to-r from-primary via-quiz-purple to-primary rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-tilt"
-          animate={{ 
-            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
-          }}
-          transition={{ 
-            duration: 5, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
-        />
-      )}
-      <Card 
-        className={`relative cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl  ${
+      <div 
+        className={`relative cursor-pointer rounded-lg transition-all duration-200 ${
           isPrimary 
-            ? "bg-gradient-to-br from-primary via-primary to-primary/90 border-0 shadow-lg shadow-primary/20" 
-            : "border-border/50"
+            ? "bg-gradient-to-r from-primary to-primary/90 shadow-sm" 
+            : "bg-muted/50 hover:bg-muted/70"
         }`}
         onClick={onClick}
         data-testid={testId}
       >
-        <CardContent className="p-6 relative z-20">
-          <div className="flex items-center gap-4">
-            <motion.div 
-              className={`p-3 rounded-xl ${isPrimary ? "bg-white/20 backdrop-blur-sm border border-white/20" : "bg-primary/10"}`}
-              whileHover={{ rotate: isPrimary ? 90 : 0, scale: 1.1 }}
-              transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
-            >
-              <Icon className={`w-6 h-6 ${isPrimary ? "text-white" : "text-primary"}`} />
-            </motion.div>
+        <div className="p-3 sm:p-4">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg flex-shrink-0 ${isPrimary ? "bg-white/20" : "bg-primary/10"}`}>
+              <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${isPrimary ? "text-white" : "text-primary"}`} />
+            </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <h3 className={`font-bold text-lg leading-tight ${isPrimary ? "text-white" : "text-foreground"}`}>
-                  {title}
-                </h3>
-              </div>
-              <p className={`text-sm font-medium tracking-tight truncate ${isPrimary ? "text-white/90" : "text-muted-foreground"}`}>
+              <h3 className={`font-semibold text-sm sm:text-base leading-tight ${isPrimary ? "text-white" : "text-foreground"}`}>
+                {title}
+              </h3>
+              <p className={`text-xs sm:text-sm truncate ${isPrimary ? "text-white/80" : "text-muted-foreground"}`}>
                 {description}
               </p>
             </div>
-            <div className={`p-2 rounded-full transition-colors ${isPrimary ? "bg-white/20 hover:bg-white/30" : "bg-muted"}`}>
-              <ArrowRight className={`w-5 h-5 flex-shrink-0 ${isPrimary ? "text-white" : "text-muted-foreground"}`} />
-            </div>
+            <ArrowRight className={`w-4 h-4 flex-shrink-0 ${isPrimary ? "text-white/80" : "text-muted-foreground"}`} />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </motion.div>
   );
 }
@@ -708,21 +678,19 @@ function LearningTipCard() {
 
   return (
     <motion.section variants={itemVariants}>
-      <Card className="overflow-visible bg-gradient-to-r from-primary/5 via-transparent to-primary/5 border-primary/10">
-        <CardContent className="p-5">
-          <div className="flex items-start gap-4">
-            <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
-              <Lightbulb className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-medium text-foreground mb-1">Learning Tip</h3>
-              <p className="text-sm text-muted-foreground">
-                {randomTip}
-              </p>
-            </div>
+      <div className="rounded-lg bg-primary/5 border border-primary/10 p-3 sm:p-4">
+        <div className="flex items-start gap-3">
+          <div className="p-1.5 rounded-md bg-primary/10 flex-shrink-0">
+            <Lightbulb className="w-4 h-4 text-primary" />
           </div>
-        </CardContent>
-      </Card>
+          <div className="min-w-0">
+            <h3 className="font-medium text-sm text-foreground">Learning Tip</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              {randomTip}
+            </p>
+          </div>
+        </div>
+      </div>
     </motion.section>
   );
 }
