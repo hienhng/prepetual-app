@@ -346,7 +346,7 @@ export default function Create() {
                           <Button
                             onClick={() => handleYoutubeSubmit(false)}
                             disabled={isLoadingYoutube || isTranscribingAudio || !youtubeUrl.trim()}
-                            className="gap-2"
+                            className="gap-2 h-6"
                             data-testid="button-fetch-youtube"
                           >
                             {isLoadingYoutube ? (
@@ -421,14 +421,6 @@ export default function Create() {
                             <li className="flex items-center gap-2">
                               <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
                               youtu.be/...
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-                              Videos with captions (fastest)
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <Mic className="h-3.5 w-3.5 text-primary" />
-                              Videos without captions (AI transcription)
                             </li>
                           </ul>
                         </div>

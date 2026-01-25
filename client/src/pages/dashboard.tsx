@@ -767,7 +767,7 @@ function ContinueQuizCard({
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="relative group"
     >
-      <Card className={`overflow-hidden border ${isRevising ? 'border-violet-500/40' : colors.border} shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br ${isRevising ? 'from-violet-500/5 via-purple-500/5' : `${colors.from} ${colors.via}`} to-transparent`}>
+      <Card className={`overflow-hidden border ${isRevising ? 'border-violet-500/40' : colors.border} transition-all duration-300 bg-gradient-to-br ${isRevising ? 'from-violet-500/5 via-purple-500/5' : `${colors.from} ${colors.via}`} to-transparent`}>
         <CardContent className="p-4 sm:p-5">
           <div className="flex flex-col gap-4">
             {/* Header row */}
