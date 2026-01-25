@@ -764,8 +764,7 @@ function ContinueQuizCard({
 
   return (
     <motion.div
-      whileHover={{ y: -3, scale: 1.01 }}
-      whileTap={{ scale: 0.99 }}
+      whileHover={{ y: -3 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="relative group"
     >
@@ -775,13 +774,9 @@ function ContinueQuizCard({
             {/* Header row */}
             <div className="flex items-start gap-3">
               {/* Icon */}
-              <motion.div 
-                className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 ${isRevising ? 'bg-gradient-to-br from-violet-500 to-purple-600' : colors.icon}`}
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 ${isRevising ? 'bg-gradient-to-br from-violet-500 to-purple-600' : colors.icon}`}>
                 <CategoryIcon className="w-6 h-6 text-white" />
-              </motion.div>
+              </div>
               
               {/* Title and meta */}
               <div className="flex-1 min-w-0">
