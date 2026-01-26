@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Upload, FileText, Image, Sparkles, ArrowRight, 
   CheckCircle2, Loader2, X, Wand2,
-  Type, Youtube, Link, AlertCircle, FileUp
+  Type, Youtube, Link, AlertCircle, FileUp, FilePlusIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -251,7 +251,7 @@ export default function Create() {
       >
         <motion.div variants={itemVariants} className="text-center space-y-2">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/60 mb-1">
-            <Sparkles className="w-6 h-6 text-primary-foreground" />
+            <FilePlusIcon className="w-6 h-6 text-primary-foreground" />
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
             Create Your Quiz

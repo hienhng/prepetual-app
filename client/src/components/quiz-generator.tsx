@@ -271,29 +271,23 @@ export function QuizGenerator() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="border-primary/30 bg-primary/5">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Sparkles className="h-5 w-5 text-primary" />
-                Visual Document Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-background rounded-md p-4 border border-primary/20">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <FileText className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">Office Document with Visual Content</p>
-                    <p className="text-sm text-muted-foreground">
-                      {documentImages.length} image{documentImages.length !== 1 ? 's' : ''} and graphics detected
-                    </p>
-                  </div>
+          <Card className="border-2 border-cyan-200 dark:border-cyan-800/50 bg-cyan-50/50 dark:bg-cyan-950/20">
+            <CardContent className="p-5">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-cyan-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Sparkles className="w-6 h-6 text-white" />
                 </div>
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg text-foreground mb-0.5">Visual Document</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {documentImages.length} image{documentImages.length !== 1 ? 's' : ''} detected for AI analysis
+                  </p>
+                </div>
+              </div>
+              <div className="bg-white/60 dark:bg-background/60 rounded-lg p-4 border">
+                <div className="flex flex-wrap gap-2 mb-3">
                   {documentImages.slice(0, 4).map((img, index) => (
-                    <div key={index} className="w-16 h-16 rounded-md overflow-hidden border border-muted bg-muted">
+                    <div key={index} className="w-14 h-14 rounded-lg overflow-hidden border-2 border-white shadow-sm">
                       <img 
                         src={img} 
                         alt={`Document image ${index + 1}`} 
@@ -302,13 +296,13 @@ export function QuizGenerator() {
                     </div>
                   ))}
                   {documentImages.length > 4 && (
-                    <div className="w-16 h-16 rounded-md border border-muted bg-muted flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-lg border-2 border-dashed border-muted flex items-center justify-center bg-muted/50">
                       <span className="text-xs text-muted-foreground font-medium">+{documentImages.length - 4}</span>
                     </div>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  AI will analyze both text and visual content (charts, diagrams, images) to generate comprehensive quiz questions.
+                <p className="text-xs text-muted-foreground">
+                  AI will analyze text and visual content to generate comprehensive questions
                 </p>
               </div>
             </CardContent>
@@ -320,16 +314,21 @@ export function QuizGenerator() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <FileText className="h-5 w-5 text-primary" />
-                Extracted Content
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-muted/50 rounded-md p-4">
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+          <Card className="border-2 border-green-200 dark:border-green-800/50 bg-green-50/50 dark:bg-green-950/20">
+            <CardContent className="p-5">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                  <FileText className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg text-foreground mb-0.5">Your Study Material</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {extractedText?.length.toLocaleString()} characters ready for quiz generation
+                  </p>
+                </div>
+              </div>
+              <div className="bg-white/60 dark:bg-background/60 rounded-lg p-4 border">
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-4">
                   {showFullText ? extractedText : truncatedText}
                   {!showFullText && hasMoreText && "..."}
                 </p>
@@ -337,7 +336,7 @@ export function QuizGenerator() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="mt-2 gap-1"
+                    className="mt-2 gap-1 -ml-2"
                     onClick={() => setShowFullText(!showFullText)}
                     data-testid="button-toggle-text"
                   >
@@ -355,274 +354,305 @@ export function QuizGenerator() {
                   </Button>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                {extractedText?.length.toLocaleString()} characters extracted
-              </p>
             </CardContent>
           </Card>
         </motion.div>
       )}
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-      >
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <FileQuestionIcon className="h-5 w-5 text-quiz-purple" />
-              Quiz Mode
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              <div
-                className={`
-                  flex flex-col items-center gap-2 p-4 rounded-md border-2 cursor-pointer transition-all text-center
-                  ${mode === "generate" 
-                    ? "border-primary bg-primary/5" 
-                    : "border-muted hover:border-muted-foreground/30"
-                  }
-                `}
-                onClick={() => setMode("generate")}
-                data-testid="mode-generate"
-              >
-                <Sparkles className="h-6 w-6 text-quiz-purple" />
-                <div>
-                  <p className="text-lg font-medium">Generate New Quiz</p>
-                  <p className="text-sm text-muted-foreground">Create new questions from your study material</p>
+      <div className="space-y-3">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ scale: 1.01, y: -2 }}
+          whileTap={{ scale: 0.99 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        >
+          <Card 
+            className={`cursor-pointer overflow-visible border-2 transition-all duration-200 hover:shadow-lg ${
+              mode === "generate" 
+                ? "border-violet-500 bg-violet-50 dark:bg-violet-950/30" 
+                : "border-muted bg-muted/20 hover:border-violet-300"
+            }`}
+            onClick={() => setMode("generate")}
+            data-testid="mode-generate"
+          >
+            <CardContent className="p-5 flex items-center gap-5">
+              <div className="w-14 h-14 rounded-xl bg-violet-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                <Sparkles className="w-7 h-7 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-lg text-foreground mb-1">
+                  Generate New Quiz
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  AI creates new questions from your study material
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                  mode === "generate" ? "border-violet-500 bg-violet-500" : "border-muted-foreground/30"
+                }`}>
+                  {mode === "generate" && <div className="w-2 h-2 rounded-full bg-white" />}
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-              <div
-                className={`
-                  flex flex-col items-center gap-2 p-4 rounded-md border-2 cursor-pointer transition-all text-center
-                  ${mode === "import" 
-                    ? "border-primary bg-primary/5" 
-                    : "border-muted hover:border-muted-foreground/30"
-                  }
-                `}
-                onClick={() => setMode("import")}
-                data-testid="mode-import"
-              >
-                <Import className="h-6 w-6 text-primary" />
-                <div>
-                  <p className="text-lg font-medium">Import Existing Quiz</p>
-                  <p className="text-sm text-muted-foreground">Parse questions from an exam or worksheet</p>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ scale: 1.01, y: -2 }}
+          whileTap={{ scale: 0.99 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.05 }}
+        >
+          <Card 
+            className={`cursor-pointer overflow-visible border-2 transition-all duration-200 hover:shadow-lg ${
+              mode === "import" 
+                ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30" 
+                : "border-muted bg-muted/20 hover:border-amber-300"
+            }`}
+            onClick={() => setMode("import")}
+            data-testid="mode-import"
+          >
+            <CardContent className="p-5 flex items-center gap-5">
+              <div className="w-14 h-14 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                <Import className="w-7 h-7 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-lg text-foreground mb-1">
+                  Import Existing Quiz
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Parse questions from an exam or worksheet
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                  mode === "import" ? "border-amber-500 bg-amber-500" : "border-muted-foreground/30"
+                }`}>
+                  {mode === "import" && <div className="w-2 h-2 rounded-full bg-white" />}
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
 
       {mode === "generate" && (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Settings2 className="h-5 w-5 text-quiz-purple" />
-              Quiz Settings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Number of Questions</Label>
-                <span className="text-sm font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">
-                  {questionCount}
-                </span>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="space-y-4"
+        >
+          <Card className="border-2 border-muted">
+            <CardContent className="p-5 space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center shadow-md">
+                    <Settings2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Number of Questions</h3>
+                    <p className="text-xs text-muted-foreground">Choose between 3-20 questions</p>
+                  </div>
+                  <span className="ml-auto text-xl font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-4 py-1.5 rounded-full">
+                    {questionCount}
+                  </span>
+                </div>
+                <Slider
+                  value={[questionCount]}
+                  onValueChange={([value]) => setQuestionCount(value)}
+                  min={3}
+                  max={20}
+                  step={1}
+                  className="w-full"
+                  data-testid="slider-question-count"
+                />
               </div>
-              <Slider
-                value={[questionCount]}
-                onValueChange={([value]) => setQuestionCount(value)}
-                min={3}
-                max={20}
-                step={1}
-                className="w-full"
-                data-testid="slider-question-count"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>3</span>
-                <span>20</span>
-              </div>
-            </div>
 
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Difficulty Level</Label>
-              <div className="grid grid-cols-3 gap-3">
-                {(["easy", "medium", "hard"] as DifficultyLevel[]).map((level) => (
-                  <Button
-                    key={level}
-                    variant={difficulty === level ? "default" : "outline"}
-                    className={`capitalize toggle-elevate ${difficulty === level ? "toggle-elevated" : ""}`}
-                    onClick={() => setDifficulty(level)}
-                    data-testid={`button-difficulty-${level}`}
-                  >
-                    <Gauge className="h-4 w-4 mr-2" />
-                    {level}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Question Types</Label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div
-                  className={`
-                    flex items-center gap-3 p-4 rounded-md border-2 cursor-pointer transition-all
-                    ${questionTypes.includes("multiple_choice") 
-                      ? "border-primary bg-primary/5" 
-                      : "border-muted hover:border-muted-foreground/30"
-                    }
-                  `}
-                  onClick={() => toggleQuestionType("multiple_choice")}
-                  data-testid="option-multiple-choice"
-                >
-                  <Checkbox
-                    checked={questionTypes.includes("multiple_choice")}
-                    onCheckedChange={() => toggleQuestionType("multiple_choice")}
-                    className="pointer-events-none"
-                  />
-                  <div className="flex items-center gap-2">
-                    <CheckSquare className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">Multiple Choice</span>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center shadow-md">
+                    <Gauge className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Difficulty Level</h3>
+                    <p className="text-xs text-muted-foreground">How challenging should the quiz be?</p>
                   </div>
                 </div>
-
-                <div
-                  className={`
-                    flex items-center gap-3 p-4 rounded-md border-2 cursor-pointer transition-all
-                    ${questionTypes.includes("true_false") 
-                      ? "border-primary bg-primary/5" 
-                      : "border-muted hover:border-muted-foreground/30"
-                    }
-                  `}
-                  onClick={() => toggleQuestionType("true_false")}
-                  data-testid="option-true-false"
-                >
-                  <Checkbox
-                    checked={questionTypes.includes("true_false")}
-                    onCheckedChange={() => toggleQuestionType("true_false")}
-                    className="pointer-events-none"
-                  />
-                  <div className="flex items-center gap-2">
-                    <ToggleLeft className="h-4 w-4 text-quiz-purple" />
-                    <span className="text-sm font-medium">True/False</span>
-                  </div>
-                </div>
-
-                <div
-                  className={`
-                    flex items-center gap-3 p-4 rounded-md border-2 cursor-pointer transition-all
-                    ${questionTypes.includes("short_answer") 
-                      ? "border-primary bg-primary/5" 
-                      : "border-muted hover:border-muted-foreground/30"
-                    }
-                  `}
-                  onClick={() => toggleQuestionType("short_answer")}
-                  data-testid="option-short-answer"
-                >
-                  <Checkbox
-                    checked={questionTypes.includes("short_answer")}
-                    onCheckedChange={() => toggleQuestionType("short_answer")}
-                    className="pointer-events-none"
-                  />
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-quiz-orange" />
-                    <span className="text-sm font-medium">Short Answer</span>
-                  </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { level: "easy" as DifficultyLevel, color: "green", label: "Easy" },
+                    { level: "medium" as DifficultyLevel, color: "amber", label: "Medium" },
+                    { level: "hard" as DifficultyLevel, color: "red", label: "Hard" }
+                  ]).map(({ level, color, label }) => (
+                    <motion.button
+                      key={level}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`p-3 rounded-lg border-2 font-medium transition-all ${
+                        difficulty === level 
+                          ? color === "green" 
+                            ? "border-green-500 bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300"
+                            : color === "amber"
+                            ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300"
+                            : "border-red-500 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300"
+                          : "border-muted hover:border-muted-foreground/30 text-muted-foreground"
+                      }`}
+                      onClick={() => setDifficulty(level)}
+                      data-testid={`button-difficulty-${level}`}
+                    >
+                      {label}
+                    </motion.button>
+                  ))}
                 </div>
               </div>
-            </div>
 
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="p-4 bg-destructive/10 border border-destructive/30 rounded-md"
-                >
-                  <p className="text-sm text-destructive">{error}</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-purple-500 flex items-center justify-center shadow-md">
+                    <CheckSquare className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Question Types</h3>
+                    <p className="text-xs text-muted-foreground">Select one or more types</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {([
+                    { type: "multiple_choice" as QuestionType, icon: CheckSquare, label: "Multiple Choice", desc: "Pick the correct answer", color: "blue" },
+                    { type: "true_false" as QuestionType, icon: ToggleLeft, label: "True/False", desc: "Decide if statements are correct", color: "violet" },
+                    { type: "short_answer" as QuestionType, icon: MessageSquare, label: "Short Answer", desc: "Write brief responses", color: "orange" }
+                  ]).map(({ type, icon: Icon, label, desc, color }) => (
+                    <motion.div
+                      key={type}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                      className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                        questionTypes.includes(type)
+                          ? color === "blue"
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30"
+                            : color === "violet"
+                            ? "border-violet-500 bg-violet-50 dark:bg-violet-950/30"
+                            : "border-orange-500 bg-orange-50 dark:bg-orange-950/30"
+                          : "border-muted hover:border-muted-foreground/30"
+                      }`}
+                      onClick={() => toggleQuestionType(type)}
+                      data-testid={`option-${type.replace("_", "-")}`}
+                    >
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm ${
+                        color === "blue" ? "bg-blue-500" : color === "violet" ? "bg-violet-500" : "bg-orange-500"
+                      }`}>
+                        <Icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-foreground">{label}</p>
+                        <p className="text-xs text-muted-foreground">{desc}</p>
+                      </div>
+                      <Checkbox
+                        checked={questionTypes.includes(type)}
+                        onCheckedChange={() => toggleQuestionType(type)}
+                        className="pointer-events-none"
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Button
-              onClick={generateQuiz}
-              disabled={isLoading || (mode === "generate" && questionTypes.length === 0)}
-              className="w-full py-6 text-lg font-semibold"
-              data-testid="button-generate-quiz"
-            >
-              <Sparkles className="h-5 w-5 mr-2" />
-              Generate Quiz
-            </Button>
-          </CardContent>
-        </Card>
-      </motion.div>
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg"
+              >
+                <p className="text-sm text-destructive">{error}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <Button
+            onClick={generateQuiz}
+            disabled={isLoading || questionTypes.length === 0}
+            size="lg"
+            className="w-full gap-2 h-14 text-lg font-semibold"
+            data-testid="button-generate-quiz"
+          >
+            <Sparkles className="h-5 w-5" />
+            Generate Quiz
+          </Button>
+        </motion.div>
       )}
 
       {mode === "import" && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.1 }}
+          className="space-y-4"
         >
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Import className="h-5 w-5 text-primary" />
-                Import Settings
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                The AI will scan your document to find existing questions and answer options.
-                It will use its knowledge to identify the correct answer for each question.
-              </p>
-              
-              <div className="bg-muted/50 rounded-md p-4">
-                <p className="text-xs text-muted-foreground">
-                  Works best with:
-                </p>
-                <ul className="text-xs text-muted-foreground mt-2 space-y-1 list-disc list-inside">
-                  <li>Multiple choice exams and worksheets</li>
-                  <li>Quiz papers with labeled options (A, B, C, D)</li>
-                  <li>Practice tests and assessment materials</li>
-                </ul>
+          <Card className="border-2 border-amber-200 dark:border-amber-800/50 bg-amber-50/50 dark:bg-amber-950/20">
+            <CardContent className="p-5 space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Import className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg text-foreground mb-1">How Import Works</h3>
+                  <p className="text-sm text-muted-foreground">
+                    AI scans your document to find existing questions and uses its knowledge to identify the correct answers.
+                  </p>
+                </div>
               </div>
-
-              <AnimatePresence>
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="p-4 bg-destructive/10 border border-destructive/30 rounded-md"
-                  >
-                    <p className="text-sm text-destructive">{error}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <Button
-                onClick={generateQuiz}
-                disabled={isLoading}
-                className="w-full py-6 text-lg font-semibold"
-                data-testid="button-import-quiz"
-              >
-                <Import className="h-5 w-5 mr-2" />
-                Import Quiz
-              </Button>
+              
+              <div className="bg-white/60 dark:bg-background/60 rounded-lg p-4 border">
+                <p className="text-sm font-medium text-foreground mb-2">Works best with:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-500" />
+                    Multiple choice exams
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-500" />
+                    Quiz papers (A, B, C, D)
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-500" />
+                    Practice tests
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
+
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg"
+              >
+                <p className="text-sm text-destructive">{error}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <Button
+            onClick={generateQuiz}
+            disabled={isLoading}
+            size="lg"
+            className="w-full gap-2 h-14 text-lg font-semibold bg-amber-500 hover:bg-amber-600"
+            data-testid="button-import-quiz"
+          >
+            <Import className="h-5 w-5" />
+            Import Quiz
+          </Button>
         </motion.div>
       )}
 
