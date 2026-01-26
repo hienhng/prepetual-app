@@ -505,7 +505,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
             <div className="text-left flex-1">
               <SheetTitle className="text-white text-lg font-bold tracking-tight flex items-center gap-2">
                 Pip
-                <Badge className="bg-white/20 text-white text-[10px] px-1.5 py-0 border-white/30">AI</Badge>
+                <Badge className="bg-white/20 text-white text-[10px] px-1.5 py-0 border-white/30 pt-[0px] pb-[0px] pl-[9px] pr-[9px] font-extrabold">AI</Badge>
               </SheetTitle>
               <p className="text-xs text-white/85 mt-0.5">Your study companion</p>
             </div>
