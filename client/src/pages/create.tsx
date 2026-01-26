@@ -264,74 +264,65 @@ export default function Create() {
         </motion.div>
 
         {!isReady && (
-          <motion.div
-            key="options"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-4"
-          >
-              <motion.div 
-                variants={itemVariants}
-                className="grid grid-cols-1 md:grid-cols-3 gap-3"
-              >
-                {inputOptions.map((option) => (
-                  <motion.div
-                    key={option.id}
-                    variants={cardHoverVariants}
-                    initial="rest"
-                    whileHover="hover"
-                    whileTap={{ scale: 0.98 }}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {inputOptions.map((option) => (
+                <motion.div
+                  key={option.id}
+                  variants={cardHoverVariants}
+                  initial="rest"
+                  whileHover="hover"
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Card 
+                    className={`cursor-pointer overflow-hidden border hover:border-primary/50 transition-colors h-full ${option.bgLight}`}
+                    onClick={() => setActiveModal(option.id as ActiveModal)}
+                    data-testid={`card-${option.id}`}
                   >
-                    <Card 
-                      className={`cursor-pointer overflow-hidden border hover:border-primary/50 transition-colors h-full ${option.bgLight}`}
-                      onClick={() => setActiveModal(option.id as ActiveModal)}
-                      data-testid={`card-${option.id}`}
-                    >
-                      <CardContent className="p-4 flex flex-col items-center text-center h-full">
-                        <div className={`w-10 h-10 rounded-lg ${option.iconBg} flex items-center justify-center mb-3 shadow-md`}>
-                          <option.icon className="w-5 h-5 text-white" />
-                        </div>
-                        <h3 className="font-semibold text-foreground mb-0.5">
-                          {option.title}
-                        </h3>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          {option.description}
-                        </p>
-                        <div className="flex flex-wrap gap-1 justify-center mt-auto">
-                          {option.formats.slice(0, 3).map((format) => (
-                            <Badge 
-                              key={format} 
-                              variant="secondary" 
-                              className="text-[10px] px-1.5 py-0 font-normal"
-                            >
-                              {format}
-                            </Badge>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </motion.div>
+                    <CardContent className="p-4 flex flex-col items-center text-center h-full">
+                      <div className={`w-10 h-10 rounded-lg ${option.iconBg} flex items-center justify-center mb-3 shadow-md`}>
+                        <option.icon className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="font-semibold text-foreground mb-0.5">
+                        {option.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        {option.description}
+                      </p>
+                      <div className="flex flex-wrap gap-1 justify-center mt-auto">
+                        {option.formats.slice(0, 3).map((format) => (
+                          <Badge 
+                            key={format} 
+                            variant="secondary" 
+                            className="text-[10px] px-1.5 py-0 font-normal"
+                          >
+                            {format}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
 
-              <motion.div variants={itemVariants}>
-                <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground flex-wrap py-2">
-                  <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                    Clear documents work best
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                    More content = better questions
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                    Videos need captions
-                  </span>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
+            <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground flex-wrap py-2">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                Clear documents work best
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                More content = better questions
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                Videos need captions
+              </span>
+            </div>
+          </div>
+        )}
+
         {isReady && (
           <motion.div
             key="ready"
