@@ -239,21 +239,21 @@ export default function Create() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-10 max-w-4xl">
+    <div className="container mx-auto px-4 py-4 md:py-6 max-w-3xl">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="space-y-8"
+        className="space-y-5"
       >
-        <motion.div variants={itemVariants} className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 mb-2">
-            <Sparkles className="w-8 h-8 text-primary-foreground" />
+        <motion.div variants={itemVariants} className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/60 mb-1">
+            <Sparkles className="w-6 h-6 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
             Create Your Quiz
           </h1>
-          <p className="text-lg text-muted-foreground max-w-md mx-auto">
+          <p className="text-muted-foreground max-w-md mx-auto">
             Choose how you want to add your study material
           </p>
         </motion.div>
@@ -265,11 +265,11 @@ export default function Create() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="space-y-6"
+              className="space-y-4"
             >
               <motion.div 
                 variants={itemVariants}
-                className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                className="grid grid-cols-1 md:grid-cols-3 gap-3"
               >
                 {inputOptions.map((option) => (
                   <motion.div
@@ -280,26 +280,26 @@ export default function Create() {
                     whileTap={{ scale: 0.98 }}
                   >
                     <Card 
-                      className={`cursor-pointer overflow-hidden border-2 hover:border-primary/50 transition-colors h-full ${option.bgLight}`}
+                      className={`cursor-pointer overflow-hidden border hover:border-primary/50 transition-colors h-full ${option.bgLight}`}
                       onClick={() => setActiveModal(option.id as ActiveModal)}
                       data-testid={`card-${option.id}`}
                     >
-                      <CardContent className="p-6 flex flex-col items-center text-center h-full">
-                        <div className={`w-14 h-14 rounded-xl ${option.iconBg} flex items-center justify-center mb-4 shadow-lg`}>
-                          <option.icon className="w-7 h-7 text-white" />
+                      <CardContent className="p-4 flex flex-col items-center text-center h-full">
+                        <div className={`w-10 h-10 rounded-lg ${option.iconBg} flex items-center justify-center mb-3 shadow-md`}>
+                          <option.icon className="w-5 h-5 text-white" />
                         </div>
-                        <h3 className="font-semibold text-lg text-foreground mb-1">
+                        <h3 className="font-semibold text-foreground mb-0.5">
                           {option.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground mb-4">
+                        <p className="text-xs text-muted-foreground mb-3">
                           {option.description}
                         </p>
-                        <div className="flex flex-wrap gap-1.5 justify-center mt-auto">
-                          {option.formats.map((format) => (
+                        <div className="flex flex-wrap gap-1 justify-center mt-auto">
+                          {option.formats.slice(0, 3).map((format) => (
                             <Badge 
                               key={format} 
                               variant="secondary" 
-                              className="text-xs font-normal"
+                              className="text-[10px] px-1.5 py-0 font-normal"
                             >
                               {format}
                             </Badge>
@@ -312,34 +312,20 @@ export default function Create() {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                <Card className="bg-muted/40 border-dashed">
-                  <CardContent className="p-5">
-                    <div className="flex items-start gap-4">
-                      <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
-                        <Sparkles className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-foreground mb-2">
-                          Tips for best results
-                        </h3>
-                        <ul className="space-y-1.5 text-sm text-muted-foreground">
-                          <li className="flex items-center gap-2">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
-                            Use clear, readable documents for better extraction
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
-                            More content means more diverse questions
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
-                            YouTube videos with captions work best
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground flex-wrap py-2">
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                    Clear documents work best
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                    More content = better questions
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                    Videos need captions
+                  </span>
+                </div>
               </motion.div>
             </motion.div>
           ) : (
@@ -348,20 +334,20 @@ export default function Create() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="space-y-6"
+              className="space-y-4"
             >
-              <Card className="border-2 border-green-500/40 bg-gradient-to-br from-green-50 to-emerald-50/50 dark:from-green-950/30 dark:to-emerald-950/20">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center shadow-lg">
-                          <CheckCircle2 className="w-6 h-6 text-white" />
+              <Card className="border border-green-500/40 bg-gradient-to-br from-green-50 to-emerald-50/50 dark:from-green-950/30 dark:to-emerald-950/20">
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-green-500 flex items-center justify-center shadow-md">
+                          <CheckCircle2 className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-lg text-foreground">Content Ready</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {getWordCount(extractedText || "")} words extracted from your {getSourceLabel()}
+                          <h3 className="font-semibold text-foreground">Content Ready</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {getWordCount(extractedText || "")} words from your {getSourceLabel()}
                           </p>
                         </div>
                       </div>
@@ -393,16 +379,16 @@ export default function Create() {
                     </div>
 
                     {sourceMaterial?.isOfficeWithImages && sourceMaterial?.documentImages && sourceMaterial.documentImages.length > 0 ? (
-                      <div className="p-4 rounded-xl bg-white/60 dark:bg-background/60 border">
-                        <div className="flex items-center gap-3 mb-3">
-                          <Image className="w-5 h-5 text-primary" />
-                          <p className="text-sm font-medium text-foreground">
-                            Document with {sourceMaterial.documentImages.length} images detected
+                      <div className="p-3 rounded-lg bg-white/60 dark:bg-background/60 border">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Image className="w-4 h-4 text-primary" />
+                          <p className="text-xs font-medium text-foreground">
+                            {sourceMaterial.documentImages.length} images detected
                           </p>
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          {sourceMaterial.documentImages.slice(0, 5).map((img, index) => (
-                            <div key={index} className="w-12 h-12 rounded-lg overflow-hidden border-2 border-white shadow-sm">
+                        <div className="flex flex-wrap gap-1.5">
+                          {sourceMaterial.documentImages.slice(0, 4).map((img, index) => (
+                            <div key={index} className="w-10 h-10 rounded-md overflow-hidden border border-white shadow-sm">
                               <img 
                                 src={img} 
                                 alt={`Document image ${index + 1}`} 
@@ -410,19 +396,19 @@ export default function Create() {
                               />
                             </div>
                           ))}
-                          {sourceMaterial.documentImages.length > 5 && (
-                            <div className="w-12 h-12 rounded-lg border-2 border-dashed border-muted flex items-center justify-center bg-muted/50">
-                              <span className="text-xs text-muted-foreground font-medium">
-                                +{sourceMaterial.documentImages.length - 5}
+                          {sourceMaterial.documentImages.length > 4 && (
+                            <div className="w-10 h-10 rounded-md border border-dashed border-muted flex items-center justify-center bg-muted/50">
+                              <span className="text-[10px] text-muted-foreground font-medium">
+                                +{sourceMaterial.documentImages.length - 4}
                               </span>
                             </div>
                           )}
                         </div>
                       </div>
                     ) : (
-                      <div className="p-4 rounded-xl bg-white/60 dark:bg-background/60 border">
-                        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
-                          {getPreviewText(extractedText || "", 350)}
+                      <div className="p-3 rounded-lg bg-white/60 dark:bg-background/60 border">
+                        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                          {getPreviewText(extractedText || "", 250)}
                         </p>
                       </div>
                     )}
@@ -456,18 +442,18 @@ export default function Create() {
                 </CardContent>
               </Card>
 
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-col items-center gap-2">
                 <Button
                   size="lg"
                   onClick={handleContinueToGenerate}
-                  className="w-full sm:w-auto gap-2 min-w-[220px] h-12 text-base shadow-lg"
+                  className="w-full sm:w-auto gap-2 min-w-[200px]"
                   data-testid="button-continue-generate"
                 >
-                  <Wand2 className="w-5 h-5" />
+                  <Wand2 className="w-4 h-4" />
                   Generate Quiz
                   <ArrowRight className="w-4 h-4" />
                 </Button>
-                <p className="text-sm text-muted-foreground text-center">
+                <p className="text-xs text-muted-foreground text-center">
                   Customize question types, difficulty, and more
                 </p>
               </div>
