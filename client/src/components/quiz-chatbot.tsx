@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Loader2, User, Snowflake, Lightbulb, HelpCircle, BookOpen, Forward, ArrowUp } from "lucide-react";
+import { Send, Loader2, User, Sparkles, Lightbulb, HelpCircle, BookOpen, ArrowUp, MessageCircle, Brain, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiRequest } from "@/lib/queryClient";
 import katex from "katex";
@@ -26,9 +27,10 @@ interface QuizChatbotProps {
 }
 
 const suggestions = [
-  { text: "Explain this", icon: Lightbulb, color: "from-amber-300 to-yellow-400" },
-  { text: "Give me a hint", icon: HelpCircle, color: "from-sky-300 to-cyan-400" },
-  { text: "Key concept?", icon: BookOpen, color: "from-teal-300 to-emerald-400" },
+  { text: "Explain this concept", icon: Lightbulb, bgColor: "bg-amber-100 dark:bg-amber-900/30", iconColor: "text-amber-600 dark:text-amber-400", borderColor: "border-amber-200 dark:border-amber-800" },
+  { text: "Give me a hint", icon: HelpCircle, bgColor: "bg-violet-100 dark:bg-violet-900/30", iconColor: "text-violet-600 dark:text-violet-400", borderColor: "border-violet-200 dark:border-violet-800" },
+  { text: "What's the key concept?", icon: BookOpen, bgColor: "bg-emerald-100 dark:bg-emerald-900/30", iconColor: "text-emerald-600 dark:text-emerald-400", borderColor: "border-emerald-200 dark:border-emerald-800" },
+  { text: "Break it down simply", icon: Brain, bgColor: "bg-sky-100 dark:bg-sky-900/30", iconColor: "text-sky-600 dark:text-sky-400", borderColor: "border-sky-200 dark:border-sky-800" },
 ];
 
 function renderMathInText(text: string): string {
@@ -338,29 +340,29 @@ export function CutePenguin({ size = 64, className = "", emotion = "idle" }: { s
   );
 }
 
-function SnowflakeDecor() {
+function SparkleDecor() {
   return (
     <>
-      {[...Array(6)].map((_, i) => (
+      {[...Array(5)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute text-white/30"
+          className="absolute text-white/20"
           style={{
-            left: `${15 + i * 15}%`,
-            top: `${10 + (i % 3) * 25}%`,
+            left: `${10 + i * 20}%`,
+            top: `${15 + (i % 2) * 30}%`,
           }}
           animate={{
-            y: [0, 10, 0],
+            scale: [0.8, 1.2, 0.8],
             opacity: [0.2, 0.5, 0.2],
-            rotate: [0, 180, 360],
+            rotate: [0, 45, 0],
           }}
           transition={{
-            duration: 4 + i * 0.5,
+            duration: 3 + i * 0.3,
             repeat: Infinity,
-            delay: i * 0.3,
+            delay: i * 0.2,
           }}
         >
-          <Snowflake size={12 + i * 2} />
+          <Sparkles size={10 + i * 2} />
         </motion.div>
       ))}
     </>
@@ -373,15 +375,15 @@ function TypingIndicator() {
       {[0, 1, 2].map((i) => (
         <motion.div
           key={i}
-          className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-sky-400 to-cyan-400"
+          className="w-2 h-2 rounded-full bg-gradient-to-r from-violet-500 to-purple-500"
           animate={{
-            y: [0, -6, 0],
-            scale: [1, 1.2, 1],
+            y: [0, -5, 0],
+            scale: [1, 1.15, 1],
           }}
           transition={{
-            duration: 0.8,
+            duration: 0.7,
             repeat: Infinity,
-            delay: i * 0.15,
+            delay: i * 0.12,
             ease: "easeInOut",
           }}
         />
@@ -391,23 +393,23 @@ function TypingIndicator() {
 }
 
 function TutorAvatar({ isAnimating = false, isSuccess = false, large = false }: { isAnimating?: boolean; isSuccess?: boolean; large?: boolean }) {
-  const containerSize = large ? "w-24 h-24" : "w-11 h-11";
-  const penguinSize = large ? 60 : 32;
+  const containerSize = large ? "w-20 h-20" : "w-10 h-10";
+  const penguinSize = large ? 52 : 28;
   
   const emotion: PenguinEmotion = isSuccess ? "happy" : isAnimating ? "thinking" : "idle";
   
   return (
     <motion.div 
-      className={`relative ${containerSize} rounded-2xl bg-gradient-to-br from-sky-100 via-cyan-50 to-blue-100 dark:from-slate-600 dark:via-slate-500 dark:to-slate-600 flex items-center justify-center shrink-0 shadow-lg overflow-visible border-2 border-sky-200/50 dark:border-slate-500/50`}
+      className={`relative ${containerSize} rounded-xl bg-gradient-to-br from-violet-100 via-purple-50 to-fuchsia-100 dark:from-violet-900/40 dark:via-purple-900/30 dark:to-fuchsia-900/40 flex items-center justify-center shrink-0 shadow-md overflow-visible border-2 border-violet-200/60 dark:border-violet-700/50`}
       animate={isSuccess ? {
-        scale: [1, 1.15, 1],
+        scale: [1, 1.1, 1],
       } : isAnimating ? {
-        y: [0, -3, 0],
+        y: [0, -2, 0],
       } : {}}
       transition={isSuccess ? {
-        duration: 0.6,
+        duration: 0.5,
       } : {
-        duration: 1.5, 
+        duration: 1.2, 
         repeat: Infinity, 
         ease: "easeInOut" 
       }}
@@ -480,32 +482,32 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="w-full sm:max-w-[420px] p-0 flex flex-col overflow-hidden border-l-0 shadow-2xl">
-        <SheetHeader className="px-5 py-5 bg-gradient-to-br from-sky-400 via-cyan-500 to-blue-600 text-white shrink-0 relative overflow-hidden">
-          <SnowflakeDecor />
+      <SheetContent side="right" className="w-full sm:max-w-[400px] p-0 flex flex-col overflow-hidden border-l-0 shadow-2xl">
+        <SheetHeader className="px-5 py-4 bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 text-white shrink-0 relative overflow-hidden">
+          <SparkleDecor />
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/10 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-black/10 to-transparent" />
             <motion.div 
-              className="absolute -top-16 -right-16 w-32 h-32 rounded-full bg-white/10 blur-2xl"
-              animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-              transition={{ duration: 5, repeat: Infinity }}
+              className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-white/10 blur-2xl"
+              animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }}
+              transition={{ duration: 4, repeat: Infinity }}
             />
           </div>
           
-          <div className="flex items-center gap-4 relative z-10">
+          <div className="flex items-center gap-3 relative z-10">
             <motion.div 
-              className="w-16 h-16 rounded-2xl bg-white/25 backdrop-blur-sm flex items-center justify-center shadow-xl border border-white/30 overflow-hidden"
-              animate={{ y: [0, -4, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="w-14 h-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/30 overflow-hidden"
+              animate={{ y: [0, -3, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             >
-              <CutePenguin size={48} />
+              <CutePenguin size={40} />
             </motion.div>
             <div className="text-left flex-1">
-              <SheetTitle className="text-white text-xl font-bold tracking-tight flex items-center gap-2">
+              <SheetTitle className="text-white text-lg font-bold tracking-tight flex items-center gap-2">
                 Pip
-                <Snowflake className="w-4 h-4 opacity-80" />
+                <Badge className="bg-white/20 text-white text-[10px] px-1.5 py-0 border-white/30">AI</Badge>
               </SheetTitle>
-              <p className="text-sm text-white/90 mt-1">Your arctic study buddy</p>
+              <p className="text-xs text-white/85 mt-0.5">Your study companion</p>
             </div>
           </div>
         </SheetHeader>
@@ -514,117 +516,117 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
           <motion.div 
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="px-4 py-3 border-b bg-gradient-to-r from-sky-50/80 to-cyan-50/80 dark:from-slate-800/80 dark:to-slate-700/80 shrink-0"
+            className="px-4 py-2.5 border-b bg-violet-50/60 dark:bg-violet-950/20 shrink-0"
           >
-            <div className="flex items-start gap-3">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center shrink-0 shadow-sm">
-                <span className="text-xs font-bold text-white">{currentQuestionIndex + 1}</span>
+            <div className="flex items-start gap-2.5">
+              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shrink-0 shadow-sm">
+                <span className="text-[10px] font-bold text-white">{currentQuestionIndex + 1}</span>
               </div>
-              <div className="text-sm line-clamp-2 text-muted-foreground leading-relaxed">
+              <div className="text-xs line-clamp-2 text-muted-foreground leading-relaxed pt-0.5">
                 <MathText content={currentQuestion.question} />
               </div>
             </div>
           </motion.div>
         )}
 
-        <ScrollArea className="flex-1 px-4 py-4 bg-gradient-to-b from-sky-50/30 to-transparent dark:from-slate-900/30">
+        <ScrollArea className="flex-1 px-3 py-3 bg-gradient-to-b from-violet-50/20 to-transparent dark:from-violet-950/10">
           {messages.length === 0 ? (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="h-full flex flex-col items-center justify-center text-center py-6"
+              className="h-full flex flex-col items-center justify-center text-center py-4"
             >
               <motion.div 
-                className="relative mb-6"
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="relative mb-5"
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
               >
                 <motion.div 
-                  className="w-32 h-32 rounded-[2rem] bg-gradient-to-br from-sky-100 via-cyan-50 to-blue-100 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 flex items-center justify-center shadow-xl overflow-hidden border-3 border-sky-200/60 dark:border-slate-500/50"
+                  className="w-24 h-24 rounded-2xl bg-gradient-to-br from-violet-100 via-purple-50 to-fuchsia-100 dark:from-violet-900/40 dark:via-purple-900/30 dark:to-fuchsia-900/40 flex items-center justify-center shadow-lg overflow-hidden border-2 border-violet-200/60 dark:border-violet-700/50"
                   animate={{ 
                     boxShadow: [
-                      "0 10px 40px -10px rgba(14, 165, 233, 0.3)",
-                      "0 20px 50px -10px rgba(14, 165, 233, 0.5)",
-                      "0 10px 40px -10px rgba(14, 165, 233, 0.3)"
+                      "0 8px 30px -8px rgba(139, 92, 246, 0.25)",
+                      "0 16px 40px -8px rgba(139, 92, 246, 0.4)",
+                      "0 8px 30px -8px rgba(139, 92, 246, 0.25)"
                     ]
                   }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
                 >
                   <motion.div
-                    animate={{ rotate: [0, -5, 5, 0] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    animate={{ rotate: [0, -3, 3, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    <CutePenguin size={80} />
+                    <CutePenguin size={64} />
                   </motion.div>
                 </motion.div>
                 <motion.div
-                  className="absolute -bottom-2 -right-2 w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center shadow-lg border-2 border-white dark:border-slate-700"
-                  animate={{ rotate: [0, 15, -15, 0] }}
-                  transition={{ duration: 3, repeat: Infinity }}
+                  className="absolute -bottom-1.5 -right-1.5 w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-md border-2 border-white dark:border-slate-800"
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Snowflake className="w-5 h-5 text-white" />
+                  <MessageCircle className="w-4 h-4 text-white" />
                 </motion.div>
               </motion.div>
               
               <motion.h3 
-                className="text-xl font-bold mb-2 bg-gradient-to-r from-sky-600 to-cyan-600 bg-clip-text text-transparent"
+                className="text-lg font-bold mb-1.5 bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                Hey there, friend!
+                Hey there!
               </motion.h3>
               <motion.p 
-                className="text-sm text-muted-foreground max-w-[260px] mb-8 leading-relaxed"
+                className="text-xs text-muted-foreground max-w-[240px] mb-5 leading-relaxed"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                I'm Pip, your arctic study companion! Ask me anything about this quiz - I'll help you learn without giving away the answers.
+                I'm Pip, your study buddy! Ask me anything about this quiz - I'll help you learn without spoiling the answers.
               </motion.p>
               
-              <div className="flex flex-col gap-2 w-full max-w-[280px]">
+              <div className="grid grid-cols-2 gap-2 w-full max-w-[300px]">
                 {suggestions.map((suggestion, index) => (
                   <motion.div
                     key={suggestion.text}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5 + index * 0.1 }}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5 + index * 0.08 }}
+                    whileHover={{ scale: 1.02, y: -1 }}
                   >
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start gap-3 h-12 rounded-xl border-sky-200/60 dark:border-slate-600 hover:border-sky-300 dark:hover:border-slate-500 hover:bg-sky-50/50 dark:hover:bg-slate-800/50 transition-all group"
+                    <button
+                      className={`w-full flex flex-col items-center gap-2 p-3 rounded-xl border-2 ${suggestion.borderColor} ${suggestion.bgColor} transition-all`}
                       onClick={() => {
                         setInputValue(suggestion.text);
                         inputRef.current?.focus();
                       }}
                       data-testid={`button-suggestion-${suggestion.text.replace(/\s+/g, "-").toLowerCase()}`}
                     >
-                      <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${suggestion.color} flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow`}>
-                        <suggestion.icon className="w-4 h-4 text-white" />
+                      <div className={`w-10 h-10 rounded-lg ${suggestion.bgColor} flex items-center justify-center`}>
+                        <suggestion.icon className={`w-5 h-5 ${suggestion.iconColor}`} />
                       </div>
-                      <span className="font-medium">{suggestion.text}</span>
-                    </Button>
+                      <span className="text-xs font-medium text-foreground/80 leading-tight text-center">{suggestion.text}</span>
+                    </button>
                   </motion.div>
                 ))}
               </div>
             </motion.div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <AnimatePresence initial={false}>
                 {messages.map((message, index) => (
                   <motion.div
                     key={`${message.timestamp}-${index}`}
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 15, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ 
                       type: "spring", 
                       stiffness: 400, 
                       damping: 25,
-                      delay: message.role === "assistant" ? 0.1 : 0
+                      delay: message.role === "assistant" ? 0.08 : 0
                     }}
-                    className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                    className={`flex gap-2 ${message.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     {message.role === "assistant" && (
                       <TutorAvatar 
@@ -633,26 +635,24 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                       />
                     )}
                     <motion.div
-                      className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
+                      className={`max-w-[78%] rounded-xl px-3 py-2.5 text-sm shadow-sm ${
                         message.role === "user"
-                          ? "bg-gradient-to-br from-sky-500 to-cyan-600 text-white rounded-br-md shadow-sky-500/20"
-                          : "bg-white dark:bg-slate-800 border border-sky-100 dark:border-slate-700 rounded-bl-md"
+                          ? "bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-br-sm"
+                          : "bg-white dark:bg-slate-800 border border-violet-100 dark:border-slate-700 rounded-bl-sm"
                       }`}
-                      whileHover={{ scale: 1.01 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     >
-                      <div className="whitespace-pre-wrap leading-relaxed [&_.katex-display]:my-3 [&_.katex]:text-[0.95em]">
+                      <div className="whitespace-pre-wrap leading-relaxed text-[13px] [&_.katex-display]:my-2 [&_.katex]:text-[0.9em]">
                         <MathText content={message.content} />
                       </div>
                     </motion.div>
                     {message.role === "user" && (
                       <motion.div 
-                        className="w-11 h-11 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0 shadow-md border border-slate-200/50 dark:border-slate-600/50"
-                        initial={{ scale: 0, rotate: -180 }}
-                        animate={{ scale: 1, rotate: 0 }}
+                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0 shadow-sm border border-slate-200/50 dark:border-slate-600/50"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
                         transition={{ type: "spring", stiffness: 400, damping: 20 }}
                       >
-                        <User className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                        <User className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                       </motion.div>
                     )}
                   </motion.div>
@@ -661,15 +661,15 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
               
               {isLoading && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex gap-3 justify-start"
+                  className="flex gap-2 justify-start"
                 >
                   <TutorAvatar isAnimating />
                   <motion.div 
-                    className="bg-white dark:bg-slate-800 border border-sky-100 dark:border-slate-700 rounded-2xl rounded-bl-md px-4 py-3"
+                    className="bg-white dark:bg-slate-800 border border-violet-100 dark:border-slate-700 rounded-xl rounded-bl-sm px-3 py-2.5"
                     animate={{ opacity: [0.7, 1, 0.7] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
+                    transition={{ duration: 1.2, repeat: Infinity }}
                   >
                     <TypingIndicator />
                   </motion.div>
@@ -681,10 +681,10 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
         </ScrollArea>
 
         <motion.div 
-          className="p-4 border-t bg-gradient-to-r from-sky-50/80 to-cyan-50/80 dark:from-slate-800/80 dark:to-slate-900/80 backdrop-blur-md shrink-0"
-          initial={{ y: 20, opacity: 0 }}
+          className="p-3 border-t bg-gradient-to-r from-violet-50/60 to-purple-50/60 dark:from-slate-800/80 dark:to-slate-900/80 backdrop-blur-md shrink-0"
+          initial={{ y: 15, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.25 }}
         >
           <div className="flex gap-2">
             <Input
@@ -693,22 +693,22 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask Pip anything..."
-              className="flex-1 h-12 rounded-3xl border-sky-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus-visible:ring-sky-400/30 focus-visible:border-sky-400 transition-all placeholder:text-muted-foreground/60"
+              className="flex-1 h-11 rounded-xl border-violet-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus-visible:ring-violet-400/30 focus-visible:border-violet-400 transition-all placeholder:text-muted-foreground/50 text-sm"
               disabled={isLoading}
               data-testid="input-chatbot-message"
             />
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
               <Button
                 size="icon"
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isLoading}
-                className="border-none h-12 w-12 rounded-3xl bg-gradient-to-br from-sky-500 to-cyan-600 hover:from-sky-400 hover:to-cyan-500 shadow-lg shadow-sky-500/25 transition-all hover:shadow-sky-500/40 disabled:opacity-50 disabled:shadow-none"
+                className="border-none h-11 w-11 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-400 hover:to-purple-500 shadow-md shadow-violet-500/20 transition-all hover:shadow-violet-500/30 disabled:opacity-50 disabled:shadow-none"
                 data-testid="button-chatbot-send"
               >
                 {isLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <ArrowUp className="h-5 w-5" />
+                  <ArrowUp className="h-4 w-4" />
                 )}
               </Button>
             </motion.div>
