@@ -40,27 +40,44 @@ export function QuizGenerator() {
 
   // Smooth progress animation with step messages
   useEffect(() => {
-    if (isLoading && mode === "generate") {
-      const questionMultiplier = questionCount / 10;
-      const difficultyMultiplier = difficulty === "easy" ? 0.7 : difficulty === "medium" ? 1.0 : 1.4;
-      const totalMultiplier = Math.max(0.5, questionMultiplier * difficultyMultiplier);
+    if (isLoading) {
+      // Different settings for generate vs import mode
+      const isImportMode = mode === "import";
       
-      // Total duration for the animation (will cap at 90%)
-      const totalDuration = 15000 * totalMultiplier;
-      const updateInterval = 50; // Update every 50ms for smooth animation
+      let totalDuration: number;
+      let steps: { threshold: number; step: string }[];
+      
+      if (isImportMode) {
+        // Import mode - typically faster, simpler steps
+        totalDuration = 12000;
+        steps = [
+          { threshold: 5, step: "starting" },
+          { threshold: 15, step: "scanning" },
+          { threshold: 35, step: "parsing" },
+          { threshold: 55, step: "identifying" },
+          { threshold: 75, step: "validating" },
+          { threshold: 90, step: "finalizing" },
+        ];
+      } else {
+        // Generate mode - variable based on settings
+        const questionMultiplier = questionCount / 10;
+        const difficultyMultiplier = difficulty === "easy" ? 0.7 : difficulty === "medium" ? 1.0 : 1.4;
+        const totalMultiplier = Math.max(0.5, questionMultiplier * difficultyMultiplier);
+        totalDuration = 15000 * totalMultiplier;
+        steps = [
+          { threshold: 5, step: "starting" },
+          { threshold: 15, step: "reading" },
+          { threshold: 30, step: "analyzing" },
+          { threshold: 45, step: "preparing" },
+          { threshold: 60, step: "generating" },
+          { threshold: 75, step: "processing" },
+          { threshold: 85, step: "validating" },
+          { threshold: 90, step: "finalizing" },
+        ];
+      }
+      
+      const updateInterval = 50;
       const maxProgress = 90;
-      
-      // Step thresholds for messages
-      const steps = [
-        { threshold: 5, step: "starting" },
-        { threshold: 15, step: "reading" },
-        { threshold: 30, step: "analyzing" },
-        { threshold: 45, step: "preparing" },
-        { threshold: 60, step: "generating" },
-        { threshold: 75, step: "processing" },
-        { threshold: 85, step: "validating" },
-        { threshold: 90, step: "finalizing" },
-      ];
 
       let startTime = Date.now();
       let currentStepIndex = 0;
@@ -71,18 +88,16 @@ export function QuizGenerator() {
 
       const interval = setInterval(() => {
         const elapsed = Date.now() - startTime;
-        // Use easeOutQuad for natural deceleration as it approaches max
         const linearProgress = Math.min(elapsed / totalDuration, 1);
-        const easedProgress = linearProgress * (2 - linearProgress); // easeOutQuad
+        const easedProgress = linearProgress * (2 - linearProgress);
         const progress = Math.min(easedProgress * maxProgress, maxProgress);
         
         setProcessingProgress(progress);
         
-        // Update step message when crossing thresholds
         while (currentStepIndex < steps.length && progress >= steps[currentStepIndex].threshold) {
           const step = steps[currentStepIndex].step;
           setCurrentGenerationStep(step);
-          setLoadingMessage(getStepMessage(step));
+          setLoadingMessage(getStepMessage(step, isImportMode));
           currentStepIndex++;
         }
         
@@ -101,7 +116,21 @@ export function QuizGenerator() {
     }
   }, [isLoading, mode, questionCount, difficulty]);
 
-  const getStepMessage = (step: string): string => {
+  const getStepMessage = (step: string, isImportMode: boolean = false): string => {
+    if (isImportMode) {
+      const importMessages: Record<string, string> = {
+        starting: "Starting quiz import...",
+        scanning: "Scanning your document...",
+        parsing: "Parsing questions and options...",
+        identifying: "AI is identifying correct answers...",
+        validating: "Validating parsed questions...",
+        finalizing: "Finalizing your quiz...",
+        saving: "Saving your quiz...",
+        complete: "Quiz imported successfully!",
+      };
+      return importMessages[step] || "Processing...";
+    }
+    
     const messages: Record<string, string> = {
       starting: "Starting quiz generation...",
       reading: "Reading your study material...",
