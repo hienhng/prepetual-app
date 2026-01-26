@@ -83,9 +83,12 @@ export default function Create() {
   }, [isLoading, setLocation]);
 
   useEffect(() => {
+    console.log("extractedText changed:", extractedText, "length:", extractedText?.length);
     if (extractedText && extractedText.length > 0) {
+      console.log("Setting isReady to TRUE");
       setIsReady(true);
     } else {
+      console.log("Setting isReady to FALSE");
       setIsReady(false);
     }
   }, [extractedText]);
@@ -180,6 +183,7 @@ export default function Create() {
   };
 
   const handleClearText = () => {
+    console.log("handleClearText called, current isReady:", isReady);
     setExtractedText("");  
     setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
     clearJob();
@@ -188,6 +192,7 @@ export default function Create() {
     setYoutubeUrl("");
     setYoutubeError(null);
     setSourceInputType(null);
+    console.log("handleClearText finished, set isReady to false");
   };
 
   const getWordCount = (text: string) => {
