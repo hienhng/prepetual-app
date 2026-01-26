@@ -243,9 +243,55 @@ export async function registerRoutes(
       const videoId = videoIdMatch[1];
       console.log(`[YouTube] Fetching transcript for video ${videoId}`);
       
-      // Method 1: Try youtube-transcript-api (uses youtube-transcript.io backend - less likely to be blocked)
+      // Method 1: Try youtube-transcript.io API (external service - most reliable)
+      const youtubeTranscriptApiKey = process.env.YOUTUBE_TRANSCRIPT_API_KEY;
+      if (youtubeTranscriptApiKey) {
+        try {
+          console.log(`[YouTube] Trying youtube-transcript.io API for ${videoId}`);
+          const response = await fetch('https://www.youtube-transcript.io/api/transcripts', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Basic ${youtubeTranscriptApiKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ids: [videoId] })
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data && Array.isArray(data) && data.length > 0 && data[0].transcript) {
+              const transcriptSegments = data[0].transcript;
+              const fullText = transcriptSegments
+                .map((segment: { text: string }) => segment.text)
+                .join(" ")
+                .replace(/\s+/g, " ")
+                .replace(/&#39;/g, "'")
+                .replace(/&quot;/g, '"')
+                .replace(/&amp;/g, '&')
+                .trim();
+              
+              if (fullText.length >= 50) {
+                console.log(`[YouTube] Successfully got transcript via youtube-transcript.io`);
+                return res.json({ 
+                  text: fullText,
+                  videoId,
+                  segmentCount: transcriptSegments.length,
+                  method: "youtube_transcript_io"
+                });
+              }
+            }
+          } else {
+            const errorText = await response.text();
+            console.log(`[YouTube] youtube-transcript.io API failed: ${response.status} - ${errorText}`);
+          }
+        } catch (apiError: any) {
+          console.log(`[YouTube] youtube-transcript.io API error: ${apiError.message}`);
+        }
+      }
+      
+      // Method 2: Try youtube-transcript-api npm package (uses youtube-transcript.io backend)
       try {
-        console.log(`[YouTube] Trying youtube-transcript-api for ${videoId}`);
+        console.log(`[YouTube] Trying youtube-transcript-api npm for ${videoId}`);
         const client = new TranscriptClient();
         await client.ready;
         const result = await client.getTranscript(videoId);
@@ -258,7 +304,7 @@ export async function registerRoutes(
             .trim();
           
           if (fullText.length >= 50) {
-            console.log(`[YouTube] Successfully got transcript via youtube-transcript-api`);
+            console.log(`[YouTube] Successfully got transcript via youtube-transcript-api npm`);
             return res.json({ 
               text: fullText,
               videoId,
@@ -268,10 +314,10 @@ export async function registerRoutes(
           }
         }
       } catch (apiError: any) {
-        console.log(`[YouTube] youtube-transcript-api failed: ${apiError.message}`);
+        console.log(`[YouTube] youtube-transcript-api npm failed: ${apiError.message}`);
       }
       
-      // Method 2: Try youtube-transcript-plus (direct scraping)
+      // Method 3: Try youtube-transcript-plus (direct scraping - fallback)
       try {
         console.log(`[YouTube] Trying youtube-transcript-plus for ${videoId}`);
         let transcript;
