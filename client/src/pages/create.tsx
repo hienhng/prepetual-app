@@ -83,12 +83,9 @@ export default function Create() {
   }, [isLoading, setLocation]);
 
   useEffect(() => {
-    console.log("extractedText changed:", extractedText, "length:", extractedText?.length);
     if (extractedText && extractedText.length > 0) {
-      console.log("Setting isReady to TRUE");
       setIsReady(true);
     } else {
-      console.log("Setting isReady to FALSE");
       setIsReady(false);
     }
   }, [extractedText]);
@@ -183,7 +180,6 @@ export default function Create() {
   };
 
   const handleClearText = () => {
-    console.log("handleClearText called, current isReady:", isReady);
     setExtractedText("");  
     setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
     clearJob();
@@ -192,7 +188,6 @@ export default function Create() {
     setYoutubeUrl("");
     setYoutubeError(null);
     setSourceInputType(null);
-    console.log("handleClearText finished, set isReady to false");
   };
 
   const getWordCount = (text: string) => {
@@ -264,62 +259,53 @@ export default function Create() {
         </motion.div>
 
         {!isReady && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {inputOptions.map((option) => (
-                <motion.div
-                  key={option.id}
-                  variants={cardHoverVariants}
-                  initial="rest"
-                  whileHover="hover"
-                  whileTap={{ scale: 0.98 }}
+          <div className="space-y-3">
+            {inputOptions.map((option) => (
+              <motion.div
+                key={option.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.01, y: -2 }}
+                whileTap={{ scale: 0.99 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              >
+                <Card 
+                  className={`cursor-pointer overflow-visible border-2 hover:border-primary/60 transition-all duration-200 ${option.bgLight} hover:shadow-lg`}
+                  onClick={() => setActiveModal(option.id as ActiveModal)}
+                  data-testid={`card-${option.id}`}
                 >
-                  <Card 
-                    className={`cursor-pointer overflow-hidden border hover:border-primary/50 transition-colors h-full ${option.bgLight}`}
-                    onClick={() => setActiveModal(option.id as ActiveModal)}
-                    data-testid={`card-${option.id}`}
-                  >
-                    <CardContent className="p-4 flex flex-col items-center text-center h-full">
-                      <div className={`w-10 h-10 rounded-lg ${option.iconBg} flex items-center justify-center mb-3 shadow-md`}>
-                        <option.icon className="w-5 h-5 text-white" />
-                      </div>
-                      <h3 className="font-semibold text-foreground mb-0.5">
+                  <CardContent className="p-5 flex items-center gap-5">
+                    <div className={`w-14 h-14 rounded-xl ${option.iconBg} flex items-center justify-center shadow-lg flex-shrink-0`}>
+                      <option.icon className="w-7 h-7 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-lg text-foreground mb-1">
                         {option.title}
                       </h3>
-                      <p className="text-xs text-muted-foreground mb-3">
+                      <p className="text-sm text-muted-foreground mb-2">
                         {option.description}
                       </p>
-                      <div className="flex flex-wrap gap-1 justify-center mt-auto">
-                        {option.formats.slice(0, 3).map((format) => (
+                      <div className="flex flex-wrap gap-1.5">
+                        {option.formats.map((format) => (
                           <Badge 
                             key={format} 
                             variant="secondary" 
-                            className="text-[10px] px-1.5 py-0 font-normal"
+                            className="text-xs px-2 py-0.5 font-normal"
                           >
                             {format}
                           </Badge>
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground flex-wrap py-2">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                Clear documents work best
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                More content = better questions
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                Videos need captions
-              </span>
-            </div>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <ArrowRight className="w-5 h-5 text-primary" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </div>
         )}
 
