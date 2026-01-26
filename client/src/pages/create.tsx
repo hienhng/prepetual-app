@@ -214,6 +214,7 @@ export default function Create() {
       gradient: "from-blue-500 to-cyan-500",
       bgLight: "bg-blue-50 dark:bg-blue-950/30",
       iconBg: "bg-blue-500",
+      badgeClass: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800",
       formats: ["PDF", "DOCX", "PPTX", "PNG", "JPG"],
     },
     {
@@ -224,6 +225,7 @@ export default function Create() {
       gradient: "from-violet-500 to-purple-500",
       bgLight: "bg-violet-50 dark:bg-violet-950/30",
       iconBg: "bg-violet-500",
+      badgeClass: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 border-violet-200 dark:border-violet-800",
       formats: ["Notes", "Articles", "Textbooks"],
     },
     {
@@ -234,6 +236,7 @@ export default function Create() {
       gradient: "from-red-500 to-rose-500",
       bgLight: "bg-red-50 dark:bg-red-950/30",
       iconBg: "bg-red-500",
+      badgeClass: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800",
       formats: ["Lectures", "Tutorials", "Talks"],
     },
   ];
@@ -289,8 +292,8 @@ export default function Create() {
                         {option.formats.map((format) => (
                           <Badge 
                             key={format} 
-                            variant="secondary" 
-                            className="text-xs px-2 py-0.5 font-normal"
+                            variant="outline"
+                            className={`text-[10px] md:text-xs px-2 py-0.5 font-medium transition-colors ${option.badgeClass}`}
                           >
                             {format}
                           </Badge>
