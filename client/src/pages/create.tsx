@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Upload, FileText, Image, Sparkles, ArrowRight, 
   CheckCircle2, Loader2, X, FileUp, Wand2, Eye,
-  Type, Youtube, Link, AlertCircle, Mic
+  Type, Youtube, Link, AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -67,8 +67,6 @@ export default function Create() {
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [isLoadingYoutube, setIsLoadingYoutube] = useState(false);
   const [youtubeError, setYoutubeError] = useState<string | null>(null);
-  const [canUseAudioTranscription, setCanUseAudioTranscription] = useState(false);
-  const [isTranscribingAudio, setIsTranscribingAudio] = useState(false);
 
   useEffect(() => {
     if (isLoading && !redirectedRef.current) {
@@ -125,27 +123,21 @@ export default function Create() {
     });
   };
 
-  const handleYoutubeSubmit = async (useAudioTranscription = false) => {
+  const handleYoutubeSubmit = async () => {
     if (!youtubeUrl.trim()) {
       setYoutubeError("Please enter a YouTube URL");
       return;
     }
 
-    if (useAudioTranscription) {
-      setIsTranscribingAudio(true);
-    } else {
-      setIsLoadingYoutube(true);
-    }
+    setIsLoadingYoutube(true);
     setYoutubeError(null);
-    setCanUseAudioTranscription(false);
 
     try {
       const response = await fetch("/api/youtube-transcript", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          url: youtubeUrl.trim(),
-          useAudioTranscription 
+          url: youtubeUrl.trim()
         }),
       });
 
@@ -158,15 +150,7 @@ export default function Create() {
       }
 
       if (!response.ok) {
-        if (response.status === 401) {
-          setYoutubeError("Please log in to use audio transcription.");
-          setCanUseAudioTranscription(false);
-        } else {
-          setYoutubeError(data.message || "Failed to fetch video transcript");
-          if (data.canUseAudioTranscription) {
-            setCanUseAudioTranscription(true);
-          }
-        }
+        setYoutubeError(data.message || "Failed to fetch video transcript");
         return;
       }
 
@@ -179,12 +163,10 @@ export default function Create() {
         isOfficeWithImages: false,
         documentImages: [],
       });
-      setCanUseAudioTranscription(false);
     } catch (error) {
       setYoutubeError("Network error. Please try again.");
     } finally {
       setIsLoadingYoutube(false);
-      setIsTranscribingAudio(false);
     }
   };
 
@@ -201,8 +183,6 @@ export default function Create() {
     setYoutubeUrl("");
     setYoutubeError(null);
     setSourceInputType(null);
-    setCanUseAudioTranscription(false);
-    setIsTranscribingAudio(false);
   };
 
   const getWordCount = (text: string) => {
@@ -344,8 +324,8 @@ export default function Create() {
                             />
                           </div>
                           <Button
-                            onClick={() => handleYoutubeSubmit(false)}
-                            disabled={isLoadingYoutube || isTranscribingAudio || !youtubeUrl.trim()}
+                            onClick={() => handleYoutubeSubmit()}
+                            disabled={isLoadingYoutube || !youtubeUrl.trim()}
                             className="gap-2 h-6"
                             data-testid="button-fetch-youtube"
                           >
@@ -369,45 +349,6 @@ export default function Create() {
                               <AlertCircle className="h-4 w-4" />
                               {youtubeError}
                             </p>
-                            {canUseAudioTranscription && (
-                              <div className="mt-3 pt-3 border-t border-destructive/20">
-                                <p className="text-sm text-muted-foreground mb-2">
-                                  Would you like to transcribe the video audio using AI instead? This may take a bit longer.
-                                </p>
-                                <Button
-                                  onClick={() => handleYoutubeSubmit(true)}
-                                  disabled={isTranscribingAudio}
-                                  size="sm"
-                                  variant="outline"
-                                  className="gap-2"
-                                  data-testid="button-transcribe-audio"
-                                >
-                                  {isTranscribingAudio ? (
-                                    <>
-                                      <Loader2 className="h-4 w-4 animate-spin" />
-                                      Transcribing audio...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Mic className="h-4 w-4" />
-                                      Use Audio Transcription
-                                    </>
-                                  )}
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        
-                        {isTranscribingAudio && (
-                          <div className="p-4 rounded-lg bg-primary/5 border border-primary/20" data-testid="text-transcribing-status">
-                            <div className="flex items-center gap-3">
-                              <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                              <div>
-                                <p className="text-sm font-medium text-foreground">Transcribing video audio...</p>
-                                <p className="text-xs text-muted-foreground">This may take a minute depending on video length</p>
-                              </div>
-                            </div>
                           </div>
                         )}
                         

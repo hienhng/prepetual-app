@@ -224,7 +224,7 @@ export async function registerRoutes(
   // YouTube transcript extraction endpoint
   app.post("/api/youtube-transcript", async (req, res) => {
     try {
-      const { url, useAudioTranscription } = req.body;
+      const { url, useCaptions } = req.body;
       
       if (!url || typeof url !== "string") {
         return res.status(400).json({ message: "YouTube URL is required" });
@@ -240,17 +240,11 @@ export async function registerRoutes(
       }
 
       const videoId = videoIdMatch[1];
+      const isAuthenticated = typeof (req as any).isAuthenticated === 'function' && (req as any).isAuthenticated();
       
-      // If user explicitly requested audio transcription, skip caption fetch
-      if (useAudioTranscription) {
-        // Audio transcription requires authentication due to cost
-        const isAuthenticated = typeof (req as any).isAuthenticated === 'function' && (req as any).isAuthenticated();
-        if (!isAuthenticated) {
-          return res.status(401).json({ 
-            message: "Please log in to use audio transcription." 
-          });
-        }
-        
+      // For authenticated users: Use audio transcription as primary method (more reliable in production)
+      // For unauthenticated users: Try captions only
+      if (isAuthenticated && !useCaptions) {
         try {
           const userId = (req as any).user?.id;
           console.log(`[YouTube] Using audio transcription for video ${videoId} by user ${userId}`);
@@ -278,18 +272,14 @@ export async function registerRoutes(
         }
       }
       
-      // First try to get captions
+      // For unauthenticated users or when useCaptions is explicitly requested: Try captions
       try {
-        // Use youtube-transcript-plus with custom user agent for better reliability
-        // Try without specifying language first to get any available transcript
         let transcript;
         const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
         
         try {
-          // First try without language (gets default/auto-generated)
           transcript = await fetchTranscript(videoId, { userAgent });
         } catch (langError: any) {
-          // If error mentions available languages, try those
           const errorMsg = langError.message || '';
           const langMatch = errorMsg.match(/Available languages?: ([a-z, ]+)/i);
           if (langMatch) {
@@ -302,15 +292,12 @@ export async function registerRoutes(
         }
         
         if (!transcript || transcript.length === 0) {
-          // Captions not available, return with fallback option (only for authenticated users)
-          const isAuthenticatedForFallback = typeof (req as any).isAuthenticated === 'function' && (req as any).isAuthenticated();
           return res.status(400).json({ 
-            message: "No captions found for this video.",
-            canUseAudioTranscription: isAuthenticatedForFallback
+            message: "No captions found for this video. Please log in to use audio transcription.",
+            requiresAuth: !isAuthenticated
           });
         }
 
-        // Combine transcript segments into full text
         const fullText = transcript
           .map((segment: { text: string }) => segment.text)
           .join(" ")
@@ -332,11 +319,9 @@ export async function registerRoutes(
       } catch (transcriptError: any) {
         console.error("YouTube transcript error:", transcriptError);
         
-        // Return with option to use audio transcription as fallback (only for authenticated users)
-        const isAuthenticated = typeof (req as any).isAuthenticated === 'function' && (req as any).isAuthenticated();
         return res.status(400).json({ 
-          message: "Captions not available for this video.",
-          canUseAudioTranscription: isAuthenticated
+          message: "Could not fetch video transcript. Please log in to use audio transcription which works more reliably.",
+          requiresAuth: !isAuthenticated
         });
       }
     } catch (error) {
