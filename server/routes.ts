@@ -240,13 +240,13 @@ export async function registerRoutes(
       }
 
       const videoId = videoIdMatch[1];
-      const isAuthenticated = typeof (req as any).isAuthenticated === 'function' && (req as any).isAuthenticated();
+      const userId = (req as any).session?.userId || (req as any).user?.claims?.sub;
+      const userIsAuthenticated = !!userId;
       
       // For authenticated users: Use audio transcription as primary method (more reliable in production)
       // For unauthenticated users: Try captions only
-      if (isAuthenticated && !useCaptions) {
+      if (userIsAuthenticated && !useCaptions) {
         try {
-          const userId = (req as any).user?.id;
           console.log(`[YouTube] Using audio transcription for video ${videoId} by user ${userId}`);
           const transcribedText = await transcribeYouTubeAudio(videoId);
           
@@ -294,7 +294,7 @@ export async function registerRoutes(
         if (!transcript || transcript.length === 0) {
           return res.status(400).json({ 
             message: "No captions found for this video. Please log in to use audio transcription.",
-            requiresAuth: !isAuthenticated
+            requiresAuth: !userIsAuthenticated
           });
         }
 
@@ -321,7 +321,7 @@ export async function registerRoutes(
         
         return res.status(400).json({ 
           message: "Could not fetch video transcript. Please log in to use audio transcription which works more reliably.",
-          requiresAuth: !isAuthenticated
+          requiresAuth: !userIsAuthenticated
         });
       }
     } catch (error) {
