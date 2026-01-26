@@ -327,8 +327,8 @@ export function QuizGenerator() {
                   </p>
                 </div>
               </div>
-              <div className="bg-white/60 dark:bg-background/60 rounded-lg p-4 border">
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-4">
+              <div className="bg-white/60 dark:bg-background/60 rounded-lg p-4 border max-h-[300px] overflow-y-auto">
+                <p className={`text-sm text-muted-foreground whitespace-pre-wrap ${!showFullText ? "line-clamp-4" : ""}`}>
                   {showFullText ? extractedText : truncatedText}
                   {!showFullText && hasMoreText && "..."}
                 </p>
