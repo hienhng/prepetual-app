@@ -13,6 +13,7 @@ import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs";
 import crypto from "crypto";
 import { fetchTranscript } from "youtube-transcript-plus";
+import TranscriptClient from "youtube-transcript-api";
 import ytdl from "@distube/ytdl-core";
 import { Readable } from "stream";
 import OpenAI from "openai";
@@ -224,7 +225,7 @@ export async function registerRoutes(
   // YouTube transcript extraction endpoint
   app.post("/api/youtube-transcript", async (req, res) => {
     try {
-      const { url, useCaptions } = req.body;
+      const { url } = req.body;
       
       if (!url || typeof url !== "string") {
         return res.status(400).json({ message: "YouTube URL is required" });
@@ -240,40 +241,39 @@ export async function registerRoutes(
       }
 
       const videoId = videoIdMatch[1];
-      const userId = (req as any).session?.userId || (req as any).user?.claims?.sub;
-      const userIsAuthenticated = !!userId;
+      console.log(`[YouTube] Fetching transcript for video ${videoId}`);
       
-      // For authenticated users: Use audio transcription as primary method (more reliable in production)
-      // For unauthenticated users: Try captions only
-      if (userIsAuthenticated && !useCaptions) {
-        try {
-          console.log(`[YouTube] Using audio transcription for video ${videoId} by user ${userId}`);
-          const transcribedText = await transcribeYouTubeAudio(videoId);
+      // Method 1: Try youtube-transcript-api (uses youtube-transcript.io backend - less likely to be blocked)
+      try {
+        console.log(`[YouTube] Trying youtube-transcript-api for ${videoId}`);
+        const client = new TranscriptClient();
+        await client.ready;
+        const result = await client.getTranscript(videoId);
+        
+        if (result && result.transcript && result.transcript.length > 0) {
+          const fullText = result.transcript
+            .map((segment: { text: string }) => segment.text)
+            .join(" ")
+            .replace(/\s+/g, " ")
+            .trim();
           
-          if (transcribedText.length < 50) {
-            return res.status(400).json({
-              message: "Transcribed audio is too short to generate a meaningful quiz.",
+          if (fullText.length >= 50) {
+            console.log(`[YouTube] Successfully got transcript via youtube-transcript-api`);
+            return res.json({ 
+              text: fullText,
+              videoId,
+              segmentCount: result.transcript.length,
+              method: "transcript_api"
             });
           }
-          
-          return res.json({ 
-            text: transcribedText,
-            videoId,
-            method: "audio_transcription"
-          });
-        } catch (audioError: any) {
-          console.error("Audio transcription error:", audioError);
-          const errorMessage = audioError.message || "Could not transcribe video audio.";
-          return res.status(400).json({ 
-            message: errorMessage.includes("too long") || errorMessage.includes("too large") || errorMessage.includes("timed out")
-              ? errorMessage
-              : "Could not transcribe video audio. The video may be private or unavailable."
-          });
         }
+      } catch (apiError: any) {
+        console.log(`[YouTube] youtube-transcript-api failed: ${apiError.message}`);
       }
       
-      // For unauthenticated users or when useCaptions is explicitly requested: Try captions
+      // Method 2: Try youtube-transcript-plus (direct scraping)
       try {
+        console.log(`[YouTube] Trying youtube-transcript-plus for ${videoId}`);
         let transcript;
         const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
         
@@ -291,39 +291,31 @@ export async function registerRoutes(
           }
         }
         
-        if (!transcript || transcript.length === 0) {
-          return res.status(400).json({ 
-            message: "No captions found for this video. Please log in to use audio transcription.",
-            requiresAuth: !userIsAuthenticated
-          });
+        if (transcript && transcript.length > 0) {
+          const fullText = transcript
+            .map((segment: { text: string }) => segment.text)
+            .join(" ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+          if (fullText.length >= 50) {
+            console.log(`[YouTube] Successfully got transcript via youtube-transcript-plus`);
+            return res.json({ 
+              text: fullText,
+              videoId,
+              segmentCount: transcript.length,
+              method: "captions"
+            });
+          }
         }
-
-        const fullText = transcript
-          .map((segment: { text: string }) => segment.text)
-          .join(" ")
-          .replace(/\s+/g, " ")
-          .trim();
-
-        if (fullText.length < 50) {
-          return res.status(400).json({
-            message: "Transcript is too short to generate a meaningful quiz.",
-          });
-        }
-
-        res.json({ 
-          text: fullText,
-          videoId,
-          segmentCount: transcript.length,
-          method: "captions"
-        });
       } catch (transcriptError: any) {
-        console.error("YouTube transcript error:", transcriptError);
-        
-        return res.status(400).json({ 
-          message: "Could not fetch video transcript. Please log in to use audio transcription which works more reliably.",
-          requiresAuth: !userIsAuthenticated
-        });
+        console.log(`[YouTube] youtube-transcript-plus failed: ${transcriptError.message}`);
       }
+
+      // All methods failed
+      return res.status(400).json({ 
+        message: "Could not fetch video transcript. The video may not have captions available, or YouTube is blocking access. Try pasting the transcript text directly instead."
+      });
     } catch (error) {
       console.error("YouTube transcript error:", error);
       res.status(500).json({
