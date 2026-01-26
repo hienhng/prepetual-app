@@ -258,13 +258,14 @@ export default function Create() {
           </p>
         </motion.div>
 
-        <AnimatePresence mode="wait">
-          {!isReady ? (
+        <AnimatePresence mode="sync">
+          {!isReady && (
             <motion.div
               key="options"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
               className="space-y-4"
             >
               <motion.div 
@@ -328,12 +329,14 @@ export default function Create() {
                 </div>
               </motion.div>
             </motion.div>
-          ) : (
+          )}
+          {isReady && (
             <motion.div
               key="ready"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.15 }}
               className="space-y-4"
             >
               <Card className="border border-green-500/40 bg-gradient-to-br from-green-50 to-emerald-50/50 dark:from-green-950/30 dark:to-emerald-950/20">
