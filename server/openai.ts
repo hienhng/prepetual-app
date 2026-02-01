@@ -538,9 +538,13 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
       
       // Map illustrationId to cropped illustration imageDataUrl if present
       if (typeof q.illustrationId === "string" && croppedIllustrations.length > 0) {
+        console.log("[OpenAI] Question has illustrationId:", q.illustrationId);
         const matchedIllustration = croppedIllustrations.find(ill => ill.id === q.illustrationId);
         if (matchedIllustration) {
+          console.log("[OpenAI] Matched illustration found, setting imageUrl");
           imageUrl = matchedIllustration.imageDataUrl;
+        } else {
+          console.log("[OpenAI] No matching illustration found for ID:", q.illustrationId);
         }
       }
 
