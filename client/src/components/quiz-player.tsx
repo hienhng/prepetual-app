@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, ChevronLeft, ChevronRight, FileText, Image } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -842,11 +842,14 @@ export function QuizPlayer() {
   const [expandedImageUrl, setExpandedImageUrl] = useState<string | null>(null);
   const [showMaterialViewer, setShowMaterialViewer] = useState(false);
   const [materialImageIndex, setMaterialImageIndex] = useState(0);
+  const [materialViewMode, setMaterialViewMode] = useState<"images" | "text">("images");
 
   const materialImages = sourceMaterial?.documentImages || [];
   const singleSourceImage = sourceMaterial?.imageDataUrl;
   const allMaterialImages = singleSourceImage ? [singleSourceImage, ...materialImages] : materialImages;
   const hasMaterialImages = allMaterialImages.length > 0;
+  const hasExtractedText = !!sourceMaterial?.text;
+  const hasMaterial = hasMaterialImages || hasExtractedText;
 
   const retryQuestionsInList = allQuestions.filter(q => q.isRetry);
   const allRetryChecked = retryQuestionsInList.every(q => retryChecked.has(q.id));
@@ -889,12 +892,13 @@ export function QuizPlayer() {
                       <span className="text-sm font-semibold">{displayQuestionNum}/{originalQuestionCount}</span>
                       <ChevronUp className={`h-4 w-4 transition-transform ${showQuestionNav ? "rotate-180" : ""}`} />
                     </button>
-                    {hasMaterialImages && (
+                    {hasMaterial && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => {
                           setMaterialImageIndex(0);
+                          setMaterialViewMode(hasMaterialImages ? "images" : "text");
                           setShowMaterialViewer(true);
                         }}
                         className="gap-1.5 rounded-full h-8"
@@ -1122,7 +1126,7 @@ export function QuizPlayer() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showMaterialViewer && allMaterialImages.length > 0 && (
+        {showMaterialViewer && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1132,75 +1136,133 @@ export function QuizPlayer() {
           >
             <div className="flex items-center justify-between p-4 border-b border-white/10">
               <div className="flex items-center gap-3">
-                <FileImage className="h-5 w-5 text-white/80" />
+                {materialViewMode === "images" ? (
+                  <Image className="h-5 w-5 text-white/80" />
+                ) : (
+                  <FileText className="h-5 w-5 text-white/80" />
+                )}
                 <span className="text-white font-medium">
-                  Study Material {allMaterialImages.length > 1 && `(${materialImageIndex + 1}/${allMaterialImages.length})`}
+                  {materialViewMode === "images" 
+                    ? `Images ${allMaterialImages.length > 1 ? `(${materialImageIndex + 1}/${allMaterialImages.length})` : ""}`
+                    : "Extracted Text"
+                  }
                 </span>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-white/10 rounded-full"
-                onClick={() => setShowMaterialViewer(false)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
+              <div className="flex items-center gap-2">
+                {hasMaterialImages && hasExtractedText && (
+                  <div className="flex bg-white/10 rounded-full p-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMaterialViewMode("images");
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                        materialViewMode === "images" 
+                          ? "bg-white text-black" 
+                          : "text-white/70 hover:text-white"
+                      }`}
+                      data-testid="button-view-images"
+                    >
+                      <Image className="h-4 w-4" />
+                      <span className="hidden sm:inline">Images</span>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMaterialViewMode("text");
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                        materialViewMode === "text" 
+                          ? "bg-white text-black" 
+                          : "text-white/70 hover:text-white"
+                      }`}
+                      data-testid="button-view-text"
+                    >
+                      <FileText className="h-4 w-4" />
+                      <span className="hidden sm:inline">Text</span>
+                    </button>
+                  </div>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/10 rounded-full"
+                  onClick={() => setShowMaterialViewer(false)}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
             
-            <div 
-              className="flex-1 flex items-center justify-center p-4 sm:p-8 relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {allMaterialImages.length > 1 && (
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute left-4 z-10 rounded-full shadow-lg h-12 w-12"
-                  onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
-                  data-testid="button-material-prev"
+            {materialViewMode === "images" && hasMaterialImages ? (
+              <>
+                <div 
+                  className="flex-1 flex items-center justify-center p-4 sm:p-8 relative"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <ChevronLeft className="h-6 w-6" />
-                </Button>
-              )}
-              
-              <motion.img
-                key={materialImageIndex}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                src={allMaterialImages[materialImageIndex]}
-                alt={`Study material ${materialImageIndex + 1}`}
-                className="max-w-full max-h-[calc(100vh-120px)] object-contain rounded-lg shadow-2xl"
-              />
-              
-              {allMaterialImages.length > 1 && (
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute right-4 z-10 rounded-full shadow-lg h-12 w-12"
-                  onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
-                  data-testid="button-material-next"
-                >
-                  <ChevronRight className="h-6 w-6" />
-                </Button>
-              )}
-            </div>
-            
-            {allMaterialImages.length > 1 && (
-              <div className="flex justify-center gap-2 p-4 border-t border-white/10">
-                {allMaterialImages.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setMaterialImageIndex(idx);
-                    }}
-                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                      idx === materialImageIndex ? 'bg-white' : 'bg-white/30 hover:bg-white/50'
-                    }`}
-                    data-testid={`button-material-dot-${idx}`}
+                  {allMaterialImages.length > 1 && (
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="absolute left-4 z-10 rounded-full shadow-lg h-12 w-12"
+                      onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
+                      data-testid="button-material-prev"
+                    >
+                      <ChevronLeft className="h-6 w-6" />
+                    </Button>
+                  )}
+                  
+                  <motion.img
+                    key={materialImageIndex}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    src={allMaterialImages[materialImageIndex]}
+                    alt={`Study material ${materialImageIndex + 1}`}
+                    className="max-w-full max-h-[calc(100vh-120px)] object-contain rounded-lg shadow-2xl"
                   />
-                ))}
+                  
+                  {allMaterialImages.length > 1 && (
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="absolute right-4 z-10 rounded-full shadow-lg h-12 w-12"
+                      onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
+                      data-testid="button-material-next"
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </Button>
+                  )}
+                </div>
+                
+                {allMaterialImages.length > 1 && (
+                  <div className="flex justify-center gap-2 p-4 border-t border-white/10">
+                    {allMaterialImages.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMaterialImageIndex(idx);
+                        }}
+                        className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                          idx === materialImageIndex ? 'bg-white' : 'bg-white/30 hover:bg-white/50'
+                        }`}
+                        data-testid={`button-material-dot-${idx}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div 
+                className="flex-1 overflow-auto p-4 sm:p-8"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="max-w-3xl mx-auto bg-white/5 rounded-xl p-6 sm:p-8">
+                  <pre className="text-white/90 whitespace-pre-wrap font-sans text-sm sm:text-base leading-relaxed">
+                    {sourceMaterial?.text || "No extracted text available."}
+                  </pre>
+                </div>
               </div>
             )}
           </motion.div>
