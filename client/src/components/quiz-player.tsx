@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -943,7 +943,13 @@ export function QuizPlayer() {
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="mb-6 rounded-2xl overflow-hidden border-2 border-border bg-muted/30"
+                      className="mb-6 rounded-2xl overflow-hidden border-2 border-border bg-muted/30 cursor-pointer relative group/img"
+                      onClick={() => {
+                        const win = window.open("", "_blank");
+                        if (win) {
+                          win.document.write(`<html><body style="margin:0;display:flex;align-items:center;justify-content:center;background:#000;"><img src="${currentQuestion.imageUrl}" style="max-width:100%;max-height:100%;object-contain:fit;"></body></html>`);
+                        }
+                      }}
                     >
                       <img 
                         src={currentQuestion.imageUrl} 
@@ -951,6 +957,9 @@ export function QuizPlayer() {
                         className="w-full max-h-72 sm:max-h-80 object-contain"
                         data-testid="image-question-reference"
                       />
+                      <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-colors flex items-center justify-center">
+                        <ZoomIn className="h-8 w-8 text-white opacity-0 group-hover/img:opacity-100 transition-opacity drop-shadow-md" />
+                      </div>
                     </motion.div>
                   )}
 
