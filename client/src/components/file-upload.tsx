@@ -476,15 +476,15 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  {isCompleted && isImage && (
+                  {isCompleted && isImage && job.imageDataUrl && (
                     <Button
-                      variant="outline"
+                      variant="default"
                       size="sm"
-                      className="h-7 px-2 text-xs gap-1"
+                      className="h-7 px-3 text-xs gap-1.5"
                       onClick={() => openCropperFromJob(job)}
                       data-testid={`button-crop-${job.jobId}`}
                     >
-                      <Crop className="h-3 w-3" />
+                      <Crop className="h-3.5 w-3.5" />
                       {cropCount > 0 ? "Edit Crop" : "Crop"}
                     </Button>
                   )}
