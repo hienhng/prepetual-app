@@ -216,7 +216,9 @@ export function MaterialViewerDialog({ isOpen = false, onClose }: { isOpen: bool
   const materialText = sourceMaterial.text || currentQuiz?.sourceText || null;
   const materialType = sourceMaterial.type;
   const imageDataUrl = sourceMaterial.imageDataUrl;
-  const documentImages = sourceMaterial.documentImages || [];
+  const documentImages = sourceMaterial.documentImages?.length 
+    ? sourceMaterial.documentImages 
+    : ((currentQuiz as any)?.sourceImages || []);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -248,7 +250,9 @@ export function MaterialViewerSidebar({ onClose }: { onClose: () => void }) {
   const materialText = sourceMaterial.text || currentQuiz?.sourceText || null;
   const materialType = sourceMaterial.type;
   const imageDataUrl = sourceMaterial.imageDataUrl;
-  const documentImages = sourceMaterial.documentImages || [];
+  const documentImages = sourceMaterial.documentImages?.length 
+    ? sourceMaterial.documentImages 
+    : ((currentQuiz as any)?.sourceImages || []);
 
   return (
     <div className="w-full h-full flex flex-col bg-background border-l">

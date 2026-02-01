@@ -92,6 +92,7 @@ export const quizzes = pgTable("quizzes", {
   title: text("title").notNull(),
   sourceText: text("source_text").notNull(),
   sourceImageUrl: text("source_image_url"),
+  sourceImages: jsonb("source_images").$type<string[]>(),
   questions: jsonb("questions").notNull().$type<Question[]>(),
   difficulty: text("difficulty").default("medium"),
   category: text("category").default("Others/General"),
