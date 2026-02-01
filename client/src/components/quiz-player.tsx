@@ -839,6 +839,8 @@ export function QuizPlayer() {
   };
 
   const allOriginalChecked = checkedQuestions.size === originalQuestionCount;
+  const [expandedImageUrl, setExpandedImageUrl] = useState<string | null>(null);
+
   const retryQuestionsInList = allQuestions.filter(q => q.isRetry);
   const allRetryChecked = retryQuestionsInList.every(q => retryChecked.has(q.id));
   const isLastQuestion = currentIndex === allQuestions.length - 1;
@@ -944,12 +946,7 @@ export function QuizPlayer() {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       className="mb-6 rounded-2xl overflow-hidden border-2 border-border bg-muted/30 cursor-pointer relative group/img"
-                      onClick={() => {
-                        const win = window.open("", "_blank");
-                        if (win) {
-                          win.document.write(`<html><body style="margin:0;display:flex;align-items:center;justify-content:center;background:#000;"><img src="${currentQuestion.imageUrl}" style="max-width:100%;max-height:100%;object-contain:fit;"></body></html>`);
-                        }
-                      }}
+                      onClick={() => setExpandedImageUrl(currentQuestion.imageUrl || null)}
                     >
                       <img 
                         src={currentQuestion.imageUrl} 
@@ -1067,6 +1064,40 @@ export function QuizPlayer() {
         isOpen={showChatbot}
         onClose={() => setShowChatbot(false)}
       />
+
+      <AnimatePresence>
+        {expandedImageUrl && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 sm:p-8 cursor-zoom-out"
+            onClick={() => setExpandedImageUrl(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-full max-h-full flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={expandedImageUrl}
+                alt="Expanded view"
+                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl ring-1 ring-white/10"
+              />
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute -top-4 -right-4 rounded-full shadow-lg border-2 border-background h-10 w-10 z-10"
+                onClick={() => setExpandedImageUrl(null)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
