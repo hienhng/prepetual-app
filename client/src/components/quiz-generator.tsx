@@ -172,7 +172,7 @@ export function QuizGenerator() {
         const response = await fetch("/api/import-quiz", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: extractedText, sourceImageUrl, documentImages: isOfficeWithImages ? documentImages : undefined }),
+          body: JSON.stringify({ text: extractedText, sourceImageUrl, documentImages: documentImages.length > 0 ? documentImages : undefined }),
         });
 
         if (!response.ok) {
@@ -214,7 +214,7 @@ export function QuizGenerator() {
         questionTypes, 
         difficulty, 
         sourceImageUrl, 
-        documentImages: isOfficeWithImages ? documentImages : undefined 
+        documentImages: documentImages.length > 0 ? documentImages : undefined 
       };
 
       const response = await fetch("/api/generate-quiz-stream", {
