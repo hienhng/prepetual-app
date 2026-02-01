@@ -25,7 +25,7 @@ type QuizWithAttempts = Quiz & { attemptCount?: number };
 
 export default function HistoryPage() {
   const [, setLocation] = useLocation();
-  const { setCurrentQuiz, setSourceMaterial, savedProgresses, loadSavedProgress, sourceMaterial } = useQuiz();
+  const { setCurrentQuiz, setSourceMaterial, savedProgresses, loadSavedProgress } = useQuiz();
   const { toast } = useToast();
   const [quizToDelete, setQuizToDelete] = useState<QuizWithAttempts | null>(null);
 
@@ -88,11 +88,9 @@ export default function HistoryPage() {
         createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
       } as any);
       setSourceMaterial({
-        type: quiz.sourceImageUrl ? "image" : sourceMaterial?.type || null,
+        type: quiz.sourceImageUrl ? "image" : null,
         text: quiz.sourceText,
-        imageDataUrl: quiz.sourceImageUrl || sourceMaterial?.imageDataUrl || null,
-        isOfficeWithImages: sourceMaterial?.isOfficeWithImages,
-        documentImages: sourceMaterial?.documentImages || [],
+        imageDataUrl: quiz.sourceImageUrl || null,
       });
     }
     setLocation("/quiz");
@@ -104,11 +102,9 @@ export default function HistoryPage() {
       createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
     } as any);
     setSourceMaterial({
-      type: quiz.sourceImageUrl ? "image" : sourceMaterial?.type || null,
+      type: quiz.sourceImageUrl ? "image" : null,
       text: quiz.sourceText,
-      imageDataUrl: quiz.sourceImageUrl || sourceMaterial?.imageDataUrl || null,
-      isOfficeWithImages: sourceMaterial?.isOfficeWithImages,
-      documentImages: sourceMaterial?.documentImages || [],
+      imageDataUrl: quiz.sourceImageUrl || null,
     });
     setLocation("/study");
   };
@@ -119,11 +115,9 @@ export default function HistoryPage() {
       createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
     } as any);
     setSourceMaterial({
-      type: quiz.sourceImageUrl ? "image" : sourceMaterial?.type || null,
+      type: quiz.sourceImageUrl ? "image" : null,
       text: quiz.sourceText,
-      imageDataUrl: quiz.sourceImageUrl || sourceMaterial?.imageDataUrl || null,
-      isOfficeWithImages: sourceMaterial?.isOfficeWithImages,
-      documentImages: sourceMaterial?.documentImages || [],
+      imageDataUrl: quiz.sourceImageUrl || null,
     });
     setLocation("/edit-quiz");
   };
