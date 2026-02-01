@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import, FileQuestionIcon, Settings2 } from "lucide-react";
+import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import, FileQuestionIcon, Settings2, Crop } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,15 @@ import { useQuiz } from "@/lib/quiz-context";
 import { useUpload } from "@/lib/upload-context";
 import { motion, AnimatePresence } from "framer-motion";
 import { QuizGenerationDialog } from "@/components/quiz-generation-dialog";
+import { ImageCropper } from "@/components/image-cropper";
 import type { QuestionType, DifficultyLevel } from "@shared/schema";
+
+interface CroppedIllustration {
+  id: string;
+  description: string;
+  type: string;
+  imageDataUrl: string;
+}
 
 type QuizMode = "generate" | "import";
 
@@ -33,11 +41,44 @@ export function QuizGenerator() {
   const [difficulty, setDifficulty] = useState<DifficultyLevel>("medium");
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<QuizMode>("generate");
+  
+  // Manual cropping state
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [cropperImageUrl, setCropperImageUrl] = useState<string>("");
+  const [cropperImageIndex, setCropperImageIndex] = useState<number>(0);
 
   const isOfficeWithImages = sourceMaterial?.isOfficeWithImages || false;
   const documentImages = sourceMaterial?.documentImages || [];
   const croppedIllustrations = sourceMaterial?.croppedIllustrations || [];
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  
+  // Open cropper for an image
+  const openCropper = (imageUrl: string, index: number) => {
+    setCropperImageUrl(imageUrl);
+    setCropperImageIndex(index);
+    setCropperOpen(true);
+  };
+  
+  // Handle completed crops
+  const handleCropsComplete = (crops: { id: string; description: string; imageDataUrl: string }[]) => {
+    const newCrops: CroppedIllustration[] = crops.map(c => ({
+      ...c,
+      type: "manual",
+    }));
+    
+    // Merge with existing cropped illustrations
+    const existingCrops = sourceMaterial?.croppedIllustrations || [];
+    const allCrops = [...existingCrops, ...newCrops];
+    
+    // Update source material with new crops
+    setSourceMaterial({
+      ...sourceMaterial,
+      croppedIllustrations: allCrops,
+    });
+    
+    setCropperOpen(false);
+    setCropperImageUrl("");
+  };
 
   // Smooth progress animation with step messages
   useEffect(() => {
@@ -323,12 +364,19 @@ export function QuizGenerator() {
               <div className="bg-white/60 dark:bg-background/60 rounded-lg p-4 border">
                 <div className="flex flex-wrap gap-2 mb-3">
                   {documentImages.slice(0, 4).map((img, index) => (
-                    <div key={index} className="w-14 h-14 rounded-lg overflow-hidden border-2 border-white shadow-sm">
+                    <div 
+                      key={index} 
+                      className="relative group w-14 h-14 rounded-lg overflow-hidden border-2 border-white shadow-sm cursor-pointer"
+                      onClick={() => openCropper(img, index)}
+                    >
                       <img 
                         src={img} 
                         alt={`Document image ${index + 1}`} 
                         className="w-full h-full object-cover"
                       />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Crop className="w-4 h-4 text-white" />
+                      </div>
                     </div>
                   ))}
                   {documentImages.length > 4 && (
@@ -337,9 +385,26 @@ export function QuizGenerator() {
                     </div>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  AI will analyze text and visual content to generate comprehensive questions
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">
+                    {croppedIllustrations.length > 0 
+                      ? `${croppedIllustrations.length} illustration${croppedIllustrations.length !== 1 ? 's' : ''} selected for questions`
+                      : "Click an image to manually crop illustrations"
+                    }
+                  </p>
+                  {documentImages.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-3 text-xs gap-1.5"
+                      onClick={() => openCropper(documentImages[0], 0)}
+                      data-testid="button-crop-image"
+                    >
+                      <Crop className="h-3.5 w-3.5" />
+                      Crop Image
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -698,6 +763,17 @@ export function QuizGenerator() {
         currentStep={currentGenerationStep}
         message={loadingMessage}
         mode={mode}
+      />
+      
+      {/* Manual Cropper Dialog */}
+      <ImageCropper
+        imageDataUrl={cropperImageUrl}
+        isOpen={cropperOpen}
+        onCropsComplete={handleCropsComplete}
+        onCancel={() => {
+          setCropperOpen(false);
+          setCropperImageUrl("");
+        }}
       />
     </div>
   );
