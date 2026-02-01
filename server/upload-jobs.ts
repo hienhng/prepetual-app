@@ -276,7 +276,11 @@ export async function processJob(id: string) {
           }
           
           extractedText = combinedText;
-          documentImages = croppedIllustrations.map(ill => ill.imageDataUrl);
+          // Keep the original full image in documentImages (not the cropped illustrations)
+          // The cropped illustrations are stored separately in croppedIllustrations
+          if (originalImageDataUrl) {
+            documentImages = [originalImageDataUrl];
+          }
           isOfficeWithImages = true;
         } else if (analysis.description) {
           // No illustrations but has description
