@@ -294,11 +294,49 @@ export function QuizGenerator() {
   
   // Check if we have images to display (from document images or single image upload)
   const singleImageUrl = sourceMaterial?.imageDataUrl;
-  const hasVisualContent = documentImages.length > 0 || singleImageUrl;
+  const allImages = singleImageUrl ? [singleImageUrl] : documentImages;
+  const hasVisualContent = allImages.length > 0;
   const [showTextInstead, setShowTextInstead] = useState(false);
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
+      {/* Expanded Image Modal */}
+      <AnimatePresence>
+        {expandedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+            onClick={() => setExpandedImage(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-[90vw] max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img 
+                src={expandedImage} 
+                alt="Expanded view"
+                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+              />
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute top-2 right-2"
+                onClick={() => setExpandedImage(null)}
+                data-testid="button-close-expanded"
+              >
+                <ChevronUp className="h-4 w-4 rotate-45" />
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {hasVisualContent && !showTextInstead ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -314,32 +352,40 @@ export function QuizGenerator() {
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg text-foreground mb-0.5">Your Study Material</h3>
                   <p className="text-sm text-muted-foreground">
-                    {singleImageUrl ? "1 image" : `${documentImages.length} image${documentImages.length !== 1 ? 's' : ''}`} ready for AI analysis
+                    {allImages.length} image{allImages.length !== 1 ? 's' : ''} ready for AI analysis
                   </p>
                 </div>
               </div>
               
-              {/* Image Gallery */}
-              <div className="bg-white/60 dark:bg-background/60 rounded-lg p-3 border max-h-[400px] overflow-y-auto">
-                {singleImageUrl ? (
-                  <img 
-                    src={singleImageUrl} 
-                    alt="Uploaded document"
-                    className="w-full rounded-lg border shadow-sm"
-                  />
-                ) : (
-                  <div className="space-y-3">
-                    {documentImages.map((img, index) => (
-                      <div key={index} className="rounded-lg overflow-hidden border shadow-sm">
-                        <img 
-                          src={img} 
-                          alt={`Document page ${index + 1}`} 
-                          className="w-full"
-                        />
+              {/* Image Grid Gallery */}
+              <div className="bg-white/60 dark:bg-background/60 rounded-lg p-3 border">
+                <div className={`grid gap-2 ${
+                  allImages.length === 1 ? "grid-cols-1" :
+                  allImages.length === 2 ? "grid-cols-2" :
+                  "grid-cols-2 sm:grid-cols-3"
+                }`}>
+                  {allImages.map((img, index) => (
+                    <motion.div 
+                      key={index} 
+                      className="relative aspect-[4/3] rounded-lg overflow-hidden border shadow-sm cursor-pointer group"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setExpandedImage(img)}
+                    >
+                      <img 
+                        src={img} 
+                        alt={`Document page ${index + 1}`} 
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-black/80 rounded-full p-2">
+                          <Sparkles className="w-4 h-4 text-foreground" />
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                )}
+                    </motion.div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2 text-center">Click any image to expand</p>
               </div>
               
               {/* Toggle to show text */}
