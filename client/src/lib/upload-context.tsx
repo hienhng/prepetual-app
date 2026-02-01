@@ -205,12 +205,13 @@ export function UploadProvider({ children }: { children: ReactNode }) {
     for (const job of activeJobs) {
       if (job.status !== "completed") continue;
       
-      // Add document images from office files
+      // Add document images from office files (if any)
       if (job.documentImages && job.documentImages.length > 0) {
         images.push(...job.documentImages);
       }
-      // Add image data URL from uploaded images
-      else if (job.imageDataUrl) {
+      
+      // Also add image data URL from uploaded images (always check, not else-if)
+      if (job.imageDataUrl) {
         images.push(job.imageDataUrl);
       }
     }
