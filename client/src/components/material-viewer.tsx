@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileText, Image, X, Sparkles, Loader2, BookOpen, ListTree } from "lucide-react";
+import { FileText, Image, X, Sparkles, Loader2, BookOpen, ListTree, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuiz, type SourceMaterialType } from "@/lib/quiz-context";
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface MaterialViewerProps {
   isOpen?: boolean;
@@ -18,13 +19,21 @@ interface MaterialViewerProps {
 function MaterialContent({ 
   materialType, 
   text, 
-  imageDataUrl 
+  imageDataUrl,
+  documentImages = []
 }: { 
   materialType: SourceMaterialType; 
   text: string | null; 
-  imageDataUrl: string | null; 
+  imageDataUrl: string | null;
+  documentImages?: string[];
 }) {
   const [viewMode, setViewMode] = useState<"text" | "image">("text");
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
+  
+  // Combine single image with document images array
+  const allImages = imageDataUrl 
+    ? [imageDataUrl, ...documentImages] 
+    : documentImages;
   const [showSummary, setShowSummary] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
   const [isSummarizing, setIsSummarizing] = useState(false);
@@ -50,7 +59,9 @@ function MaterialContent({
     }
   };
 
-  if (!text && !imageDataUrl) {
+  const hasImages = allImages.length > 0;
+
+  if (!text && !hasImages) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="rounded-full bg-muted p-4 mb-4">
@@ -102,9 +113,45 @@ function MaterialContent({
     </div>
   );
 
-  if (imageDataUrl) {
+  if (hasImages) {
     return (
       <div className="h-full flex flex-col gap-3">
+        {/* Expanded Image Modal */}
+        <AnimatePresence>
+          {expandedImage && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4"
+              onClick={() => setExpandedImage(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="relative max-w-[90vw] max-h-[90vh]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img 
+                  src={expandedImage} 
+                  alt="Expanded view"
+                  className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                />
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute top-2 right-2"
+                  onClick={() => setExpandedImage(null)}
+                  data-testid="button-close-expanded-material"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="flex items-center justify-between gap-2 flex-shrink-0">
           <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "text" | "image")} className="flex-1">
             <TabsList className="w-full grid grid-cols-2">
@@ -114,7 +161,7 @@ function MaterialContent({
               </TabsTrigger>
               <TabsTrigger value="image" className="gap-2 text-xs" data-testid="tab-image">
                 <Image className="h-3.5 w-3.5" />
-                Image
+                Images ({allImages.length})
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -144,12 +191,34 @@ function MaterialContent({
             </ScrollArea>
           ) : (
             <ScrollArea className="h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-14rem)]">
-              <img 
-                src={imageDataUrl} 
-                alt="Uploaded material" 
-                className="w-full h-auto rounded-lg border"
-                data-testid="material-image"
-              />
+              <div className={`grid gap-2 pr-4 ${
+                allImages.length === 1 ? "grid-cols-1" :
+                allImages.length === 2 ? "grid-cols-2" :
+                "grid-cols-2"
+              }`}>
+                {allImages.map((img, index) => (
+                  <motion.div 
+                    key={index} 
+                    className="relative aspect-[4/3] rounded-lg overflow-hidden border shadow-sm cursor-pointer group"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setExpandedImage(img)}
+                  >
+                    <img 
+                      src={img} 
+                      alt={`Material image ${index + 1}`} 
+                      className="w-full h-full object-cover"
+                      data-testid={`material-image-${index}`}
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-black/80 rounded-full p-2">
+                        <ZoomIn className="w-4 h-4 text-foreground" />
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-3 text-center">Click any image to expand</p>
             </ScrollArea>
           )}
         </div>
@@ -183,6 +252,7 @@ export function MaterialViewerDialog({ isOpen = false, onClose }: { isOpen: bool
   const materialText = sourceMaterial.text || currentQuiz?.sourceText || null;
   const materialType = sourceMaterial.type;
   const imageDataUrl = sourceMaterial.imageDataUrl;
+  const documentImages = sourceMaterial.documentImages || [];
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -199,7 +269,8 @@ export function MaterialViewerDialog({ isOpen = false, onClose }: { isOpen: bool
           <MaterialContent 
             materialType={materialType} 
             text={materialText} 
-            imageDataUrl={imageDataUrl} 
+            imageDataUrl={imageDataUrl}
+            documentImages={documentImages}
           />
         </div>
       </DialogContent>
@@ -213,6 +284,7 @@ export function MaterialViewerSidebar({ onClose }: { onClose: () => void }) {
   const materialText = sourceMaterial.text || currentQuiz?.sourceText || null;
   const materialType = sourceMaterial.type;
   const imageDataUrl = sourceMaterial.imageDataUrl;
+  const documentImages = sourceMaterial.documentImages || [];
 
   return (
     <div className="w-full h-full flex flex-col bg-background border-l">
@@ -237,7 +309,8 @@ export function MaterialViewerSidebar({ onClose }: { onClose: () => void }) {
         <MaterialContent 
           materialType={materialType} 
           text={materialText} 
-          imageDataUrl={imageDataUrl} 
+          imageDataUrl={imageDataUrl}
+          documentImages={documentImages}
         />
       </div>
     </div>
