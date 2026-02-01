@@ -42,17 +42,20 @@ export async function analyzeImageContent(imageBase64: string): Promise<ImageAna
             content: [
               {
                 type: "text",
-                text: `Analyze this image and identify visual elements that are NOT pure text. Focus on:
-- Illustrations, drawings, or artwork
-- Charts, graphs, or diagrams
-- Photos or pictures  
+                text: `Analyze this image and identify ALL visual elements that are NOT pure text. Look carefully for:
+- Geometric shapes (triangles, circles, squares, polygons, etc.)
+- Mathematical diagrams and figures
+- Charts, graphs, or data visualizations
+- Scientific diagrams or illustrations
+- Photos, pictures, or artwork
 - Icons, symbols, or logos
-- Scientific diagrams or figures
-- Mathematical formulas shown visually (not typed text)
+- Any drawn or illustrated content
 
-For EACH illustration/visual element found, provide its approximate bounding box as a percentage of the total image dimensions (0-100 for each value).
+CRITICAL: Look at the ENTIRE image carefully. Geometric diagrams like triangles with labeled points (A, B, C, P, etc.) are illustrations that MUST be detected.
 
-LANGUAGE: Detect the language of any text in the image. If Vietnamese, respond in Vietnamese. If English, respond in English.
+For EACH illustration found, provide its PRECISE bounding box as percentages (0-100) of the image dimensions.
+
+LANGUAGE: If Vietnamese content detected, respond in Vietnamese. Otherwise respond in English.
 
 Respond in JSON format:
 {
@@ -62,8 +65,8 @@ Respond in JSON format:
   "illustrations": [
     {
       "id": "1",
-      "description": "Detailed description of this specific illustration that can be used for quiz questions",
-      "type": "diagram|chart|photo|drawing|icon|figure",
+      "description": "Detailed description of this specific illustration",
+      "type": "geometry|diagram|chart|photo|drawing|icon|figure",
       "boundingBox": {
         "x": 10,
         "y": 20,
@@ -74,11 +77,15 @@ Respond in JSON format:
   ]
 }
 
-IMPORTANT RULES:
-- boundingBox values are PERCENTAGES (0-100), not pixels
-- x, y is the top-left corner of the illustration region
-- Only include actual illustrations, NOT text areas
-- Each illustration should be distinct and self-contained
+BOUNDING BOX RULES:
+- All values are PERCENTAGES (0-100), not pixels
+- x = distance from LEFT edge of image to LEFT edge of illustration
+- y = distance from TOP edge of image to TOP edge of illustration  
+- width = horizontal extent of the illustration
+- height = vertical extent of the illustration
+- Be PRECISE - the box should tightly contain the illustration with minimal empty space
+- Include the entire illustration including any labels that are part of it (like vertex labels A, B, C)
+- Do NOT include surrounding text paragraphs - only the diagram/figure itself
 - If no illustrations found, set illustrations to empty array []`
               },
               {

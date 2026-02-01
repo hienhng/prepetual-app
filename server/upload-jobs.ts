@@ -235,6 +235,19 @@ export async function processJob(id: string) {
       try {
         const analysis = await analyzeImageContent(imageDataUrl);
         
+        // Log the raw analysis for debugging
+        console.log("Image analysis result:", JSON.stringify({
+          hasIllustrations: analysis.hasIllustrations,
+          description: analysis.description,
+          illustrationCount: analysis.illustrations.length,
+          illustrations: analysis.illustrations.map(ill => ({
+            id: ill.id,
+            type: ill.type,
+            description: ill.description.substring(0, 80),
+            boundingBox: ill.boundingBox
+          }))
+        }, null, 2));
+        
         if (analysis.hasIllustrations && analysis.illustrations.length > 0) {
           updateJob(id, { progress: 55, message: `Cropping ${analysis.illustrations.length} illustration(s)...` });
           
