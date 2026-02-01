@@ -433,7 +433,10 @@ IMPORTANT INSTRUCTIONS:
 - For multiple choice, preserve all answer options as they appear (e.g., a, b, c, d or A, B, C, D)
 - Use your knowledge to determine the correct answer - DO NOT just guess
 - If a question is unclear or you cannot determine the answer confidently, still include it but note the uncertainty in the explanation
-- Convert all questions to multiple_choice type since they appear to have options
+- AUTOMATICALLY DETECT QUESTION TYPE based on the options:
+  * If options are exactly "True" and "False" (or similar like "T/F", "Đúng/Sai") → use "true_false" type
+  * If there are NO options provided (open-ended question) → use "short_answer" type
+  * Otherwise (multiple options A, B, C, D etc.) → use "multiple_choice" type
 - The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
 OUTPUT FORMAT (JSON):
@@ -441,9 +444,9 @@ OUTPUT FORMAT (JSON):
   "title": "A short descriptive title for the quiz",
   "questions": [
     {
-      "type": "multiple_choice",
+      "type": "multiple_choice OR true_false OR short_answer",
       "question": "The exact question text as it appears",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // Extract exactly as they appear, but REMOVE any prefixes like "A) ", "1. ", "a. ", etc. from the start of each option.
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // For multiple_choice/true_false only. Extract exactly as they appear, but REMOVE any prefixes like "A) ", "1. ", "a. ", etc. For short_answer, omit this field or use empty array.
       "correctAnswer": "The exact full text of the correct option (without any prefix)",
       "explanation": "Brief explanation of why this is the correct answer",
       "wrongAnswerExplanations": {
@@ -478,7 +481,10 @@ IMPORTANT INSTRUCTIONS:
 - Extract questions EXACTLY as they appear (from both text and images)
 - For multiple choice, preserve all answer options as they appear
 - Use your knowledge to determine the correct answer - DO NOT just guess
-- Convert all questions to multiple_choice type since they appear to have options
+- AUTOMATICALLY DETECT QUESTION TYPE based on the options:
+  * If options are exactly "True" and "False" (or similar like "T/F", "Đúng/Sai") → use "true_false" type
+  * If there are NO options provided (open-ended question) → use "short_answer" type
+  * Otherwise (multiple options A, B, C, D etc.) → use "multiple_choice" type
 - The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
 OUTPUT FORMAT (JSON):
@@ -486,9 +492,9 @@ OUTPUT FORMAT (JSON):
   "title": "A short descriptive title for the quiz",
   "questions": [
     {
-      "type": "multiple_choice",
+      "type": "multiple_choice OR true_false OR short_answer",
       "question": "The exact question text as it appears",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // Extract exactly as they appear, but REMOVE any prefixes like "A) ", "1. ", "a. ", etc. from the start of each option.
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // For multiple_choice/true_false only. Extract exactly as they appear, but REMOVE any prefixes. For short_answer, omit this field or use empty array.
       "correctAnswer": "The exact full text of the correct option (without any prefix)",
       "explanation": "Brief explanation of why this is the correct answer",
       "wrongAnswerExplanations": {
@@ -580,18 +586,56 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
         continue;
       }
 
-      const questionType =
-        q.type &&
-        ["multiple_choice", "true_false", "short_answer"].includes(q.type)
-          ? (q.type as QuestionType)
-          : "multiple_choice";
-
       let options =
         Array.isArray(q.options) && q.options.length > 0
           ? q.options.map((o: any) => String(o).trim())
           : undefined;
 
+      // Auto-detect question type based on options
+      let questionType: QuestionType = "multiple_choice";
+      
+      if (!options || options.length === 0) {
+        // No options = short answer
+        questionType = "short_answer";
+        options = undefined;
+      } else if (options.length === 2) {
+        // Check if it's true/false
+        const normalizedOptions = options.map((o: string) => o.toLowerCase().trim());
+        const trueFalsePatterns = [
+          ["true", "false"],
+          ["false", "true"],
+          ["t", "f"],
+          ["f", "t"],
+          ["yes", "no"],
+          ["no", "yes"],
+          ["đúng", "sai"],
+          ["sai", "đúng"],
+        ];
+        const isTrueFalse = trueFalsePatterns.some(pattern => 
+          (normalizedOptions[0] === pattern[0] && normalizedOptions[1] === pattern[1]) ||
+          (normalizedOptions.includes(pattern[0]) && normalizedOptions.includes(pattern[1]))
+        );
+        if (isTrueFalse) {
+          questionType = "true_false";
+          // Normalize options to "True" and "False"
+          options = ["True", "False"];
+        }
+      } else if (q.type && ["multiple_choice", "true_false", "short_answer"].includes(q.type)) {
+        // Use AI-detected type if valid
+        questionType = q.type as QuestionType;
+      }
+
       let correctAnswer = String(q.correctAnswer).trim();
+      
+      // Normalize correct answer for true/false questions
+      if (questionType === "true_false") {
+        const lowerAnswer = correctAnswer.toLowerCase();
+        if (["true", "t", "yes", "đúng"].includes(lowerAnswer)) {
+          correctAnswer = "True";
+        } else if (["false", "f", "no", "sai"].includes(lowerAnswer)) {
+          correctAnswer = "False";
+        }
+      }
 
       // Programmatically shuffle options to ensure maximum randomness even for imported quizzes
       if (questionType === "multiple_choice" && options && options.length > 0) {
