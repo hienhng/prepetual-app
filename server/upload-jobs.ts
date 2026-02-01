@@ -2,6 +2,7 @@ import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { parseOffice } from "officeparser";
 import JSZip from "jszip";
+import { analyzeImageContent } from "./openai";
 
 export interface UploadJob {
   id: string;
@@ -14,6 +15,8 @@ export interface UploadJob {
   createdAt: Date;
   isOfficeWithImages?: boolean;
   documentImages?: string[];
+  hasIllustrations?: boolean;
+  imageDescription?: string;
 }
 
 const jobs = new Map<string, UploadJob>();
@@ -216,8 +219,39 @@ export async function processJob(id: string) {
       updateJob(id, { progress: 20, message: "Extracting text from PDF..." });
       extractedText = await extractTextFromPDF(buffer);
     } else if (fileType.startsWith("image/")) {
-      updateJob(id, { progress: 20, message: "Running OCR on image..." });
+      updateJob(id, { progress: 15, message: "Running OCR on image..." });
       extractedText = await extractTextFromImage(buffer);
+      
+      // Convert buffer to base64 for vision analysis
+      updateJob(id, { progress: 40, message: "Analyzing image for illustrations..." });
+      const base64 = buffer.toString("base64");
+      const mimeType = fileType;
+      const imageDataUrl = `data:${mimeType};base64,${base64}`;
+      
+      try {
+        const analysis = await analyzeImageContent(imageDataUrl);
+        
+        if (analysis.hasIllustrations || analysis.description) {
+          // Combine OCR text with visual analysis
+          let combinedText = extractedText;
+          
+          if (analysis.description) {
+            combinedText = `[IMAGE DESCRIPTION: ${analysis.description}]\n\n${extractedText}`;
+          }
+          
+          if (analysis.visualElements.length > 0) {
+            combinedText += `\n\n[VISUAL ELEMENTS: ${analysis.visualElements.join(", ")}]`;
+          }
+          
+          extractedText = combinedText;
+          documentImages = [imageDataUrl];
+          isOfficeWithImages = true;
+          
+          console.log(`Image has illustrations: ${analysis.visualElements.join(", ")}`);
+        }
+      } catch (err) {
+        console.warn("Vision analysis failed, using OCR only:", err);
+      }
     } else if (isOfficeDocument(fileType)) {
       updateJob(id, { progress: 15, message: "Extracting text from document..." });
       extractedText = await extractTextFromOfficeDocument(buffer);
@@ -237,12 +271,14 @@ export async function processJob(id: string) {
       updateJob(id, {
         status: "completed",
         progress: 100,
-        message: "Document ready for visual analysis!",
+        message: documentImages.length > 0 ? "Content with visuals ready!" : "Document ready for visual analysis!",
         text: extractedText,
         isOfficeWithImages: true,
         documentImages: documentImages,
       });
     } else {
+      // For pure text extraction, require minimum text length
+      // But if we have visual content, we can proceed with less text
       if (!extractedText || extractedText.length < 50) {
         throw new Error("Not enough text could be extracted from this document. Please try a different file with more readable content.");
       }

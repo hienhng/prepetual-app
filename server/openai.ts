@@ -10,6 +10,87 @@ const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
 });
 
+export async function analyzeImageContent(imageBase64: string): Promise<{
+  hasIllustrations: boolean;
+  description: string;
+  visualElements: string[];
+}> {
+  try {
+    const response = await pRetry(
+      async () => {
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4.1",
+          messages: [{
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Analyze this image and identify any visual elements that are NOT text. Look for:
+- Illustrations, drawings, or artwork
+- Charts, graphs, or diagrams
+- Photos or pictures
+- Icons, symbols, or logos
+- Tables or structured layouts
+- Maps or geographic elements
+- Scientific diagrams or figures
+- Mathematical formulas or equations shown visually
+
+LANGUAGE: Detect the language of any text in the image. If Vietnamese, respond in Vietnamese. If English, respond in English.
+
+Respond in JSON format:
+{
+  "hasIllustrations": true/false,
+  "description": "A 1-2 sentence description of what the image shows (both text and visual content)",
+  "visualElements": ["list", "of", "visual", "elements", "found"]
+}
+
+If the image is purely text with no illustrations/graphics, set hasIllustrations to false and visualElements to an empty array.
+If there ARE visual elements, describe them clearly so they can be used for quiz generation.`
+              },
+              {
+                type: "image_url",
+                image_url: { url: imageBase64, detail: "high" }
+              }
+            ]
+          }],
+          response_format: { type: "json_object" },
+          max_completion_tokens: 1000,
+        });
+
+        const content = completion.choices[0]?.message?.content;
+        if (!content) {
+          throw new Error("No response from AI");
+        }
+        return content;
+      },
+      {
+        retries: 2,
+        minTimeout: 2000,
+        onFailedAttempt: (error: any) => {
+          console.log(`Image analysis retry: ${error.message}`);
+          if (!isRateLimitError(error)) {
+            throw error;
+          }
+        },
+      }
+    );
+
+    const parsed = JSON.parse(response);
+    return {
+      hasIllustrations: parsed.hasIllustrations ?? false,
+      description: parsed.description ?? "",
+      visualElements: Array.isArray(parsed.visualElements) ? parsed.visualElements : [],
+    };
+  } catch (error) {
+    console.error("Error analyzing image:", error);
+    return {
+      hasIllustrations: false,
+      description: "",
+      visualElements: [],
+    };
+  }
+}
+
 function isRateLimitError(error: any): boolean {
   const errorMsg = error?.message || String(error);
   return (
