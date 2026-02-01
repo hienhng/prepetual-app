@@ -844,12 +844,13 @@ export function QuizPlayer() {
   const [materialImageIndex, setMaterialImageIndex] = useState(0);
   const [materialViewMode, setMaterialViewMode] = useState<"images" | "text">("images");
 
-  const materialImages = sourceMaterial?.documentImages || [];
-  const singleSourceImage = sourceMaterial?.imageDataUrl;
+  const materialImages = sourceMaterial?.documentImages || (currentQuiz as any)?.sourceImages || [];
+  const singleSourceImage = sourceMaterial?.imageDataUrl || (currentQuiz as any)?.sourceImageUrl;
   const allMaterialImages = singleSourceImage ? [singleSourceImage, ...materialImages] : materialImages;
   const hasMaterialImages = allMaterialImages.length > 0;
-  const hasExtractedText = !!sourceMaterial?.text;
+  const hasExtractedText = !!(sourceMaterial?.text || (currentQuiz as any)?.sourceText);
   const hasMaterial = hasMaterialImages || hasExtractedText;
+  const materialText = sourceMaterial?.text || (currentQuiz as any)?.sourceText || "";
 
   const retryQuestionsInList = allQuestions.filter(q => q.isRetry);
   const allRetryChecked = retryQuestionsInList.every(q => retryChecked.has(q.id));
@@ -1237,7 +1238,7 @@ export function QuizPlayer() {
                 
                 {allMaterialImages.length > 1 && (
                   <div className="flex justify-center gap-2 p-4 border-t border-white/10">
-                    {allMaterialImages.map((_, idx) => (
+                    {allMaterialImages.map((_: string, idx: number) => (
                       <button
                         key={idx}
                         onClick={(e) => {
@@ -1260,7 +1261,7 @@ export function QuizPlayer() {
               >
                 <div className="max-w-3xl mx-auto bg-white/5 rounded-xl p-6 sm:p-8">
                   <pre className="text-white/90 whitespace-pre-wrap font-sans text-sm sm:text-base leading-relaxed">
-                    {sourceMaterial?.text || "No extracted text available."}
+                    {materialText || "No extracted text available."}
                   </pre>
                 </div>
               </div>
