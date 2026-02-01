@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -58,6 +58,13 @@ export default function EditQuizPage() {
   const [typeFilter, setTypeFilter] = useState<QuestionFilter>("all");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentQuiz) {
+      setTitle(currentQuiz.title || "");
+      setQuestions((currentQuiz.questions as Question[]) || []);
+    }
+  }, [currentQuiz?.id]);
 
   const questionStats = useMemo(() => {
     const stats = { multiple_choice: 0, true_false: 0, short_answer: 0 };
