@@ -60,8 +60,9 @@ function MaterialContent({
   };
 
   const hasImages = allImages.length > 0;
+  const hasText = !!text;
 
-  if (!text && !hasImages) {
+  if (!hasText && !hasImages) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="rounded-full bg-muted p-4 mb-4">
@@ -75,7 +76,7 @@ function MaterialContent({
   const displayText = showSummary && summary ? summary : text;
   const wordCount = text ? text.split(/\s+/).length : 0;
 
-  const ViewToggle = () => (
+  const TextSummaryToggle = () => (
     <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/50">
       <button
         onClick={() => !isSummarizing && setShowSummary(false)}
@@ -113,92 +114,81 @@ function MaterialContent({
     </div>
   );
 
-  // When images exist, show ONLY the image grid - no text
-  if (hasImages) {
-    return (
-      <div className="h-full flex flex-col gap-2">
-        {/* Expanded Image Modal */}
-        <AnimatePresence>
-          {expandedImage && (
+  const renderImageGrid = () => (
+    <>
+      <AnimatePresence>
+        {expandedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4"
+            onClick={() => setExpandedImage(null)}
+          >
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4"
-              onClick={() => setExpandedImage(null)}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-[90vw] max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
             >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="relative max-w-[90vw] max-h-[90vh]"
-                onClick={(e) => e.stopPropagation()}
+              <img 
+                src={expandedImage} 
+                alt="Expanded view"
+                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+              />
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute top-2 right-2"
+                onClick={() => setExpandedImage(null)}
+                data-testid="button-close-expanded-material"
               >
-                <img 
-                  src={expandedImage} 
-                  alt="Expanded view"
-                  className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-                />
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute top-2 right-2"
-                  onClick={() => setExpandedImage(null)}
-                  data-testid="button-close-expanded-material"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </motion.div>
+                <X className="h-4 w-4" />
+              </Button>
             </motion.div>
-          )}
-        </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Badge variant="secondary" className="text-xs font-normal">
-            <Image className="h-3 w-3 mr-1" />
-            {allImages.length} {allImages.length === 1 ? 'image' : 'images'}
-          </Badge>
-        </div>
-        
-        <ScrollArea className="flex-1 h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-14rem)]">
-          <div className={`grid gap-2 pr-4 ${
-            allImages.length === 1 ? "grid-cols-1" :
-            allImages.length === 2 ? "grid-cols-2" :
-            "grid-cols-2"
-          }`}>
-            {allImages.map((img, index) => (
-              <div 
-                key={index} 
-                className="relative aspect-[4/3] rounded-lg border shadow-sm cursor-pointer"
-                onClick={() => setExpandedImage(img)}
-              >
-                <img 
-                  src={img} 
-                  alt={`Material image ${index + 1}`} 
-                  className="w-full h-full object-cover rounded-lg"
-                  data-testid={`material-image-${index}`}
-                />
-                <div className="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 rounded-full p-1.5 shadow-sm">
-                  <ZoomIn className="w-3 h-3 text-foreground" />
-                </div>
+      <ScrollArea className="flex-1 h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-14rem)]">
+        <div className={`grid gap-2 pr-4 ${
+          allImages.length === 1 ? "grid-cols-1" :
+          allImages.length === 2 ? "grid-cols-2" :
+          "grid-cols-2"
+        }`}>
+          {allImages.map((img, index) => (
+            <div 
+              key={index} 
+              className="relative aspect-[4/3] rounded-lg border shadow-sm cursor-pointer"
+              onClick={() => setExpandedImage(img)}
+            >
+              <img 
+                src={img} 
+                alt={`Material image ${index + 1}`} 
+                className="w-full h-full object-cover rounded-lg"
+                data-testid={`material-image-${index}`}
+              />
+              <div className="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 rounded-full p-1.5 shadow-sm">
+                <ZoomIn className="w-3 h-3 text-foreground" />
               </div>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-3 text-center">Click any image to expand</p>
-        </ScrollArea>
-      </div>
-    );
-  }
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground mt-3 text-center">Click any image to expand</p>
+      </ScrollArea>
+    </>
+  );
 
-  return (
-    <div className="h-full flex flex-col gap-3">
+  const renderTextContent = () => (
+    <>
       <div className="flex items-center justify-between gap-2 flex-shrink-0">
-        <ViewToggle />
+        <TextSummaryToggle />
         <Badge variant="secondary" className="text-xs font-normal">
           {showSummary ? "AI Summary" : `${wordCount.toLocaleString()} words`}
         </Badge>
       </div>
-      <ScrollArea className="h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-14rem)]">
+      <ScrollArea className="flex-1 h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-14rem)]">
         <div 
           className="text-sm leading-relaxed whitespace-pre-wrap pr-4" 
           data-testid="material-text"
@@ -206,6 +196,51 @@ function MaterialContent({
           {displayText}
         </div>
       </ScrollArea>
+    </>
+  );
+
+  return (
+    <div className="h-full flex flex-col gap-3">
+      {/* Text/Images Toggle - show when both exist */}
+      {hasText && hasImages && (
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/50 w-fit">
+          <button
+            onClick={() => setViewMode("text")}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+              viewMode === "text"
+                ? "bg-background text-foreground shadow-sm" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            data-testid="toggle-text-view"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            Text
+          </button>
+          <button
+            onClick={() => setViewMode("image")}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+              viewMode === "image"
+                ? "bg-background text-foreground shadow-sm" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            data-testid="toggle-images-view"
+          >
+            <Image className="h-3.5 w-3.5" />
+            Images ({allImages.length})
+          </button>
+        </div>
+      )}
+
+      {/* Content based on view mode */}
+      {hasText && hasImages ? (
+        viewMode === "text" ? renderTextContent() : renderImageGrid()
+      ) : hasImages ? (
+        renderImageGrid()
+      ) : (
+        renderTextContent()
+      )}
     </div>
   );
 }
