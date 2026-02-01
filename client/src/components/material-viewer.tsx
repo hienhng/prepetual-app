@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { FileText, Image, X, Sparkles, Loader2, BookOpen, ListTree, ZoomIn } from "lucide-react";
+import { FileText, Image, X, Loader2, BookOpen, ListTree, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useQuiz, type SourceMaterialType } from "@/lib/quiz-context";
 import { apiRequest } from "@/lib/queryClient";
@@ -197,25 +197,21 @@ function MaterialContent({
                 "grid-cols-2"
               }`}>
                 {allImages.map((img, index) => (
-                  <motion.div 
+                  <div 
                     key={index} 
-                    className="relative aspect-[4/3] rounded-lg overflow-hidden border shadow-sm cursor-pointer group"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    className="relative aspect-[4/3] rounded-lg border shadow-sm cursor-pointer"
                     onClick={() => setExpandedImage(img)}
                   >
                     <img 
                       src={img} 
                       alt={`Material image ${index + 1}`} 
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover rounded-lg"
                       data-testid={`material-image-${index}`}
                     />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-black/80 rounded-full p-2">
-                        <ZoomIn className="w-4 h-4 text-foreground" />
-                      </div>
+                    <div className="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 rounded-full p-1.5 shadow-sm">
+                      <ZoomIn className="w-3 h-3 text-foreground" />
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-3 text-center">Click any image to expand</p>
@@ -299,7 +295,6 @@ export function MaterialViewerSidebar({ onClose }: { onClose: () => void }) {
           size="icon" 
           variant="ghost" 
           onClick={onClose}
-          className="h-8 w-8"
           data-testid="button-close-material"
         >
           <X className="h-4 w-4" />
