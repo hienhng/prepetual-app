@@ -508,7 +508,7 @@ export async function registerRoutes(
       }
 
       const { text, questionCount, questionTypes, difficulty, documentImages } = validation.data;
-      const { sourceImageUrl } = req.body;
+      const { sourceImageUrl, croppedIllustrations } = req.body;
       const userId = req.user.claims.sub;
 
       const { questions, title, category } = await generateQuizQuestions({
@@ -517,6 +517,7 @@ export async function registerRoutes(
         questionTypes,
         difficulty: difficulty as DifficultyLevel,
         documentImages: documentImages || undefined,
+        croppedIllustrations: Array.isArray(croppedIllustrations) ? croppedIllustrations : undefined,
         onProgress: sendProgress,
       });
 
@@ -555,7 +556,7 @@ export async function registerRoutes(
       }
 
       const { text, questionCount, questionTypes, difficulty, documentImages } = validation.data;
-      const { sourceImageUrl } = req.body;
+      const { sourceImageUrl, croppedIllustrations } = req.body;
       const userId = req.user.claims.sub;
 
       const { questions, title, category } = await generateQuizQuestions({
@@ -564,6 +565,7 @@ export async function registerRoutes(
         questionTypes,
         difficulty: difficulty as DifficultyLevel,
         documentImages: documentImages || undefined,
+        croppedIllustrations: Array.isArray(croppedIllustrations) ? croppedIllustrations : undefined,
       });
 
       const quiz = await storage.saveQuiz({

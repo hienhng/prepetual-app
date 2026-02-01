@@ -19,12 +19,19 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+interface CroppedIllustration {
+  id: string;
+  description: string;
+  type: string;
+  imageDataUrl: string;
+}
+
 interface FileUploadProps {
-  onTextExtracted: (text: string, isOfficeWithImages?: boolean, documentImages?: string[]) => void;
+  onTextExtracted: (text: string, isOfficeWithImages?: boolean, documentImages?: string[], croppedIllustrations?: CroppedIllustration[]) => void;
 }
 
 export function FileUpload({ onTextExtracted }: FileUploadProps) {
-  const { activeJobs, startUpload, clearJobs, removeJob, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages } = useUpload();
+  const { activeJobs, startUpload, clearJobs, removeJob, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, getCroppedIllustrations, hasOfficeWithImages } = useUpload();
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { setSourceMaterial } = useQuiz();
@@ -50,12 +57,13 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
     if (isAllCompleted() && completedJobs.length > 0) {
       const combinedText = getCombinedText();
       const combinedImages = getCombinedDocumentImages();
+      const illustrations = getCroppedIllustrations();
       const hasImages = hasOfficeWithImages();
       
       if (hasImages && combinedImages.length > 0) {
-        onTextExtracted(combinedText, true, combinedImages);
+        onTextExtracted(combinedText, true, combinedImages, illustrations);
       } else if (combinedText) {
-        onTextExtracted(combinedText, false, []);
+        onTextExtracted(combinedText, false, [], illustrations);
       }
     }
     
@@ -69,7 +77,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
     } else if (activeJobs.length > 0) {
       setError(null);
     }
-  }, [activeJobs, isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, onTextExtracted, errorJobs, pendingFiles.length]);
+  }, [activeJobs, isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, getCroppedIllustrations, hasOfficeWithImages, onTextExtracted, errorJobs, pendingFiles.length]);
 
   const processFiles = useCallback(async (files: File[]) => {
     setError(null);
@@ -397,6 +405,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                       const remainingJobs = activeJobs.filter(j => j.jobId !== job.jobId && j.status === "completed" && j.text);
                       const remainingText = remainingJobs.map(j => j.text).join("\n\n---\n\n");
                       const remainingImages = remainingJobs.flatMap(j => j.documentImages || []);
+                      const remainingIllustrations = remainingJobs.flatMap(j => j.croppedIllustrations || []);
                       const hasRemainingImages = remainingJobs.some(j => j.isOfficeWithImages);
                       
                       removeJob(job.jobId);
@@ -405,7 +414,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                         onTextExtracted("");
                         setSourceMaterial({ type: null, text: null, imageDataUrl: null });
                       } else {
-                        onTextExtracted(remainingText, hasRemainingImages, remainingImages);
+                        onTextExtracted(remainingText, hasRemainingImages, remainingImages, remainingIllustrations);
                       }
                     }}
                     data-testid={`button-remove-file-${job.jobId}`}

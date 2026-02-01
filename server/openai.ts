@@ -163,21 +163,30 @@ function isRateLimitError(error: any): boolean {
 
 export type ProgressCallback = (step: string, progress: number, message: string) => void;
 
+interface CroppedIllustration {
+  id: string;
+  description: string;
+  type: string;
+  imageDataUrl: string;
+}
+
 interface QuizGenerationParams {
   text: string;
   questionCount: number;
   questionTypes: QuestionType[];
   difficulty?: DifficultyLevel;
   documentImages?: string[];
+  croppedIllustrations?: CroppedIllustration[];
   onProgress?: ProgressCallback;
 }
 
 export async function generateQuizQuestions(
   params: QuizGenerationParams,
 ): Promise<{ questions: Question[]; title: string; category: QuizCategory }> {
-  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress } = params;
+  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], croppedIllustrations = [], onProgress } = params;
 
   const hasImages = documentImages.length > 0;
+  const hasIllustrations = croppedIllustrations.length > 0;
   
   // Step 1: Reading material
   onProgress?.("reading", 10, "Reading your study material...");
@@ -206,10 +215,20 @@ export async function generateQuizQuestions(
 
   const categoryList = QUIZ_CATEGORIES.join(", ");
   
+  // Build illustration context if available
+  const illustrationContext = hasIllustrations 
+    ? `\n\nAVAILABLE ILLUSTRATIONS:
+The following cropped illustrations from the source material are available. When a question relates to one of these illustrations, include the "illustrationId" field with the illustration's ID so it can be displayed with the question.
+
+${croppedIllustrations.map((ill, idx) => `${idx + 1}. ID: "${ill.id}" - Type: ${ill.type} - Description: ${ill.description}`).join('\n')}
+
+When creating questions about visual content, reference the appropriate illustration by including "illustrationId": "<the illustration's ID>" in the question object. At least 30% of questions should reference illustrations when available.`
+    : '';
+  
   const prompt = `You are an expert educator. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz and categorize it.
 
 CONTENT:
-${truncatedText}
+${truncatedText}${illustrationContext}
 
 LANGUAGE HANDLING:
 - Detect the primary language of the content above (English, Vietnamese, or other)
@@ -254,7 +273,8 @@ OUTPUT FORMAT (JSON):
         "Actual answer A": "Why this specific option is incorrect",
         "Actual answer C": "Why this specific option is incorrect",
         "Actual answer D": "Why this specific option is incorrect"
-      }
+      }${hasIllustrations ? `,
+      "illustrationId": "optional-illustration-id" // Optional: ID of the illustration this question references (only if question is about a specific illustration from AVAILABLE ILLUSTRATIONS)` : ''}
     }
   ]
 }
@@ -272,7 +292,7 @@ IMPORTANT: Carefully analyze ALL attached images. These may contain:
 Generate questions that test understanding of BOTH the text content AND the visual content from the images.
 
 TEXT CONTENT:
-${truncatedText}
+${truncatedText}${illustrationContext}
 
 LANGUAGE HANDLING:
 - Detect the primary language of the content above (English, Vietnamese, or other)
@@ -320,7 +340,8 @@ OUTPUT FORMAT (JSON):
         "Actual answer C": "Why this specific option is incorrect",
         "Actual answer D": "Why this specific option is incorrect"
       },
-      "imageIndex": 0 // Optional: 0-based index of the attached image this question references (only if question is about a specific image)
+      "imageIndex": 0 // Optional: 0-based index of the attached image this question references (only if question is about a specific image)${hasIllustrations ? `,
+      "illustrationId": "optional-illustration-id" // Optional: ID of the cropped illustration this question references` : ''}
     }
   ]
 }
@@ -506,6 +527,14 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
       let imageUrl: string | undefined;
       if (typeof q.imageIndex === "number" && q.imageIndex >= 0 && q.imageIndex < documentImages.length) {
         imageUrl = documentImages[q.imageIndex];
+      }
+      
+      // Map illustrationId to cropped illustration imageDataUrl if present
+      if (typeof q.illustrationId === "string" && croppedIllustrations.length > 0) {
+        const matchedIllustration = croppedIllustrations.find(ill => ill.id === q.illustrationId);
+        if (matchedIllustration) {
+          imageUrl = matchedIllustration.imageDataUrl;
+        }
       }
 
       const question: Question = {

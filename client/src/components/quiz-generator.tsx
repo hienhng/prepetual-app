@@ -36,6 +36,7 @@ export function QuizGenerator() {
 
   const isOfficeWithImages = sourceMaterial?.isOfficeWithImages || false;
   const documentImages = sourceMaterial?.documentImages || [];
+  const croppedIllustrations = sourceMaterial?.croppedIllustrations || [];
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
   // Smooth progress animation with step messages
@@ -172,7 +173,12 @@ export function QuizGenerator() {
         const response = await fetch("/api/import-quiz", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: extractedText, sourceImageUrl, documentImages: isOfficeWithImages ? documentImages : undefined }),
+          body: JSON.stringify({ 
+            text: extractedText, 
+            sourceImageUrl, 
+            documentImages: isOfficeWithImages ? documentImages : undefined,
+            croppedIllustrations: croppedIllustrations.length > 0 ? croppedIllustrations : undefined,
+          }),
         });
 
         if (!response.ok) {
@@ -207,7 +213,8 @@ export function QuizGenerator() {
         questionTypes, 
         difficulty, 
         sourceImageUrl, 
-        documentImages: isOfficeWithImages ? documentImages : undefined 
+        documentImages: isOfficeWithImages ? documentImages : undefined,
+        croppedIllustrations: croppedIllustrations.length > 0 ? croppedIllustrations : undefined,
       };
 
       const response = await fetch("/api/generate-quiz-stream", {

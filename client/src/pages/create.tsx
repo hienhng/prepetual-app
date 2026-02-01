@@ -90,7 +90,7 @@ export default function Create() {
     }
   }, [extractedText]);
 
-  const handleTextExtracted = (text: string, isOfficeWithImages?: boolean, documentImages?: string[]) => {
+  const handleTextExtracted = (text: string, isOfficeWithImages?: boolean, documentImages?: string[], croppedIllustrations?: { id: string; description: string; type: string; imageDataUrl: string }[]) => {
     setExtractedText(text);
     setSourceInputType("upload");
     setActiveModal(null);
@@ -101,6 +101,7 @@ export default function Create() {
         imageDataUrl: null,
         isOfficeWithImages: true,
         documentImages: documentImages,
+        croppedIllustrations: croppedIllustrations || [],
       });
     } else if (text) {
       setSourceMaterial({
@@ -109,6 +110,7 @@ export default function Create() {
         imageDataUrl: null,
         isOfficeWithImages: false,
         documentImages: [],
+        croppedIllustrations: croppedIllustrations || [],
       });
     }
   };
