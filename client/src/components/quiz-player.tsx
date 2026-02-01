@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, FileText, PanelRightOpen, PanelRightClose, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,9 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSidebarOptional } from "@/components/ui/sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
-import { MaterialViewerDialog, MaterialViewerSidebar } from "@/components/material-viewer";
 import {
-  ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
@@ -96,8 +94,6 @@ export function QuizPlayer() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shortAnswerInput, setShortAnswerInput] = useState("");
-  const [showMaterial, setShowMaterial] = useState(false);
-  const [showMaterialDialog, setShowMaterialDialog] = useState(false);
   const [correctStreak, setCorrectStreak] = useState(0);
   const [feedbackMessages, setFeedbackMessages] = useState<Record<string, { message: string; streakAtTime: number }>>({}); 
   const [showQuestionNav, setShowQuestionNav] = useState(false);
@@ -849,7 +845,6 @@ export function QuizPlayer() {
   const canFinish = allOriginalChecked && (retryQuestionsInList.length === 0 || allRetryChecked);
     
   const canCheck = !isChecked && (selectedAnswer || (currentQuestion?.type === "short_answer" && shortAnswerInput.trim()));
-  const hasMaterial = sourceMaterial.text || currentQuiz?.sourceText;
 
   if (!currentQuestion) return null;
 
@@ -867,7 +862,7 @@ export function QuizPlayer() {
       <div className="flex w-full min-h-[calc(100vh-4rem)] overflow-x-hidden">
         <ResizablePanelGroup direction="horizontal" className="w-full">
           <ResizablePanel defaultSize={100} minSize={30}>
-            <div className={`w-full mx-auto pb-32 sm:pb-28 ${showMaterial ? "max-w-2xl lg:max-w-none lg:px-6" : "max-w-3xl px-4"}`}>
+            <div className="w-full mx-auto pb-32 sm:pb-28 max-w-3xl px-4">
               <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 py-4 -mx-4 px-4 sm:mx-0 sm:px-0">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
@@ -902,17 +897,6 @@ export function QuizPlayer() {
                       <BadgeCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
                       <span className="text-sm font-bold text-green-600 dark:text-green-400">{correctCount}</span>
                     </div>
-                    {hasMaterial && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setShowMaterial(!showMaterial)}
-                        className="hidden lg:flex"
-                        data-testid="button-toggle-material"
-                      >
-                        {showMaterial ? <PanelRightClose className="h-5 w-5" /> : <PanelRightOpen className="h-5 w-5" />}
-                      </Button>
-                    )}
                   </div>
                 </div>
                 
@@ -977,16 +961,6 @@ export function QuizPlayer() {
             </div>
           </ResizablePanel>
 
-          {showMaterial && hasMaterial && (
-            <>
-              <ResizableHandle withHandle className="hidden lg:flex" />
-              <ResizablePanel defaultSize={40} minSize={20} className="hidden lg:block">
-                <MaterialViewerSidebar
-                  onClose={() => setShowMaterial(false)}
-                />
-              </ResizablePanel>
-            </>
-          )}
         </ResizablePanelGroup>
       </div>
 
@@ -1024,17 +998,6 @@ export function QuizPlayer() {
                 </div>
                 <span className="hidden sm:inline">Ask Pip</span>
               </Button>
-              {hasMaterial && (
-                <Button
-                  variant="outline"
-                  onClick={() => setShowMaterialDialog(true)}
-                  size="icon"
-                  className="rounded-lg sm:rounded-xl lg:hidden h-9 w-9 sm:h-11 sm:w-11 shrink-0"
-                  data-testid="button-view-material-mobile"
-                >
-                  <FileText className="h-4 w-4" />
-                </Button>
-              )}
               
               {!isChecked ? (
                 <Button
@@ -1086,10 +1049,6 @@ export function QuizPlayer() {
         </div>
       </div>
 
-      <MaterialViewerDialog
-        isOpen={showMaterialDialog}
-        onClose={() => setShowMaterialDialog(false)}
-      />
 
       <QuizChatbot
         quizTitle={currentQuiz.title}
