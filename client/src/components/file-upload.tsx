@@ -227,7 +227,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-4 space-y-2"
+                className="mt-4 space-y-3"
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-muted-foreground">
@@ -263,49 +263,87 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                 </div>
 
                 {activeJobs.map((job) => (
-                  <Card key={job.jobId} className="p-3 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0">
-                        {getFileIcon(job.fileType)}
+                  <Card key={job.jobId} className="overflow-hidden">
+                    <div className="p-3 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0">
+                          {getFileIcon(job.fileType)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm text-foreground truncate">
+                            {job.fileName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {job.status === "error" ? job.error : job.status === "completed" && job.documentImages && job.documentImages.length > 0 ? `${job.documentImages.length} images extracted` : job.message}
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium text-sm text-foreground truncate">
-                          {job.fileName}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {job.status === "error" ? job.error : job.message}
-                        </p>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {getStatusIcon(job.status)}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const remainingJobs = activeJobs.filter(j => j.jobId !== job.jobId && j.status === "completed" && j.text);
+                            const remainingText = remainingJobs.map(j => j.text).join("\n\n---\n\n");
+                            const remainingImages = remainingJobs.flatMap(j => j.documentImages || []);
+                            const hasRemainingImages = remainingJobs.some(j => j.isOfficeWithImages);
+                            
+                            removeJob(job.jobId);
+                            
+                            if (remainingJobs.length === 0) {
+                              onTextExtracted("");
+                              setSourceMaterial({ type: null, text: null, imageDataUrl: null });
+                            } else {
+                              onTextExtracted(remainingText, hasRemainingImages, remainingImages);
+                            }
+                          }}
+                          data-testid={`button-remove-file-${job.jobId}`}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      {getStatusIcon(job.status)}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Calculate remaining text after removal
-                          const remainingJobs = activeJobs.filter(j => j.jobId !== job.jobId && j.status === "completed" && j.text);
-                          const remainingText = remainingJobs.map(j => j.text).join("\n\n---\n\n");
-                          const remainingImages = remainingJobs.flatMap(j => j.documentImages || []);
-                          const hasRemainingImages = remainingJobs.some(j => j.isOfficeWithImages);
-                          
-                          removeJob(job.jobId);
-                          
-                          // Update extracted text with remaining content
-                          if (remainingJobs.length === 0) {
-                            onTextExtracted("");
-                            setSourceMaterial({ type: null, text: null, imageDataUrl: null });
-                          } else {
-                            onTextExtracted(remainingText, hasRemainingImages, remainingImages);
-                          }
-                        }}
-                        data-testid={`button-remove-file-${job.jobId}`}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
+                    
+                    {job.status === "completed" && job.documentImages && job.documentImages.length > 0 && (
+                      <div className="px-3 pb-3">
+                        <div className="grid grid-cols-4 gap-2">
+                          {job.documentImages.slice(0, 8).map((img, idx) => (
+                            <div 
+                              key={idx} 
+                              className="aspect-[4/3] rounded-md overflow-hidden bg-muted border"
+                            >
+                              <img 
+                                src={img} 
+                                alt={`Page ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ))}
+                          {job.documentImages.length > 8 && (
+                            <div className="aspect-[4/3] rounded-md bg-muted border flex items-center justify-center">
+                              <span className="text-xs text-muted-foreground font-medium">
+                                +{job.documentImages.length - 8} more
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {job.status === "completed" && job.imageDataUrl && !job.documentImages?.length && (
+                      <div className="px-3 pb-3">
+                        <div className="rounded-md overflow-hidden bg-muted border max-w-[200px]">
+                          <img 
+                            src={job.imageDataUrl} 
+                            alt="Uploaded image"
+                            className="w-full h-auto object-contain"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </Card>
                 ))}
               </motion.div>
