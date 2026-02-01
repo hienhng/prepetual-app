@@ -50,9 +50,9 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
     if (isAllCompleted() && completedJobs.length > 0) {
       const combinedText = getCombinedText();
       const combinedImages = getCombinedDocumentImages();
-      const hasImages = hasOfficeWithImages();
       
-      if (hasImages && combinedImages.length > 0) {
+      // Always pass images if available
+      if (combinedImages.length > 0) {
         onTextExtracted(combinedText, true, combinedImages);
       } else if (combinedText) {
         onTextExtracted(combinedText, false, []);
@@ -69,7 +69,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
     } else if (activeJobs.length > 0) {
       setError(null);
     }
-  }, [activeJobs, isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, onTextExtracted, errorJobs, pendingFiles.length]);
+  }, [activeJobs, isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, onTextExtracted, errorJobs, pendingFiles.length]);
 
   const processFiles = useCallback(async (files: File[]) => {
     setError(null);

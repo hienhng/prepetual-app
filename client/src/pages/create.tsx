@@ -90,27 +90,19 @@ export default function Create() {
     }
   }, [extractedText]);
 
-  const handleTextExtracted = (text: string, isOfficeWithImages?: boolean, documentImages?: string[]) => {
+  const handleTextExtracted = (text: string, hasImages?: boolean, documentImages?: string[]) => {
     setExtractedText(text);
     setSourceInputType("upload");
     setActiveModal(null);
-    if (isOfficeWithImages && documentImages && documentImages.length > 0) {
-      setSourceMaterial({
-        type: "document",
-        text: text,
-        imageDataUrl: null,
-        isOfficeWithImages: true,
-        documentImages: documentImages,
-      });
-    } else if (text) {
-      setSourceMaterial({
-        type: "document",
-        text: text,
-        imageDataUrl: null,
-        isOfficeWithImages: false,
-        documentImages: [],
-      });
-    }
+    
+    // Always set source material with images if available
+    setSourceMaterial({
+      type: "document",
+      text: text,
+      imageDataUrl: null,
+      isOfficeWithImages: hasImages && documentImages && documentImages.length > 0,
+      documentImages: documentImages || [],
+    });
   };
 
   const handleManualTextSubmit = () => {
