@@ -1,28 +1,82 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLocation, Link } from "wouter";
-import { motion } from "framer-motion";
-import { Save, X, Plus, Trash2, Edit2, ChevronDown, ChevronUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Save, X, Plus, Trash2, Edit2, ChevronDown, ChevronUp, 
+  Copy, ArrowUp, ArrowDown, Eye, EyeOff, CheckSquare, Square,
+  Search, Filter, MoreHorizontal, GripVertical, Shuffle,
+  ChevronLeft, ChevronRight, FileText, ListChecks, ToggleLeft
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useQuiz } from "@/lib/quiz-context";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Question, QuestionType } from "@shared/schema";
 
+type ViewMode = "edit" | "preview";
+type QuestionFilter = "all" | "multiple_choice" | "true_false" | "short_answer";
+
 export default function EditQuizPage() {
   const [, setLocation] = useLocation();
   const { currentQuiz, setCurrentQuiz } = useQuiz();
   const { toast } = useToast();
+  
   const [title, setTitle] = useState(currentQuiz?.title || "");
   const [questions, setQuestions] = useState<Question[]>(
     (currentQuiz?.questions as Question[]) || []
   );
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("edit");
+  const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<QuestionFilter>("all");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState(0);
+
+  const questionStats = useMemo(() => {
+    const stats = { multiple_choice: 0, true_false: 0, short_answer: 0 };
+    questions.forEach(q => {
+      if (q.type in stats) stats[q.type as keyof typeof stats]++;
+    });
+    return stats;
+  }, [questions]);
+
+  const filteredQuestions = useMemo(() => {
+    return questions.filter((q, idx) => {
+      const matchesSearch = q.question.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesType = typeFilter === "all" || q.type === typeFilter;
+      return matchesSearch && matchesType;
+    });
+  }, [questions, searchQuery, typeFilter]);
+
+  const getQuestionIndex = (question: Question) => {
+    return questions.findIndex(q => q.id === question.id);
+  };
 
   if (!currentQuiz) {
     return (
@@ -69,31 +123,119 @@ export default function EditQuizPage() {
     setQuestions(updated);
   };
 
-  const addQuestion = () => {
+  const addQuestion = (type: QuestionType = "multiple_choice") => {
     const newQuestion: Question = {
       id: `new-${Date.now()}`,
-      type: "multiple_choice",
-      question: "New question",
-      options: ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"],
-      correctAnswer: "A) Option 1",
+      type,
+      question: type === "true_false" ? "New true/false statement" : "New question",
+      options: type === "multiple_choice" 
+        ? ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"]
+        : type === "true_false" 
+        ? ["True", "False"]
+        : undefined,
+      correctAnswer: type === "multiple_choice" 
+        ? "A) Option 1" 
+        : type === "true_false"
+        ? "True"
+        : "",
       explanation: "",
     };
     setQuestions([...questions, newQuestion]);
     setExpandedIndex(questions.length);
+    toast({ title: "Question added", description: `New ${type.replace("_", " ")} question added` });
+  };
+
+  const duplicateQuestion = (index: number) => {
+    const original = questions[index];
+    const duplicate: Question = {
+      ...original,
+      id: `dup-${Date.now()}`,
+      question: `${original.question} (copy)`,
+    };
+    const updated = [...questions];
+    updated.splice(index + 1, 0, duplicate);
+    setQuestions(updated);
+    setExpandedIndex(index + 1);
+    toast({ title: "Question duplicated" });
+  };
+
+  const moveQuestion = (index: number, direction: "up" | "down") => {
+    if (direction === "up" && index === 0) return;
+    if (direction === "down" && index === questions.length - 1) return;
+    
+    const updated = [...questions];
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    [updated[index], updated[targetIndex]] = [updated[targetIndex], updated[index]];
+    setQuestions(updated);
+    setExpandedIndex(targetIndex);
   };
 
   const removeQuestion = (index: number) => {
     if (questions.length <= 1) {
-      toast({ title: "Cannot remove", description: "Quiz must have at least one question" });
+      toast({ title: "Cannot remove", description: "Quiz must have at least one question", variant: "destructive" });
       return;
     }
     const updated = [...questions];
+    const removedId = updated[index].id;
     updated.splice(index, 1);
     setQuestions(updated);
+    setSelectedQuestions(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(removedId);
+      return newSet;
+    });
+    setExpandedIndex(null);
+    toast({ title: "Question removed" });
+  };
+
+  const toggleSelectQuestion = (questionId: string) => {
+    setSelectedQuestions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(questionId)) {
+        newSet.delete(questionId);
+      } else {
+        newSet.add(questionId);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAll = () => {
+    if (selectedQuestions.size === filteredQuestions.length) {
+      setSelectedQuestions(new Set());
+    } else {
+      setSelectedQuestions(new Set(filteredQuestions.map(q => q.id)));
+    }
+  };
+
+  const deleteSelected = () => {
+    if (selectedQuestions.size === questions.length) {
+      toast({ title: "Cannot delete all", description: "Quiz must have at least one question", variant: "destructive" });
+      return;
+    }
+    const updated = questions.filter(q => !selectedQuestions.has(q.id));
+    setQuestions(updated);
+    setSelectedQuestions(new Set());
+    setExpandedIndex(null);
+    setShowDeleteDialog(false);
+    toast({ title: "Questions deleted", description: `${selectedQuestions.size} question(s) removed` });
+  };
+
+  const shuffleQuestions = () => {
+    const shuffled = [...questions].sort(() => Math.random() - 0.5);
+    setQuestions(shuffled);
+    toast({ title: "Questions shuffled" });
+  };
+
+  const expandAll = () => {
+    setExpandedIndex(-1);
+  };
+
+  const collapseAll = () => {
     setExpandedIndex(null);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<boolean> => {
     setIsSaving(true);
     try {
       const response = await apiRequest("PUT", `/api/quiz/${currentQuiz.id}`, {
@@ -104,25 +246,47 @@ export default function EditQuizPage() {
       setCurrentQuiz(updatedQuiz);
       queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
       toast({ title: "Quiz saved", description: "Your changes have been saved" });
-      setLocation("/quiz");
+      return true;
     } catch (error) {
       toast({ title: "Error", description: "Failed to save quiz", variant: "destructive" });
+      return false;
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleStartQuiz = () => {
-    setCurrentQuiz({
-      ...currentQuiz,
-      title,
-      questions,
-    } as any);
-    setLocation("/quiz");
+  const handleStartQuiz = async () => {
+    const saved = await handleSave();
+    if (saved) {
+      setCurrentQuiz({
+        ...currentQuiz,
+        title,
+        questions,
+      } as any);
+      setLocation("/quiz");
+    }
+  };
+
+  const getTypeBadgeVariant = (type: QuestionType) => {
+    switch (type) {
+      case "multiple_choice": return "default";
+      case "true_false": return "secondary";
+      case "short_answer": return "outline";
+      default: return "default";
+    }
+  };
+
+  const getTypeLabel = (type: QuestionType) => {
+    switch (type) {
+      case "multiple_choice": return "MC";
+      case "true_false": return "T/F";
+      case "short_answer": return "SA";
+      default: return type;
+    }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
+    <div className="container mx-auto px-4 py-6 max-w-4xl">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -130,202 +294,583 @@ export default function EditQuizPage() {
       >
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-xl font-bold">Edit Quiz</h1>
-            <p className="text-sm text-muted-foreground">Customize questions before taking the quiz</p>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Edit2 className="h-6 w-6" />
+              Edit Quiz
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Customize your quiz before taking it
+            </p>
           </div>
-          <div className="flex gap-2">
-            <Link href="/generate">
-              <Button variant="outline" data-testid="button-cancel-edit">
+          <div className="flex gap-2 flex-wrap">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setViewMode(viewMode === "edit" ? "preview" : "edit")}
+              data-testid="button-toggle-view"
+            >
+              {viewMode === "edit" ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+              {viewMode === "edit" ? "Preview" : "Edit"}
+            </Button>
+            <Link href="/history">
+              <Button variant="outline" size="sm" data-testid="button-cancel-edit">
                 <X className="h-4 w-4 mr-1" />
                 Cancel
               </Button>
             </Link>
-            <Button onClick={handleStartQuiz} data-testid="button-start-edited">
+            <Button size="sm" onClick={handleStartQuiz} data-testid="button-start-edited">
               Start Quiz
             </Button>
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Quiz Title</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter quiz title"
-              data-testid="input-quiz-title"
-            />
-          </CardContent>
-        </Card>
+        <AnimatePresence mode="wait">
+          {viewMode === "edit" ? (
+            <motion.div
+              key="edit"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="space-y-6"
+            >
+              <Card>
+                <CardHeader className="py-4">
+                  <CardTitle className="text-base">Quiz Title</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Enter quiz title"
+                    className="text-lg font-medium"
+                    data-testid="input-quiz-title"
+                  />
+                </CardContent>
+              </Card>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Questions ({questions.length})</h2>
-            <Button variant="outline" onClick={addQuestion} data-testid="button-add-question">
-              <Plus className="h-4 w-4 mr-1" />
-              Add Question
-            </Button>
-          </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="outline" className="gap-1">
+                  <ListChecks className="h-3 w-3" />
+                  {questions.length} total
+                </Badge>
+                {questionStats.multiple_choice > 0 && (
+                  <Badge variant="default" className="gap-1">MC: {questionStats.multiple_choice}</Badge>
+                )}
+                {questionStats.true_false > 0 && (
+                  <Badge variant="secondary" className="gap-1">T/F: {questionStats.true_false}</Badge>
+                )}
+                {questionStats.short_answer > 0 && (
+                  <Badge variant="outline" className="gap-1">SA: {questionStats.short_answer}</Badge>
+                )}
+              </div>
 
-          {questions.map((question, index) => (
-            <Card key={question.id} data-testid={`card-question-${index}`}>
-              <CardHeader 
-                className="cursor-pointer py-3"
-                onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-sm text-muted-foreground">Q{index + 1}</span>
-                    <span className="text-sm font-medium truncate">{question.question}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeQuestion(index);
-                      }}
-                      data-testid={`button-remove-question-${index}`}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                    {expandedIndex === index ? (
-                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search questions..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                    data-testid="input-search-questions"
+                  />
                 </div>
-              </CardHeader>
+                <Select value={typeFilter} onValueChange={(v: QuestionFilter) => setTypeFilter(v)}>
+                  <SelectTrigger className="w-[160px]" data-testid="select-type-filter">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
+                    <SelectItem value="true_false">True/False</SelectItem>
+                    <SelectItem value="short_answer">Short Answer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-              {expandedIndex === index && (
-                <CardContent className="space-y-4 pt-0">
-                  <div className="space-y-2">
-                    <Label>Question Type</Label>
-                    <Select
-                      value={question.type}
-                      onValueChange={(value: QuestionType) => handleQuestionChange(index, "type", value)}
+              <div className="flex items-center justify-between gap-2 flex-wrap border-b pb-3">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={selectAll}
+                    data-testid="button-select-all"
+                  >
+                    {selectedQuestions.size === filteredQuestions.length && filteredQuestions.length > 0 ? (
+                      <CheckSquare className="h-4 w-4 mr-1" />
+                    ) : (
+                      <Square className="h-4 w-4 mr-1" />
+                    )}
+                    {selectedQuestions.size > 0 ? `${selectedQuestions.size} selected` : "Select all"}
+                  </Button>
+                  
+                  {selectedQuestions.size > 0 && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setShowDeleteDialog(true)}
+                      data-testid="button-delete-selected"
                     >
-                      <SelectTrigger data-testid={`select-type-${index}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
-                        <SelectItem value="true_false">True/False</SelectItem>
-                        <SelectItem value="short_answer">Short Answer</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={expandAll} data-testid="button-expand-all">
+                    <ChevronDown className="h-4 w-4 mr-1" />
+                    Expand All
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={collapseAll} data-testid="button-collapse-all">
+                    <ChevronUp className="h-4 w-4 mr-1" />
+                    Collapse
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={shuffleQuestions} data-testid="button-shuffle">
+                    <Shuffle className="h-4 w-4 mr-1" />
+                    Shuffle
+                  </Button>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" data-testid="button-add-question">
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => addQuestion("multiple_choice")}>
+                        <ListChecks className="h-4 w-4 mr-2" />
+                        Multiple Choice
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => addQuestion("true_false")}>
+                        <ToggleLeft className="h-4 w-4 mr-2" />
+                        True/False
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => addQuestion("short_answer")}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        Short Answer
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
 
-                  <div className="space-y-2">
-                    <Label>Question</Label>
-                    <Textarea
-                      value={question.question}
-                      onChange={(e) => handleQuestionChange(index, "question", e.target.value)}
-                      data-testid={`input-question-${index}`}
-                    />
+              <div className="space-y-3">
+                {filteredQuestions.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    {searchQuery || typeFilter !== "all" 
+                      ? "No questions match your search" 
+                      : "No questions yet. Add one above!"}
                   </div>
-
-                  {question.type === "multiple_choice" && (
-                    <div className="space-y-2">
-                      <Label>Options</Label>
-                      {question.options?.map((option, optIndex) => (
-                        <div key={optIndex} className="flex gap-2">
-                          <Input
-                            value={option}
-                            onChange={(e) => handleOptionChange(index, optIndex, e.target.value)}
-                            data-testid={`input-option-${index}-${optIndex}`}
-                          />
-                          {(question.options?.length || 0) > 2 && (
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => removeOption(index, optIndex)}
-                              data-testid={`button-remove-option-${index}-${optIndex}`}
+                ) : (
+                  filteredQuestions.map((question) => {
+                    const index = getQuestionIndex(question);
+                    const isExpanded = expandedIndex === -1 || expandedIndex === index;
+                    
+                    return (
+                      <Card 
+                        key={question.id} 
+                        className={`transition-all ${selectedQuestions.has(question.id) ? "ring-2 ring-primary" : ""}`}
+                        data-testid={`card-question-${index}`}
+                      >
+                        <CardHeader className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <Checkbox
+                              checked={selectedQuestions.has(question.id)}
+                              onCheckedChange={() => toggleSelectQuestion(question.id)}
+                              data-testid={`checkbox-question-${index}`}
+                            />
+                            
+                            <div 
+                              className="flex-1 flex items-center gap-2 cursor-pointer min-w-0"
+                              onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
                             >
-                              <X className="h-4 w-4" />
-                            </Button>
+                              <Badge variant={getTypeBadgeVariant(question.type)} className="shrink-0">
+                                {getTypeLabel(question.type)}
+                              </Badge>
+                              <span className="text-sm text-muted-foreground shrink-0">Q{index + 1}</span>
+                              <span className="text-sm font-medium truncate">{question.question}</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-1 shrink-0">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => moveQuestion(index, "up")}
+                                disabled={index === 0}
+                                data-testid={`button-move-up-${index}`}
+                              >
+                                <ArrowUp className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => moveQuestion(index, "down")}
+                                disabled={index === questions.length - 1}
+                                data-testid={`button-move-down-${index}`}
+                              >
+                                <ArrowDown className="h-4 w-4" />
+                              </Button>
+                              
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button size="icon" variant="ghost">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => duplicateQuestion(index)}>
+                                    <Copy className="h-4 w-4 mr-2" />
+                                    Duplicate
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
+                                    onClick={() => removeQuestion(index)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                              
+                              {isExpanded ? (
+                                <ChevronUp 
+                                  className="h-4 w-4 text-muted-foreground cursor-pointer" 
+                                  onClick={() => setExpandedIndex(null)}
+                                />
+                              ) : (
+                                <ChevronDown 
+                                  className="h-4 w-4 text-muted-foreground cursor-pointer"
+                                  onClick={() => setExpandedIndex(index)}
+                                />
+                              )}
+                            </div>
+                          </div>
+                        </CardHeader>
+
+                        <AnimatePresence>
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <CardContent className="space-y-4 pt-0 px-4 pb-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label className="text-xs text-muted-foreground">Question Type</Label>
+                                    <Select
+                                      value={question.type}
+                                      onValueChange={(value: QuestionType) => {
+                                        handleQuestionChange(index, "type", value);
+                                        if (value === "true_false") {
+                                          handleQuestionChange(index, "options", ["True", "False"]);
+                                          handleQuestionChange(index, "correctAnswer", "True");
+                                        } else if (value === "multiple_choice" && (!question.options || question.options.length < 2)) {
+                                          handleQuestionChange(index, "options", ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"]);
+                                          handleQuestionChange(index, "correctAnswer", "A) Option 1");
+                                        } else if (value === "short_answer") {
+                                          handleQuestionChange(index, "options", undefined);
+                                        }
+                                      }}
+                                    >
+                                      <SelectTrigger data-testid={`select-type-${index}`}>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
+                                        <SelectItem value="true_false">True/False</SelectItem>
+                                        <SelectItem value="short_answer">Short Answer</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  
+                                  <div className="space-y-2">
+                                    <Label className="text-xs text-muted-foreground">Correct Answer</Label>
+                                    {question.type === "true_false" ? (
+                                      <Select
+                                        value={question.correctAnswer}
+                                        onValueChange={(value) => handleQuestionChange(index, "correctAnswer", value)}
+                                      >
+                                        <SelectTrigger data-testid={`select-answer-${index}`}>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="True">True</SelectItem>
+                                          <SelectItem value="False">False</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    ) : question.type === "multiple_choice" ? (
+                                      <Select
+                                        value={question.correctAnswer}
+                                        onValueChange={(value) => handleQuestionChange(index, "correctAnswer", value)}
+                                      >
+                                        <SelectTrigger data-testid={`select-answer-${index}`}>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {question.options?.map((opt, i) => (
+                                            <SelectItem key={i} value={opt}>{opt}</SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    ) : (
+                                      <Input
+                                        value={question.correctAnswer}
+                                        onChange={(e) => handleQuestionChange(index, "correctAnswer", e.target.value)}
+                                        placeholder="Enter correct answer"
+                                        data-testid={`input-answer-${index}`}
+                                      />
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label className="text-xs text-muted-foreground">Question Text</Label>
+                                  <Textarea
+                                    value={question.question}
+                                    onChange={(e) => handleQuestionChange(index, "question", e.target.value)}
+                                    className="min-h-[80px]"
+                                    data-testid={`input-question-${index}`}
+                                  />
+                                </div>
+
+                                {question.type === "multiple_choice" && (
+                                  <div className="space-y-2">
+                                    <Label className="text-xs text-muted-foreground">Answer Options</Label>
+                                    <div className="space-y-2">
+                                      {question.options?.map((option, optIndex) => (
+                                        <div key={optIndex} className="flex gap-2 items-center">
+                                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium shrink-0 ${
+                                            option === question.correctAnswer 
+                                              ? "bg-green-500/20 text-green-600 dark:text-green-400 ring-1 ring-green-500" 
+                                              : "bg-muted text-muted-foreground"
+                                          }`}>
+                                            {String.fromCharCode(65 + optIndex)}
+                                          </div>
+                                          <Input
+                                            value={option}
+                                            onChange={(e) => handleOptionChange(index, optIndex, e.target.value)}
+                                            className="flex-1"
+                                            data-testid={`input-option-${index}-${optIndex}`}
+                                          />
+                                          {(question.options?.length || 0) > 2 && (
+                                            <Button
+                                              size="icon"
+                                              variant="ghost"
+                                              onClick={() => removeOption(index, optIndex)}
+                                              className="shrink-0"
+                                              data-testid={`button-remove-option-${index}-${optIndex}`}
+                                            >
+                                              <X className="h-4 w-4" />
+                                            </Button>
+                                          )}
+                                        </div>
+                                      ))}
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => addOption(index)}
+                                        className="w-full"
+                                        data-testid={`button-add-option-${index}`}
+                                      >
+                                        <Plus className="h-4 w-4 mr-1" />
+                                        Add Option
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+
+                                <div className="space-y-2">
+                                  <Label className="text-xs text-muted-foreground">Explanation (shown after answering)</Label>
+                                  <Textarea
+                                    value={question.explanation || ""}
+                                    onChange={(e) => handleQuestionChange(index, "explanation", e.target.value)}
+                                    placeholder="Explain why this is the correct answer..."
+                                    className="min-h-[60px]"
+                                    data-testid={`input-explanation-${index}`}
+                                  />
+                                </div>
+                              </CardContent>
+                            </motion.div>
                           )}
-                        </div>
-                      ))}
+                        </AnimatePresence>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+
+              <div className="flex justify-between gap-2 pt-4 border-t">
+                <Button variant="outline" onClick={handleSave} disabled={isSaving} data-testid="button-save-quiz">
+                  <Save className="h-4 w-4 mr-1" />
+                  {isSaving ? "Saving..." : "Save Changes"}
+                </Button>
+                <Button onClick={handleStartQuiz} data-testid="button-start-quiz">
+                  Start Quiz
+                </Button>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="preview"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="space-y-6"
+            >
+              <Card className="overflow-hidden">
+                <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-6">
+                  <h2 className="text-xl font-bold">{title || "Untitled Quiz"}</h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {questions.length} questions
+                  </p>
+                </div>
+                
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-sm text-muted-foreground">
+                      Question {previewIndex + 1} of {questions.length}
+                    </span>
+                    <div className="flex gap-2">
                       <Button
                         variant="outline"
-                        size="sm"
-                        onClick={() => addOption(index)}
-                        data-testid={`button-add-option-${index}`}
+                        size="icon"
+                        onClick={() => setPreviewIndex(Math.max(0, previewIndex - 1))}
+                        disabled={previewIndex === 0}
                       >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add Option
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setPreviewIndex(Math.min(questions.length - 1, previewIndex + 1))}
+                        disabled={previewIndex === questions.length - 1}
+                      >
+                        <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <Label>Correct Answer</Label>
-                    {question.type === "true_false" ? (
-                      <Select
-                        value={question.correctAnswer}
-                        onValueChange={(value) => handleQuestionChange(index, "correctAnswer", value)}
+                  </div>
+                  
+                  <AnimatePresence mode="wait">
+                    {questions[previewIndex] && (
+                      <motion.div
+                        key={previewIndex}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-4"
                       >
-                        <SelectTrigger data-testid={`select-answer-${index}`}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="True">True</SelectItem>
-                          <SelectItem value="False">False</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : question.type === "multiple_choice" ? (
-                      <Select
-                        value={question.correctAnswer}
-                        onValueChange={(value) => handleQuestionChange(index, "correctAnswer", value)}
-                      >
-                        <SelectTrigger data-testid={`select-answer-${index}`}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {question.options?.map((opt, i) => (
-                            <SelectItem key={i} value={opt}>{opt}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <Input
-                        value={question.correctAnswer}
-                        onChange={(e) => handleQuestionChange(index, "correctAnswer", e.target.value)}
-                        data-testid={`input-answer-${index}`}
-                      />
+                        <div className="flex items-start gap-3">
+                          <Badge variant={getTypeBadgeVariant(questions[previewIndex].type)}>
+                            {getTypeLabel(questions[previewIndex].type)}
+                          </Badge>
+                          <h3 className="text-lg font-medium flex-1">
+                            {questions[previewIndex].question}
+                          </h3>
+                        </div>
+                        
+                        {questions[previewIndex].type === "multiple_choice" && (
+                          <div className="space-y-2 ml-8">
+                            {questions[previewIndex].options?.map((option, i) => (
+                              <div
+                                key={i}
+                                className={`p-3 rounded-lg border ${
+                                  option === questions[previewIndex].correctAnswer
+                                    ? "border-green-500 bg-green-500/10"
+                                    : "border-border"
+                                }`}
+                              >
+                                {option}
+                                {option === questions[previewIndex].correctAnswer && (
+                                  <Badge variant="outline" className="ml-2 text-green-600">Correct</Badge>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {questions[previewIndex].type === "true_false" && (
+                          <div className="space-y-2 ml-8">
+                            {["True", "False"].map((option) => (
+                              <div
+                                key={option}
+                                className={`p-3 rounded-lg border ${
+                                  option === questions[previewIndex].correctAnswer
+                                    ? "border-green-500 bg-green-500/10"
+                                    : "border-border"
+                                }`}
+                              >
+                                {option}
+                                {option === questions[previewIndex].correctAnswer && (
+                                  <Badge variant="outline" className="ml-2 text-green-600">Correct</Badge>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {questions[previewIndex].type === "short_answer" && (
+                          <div className="ml-8 p-3 rounded-lg border border-green-500 bg-green-500/10">
+                            <span className="text-sm text-muted-foreground">Answer: </span>
+                            {questions[previewIndex].correctAnswer}
+                          </div>
+                        )}
+                        
+                        {questions[previewIndex].explanation && (
+                          <div className="ml-8 p-3 rounded-lg bg-muted/50">
+                            <span className="text-sm font-medium">Explanation: </span>
+                            <span className="text-sm text-muted-foreground">
+                              {questions[previewIndex].explanation}
+                            </span>
+                          </div>
+                        )}
+                      </motion.div>
                     )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Explanation (optional)</Label>
-                    <Textarea
-                      value={question.explanation || ""}
-                      onChange={(e) => handleQuestionChange(index, "explanation", e.target.value)}
-                      placeholder="Explain why this is the correct answer"
-                      data-testid={`input-explanation-${index}`}
-                    />
-                  </div>
+                  </AnimatePresence>
                 </CardContent>
-              )}
-            </Card>
-          ))}
-        </div>
-
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={handleSave} disabled={isSaving} data-testid="button-save-quiz">
-            <Save className="h-4 w-4 mr-1" />
-            {isSaving ? "Saving..." : "Save Changes"}
-          </Button>
-          <Button onClick={handleStartQuiz} data-testid="button-start-quiz">
-            Start Quiz
-          </Button>
-        </div>
+              </Card>
+              
+              <div className="flex flex-wrap gap-2 justify-center">
+                {questions.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPreviewIndex(i)}
+                    className={`w-8 h-8 rounded-full text-sm font-medium transition-all ${
+                      i === previewIndex
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted hover:bg-muted/80"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedQuestions.size} question(s)?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The selected questions will be permanently removed from this quiz.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteSelected} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
