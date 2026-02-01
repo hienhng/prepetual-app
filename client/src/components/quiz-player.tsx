@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -840,6 +840,13 @@ export function QuizPlayer() {
 
   const allOriginalChecked = checkedQuestions.size === originalQuestionCount;
   const [expandedImageUrl, setExpandedImageUrl] = useState<string | null>(null);
+  const [showMaterialViewer, setShowMaterialViewer] = useState(false);
+  const [materialImageIndex, setMaterialImageIndex] = useState(0);
+
+  const materialImages = sourceMaterial?.documentImages || [];
+  const singleSourceImage = sourceMaterial?.imageDataUrl;
+  const allMaterialImages = singleSourceImage ? [singleSourceImage, ...materialImages] : materialImages;
+  const hasMaterialImages = allMaterialImages.length > 0;
 
   const retryQuestionsInList = allQuestions.filter(q => q.isRetry);
   const allRetryChecked = retryQuestionsInList.every(q => retryChecked.has(q.id));
@@ -882,6 +889,21 @@ export function QuizPlayer() {
                       <span className="text-sm font-semibold">{displayQuestionNum}/{originalQuestionCount}</span>
                       <ChevronUp className={`h-4 w-4 transition-transform ${showQuestionNav ? "rotate-180" : ""}`} />
                     </button>
+                    {hasMaterialImages && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setMaterialImageIndex(0);
+                          setShowMaterialViewer(true);
+                        }}
+                        className="gap-1.5 rounded-full h-8"
+                        data-testid="button-view-material"
+                      >
+                        <FileImage className="h-4 w-4" />
+                        <span className="hidden sm:inline">Material</span>
+                      </Button>
+                    )}
                     <ThemeToggle />
                   </div>
                   <div className="flex items-center gap-3">
@@ -1095,6 +1117,92 @@ export function QuizPlayer() {
                 <X className="h-5 w-5" />
               </Button>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showMaterialViewer && allMaterialImages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/90 flex flex-col"
+            onClick={() => setShowMaterialViewer(false)}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <FileImage className="h-5 w-5 text-white/80" />
+                <span className="text-white font-medium">
+                  Study Material {allMaterialImages.length > 1 && `(${materialImageIndex + 1}/${allMaterialImages.length})`}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white hover:bg-white/10 rounded-full"
+                onClick={() => setShowMaterialViewer(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            <div 
+              className="flex-1 flex items-center justify-center p-4 sm:p-8 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {allMaterialImages.length > 1 && (
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute left-4 z-10 rounded-full shadow-lg h-12 w-12"
+                  onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
+                  data-testid="button-material-prev"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </Button>
+              )}
+              
+              <motion.img
+                key={materialImageIndex}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                src={allMaterialImages[materialImageIndex]}
+                alt={`Study material ${materialImageIndex + 1}`}
+                className="max-w-full max-h-[calc(100vh-120px)] object-contain rounded-lg shadow-2xl"
+              />
+              
+              {allMaterialImages.length > 1 && (
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute right-4 z-10 rounded-full shadow-lg h-12 w-12"
+                  onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
+                  data-testid="button-material-next"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </Button>
+              )}
+            </div>
+            
+            {allMaterialImages.length > 1 && (
+              <div className="flex justify-center gap-2 p-4 border-t border-white/10">
+                {allMaterialImages.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMaterialImageIndex(idx);
+                    }}
+                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                      idx === materialImageIndex ? 'bg-white' : 'bg-white/30 hover:bg-white/50'
+                    }`}
+                    data-testid={`button-material-dot-${idx}`}
+                  />
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
