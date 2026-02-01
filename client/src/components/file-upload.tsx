@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, Image, X, Loader2, File, CheckCircle2, ArrowRight } from "lucide-react";
+import { Upload, FileText, Image, X, Loader2, File, CheckCircle2, ArrowRight, Crop } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { ImageCropper } from "@/components/image-cropper";
 
 interface CroppedIllustration {
   id: string;
@@ -30,6 +31,11 @@ interface FileUploadProps {
   onTextExtracted: (text: string, isOfficeWithImages?: boolean, documentImages?: string[], croppedIllustrations?: CroppedIllustration[]) => void;
 }
 
+interface ManualCrop {
+  fileName: string;
+  crops: CroppedIllustration[];
+}
+
 export function FileUpload({ onTextExtracted }: FileUploadProps) {
   const { activeJobs, startUpload, clearJobs, removeJob, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, getCroppedIllustrations, hasOfficeWithImages } = useUpload();
   const [error, setError] = useState<string | null>(null);
@@ -38,10 +44,58 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   
   // Pending files that haven't been processed yet
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  
+  // Manual cropping state
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [cropperImageUrl, setCropperImageUrl] = useState<string>("");
+  const [cropperFileName, setCropperFileName] = useState<string>("");
+  const [manualCrops, setManualCrops] = useState<ManualCrop[]>([]);
 
   const isLoading = isUploading || isAnyProcessing();
   
   const completedJobs = activeJobs.filter(job => job.status === "completed");
+  
+  // Open cropper for an image file
+  const openCropper = useCallback((file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result;
+      if (typeof result === "string") {
+        setCropperImageUrl(result);
+        setCropperFileName(file.name);
+        setCropperOpen(true);
+      }
+    };
+    reader.readAsDataURL(file);
+  }, []);
+  
+  // Handle completed crops from the cropper
+  const handleCropsComplete = useCallback((crops: { id: string; description: string; imageDataUrl: string }[]) => {
+    const cropsWithType: CroppedIllustration[] = crops.map(c => ({
+      ...c,
+      type: "manual",
+    }));
+    
+    setManualCrops(prev => {
+      const existing = prev.filter(m => m.fileName !== cropperFileName);
+      return [...existing, { fileName: cropperFileName, crops: cropsWithType }];
+    });
+    
+    setCropperOpen(false);
+    setCropperImageUrl("");
+    setCropperFileName("");
+  }, [cropperFileName]);
+  
+  // Get count of manual crops for a file
+  const getManualCropCount = useCallback((fileName: string) => {
+    const found = manualCrops.find(m => m.fileName === fileName);
+    return found ? found.crops.length : 0;
+  }, [manualCrops]);
+  
+  // Get all manual crops
+  const getAllManualCrops = useCallback(() => {
+    return manualCrops.flatMap(m => m.crops);
+  }, [manualCrops]);
   const processingJobs = activeJobs.filter(job => job.status === "pending" || job.status === "processing");
   const errorJobs = activeJobs.filter(job => job.status === "error");
   
@@ -57,13 +111,15 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
     if (isAllCompleted() && completedJobs.length > 0) {
       const combinedText = getCombinedText();
       const combinedImages = getCombinedDocumentImages();
-      const illustrations = getCroppedIllustrations();
+      const aiIllustrations = getCroppedIllustrations();
+      const manualIllustrations = getAllManualCrops();
+      const allIllustrations = [...aiIllustrations, ...manualIllustrations];
       const hasImages = hasOfficeWithImages();
       
       if (hasImages && combinedImages.length > 0) {
-        onTextExtracted(combinedText, true, combinedImages, illustrations);
+        onTextExtracted(combinedText, true, combinedImages, allIllustrations);
       } else if (combinedText) {
-        onTextExtracted(combinedText, false, [], illustrations);
+        onTextExtracted(combinedText, false, [], allIllustrations);
       }
     }
     
@@ -77,7 +133,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
     } else if (activeJobs.length > 0) {
       setError(null);
     }
-  }, [activeJobs, isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, getCroppedIllustrations, hasOfficeWithImages, onTextExtracted, errorJobs, pendingFiles.length]);
+  }, [activeJobs, isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, getCroppedIllustrations, getAllManualCrops, hasOfficeWithImages, onTextExtracted, errorJobs, pendingFiles.length, manualCrops]);
 
   const processFiles = useCallback(async (files: File[]) => {
     setError(null);
@@ -119,6 +175,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
 
   const removePendingFile = useCallback((fileName: string) => {
     setPendingFiles(prev => prev.filter(f => f.name !== fileName));
+    setManualCrops(prev => prev.filter(m => m.fileName !== fileName));
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -141,6 +198,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   const removeAllFiles = () => {
     clearJobs();
     setPendingFiles([]);
+    setManualCrops([]);
     setSourceMaterial({ type: null, text: null, imageDataUrl: null });
     onTextExtracted("");
   };
@@ -230,33 +288,59 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                 </Button>
               </div>
               
-              {pendingFiles.map((file, index) => (
-                <motion.div
-                  key={file.name}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Card className="p-3 flex items-center justify-between gap-3 hover-elevate">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      {getFileIcon(file.type)}
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">{file.name}</p>
-                        <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+              {pendingFiles.map((file, index) => {
+                const isImage = file.type.includes("image");
+                const cropCount = getManualCropCount(file.name);
+                
+                return (
+                  <motion.div
+                    key={file.name}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Card className="p-3 flex items-center justify-between gap-3 hover-elevate">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {getFileIcon(file.type)}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium truncate">{file.name}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                            {cropCount > 0 && (
+                              <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                                {cropCount} crop{cropCount !== 1 ? "s" : ""}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 shrink-0"
-                      onClick={() => removePendingFile(file.name)}
-                      data-testid={`button-remove-pending-${index}`}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </Card>
-                </motion.div>
-              ))}
+                      <div className="flex items-center gap-1 shrink-0">
+                        {isImage && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 px-2 text-xs gap-1"
+                            onClick={() => openCropper(file)}
+                            data-testid={`button-crop-${index}`}
+                          >
+                            <Crop className="h-3 w-3" />
+                            Crop
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => removePendingFile(file.name)}
+                          data-testid={`button-remove-pending-${index}`}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </Card>
+                  </motion.div>
+                );
+              })}
             </div>
 
             {/* Add more files dropzone */}
@@ -461,6 +545,18 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* Manual Cropper Dialog */}
+      <ImageCropper
+        imageDataUrl={cropperImageUrl}
+        isOpen={cropperOpen}
+        onCropsComplete={handleCropsComplete}
+        onCancel={() => {
+          setCropperOpen(false);
+          setCropperImageUrl("");
+          setCropperFileName("");
+        }}
+      />
     </div>
   );
 }
