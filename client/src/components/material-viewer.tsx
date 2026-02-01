@@ -3,12 +3,10 @@ import { FileText, Image, X, Loader2, BookOpen, ListTree, ZoomIn } from "lucide-
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useQuiz, type SourceMaterialType } from "@/lib/quiz-context";
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface MaterialViewerProps {
   isOpen?: boolean;
@@ -17,35 +15,27 @@ interface MaterialViewerProps {
 }
 
 function MaterialContent({ 
-  materialType, 
   text, 
-  imageDataUrl,
-  documentImages = []
+  images = []
 }: { 
-  materialType: SourceMaterialType; 
   text: string | null; 
-  imageDataUrl: string | null;
-  documentImages?: string[];
+  images: string[];
 }) {
-  const [viewMode, setViewMode] = useState<"text" | "image">("text");
+  const [activeTab, setActiveTab] = useState<"text" | "images">("text");
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
-  
-  // Combine single image with document images array
-  const allImages = imageDataUrl 
-    ? [imageDataUrl, ...documentImages] 
-    : documentImages;
   const [showSummary, setShowSummary] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
   const [isSummarizing, setIsSummarizing] = useState(false);
 
+  const hasText = !!text && text.trim().length > 0;
+  const hasImages = images.length > 0;
+
   const handleSummarize = async () => {
     if (!text) return;
-    
     if (summary) {
       setShowSummary(!showSummary);
       return;
     }
-    
     setIsSummarizing(true);
     try {
       const response = await apiRequest("POST", "/api/summarize-text", { text });
@@ -58,9 +48,6 @@ function MaterialContent({
       setIsSummarizing(false);
     }
   };
-
-  const hasImages = allImages.length > 0;
-  const hasText = !!text;
 
   if (!hasText && !hasImages) {
     return (
@@ -76,170 +63,158 @@ function MaterialContent({
   const displayText = showSummary && summary ? summary : text;
   const wordCount = text ? text.split(/\s+/).length : 0;
 
-  const TextSummaryToggle = () => (
-    <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/50">
-      <button
-        onClick={() => !isSummarizing && setShowSummary(false)}
-        disabled={isSummarizing}
-        className={cn(
-          "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
-          !showSummary 
-            ? "bg-background text-foreground shadow-sm" 
-            : "text-muted-foreground hover:text-foreground"
-        )}
-        data-testid="toggle-full-text"
-      >
-        <BookOpen className="h-3.5 w-3.5" />
-        Full
-      </button>
-      <button
-        onClick={handleSummarize}
-        disabled={isSummarizing || !text || text.length < 100}
-        className={cn(
-          "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
-          showSummary 
-            ? "bg-background text-foreground shadow-sm" 
-            : "text-muted-foreground hover:text-foreground",
-          (isSummarizing || !text || text.length < 100) && "opacity-50 cursor-not-allowed"
-        )}
-        data-testid="toggle-summary"
-      >
-        {isSummarizing ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-        ) : (
-          <ListTree className="h-3.5 w-3.5" />
-        )}
-        Summary
-      </button>
-    </div>
-  );
-
-  const renderImageGrid = () => (
-    <>
-      <AnimatePresence>
-        {expandedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4"
-            onClick={() => setExpandedImage(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative max-w-[90vw] max-h-[90vh]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img 
-                src={expandedImage} 
-                alt="Expanded view"
-                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-              />
-              <Button
-                variant="secondary"
-                size="icon"
-                className="absolute top-2 right-2"
-                onClick={() => setExpandedImage(null)}
-                data-testid="button-close-expanded-material"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <ScrollArea className="flex-1 h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-14rem)]">
-        <div className={`grid gap-2 pr-4 ${
-          allImages.length === 1 ? "grid-cols-1" :
-          allImages.length === 2 ? "grid-cols-2" :
-          "grid-cols-2"
-        }`}>
-          {allImages.map((img, index) => (
-            <div 
-              key={index} 
-              className="relative aspect-[4/3] rounded-lg border shadow-sm cursor-pointer"
-              onClick={() => setExpandedImage(img)}
-            >
-              <img 
-                src={img} 
-                alt={`Material image ${index + 1}`} 
-                className="w-full h-full object-cover rounded-lg"
-                data-testid={`material-image-${index}`}
-              />
-              <div className="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 rounded-full p-1.5 shadow-sm">
-                <ZoomIn className="w-3 h-3 text-foreground" />
-              </div>
-            </div>
-          ))}
-        </div>
-        <p className="text-xs text-muted-foreground mt-3 text-center">Click any image to expand</p>
-      </ScrollArea>
-    </>
-  );
-
-  const renderTextContent = () => (
-    <>
-      <div className="flex items-center justify-between gap-2 flex-shrink-0">
-        <TextSummaryToggle />
-        <Badge variant="secondary" className="text-xs font-normal">
-          {showSummary ? "AI Summary" : `${wordCount.toLocaleString()} words`}
-        </Badge>
-      </div>
-      <ScrollArea className="flex-1 h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-14rem)]">
-        <div 
-          className="text-sm leading-relaxed whitespace-pre-wrap pr-4" 
-          data-testid="material-text"
-        >
-          {displayText}
-        </div>
-      </ScrollArea>
-    </>
-  );
-
   return (
     <div className="h-full flex flex-col gap-3">
-      {/* Text/Images Toggle - show when both exist */}
+      {/* Main Tab Toggle: Text / Images */}
       {hasText && hasImages && (
         <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/50 w-fit">
           <button
-            onClick={() => setViewMode("text")}
+            onClick={() => setActiveTab("text")}
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
-              viewMode === "text"
+              activeTab === "text"
                 ? "bg-background text-foreground shadow-sm" 
                 : "text-muted-foreground hover:text-foreground"
             )}
-            data-testid="toggle-text-view"
+            data-testid="tab-text"
           >
             <FileText className="h-3.5 w-3.5" />
             Text
           </button>
           <button
-            onClick={() => setViewMode("image")}
+            onClick={() => setActiveTab("images")}
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
-              viewMode === "image"
+              activeTab === "images"
                 ? "bg-background text-foreground shadow-sm" 
                 : "text-muted-foreground hover:text-foreground"
             )}
-            data-testid="toggle-images-view"
+            data-testid="tab-images"
           >
             <Image className="h-3.5 w-3.5" />
-            Images ({allImages.length})
+            Images ({images.length})
           </button>
         </div>
       )}
 
-      {/* Content based on view mode */}
-      {hasText && hasImages ? (
-        viewMode === "text" ? renderTextContent() : renderImageGrid()
-      ) : hasImages ? (
-        renderImageGrid()
-      ) : (
-        renderTextContent()
+      {/* TEXT VIEW */}
+      {(activeTab === "text" || !hasImages) && hasText && (
+        <>
+          <div className="flex items-center justify-between gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/50">
+              <button
+                onClick={() => !isSummarizing && setShowSummary(false)}
+                disabled={isSummarizing}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                  !showSummary 
+                    ? "bg-background text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                data-testid="toggle-full-text"
+              >
+                <BookOpen className="h-3.5 w-3.5" />
+                Full
+              </button>
+              <button
+                onClick={handleSummarize}
+                disabled={isSummarizing || !text || text.length < 100}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                  showSummary 
+                    ? "bg-background text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground",
+                  (isSummarizing || !text || text.length < 100) && "opacity-50 cursor-not-allowed"
+                )}
+                data-testid="toggle-summary"
+              >
+                {isSummarizing ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <ListTree className="h-3.5 w-3.5" />
+                )}
+                Summary
+              </button>
+            </div>
+            <Badge variant="secondary" className="text-xs font-normal">
+              {showSummary ? "AI Summary" : `${wordCount.toLocaleString()} words`}
+            </Badge>
+          </div>
+          <ScrollArea className="flex-1 h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-16rem)]">
+            <div 
+              className="text-sm leading-relaxed whitespace-pre-wrap pr-4" 
+              data-testid="material-text"
+            >
+              {displayText}
+            </div>
+          </ScrollArea>
+        </>
+      )}
+
+      {/* IMAGES VIEW */}
+      {(activeTab === "images" || !hasText) && hasImages && (
+        <>
+          {/* Expanded image modal */}
+          {expandedImage && (
+            <div
+              className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4"
+              onClick={() => setExpandedImage(null)}
+            >
+              <div
+                className="relative max-w-[90vw] max-h-[90vh]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img 
+                  src={expandedImage} 
+                  alt="Expanded view"
+                  className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                />
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute top-2 right-2"
+                  onClick={() => setExpandedImage(null)}
+                  data-testid="button-close-expanded"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Badge variant="secondary" className="text-xs font-normal">
+              <Image className="h-3 w-3 mr-1" />
+              {images.length} {images.length === 1 ? 'image' : 'images'}
+            </Badge>
+          </div>
+          
+          <ScrollArea className="flex-1 h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-16rem)]">
+            <div className={cn(
+              "grid gap-2 pr-4",
+              images.length === 1 ? "grid-cols-1" : "grid-cols-2"
+            )}>
+              {images.map((img, index) => (
+                <div 
+                  key={index} 
+                  className="relative aspect-[4/3] rounded-lg border shadow-sm cursor-pointer overflow-hidden"
+                  onClick={() => setExpandedImage(img)}
+                >
+                  <img 
+                    src={img} 
+                    alt={`Image ${index + 1}`} 
+                    className="w-full h-full object-cover"
+                    data-testid={`material-image-${index}`}
+                  />
+                  <div className="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 rounded-full p-1.5 shadow-sm">
+                    <ZoomIn className="w-3 h-3 text-foreground" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-3 text-center">Click any image to expand</p>
+          </ScrollArea>
+        </>
       )}
     </div>
   );
@@ -248,12 +223,11 @@ function MaterialContent({
 export function MaterialViewerDialog({ isOpen = false, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { sourceMaterial, currentQuiz } = useQuiz();
   
-  const materialText = sourceMaterial.text || currentQuiz?.sourceText || null;
-  const materialType = sourceMaterial.type;
-  const imageDataUrl = sourceMaterial.imageDataUrl;
-  const documentImages = sourceMaterial.documentImages?.length 
-    ? sourceMaterial.documentImages 
-    : ((currentQuiz as any)?.sourceImages || []);
+  const text = sourceMaterial.text || currentQuiz?.sourceText || null;
+  const singleImage = sourceMaterial.imageDataUrl ? [sourceMaterial.imageDataUrl] : [];
+  const docImages = sourceMaterial.documentImages || [];
+  const quizImages = (currentQuiz as any)?.sourceImages || [];
+  const images = [...singleImage, ...docImages, ...(docImages.length === 0 ? quizImages : [])];
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -267,12 +241,7 @@ export function MaterialViewerDialog({ isOpen = false, onClose }: { isOpen: bool
           </DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-hidden">
-          <MaterialContent 
-            materialType={materialType} 
-            text={materialText} 
-            imageDataUrl={imageDataUrl}
-            documentImages={documentImages}
-          />
+          <MaterialContent text={text} images={images} />
         </div>
       </DialogContent>
     </Dialog>
@@ -282,12 +251,11 @@ export function MaterialViewerDialog({ isOpen = false, onClose }: { isOpen: bool
 export function MaterialViewerSidebar({ onClose }: { onClose: () => void }) {
   const { sourceMaterial, currentQuiz } = useQuiz();
   
-  const materialText = sourceMaterial.text || currentQuiz?.sourceText || null;
-  const materialType = sourceMaterial.type;
-  const imageDataUrl = sourceMaterial.imageDataUrl;
-  const documentImages = sourceMaterial.documentImages?.length 
-    ? sourceMaterial.documentImages 
-    : ((currentQuiz as any)?.sourceImages || []);
+  const text = sourceMaterial.text || currentQuiz?.sourceText || null;
+  const singleImage = sourceMaterial.imageDataUrl ? [sourceMaterial.imageDataUrl] : [];
+  const docImages = sourceMaterial.documentImages || [];
+  const quizImages = (currentQuiz as any)?.sourceImages || [];
+  const images = [...singleImage, ...docImages, ...(docImages.length === 0 ? quizImages : [])];
 
   return (
     <div className="w-full h-full flex flex-col bg-background border-l">
@@ -308,12 +276,7 @@ export function MaterialViewerSidebar({ onClose }: { onClose: () => void }) {
         </Button>
       </div>
       <div className="flex-1 overflow-hidden p-4">
-        <MaterialContent 
-          materialType={materialType} 
-          text={materialText} 
-          imageDataUrl={imageDataUrl}
-          documentImages={documentImages}
-        />
+        <MaterialContent text={text} images={images} />
       </div>
     </div>
   );
@@ -323,6 +286,5 @@ export function MaterialViewer({ isOpen = false, onClose = () => {}, variant }: 
   if (variant === "dialog") {
     return <MaterialViewerDialog isOpen={isOpen} onClose={onClose} />;
   }
-  
   return <MaterialViewerSidebar onClose={onClose} />;
 }
