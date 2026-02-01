@@ -10,154 +10,6 @@ const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
 });
 
-export interface IllustrationRegion {
-  id: string;
-  description: string;
-  type: string;
-  boundingBox: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
-}
-
-export interface ImageAnalysisResult {
-  hasIllustrations: boolean;
-  description: string;
-  visualElements: string[];
-  illustrations: IllustrationRegion[];
-  imageWidth: number;
-  imageHeight: number;
-}
-
-export async function analyzeImageContent(imageBase64: string): Promise<ImageAnalysisResult> {
-  try {
-    const response = await pRetry(
-      async () => {
-        const completion = await openai.chat.completions.create({
-          model: "gpt-4.1",
-          messages: [{
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: `Analyze this image and identify ALL visual elements that are NOT pure text. Look carefully for:
-- Geometric shapes (triangles, circles, squares, polygons, etc.)
-- Mathematical diagrams and figures
-- Charts, graphs, or data visualizations
-- Scientific diagrams or illustrations
-- Photos, pictures, or artwork
-- Icons, symbols, or logos
-- Any drawn or illustrated content
-
-CRITICAL: Look at the ENTIRE image carefully. Geometric diagrams like triangles with labeled points (A, B, C, P, etc.) are illustrations that MUST be detected.
-
-For EACH illustration found, provide its PRECISE bounding box as percentages (0-100) of the image dimensions.
-
-LANGUAGE: If Vietnamese content detected, respond in Vietnamese. Otherwise respond in English.
-
-Respond in JSON format:
-{
-  "hasIllustrations": true/false,
-  "description": "A 1-2 sentence description of what the image shows",
-  "visualElements": ["list", "of", "visual", "element", "types"],
-  "illustrations": [
-    {
-      "id": "1",
-      "description": "Detailed description of this specific illustration",
-      "type": "geometry|diagram|chart|photo|drawing|icon|figure",
-      "boundingBox": {
-        "x": 10,
-        "y": 20,
-        "width": 40,
-        "height": 30
-      }
-    }
-  ]
-}
-
-BOUNDING BOX RULES:
-- All values are PERCENTAGES (0-100), not pixels
-- x = distance from LEFT edge of image to LEFT edge of illustration
-- y = distance from TOP edge of image to TOP edge of illustration  
-- width = horizontal extent of the illustration
-- height = vertical extent of the illustration
-- Be PRECISE - the box should tightly contain the illustration with minimal empty space
-- Include the entire illustration including any labels that are part of it (like vertex labels A, B, C)
-- Do NOT include surrounding text paragraphs - only the diagram/figure itself
-- If no illustrations found, set illustrations to empty array []`
-              },
-              {
-                type: "image_url",
-                image_url: { url: imageBase64, detail: "high" }
-              }
-            ]
-          }],
-          response_format: { type: "json_object" },
-          max_completion_tokens: 2000,
-        });
-
-        const content = completion.choices[0]?.message?.content;
-        if (!content) {
-          throw new Error("No response from AI");
-        }
-        return content;
-      },
-      {
-        retries: 2,
-        minTimeout: 2000,
-        onFailedAttempt: (error: any) => {
-          console.log(`Image analysis retry: ${error.message}`);
-          if (!isRateLimitError(error)) {
-            throw error;
-          }
-        },
-      }
-    );
-
-    const parsed = JSON.parse(response);
-    
-    const illustrations: IllustrationRegion[] = [];
-    if (Array.isArray(parsed.illustrations)) {
-      for (const ill of parsed.illustrations) {
-        if (ill.boundingBox && typeof ill.boundingBox.x === 'number') {
-          illustrations.push({
-            id: String(ill.id || illustrations.length + 1),
-            description: String(ill.description || ""),
-            type: String(ill.type || "illustration"),
-            boundingBox: {
-              x: Math.max(0, Math.min(100, ill.boundingBox.x)),
-              y: Math.max(0, Math.min(100, ill.boundingBox.y)),
-              width: Math.max(5, Math.min(100, ill.boundingBox.width)),
-              height: Math.max(5, Math.min(100, ill.boundingBox.height)),
-            }
-          });
-        }
-      }
-    }
-    
-    return {
-      hasIllustrations: parsed.hasIllustrations ?? illustrations.length > 0,
-      description: parsed.description ?? "",
-      visualElements: Array.isArray(parsed.visualElements) ? parsed.visualElements : [],
-      illustrations,
-      imageWidth: 0,
-      imageHeight: 0,
-    };
-  } catch (error) {
-    console.error("Error analyzing image:", error);
-    return {
-      hasIllustrations: false,
-      description: "",
-      visualElements: [],
-      illustrations: [],
-      imageWidth: 0,
-      imageHeight: 0,
-    };
-  }
-}
-
 function isRateLimitError(error: any): boolean {
   const errorMsg = error?.message || String(error);
   return (
@@ -170,30 +22,21 @@ function isRateLimitError(error: any): boolean {
 
 export type ProgressCallback = (step: string, progress: number, message: string) => void;
 
-interface CroppedIllustration {
-  id: string;
-  description: string;
-  type: string;
-  imageDataUrl: string;
-}
-
 interface QuizGenerationParams {
   text: string;
   questionCount: number;
   questionTypes: QuestionType[];
   difficulty?: DifficultyLevel;
   documentImages?: string[];
-  croppedIllustrations?: CroppedIllustration[];
   onProgress?: ProgressCallback;
 }
 
 export async function generateQuizQuestions(
   params: QuizGenerationParams,
 ): Promise<{ questions: Question[]; title: string; category: QuizCategory }> {
-  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], croppedIllustrations = [], onProgress } = params;
+  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress } = params;
 
   const hasImages = documentImages.length > 0;
-  const hasIllustrations = croppedIllustrations.length > 0;
   
   // Step 1: Reading material
   onProgress?.("reading", 10, "Reading your study material...");
@@ -222,20 +65,10 @@ export async function generateQuizQuestions(
 
   const categoryList = QUIZ_CATEGORIES.join(", ");
   
-  // Build illustration context if available
-  const illustrationContext = hasIllustrations 
-    ? `\n\nAVAILABLE ILLUSTRATIONS:
-The following cropped illustrations from the source material are available. When a question relates to one of these illustrations, include the "illustrationId" field with the illustration's ID so it can be displayed with the question.
-
-${croppedIllustrations.map((ill, idx) => `${idx + 1}. ID: "${ill.id}" - Type: ${ill.type} - Description: ${ill.description}`).join('\n')}
-
-When creating questions about visual content, reference the appropriate illustration by including "illustrationId": "<the illustration's ID>" in the question object. At least 30% of questions should reference illustrations when available.`
-    : '';
-  
   const prompt = `You are an expert educator. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz and categorize it.
 
 CONTENT:
-${truncatedText}${illustrationContext}
+${truncatedText}
 
 LANGUAGE HANDLING:
 - Detect the primary language of the content above (English, Vietnamese, or other)
@@ -280,8 +113,7 @@ OUTPUT FORMAT (JSON):
         "Actual answer A": "Why this specific option is incorrect",
         "Actual answer C": "Why this specific option is incorrect",
         "Actual answer D": "Why this specific option is incorrect"
-      }${hasIllustrations ? `,
-      "illustrationId": "optional-illustration-id" // Optional: ID of the illustration this question references (only if question is about a specific illustration from AVAILABLE ILLUSTRATIONS)` : ''}
+      }
     }
   ]
 }
@@ -299,7 +131,7 @@ IMPORTANT: Carefully analyze ALL attached images. These may contain:
 Generate questions that test understanding of BOTH the text content AND the visual content from the images.
 
 TEXT CONTENT:
-${truncatedText}${illustrationContext}
+${truncatedText}
 
 LANGUAGE HANDLING:
 - Detect the primary language of the content above (English, Vietnamese, or other)
@@ -347,8 +179,7 @@ OUTPUT FORMAT (JSON):
         "Actual answer C": "Why this specific option is incorrect",
         "Actual answer D": "Why this specific option is incorrect"
       },
-      "imageIndex": 0 // Optional: 0-based index of the attached image this question references (only if question is about a specific image)${hasIllustrations ? `,
-      "illustrationId": "optional-illustration-id" // Optional: ID of the cropped illustration this question references` : ''}
+      "imageIndex": 0 // Optional: 0-based index of the attached image this question references (only if question is about a specific image)
     }
   ]
 }
@@ -534,18 +365,6 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
       let imageUrl: string | undefined;
       if (typeof q.imageIndex === "number" && q.imageIndex >= 0 && q.imageIndex < documentImages.length) {
         imageUrl = documentImages[q.imageIndex];
-      }
-      
-      // Map illustrationId to cropped illustration imageDataUrl if present
-      if (typeof q.illustrationId === "string" && croppedIllustrations.length > 0) {
-        console.log("[OpenAI] Question has illustrationId:", q.illustrationId);
-        const matchedIllustration = croppedIllustrations.find(ill => ill.id === q.illustrationId);
-        if (matchedIllustration) {
-          console.log("[OpenAI] Matched illustration found, setting imageUrl");
-          imageUrl = matchedIllustration.imageDataUrl;
-        } else {
-          console.log("[OpenAI] No matching illustration found for ID:", q.illustrationId);
-        }
       }
 
       const question: Question = {

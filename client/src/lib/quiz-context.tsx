@@ -5,20 +5,12 @@ import type { Quiz, QuizResult, Question, QuizProgress } from "@shared/schema";
 
 export type SourceMaterialType = "pdf" | "image" | "document" | null;
 
-interface CroppedIllustration {
-  id: string;
-  description: string;
-  type: string;
-  imageDataUrl: string;
-}
-
 interface SourceMaterial {
   type: SourceMaterialType;
   text: string | null;
   imageDataUrl: string | null;
   isOfficeWithImages?: boolean;
   documentImages?: string[];
-  croppedIllustrations?: CroppedIllustration[];
 }
 
 export interface SavedQuizProgress {

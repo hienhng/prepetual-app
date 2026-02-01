@@ -2,8 +2,6 @@ import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { parseOffice } from "officeparser";
 import JSZip from "jszip";
-import { analyzeImageContent } from "./openai";
-import { cropIllustrations, type CroppedIllustration } from "./image-utils";
 
 export interface UploadJob {
   id: string;
@@ -16,10 +14,6 @@ export interface UploadJob {
   createdAt: Date;
   isOfficeWithImages?: boolean;
   documentImages?: string[];
-  hasIllustrations?: boolean;
-  imageDescription?: string;
-  croppedIllustrations?: CroppedIllustration[];
-  imageDataUrl?: string;
 }
 
 const jobs = new Map<string, UploadJob>();
@@ -216,84 +210,14 @@ export async function processJob(id: string) {
     let extractedText = "";
     let documentImages: string[] = [];
     let isOfficeWithImages = false;
-    let originalImageDataUrl: string | undefined;
     const fileType = job.fileType;
     
     if (fileType === "application/pdf") {
       updateJob(id, { progress: 20, message: "Extracting text from PDF..." });
       extractedText = await extractTextFromPDF(buffer);
     } else if (fileType.startsWith("image/")) {
-      updateJob(id, { progress: 15, message: "Running OCR on image..." });
+      updateJob(id, { progress: 20, message: "Running OCR on image..." });
       extractedText = await extractTextFromImage(buffer);
-      
-      // Convert buffer to base64 for vision analysis
-      updateJob(id, { progress: 35, message: "Analyzing image for illustrations..." });
-      const base64 = buffer.toString("base64");
-      const mimeType = fileType;
-      const imageDataUrl = `data:${mimeType};base64,${base64}`;
-      originalImageDataUrl = imageDataUrl;
-      
-      let croppedIllustrations: CroppedIllustration[] = [];
-      
-      try {
-        const analysis = await analyzeImageContent(imageDataUrl);
-        
-        // Log the raw analysis for debugging
-        console.log("Image analysis result:", JSON.stringify({
-          hasIllustrations: analysis.hasIllustrations,
-          description: analysis.description,
-          illustrationCount: analysis.illustrations.length,
-          illustrations: analysis.illustrations.map(ill => ({
-            id: ill.id,
-            type: ill.type,
-            description: ill.description.substring(0, 80),
-            boundingBox: ill.boundingBox
-          }))
-        }, null, 2));
-        
-        if (analysis.hasIllustrations && analysis.illustrations.length > 0) {
-          updateJob(id, { progress: 55, message: `Cropping ${analysis.illustrations.length} illustration(s)...` });
-          
-          // Crop the illustrations from the image
-          croppedIllustrations = await cropIllustrations(buffer, mimeType, analysis.illustrations);
-          
-          console.log(`Cropped ${croppedIllustrations.length} illustrations from image`);
-          
-          // Build text with illustration descriptions
-          let combinedText = extractedText;
-          
-          if (analysis.description) {
-            combinedText = `[IMAGE OVERVIEW: ${analysis.description}]\n\n${extractedText}`;
-          }
-          
-          // Add detailed descriptions for each illustration
-          if (croppedIllustrations.length > 0) {
-            combinedText += "\n\n[ILLUSTRATIONS FOUND:";
-            croppedIllustrations.forEach((ill, idx) => {
-              combinedText += `\n- Illustration ${idx + 1}: ${ill.description}`;
-            });
-            combinedText += "]";
-          }
-          
-          extractedText = combinedText;
-          // Keep the original full image in documentImages (not the cropped illustrations)
-          // The cropped illustrations are stored separately in croppedIllustrations
-          if (originalImageDataUrl) {
-            documentImages = [originalImageDataUrl];
-          }
-          isOfficeWithImages = true;
-        } else if (analysis.description) {
-          // No illustrations but has description
-          extractedText = `[IMAGE DESCRIPTION: ${analysis.description}]\n\n${extractedText}`;
-        }
-      } catch (err) {
-        console.warn("Vision analysis failed, using OCR only:", err);
-      }
-      
-      // Store cropped illustrations in job for later use
-      if (croppedIllustrations.length > 0) {
-        updateJob(id, { croppedIllustrations });
-      }
     } else if (isOfficeDocument(fileType)) {
       updateJob(id, { progress: 15, message: "Extracting text from document..." });
       extractedText = await extractTextFromOfficeDocument(buffer);
@@ -313,15 +237,12 @@ export async function processJob(id: string) {
       updateJob(id, {
         status: "completed",
         progress: 100,
-        message: documentImages.length > 0 ? "Content with visuals ready!" : "Document ready for visual analysis!",
+        message: "Document ready for visual analysis!",
         text: extractedText,
         isOfficeWithImages: true,
         documentImages: documentImages,
-        imageDataUrl: originalImageDataUrl,
       });
     } else {
-      // For pure text extraction, require minimum text length
-      // But if we have visual content, we can proceed with less text
       if (!extractedText || extractedText.length < 50) {
         throw new Error("Not enough text could be extracted from this document. Please try a different file with more readable content.");
       }

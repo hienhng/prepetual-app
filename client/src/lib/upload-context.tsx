@@ -1,12 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 
-interface CroppedIllustration {
-  id: string;
-  description: string;
-  type: string;
-  imageDataUrl: string;
-}
-
 interface UploadJob {
   jobId: string;
   fileName: string;
@@ -19,7 +12,6 @@ interface UploadJob {
   imageDataUrl?: string;
   isOfficeWithImages?: boolean;
   documentImages?: string[];
-  croppedIllustrations?: CroppedIllustration[];
 }
 
 interface UploadContextType {
@@ -30,7 +22,6 @@ interface UploadContextType {
   pollJobStatus: () => Promise<void>;
   getCombinedText: () => string;
   getCombinedDocumentImages: () => string[];
-  getCroppedIllustrations: () => CroppedIllustration[];
   hasOfficeWithImages: () => boolean;
   isAllCompleted: () => boolean;
   isAnyProcessing: () => boolean;
@@ -57,22 +48,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   const saveJobs = useCallback((jobs: UploadJob[]) => {
     setActiveJobs(jobs);
     if (jobs.length > 0) {
-      try {
-        // Strip large image data to avoid quota issues - only store metadata
-        const jobsToStore = jobs.map(job => ({
-          ...job,
-          imageDataUrl: undefined,
-          documentImages: undefined,
-          croppedIllustrations: job.croppedIllustrations?.map(crop => ({
-            ...crop,
-            imageDataUrl: "" // Keep metadata but not the image data
-          }))
-        }));
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(jobsToStore));
-      } catch (e) {
-        // Storage quota exceeded - just skip persistence
-        console.warn("Could not persist upload jobs to storage:", e);
-      }
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
     } else {
       sessionStorage.removeItem(STORAGE_KEY);
     }
@@ -122,8 +98,6 @@ export function UploadProvider({ children }: { children: ReactNode }) {
               error: data.error,
               isOfficeWithImages: data.isOfficeWithImages || false,
               documentImages: data.documentImages || [],
-              croppedIllustrations: data.croppedIllustrations || [],
-              imageDataUrl: data.imageDataUrl,
             };
           } catch {
             return job;
@@ -212,12 +186,6 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       .flatMap(job => job.documentImages || []);
   }, [activeJobs]);
 
-  const getCroppedIllustrations = useCallback(() => {
-    return activeJobs
-      .filter(job => job.status === "completed" && job.croppedIllustrations)
-      .flatMap(job => job.croppedIllustrations || []);
-  }, [activeJobs]);
-
   const hasOfficeWithImages = useCallback(() => {
     return activeJobs.some(job => job.status === "completed" && job.isOfficeWithImages);
   }, [activeJobs]);
@@ -243,7 +211,6 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       pollJobStatus, 
       getCombinedText,
       getCombinedDocumentImages,
-      getCroppedIllustrations,
       hasOfficeWithImages,
       isAllCompleted,
       isAnyProcessing,

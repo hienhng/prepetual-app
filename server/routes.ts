@@ -460,8 +460,6 @@ export async function registerRoutes(
         error: job.error,
         isOfficeWithImages: job.isOfficeWithImages || false,
         documentImages: job.documentImages || [],
-        croppedIllustrations: job.croppedIllustrations || [],
-        imageDataUrl: job.imageDataUrl,
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to get job status" });
@@ -509,13 +507,8 @@ export async function registerRoutes(
       }
 
       const { text, questionCount, questionTypes, difficulty, documentImages } = validation.data;
-      const { sourceImageUrl, croppedIllustrations } = req.body;
+      const { sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
-
-      console.log("[Quiz Gen] croppedIllustrations received:", croppedIllustrations?.length || 0, "illustrations");
-      if (croppedIllustrations?.length > 0) {
-        console.log("[Quiz Gen] Illustration IDs:", croppedIllustrations.map((c: any) => c.id));
-      }
 
       const { questions, title, category } = await generateQuizQuestions({
         text,
@@ -523,11 +516,8 @@ export async function registerRoutes(
         questionTypes,
         difficulty: difficulty as DifficultyLevel,
         documentImages: documentImages || undefined,
-        croppedIllustrations: Array.isArray(croppedIllustrations) ? croppedIllustrations : undefined,
         onProgress: sendProgress,
       });
-
-      console.log("[Quiz Gen] Questions with imageUrl:", questions.filter((q: any) => q.imageUrl).length);
 
       sendProgress("saving", 98, "Saving your quiz...");
 
@@ -564,7 +554,7 @@ export async function registerRoutes(
       }
 
       const { text, questionCount, questionTypes, difficulty, documentImages } = validation.data;
-      const { sourceImageUrl, croppedIllustrations } = req.body;
+      const { sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
 
       const { questions, title, category } = await generateQuizQuestions({
@@ -573,7 +563,6 @@ export async function registerRoutes(
         questionTypes,
         difficulty: difficulty as DifficultyLevel,
         documentImages: documentImages || undefined,
-        croppedIllustrations: Array.isArray(croppedIllustrations) ? croppedIllustrations : undefined,
       });
 
       const quiz = await storage.saveQuiz({
