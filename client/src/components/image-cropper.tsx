@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import ReactCrop, { type Crop, type PixelCrop, centerCrop, makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,16 @@ export function ImageCropper({ imageDataUrl, onCropsComplete, onCancel, isOpen }
   const [croppedRegions, setCroppedRegions] = useState<CroppedRegion[]>([]);
   const [currentDescription, setCurrentDescription] = useState("");
   const imgRef = useRef<HTMLImageElement>(null);
+  
+  // Reset state when image changes or dialog opens
+  useEffect(() => {
+    if (isOpen && imageDataUrl) {
+      setCrop(undefined);
+      setCompletedCrop(undefined);
+      setCroppedRegions([]);
+      setCurrentDescription("");
+    }
+  }, [imageDataUrl, isOpen]);
 
   const onImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     const { width, height } = e.currentTarget;

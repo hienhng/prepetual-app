@@ -489,16 +489,21 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                       const remainingJobs = activeJobs.filter(j => j.jobId !== job.jobId && j.status === "completed" && j.text);
                       const remainingText = remainingJobs.map(j => j.text).join("\n\n---\n\n");
                       const remainingImages = remainingJobs.flatMap(j => j.documentImages || []);
-                      const remainingIllustrations = remainingJobs.flatMap(j => j.croppedIllustrations || []);
+                      const aiIllustrations = remainingJobs.flatMap(j => j.croppedIllustrations || []);
                       const hasRemainingImages = remainingJobs.some(j => j.isOfficeWithImages);
+                      
+                      // Include manual crops (they're not tied to jobs, so keep all of them)
+                      const allManualCrops = getAllManualCrops();
+                      const allIllustrations = [...aiIllustrations, ...allManualCrops];
                       
                       removeJob(job.jobId);
                       
                       if (remainingJobs.length === 0) {
                         onTextExtracted("");
                         setSourceMaterial({ type: null, text: null, imageDataUrl: null });
+                        setManualCrops([]);
                       } else {
-                        onTextExtracted(remainingText, hasRemainingImages, remainingImages, remainingIllustrations);
+                        onTextExtracted(remainingText, hasRemainingImages, remainingImages, allIllustrations);
                       }
                     }}
                     data-testid={`button-remove-file-${job.jobId}`}
