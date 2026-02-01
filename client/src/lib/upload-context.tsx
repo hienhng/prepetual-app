@@ -57,7 +57,22 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   const saveJobs = useCallback((jobs: UploadJob[]) => {
     setActiveJobs(jobs);
     if (jobs.length > 0) {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
+      try {
+        // Strip large image data to avoid quota issues - only store metadata
+        const jobsToStore = jobs.map(job => ({
+          ...job,
+          imageDataUrl: undefined,
+          documentImages: undefined,
+          croppedIllustrations: job.croppedIllustrations?.map(crop => ({
+            ...crop,
+            imageDataUrl: "" // Keep metadata but not the image data
+          }))
+        }));
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(jobsToStore));
+      } catch (e) {
+        // Storage quota exceeded - just skip persistence
+        console.warn("Could not persist upload jobs to storage:", e);
+      }
     } else {
       sessionStorage.removeItem(STORAGE_KEY);
     }
