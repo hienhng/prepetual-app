@@ -184,7 +184,14 @@ export function QuizGenerator() {
         setCurrentQuiz(quiz);
         clearJob();
         setExtractedText("");
-        setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
+        // Preserve documentImages for viewing in quiz player
+        setSourceMaterial({ 
+          type: sourceMaterial.type, 
+          text: null, 
+          imageDataUrl: sourceMaterial.imageDataUrl, 
+          isOfficeWithImages: sourceMaterial.isOfficeWithImages, 
+          documentImages: documentImages 
+        });
         queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
         setLocation("/history");
       } catch (err) {
@@ -267,7 +274,14 @@ export function QuizGenerator() {
                 setCurrentQuiz(data.quiz);
                 clearJob();
                 setExtractedText("");
-                setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
+                // Preserve documentImages for viewing in quiz player
+                setSourceMaterial({ 
+                  type: sourceMaterial.type, 
+                  text: null, 
+                  imageDataUrl: sourceMaterial.imageDataUrl, 
+                  isOfficeWithImages: sourceMaterial.isOfficeWithImages, 
+                  documentImages: documentImages 
+                });
                 queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
                 setLocation("/history");
               } else if (data.type === "error") {
