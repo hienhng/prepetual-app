@@ -125,6 +125,19 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   const startUpload = useCallback(async (files: File[]) => {
     const formData = new FormData();
     
+    // Read image files as data URLs for preview
+    const imageDataUrls: Map<string, string> = new Map();
+    await Promise.all(files.map(async (file) => {
+      if (file.type.startsWith("image/")) {
+        const dataUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+        imageDataUrls.set(file.name, dataUrl);
+      }
+    }));
+    
     for (const file of files) {
       formData.append("files", file);
     }
@@ -145,14 +158,20 @@ export function UploadProvider({ children }: { children: ReactNode }) {
 
     const data = await response.json();
 
-    const newJobs: UploadJob[] = data.jobs.map((jobData: any, index: number) => ({
-      jobId: jobData.jobId,
-      fileName: jobData.fileName || files[index].name,
-      fileType: files[index].type,
-      status: jobData.status,
-      progress: 5,
-      message: jobData.message,
-    }));
+    const newJobs: UploadJob[] = data.jobs.map((jobData: any, index: number) => {
+      const file = files[index];
+      const isImage = file.type.startsWith("image/");
+      return {
+        jobId: jobData.jobId,
+        fileName: jobData.fileName || file.name,
+        fileType: file.type,
+        status: jobData.status,
+        progress: 5,
+        message: jobData.message,
+        // Store image data URL for preview
+        imageDataUrl: isImage ? imageDataUrls.get(file.name) : undefined,
+      };
+    });
 
     saveJobs([...activeJobs, ...newJobs]);
   }, [activeJobs, saveJobs]);
@@ -181,13 +200,29 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   }, [activeJobs]);
 
   const getCombinedDocumentImages = useCallback(() => {
-    return activeJobs
-      .filter(job => job.status === "completed" && job.documentImages)
-      .flatMap(job => job.documentImages || []);
+    const images: string[] = [];
+    
+    for (const job of activeJobs) {
+      if (job.status !== "completed") continue;
+      
+      // Add document images from office files
+      if (job.documentImages && job.documentImages.length > 0) {
+        images.push(...job.documentImages);
+      }
+      // Add image data URL from uploaded images
+      else if (job.imageDataUrl) {
+        images.push(job.imageDataUrl);
+      }
+    }
+    
+    return images;
   }, [activeJobs]);
 
   const hasOfficeWithImages = useCallback(() => {
-    return activeJobs.some(job => job.status === "completed" && job.isOfficeWithImages);
+    // Check for office docs with images OR uploaded images
+    return activeJobs.some(job => 
+      job.status === "completed" && (job.isOfficeWithImages || job.imageDataUrl)
+    );
   }, [activeJobs]);
 
   const isAllCompleted = useCallback(() => {
