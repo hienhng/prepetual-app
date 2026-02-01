@@ -291,10 +291,15 @@ export function QuizGenerator() {
 
   const truncatedText = extractedText?.substring(0, 300) || "";
   const hasMoreText = (extractedText?.length || 0) > 300;
+  
+  // Check if we have images to display (from document images or single image upload)
+  const singleImageUrl = sourceMaterial?.imageDataUrl;
+  const hasVisualContent = documentImages.length > 0 || singleImageUrl;
+  const [showTextInstead, setShowTextInstead] = useState(false);
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
-      {isOfficeWithImages ? (
+      {hasVisualContent && !showTextInstead ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -307,33 +312,49 @@ export function QuizGenerator() {
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg text-foreground mb-0.5">Visual Document</h3>
+                  <h3 className="font-semibold text-lg text-foreground mb-0.5">Your Study Material</h3>
                   <p className="text-sm text-muted-foreground">
-                    {documentImages.length} image{documentImages.length !== 1 ? 's' : ''} detected for AI analysis
+                    {singleImageUrl ? "1 image" : `${documentImages.length} image${documentImages.length !== 1 ? 's' : ''}`} ready for AI analysis
                   </p>
                 </div>
               </div>
-              <div className="bg-white/60 dark:bg-background/60 rounded-lg p-4 border">
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {documentImages.slice(0, 4).map((img, index) => (
-                    <div key={index} className="w-14 h-14 rounded-lg overflow-hidden border-2 border-white shadow-sm">
-                      <img 
-                        src={img} 
-                        alt={`Document image ${index + 1}`} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
-                  {documentImages.length > 4 && (
-                    <div className="w-14 h-14 rounded-lg border-2 border-dashed border-muted flex items-center justify-center bg-muted/50">
-                      <span className="text-xs text-muted-foreground font-medium">+{documentImages.length - 4}</span>
-                    </div>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  AI will analyze text and visual content to generate comprehensive questions
-                </p>
+              
+              {/* Image Gallery */}
+              <div className="bg-white/60 dark:bg-background/60 rounded-lg p-3 border max-h-[400px] overflow-y-auto">
+                {singleImageUrl ? (
+                  <img 
+                    src={singleImageUrl} 
+                    alt="Uploaded document"
+                    className="w-full rounded-lg border shadow-sm"
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    {documentImages.map((img, index) => (
+                      <div key={index} className="rounded-lg overflow-hidden border shadow-sm">
+                        <img 
+                          src={img} 
+                          alt={`Document page ${index + 1}`} 
+                          className="w-full"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
+              
+              {/* Toggle to show text */}
+              {extractedText && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-3 gap-1"
+                  onClick={() => setShowTextInstead(true)}
+                  data-testid="button-show-text"
+                >
+                  <FileText className="h-4 w-4" />
+                  View extracted text
+                </Button>
+              )}
             </CardContent>
           </Card>
         </motion.div>
@@ -383,6 +404,20 @@ export function QuizGenerator() {
                   </Button>
                 )}
               </div>
+              
+              {/* Toggle back to images */}
+              {hasVisualContent && showTextInstead && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-3 gap-1"
+                  onClick={() => setShowTextInstead(false)}
+                  data-testid="button-show-images"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  View images
+                </Button>
+              )}
             </CardContent>
           </Card>
         </motion.div>
