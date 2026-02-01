@@ -1,7 +1,7 @@
 import { useUpload } from "@/lib/upload-context";
 import { useQuiz } from "@/lib/quiz-context";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { Upload, CheckCircle, XCircle, Loader2, Files } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
@@ -18,54 +18,70 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export function GlobalUploadIndicator() {
-  const { activeJob, clearJob } = useUpload();
+  const { activeJobs, clearJobs, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages } = useUpload();
   const { setExtractedText, setSourceMaterial } = useQuiz();
   const [location, setLocation] = useLocation();
 
-  useEffect(() => {
-    if (activeJob?.status === "completed" && activeJob.text) {
-      const isImage = activeJob.fileType.startsWith("image/");
-      const isPdf = activeJob.fileType === "application/pdf";
-      const isOfficeDoc = activeJob.fileType.includes("wordprocessingml") || 
-                          activeJob.fileType.includes("presentationml") || 
-                          activeJob.fileType.includes("spreadsheetml") ||
-                          activeJob.fileType === "application/msword" ||
-                          activeJob.fileType === "application/vnd.ms-powerpoint" ||
-                          activeJob.fileType === "application/vnd.ms-excel";
+  const completedJobs = activeJobs.filter(job => job.status === "completed");
+  const processingJobs = activeJobs.filter(job => job.status === "pending" || job.status === "processing");
+  const errorJobs = activeJobs.filter(job => job.status === "error");
 
-      // Only update if text is different to prevent loops
+  const overallProgress = activeJobs.length > 0 
+    ? Math.round(activeJobs.reduce((sum, job) => sum + job.progress, 0) / activeJobs.length)
+    : 0;
+
+  useEffect(() => {
+    if (isAllCompleted() && completedJobs.length > 0) {
+      const combinedText = getCombinedText();
+      const combinedImages = getCombinedDocumentImages();
+      const hasImages = hasOfficeWithImages();
+
       setSourceMaterial({
-        type: isImage ? "image" : isPdf ? "pdf" : isOfficeDoc ? "document" : null,
-        text: activeJob.text,
-        imageDataUrl: activeJob.imageDataUrl || null,
+        type: hasImages ? "document" : "document",
+        text: combinedText,
+        imageDataUrl: null,
+        isOfficeWithImages: hasImages,
+        documentImages: combinedImages,
       });
-      setExtractedText(activeJob.text);
+      setExtractedText(combinedText);
     }
-  }, [activeJob?.status, activeJob?.text]);
+  }, [isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, setSourceMaterial, setExtractedText]);
 
   // Auto-dismiss when landing on generate page
   useEffect(() => {
-    if (location === "/generate" && activeJob) {
-      clearJob();
+    if (location === "/generate" && activeJobs.length > 0) {
+      clearJobs();
     }
-  }, [location, activeJob, clearJob]);
+  }, [location, activeJobs.length, clearJobs]);
 
-  if (!activeJob) return null;
-  if (location === "/" && (activeJob.status === "pending" || activeJob.status === "processing")) {
+  if (activeJobs.length === 0) return null;
+  if (location === "/" && isAnyProcessing()) {
     return null;
   }
 
-  const isProcessing = activeJob.status === "pending" || activeJob.status === "processing";
-  const isCompleted = activeJob.status === "completed";
-  const isError = activeJob.status === "error";
+  const isProcessing = isAnyProcessing();
+  const isCompleted = isAllCompleted() && completedJobs.length > 0;
+  const hasErrors = errorJobs.length > 0;
 
   const handleGoToQuiz = () => {
     setLocation("/generate");
   };
 
   const handleDismiss = () => {
-    clearJob();
+    clearJobs();
   };
+
+  const displayName = activeJobs.length === 1 
+    ? activeJobs[0].fileName 
+    : `${activeJobs.length} files`;
+
+  const displayMessage = isProcessing 
+    ? `Processing ${processingJobs.length} of ${activeJobs.length} files...`
+    : hasErrors && completedJobs.length > 0
+    ? `${completedJobs.length} completed, ${errorJobs.length} failed`
+    : hasErrors
+    ? `${errorJobs.length} file(s) failed`
+    : `${completedJobs.length} files ready`;
 
   return (
     <AnimatePresence>
@@ -79,19 +95,20 @@ export function GlobalUploadIndicator() {
           <div className="flex items-start gap-3">
             <div className={`
               w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
-              ${isProcessing ? "bg-primary/10" : isCompleted ? "bg-green-100 dark:bg-green-900/30" : "bg-destructive/10"}
+              ${isProcessing ? "bg-primary/10" : isCompleted && !hasErrors ? "bg-green-100 dark:bg-green-900/30" : "bg-destructive/10"}
             `}>
               {isProcessing && <Loader2 className="h-5 w-5 text-primary animate-spin" />}
-              {isCompleted && <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />}
-              {isError && <XCircle className="h-5 w-5 text-destructive" />}
+              {isCompleted && !hasErrors && <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />}
+              {hasErrors && <XCircle className="h-5 w-5 text-destructive" />}
             </div>
             
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm text-foreground truncate">
-                {activeJob.fileName}
+              <p className="font-medium text-sm text-foreground truncate flex items-center gap-1.5">
+                {activeJobs.length > 1 && <Files className="h-3.5 w-3.5" />}
+                {displayName}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {activeJob.message}
+                {displayMessage}
               </p>
               
               {isProcessing && (
@@ -100,12 +117,12 @@ export function GlobalUploadIndicator() {
                     <motion.div
                       className="h-full bg-primary rounded-full"
                       initial={{ width: 0 }}
-                      animate={{ width: `${activeJob.progress}%` }}
+                      animate={{ width: `${overallProgress}%` }}
                       transition={{ duration: 0.3 }}
                     />
                   </div>
                   <div className="flex items-center justify-between mt-1">
-                    <p className="text-xs text-muted-foreground">{activeJob.progress}%</p>
+                    <p className="text-xs text-muted-foreground">{overallProgress}%</p>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" data-testid="button-cancel-upload">
@@ -131,7 +148,7 @@ export function GlobalUploadIndicator() {
                 </div>
               )}
               
-              {isCompleted && (
+              {isCompleted && !hasErrors && (
                 <div className="flex gap-2 mt-2">
                   <Button size="sm" onClick={handleGoToQuiz}>
                     Continue
@@ -142,7 +159,18 @@ export function GlobalUploadIndicator() {
                 </div>
               )}
               
-              {isError && (
+              {hasErrors && completedJobs.length > 0 && (
+                <div className="flex gap-2 mt-2">
+                  <Button size="sm" onClick={handleGoToQuiz}>
+                    Continue with {completedJobs.length}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={handleDismiss} data-testid="button-dismiss-upload">
+                    Dismiss
+                  </Button>
+                </div>
+              )}
+              
+              {hasErrors && completedJobs.length === 0 && (
                 <div className="flex gap-2 mt-2">
                   <Button size="sm" variant="ghost" onClick={handleDismiss} data-testid="button-dismiss-error">
                     Dismiss

@@ -62,7 +62,7 @@ type ActiveModal = "upload" | "manual" | "youtube" | null;
 export default function Create() {
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial, isLoading } = useQuiz();
-  const { activeJob, clearJob } = useUpload();
+  const { activeJobs, clearJobs } = useUpload();
   const [isReady, setIsReady] = useState(false);
   const redirectedRef = useRef(false);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
@@ -182,7 +182,7 @@ export default function Create() {
   const handleClearText = () => {
     setExtractedText("");  
     setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
-    clearJob();
+    clearJobs();
     setIsReady(false);
     setManualText("");
     setYoutubeUrl("");

@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, Image, X, Loader2, File } from "lucide-react";
+import { Upload, FileText, Image, X, Loader2, File, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,56 +24,58 @@ interface FileUploadProps {
 }
 
 export function FileUpload({ onTextExtracted }: FileUploadProps) {
-  const { activeJob, startUpload, clearJob } = useUpload();
-  const [uploadedFile, setUploadedFile] = useState<File | null>(() => {
-    if (activeJob && activeJob.status === "completed") {
-      return {
-        name: activeJob.fileName,
-        type: activeJob.fileType,
-        size: 0,
-        lastModified: Date.now(),
-        webkitRelativePath: "",
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
-        slice: () => new Blob(),
-        stream: () => new ReadableStream(),
-        text: () => Promise.resolve(""),
-      } as File;
-    }
-    return null;
-  });
-  const [error, setError] = useState<string | null>(activeJob?.status === "error" ? (activeJob.error || "An error occurred") : null);
+  const { activeJobs, startUpload, clearJobs, removeJob, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages } = useUpload();
+  const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { setSourceMaterial } = useQuiz();
 
-  const isLoading = isUploading || activeJob?.status === "pending" || activeJob?.status === "processing";
-  const loadingMessage = activeJob?.message || (isUploading ? "Uploading file..." : "");
-  const processingProgress = activeJob?.progress || (isUploading ? 5 : 0);
+  const isLoading = isUploading || isAnyProcessing();
+  
+  const completedJobs = activeJobs.filter(job => job.status === "completed");
+  const processingJobs = activeJobs.filter(job => job.status === "pending" || job.status === "processing");
+  const errorJobs = activeJobs.filter(job => job.status === "error");
+  
+  const overallProgress = activeJobs.length > 0 
+    ? Math.round(activeJobs.reduce((sum, job) => sum + job.progress, 0) / activeJobs.length)
+    : 0;
+
+  const loadingMessage = processingJobs.length > 0 
+    ? processingJobs[0].message || "Processing files..."
+    : isUploading ? "Uploading files..." : "";
 
   useEffect(() => {
-    if (activeJob?.status === "completed") {
-      if (activeJob.isOfficeWithImages && activeJob.documentImages && activeJob.documentImages.length > 0) {
-        onTextExtracted(activeJob.text || "", true, activeJob.documentImages);
-      } else if (activeJob.text) {
-        onTextExtracted(activeJob.text, false, []);
+    if (isAllCompleted() && completedJobs.length > 0) {
+      const combinedText = getCombinedText();
+      const combinedImages = getCombinedDocumentImages();
+      const hasImages = hasOfficeWithImages();
+      
+      if (hasImages && combinedImages.length > 0) {
+        onTextExtracted(combinedText, true, combinedImages);
+      } else if (combinedText) {
+        onTextExtracted(combinedText, false, []);
       }
-    } else if (!activeJob) {
-      setUploadedFile(null);
+    }
+    
+    if (activeJobs.length === 0) {
       setError(null);
     }
-    if (activeJob?.status === "error") {
-      setError(activeJob.error || "An error occurred while processing the file");
+    
+    const firstError = errorJobs[0];
+    if (firstError) {
+      setError(firstError.error || "An error occurred while processing files");
+    } else {
+      setError(null);
     }
-  }, [activeJob?.status, activeJob?.text, activeJob?.error, activeJob?.isOfficeWithImages, activeJob?.documentImages, onTextExtracted, activeJob]);
+  }, [activeJobs, isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, onTextExtracted, errorJobs]);
 
-  const processFile = useCallback(async (file: File) => {
+  const processFiles = useCallback(async (files: File[]) => {
     setError(null);
     setIsUploading(true);
 
     try {
-      await startUpload(file);
+      await startUpload(files);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred while uploading the file");
-      setUploadedFile(null);
+      setError(err instanceof Error ? err.message : "An error occurred while uploading files");
     } finally {
       setIsUploading(false);
     }
@@ -81,11 +83,9 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      const file = acceptedFiles[0];
-      setUploadedFile(file);
-      processFile(file);
+      processFiles(acceptedFiles);
     }
-  }, [processFile]);
+  }, [processFiles]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -100,28 +100,47 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
       "application/vnd.ms-powerpoint": [".ppt"],
       "application/vnd.ms-excel": [".xls"],
     },
-    maxFiles: 1,
+    maxFiles: 10,
     disabled: isLoading,
   });
 
-  const removeFile = () => {
-    setUploadedFile(null);
-    setError(null);
-    clearJob();
+  const removeAllFiles = () => {
+    clearJobs();
     setSourceMaterial({ type: null, text: null, imageDataUrl: null });
     onTextExtracted("");
+  };
+
+  const getFileIcon = (fileType: string) => {
+    if (fileType.includes("pdf")) {
+      return <FileText className="h-4 w-4 text-red-500" />;
+    } else if (fileType.includes("image")) {
+      return <Image className="h-4 w-4 text-blue-500" />;
+    } else {
+      return <File className="h-4 w-4 text-primary" />;
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "completed":
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case "error":
+        return <X className="h-4 w-4 text-red-500" />;
+      default:
+        return <Loader2 className="h-4 w-4 animate-spin text-primary" />;
+    }
   };
 
   return (
     <div className="w-full max-w-2xl mx-auto">
       <AnimatePresence mode="wait">
-        {isLoading ? (
+        {isLoading && processingJobs.length > 0 ? (
           <motion.div
             key="loading"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="flex flex-col items-center justify-center py-16"
+            className="flex flex-col items-center justify-center py-12"
           >
             <div className="relative mb-6">
               <div className="w-20 h-20 rounded-full border-4 border-muted animate-pulse" />
@@ -132,15 +151,18 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
               <Upload className="absolute inset-0 m-auto h-8 w-8 text-primary" />
             </div>
             <p className="text-lg font-medium text-foreground mb-2">{loadingMessage}</p>
+            <p className="text-sm text-muted-foreground mb-3">
+              Processing {processingJobs.length} of {activeJobs.length} files
+            </p>
             <div className="w-64 h-2 bg-muted rounded-full overflow-hidden">
               <motion.div
                 className="h-full bg-gradient-to-r from-primary to-quiz-purple rounded-full"
                 initial={{ width: 0 }}
-                animate={{ width: `${processingProgress}%` }}
+                animate={{ width: `${overallProgress}%` }}
                 transition={{ duration: 0.3 }}
               />
             </div>
-            <p className="text-sm text-muted-foreground mt-2">{processingProgress}% complete</p>
+            <p className="text-sm text-muted-foreground mt-2">{overallProgress}% complete</p>
           </motion.div>
         ) : (
           <motion.div
@@ -152,7 +174,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
             <Card
               {...getRootProps()}
               className={`
-                relative p-6 sm:p-12 border-2 border-dashed cursor-pointer transition-all duration-200
+                relative p-6 sm:p-10 border-2 border-dashed cursor-pointer transition-all duration-200
                 ${isDragActive 
                   ? "border-primary bg-primary/5 scale-[1.02]" 
                   : "border-muted hover:border-primary/50 hover:bg-muted/30"
@@ -163,24 +185,24 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
             >
               <input {...getInputProps()} data-testid="input-file" />
               
-              <div className="flex flex-col items-center text-center gap-3 sm:gap-4">
+              <div className="flex flex-col items-center text-center gap-3">
                 <div className={`
-                  w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center transition-colors
+                  w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-colors
                   ${isDragActive ? "bg-primary text-primary-foreground" : "bg-muted"}
                 `}>
-                  <Upload className="h-8 w-8 sm:h-10 sm:w-10" />
+                  <Upload className="h-7 w-7 sm:h-8 sm:w-8" />
                 </div>
                 
                 <div>
-                  <p className="text-lg sm:text-xl font-semibold text-foreground mb-1">
-                    {isDragActive ? "Drop your file here" : "Upload your study material"}
+                  <p className="text-base sm:text-lg font-semibold text-foreground mb-1">
+                    {isDragActive ? "Drop your files here" : "Upload study materials"}
                   </p>
-                  <p className="text-sm sm:text-base text-muted-foreground">
-                    Drag and drop or click to browse
+                  <p className="text-sm text-muted-foreground">
+                    Drag and drop or click to browse (up to 10 files)
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-2 mt-1 sm:mt-2">
+                <div className="flex flex-wrap items-center justify-center gap-2 mt-1">
                   <Badge variant="secondary" className="gap-1 text-xs">
                     <FileText className="h-3 w-3" />
                     PDF
@@ -201,61 +223,95 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
               </div>
             </Card>
 
-            {uploadedFile && !error && (
+            {activeJobs.length > 0 && !isLoading && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-4"
+                className="mt-4 space-y-2"
               >
-                <Card className="p-4 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center">
-                      {uploadedFile.type.includes("pdf") ? (
-                        <FileText className="h-5 w-5 text-primary" />
-                      ) : (
-                        <Image className="h-5 w-5 text-primary" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground truncate max-w-[200px]">
-                        {uploadedFile.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {(uploadedFile.size / 1024).toFixed(1)} KB
-                      </p>
-                    </div>
-                  </div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {completedJobs.length} of {activeJobs.length} files processed
+                  </span>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="ghost"
-                        size="icon"
-                        onClick={(e) => e.stopPropagation()}
-                        data-testid="button-remove-file"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        data-testid="button-remove-all-files"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-4 w-4 mr-1" />
+                        Clear all
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                    <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Remove file?</AlertDialogTitle>
+                        <AlertDialogTitle>Remove all files?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to remove this file?
+                          Are you sure you want to remove all uploaded files?
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={removeFile} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                          Remove
+                        <AlertDialogAction onClick={removeAllFiles} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          Remove all
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                </Card>
+                </div>
+
+                {activeJobs.map((job) => (
+                  <Card key={job.jobId} className="p-3 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0">
+                        {getFileIcon(job.fileType)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm text-foreground truncate">
+                          {job.fileName}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {job.status === "error" ? job.error : job.message}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {getStatusIcon(job.status)}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Calculate remaining text after removal
+                          const remainingJobs = activeJobs.filter(j => j.jobId !== job.jobId && j.status === "completed" && j.text);
+                          const remainingText = remainingJobs.map(j => j.text).join("\n\n---\n\n");
+                          const remainingImages = remainingJobs.flatMap(j => j.documentImages || []);
+                          const hasRemainingImages = remainingJobs.some(j => j.isOfficeWithImages);
+                          
+                          removeJob(job.jobId);
+                          
+                          // Update extracted text with remaining content
+                          if (remainingJobs.length === 0) {
+                            onTextExtracted("");
+                            setSourceMaterial({ type: null, text: null, imageDataUrl: null });
+                          } else {
+                            onTextExtracted(remainingText, hasRemainingImages, remainingImages);
+                          }
+                        }}
+                        data-testid={`button-remove-file-${job.jobId}`}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
               </motion.div>
             )}
 
-            {error && (
+            {error && activeJobs.length === 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

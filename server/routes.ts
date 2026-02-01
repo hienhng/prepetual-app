@@ -411,23 +411,31 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/upload-async", upload.single("file"), async (req, res) => {
+  app.post("/api/upload-async", upload.array("files", 10), async (req, res) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
+      const files = req.files as Express.Multer.File[];
+      
+      if (!files || files.length === 0) {
+        return res.status(400).json({ message: "No files uploaded" });
       }
 
-      const { buffer, mimetype } = req.file;
-      const jobId = crypto.randomUUID();
-      
-      const job = createJob(jobId, mimetype);
-      storeBuffer(jobId, buffer);
-      
-      setImmediate(() => {
-        processJob(jobId);
-      });
+      const jobs: { jobId: string; fileName: string; status: string; message: string }[] = [];
 
-      res.json({ jobId, status: job.status, message: job.message });
+      for (const file of files) {
+        const { buffer, mimetype, originalname } = file;
+        const jobId = crypto.randomUUID();
+        
+        const job = createJob(jobId, mimetype);
+        storeBuffer(jobId, buffer);
+        
+        setImmediate(() => {
+          processJob(jobId);
+        });
+        
+        jobs.push({ jobId, fileName: originalname, status: job.status, message: job.message });
+      }
+
+      res.json({ jobs });
     } catch (error) {
       console.error("Async upload error:", error);
       res.status(500).json({

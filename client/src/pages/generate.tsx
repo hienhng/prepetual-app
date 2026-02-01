@@ -10,49 +10,44 @@ import { useEffect, useRef } from "react";
 export default function Generate() {
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText, setSourceMaterial, isLoading } = useQuiz();
-  const { activeJob } = useUpload();
+  const { activeJobs, isAnyProcessing, isAllCompleted, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages } = useUpload();
   const redirectedRef = useRef(false);
 
-  const isProcessing = activeJob?.status === "pending" || activeJob?.status === "processing";
-  const hasCompletedJob = activeJob?.status === "completed" && activeJob?.text;
+  const isProcessing = isAnyProcessing();
+  const completedJobs = activeJobs.filter(job => job.status === "completed" && job.text);
+  const hasCompletedJobs = completedJobs.length > 0;
 
   // Capture completed job data into quiz context if not already set
   useEffect(() => {
-    if (hasCompletedJob && !extractedText) {
-      setExtractedText(activeJob.text || "");
-      if (activeJob.isOfficeWithImages && activeJob.documentImages && activeJob.documentImages.length > 0) {
-        setSourceMaterial({
-          type: "document",
-          text: activeJob.text || "",
-          imageDataUrl: null,
-          isOfficeWithImages: true,
-          documentImages: activeJob.documentImages,
-        });
-      } else {
-        setSourceMaterial({
-          type: "document",
-          text: activeJob.text || "",
-          imageDataUrl: null,
-          isOfficeWithImages: false,
-          documentImages: [],
-        });
-      }
+    if (isAllCompleted() && hasCompletedJobs && !extractedText) {
+      const combinedText = getCombinedText();
+      const combinedImages = getCombinedDocumentImages();
+      const hasImages = hasOfficeWithImages();
+      
+      setExtractedText(combinedText);
+      setSourceMaterial({
+        type: "document",
+        text: combinedText,
+        imageDataUrl: null,
+        isOfficeWithImages: hasImages,
+        documentImages: combinedImages,
+      });
     }
-  }, [hasCompletedJob, extractedText, activeJob, setExtractedText, setSourceMaterial]);
+  }, [isAllCompleted, hasCompletedJobs, extractedText, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, setExtractedText, setSourceMaterial]);
 
   useEffect(() => {
-    // Only redirect to create if no extracted text AND no active job (processing OR completed with text) AND not generating quiz
-    if (!extractedText && !isProcessing && !hasCompletedJob && !isLoading && !redirectedRef.current) {
+    // Only redirect to create if no extracted text AND no active jobs AND not generating quiz
+    if (!extractedText && !isProcessing && !hasCompletedJobs && !isLoading && !redirectedRef.current) {
       redirectedRef.current = true;
       setLocation("/create");
     }
-    // Reset ref when there is content or processing or completed job
-    if (extractedText || isProcessing || hasCompletedJob || isLoading) {
+    // Reset ref when there is content or processing or completed jobs
+    if (extractedText || isProcessing || hasCompletedJobs || isLoading) {
       redirectedRef.current = false;
     }
-  }, [extractedText, isProcessing, hasCompletedJob, isLoading, setLocation]);
+  }, [extractedText, isProcessing, hasCompletedJobs, isLoading, setLocation]);
 
-  if (!extractedText && !isProcessing && !hasCompletedJob && !isLoading) {
+  if (!extractedText && !isProcessing && !hasCompletedJobs && !isLoading) {
     return null;
   }
 

@@ -15,106 +15,119 @@ interface UploadJob {
 }
 
 interface UploadContextType {
-  activeJob: UploadJob | null;
-  startUpload: (file: File) => Promise<void>;
-  clearJob: () => void;
+  activeJobs: UploadJob[];
+  startUpload: (files: File[]) => Promise<void>;
+  clearJobs: () => void;
+  removeJob: (jobId: string) => void;
   pollJobStatus: () => Promise<void>;
+  getCombinedText: () => string;
+  getCombinedDocumentImages: () => string[];
+  hasOfficeWithImages: () => boolean;
+  isAllCompleted: () => boolean;
+  isAnyProcessing: () => boolean;
+  // Legacy single-file support
+  activeJob: UploadJob | null;
+  clearJob: () => void;
 }
 
 const UploadContext = createContext<UploadContextType | undefined>(undefined);
 
-const STORAGE_KEY = "upload_job";
+const STORAGE_KEY = "upload_jobs";
 
 export function UploadProvider({ children }: { children: ReactNode }) {
-  const [activeJob, setActiveJob] = useState<UploadJob | null>(() => {
+  const [activeJobs, setActiveJobs] = useState<UploadJob[]>(() => {
     try {
       const stored = sessionStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const job = JSON.parse(stored);
-        if (job.status === "completed" || job.status === "error") {
-          return job;
-        }
-        if (job.status === "pending" || job.status === "processing") {
-          return job;
-        }
+        return JSON.parse(stored);
       }
     } catch {}
-    return null;
+    return [];
   });
 
-  const saveJob = useCallback((job: UploadJob | null) => {
-    setActiveJob(job);
-    if (job) {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(job));
+  const saveJobs = useCallback((jobs: UploadJob[]) => {
+    setActiveJobs(jobs);
+    if (jobs.length > 0) {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
     } else {
       sessionStorage.removeItem(STORAGE_KEY);
     }
   }, []);
 
   const pollJobStatus = useCallback(async () => {
-    if (!activeJob || !activeJob.jobId) return;
-    if (activeJob.status === "completed" || activeJob.status === "error") return;
+    if (activeJobs.length === 0) return;
+    
+    const pendingJobs = activeJobs.filter(
+      job => job.status === "pending" || job.status === "processing"
+    );
+    
+    if (pendingJobs.length === 0) return;
 
     try {
-      const response = await fetch(`/api/upload-status/${activeJob.jobId}`);
-      
-      if (response.status === 404) {
-        const updatedJob = {
-          ...activeJob,
-          status: "error" as const,
-          progress: 0,
-          message: "Upload session expired",
-          error: "The upload session has expired. Please try uploading again.",
-        };
-        saveJob(updatedJob);
-        return;
-      }
-      
-      if (!response.ok) {
-        return;
-      }
+      const updatedJobs = await Promise.all(
+        activeJobs.map(async (job) => {
+          if (job.status === "completed" || job.status === "error") {
+            return job;
+          }
 
-      const data = await response.json();
+          try {
+            const response = await fetch(`/api/upload-status/${job.jobId}`);
+            
+            if (response.status === 404) {
+              return {
+                ...job,
+                status: "error" as const,
+                progress: 0,
+                message: "Upload session expired",
+                error: "The upload session has expired. Please try uploading again.",
+              };
+            }
+            
+            if (!response.ok) {
+              return job;
+            }
+
+            const data = await response.json();
+            
+            return {
+              ...job,
+              status: data.status,
+              progress: data.progress,
+              message: data.message,
+              text: data.text,
+              error: data.error,
+              isOfficeWithImages: data.isOfficeWithImages || false,
+              documentImages: data.documentImages || [],
+            };
+          } catch {
+            return job;
+          }
+        })
+      );
       
-      const updatedJob = {
-        ...activeJob,
-        status: data.status,
-        progress: data.progress,
-        message: data.message,
-        text: data.text,
-        error: data.error,
-        isOfficeWithImages: data.isOfficeWithImages || false,
-        documentImages: data.documentImages || [],
-      };
-      
-      saveJob(updatedJob);
+      saveJobs(updatedJobs);
     } catch (error) {
       console.error("Polling error:", error);
     }
-  }, [activeJob, saveJob]);
+  }, [activeJobs, saveJobs]);
 
   useEffect(() => {
-    if (!activeJob) return;
-    if (activeJob.status === "completed" || activeJob.status === "error") return;
+    const pendingJobs = activeJobs.filter(
+      job => job.status === "pending" || job.status === "processing"
+    );
+    
+    if (pendingJobs.length === 0) return;
 
     const interval = setInterval(pollJobStatus, 1000);
     return () => clearInterval(interval);
-  }, [activeJob, pollJobStatus]);
+  }, [activeJobs, pollJobStatus]);
 
-  const startUpload = useCallback(async (file: File) => {
-    let imageDataUrl: string | undefined;
-    
-    if (file.type.startsWith("image/")) {
-      imageDataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
+  const startUpload = useCallback(async (files: File[]) => {
     const formData = new FormData();
-    formData.append("file", file);
+    
+    for (const file of files) {
+      formData.append("files", file);
+    }
 
     const response = await fetch("/api/upload-async", {
       method: "POST",
@@ -122,7 +135,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
     });
 
     if (!response.ok) {
-      let errorMessage = "Failed to upload file";
+      let errorMessage = "Failed to upload files";
       try {
         const errorData = await response.json();
         errorMessage = errorData.message || errorMessage;
@@ -132,30 +145,78 @@ export function UploadProvider({ children }: { children: ReactNode }) {
 
     const data = await response.json();
 
-    const job: UploadJob = {
-      jobId: data.jobId,
-      fileName: file.name,
-      fileType: file.type,
-      status: data.status,
+    const newJobs: UploadJob[] = data.jobs.map((jobData: any, index: number) => ({
+      jobId: jobData.jobId,
+      fileName: jobData.fileName || files[index].name,
+      fileType: files[index].type,
+      status: jobData.status,
       progress: 5,
-      message: data.message,
-      imageDataUrl,
-    };
+      message: jobData.message,
+    }));
 
-    saveJob(job);
-  }, [saveJob]);
+    saveJobs([...activeJobs, ...newJobs]);
+  }, [activeJobs, saveJobs]);
 
-  const clearJob = useCallback(async () => {
-    if (activeJob?.jobId) {
+  const clearJobs = useCallback(async () => {
+    for (const job of activeJobs) {
       try {
-        await fetch(`/api/upload-job/${activeJob.jobId}`, { method: "DELETE" });
+        await fetch(`/api/upload-job/${job.jobId}`, { method: "DELETE" });
       } catch {}
     }
-    saveJob(null);
-  }, [activeJob?.jobId, saveJob]);
+    saveJobs([]);
+  }, [activeJobs, saveJobs]);
+
+  const removeJob = useCallback(async (jobId: string) => {
+    try {
+      await fetch(`/api/upload-job/${jobId}`, { method: "DELETE" });
+    } catch {}
+    saveJobs(activeJobs.filter(job => job.jobId !== jobId));
+  }, [activeJobs, saveJobs]);
+
+  const getCombinedText = useCallback(() => {
+    return activeJobs
+      .filter(job => job.status === "completed" && job.text)
+      .map(job => job.text)
+      .join("\n\n---\n\n");
+  }, [activeJobs]);
+
+  const getCombinedDocumentImages = useCallback(() => {
+    return activeJobs
+      .filter(job => job.status === "completed" && job.documentImages)
+      .flatMap(job => job.documentImages || []);
+  }, [activeJobs]);
+
+  const hasOfficeWithImages = useCallback(() => {
+    return activeJobs.some(job => job.status === "completed" && job.isOfficeWithImages);
+  }, [activeJobs]);
+
+  const isAllCompleted = useCallback(() => {
+    return activeJobs.length > 0 && activeJobs.every(job => job.status === "completed" || job.status === "error");
+  }, [activeJobs]);
+
+  const isAnyProcessing = useCallback(() => {
+    return activeJobs.some(job => job.status === "pending" || job.status === "processing");
+  }, [activeJobs]);
+
+  // Legacy single-file support (returns first job)
+  const activeJob = activeJobs.length > 0 ? activeJobs[0] : null;
+  const clearJob = clearJobs;
 
   return (
-    <UploadContext.Provider value={{ activeJob, startUpload, clearJob, pollJobStatus }}>
+    <UploadContext.Provider value={{ 
+      activeJobs, 
+      startUpload, 
+      clearJobs, 
+      removeJob,
+      pollJobStatus, 
+      getCombinedText,
+      getCombinedDocumentImages,
+      hasOfficeWithImages,
+      isAllCompleted,
+      isAnyProcessing,
+      activeJob,
+      clearJob,
+    }}>
       {children}
     </UploadContext.Provider>
   );
