@@ -98,6 +98,17 @@ CRITICAL RULES:
 - All options must be real, meaningful answers related to the question
 - The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
+ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
+- The correct answer must NOT be noticeably longer or more detailed than wrong answers
+- ALL four options MUST have similar word counts (within 2-3 words of each other)
+- If the correct answer naturally requires more detail, ADD similar detail to wrong answers to match
+- If the correct answer is short (1-3 words), keep ALL options short (1-3 words)
+- If the correct answer is medium (4-8 words), make ALL options medium length
+- If the correct answer is long (9+ words), make ALL options similarly long
+- NEVER make the correct answer stand out by being the only "complete" or "detailed" option
+- Wrong answers should be equally plausible and well-formed, not obviously wrong or shorter
+- Randomize which position (1st, 2nd, 3rd, or 4th) contains the correct answer - do NOT always put it first or last
+
 OUTPUT FORMAT (JSON):
 {
   "title": "A short descriptive title for the quiz",
@@ -106,13 +117,13 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Actual answer A", "Actual answer B", "Actual answer C", "Actual answer D"], // 4 real answers, NO placeholders, NO prefixes like "A) " or "1. ". IMPORTANT: Ensure options are of roughly similar length and grammatical structure to avoid making the correct answer obvious.
+      "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"], // 4 plausible answers with MATCHING LENGTHS. NO placeholders, NO prefixes.
       "correctAnswer": "The exact correct option text (without any prefix)",
       "explanation": "Brief explanation of why this is correct",
-      "wrongAnswerExplanations": { // Keys must be EXACT wrong option text from options array
-        "Actual answer A": "Why this specific option is incorrect",
-        "Actual answer C": "Why this specific option is incorrect",
-        "Actual answer D": "Why this specific option is incorrect"
+      "wrongAnswerExplanations": {
+        "Wrong option 1 text": "Why this specific option is incorrect",
+        "Wrong option 2 text": "Why this specific option is incorrect",
+        "Wrong option 3 text": "Why this specific option is incorrect"
       }
     }
   ]
@@ -163,6 +174,17 @@ CRITICAL RULES:
 - All options must be real, meaningful answers related to the question
 - The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
+ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
+- The correct answer must NOT be noticeably longer or more detailed than wrong answers
+- ALL four options MUST have similar word counts (within 2-3 words of each other)
+- If the correct answer naturally requires more detail, ADD similar detail to wrong answers to match
+- If the correct answer is short (1-3 words), keep ALL options short (1-3 words)
+- If the correct answer is medium (4-8 words), make ALL options medium length
+- If the correct answer is long (9+ words), make ALL options similarly long
+- NEVER make the correct answer stand out by being the only "complete" or "detailed" option
+- Wrong answers should be equally plausible and well-formed, not obviously wrong or shorter
+- Randomize which position (1st, 2nd, 3rd, or 4th) contains the correct answer - do NOT always put it first or last
+
 OUTPUT FORMAT (JSON):
 {
   "title": "A short descriptive title for the quiz",
@@ -171,13 +193,13 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Actual answer A", "Actual answer B", "Actual answer C", "Actual answer D"], // 4 real answers, NO placeholders, NO prefixes like "A) " or "1. ". IMPORTANT: Ensure options are of roughly similar length and grammatical structure to avoid making the correct answer obvious.
+      "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"], // 4 plausible answers with MATCHING LENGTHS. NO placeholders, NO prefixes.
       "correctAnswer": "The exact correct option text (without any prefix)",
       "explanation": "Brief explanation of why this is correct",
-      "wrongAnswerExplanations": { // Keys must be EXACT wrong option text from options array
-        "Actual answer A": "Why this specific option is incorrect",
-        "Actual answer C": "Why this specific option is incorrect",
-        "Actual answer D": "Why this specific option is incorrect"
+      "wrongAnswerExplanations": {
+        "Wrong option 1 text": "Why this specific option is incorrect",
+        "Wrong option 2 text": "Why this specific option is incorrect",
+        "Wrong option 3 text": "Why this specific option is incorrect"
       },
       "imageIndex": 0 // Optional: 0-based index of the attached image this question references (only if question is about a specific image)
     }
