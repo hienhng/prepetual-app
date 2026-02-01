@@ -460,6 +460,7 @@ export async function registerRoutes(
         error: job.error,
         isOfficeWithImages: job.isOfficeWithImages || false,
         documentImages: job.documentImages || [],
+        croppedIllustrations: job.croppedIllustrations || [],
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to get job status" });

@@ -3,6 +3,7 @@ import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { parseOffice } from "officeparser";
 import JSZip from "jszip";
 import { analyzeImageContent } from "./openai";
+import { cropIllustrations, type CroppedIllustration } from "./image-utils";
 
 export interface UploadJob {
   id: string;
@@ -17,6 +18,7 @@ export interface UploadJob {
   documentImages?: string[];
   hasIllustrations?: boolean;
   imageDescription?: string;
+  croppedIllustrations?: CroppedIllustration[];
 }
 
 const jobs = new Map<string, UploadJob>();
@@ -223,34 +225,54 @@ export async function processJob(id: string) {
       extractedText = await extractTextFromImage(buffer);
       
       // Convert buffer to base64 for vision analysis
-      updateJob(id, { progress: 40, message: "Analyzing image for illustrations..." });
+      updateJob(id, { progress: 35, message: "Analyzing image for illustrations..." });
       const base64 = buffer.toString("base64");
       const mimeType = fileType;
       const imageDataUrl = `data:${mimeType};base64,${base64}`;
       
+      let croppedIllustrations: CroppedIllustration[] = [];
+      
       try {
         const analysis = await analyzeImageContent(imageDataUrl);
         
-        if (analysis.hasIllustrations || analysis.description) {
-          // Combine OCR text with visual analysis
+        if (analysis.hasIllustrations && analysis.illustrations.length > 0) {
+          updateJob(id, { progress: 55, message: `Cropping ${analysis.illustrations.length} illustration(s)...` });
+          
+          // Crop the illustrations from the image
+          croppedIllustrations = await cropIllustrations(buffer, mimeType, analysis.illustrations);
+          
+          console.log(`Cropped ${croppedIllustrations.length} illustrations from image`);
+          
+          // Build text with illustration descriptions
           let combinedText = extractedText;
           
           if (analysis.description) {
-            combinedText = `[IMAGE DESCRIPTION: ${analysis.description}]\n\n${extractedText}`;
+            combinedText = `[IMAGE OVERVIEW: ${analysis.description}]\n\n${extractedText}`;
           }
           
-          if (analysis.visualElements.length > 0) {
-            combinedText += `\n\n[VISUAL ELEMENTS: ${analysis.visualElements.join(", ")}]`;
+          // Add detailed descriptions for each illustration
+          if (croppedIllustrations.length > 0) {
+            combinedText += "\n\n[ILLUSTRATIONS FOUND:";
+            croppedIllustrations.forEach((ill, idx) => {
+              combinedText += `\n- Illustration ${idx + 1}: ${ill.description}`;
+            });
+            combinedText += "]";
           }
           
           extractedText = combinedText;
-          documentImages = [imageDataUrl];
+          documentImages = croppedIllustrations.map(ill => ill.imageDataUrl);
           isOfficeWithImages = true;
-          
-          console.log(`Image has illustrations: ${analysis.visualElements.join(", ")}`);
+        } else if (analysis.description) {
+          // No illustrations but has description
+          extractedText = `[IMAGE DESCRIPTION: ${analysis.description}]\n\n${extractedText}`;
         }
       } catch (err) {
         console.warn("Vision analysis failed, using OCR only:", err);
+      }
+      
+      // Store cropped illustrations in job for later use
+      if (croppedIllustrations.length > 0) {
+        updateJob(id, { croppedIllustrations });
       }
     } else if (isOfficeDocument(fileType)) {
       updateJob(id, { progress: 15, message: "Extracting text from document..." });

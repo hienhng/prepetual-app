@@ -10,11 +10,28 @@ const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
 });
 
-export async function analyzeImageContent(imageBase64: string): Promise<{
+export interface IllustrationRegion {
+  id: string;
+  description: string;
+  type: string;
+  boundingBox: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+}
+
+export interface ImageAnalysisResult {
   hasIllustrations: boolean;
   description: string;
   visualElements: string[];
-}> {
+  illustrations: IllustrationRegion[];
+  imageWidth: number;
+  imageHeight: number;
+}
+
+export async function analyzeImageContent(imageBase64: string): Promise<ImageAnalysisResult> {
   try {
     const response = await pRetry(
       async () => {
@@ -25,27 +42,44 @@ export async function analyzeImageContent(imageBase64: string): Promise<{
             content: [
               {
                 type: "text",
-                text: `Analyze this image and identify any visual elements that are NOT text. Look for:
+                text: `Analyze this image and identify visual elements that are NOT pure text. Focus on:
 - Illustrations, drawings, or artwork
 - Charts, graphs, or diagrams
-- Photos or pictures
+- Photos or pictures  
 - Icons, symbols, or logos
-- Tables or structured layouts
-- Maps or geographic elements
 - Scientific diagrams or figures
-- Mathematical formulas or equations shown visually
+- Mathematical formulas shown visually (not typed text)
+
+For EACH illustration/visual element found, provide its approximate bounding box as a percentage of the total image dimensions (0-100 for each value).
 
 LANGUAGE: Detect the language of any text in the image. If Vietnamese, respond in Vietnamese. If English, respond in English.
 
 Respond in JSON format:
 {
   "hasIllustrations": true/false,
-  "description": "A 1-2 sentence description of what the image shows (both text and visual content)",
-  "visualElements": ["list", "of", "visual", "elements", "found"]
+  "description": "A 1-2 sentence description of what the image shows",
+  "visualElements": ["list", "of", "visual", "element", "types"],
+  "illustrations": [
+    {
+      "id": "1",
+      "description": "Detailed description of this specific illustration that can be used for quiz questions",
+      "type": "diagram|chart|photo|drawing|icon|figure",
+      "boundingBox": {
+        "x": 10,
+        "y": 20,
+        "width": 40,
+        "height": 30
+      }
+    }
+  ]
 }
 
-If the image is purely text with no illustrations/graphics, set hasIllustrations to false and visualElements to an empty array.
-If there ARE visual elements, describe them clearly so they can be used for quiz generation.`
+IMPORTANT RULES:
+- boundingBox values are PERCENTAGES (0-100), not pixels
+- x, y is the top-left corner of the illustration region
+- Only include actual illustrations, NOT text areas
+- Each illustration should be distinct and self-contained
+- If no illustrations found, set illustrations to empty array []`
               },
               {
                 type: "image_url",
@@ -54,7 +88,7 @@ If there ARE visual elements, describe them clearly so they can be used for quiz
             ]
           }],
           response_format: { type: "json_object" },
-          max_completion_tokens: 1000,
+          max_completion_tokens: 2000,
         });
 
         const content = completion.choices[0]?.message?.content;
@@ -76,10 +110,33 @@ If there ARE visual elements, describe them clearly so they can be used for quiz
     );
 
     const parsed = JSON.parse(response);
+    
+    const illustrations: IllustrationRegion[] = [];
+    if (Array.isArray(parsed.illustrations)) {
+      for (const ill of parsed.illustrations) {
+        if (ill.boundingBox && typeof ill.boundingBox.x === 'number') {
+          illustrations.push({
+            id: String(ill.id || illustrations.length + 1),
+            description: String(ill.description || ""),
+            type: String(ill.type || "illustration"),
+            boundingBox: {
+              x: Math.max(0, Math.min(100, ill.boundingBox.x)),
+              y: Math.max(0, Math.min(100, ill.boundingBox.y)),
+              width: Math.max(5, Math.min(100, ill.boundingBox.width)),
+              height: Math.max(5, Math.min(100, ill.boundingBox.height)),
+            }
+          });
+        }
+      }
+    }
+    
     return {
-      hasIllustrations: parsed.hasIllustrations ?? false,
+      hasIllustrations: parsed.hasIllustrations ?? illustrations.length > 0,
       description: parsed.description ?? "",
       visualElements: Array.isArray(parsed.visualElements) ? parsed.visualElements : [],
+      illustrations,
+      imageWidth: 0,
+      imageHeight: 0,
     };
   } catch (error) {
     console.error("Error analyzing image:", error);
@@ -87,6 +144,9 @@ If there ARE visual elements, describe them clearly so they can be used for quiz
       hasIllustrations: false,
       description: "",
       visualElements: [],
+      illustrations: [],
+      imageWidth: 0,
+      imageHeight: 0,
     };
   }
 }

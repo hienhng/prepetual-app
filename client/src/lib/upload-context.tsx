@@ -1,5 +1,12 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 
+interface CroppedIllustration {
+  id: string;
+  description: string;
+  type: string;
+  imageDataUrl: string;
+}
+
 interface UploadJob {
   jobId: string;
   fileName: string;
@@ -12,6 +19,7 @@ interface UploadJob {
   imageDataUrl?: string;
   isOfficeWithImages?: boolean;
   documentImages?: string[];
+  croppedIllustrations?: CroppedIllustration[];
 }
 
 interface UploadContextType {
@@ -22,6 +30,7 @@ interface UploadContextType {
   pollJobStatus: () => Promise<void>;
   getCombinedText: () => string;
   getCombinedDocumentImages: () => string[];
+  getCroppedIllustrations: () => CroppedIllustration[];
   hasOfficeWithImages: () => boolean;
   isAllCompleted: () => boolean;
   isAnyProcessing: () => boolean;
@@ -98,6 +107,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
               error: data.error,
               isOfficeWithImages: data.isOfficeWithImages || false,
               documentImages: data.documentImages || [],
+              croppedIllustrations: data.croppedIllustrations || [],
             };
           } catch {
             return job;
@@ -186,6 +196,12 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       .flatMap(job => job.documentImages || []);
   }, [activeJobs]);
 
+  const getCroppedIllustrations = useCallback(() => {
+    return activeJobs
+      .filter(job => job.status === "completed" && job.croppedIllustrations)
+      .flatMap(job => job.croppedIllustrations || []);
+  }, [activeJobs]);
+
   const hasOfficeWithImages = useCallback(() => {
     return activeJobs.some(job => job.status === "completed" && job.isOfficeWithImages);
   }, [activeJobs]);
@@ -211,6 +227,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       pollJobStatus, 
       getCombinedText,
       getCombinedDocumentImages,
+      getCroppedIllustrations,
       hasOfficeWithImages,
       isAllCompleted,
       isAnyProcessing,
