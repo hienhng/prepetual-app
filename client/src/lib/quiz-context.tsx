@@ -3,6 +3,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "./queryClient";
 import type { Quiz, QuizResult, Question, QuizProgress } from "@shared/schema";
 
+const safeSessionStorageSet = (key: string, value: string) => {
+  try {
+    sessionStorage.setItem(key, value);
+  } catch (e) {
+    console.warn("Session storage quota exceeded, clearing old data");
+    try {
+      sessionStorage.removeItem(key);
+      sessionStorage.setItem(key, value);
+    } catch {
+      // If still fails, just skip storage
+    }
+  }
+};
+
 export type SourceMaterialType = "pdf" | "image" | "document" | null;
 
 interface SourceMaterial {
@@ -241,7 +255,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         } : {}),
       };
       if (quiz) {
-        sessionStorage.setItem("quiz_progress", JSON.stringify({ 
+        safeSessionStorageSet("quiz_progress", JSON.stringify({ 
           quiz, 
           answers: newAnswers,
           checkedQuestions: Array.from(newCheckedQuestions)
@@ -261,7 +275,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     setState((prev) => {
       const newAnswers = { ...prev.userAnswers, [questionId]: answer };
       if (prev.currentQuiz) {
-        sessionStorage.setItem("quiz_progress", JSON.stringify({ 
+        safeSessionStorageSet("quiz_progress", JSON.stringify({ 
           quiz: prev.currentQuiz, 
           answers: newAnswers,
           checkedQuestions: Array.from(prev.checkedQuestions)
@@ -276,7 +290,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       const newChecked = new Set(prev.checkedQuestions);
       newChecked.add(questionId);
       if (prev.currentQuiz) {
-        sessionStorage.setItem("quiz_progress", JSON.stringify({ 
+        safeSessionStorageSet("quiz_progress", JSON.stringify({ 
           quiz: prev.currentQuiz, 
           answers: prev.userAnswers,
           checkedQuestions: Array.from(newChecked)
@@ -405,7 +419,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       retryCheckedQuestionsRef.current = progress.retryCheckedQuestions ?? [];
       
       // Set current quiz and answers from saved progress
-      sessionStorage.setItem("quiz_progress", JSON.stringify({ 
+      safeSessionStorageSet("quiz_progress", JSON.stringify({ 
         quiz: progress.quiz, 
         answers: progress.answers,
         checkedQuestions: progress.checkedQuestions || []
