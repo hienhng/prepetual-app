@@ -85,6 +85,8 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
       type: quiz.sourceImageUrl ? "image" : null,
       text: quiz.sourceText,
       imageDataUrl: quiz.sourceImageUrl || null,
+      isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
+      documentImages: quiz.sourceImages || [],
     });
   };
 

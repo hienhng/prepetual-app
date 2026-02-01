@@ -273,6 +273,8 @@ function StreakCalendar({
         type: randomQuiz.sourceImageUrl ? "image" : null,
         text: randomQuiz.sourceText,
         imageDataUrl: randomQuiz.sourceImageUrl || null,
+        isOfficeWithImages: (randomQuiz.sourceImages?.length || 0) > 0,
+        documentImages: randomQuiz.sourceImages || [],
       });
       setLocation("/quiz");
     } else {
@@ -925,6 +927,8 @@ export default function Dashboard() {
         type: quiz.sourceImageUrl ? "image" : null,
         text: quiz.sourceText,
         imageDataUrl: quiz.sourceImageUrl || null,
+        isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
+        documentImages: quiz.sourceImages || [],
       });
     }
     setLocation("/quiz");
@@ -939,6 +943,8 @@ export default function Dashboard() {
       type: quiz.sourceImageUrl ? "image" : null,
       text: quiz.sourceText,
       imageDataUrl: quiz.sourceImageUrl || null,
+      isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
+      documentImages: quiz.sourceImages || [],
     });
     setLocation("/study");
   };

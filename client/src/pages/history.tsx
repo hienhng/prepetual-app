@@ -91,6 +91,8 @@ export default function HistoryPage() {
         type: quiz.sourceImageUrl ? "image" : null,
         text: quiz.sourceText,
         imageDataUrl: quiz.sourceImageUrl || null,
+        isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
+        documentImages: quiz.sourceImages || [],
       });
     }
     setLocation("/quiz");
@@ -105,6 +107,8 @@ export default function HistoryPage() {
       type: quiz.sourceImageUrl ? "image" : null,
       text: quiz.sourceText,
       imageDataUrl: quiz.sourceImageUrl || null,
+      isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
+      documentImages: quiz.sourceImages || [],
     });
     setLocation("/study");
   };
@@ -118,6 +122,8 @@ export default function HistoryPage() {
       type: quiz.sourceImageUrl ? "image" : null,
       text: quiz.sourceText,
       imageDataUrl: quiz.sourceImageUrl || null,
+      isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
+      documentImages: quiz.sourceImages || [],
     });
     setLocation("/edit-quiz");
   };
