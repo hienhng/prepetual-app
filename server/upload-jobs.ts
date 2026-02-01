@@ -19,6 +19,7 @@ export interface UploadJob {
   hasIllustrations?: boolean;
   imageDescription?: string;
   croppedIllustrations?: CroppedIllustration[];
+  imageDataUrl?: string;
 }
 
 const jobs = new Map<string, UploadJob>();
@@ -215,6 +216,7 @@ export async function processJob(id: string) {
     let extractedText = "";
     let documentImages: string[] = [];
     let isOfficeWithImages = false;
+    let originalImageDataUrl: string | undefined;
     const fileType = job.fileType;
     
     if (fileType === "application/pdf") {
@@ -229,6 +231,7 @@ export async function processJob(id: string) {
       const base64 = buffer.toString("base64");
       const mimeType = fileType;
       const imageDataUrl = `data:${mimeType};base64,${base64}`;
+      originalImageDataUrl = imageDataUrl;
       
       let croppedIllustrations: CroppedIllustration[] = [];
       
@@ -310,6 +313,7 @@ export async function processJob(id: string) {
         text: extractedText,
         isOfficeWithImages: true,
         documentImages: documentImages,
+        imageDataUrl: originalImageDataUrl,
       });
     } else {
       // For pure text extraction, require minimum text length

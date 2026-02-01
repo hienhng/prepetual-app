@@ -55,7 +55,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   
   const completedJobs = activeJobs.filter(job => job.status === "completed");
   
-  // Open cropper for an image file
+  // Open cropper for an image file (from pending files - no longer used but kept for reference)
   const openCropper = useCallback((file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -67,6 +67,15 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
       }
     };
     reader.readAsDataURL(file);
+  }, []);
+  
+  // Open cropper from a completed job (after AI scan)
+  const openCropperFromJob = useCallback((job: { jobId: string; fileName: string; imageDataUrl?: string }) => {
+    if (job.imageDataUrl) {
+      setCropperImageUrl(job.imageDataUrl);
+      setCropperFileName(job.fileName);
+      setCropperOpen(true);
+    }
   }, []);
   
   // Handle completed crops from the cropper
@@ -288,59 +297,33 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                 </Button>
               </div>
               
-              {pendingFiles.map((file, index) => {
-                const isImage = file.type.includes("image");
-                const cropCount = getManualCropCount(file.name);
-                
-                return (
-                  <motion.div
-                    key={file.name}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <Card className="p-3 flex items-center justify-between gap-3 hover-elevate">
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        {getFileIcon(file.type)}
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium truncate">{file.name}</p>
-                          <div className="flex items-center gap-2">
-                            <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
-                            {cropCount > 0 && (
-                              <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                                {cropCount} crop{cropCount !== 1 ? "s" : ""}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
+              {pendingFiles.map((file, index) => (
+                <motion.div
+                  key={file.name}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <Card className="p-3 flex items-center justify-between gap-3 hover-elevate">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      {getFileIcon(file.type)}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium truncate">{file.name}</p>
+                        <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
                       </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        {isImage && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 px-2 text-xs gap-1"
-                            onClick={() => openCropper(file)}
-                            data-testid={`button-crop-${index}`}
-                          >
-                            <Crop className="h-3 w-3" />
-                            Crop
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7"
-                          onClick={() => removePendingFile(file.name)}
-                          data-testid={`button-remove-pending-${index}`}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </Card>
-                  </motion.div>
-                );
-              })}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 shrink-0"
+                      onClick={() => removePendingFile(file.name)}
+                      data-testid={`button-remove-pending-${index}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Card>
+                </motion.div>
+              ))}
             </div>
 
             {/* Add more files dropzone */}
@@ -467,18 +450,44 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
           </div>
           
           <div className="space-y-2">
-            {activeJobs.map((job) => (
+            {activeJobs.map((job) => {
+              const isImage = job.fileType.includes("image");
+              const isCompleted = job.status === "completed";
+              const cropCount = getManualCropCount(job.fileName);
+              const aiCropCount = job.croppedIllustrations?.length || 0;
+              const totalCrops = cropCount + aiCropCount;
+              
+              return (
               <Card key={job.jobId} className="p-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   {getFileIcon(job.fileType)}
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium truncate">{job.fileName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {job.status === "completed" ? "Ready" : job.status === "error" ? job.error : `${job.progress}%`}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-muted-foreground">
+                        {job.status === "completed" ? "Ready" : job.status === "error" ? job.error : `${job.progress}%`}
+                      </p>
+                      {isCompleted && isImage && totalCrops > 0 && (
+                        <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                          {totalCrops} illustration{totalCrops !== 1 ? "s" : ""}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+                  {isCompleted && isImage && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-2 text-xs gap-1"
+                      onClick={() => openCropperFromJob(job)}
+                      data-testid={`button-crop-${job.jobId}`}
+                    >
+                      <Crop className="h-3 w-3" />
+                      {cropCount > 0 ? "Edit Crop" : "Crop"}
+                    </Button>
+                  )}
                   {getStatusIcon(job.status)}
                   <Button
                     variant="ghost"
@@ -512,7 +521,8 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                   </Button>
                 </div>
               </Card>
-            ))}
+              );
+            })}
           </div>
         </motion.div>
       )}

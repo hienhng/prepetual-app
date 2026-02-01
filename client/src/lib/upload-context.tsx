@@ -108,6 +108,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
               isOfficeWithImages: data.isOfficeWithImages || false,
               documentImages: data.documentImages || [],
               croppedIllustrations: data.croppedIllustrations || [],
+              imageDataUrl: data.imageDataUrl,
             };
           } catch {
             return job;

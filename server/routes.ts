@@ -461,6 +461,7 @@ export async function registerRoutes(
         isOfficeWithImages: job.isOfficeWithImages || false,
         documentImages: job.documentImages || [],
         croppedIllustrations: job.croppedIllustrations || [],
+        imageDataUrl: job.imageDataUrl,
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to get job status" });
