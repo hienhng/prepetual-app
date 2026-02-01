@@ -113,9 +113,10 @@ function MaterialContent({
     </div>
   );
 
+  // When images exist, show ONLY the image grid - no text
   if (hasImages) {
     return (
-      <div className="h-full flex flex-col gap-3">
+      <div className="h-full flex flex-col gap-2">
         {/* Expanded Image Modal */}
         <AnimatePresence>
           {expandedImage && (
@@ -152,72 +153,39 @@ function MaterialContent({
           )}
         </AnimatePresence>
 
-        <div className="flex items-center justify-between gap-2 flex-shrink-0">
-          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "text" | "image")} className="flex-1">
-            <TabsList className="w-full grid grid-cols-2">
-              <TabsTrigger value="text" className="gap-2 text-xs" data-testid="tab-text">
-                <FileText className="h-3.5 w-3.5" />
-                Text
-              </TabsTrigger>
-              <TabsTrigger value="image" className="gap-2 text-xs" data-testid="tab-image">
-                <Image className="h-3.5 w-3.5" />
-                Images ({allImages.length})
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Badge variant="secondary" className="text-xs font-normal">
+            <Image className="h-3 w-3 mr-1" />
+            {allImages.length} {allImages.length === 1 ? 'image' : 'images'}
+          </Badge>
         </div>
         
-        {viewMode === "text" && (
-          <div className="flex items-center justify-between gap-2 flex-shrink-0">
-            <ViewToggle />
-            <Badge variant="secondary" className="text-xs font-normal">
-              {showSummary ? "AI Summary" : `${wordCount.toLocaleString()} words`}
-            </Badge>
-          </div>
-        )}
-        
-        <div className="flex-1 min-h-0">
-          {viewMode === "text" ? (
-            <ScrollArea className="h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-16rem)]">
+        <ScrollArea className="flex-1 h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-14rem)]">
+          <div className={`grid gap-2 pr-4 ${
+            allImages.length === 1 ? "grid-cols-1" :
+            allImages.length === 2 ? "grid-cols-2" :
+            "grid-cols-2"
+          }`}>
+            {allImages.map((img, index) => (
               <div 
-                className={cn(
-                  "text-sm leading-relaxed pr-4 transition-opacity duration-200",
-                  showSummary ? "whitespace-pre-wrap" : "whitespace-pre-wrap"
-                )}
-                data-testid="material-text"
+                key={index} 
+                className="relative aspect-[4/3] rounded-lg border shadow-sm cursor-pointer"
+                onClick={() => setExpandedImage(img)}
               >
-                {displayText}
+                <img 
+                  src={img} 
+                  alt={`Material image ${index + 1}`} 
+                  className="w-full h-full object-cover rounded-lg"
+                  data-testid={`material-image-${index}`}
+                />
+                <div className="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 rounded-full p-1.5 shadow-sm">
+                  <ZoomIn className="w-3 h-3 text-foreground" />
+                </div>
               </div>
-            </ScrollArea>
-          ) : (
-            <ScrollArea className="h-[50vh] sm:h-[60vh] lg:h-[calc(100vh-14rem)]">
-              <div className={`grid gap-2 pr-4 ${
-                allImages.length === 1 ? "grid-cols-1" :
-                allImages.length === 2 ? "grid-cols-2" :
-                "grid-cols-2"
-              }`}>
-                {allImages.map((img, index) => (
-                  <div 
-                    key={index} 
-                    className="relative aspect-[4/3] rounded-lg border shadow-sm cursor-pointer"
-                    onClick={() => setExpandedImage(img)}
-                  >
-                    <img 
-                      src={img} 
-                      alt={`Material image ${index + 1}`} 
-                      className="w-full h-full object-cover rounded-lg"
-                      data-testid={`material-image-${index}`}
-                    />
-                    <div className="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 rounded-full p-1.5 shadow-sm">
-                      <ZoomIn className="w-3 h-3 text-foreground" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground mt-3 text-center">Click any image to expand</p>
-            </ScrollArea>
-          )}
-        </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-3 text-center">Click any image to expand</p>
+        </ScrollArea>
       </div>
     );
   }
