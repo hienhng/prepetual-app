@@ -1,11 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Save, X, Plus, Trash2, Edit2, ChevronDown, ChevronUp, 
   Copy, ArrowUp, ArrowDown, Eye, EyeOff, CheckSquare, Square,
   Search, Filter, MoreHorizontal, GripVertical, Shuffle,
-  ChevronLeft, ChevronRight, FileText, ListChecks, ToggleLeft
+  ChevronLeft, ChevronRight, FileText, ListChecks, ToggleLeft,
+  ImagePlus, Image as ImageIcon
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -233,6 +234,31 @@ export default function EditQuizPage() {
 
   const collapseAll = () => {
     setExpandedIndex(null);
+  };
+
+  const handleImageUpload = (questionIndex: number, file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast({ title: "Invalid file", description: "Please upload an image file", variant: "destructive" });
+      return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Image must be under 5MB", variant: "destructive" });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imageUrl = e.target?.result as string;
+      handleQuestionChange(questionIndex, "imageUrl", imageUrl);
+      toast({ title: "Image added" });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeQuestionImage = (questionIndex: number) => {
+    handleQuestionChange(questionIndex, "imageUrl", undefined);
+    toast({ title: "Image removed" });
   };
 
   const handleSave = async (): Promise<boolean> => {
@@ -491,6 +517,9 @@ export default function EditQuizPage() {
                                 {getTypeLabel(question.type)}
                               </Badge>
                               <span className="text-sm text-muted-foreground shrink-0">Q{index + 1}</span>
+                              {question.imageUrl && (
+                                <ImageIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              )}
                               <span className="text-sm font-medium truncate">{question.question}</span>
                             </div>
                             
@@ -639,6 +668,49 @@ export default function EditQuizPage() {
                                   />
                                 </div>
 
+                                <div className="space-y-2">
+                                  <Label className="text-xs text-muted-foreground">Question Image (optional)</Label>
+                                  {question.imageUrl ? (
+                                    <div className="relative group">
+                                      <img 
+                                        src={question.imageUrl} 
+                                        alt="Question image" 
+                                        className="max-h-48 rounded-lg border object-contain"
+                                      />
+                                      <Button
+                                        size="icon"
+                                        variant="destructive"
+                                        onClick={() => removeQuestionImage(index)}
+                                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        data-testid={`button-remove-image-${index}`}
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <label 
+                                      className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                                      data-testid={`label-upload-image-${index}`}
+                                    >
+                                      <div className="flex flex-col items-center justify-center">
+                                        <ImagePlus className="h-6 w-6 text-muted-foreground mb-1" />
+                                        <span className="text-xs text-muted-foreground">Click to add image</span>
+                                      </div>
+                                      <input 
+                                        type="file" 
+                                        className="hidden" 
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) handleImageUpload(index, file);
+                                          e.target.value = '';
+                                        }}
+                                        data-testid={`input-image-${index}`}
+                                      />
+                                    </label>
+                                  )}
+                                </div>
+
                                 {question.type === "multiple_choice" && (
                                   <div className="space-y-2">
                                     <Label className="text-xs text-muted-foreground">Answer Options</Label>
@@ -773,6 +845,16 @@ export default function EditQuizPage() {
                             {questions[previewIndex].question}
                           </h3>
                         </div>
+                        
+                        {questions[previewIndex].imageUrl && (
+                          <div className="ml-8">
+                            <img 
+                              src={questions[previewIndex].imageUrl} 
+                              alt="Question image" 
+                              className="max-h-48 rounded-lg border object-contain"
+                            />
+                          </div>
+                        )}
                         
                         {questions[previewIndex].type === "multiple_choice" && (
                           <div className="space-y-2 ml-8">
