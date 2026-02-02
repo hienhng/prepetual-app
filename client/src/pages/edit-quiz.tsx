@@ -625,44 +625,18 @@ export default function EditQuizPage() {
                                     </Select>
                                   </div>
                                   
-                                  <div className="space-y-2">
-                                    <Label className="text-xs text-muted-foreground">Correct Answer</Label>
-                                    {question.type === "true_false" ? (
-                                      <Select
-                                        value={question.correctAnswer}
-                                        onValueChange={(value) => handleQuestionChange(index, "correctAnswer", value)}
+                                  {question.type !== "multiple_choice" && (
+                                    <div className="space-y-2">
+                                      <Label className="text-xs text-muted-foreground">Correct Answer</Label>
+                                      <div 
+                                        className="px-3 py-2 rounded-md border bg-green-500/10 border-green-500/30 text-sm"
+                                        data-testid={`text-answer-${index}`}
                                       >
-                                        <SelectTrigger data-testid={`select-answer-${index}`}>
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="True">True</SelectItem>
-                                          <SelectItem value="False">False</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    ) : question.type === "multiple_choice" ? (
-                                      <Select
-                                        value={question.correctAnswer}
-                                        onValueChange={(value) => handleQuestionChange(index, "correctAnswer", value)}
-                                      >
-                                        <SelectTrigger data-testid={`select-answer-${index}`}>
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          {question.options?.map((opt, i) => (
-                                            <SelectItem key={i} value={opt}>{opt}</SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    ) : (
-                                      <Input
-                                        value={question.correctAnswer}
-                                        onChange={(e) => handleQuestionChange(index, "correctAnswer", e.target.value)}
-                                        placeholder="Enter correct answer"
-                                        data-testid={`input-answer-${index}`}
-                                      />
-                                    )}
-                                  </div>
+                                        {question.correctAnswer}
+                                        <span className="ml-2 text-xs text-green-600 dark:text-green-400">(cannot be edited)</span>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
 
                                 <div className="space-y-2">
@@ -720,10 +694,10 @@ export default function EditQuizPage() {
 
                                 {question.type === "multiple_choice" && (
                                   <div className="space-y-2">
-                                    <Label className="text-xs text-muted-foreground">Answer Options</Label>
+                                    <Label className="text-xs text-muted-foreground">Answer Options (use arrows to reorder)</Label>
                                     <div className="space-y-2">
                                       {question.options?.map((option, optIndex) => (
-                                        <div key={optIndex} className="flex gap-2 items-center">
+                                        <div key={optIndex} className="flex gap-2 items-center group">
                                           <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium shrink-0 ${
                                             option === question.correctAnswer 
                                               ? "bg-green-500/20 text-green-600 dark:text-green-400 ring-1 ring-green-500" 
@@ -731,35 +705,55 @@ export default function EditQuizPage() {
                                           }`}>
                                             {String.fromCharCode(65 + optIndex)}
                                           </div>
-                                          <Input
-                                            value={option}
-                                            onChange={(e) => handleOptionChange(index, optIndex, e.target.value)}
-                                            className="flex-1"
-                                            data-testid={`input-option-${index}-${optIndex}`}
-                                          />
-                                          {(question.options?.length || 0) > 2 && (
+                                          <div 
+                                            className={`flex-1 px-3 py-2 rounded-md border text-sm ${
+                                              option === question.correctAnswer 
+                                                ? "bg-green-500/10 border-green-500/30" 
+                                                : "bg-muted/50 border-border"
+                                            }`}
+                                            data-testid={`text-option-${index}-${optIndex}`}
+                                          >
+                                            {option}
+                                            {option === question.correctAnswer && (
+                                              <span className="ml-2 text-xs text-green-600 dark:text-green-400">(correct)</span>
+                                            )}
+                                          </div>
+                                          <div className="flex gap-1">
                                             <Button
                                               size="icon"
                                               variant="ghost"
-                                              onClick={() => removeOption(index, optIndex)}
-                                              className="shrink-0"
-                                              data-testid={`button-remove-option-${index}-${optIndex}`}
+                                              onClick={() => {
+                                                if (optIndex > 0) {
+                                                  const newOptions = [...(question.options || [])];
+                                                  [newOptions[optIndex - 1], newOptions[optIndex]] = [newOptions[optIndex], newOptions[optIndex - 1]];
+                                                  handleQuestionChange(index, "options", newOptions);
+                                                }
+                                              }}
+                                              disabled={optIndex === 0}
+                                              className="shrink-0 h-8 w-8"
+                                              data-testid={`button-move-option-up-${index}-${optIndex}`}
                                             >
-                                              <X className="h-4 w-4" />
+                                              <ChevronUp className="h-4 w-4" />
                                             </Button>
-                                          )}
+                                            <Button
+                                              size="icon"
+                                              variant="ghost"
+                                              onClick={() => {
+                                                if (optIndex < (question.options?.length || 0) - 1) {
+                                                  const newOptions = [...(question.options || [])];
+                                                  [newOptions[optIndex], newOptions[optIndex + 1]] = [newOptions[optIndex + 1], newOptions[optIndex]];
+                                                  handleQuestionChange(index, "options", newOptions);
+                                                }
+                                              }}
+                                              disabled={optIndex === (question.options?.length || 0) - 1}
+                                              className="shrink-0 h-8 w-8"
+                                              data-testid={`button-move-option-down-${index}-${optIndex}`}
+                                            >
+                                              <ChevronDown className="h-4 w-4" />
+                                            </Button>
+                                          </div>
                                         </div>
                                       ))}
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => addOption(index)}
-                                        className="w-full"
-                                        data-testid={`button-add-option-${index}`}
-                                      >
-                                        <Plus className="h-4 w-4 mr-1" />
-                                        Add Option
-                                      </Button>
                                     </div>
                                   </div>
                                 )}
