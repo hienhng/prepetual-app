@@ -54,18 +54,20 @@ export default function Generate() {
   }, [isAllCompleted, hasCompletedJobs, extractedText, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, hasImageOnlyUploads, setExtractedText, setSourceMaterial, sourceMaterial.isImageOnly]);
 
   useEffect(() => {
-    // Only redirect to create if no extracted text AND no active jobs AND not generating quiz
-    if (!extractedText && !isProcessing && !hasCompletedJobs && !isLoading && !redirectedRef.current) {
+    // Only redirect to create if no content AND no active jobs AND not generating quiz
+    const hasContent = extractedText || sourceMaterial.isImageOnly;
+    if (!hasContent && !isProcessing && !hasCompletedJobs && !isLoading && !redirectedRef.current) {
       redirectedRef.current = true;
       setLocation("/create");
     }
     // Reset ref when there is content or processing or completed jobs
-    if (extractedText || isProcessing || hasCompletedJobs || isLoading) {
+    if (hasContent || isProcessing || hasCompletedJobs || isLoading) {
       redirectedRef.current = false;
     }
-  }, [extractedText, isProcessing, hasCompletedJobs, isLoading, setLocation]);
+  }, [extractedText, sourceMaterial.isImageOnly, isProcessing, hasCompletedJobs, isLoading, setLocation]);
 
-  if (!extractedText && !isProcessing && !hasCompletedJobs && !isLoading) {
+  const hasContent = extractedText || sourceMaterial.isImageOnly;
+  if (!hasContent && !isProcessing && !hasCompletedJobs && !isLoading) {
     return null;
   }
 
