@@ -29,12 +29,13 @@ interface QuizGenerationParams {
   difficulty?: DifficultyLevel;
   documentImages?: string[];
   onProgress?: ProgressCallback;
+  isImageOnly?: boolean;
 }
 
 export async function generateQuizQuestions(
   params: QuizGenerationParams,
 ): Promise<{ questions: Question[]; title: string; category: QuizCategory }> {
-  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress } = params;
+  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress, isImageOnly = false } = params;
 
   const hasImages = documentImages.length > 0;
   
@@ -208,6 +209,87 @@ OUTPUT FORMAT (JSON):
 
 Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
 
+  // Special prompt for image-only uploads (no text content)
+  const imageOnlyPrompt = `You are an expert educator. Analyze the attached images carefully and generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions based ENTIRELY on what you see in the images.
+
+IMPORTANT: These are study materials uploaded as images. They may contain:
+- Study sheets, worksheets, or exam papers
+- Charts, graphs, diagrams, and illustrations
+- Text within images that should be read and understood
+- Educational content in any language
+
+Your task is to:
+1. Carefully analyze ALL visual content in the attached images
+2. Read and understand any text visible within the images
+3. Generate questions that test understanding of the material shown
+
+LANGUAGE HANDLING:
+- Detect the primary language visible in the images
+- Generate ALL questions, options, correct answers, explanations, and the QUIZ TITLE in the SAME language as the content
+- If the content is in Vietnamese, write everything in Vietnamese
+- If the content is in English, write everything in English
+
+REQUIREMENTS:
+1. Generate exactly ${questionCount} questions
+2. Use these question types: ${questionTypeDescriptions}
+3. Distribute question types roughly evenly among the selected types
+4. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
+5. Include an explanation for why the correct answer is right
+6. For multiple choice, include explanations for why EACH wrong answer is incorrect
+7. For multiple choice, always provide exactly 4 options
+8. ALL questions should be based on the visual content
+9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
+10. CATEGORY: Assign exactly ONE category from: ${categoryList}
+   - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
+   - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
+   - Science: biology, chemistry, physics, earth science, etc.
+   - Social Studies: history, geography, civics, economics, etc.
+   - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
+   - Others/General: anything that doesn't fit the above categories
+
+CRITICAL RULES:
+- NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
+- Do not contain any prefix like "A) ", "1. ", "a. ", etc. in the options or correct answer. Provide ONLY the answer text.
+- All options must be real, meaningful answers related to the question
+- The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
+
+ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
+- The correct answer must NOT be noticeably longer or more detailed than wrong answers
+- ALL four options MUST have similar word counts (within 2-3 words of each other)
+- If the correct answer naturally requires more detail, ADD similar detail to wrong answers to match
+- If the correct answer is short (1-3 words), keep ALL options short (1-3 words)
+- If the correct answer is medium (4-8 words), make ALL options medium length
+- If the correct answer is long (9+ words), make ALL options similarly long
+- NEVER make the correct answer stand out by being the only "complete" or "detailed" option
+- Wrong answers should be equally plausible and well-formed, not obviously wrong or shorter
+- Randomize which position (1st, 2nd, 3rd, or 4th) contains the correct answer - do NOT always put it first or last
+
+OUTPUT FORMAT (JSON):
+{
+  "title": "A short descriptive title for the quiz",
+  "category": "One of: ${categoryList}",
+  "questions": [
+    {
+      "type": "multiple_choice" | "true_false" | "short_answer",
+      "question": "The question text",
+      "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
+      "correctAnswer": "The exact correct option text (without any prefix)",
+      "explanation": "Brief explanation of why this is correct",
+      "wrongAnswerExplanations": {
+        "Wrong option 1 text": "Why this specific option is incorrect",
+        "Wrong option 2 text": "Why this specific option is incorrect",
+        "Wrong option 3 text": "Why this specific option is incorrect"
+      },
+      "imageIndex": 0 // 0-based index of the attached image this question references
+    }
+  ]
+}
+
+Respond with ONLY valid JSON, no markdown or additional text.`;
+
+  // Choose the right prompt based on content type
+  const finalPrompt = isImageOnly ? imageOnlyPrompt : visionPrompt;
+
   try {
     // Step 2: Analyzing content
     onProgress?.("analyzing", 25, "Analyzing content structure...");
@@ -232,12 +314,12 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
           messages = [{
             role: "user",
             content: [
-              { type: "text", text: visionPrompt },
+              { type: "text", text: finalPrompt },
               ...imageContent
             ]
           }];
           
-          console.log(`Generating quiz with ${imageContent.length} images using vision model`);
+          console.log(`Generating quiz with ${imageContent.length} images using vision model (isImageOnly: ${isImageOnly})`);
         } else {
           messages = [{ role: "user", content: prompt }];
         }

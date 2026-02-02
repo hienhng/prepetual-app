@@ -208,13 +208,15 @@ export function QuizGenerator() {
     // Use streaming endpoint for generate mode
     try {
       const sourceImageUrl = sourceMaterial.type === "image" ? sourceMaterial.imageDataUrl : null;
+      const isImageOnly = sourceMaterial.isImageOnly === true;
       const body = { 
         text: extractedText, 
         questionCount, 
         questionTypes, 
         difficulty, 
         sourceImageUrl, 
-        documentImages: documentImages.length > 0 ? documentImages : undefined 
+        documentImages: documentImages.length > 0 ? documentImages : undefined,
+        isImageOnly,
       };
 
       const response = await fetch("/api/generate-quiz-stream", {

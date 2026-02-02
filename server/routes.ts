@@ -507,7 +507,7 @@ export async function registerRoutes(
         return;
       }
 
-      const { text, questionCount, questionTypes, difficulty, documentImages } = validation.data;
+      const { text, questionCount, questionTypes, difficulty, documentImages, isImageOnly } = validation.data;
       const { sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
 
@@ -518,6 +518,7 @@ export async function registerRoutes(
         difficulty: difficulty as DifficultyLevel,
         documentImages: documentImages || undefined,
         onProgress: sendProgress,
+        isImageOnly: isImageOnly || false,
       });
 
       sendProgress("saving", 98, "Saving your quiz...");

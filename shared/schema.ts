@@ -211,12 +211,16 @@ export type QuizResultLegacy = z.infer<typeof quizResultSchemaLegacy>;
 
 // API request schemas
 export const generateQuizRequestSchema = z.object({
-  text: z.string().min(50, "Text must be at least 50 characters"),
+  text: z.string().min(1, "Text is required"),
   questionCount: z.number().min(3).max(20).default(10),
   questionTypes: z.array(z.enum(["multiple_choice", "true_false", "short_answer"])).min(1),
   difficulty: z.enum(["easy", "medium", "hard"]).default("medium"),
   documentImages: z.array(z.string()).optional(),
-});
+  isImageOnly: z.boolean().optional(),
+}).refine(
+  (data) => data.isImageOnly || data.text.length >= 50,
+  { message: "Text must be at least 50 characters (unless using image-only mode)", path: ["text"] }
+);
 
 export type GenerateQuizRequest = z.infer<typeof generateQuizRequestSchema>;
 
