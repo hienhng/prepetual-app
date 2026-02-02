@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export function GlobalUploadIndicator() {
-  const { activeJobs, clearJobs, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages } = useUpload();
+  const { activeJobs, clearJobs, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, hasImageOnlyUploads } = useUpload();
   const { setExtractedText, setSourceMaterial } = useQuiz();
   const [location, setLocation] = useLocation();
 
@@ -35,17 +35,32 @@ export function GlobalUploadIndicator() {
       const combinedText = getCombinedText();
       const combinedImages = getCombinedDocumentImages();
       const hasImages = hasOfficeWithImages();
+      const isImageOnly = hasImageOnlyUploads();
 
-      setSourceMaterial({
-        type: hasImages ? "document" : "document",
-        text: combinedText,
-        imageDataUrl: null,
-        isOfficeWithImages: hasImages,
-        documentImages: combinedImages,
-      });
-      setExtractedText(combinedText);
+      if (isImageOnly) {
+        // For image-only uploads (PNG/JPG), set special source material
+        setSourceMaterial({
+          type: "image",
+          text: null,
+          imageDataUrl: null,
+          isOfficeWithImages: true,
+          documentImages: combinedImages,
+          isImageOnly: true,
+        });
+        setExtractedText("[Images uploaded - AI will analyze visually]");
+      } else {
+        setSourceMaterial({
+          type: "document",
+          text: combinedText,
+          imageDataUrl: null,
+          isOfficeWithImages: hasImages,
+          documentImages: combinedImages,
+          isImageOnly: false,
+        });
+        setExtractedText(combinedText);
+      }
     }
-  }, [isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, setSourceMaterial, setExtractedText]);
+  }, [isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, hasImageOnlyUploads, setSourceMaterial, setExtractedText]);
 
   // Auto-dismiss when landing on generate page
   useEffect(() => {

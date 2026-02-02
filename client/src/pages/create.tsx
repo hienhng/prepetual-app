@@ -62,7 +62,7 @@ type ActiveModal = "upload" | "manual" | "youtube" | null;
 export default function Create() {
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial, isLoading } = useQuiz();
-  const { activeJobs, clearJobs, isAllCompleted, hasImageOnlyUploads, getCombinedDocumentImages } = useUpload();
+  const { activeJobs, clearJobs } = useUpload();
   const [isReady, setIsReady] = useState(false);
   const redirectedRef = useRef(false);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
@@ -90,22 +90,6 @@ export default function Create() {
       setIsReady(false);
     }
   }, [extractedText, sourceMaterial.isImageOnly]);
-
-  // Handle image-only uploads completing
-  useEffect(() => {
-    if (isAllCompleted() && hasImageOnlyUploads() && !sourceMaterial.isImageOnly) {
-      const combinedImages = getCombinedDocumentImages();
-      setExtractedText("[Images uploaded - AI will analyze visually]");
-      setSourceMaterial({
-        type: "image",
-        text: null,
-        imageDataUrl: null,
-        isOfficeWithImages: true,
-        documentImages: combinedImages,
-        isImageOnly: true,
-      });
-    }
-  }, [isAllCompleted, hasImageOnlyUploads, sourceMaterial.isImageOnly, getCombinedDocumentImages, setExtractedText, setSourceMaterial]);
 
   const handleTextExtracted = (text: string, hasImages?: boolean, documentImages?: string[]) => {
     setExtractedText(text);
