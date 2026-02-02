@@ -14,6 +14,7 @@ export interface UploadJob {
   createdAt: Date;
   isOfficeWithImages?: boolean;
   documentImages?: string[];
+  isImageOnly?: boolean;
 }
 
 const jobs = new Map<string, UploadJob>();
@@ -218,8 +219,9 @@ export async function processJob(id: string) {
       extractedText = await extractTextFromPDF(buffer);
     } else if (fileType.startsWith("image/")) {
       isImageFile = true;
-      updateJob(id, { progress: 20, message: "Running OCR on image..." });
-      extractedText = await extractTextFromImage(buffer);
+      updateJob(id, { progress: 20, message: "Processing image for visual analysis..." });
+      // Skip OCR for images - AI will analyze the image directly
+      extractedText = "";
     } else if (isOfficeDocument(fileType)) {
       updateJob(id, { progress: 15, message: "Extracting text from document..." });
       extractedText = await extractTextFromOfficeDocument(buffer);
@@ -248,9 +250,10 @@ export async function processJob(id: string) {
       updateJob(id, {
         status: "completed",
         progress: 100,
-        message: "Extraction complete!",
-        text: extractedText || "[Image with minimal text - will be analyzed visually]",
+        message: "Image ready for visual analysis!",
+        text: "",
         isOfficeWithImages: false,
+        isImageOnly: true,
       });
     } else {
       if (!extractedText || extractedText.length < 50) {

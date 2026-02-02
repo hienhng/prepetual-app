@@ -25,6 +25,7 @@ interface SourceMaterial {
   imageDataUrl: string | null;
   isOfficeWithImages?: boolean;
   documentImages?: string[];
+  isImageOnly?: boolean;
 }
 
 export interface SavedQuizProgress {

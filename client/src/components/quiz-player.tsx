@@ -848,7 +848,8 @@ export function QuizPlayer() {
   const singleSourceImage = sourceMaterial?.imageDataUrl || (currentQuiz as any)?.sourceImageUrl;
   const allMaterialImages = singleSourceImage ? [singleSourceImage, ...materialImages] : materialImages;
   const hasMaterialImages = allMaterialImages.length > 0;
-  const hasExtractedText = !!(sourceMaterial?.text || (currentQuiz as any)?.sourceText);
+  const isImageOnlySource = sourceMaterial?.isImageOnly === true;
+  const hasExtractedText = !isImageOnlySource && !!(sourceMaterial?.text || (currentQuiz as any)?.sourceText);
   const hasMaterial = hasMaterialImages || hasExtractedText;
   const materialText = sourceMaterial?.text || (currentQuiz as any)?.sourceText || "";
 

@@ -12,6 +12,7 @@ interface UploadJob {
   imageDataUrl?: string;
   isOfficeWithImages?: boolean;
   documentImages?: string[];
+  isImageOnly?: boolean;
 }
 
 interface UploadContextType {
@@ -23,6 +24,7 @@ interface UploadContextType {
   getCombinedText: () => string;
   getCombinedDocumentImages: () => string[];
   hasOfficeWithImages: () => boolean;
+  hasImageOnlyUploads: () => boolean;
   isAllCompleted: () => boolean;
   isAnyProcessing: () => boolean;
   // Legacy single-file support
@@ -98,6 +100,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
               error: data.error,
               isOfficeWithImages: data.isOfficeWithImages || false,
               documentImages: data.documentImages || [],
+              isImageOnly: data.isImageOnly || false,
             };
           } catch {
             return job;
@@ -226,6 +229,12 @@ export function UploadProvider({ children }: { children: ReactNode }) {
     );
   }, [activeJobs]);
 
+  const hasImageOnlyUploads = useCallback(() => {
+    // Check if ALL completed jobs are image-only (PNG/JPG uploads with no text)
+    const completedJobs = activeJobs.filter(job => job.status === "completed");
+    return completedJobs.length > 0 && completedJobs.every(job => job.isImageOnly || job.imageDataUrl);
+  }, [activeJobs]);
+
   const isAllCompleted = useCallback(() => {
     return activeJobs.length > 0 && activeJobs.every(job => job.status === "completed" || job.status === "error");
   }, [activeJobs]);
@@ -248,6 +257,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       getCombinedText,
       getCombinedDocumentImages,
       hasOfficeWithImages,
+      hasImageOnlyUploads,
       isAllCompleted,
       isAnyProcessing,
       activeJob,

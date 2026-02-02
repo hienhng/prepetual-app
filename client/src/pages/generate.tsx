@@ -9,20 +9,37 @@ import { useEffect, useRef } from "react";
 
 export default function Generate() {
   const [, setLocation] = useLocation();
-  const { extractedText, setExtractedText, setSourceMaterial, isLoading } = useQuiz();
-  const { activeJobs, isAnyProcessing, isAllCompleted, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages } = useUpload();
+  const { extractedText, setExtractedText, setSourceMaterial, isLoading, sourceMaterial } = useQuiz();
+  const { activeJobs, isAnyProcessing, isAllCompleted, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, hasImageOnlyUploads } = useUpload();
   const redirectedRef = useRef(false);
 
   const isProcessing = isAnyProcessing();
-  const completedJobs = activeJobs.filter(job => job.status === "completed" && job.text);
+  // For image-only uploads, there's no text, so check for imageDataUrl too
+  const completedJobs = activeJobs.filter(job => job.status === "completed" && (job.text || job.isImageOnly || job.imageDataUrl));
   const hasCompletedJobs = completedJobs.length > 0;
 
   // Capture completed job data into quiz context if not already set
   useEffect(() => {
-    if (isAllCompleted() && hasCompletedJobs && !extractedText) {
+    const allCompleted = isAllCompleted();
+    const hasImages = hasOfficeWithImages();
+    const isImageOnlyMode = hasImageOnlyUploads();
+    const combinedImages = getCombinedDocumentImages();
+    
+    // For image-only uploads (PNG/JPG), set source material with images only (no text)
+    if (allCompleted && hasCompletedJobs && isImageOnlyMode && !sourceMaterial.isImageOnly) {
+      setExtractedText("[Images uploaded - AI will analyze visually]");
+      setSourceMaterial({
+        type: "image",
+        text: null,
+        imageDataUrl: null,
+        isOfficeWithImages: true,
+        documentImages: combinedImages,
+        isImageOnly: true,
+      });
+    } 
+    // For documents with text
+    else if (allCompleted && hasCompletedJobs && !extractedText && !isImageOnlyMode) {
       const combinedText = getCombinedText();
-      const combinedImages = getCombinedDocumentImages();
-      const hasImages = hasOfficeWithImages();
       
       setExtractedText(combinedText);
       setSourceMaterial({
@@ -31,9 +48,10 @@ export default function Generate() {
         imageDataUrl: null,
         isOfficeWithImages: hasImages,
         documentImages: combinedImages,
+        isImageOnly: false,
       });
     }
-  }, [isAllCompleted, hasCompletedJobs, extractedText, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, setExtractedText, setSourceMaterial]);
+  }, [isAllCompleted, hasCompletedJobs, extractedText, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, hasImageOnlyUploads, setExtractedText, setSourceMaterial, sourceMaterial.isImageOnly]);
 
   useEffect(() => {
     // Only redirect to create if no extracted text AND no active jobs AND not generating quiz
