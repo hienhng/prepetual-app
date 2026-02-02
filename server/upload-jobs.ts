@@ -210,12 +210,14 @@ export async function processJob(id: string) {
     let extractedText = "";
     let documentImages: string[] = [];
     let isOfficeWithImages = false;
+    let isImageFile = false;
     const fileType = job.fileType;
     
     if (fileType === "application/pdf") {
       updateJob(id, { progress: 20, message: "Extracting text from PDF..." });
       extractedText = await extractTextFromPDF(buffer);
     } else if (fileType.startsWith("image/")) {
+      isImageFile = true;
       updateJob(id, { progress: 20, message: "Running OCR on image..." });
       extractedText = await extractTextFromImage(buffer);
     } else if (isOfficeDocument(fileType)) {
@@ -241,6 +243,14 @@ export async function processJob(id: string) {
         text: extractedText,
         isOfficeWithImages: true,
         documentImages: documentImages,
+      });
+    } else if (isImageFile) {
+      updateJob(id, {
+        status: "completed",
+        progress: 100,
+        message: "Extraction complete!",
+        text: extractedText || "[Image with minimal text - will be analyzed visually]",
+        isOfficeWithImages: false,
       });
     } else {
       if (!extractedText || extractedText.length < 50) {
