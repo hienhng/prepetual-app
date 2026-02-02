@@ -62,7 +62,7 @@ type ActiveModal = "upload" | "manual" | "youtube" | null;
 export default function Create() {
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial, isLoading } = useQuiz();
-  const { activeJobs, clearJobs } = useUpload();
+  const { activeJobs, clearJobs, isAllCompleted, hasImageOnlyUploads, getCombinedDocumentImages } = useUpload();
   const [isReady, setIsReady] = useState(false);
   const redirectedRef = useRef(false);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
@@ -83,12 +83,29 @@ export default function Create() {
   }, [isLoading, setLocation]);
 
   useEffect(() => {
-    if (extractedText && extractedText.length > 0) {
+    // Check if ready: either has extracted text OR is image-only mode
+    if ((extractedText && extractedText.length > 0) || sourceMaterial.isImageOnly) {
       setIsReady(true);
     } else {
       setIsReady(false);
     }
-  }, [extractedText]);
+  }, [extractedText, sourceMaterial.isImageOnly]);
+
+  // Handle image-only uploads completing
+  useEffect(() => {
+    if (isAllCompleted() && hasImageOnlyUploads() && !sourceMaterial.isImageOnly) {
+      const combinedImages = getCombinedDocumentImages();
+      setExtractedText("[Images uploaded - AI will analyze visually]");
+      setSourceMaterial({
+        type: "image",
+        text: null,
+        imageDataUrl: null,
+        isOfficeWithImages: true,
+        documentImages: combinedImages,
+        isImageOnly: true,
+      });
+    }
+  }, [isAllCompleted, hasImageOnlyUploads, sourceMaterial.isImageOnly, getCombinedDocumentImages, setExtractedText, setSourceMaterial]);
 
   const handleTextExtracted = (text: string, hasImages?: boolean, documentImages?: string[]) => {
     setExtractedText(text);
@@ -322,7 +339,10 @@ export default function Create() {
                         <div>
                           <h3 className="font-semibold text-foreground">Content Ready</h3>
                           <p className="text-xs text-muted-foreground">
-                            {getWordCount(extractedText || "")} words from your {getSourceLabel()}
+                            {sourceMaterial.isImageOnly 
+                              ? `${sourceMaterial.documentImages?.length || 0} images ready for AI analysis`
+                              : `${getWordCount(extractedText || "")} words from your ${getSourceLabel()}`
+                            }
                           </p>
                         </div>
                       </div>
@@ -353,7 +373,7 @@ export default function Create() {
                       </AlertDialog>
                     </div>
 
-                    {sourceMaterial?.isOfficeWithImages && sourceMaterial?.documentImages && sourceMaterial.documentImages.length > 0 ? (
+                    {(sourceMaterial?.isOfficeWithImages || sourceMaterial?.isImageOnly) && sourceMaterial?.documentImages && sourceMaterial.documentImages.length > 0 ? (
                       <div className="p-3 rounded-lg bg-white/60 dark:bg-background/60 border">
                         <div className="flex items-center gap-2 mb-2">
                           <Image className="w-4 h-4 text-primary" />
