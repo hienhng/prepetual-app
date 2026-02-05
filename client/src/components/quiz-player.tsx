@@ -1138,53 +1138,12 @@ export function QuizPlayer() {
           >
             <div className="flex items-center justify-between p-4 border-b border-white/10">
               <div className="flex items-center gap-3">
-                {materialViewMode === "images" ? (
-                  <Image className="h-5 w-5 text-white/80" />
-                ) : (
-                  <FileText className="h-5 w-5 text-white/80" />
-                )}
+                <Image className="h-5 w-5 text-white/80" />
                 <span className="text-white font-medium">
-                  {materialViewMode === "images" 
-                    ? `Images ${allMaterialImages.length > 1 ? `(${materialImageIndex + 1}/${allMaterialImages.length})` : ""}`
-                    : "Extracted Text"
-                  }
+                  {`Images ${allMaterialImages.length > 1 ? `(${materialImageIndex + 1}/${allMaterialImages.length})` : ""}`}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                {hasMaterialImages && hasExtractedText && (
-                  <div className="flex bg-white/10 rounded-full p-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMaterialViewMode("images");
-                      }}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                        materialViewMode === "images" 
-                          ? "bg-white text-black" 
-                          : "text-white/70 hover:text-white"
-                      }`}
-                      data-testid="button-view-images"
-                    >
-                      <Image className="h-4 w-4" />
-                      <span className="hidden sm:inline">Images</span>
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMaterialViewMode("text");
-                      }}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                        materialViewMode === "text" 
-                          ? "bg-white text-black" 
-                          : "text-white/70 hover:text-white"
-                      }`}
-                      data-testid="button-view-text"
-                    >
-                      <FileText className="h-4 w-4" />
-                      <span className="hidden sm:inline">Text</span>
-                    </button>
-                  </div>
-                )}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -1196,75 +1155,60 @@ export function QuizPlayer() {
               </div>
             </div>
             
-            {materialViewMode === "images" && hasMaterialImages ? (
-              <>
-                <div 
-                  className="flex-1 flex items-center justify-center p-4 sm:p-8 relative"
-                  onClick={(e) => e.stopPropagation()}
+            <div 
+              className="flex-1 flex items-center justify-center p-4 sm:p-8 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {allMaterialImages.length > 1 && (
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute left-4 z-10 rounded-full shadow-lg h-12 w-12"
+                  onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
+                  data-testid="button-material-prev"
                 >
-                  {allMaterialImages.length > 1 && (
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="absolute left-4 z-10 rounded-full shadow-lg h-12 w-12"
-                      onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
-                      data-testid="button-material-prev"
-                    >
-                      <ChevronLeft className="h-6 w-6" />
-                    </Button>
-                  )}
-                  
-                  <motion.img
-                    key={materialImageIndex}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    src={allMaterialImages[materialImageIndex]}
-                    alt={`Study material ${materialImageIndex + 1}`}
-                    className="max-w-full max-h-[calc(100vh-120px)] object-contain rounded-lg shadow-2xl"
+                  <ChevronLeft className="h-6 w-6" />
+                </Button>
+              )}
+              
+              <motion.img
+                key={materialImageIndex}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                src={allMaterialImages[materialImageIndex]}
+                alt={`Study material ${materialImageIndex + 1}`}
+                className="max-w-full max-h-[calc(100vh-120px)] object-contain rounded-lg shadow-2xl"
+              />
+              
+              {allMaterialImages.length > 1 && (
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute right-4 z-10 rounded-full shadow-lg h-12 w-12"
+                  onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
+                  data-testid="button-material-next"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </Button>
+              )}
+            </div>
+            
+            {allMaterialImages.length > 1 && (
+              <div className="flex justify-center gap-2 p-4 border-t border-white/10">
+                {allMaterialImages.map((_: string, idx: number) => (
+                  <button
+                    key={idx}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMaterialImageIndex(idx);
+                    }}
+                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                      idx === materialImageIndex ? 'bg-white' : 'bg-white/30 hover:bg-white/50'
+                    }`}
+                    data-testid={`button-material-dot-${idx}`}
                   />
-                  
-                  {allMaterialImages.length > 1 && (
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="absolute right-4 z-10 rounded-full shadow-lg h-12 w-12"
-                      onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
-                      data-testid="button-material-next"
-                    >
-                      <ChevronRight className="h-6 w-6" />
-                    </Button>
-                  )}
-                </div>
-                
-                {allMaterialImages.length > 1 && (
-                  <div className="flex justify-center gap-2 p-4 border-t border-white/10">
-                    {allMaterialImages.map((_: string, idx: number) => (
-                      <button
-                        key={idx}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setMaterialImageIndex(idx);
-                        }}
-                        className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                          idx === materialImageIndex ? 'bg-white' : 'bg-white/30 hover:bg-white/50'
-                        }`}
-                        data-testid={`button-material-dot-${idx}`}
-                      />
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : (
-              <div 
-                className="flex-1 overflow-auto p-4 sm:p-8"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="max-w-3xl mx-auto bg-white/5 rounded-xl p-6 sm:p-8">
-                  <pre className="text-white/90 whitespace-pre-wrap font-sans text-sm sm:text-base leading-relaxed">
-                    {materialText || "No extracted text available."}
-                  </pre>
-                </div>
+                ))}
               </div>
             )}
           </motion.div>
