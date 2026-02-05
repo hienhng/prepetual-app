@@ -717,21 +717,34 @@ export async function registerRoutes(
         });
       }
 
-      if (text.length < 50) {
+      // For image-only uploads, run OCR to extract text
+      let textForImport = text;
+      if (documentImages && Array.isArray(documentImages) && documentImages.length > 0) {
+        if (text === "[Images uploaded - AI will analyze visually]" || text.length < 50) {
+          console.log(`Import: Running OCR on ${documentImages.length} images...`);
+          const ocrText = await extractTextFromTextOnlyImages(documentImages);
+          if (ocrText && ocrText.length > 50) {
+            textForImport = ocrText;
+            console.log(`Import: OCR extracted ${ocrText.length} characters`);
+          }
+        }
+      }
+
+      if (textForImport.length < 50) {
         return res.status(400).json({
           message: "Text content is too short. Please upload a document with quiz questions.",
         });
       }
 
       const { questions, title } = await importExistingQuiz({ 
-        text,
+        text: textForImport,
         documentImages: Array.isArray(documentImages) ? documentImages : undefined,
       });
 
       const quiz = await storage.saveQuiz({
         userId,
         title,
-        sourceText: text,
+        sourceText: textForImport,
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: Array.isArray(documentImages) ? documentImages : null,
         questions: questions as Question[],
