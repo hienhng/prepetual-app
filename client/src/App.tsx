@@ -8,7 +8,6 @@ import { QuizNavigationGuardProvider } from "@/lib/quiz-navigation-guard";
 import { UploadProvider } from "@/lib/upload-context";
 import { AuthDialogProvider, useAuthDialog } from "@/lib/auth-context";
 import { GlobalUploadIndicator } from "@/components/global-upload-indicator";
-import { LoginDialog, SignUpDialog } from "@/components/auth-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { LogIn, LogOut, User, Menu, Settings as SettingsIcon } from "lucide-react";
@@ -50,11 +49,11 @@ import Settings from "@/pages/settings";
 import Blog from "@/pages/blog";
 import BlogPost from "@/pages/blog-post";
 import NotFound from "@/pages/not-found";
+import AuthPage from "@/pages/auth";
 import { Footer } from "@/components/footer";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, isLoading } = useAuth();
-  const { openLoginDialog } = useAuthDialog();
   const [, setLocation] = useLocation();
 
   if (isLoading) {
@@ -66,9 +65,7 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   }
 
   if (!isAuthenticated) {
-    // Redirect to home and open login dialog
-    setLocation("/");
-    setTimeout(() => openLoginDialog(), 100);
+    setLocation("/auth");
     return null;
   }
 
@@ -113,6 +110,7 @@ function PublicRouter() {
     <Switch>
       {/* Public pages accessible to guests */}
       <Route path="/" component={Home} />
+      <Route path="/auth" component={AuthPage} />
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:id" component={BlogPost} />
       <Route path="/terms" component={TermsOfService} />
@@ -258,23 +256,6 @@ function AuthenticatedHeader() {
   );
 }
 
-function AuthDialogContainer() {
-  const { isLoginOpen, isSignUpOpen, closeLoginDialog, closeSignUpDialog, switchToSignUp, switchToLogin } = useAuthDialog();
-  return (
-    <>
-      <LoginDialog 
-        open={isLoginOpen} 
-        onOpenChange={(open) => !open && closeLoginDialog()} 
-        onSwitchToSignUp={switchToSignUp}
-      />
-      <SignUpDialog 
-        open={isSignUpOpen} 
-        onOpenChange={(open) => !open && closeSignUpDialog()} 
-        onSwitchToLogin={switchToLogin}
-      />
-    </>
-  );
-}
 
 function AuthenticatedLayout() {
   const { user } = useAuth();
@@ -326,6 +307,11 @@ function AuthenticatedLayout() {
 function PublicLayout() {
   const [location] = useLocation();
   const showFooter = location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
+  const isAuthPage = location === "/auth";
+
+  if (isAuthPage) {
+    return <PublicRouter />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col pt-16">
@@ -349,11 +335,24 @@ function AppContent() {
     );
   }
 
+  return isAuthenticated ? <AuthenticatedLayout /> : <PublicLayout />;
+}
+
+function AppWithAuth() {
+  const [, setLocation] = useLocation();
+  
   return (
-    <>
-      {isAuthenticated ? <AuthenticatedLayout /> : <PublicLayout />}
-      <AuthDialogContainer />
-    </>
+    <AuthDialogProvider navigate={setLocation}>
+      <QuizProvider>
+        <QuizNavigationGuardProvider>
+          <UploadProvider>
+            <AppContent />
+            <GlobalUploadIndicator />
+            <Toaster />
+          </UploadProvider>
+        </QuizNavigationGuardProvider>
+      </QuizProvider>
+    </AuthDialogProvider>
   );
 }
 
@@ -361,17 +360,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AuthDialogProvider>
-          <QuizProvider>
-            <QuizNavigationGuardProvider>
-              <UploadProvider>
-                <AppContent />
-                <GlobalUploadIndicator />
-                <Toaster />
-              </UploadProvider>
-            </QuizNavigationGuardProvider>
-          </QuizProvider>
-        </AuthDialogProvider>
+        <AppWithAuth />
       </TooltipProvider>
     </QueryClientProvider>
   );

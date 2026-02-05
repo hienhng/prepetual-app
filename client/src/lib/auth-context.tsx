@@ -1,60 +1,25 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useCallback } from "react";
 
 interface AuthDialogContextType {
-  isLoginOpen: boolean;
-  isSignUpOpen: boolean;
   openLoginDialog: () => void;
   openSignUpDialog: () => void;
-  closeLoginDialog: () => void;
-  closeSignUpDialog: () => void;
-  switchToSignUp: () => void;
-  switchToLogin: () => void;
 }
 
 const AuthDialogContext = createContext<AuthDialogContextType | null>(null);
 
-export function AuthDialogProvider({ children }: { children: ReactNode }) {
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+export function AuthDialogProvider({ children, navigate }: { children: ReactNode; navigate: (path: string) => void }) {
+  const openLoginDialog = useCallback(() => {
+    navigate("/auth?mode=login");
+  }, [navigate]);
 
-  const openLoginDialog = () => {
-    setIsSignUpOpen(false);
-    setIsLoginOpen(true);
-  };
-
-  const openSignUpDialog = () => {
-    setIsLoginOpen(false);
-    setIsSignUpOpen(true);
-  };
-
-  const closeLoginDialog = () => {
-    setIsLoginOpen(false);
-  };
-
-  const closeSignUpDialog = () => {
-    setIsSignUpOpen(false);
-  };
-
-  const switchToSignUp = () => {
-    setIsLoginOpen(false);
-    setTimeout(() => setIsSignUpOpen(true), 150);
-  };
-
-  const switchToLogin = () => {
-    setIsSignUpOpen(false);
-    setTimeout(() => setIsLoginOpen(true), 150);
-  };
+  const openSignUpDialog = useCallback(() => {
+    navigate("/auth?mode=signup");
+  }, [navigate]);
 
   return (
     <AuthDialogContext.Provider value={{ 
-      isLoginOpen, 
-      isSignUpOpen, 
       openLoginDialog, 
       openSignUpDialog, 
-      closeLoginDialog, 
-      closeSignUpDialog,
-      switchToSignUp,
-      switchToLogin
     }}>
       {children}
     </AuthDialogContext.Provider>
