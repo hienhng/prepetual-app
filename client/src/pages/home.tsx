@@ -694,9 +694,16 @@ function HowItWorksGallery() {
 
 function FeatureIllustration({ feature, color }: { feature: string; color: string }) {
   const colorClasses: Record<string, { bg: string; text: string; border: string }> = {
-    primary: { bg: "bg-primary", text: "text-primary", border: "border-primary/30" },
+    blue: { bg: "bg-blue-500", text: "text-blue-500", border: "border-blue-500/30" },
+    purple: { bg: "bg-purple-500", text: "text-purple-500", border: "border-purple-500/30" },
+    orange: { bg: "bg-orange-500", text: "text-orange-500", border: "border-orange-500/30" },
+    rose: { bg: "bg-rose-500", text: "text-rose-500", border: "border-rose-500/30" },
+    emerald: { bg: "bg-emerald-500", text: "text-emerald-500", border: "border-emerald-500/30" },
+    amber: { bg: "bg-amber-500", text: "text-amber-500", border: "border-amber-500/30" },
+    cyan: { bg: "bg-cyan-500", text: "text-cyan-500", border: "border-cyan-500/30" },
+    indigo: { bg: "bg-indigo-500", text: "text-indigo-500", border: "border-indigo-500/30" },
   };
-  const c = colorClasses[color] || colorClasses.primary;
+  const c = colorClasses[color] || colorClasses.blue;
   
   if (feature === "Multi-Format Upload") {
     return (
@@ -993,62 +1000,69 @@ function FeatureShowcase() {
       icon: Upload,
       title: "Multi-Format Upload",
       description: "PDFs, images, Word, Excel supported.",
-      color: "primary",
+      color: "blue",
       details: "Upload any document format and our intelligent parser extracts the text content. For images and scanned documents, our OCR (Optical Character Recognition) technology accurately reads text from photos of textbooks, handwritten notes, and more.",
     },
     {
       icon: Brain,
       title: "AI Quiz Generation",
       description: "AI creates meaningful questions.",
-      color: "primary",
+      color: "purple",
       details: "Our AI analyzes your content to generate diverse question types: multiple choice, true/false, and short answer. Questions are designed to test comprehension, not just memorization, with adjustable difficulty levels.",
     },
     {
       icon: BookOpen,
       title: "Study Mode",
       description: "Flashcards with progress tracking.",
-      color: "primary",
+      color: "orange",
       details: "Flip through questions as flashcards. Mark each card as 'known' or 'still learning' to track your progress. Cards you're still learning will appear more frequently until you master them.",
     },
     {
       icon: RotateCcw,
       title: "Spaced Repetition",
       description: "Retry missed questions until mastered.",
-      color: "primary",
+      color: "rose",
       details: "Questions you answer incorrectly automatically appear in retry rounds. This spaced repetition approach ensures you keep practicing difficult concepts until they stick, maximizing long-term retention.",
     },
     {
       icon: Share2,
       title: "Community Sharing",
       description: "Share and discover public quizzes.",
-      color: "primary",
+      color: "emerald",
       details: "Share your quizzes with friends or make them public for others to use. Discover quizzes created by the community, sorted by subject and popularity. Collaborate and learn together.",
     },
     {
       icon: Flame,
       title: "Streak Tracking",
       description: "Build daily learning habits.",
-      color: "primary",
+      color: "amber",
       details: "Stay motivated with daily streak tracking. Set personal goals, receive friendly reminders, and watch your consistency grow. Building a study habit has never been more rewarding.",
     },
     {
       icon: MessageCircle,
       title: "Pip AI Assistant",
       description: "Your personal study companion.",
-      color: "primary",
+      color: "cyan",
       details: "Meet Pip, your friendly arctic study buddy! Pip understands your quiz context and helps explain difficult concepts, provides hints when you're stuck, and supports math formulas. Pip guides you to the answer without giving it away.",
     },
     {
       icon: Target,
       title: "Progress Tracking",
       description: "Monitor your exam readiness.",
-      color: "primary",
+      color: "indigo",
       details: "Track your accuracy, streak, and quiz history all in one dashboard. See which topics need more practice and watch your scores improve over time as you prepare for your exams.",
     },
   ];
 
   const colorClasses: Record<string, { text: string; border: string; bg: string; glow: string; solidBg: string }> = {
-    primary: { text: "text-primary", border: "border-primary/20", bg: "bg-primary/10", glow: "group-hover:shadow-primary/20", solidBg: "bg-primary" },
+    blue: { text: "text-blue-500", border: "border-blue-500/20", bg: "bg-blue-500/10", glow: "group-hover:shadow-blue-500/20", solidBg: "bg-blue-500" },
+    purple: { text: "text-purple-500", border: "border-purple-500/20", bg: "bg-purple-500/10", glow: "group-hover:shadow-purple-500/20", solidBg: "bg-purple-500" },
+    orange: { text: "text-orange-500", border: "border-orange-500/20", bg: "bg-orange-500/10", glow: "group-hover:shadow-orange-500/20", solidBg: "bg-orange-500" },
+    rose: { text: "text-rose-500", border: "border-rose-500/20", bg: "bg-rose-500/10", glow: "group-hover:shadow-rose-500/20", solidBg: "bg-rose-500" },
+    emerald: { text: "text-emerald-500", border: "border-emerald-500/20", bg: "bg-emerald-500/10", glow: "group-hover:shadow-emerald-500/20", solidBg: "bg-emerald-500" },
+    amber: { text: "text-amber-500", border: "border-amber-500/20", bg: "bg-amber-500/10", glow: "group-hover:shadow-amber-500/20", solidBg: "bg-amber-500" },
+    cyan: { text: "text-cyan-500", border: "border-cyan-500/20", bg: "bg-cyan-500/10", glow: "group-hover:shadow-cyan-500/20", solidBg: "bg-cyan-500" },
+    indigo: { text: "text-indigo-500", border: "border-indigo-500/20", bg: "bg-indigo-500/10", glow: "group-hover:shadow-indigo-500/20", solidBg: "bg-indigo-500" },
   };
 
   return (
