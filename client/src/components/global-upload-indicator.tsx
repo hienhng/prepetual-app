@@ -19,7 +19,7 @@ import {
 
 export function GlobalUploadIndicator() {
   const { activeJobs, clearJobs, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, hasImageOnlyUploads } = useUpload();
-  const { setExtractedText, setSourceMaterial } = useQuiz();
+  const { setExtractedText, setSourceMaterial, sourceMaterial } = useQuiz();
   const [location, setLocation] = useLocation();
 
   const completedJobs = activeJobs.filter(job => job.status === "completed");
@@ -62,12 +62,18 @@ export function GlobalUploadIndicator() {
     }
   }, [isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, hasImageOnlyUploads, setSourceMaterial, setExtractedText]);
 
-  // Auto-dismiss when landing on generate page
+  // Auto-dismiss when landing on generate page - but only after source material is captured
   useEffect(() => {
-    if (location === "/generate" && activeJobs.length > 0) {
+    // Only clear jobs after source material has been set with images
+    const hasImageData = sourceMaterial.documentImages && sourceMaterial.documentImages.length > 0;
+    const hasTextData = sourceMaterial.text && sourceMaterial.text.length > 0;
+    const isImageOnlyReady = sourceMaterial.isImageOnly && hasImageData;
+    const isDocumentReady = !sourceMaterial.isImageOnly && hasTextData;
+    
+    if (location === "/generate" && activeJobs.length > 0 && (isImageOnlyReady || isDocumentReady)) {
       clearJobs();
     }
-  }, [location, activeJobs.length, clearJobs]);
+  }, [location, activeJobs.length, clearJobs, sourceMaterial.documentImages, sourceMaterial.text, sourceMaterial.isImageOnly]);
 
   if (activeJobs.length === 0) return null;
   if (location === "/" && isAnyProcessing()) {
