@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Loader2, ArrowRight, Brain, Upload, Users, Trophy, BookOpen, FileText, Image, CheckCircle2, Circle, ChevronLeft, ChevronRight, Sparkles, BarChart3, Share2 } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, ArrowLeft, Brain, Upload, Users, Trophy, BookOpen, FileText, Image, CheckCircle2, Circle, ChevronLeft, ChevronRight, Sparkles, BarChart3, Share2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { Link } from "wouter";
 import logoImage from "@assets/image_1765894870887.png";
 
@@ -57,22 +58,38 @@ type RegisterForm = z.infer<typeof registerSchema>;
 function UploadMockup() {
   return (
     <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
-      <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center">
+      <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50 relative overflow-hidden">
+        <motion.div 
+          className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center"
+          animate={{ y: [0, -8, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
           <Upload className="w-8 h-8 text-white" />
-        </div>
+        </motion.div>
         <p className="text-gray-800 font-semibold mb-2">Drop your files here</p>
         <p className="text-gray-500 text-sm mb-4">PDF, Word, PowerPoint, Images</p>
         <div className="flex flex-wrap gap-2 justify-center">
-          <div className="flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs font-medium">
+          <motion.div 
+            className="flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs font-medium"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity, delay: 0 }}
+          >
             <FileText className="w-3 h-3" /> PDF
-          </div>
-          <div className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full text-xs font-medium">
+          </motion.div>
+          <motion.div 
+            className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full text-xs font-medium"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
+          >
             <FileText className="w-3 h-3" /> DOCX
-          </div>
-          <div className="flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1.5 rounded-full text-xs font-medium">
+          </motion.div>
+          <motion.div 
+            className="flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1.5 rounded-full text-xs font-medium"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
+          >
             <Image className="w-3 h-3" /> PNG
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
@@ -83,9 +100,13 @@ function AIGenerationMockup() {
   return (
     <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+        <motion.div 
+          className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center"
+          animate={{ rotate: [0, 5, -5, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
           <Sparkles className="w-5 h-5 text-white" />
-        </div>
+        </motion.div>
         <div>
           <p className="text-gray-800 font-semibold">AI is generating...</p>
           <p className="text-gray-500 text-sm">10 questions from your content</p>
@@ -93,17 +114,29 @@ function AIGenerationMockup() {
       </div>
       <div className="space-y-3">
         <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
-          <div className="h-full w-3/4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" />
+          <motion.div 
+            className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+            animate={{ width: ["20%", "80%", "60%", "90%", "70%", "20%"] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          />
         </div>
-        <div className="bg-gray-100 rounded-lg p-3 border border-gray-200">
-          <div className="h-3 bg-gray-300 rounded w-3/4 mb-2 animate-pulse" />
-          <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse" />
-        </div>
+        <motion.div 
+          className="bg-gray-100 rounded-lg p-3 border border-gray-200"
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <div className="h-3 bg-gray-300 rounded w-3/4 mb-2" />
+          <div className="h-3 bg-gray-200 rounded w-1/2" />
+        </motion.div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="h-10 bg-gray-100 rounded-lg border border-gray-200 animate-pulse" />
-          <div className="h-10 bg-gray-100 rounded-lg border border-gray-200 animate-pulse" />
-          <div className="h-10 bg-gray-100 rounded-lg border border-gray-200 animate-pulse" />
-          <div className="h-10 bg-gray-100 rounded-lg border border-gray-200 animate-pulse" />
+          {[0, 1, 2, 3].map((i) => (
+            <motion.div 
+              key={i}
+              className="h-10 bg-gray-100 rounded-lg border border-gray-200"
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+            />
+          ))}
         </div>
       </div>
     </div>
@@ -111,6 +144,16 @@ function AIGenerationMockup() {
 }
 
 function QuestionTypesMockup() {
+  const options = ["London", "Paris", "Berlin", "Madrid"];
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSelectedIndex((prev) => (prev + 1) % 4);
+    }, 1500);
+    return () => clearInterval(interval);
+  }, []);
+  
   return (
     <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
       <div className="flex items-center justify-between mb-3">
@@ -119,28 +162,37 @@ function QuestionTypesMockup() {
       </div>
       <p className="text-gray-800 font-medium mb-4">What is the capital of France?</p>
       <div className="space-y-2">
-        <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 p-3 rounded-lg hover:border-gray-300 cursor-pointer">
-          <Circle className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-700 text-sm">London</span>
-        </div>
-        <div className="flex items-center gap-3 bg-emerald-50 border-2 border-emerald-500 p-3 rounded-lg">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span className="text-emerald-700 text-sm font-medium">Paris</span>
-        </div>
-        <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 p-3 rounded-lg hover:border-gray-300 cursor-pointer">
-          <Circle className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-700 text-sm">Berlin</span>
-        </div>
-        <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 p-3 rounded-lg hover:border-gray-300 cursor-pointer">
-          <Circle className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-700 text-sm">Madrid</span>
-        </div>
+        {options.map((option, i) => (
+          <motion.div 
+            key={option}
+            className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+              selectedIndex === i 
+                ? (i === 1 ? "bg-emerald-50 border-2 border-emerald-500" : "bg-primary/10 border-2 border-primary")
+                : "bg-gray-50 border border-gray-200"
+            }`}
+            animate={selectedIndex === i ? { scale: [1, 1.02, 1] } : {}}
+            transition={{ duration: 0.3 }}
+          >
+            {selectedIndex === i ? (
+              <CheckCircle2 className={`w-4 h-4 ${i === 1 ? "text-emerald-600" : "text-primary"}`} />
+            ) : (
+              <Circle className="w-4 h-4 text-gray-400" />
+            )}
+            <span className={`text-sm ${
+              selectedIndex === i 
+                ? (i === 1 ? "text-emerald-700 font-medium" : "text-primary font-medium")
+                : "text-gray-700"
+            }`}>{option}</span>
+          </motion.div>
+        ))}
       </div>
     </div>
   );
 }
 
 function ProgressMockup() {
+  const baseHeights = [40, 55, 45, 70, 65, 80, 85];
+  
   return (
     <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
       <div className="flex items-center justify-between mb-4">
@@ -149,16 +201,24 @@ function ProgressMockup() {
           <p className="text-gray-500 text-sm">Last 7 days</p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-emerald-600">85%</p>
+          <motion.p 
+            className="text-2xl font-bold text-emerald-600"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            85%
+          </motion.p>
           <p className="text-emerald-500 text-xs font-medium">+12% this week</p>
         </div>
       </div>
       <div className="flex items-end gap-1.5 h-24 bg-gray-50 rounded-lg p-3">
-        {[40, 55, 45, 70, 65, 80, 85].map((height, i) => (
+        {baseHeights.map((height, i) => (
           <div key={i} className="flex-1 bg-gray-200 rounded-t-sm overflow-hidden h-full flex items-end">
-            <div 
-              className="w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-sm transition-all duration-500"
-              style={{ height: `${height}%` }}
+            <motion.div 
+              className="w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-sm"
+              initial={{ height: 0 }}
+              animate={{ height: [`${height * 0.7}%`, `${height}%`, `${height * 0.85}%`, `${height}%`] }}
+              transition={{ duration: 3, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
             />
           </div>
         ))}
@@ -177,12 +237,26 @@ function ProgressMockup() {
 }
 
 function ShareMockup() {
+  const [copied, setCopied] = useState(false);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+  
   return (
     <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+        <motion.div 
+          className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center"
+          animate={{ rotate: [0, 10, -10, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
           <Share2 className="w-5 h-5 text-white" />
-        </div>
+        </motion.div>
         <div className="flex-1">
           <p className="text-gray-800 font-semibold">Share Quiz</p>
           <p className="text-gray-500 text-sm">Biology Chapter 5</p>
@@ -190,16 +264,38 @@ function ShareMockup() {
       </div>
       <div className="bg-gray-100 border border-gray-200 rounded-lg p-3 flex items-center gap-2 mb-4">
         <span className="text-gray-600 text-sm truncate flex-1 font-mono">prepetual.com/share/abc123</span>
-        <Button size="sm" className="bg-primary hover:bg-primary/90 text-white text-xs h-7">
-          Copy
-        </Button>
+        <motion.div
+          animate={copied ? { scale: [1, 1.1, 1] } : {}}
+          transition={{ duration: 0.3 }}
+        >
+          <Button size="sm" className={`text-xs h-7 ${copied ? "bg-emerald-500 hover:bg-emerald-500" : "bg-primary hover:bg-primary/90"} text-white`}>
+            {copied ? "Copied!" : "Copy"}
+          </Button>
+        </motion.div>
       </div>
       <div className="flex items-center gap-3">
         <div className="flex -space-x-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 border-2 border-white flex items-center justify-center text-xs text-white font-medium shadow-sm">A</div>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 border-2 border-white flex items-center justify-center text-xs text-white font-medium shadow-sm">B</div>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 border-2 border-white flex items-center justify-center text-xs text-white font-medium shadow-sm">C</div>
-          <div className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs text-gray-600 font-medium shadow-sm">+5</div>
+          {[
+            { color: "from-pink-500 to-rose-500", letter: "A", delay: 0 },
+            { color: "from-blue-500 to-indigo-500", letter: "B", delay: 0.1 },
+            { color: "from-green-500 to-emerald-500", letter: "C", delay: 0.2 },
+          ].map((avatar, i) => (
+            <motion.div 
+              key={avatar.letter}
+              className={`w-8 h-8 rounded-full bg-gradient-to-br ${avatar.color} border-2 border-white flex items-center justify-center text-xs text-white font-medium shadow-sm`}
+              animate={{ y: [0, -3, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, delay: avatar.delay }}
+            >
+              {avatar.letter}
+            </motion.div>
+          ))}
+          <motion.div 
+            className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs text-gray-600 font-medium shadow-sm"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            +5
+          </motion.div>
         </div>
         <span className="text-gray-500 text-sm">shared with 8 friends</span>
       </div>
@@ -503,8 +599,18 @@ export default function AuthPage() {
       </div>
 
       {/* Right Side - Auth Form */}
-      <div className="w-full lg:w-1/2 xl:w-2/5 flex flex-col justify-center p-6 sm:p-8 lg:p-12 bg-background">
-        <div className="w-full max-w-md mx-auto">
+      <div className="w-full lg:w-1/2 xl:w-2/5 flex flex-col p-6 sm:p-8 lg:p-12 bg-background">
+        {/* Back Button */}
+        <div className="mb-4">
+          <Link href="/">
+            <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground" data-testid="button-back-home">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Home
+            </Button>
+          </Link>
+        </div>
+        
+        <div className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center">
           {/* Mobile Logo */}
           <div className="flex items-center justify-center gap-2 mb-8 lg:hidden">
             <img 
