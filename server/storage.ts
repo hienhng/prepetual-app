@@ -158,6 +158,7 @@ export class DatabaseStorage implements IStorage {
       title: quiz.title,
       sourceText: quiz.sourceText,
       sourceImageUrl: quiz.sourceImageUrl,
+      sourceImages: quiz.sourceImages || null,
       questions: quiz.questions as Question[],
       difficulty: quiz.difficulty || "medium",
       category: quiz.category || "Others/General",
