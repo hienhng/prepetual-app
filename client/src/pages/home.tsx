@@ -1229,36 +1229,37 @@ function AnimatedCounter({ value, duration = 2 }: { value: string; duration?: nu
 
 function StatsSection() {
   const stats = [
-    { value: "100%", label: "Free Forever", icon: Star, color: "from-amber-500 to-orange-500" },
-    { value: "10+", label: "Languages", icon: Users, color: "from-blue-500 to-cyan-500" },
-    { value: "∞", label: "Unlimited Quizzes", icon: Layers, color: "from-purple-500 to-pink-500" },
+    { value: "100%", label: "Free to Use", sublabel: "No hidden costs", icon: Star, color: "from-amber-500 to-orange-500" },
+    { value: "5+", label: "File Formats", sublabel: "PDF, Word, PPT & more", icon: FileText, color: "from-blue-500 to-cyan-500" },
+    { value: "∞", label: "Unlimited Quizzes", sublabel: "Create as many as you want", icon: Layers, color: "from-purple-500 to-pink-500" },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4 md:gap-8">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-12 max-w-4xl mx-auto">
       {stats.map((stat, index) => (
         <motion.div
           key={stat.label}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: index * 0.15, type: "spring", stiffness: 100 }}
+          transition={{ delay: index * 0.1, type: "spring", stiffness: 100 }}
           className="group text-center relative"
         >
           <motion.div 
-            className="relative w-16 h-16 md:w-20 md:h-20 mx-auto mb-4"
-            whileHover={{ scale: 1.1 }}
+            className="relative w-14 h-14 md:w-16 md:h-16 mx-auto mb-4"
+            whileHover={{ scale: 1.05, rotate: 5 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
-            <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${stat.color} opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-300`} />
-            <div className="relative w-full h-full rounded-2xl bg-card border border-border/50 flex items-center justify-center shadow-lg group-hover:border-primary/30 transition-colors duration-300">
-              <stat.icon className="w-7 h-7 md:w-9 md:h-9 text-primary" />
+            <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${stat.color} opacity-15 blur-xl group-hover:opacity-30 transition-opacity duration-300`} />
+            <div className={`relative w-full h-full rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
+              <stat.icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
             </div>
           </motion.div>
-          <div className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-2">
+          <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">
             <AnimatedCounter value={stat.value} />
           </div>
-          <div className="text-sm md:text-base text-muted-foreground font-medium">{stat.label}</div>
+          <div className="text-base font-semibold text-foreground mb-0.5">{stat.label}</div>
+          <div className="text-xs text-muted-foreground">{stat.sublabel}</div>
         </motion.div>
       ))}
     </div>
@@ -1335,24 +1336,24 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <GraduationCap className="h-4 w-4" />
-                <span>AI-Powered Exam Prep</span>
+                <Sparkles className="h-4 w-4" />
+                <span>AI-Powered Study Tool</span>
               </motion.div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight">
-                Ace your next{" "}
+                Turn your notes into{" "}
                 <motion.span 
                   className="relative cursor-default inline-block"
                   whileHover="hovered"
                   initial="initial"
                 >
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-amber-500">
-                    exam
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-primary">
+                    practice tests
                   </span>
                   <motion.span
-                    className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-amber-500 rounded-full origin-left"
+                    className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full origin-left"
                     variants={{
-                      initial: { scaleX: 0, opacity: 0 },
+                      initial: { scaleX: 0.3, opacity: 0.5 },
                       hovered: { scaleX: 1, opacity: 1 }
                     }}
                     transition={{ 
@@ -1363,51 +1364,53 @@ export default function Home() {
                     }}
                   />
                 </motion.span>
-                <br />
-                <span className="text-muted-foreground text-3xl sm:text-4xl lg:text-5xl">with AI practice quizzes</span>
               </h1>
               
-              <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 mb-8">
-                Upload your notes and textbooks to create personalized practice tests. Prepare for any upcoming exam with confidence.
+              <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 mb-8 leading-relaxed">
+                Upload any study material and let AI create personalized quizzes instantly. Study smarter, not harder.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8">
-                <Button
-                  size="lg"
-                  onClick={handleGetStarted}
-                  className="gap-2 px-8 text-base h-12 w-full sm:w-auto shadow-lg shadow-primary/20"
-                  data-testid="button-hero-get-started"
-                >
-                  Get Started Free
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="gap-2 w-full sm:w-auto h-12 text-base"
-                  data-testid="button-hero-learn-more"
-                >
-                  See How It Works
-                  <ChevronRight className="h-5 w-5" />
-                </Button>
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10">
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    size="lg"
+                    onClick={handleGetStarted}
+                    className="gap-2 px-10 text-base h-14 w-full sm:w-auto shadow-xl shadow-primary/25 font-semibold"
+                    data-testid="button-hero-get-started"
+                  >
+                    Start Creating Quizzes
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="gap-2 w-full sm:w-auto h-14 text-base font-medium"
+                    data-testid="button-hero-learn-more"
+                  >
+                    <Play className="h-4 w-4" />
+                    See How It Works
+                  </Button>
+                </motion.div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 text-sm text-muted-foreground">
                 {[
-                  { icon: CheckCircle2, text: "Free forever" },
-                  { icon: CheckCircle2, text: "No credit card" },
-                  { icon: CheckCircle2, text: "PDF & Images" },
+                  { icon: CheckCircle2, text: "100% Free" },
+                  { icon: CheckCircle2, text: "No sign-up required" },
+                  { icon: CheckCircle2, text: "Works with any document" },
                 ].map((item, i) => (
                   <motion.div 
                     key={item.text}
                     className="flex items-center gap-2"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 + i * 0.1 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 + i * 0.1 }}
                   >
-                    <item.icon className="h-4 w-4 text-green-500" />
-                    <span>{item.text}</span>
+                    <item.icon className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                    <span className="font-medium">{item.text}</span>
                   </motion.div>
                 ))}
               </div>
@@ -1443,15 +1446,15 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ type: "spring", stiffness: 200 }}
             >
-              <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30 bg-primary/5">
-                How It Works
+              <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30 bg-primary/5 font-medium">
+                Simple Process
               </Badge>
             </motion.div>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-              From Notes to Exam Ready
+              How It Works
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Four simple steps to turn any study material into practice tests for your upcoming exams.
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Go from study materials to practice tests in minutes. No complicated setup required.
             </p>
           </motion.div>
           
@@ -1472,15 +1475,15 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ type: "spring", stiffness: 200 }}
             >
-              <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30 bg-primary/5">
+              <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/30 bg-primary/5 font-medium">
                 Features
               </Badge>
             </motion.div>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-              Everything You Need to Ace Your Exams
+              Built for Better Learning
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Powerful tools designed to help students prepare for any test or exam with confidence.
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Everything you need to transform your study materials into effective practice sessions.
             </p>
           </motion.div>
           
