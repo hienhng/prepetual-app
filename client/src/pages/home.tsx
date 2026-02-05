@@ -155,8 +155,8 @@ function HeroIllustration() {
             <div className="p-4">
               {/* Header */}
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-                  <Zap className="w-4 h-4 text-white" />
+                <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-primary-foreground" />
                 </div>
                 <span className="text-xs font-semibold text-foreground">Generate Quiz</span>
               </div>
@@ -177,7 +177,7 @@ function HeroIllustration() {
                   <div className="text-[10px] text-muted-foreground mb-1">Difficulty</div>
                   <div className="flex gap-1">
                     {['Easy', 'Medium', 'Hard'].map((d, i) => (
-                      <div key={d} className={`px-2 py-1 rounded text-[10px] font-medium ${i === 1 ? 'bg-amber-500/20 text-amber-600' : 'bg-muted text-muted-foreground'}`}>
+                      <div key={d} className={`px-2 py-1 rounded text-[10px] font-medium ${i === 1 ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
                         {d}
                       </div>
                     ))}
@@ -278,11 +278,11 @@ function HeroIllustration() {
           </motion.div>
           
           <motion.div
-            className="absolute top-1/3 -right-2 w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center"
+            className="absolute top-1/3 -right-2 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center"
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 2, repeat: Infinity, delay: 1 }}
           >
-            <Star className="w-3 h-3 text-amber-500" />
+            <Star className="w-3 h-3 text-primary" />
           </motion.div>
         </div>
       </div>
@@ -300,18 +300,18 @@ function HowItWorksGallery() {
       icon: Upload, 
       label: "Upload", 
       desc: "Drop your study materials - PDFs, images, Word docs, or PowerPoint files", 
-      color: "text-blue-500", 
-      bg: "bg-blue-500/10",
-      borderColor: "border-blue-500/30",
+      color: "text-primary", 
+      bg: "bg-primary/10",
+      borderColor: "border-primary/30",
       content: (
         <div className="text-center w-full">
           <motion.div 
-            className="w-28 h-28 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border-2 border-dashed border-blue-500/40 flex items-center justify-center relative overflow-hidden"
+            className="w-28 h-28 mx-auto mb-5 rounded-2xl bg-primary/5 border-2 border-dashed border-primary/30 flex items-center justify-center relative overflow-hidden"
             whileHover={{ scale: 1.05, borderStyle: "solid" }}
             transition={{ type: "spring", stiffness: 300 }}
           >
             <motion.div 
-              className="absolute inset-0 bg-blue-500/5"
+              className="absolute inset-0 bg-primary/5"
               animate={{ opacity: [0, 0.5, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
@@ -319,7 +319,7 @@ function HowItWorksGallery() {
               animate={{ y: [0, -5, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             >
-              <Upload className="w-12 h-12 text-blue-500" />
+              <Upload className="w-12 h-12 text-primary" />
             </motion.div>
           </motion.div>
           <p className="text-base font-semibold text-foreground mb-3">Drop your study materials</p>
@@ -331,7 +331,7 @@ function HowItWorksGallery() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
               >
-                <Badge variant="secondary" className="text-xs px-3 py-1.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                <Badge variant="secondary" className="text-xs px-3 py-1.5">
                   {f}
                 </Badge>
               </motion.div>
@@ -344,20 +344,20 @@ function HowItWorksGallery() {
       icon: Eye, 
       label: "Extract", 
       desc: "Our AI reads and analyzes your content instantly with precision", 
-      color: "text-amber-500", 
-      bg: "bg-amber-500/10",
-      borderColor: "border-amber-500/30",
+      color: "text-primary", 
+      bg: "bg-primary/10",
+      borderColor: "border-primary/30",
       content: (
         <div className="w-full max-w-sm mx-auto">
           <div className="space-y-3 mb-5">
             {[100, 85, 60].map((width, i) => (
               <motion.div 
                 key={i} 
-                className="h-3 bg-gradient-to-r from-amber-500/30 via-amber-500/20 to-transparent rounded-full overflow-hidden"
+                className="h-3 bg-primary/20 rounded-full overflow-hidden"
                 style={{ width: `${width}%` }}
               >
                 <motion.div
-                  className="h-full bg-gradient-to-r from-amber-500/60 to-amber-500/30 rounded-full"
+                  className="h-full bg-primary/40 rounded-full"
                   initial={{ x: "-100%" }}
                   animate={{ x: "100%" }}
                   transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
@@ -366,7 +366,7 @@ function HowItWorksGallery() {
             ))}
           </div>
           <motion.div 
-            className="flex items-center justify-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20"
+            className="flex items-center justify-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20"
             animate={{ opacity: [0.7, 1, 0.7] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
@@ -374,9 +374,9 @@ function HowItWorksGallery() {
               animate={{ rotate: 360 }}
               transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
             >
-              <Eye className="w-5 h-5 text-amber-500" />
+              <Eye className="w-5 h-5 text-primary" />
             </motion.div>
-            <span className="text-sm font-medium text-amber-600 dark:text-amber-400">Analyzing your content...</span>
+            <span className="text-sm font-medium text-primary">Analyzing your content...</span>
           </motion.div>
         </div>
       )
@@ -385,24 +385,24 @@ function HowItWorksGallery() {
       icon: Brain, 
       label: "Generate", 
       desc: "AI transforms your text into personalized quiz questions", 
-      color: "text-purple-500", 
-      bg: "bg-purple-500/10",
-      borderColor: "border-purple-500/30",
+      color: "text-primary", 
+      bg: "bg-primary/10",
+      borderColor: "border-primary/30",
       content: (
         <div className="w-full max-w-sm mx-auto space-y-3">
           {[
-            { type: 'Multiple Choice', q: 'What is the main concept discussed?', color: 'purple' },
-            { type: 'True/False', q: 'This statement accurately reflects...', color: 'violet' },
+            { type: 'Multiple Choice', q: 'What is the main concept discussed?' },
+            { type: 'True/False', q: 'This statement accurately reflects...' },
           ].map((item, i) => (
             <motion.div 
               key={i}
-              className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20 text-left"
+              className="p-4 rounded-xl bg-primary/5 border border-primary/20 text-left"
               initial={{ opacity: 0, x: -20, scale: 0.95 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               transition={{ delay: i * 0.2, type: "spring", stiffness: 200 }}
-              whileHover={{ scale: 1.02, borderColor: "rgba(168, 85, 247, 0.4)" }}
+              whileHover={{ scale: 1.02 }}
             >
-              <Badge variant="outline" className="mb-2 text-purple-500 border-purple-500/30 text-xs bg-purple-500/10">
+              <Badge variant="outline" className="mb-2 text-primary border-primary/30 text-xs bg-primary/10">
                 {item.type}
               </Badge>
               <p className="text-sm font-medium text-foreground">{item.q}</p>
@@ -417,9 +417,9 @@ function HowItWorksGallery() {
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 1, repeat: Infinity }}
             >
-              <Brain className="w-4 h-4 text-purple-500" />
+              <Brain className="w-4 h-4 text-primary" />
             </motion.div>
-            <span className="text-sm text-purple-500">Generating more...</span>
+            <span className="text-sm text-primary">Generating more...</span>
           </motion.div>
         </div>
       )
@@ -428,19 +428,19 @@ function HowItWorksGallery() {
       icon: GraduationCap, 
       label: "Learn", 
       desc: "Master your subjects with interactive quizzes and flashcards", 
-      color: "text-green-500", 
-      bg: "bg-green-500/10",
-      borderColor: "border-green-500/30",
+      color: "text-primary", 
+      bg: "bg-primary/10",
+      borderColor: "border-primary/30",
       content: (
         <div className="text-center w-full">
           <motion.div 
-            className="w-28 h-28 mx-auto mb-5 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center relative"
+            className="w-28 h-28 mx-auto mb-5 rounded-full bg-primary/10 flex items-center justify-center relative"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 200 }}
           >
             <motion.div
-              className="absolute inset-0 rounded-full border-2 border-green-500/30"
+              className="absolute inset-0 rounded-full border-2 border-primary/30"
               animate={{ scale: [1, 1.1, 1], opacity: [1, 0, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
@@ -448,18 +448,18 @@ function HowItWorksGallery() {
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <Trophy className="w-12 h-12 text-green-500" />
+              <Trophy className="w-12 h-12 text-primary" />
             </motion.div>
           </motion.div>
           <p className="text-base font-semibold text-foreground mb-4">Ready to learn!</p>
           <div className="flex justify-center gap-3">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Badge className="bg-green-500/15 text-green-600 dark:text-green-400 border border-green-500/30 px-4 py-1.5 cursor-pointer">
+              <Badge className="bg-primary/15 text-primary border border-primary/30 px-4 py-1.5 cursor-pointer">
                 <Play className="w-3.5 h-3.5 mr-1.5" /> Take Quiz
               </Badge>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Badge className="bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/30 px-4 py-1.5 cursor-pointer">
+              <Badge variant="outline" className="border-primary/30 px-4 py-1.5 cursor-pointer">
                 <BookOpen className="w-3.5 h-3.5 mr-1.5" /> Study
               </Badge>
             </motion.div>
@@ -503,7 +503,7 @@ function HowItWorksGallery() {
       {/* Progress bar */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-muted rounded-full overflow-hidden z-20">
         <motion.div 
-          className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500"
+          className="h-full bg-primary"
           initial={{ width: "25%" }}
           animate={{ width: `${((activeStep + 1) / stages.length) * 100}%` }}
           transition={{ type: "spring", stiffness: 100, damping: 20 }}
@@ -694,16 +694,9 @@ function HowItWorksGallery() {
 
 function FeatureIllustration({ feature, color }: { feature: string; color: string }) {
   const colorClasses: Record<string, { bg: string; text: string; border: string }> = {
-    blue: { bg: "bg-blue-500", text: "text-blue-500", border: "border-blue-500/30" },
-    purple: { bg: "bg-purple-500", text: "text-purple-500", border: "border-purple-500/30" },
-    orange: { bg: "bg-orange-500", text: "text-orange-500", border: "border-orange-500/30" },
-    rose: { bg: "bg-rose-500", text: "text-rose-500", border: "border-rose-500/30" },
-    emerald: { bg: "bg-emerald-500", text: "text-emerald-500", border: "border-emerald-500/30" },
-    amber: { bg: "bg-amber-500", text: "text-amber-500", border: "border-amber-500/30" },
-    cyan: { bg: "bg-cyan-500", text: "text-cyan-500", border: "border-cyan-500/30" },
-    indigo: { bg: "bg-indigo-500", text: "text-indigo-500", border: "border-indigo-500/30" },
+    primary: { bg: "bg-primary", text: "text-primary", border: "border-primary/30" },
   };
-  const c = colorClasses[color] || colorClasses.blue;
+  const c = colorClasses[color] || colorClasses.primary;
   
   if (feature === "Multi-Format Upload") {
     return (
@@ -768,11 +761,11 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
       <div className="w-full h-full flex items-center justify-center p-2 pointer-events-none">
         <div className="relative w-full max-w-[200px] transform scale-[0.85]">
           <div className="absolute -left-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 opacity-70">
-            <div className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center">
-              <ArrowLeft className="w-3 h-3 text-yellow-500" />
+            <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+              <ArrowLeft className="w-3 h-3 text-muted-foreground" />
             </div>
-            <span className="text-[6px] text-yellow-600 font-medium">Still</span>
-            <span className="text-[6px] text-yellow-600 font-medium">Learning</span>
+            <span className="text-[6px] text-muted-foreground font-medium">Still</span>
+            <span className="text-[6px] text-muted-foreground font-medium">Learning</span>
           </div>
           <Card className="border bg-card shadow-lg rotate-1">
             <CardContent className="p-3 flex flex-col items-center">
@@ -786,11 +779,11 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
             </CardContent>
           </Card>
           <div className="absolute -right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 opacity-70">
-            <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
-              <Check className="w-3 h-3 text-green-500" />
+            <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+              <Check className="w-3 h-3 text-primary" />
             </div>
-            <span className="text-[6px] text-green-600 font-medium">Know</span>
-            <span className="text-[6px] text-green-600 font-medium">This</span>
+            <span className="text-[6px] text-primary font-medium">Know</span>
+            <span className="text-[6px] text-primary font-medium">This</span>
           </div>
           <div className="mt-2 flex items-center justify-center gap-1">
             <div className="h-1 bg-muted rounded-full w-16">
@@ -945,22 +938,22 @@ function FeatureIllustration({ feature, color }: { feature: string; color: strin
         <div className="w-full max-w-[260px] transform scale-[0.8]">
           <div className="space-y-2">
             <div className="grid grid-cols-3 gap-1.5">
-              <Card className={`${c.bg} border-0`}>
+              <Card className="bg-primary border-0">
                 <CardContent className="p-2 text-center">
-                  <p className="text-[7px] text-white/80">Quizzes</p>
-                  <p className="text-sm font-bold text-white">12</p>
+                  <p className="text-[7px] text-primary-foreground/80">Quizzes</p>
+                  <p className="text-sm font-bold text-primary-foreground">12</p>
                 </CardContent>
               </Card>
-              <Card className="bg-amber-500 border-0">
+              <Card className="bg-primary/80 border-0">
                 <CardContent className="p-2 text-center">
-                  <p className="text-[7px] text-white/80">Streak</p>
-                  <p className="text-sm font-bold text-white">7</p>
+                  <p className="text-[7px] text-primary-foreground/80">Streak</p>
+                  <p className="text-sm font-bold text-primary-foreground">7</p>
                 </CardContent>
               </Card>
-              <Card className="bg-green-500 border-0">
+              <Card className="bg-primary/60 border-0">
                 <CardContent className="p-2 text-center">
-                  <p className="text-[7px] text-white/80">Accuracy</p>
-                  <p className="text-sm font-bold text-white">85%</p>
+                  <p className="text-[7px] text-primary-foreground/80">Accuracy</p>
+                  <p className="text-sm font-bold text-primary-foreground">85%</p>
                 </CardContent>
               </Card>
             </div>
@@ -1000,69 +993,62 @@ function FeatureShowcase() {
       icon: Upload,
       title: "Multi-Format Upload",
       description: "PDFs, images, Word, Excel supported.",
-      color: "blue",
+      color: "primary",
       details: "Upload any document format and our intelligent parser extracts the text content. For images and scanned documents, our OCR (Optical Character Recognition) technology accurately reads text from photos of textbooks, handwritten notes, and more.",
     },
     {
       icon: Brain,
       title: "AI Quiz Generation",
       description: "AI creates meaningful questions.",
-      color: "purple",
+      color: "primary",
       details: "Our AI analyzes your content to generate diverse question types: multiple choice, true/false, and short answer. Questions are designed to test comprehension, not just memorization, with adjustable difficulty levels.",
     },
     {
       icon: BookOpen,
       title: "Study Mode",
       description: "Flashcards with progress tracking.",
-      color: "orange",
+      color: "primary",
       details: "Flip through questions as flashcards. Mark each card as 'known' or 'still learning' to track your progress. Cards you're still learning will appear more frequently until you master them.",
     },
     {
       icon: RotateCcw,
       title: "Spaced Repetition",
       description: "Retry missed questions until mastered.",
-      color: "rose",
+      color: "primary",
       details: "Questions you answer incorrectly automatically appear in retry rounds. This spaced repetition approach ensures you keep practicing difficult concepts until they stick, maximizing long-term retention.",
     },
     {
       icon: Share2,
       title: "Community Sharing",
       description: "Share and discover public quizzes.",
-      color: "emerald",
+      color: "primary",
       details: "Share your quizzes with friends or make them public for others to use. Discover quizzes created by the community, sorted by subject and popularity. Collaborate and learn together.",
     },
     {
       icon: Flame,
       title: "Streak Tracking",
       description: "Build daily learning habits.",
-      color: "amber",
+      color: "primary",
       details: "Stay motivated with daily streak tracking. Set personal goals, receive friendly reminders, and watch your consistency grow. Building a study habit has never been more rewarding.",
     },
     {
       icon: MessageCircle,
       title: "Pip AI Assistant",
       description: "Your personal study companion.",
-      color: "cyan",
+      color: "primary",
       details: "Meet Pip, your friendly arctic study buddy! Pip understands your quiz context and helps explain difficult concepts, provides hints when you're stuck, and supports math formulas. Pip guides you to the answer without giving it away.",
     },
     {
       icon: Target,
       title: "Progress Tracking",
       description: "Monitor your exam readiness.",
-      color: "indigo",
+      color: "primary",
       details: "Track your accuracy, streak, and quiz history all in one dashboard. See which topics need more practice and watch your scores improve over time as you prepare for your exams.",
     },
   ];
 
   const colorClasses: Record<string, { text: string; border: string; bg: string; glow: string; solidBg: string }> = {
-    blue: { text: "text-blue-500", border: "border-blue-500/20", bg: "bg-blue-500/10", glow: "group-hover:shadow-blue-500/20", solidBg: "bg-blue-500" },
-    purple: { text: "text-purple-500", border: "border-purple-500/20", bg: "bg-purple-500/10", glow: "group-hover:shadow-purple-500/20", solidBg: "bg-purple-500" },
-    orange: { text: "text-orange-500", border: "border-orange-500/20", bg: "bg-orange-500/10", glow: "group-hover:shadow-orange-500/20", solidBg: "bg-orange-500" },
-    rose: { text: "text-rose-500", border: "border-rose-500/20", bg: "bg-rose-500/10", glow: "group-hover:shadow-rose-500/20", solidBg: "bg-rose-500" },
-    emerald: { text: "text-emerald-500", border: "border-emerald-500/20", bg: "bg-emerald-500/10", glow: "group-hover:shadow-emerald-500/20", solidBg: "bg-emerald-500" },
-    amber: { text: "text-amber-500", border: "border-amber-500/20", bg: "bg-amber-500/10", glow: "group-hover:shadow-amber-500/20", solidBg: "bg-amber-500" },
-    cyan: { text: "text-cyan-500", border: "border-cyan-500/20", bg: "bg-cyan-500/10", glow: "group-hover:shadow-cyan-500/20", solidBg: "bg-cyan-500" },
-    indigo: { text: "text-indigo-500", border: "border-indigo-500/20", bg: "bg-indigo-500/10", glow: "group-hover:shadow-indigo-500/20", solidBg: "bg-indigo-500" },
+    primary: { text: "text-primary", border: "border-primary/20", bg: "bg-primary/10", glow: "group-hover:shadow-primary/20", solidBg: "bg-primary" },
   };
 
   return (
@@ -1229,9 +1215,9 @@ function AnimatedCounter({ value, duration = 2 }: { value: string; duration?: nu
 
 function StatsSection() {
   const stats = [
-    { value: "100%", label: "Free to Use", sublabel: "No hidden costs", icon: Star, color: "from-amber-500 to-orange-500" },
-    { value: "5+", label: "File Formats", sublabel: "PDF, Word, PPT & more", icon: FileText, color: "from-blue-500 to-cyan-500" },
-    { value: "∞", label: "Unlimited Quizzes", sublabel: "Create as many as you want", icon: Layers, color: "from-purple-500 to-pink-500" },
+    { value: "100%", label: "Free to Use", sublabel: "No hidden costs", icon: Star },
+    { value: "5+", label: "File Formats", sublabel: "PDF, Word, PPT & more", icon: FileText },
+    { value: "∞", label: "Unlimited Quizzes", sublabel: "Create as many as you want", icon: Layers },
   ];
 
   return (
@@ -1247,12 +1233,12 @@ function StatsSection() {
         >
           <motion.div 
             className="relative w-14 h-14 md:w-16 md:h-16 mx-auto mb-4"
-            whileHover={{ scale: 1.05, rotate: 5 }}
+            whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
-            <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${stat.color} opacity-15 blur-xl group-hover:opacity-30 transition-opacity duration-300`} />
-            <div className={`relative w-full h-full rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
-              <stat.icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
+            <div className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl group-hover:bg-primary/30 transition-colors duration-300" />
+            <div className="relative w-full h-full rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <stat.icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
             </div>
           </motion.div>
           <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">
@@ -1347,11 +1333,11 @@ export default function Home() {
                   whileHover="hovered"
                   initial="initial"
                 >
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-primary">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/80">
                     practice tests
                   </span>
                   <motion.span
-                    className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full origin-left"
+                    className="absolute -bottom-1 left-0 right-0 h-1 bg-primary rounded-full origin-left"
                     variants={{
                       initial: { scaleX: 0.3, opacity: 0.5 },
                       hovered: { scaleX: 1, opacity: 1 }
@@ -1409,7 +1395,7 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 + i * 0.1 }}
                   >
-                    <item.icon className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                    <item.icon className="h-4 w-4 text-primary flex-shrink-0" />
                     <span className="font-medium">{item.text}</span>
                   </motion.div>
                 ))}
