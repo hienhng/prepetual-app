@@ -56,21 +56,21 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 function UploadMockup() {
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm">
-      <div className="border-2 border-dashed border-white/40 rounded-xl p-8 text-center">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/20 flex items-center justify-center">
+    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
+      <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center">
           <Upload className="w-8 h-8 text-white" />
         </div>
-        <p className="text-white font-medium mb-2">Drop your files here</p>
-        <p className="text-white/60 text-sm mb-4">PDF, Word, PowerPoint, Images</p>
+        <p className="text-gray-800 font-semibold mb-2">Drop your files here</p>
+        <p className="text-gray-500 text-sm mb-4">PDF, Word, PowerPoint, Images</p>
         <div className="flex flex-wrap gap-2 justify-center">
-          <div className="flex items-center gap-1 bg-white/20 px-3 py-1.5 rounded-full text-xs text-white">
+          <div className="flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs font-medium">
             <FileText className="w-3 h-3" /> PDF
           </div>
-          <div className="flex items-center gap-1 bg-white/20 px-3 py-1.5 rounded-full text-xs text-white">
+          <div className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full text-xs font-medium">
             <FileText className="w-3 h-3" /> DOCX
           </div>
-          <div className="flex items-center gap-1 bg-white/20 px-3 py-1.5 rounded-full text-xs text-white">
+          <div className="flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1.5 rounded-full text-xs font-medium">
             <Image className="w-3 h-3" /> PNG
           </div>
         </div>
@@ -81,27 +81,29 @@ function UploadMockup() {
 
 function AIGenerationMockup() {
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm">
+    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
           <Sparkles className="w-5 h-5 text-white" />
         </div>
         <div>
-          <p className="text-white font-medium">AI is generating...</p>
-          <p className="text-white/60 text-sm">10 questions from your content</p>
+          <p className="text-gray-800 font-semibold">AI is generating...</p>
+          <p className="text-gray-500 text-sm">10 questions from your content</p>
         </div>
       </div>
       <div className="space-y-3">
-        <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-          <div className="h-full w-3/4 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-pulse" />
+        <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-full w-3/4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" />
         </div>
-        <div className="flex gap-2">
-          <div className="flex-1 h-12 bg-white/10 rounded-lg animate-pulse" />
-          <div className="flex-1 h-12 bg-white/10 rounded-lg animate-pulse delay-100" />
+        <div className="bg-gray-100 rounded-lg p-3 border border-gray-200">
+          <div className="h-3 bg-gray-300 rounded w-3/4 mb-2 animate-pulse" />
+          <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse" />
         </div>
-        <div className="flex gap-2">
-          <div className="flex-1 h-12 bg-white/10 rounded-lg animate-pulse delay-200" />
-          <div className="flex-1 h-12 bg-white/10 rounded-lg animate-pulse delay-300" />
+        <div className="grid grid-cols-2 gap-2">
+          <div className="h-10 bg-gray-100 rounded-lg border border-gray-200 animate-pulse" />
+          <div className="h-10 bg-gray-100 rounded-lg border border-gray-200 animate-pulse" />
+          <div className="h-10 bg-gray-100 rounded-lg border border-gray-200 animate-pulse" />
+          <div className="h-10 bg-gray-100 rounded-lg border border-gray-200 animate-pulse" />
         </div>
       </div>
     </div>
@@ -110,24 +112,28 @@ function AIGenerationMockup() {
 
 function QuestionTypesMockup() {
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm">
-      <p className="text-white/80 text-sm mb-3">What is the capital of France?</p>
+    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-xs font-medium text-gray-500">Question 3 of 10</span>
+        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Medium</span>
+      </div>
+      <p className="text-gray-800 font-medium mb-4">What is the capital of France?</p>
       <div className="space-y-2">
-        <div className="flex items-center gap-3 bg-white/10 p-3 rounded-lg">
-          <Circle className="w-4 h-4 text-white/60" />
-          <span className="text-white/80 text-sm">London</span>
+        <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 p-3 rounded-lg hover:border-gray-300 cursor-pointer">
+          <Circle className="w-4 h-4 text-gray-400" />
+          <span className="text-gray-700 text-sm">London</span>
         </div>
-        <div className="flex items-center gap-3 bg-green-500/30 border border-green-400/50 p-3 rounded-lg">
-          <CheckCircle2 className="w-4 h-4 text-green-400" />
-          <span className="text-white text-sm font-medium">Paris</span>
+        <div className="flex items-center gap-3 bg-emerald-50 border-2 border-emerald-500 p-3 rounded-lg">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <span className="text-emerald-700 text-sm font-medium">Paris</span>
         </div>
-        <div className="flex items-center gap-3 bg-white/10 p-3 rounded-lg">
-          <Circle className="w-4 h-4 text-white/60" />
-          <span className="text-white/80 text-sm">Berlin</span>
+        <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 p-3 rounded-lg hover:border-gray-300 cursor-pointer">
+          <Circle className="w-4 h-4 text-gray-400" />
+          <span className="text-gray-700 text-sm">Berlin</span>
         </div>
-        <div className="flex items-center gap-3 bg-white/10 p-3 rounded-lg">
-          <Circle className="w-4 h-4 text-white/60" />
-          <span className="text-white/80 text-sm">Madrid</span>
+        <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 p-3 rounded-lg hover:border-gray-300 cursor-pointer">
+          <Circle className="w-4 h-4 text-gray-400" />
+          <span className="text-gray-700 text-sm">Madrid</span>
         </div>
       </div>
     </div>
@@ -136,28 +142,28 @@ function QuestionTypesMockup() {
 
 function ProgressMockup() {
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm">
+    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <p className="text-white font-medium">Your Progress</p>
-          <p className="text-white/60 text-sm">Last 7 days</p>
+          <p className="text-gray-800 font-semibold">Your Progress</p>
+          <p className="text-gray-500 text-sm">Last 7 days</p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-white">85%</p>
-          <p className="text-green-400 text-xs">+12% this week</p>
+          <p className="text-2xl font-bold text-emerald-600">85%</p>
+          <p className="text-emerald-500 text-xs font-medium">+12% this week</p>
         </div>
       </div>
-      <div className="flex items-end gap-2 h-24">
+      <div className="flex items-end gap-1.5 h-24 bg-gray-50 rounded-lg p-3">
         {[40, 55, 45, 70, 65, 80, 85].map((height, i) => (
-          <div key={i} className="flex-1 bg-white/20 rounded-t-sm overflow-hidden">
+          <div key={i} className="flex-1 bg-gray-200 rounded-t-sm overflow-hidden h-full flex items-end">
             <div 
-              className="w-full bg-gradient-to-t from-green-400 to-emerald-300 rounded-t-sm transition-all duration-500"
+              className="w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-sm transition-all duration-500"
               style={{ height: `${height}%` }}
             />
           </div>
         ))}
       </div>
-      <div className="flex justify-between mt-2 text-xs text-white/50">
+      <div className="flex justify-between mt-2 text-xs text-gray-500 font-medium">
         <span>Mon</span>
         <span>Tue</span>
         <span>Wed</span>
@@ -172,27 +178,30 @@ function ProgressMockup() {
 
 function ShareMockup() {
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm">
+    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
           <Share2 className="w-5 h-5 text-white" />
         </div>
         <div className="flex-1">
-          <p className="text-white font-medium">Share Quiz</p>
-          <p className="text-white/60 text-sm">Biology Chapter 5</p>
+          <p className="text-gray-800 font-semibold">Share Quiz</p>
+          <p className="text-gray-500 text-sm">Biology Chapter 5</p>
         </div>
       </div>
-      <div className="bg-white/10 rounded-lg p-3 flex items-center gap-2 mb-4">
-        <span className="text-white/80 text-sm truncate flex-1">prepetual.com/share/abc123</span>
-        <Button size="sm" className="bg-white/20 hover:bg-white/30 text-white text-xs h-7">
+      <div className="bg-gray-100 border border-gray-200 rounded-lg p-3 flex items-center gap-2 mb-4">
+        <span className="text-gray-600 text-sm truncate flex-1 font-mono">prepetual.com/share/abc123</span>
+        <Button size="sm" className="bg-primary hover:bg-primary/90 text-white text-xs h-7">
           Copy
         </Button>
       </div>
-      <div className="flex -space-x-2">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-rose-400 border-2 border-white/20 flex items-center justify-center text-xs text-white font-medium">A</div>
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-400 border-2 border-white/20 flex items-center justify-center text-xs text-white font-medium">B</div>
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-400 border-2 border-white/20 flex items-center justify-center text-xs text-white font-medium">C</div>
-        <div className="w-8 h-8 rounded-full bg-white/20 border-2 border-white/20 flex items-center justify-center text-xs text-white">+5</div>
+      <div className="flex items-center gap-3">
+        <div className="flex -space-x-2">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 border-2 border-white flex items-center justify-center text-xs text-white font-medium shadow-sm">A</div>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 border-2 border-white flex items-center justify-center text-xs text-white font-medium shadow-sm">B</div>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 border-2 border-white flex items-center justify-center text-xs text-white font-medium shadow-sm">C</div>
+          <div className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs text-gray-600 font-medium shadow-sm">+5</div>
+        </div>
+        <span className="text-gray-500 text-sm">shared with 8 friends</span>
       </div>
     </div>
   );
