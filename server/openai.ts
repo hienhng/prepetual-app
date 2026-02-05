@@ -22,6 +22,124 @@ function isRateLimitError(error: any): boolean {
 
 export type ProgressCallback = (step: string, progress: number, message: string) => void;
 
+export type ImageClassification = {
+  url: string;
+  hasIllustrations: boolean;
+  description?: string;
+};
+
+export async function classifyImages(
+  imageUrls: string[],
+  onProgress?: ProgressCallback,
+  isImageOnlyMode: boolean = false
+): Promise<ImageClassification[]> {
+  if (imageUrls.length === 0) {
+    return [];
+  }
+
+  onProgress?.("classifying", 15, "Analyzing image content types...");
+
+  const classificationPrompt = `Analyze each of the following images and classify them.
+
+For EACH image, determine if it contains:
+- ILLUSTRATIONS: Charts, graphs, diagrams, drawings, photographs, figures, scientific illustrations, maps, flowcharts, or any visual/graphical content beyond just text
+- TEXT-ONLY: Pages that contain ONLY text content (typed or handwritten text, worksheets with just text questions, text documents, notes)
+
+OUTPUT FORMAT (JSON):
+{
+  "images": [
+    {
+      "index": 0,
+      "hasIllustrations": true or false,
+      "description": "Brief description of what the image contains"
+    }
+  ]
+}
+
+Be strict: If an image contains ANY diagrams, charts, graphs, figures, drawings, or visual elements (other than decorative borders), classify it as having illustrations.
+Only classify as text-only if the image is purely text content with no visual/graphical elements.
+
+Respond with ONLY valid JSON, no markdown or additional text.`;
+
+  try {
+    // Match the 6-image limit used in question generation to ensure consistent classification
+    const imagesToClassify = imageUrls.slice(0, 6);
+    const imageContent = imagesToClassify.map(imageUrl => ({
+      type: "image_url" as const,
+      image_url: { url: imageUrl, detail: "low" as const }
+    }));
+
+    const response = await pRetry(
+      async () => {
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4.1",
+          messages: [{
+            role: "user",
+            content: [
+              { type: "text", text: classificationPrompt },
+              ...imageContent
+            ]
+          }],
+          response_format: { type: "json_object" },
+          max_completion_tokens: 2000,
+        });
+
+        const content = completion.choices[0]?.message?.content;
+        if (!content) {
+          throw new Error("Empty response from AI for image classification");
+        }
+        return content;
+      },
+      {
+        retries: 2,
+        minTimeout: 2000,
+        maxTimeout: 10000,
+        onFailedAttempt: (error: any) => {
+          console.log(`Image classification retry (attempt ${error.attemptNumber}): ${error.message || error}`);
+          if (!isRateLimitError(error)) {
+            throw error;
+          }
+        },
+      }
+    );
+
+    const parsed = JSON.parse(response);
+    
+    if (!parsed.images || !Array.isArray(parsed.images)) {
+      // Fallback behavior depends on mode:
+      // - Image-only mode: treat as text-only (conservative, won't embed but will analyze)
+      // - Mixed mode: treat as illustrations (include all, fallback to previous behavior)
+      console.warn(`Invalid classification response, defaulting to ${isImageOnlyMode ? 'text-only' : 'illustrations'}`);
+      return imageUrls.slice(0, 6).map(url => ({ url, hasIllustrations: !isImageOnlyMode }));
+    }
+
+    // Only classify the first 6 images (matches the generation limit)
+    const classifiedUrls = imageUrls.slice(0, 6);
+    const results: ImageClassification[] = classifiedUrls.map((url, index) => {
+      const classification = parsed.images.find((img: any) => img.index === index);
+      // Default for missing classifications depends on mode:
+      // - Image-only mode: default to text-only (conservative)
+      // - Mixed mode: default to illustrations (include, safe fallback)
+      const defaultValue = !isImageOnlyMode;
+      return {
+        url,
+        hasIllustrations: classification?.hasIllustrations ?? defaultValue,
+        description: classification?.description,
+      };
+    });
+
+    const illustrationCount = results.filter(r => r.hasIllustrations).length;
+    const textOnlyCount = results.filter(r => !r.hasIllustrations).length;
+    console.log(`Image classification complete: ${illustrationCount} with illustrations, ${textOnlyCount} text-only`);
+
+    return results;
+  } catch (error) {
+    // Fallback behavior depends on mode (same as invalid response)
+    console.error("Error classifying images:", error);
+    return imageUrls.slice(0, 6).map(url => ({ url, hasIllustrations: !isImageOnlyMode }));
+  }
+}
+
 interface QuizGenerationParams {
   text: string;
   questionCount: number;

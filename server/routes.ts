@@ -7,7 +7,7 @@ import multer from "multer";
 import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { parseOffice } from "officeparser";
-import { generateQuizQuestions, importExistingQuiz, quizChatResponse } from "./openai";
+import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages } from "./openai";
 import { generateQuizRequestSchema, submitQuizRequestSchema } from "@shared/schema";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs";
@@ -511,12 +511,38 @@ export async function registerRoutes(
       const { sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
 
+      // Classify images to separate text-only from illustrations
+      // For image-only uploads, we still need images for the AI to analyze even if they're text-only
+      let imagesForQuestions: string[] | undefined;
+      const imageOnlyFlag = isImageOnly || false;
+      if (documentImages && documentImages.length > 0) {
+        const classifications = await classifyImages(documentImages, sendProgress, imageOnlyFlag);
+        const illustrationImages = classifications
+          .filter(c => c.hasIllustrations)
+          .map(c => c.url);
+        
+        const textOnlyCount = classifications.filter(c => !c.hasIllustrations).length;
+        if (textOnlyCount > 0) {
+          console.log(`Found ${textOnlyCount} text-only images (won't embed in questions)`);
+        }
+        
+        // For image-only uploads: if all images are text-only, still pass them for AI analysis
+        // For mixed uploads: only embed illustration images in questions
+        if (isImageOnly && illustrationImages.length === 0) {
+          // All images are text-only but this is image-only mode - pass all for AI to read
+          imagesForQuestions = documentImages;
+          console.log(`Image-only mode: passing all ${documentImages.length} images for AI analysis`);
+        } else if (illustrationImages.length > 0) {
+          imagesForQuestions = illustrationImages;
+        }
+      }
+
       const { questions, title, category } = await generateQuizQuestions({
         text,
         questionCount,
         questionTypes,
         difficulty: difficulty as DifficultyLevel,
-        documentImages: documentImages || undefined,
+        documentImages: imagesForQuestions,
         onProgress: sendProgress,
         isImageOnly: isImageOnly || false,
       });
@@ -556,16 +582,40 @@ export async function registerRoutes(
         });
       }
 
-      const { text, questionCount, questionTypes, difficulty, documentImages } = validation.data;
+      const { text, questionCount, questionTypes, difficulty, documentImages, isImageOnly } = validation.data;
       const { sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
+
+      // Classify images to separate text-only from illustrations
+      let imagesForQuestions: string[] | undefined;
+      const imageOnlyFlag = isImageOnly || false;
+      
+      if (documentImages && documentImages.length > 0) {
+        const classifications = await classifyImages(documentImages, undefined, imageOnlyFlag);
+        const illustrationImages = classifications
+          .filter(c => c.hasIllustrations)
+          .map(c => c.url);
+        
+        const textOnlyCount = classifications.filter(c => !c.hasIllustrations).length;
+        if (textOnlyCount > 0) {
+          console.log(`Found ${textOnlyCount} text-only images (won't embed in questions)`);
+        }
+        
+        // For image-only uploads: if all images are text-only, still pass them for AI analysis
+        if (isImageOnly && illustrationImages.length === 0) {
+          imagesForQuestions = documentImages;
+          console.log(`Image-only mode: passing all ${documentImages.length} images for AI analysis`);
+        } else if (illustrationImages.length > 0) {
+          imagesForQuestions = illustrationImages;
+        }
+      }
 
       const { questions, title, category } = await generateQuizQuestions({
         text,
         questionCount,
         questionTypes,
         difficulty: difficulty as DifficultyLevel,
-        documentImages: documentImages || undefined,
+        documentImages: imagesForQuestions,
       });
 
       const quiz = await storage.saveQuiz({
