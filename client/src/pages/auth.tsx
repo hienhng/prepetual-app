@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Loader2, ArrowRight, Brain, Upload, Users, Trophy, BookOpen } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, Brain, Upload, Users, Trophy, BookOpen, FileText, Image, CheckCircle2, Circle, ChevronLeft, ChevronRight, Sparkles, BarChart3, Share2 } from "lucide-react";
 import { Link } from "wouter";
 import logoImage from "@assets/image_1765894870887.png";
 
@@ -54,33 +54,272 @@ const registerSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 type RegisterForm = z.infer<typeof registerSchema>;
 
-const features = [
+function UploadMockup() {
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm">
+      <div className="border-2 border-dashed border-white/40 rounded-xl p-8 text-center">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/20 flex items-center justify-center">
+          <Upload className="w-8 h-8 text-white" />
+        </div>
+        <p className="text-white font-medium mb-2">Drop your files here</p>
+        <p className="text-white/60 text-sm mb-4">PDF, Word, PowerPoint, Images</p>
+        <div className="flex flex-wrap gap-2 justify-center">
+          <div className="flex items-center gap-1 bg-white/20 px-3 py-1.5 rounded-full text-xs text-white">
+            <FileText className="w-3 h-3" /> PDF
+          </div>
+          <div className="flex items-center gap-1 bg-white/20 px-3 py-1.5 rounded-full text-xs text-white">
+            <FileText className="w-3 h-3" /> DOCX
+          </div>
+          <div className="flex items-center gap-1 bg-white/20 px-3 py-1.5 rounded-full text-xs text-white">
+            <Image className="w-3 h-3" /> PNG
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AIGenerationMockup() {
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+          <Sparkles className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <p className="text-white font-medium">AI is generating...</p>
+          <p className="text-white/60 text-sm">10 questions from your content</p>
+        </div>
+      </div>
+      <div className="space-y-3">
+        <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+          <div className="h-full w-3/4 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-pulse" />
+        </div>
+        <div className="flex gap-2">
+          <div className="flex-1 h-12 bg-white/10 rounded-lg animate-pulse" />
+          <div className="flex-1 h-12 bg-white/10 rounded-lg animate-pulse delay-100" />
+        </div>
+        <div className="flex gap-2">
+          <div className="flex-1 h-12 bg-white/10 rounded-lg animate-pulse delay-200" />
+          <div className="flex-1 h-12 bg-white/10 rounded-lg animate-pulse delay-300" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QuestionTypesMockup() {
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm">
+      <p className="text-white/80 text-sm mb-3">What is the capital of France?</p>
+      <div className="space-y-2">
+        <div className="flex items-center gap-3 bg-white/10 p-3 rounded-lg">
+          <Circle className="w-4 h-4 text-white/60" />
+          <span className="text-white/80 text-sm">London</span>
+        </div>
+        <div className="flex items-center gap-3 bg-green-500/30 border border-green-400/50 p-3 rounded-lg">
+          <CheckCircle2 className="w-4 h-4 text-green-400" />
+          <span className="text-white text-sm font-medium">Paris</span>
+        </div>
+        <div className="flex items-center gap-3 bg-white/10 p-3 rounded-lg">
+          <Circle className="w-4 h-4 text-white/60" />
+          <span className="text-white/80 text-sm">Berlin</span>
+        </div>
+        <div className="flex items-center gap-3 bg-white/10 p-3 rounded-lg">
+          <Circle className="w-4 h-4 text-white/60" />
+          <span className="text-white/80 text-sm">Madrid</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProgressMockup() {
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-white font-medium">Your Progress</p>
+          <p className="text-white/60 text-sm">Last 7 days</p>
+        </div>
+        <div className="text-right">
+          <p className="text-2xl font-bold text-white">85%</p>
+          <p className="text-green-400 text-xs">+12% this week</p>
+        </div>
+      </div>
+      <div className="flex items-end gap-2 h-24">
+        {[40, 55, 45, 70, 65, 80, 85].map((height, i) => (
+          <div key={i} className="flex-1 bg-white/20 rounded-t-sm overflow-hidden">
+            <div 
+              className="w-full bg-gradient-to-t from-green-400 to-emerald-300 rounded-t-sm transition-all duration-500"
+              style={{ height: `${height}%` }}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-between mt-2 text-xs text-white/50">
+        <span>Mon</span>
+        <span>Tue</span>
+        <span>Wed</span>
+        <span>Thu</span>
+        <span>Fri</span>
+        <span>Sat</span>
+        <span>Sun</span>
+      </div>
+    </div>
+  );
+}
+
+function ShareMockup() {
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center">
+          <Share2 className="w-5 h-5 text-white" />
+        </div>
+        <div className="flex-1">
+          <p className="text-white font-medium">Share Quiz</p>
+          <p className="text-white/60 text-sm">Biology Chapter 5</p>
+        </div>
+      </div>
+      <div className="bg-white/10 rounded-lg p-3 flex items-center gap-2 mb-4">
+        <span className="text-white/80 text-sm truncate flex-1">prepetual.com/share/abc123</span>
+        <Button size="sm" className="bg-white/20 hover:bg-white/30 text-white text-xs h-7">
+          Copy
+        </Button>
+      </div>
+      <div className="flex -space-x-2">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-rose-400 border-2 border-white/20 flex items-center justify-center text-xs text-white font-medium">A</div>
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-400 border-2 border-white/20 flex items-center justify-center text-xs text-white font-medium">B</div>
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-400 border-2 border-white/20 flex items-center justify-center text-xs text-white font-medium">C</div>
+        <div className="w-8 h-8 rounded-full bg-white/20 border-2 border-white/20 flex items-center justify-center text-xs text-white">+5</div>
+      </div>
+    </div>
+  );
+}
+
+const slides = [
   {
     icon: Upload,
     title: "Upload Any Material",
     description: "PDFs, Word docs, images, PowerPoints - we handle it all",
+    mockup: UploadMockup,
   },
   {
     icon: Brain,
     title: "AI-Powered Questions",
     description: "Smart quiz generation tailored to your content",
+    mockup: AIGenerationMockup,
   },
   {
     icon: BookOpen,
     title: "Multiple Question Types",
     description: "Multiple choice, true/false, and short answer",
+    mockup: QuestionTypesMockup,
   },
   {
     icon: Trophy,
     title: "Track Your Progress",
     description: "See your improvement with detailed analytics",
+    mockup: ProgressMockup,
   },
   {
     icon: Users,
     title: "Share & Collaborate",
     description: "Share quizzes with friends and classmates",
+    mockup: ShareMockup,
   },
 ];
+
+function FeatureSlider() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    
+    return () => clearInterval(timer);
+  }, [isAutoPlaying]);
+  
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+    setIsAutoPlaying(false);
+    setTimeout(() => setIsAutoPlaying(true), 10000);
+  };
+  
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+    setIsAutoPlaying(false);
+    setTimeout(() => setIsAutoPlaying(true), 10000);
+  };
+  
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    setIsAutoPlaying(false);
+    setTimeout(() => setIsAutoPlaying(true), 10000);
+  };
+  
+  const CurrentMockup = slides[currentSlide].mockup;
+  const CurrentIcon = slides[currentSlide].icon;
+  
+  return (
+    <div className="flex flex-col h-full">
+      {/* Slide Content */}
+      <div className="flex-1 flex flex-col items-center justify-center">
+        {/* Mockup */}
+        <div className="mb-8 transition-all duration-500 ease-out transform">
+          <CurrentMockup />
+        </div>
+        
+        {/* Text */}
+        <div className="text-center max-w-md px-4">
+          <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full mb-4">
+            <CurrentIcon className="w-4 h-4 text-white" />
+            <span className="text-white/90 text-sm font-medium">{slides[currentSlide].title}</span>
+          </div>
+          <p className="text-white/70 text-lg">
+            {slides[currentSlide].description}
+          </p>
+        </div>
+      </div>
+      
+      {/* Navigation */}
+      <div className="flex items-center justify-center gap-4 pb-8">
+        <button 
+          onClick={prevSlide}
+          className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5 text-white" />
+        </button>
+        
+        <div className="flex gap-2">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                index === currentSlide 
+                  ? "w-8 bg-white" 
+                  : "w-2 bg-white/40 hover:bg-white/60"
+              }`}
+            />
+          ))}
+        </div>
+        
+        <button 
+          onClick={nextSlide}
+          className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+        >
+          <ChevronRight className="w-5 h-5 text-white" />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function AuthPage() {
   const [, setLocation] = useLocation();
@@ -227,7 +466,7 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Feature Gallery */}
+      {/* Left Side - Feature Slider Gallery */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-3/5 bg-gradient-to-br from-primary/90 via-quiz-purple/80 to-quiz-orange/70 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
@@ -236,41 +475,20 @@ export default function AuthPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white rounded-full blur-3xl opacity-50" />
         </div>
         
-        <div className="relative z-10 flex flex-col justify-center p-12 xl:p-16 text-white">
+        <div className="relative z-10 flex flex-col w-full p-8 xl:p-12">
           {/* Logo and Brand */}
-          <div className="flex items-center gap-3 mb-12">
+          <div className="flex items-center gap-3 mb-8">
             <img 
               src={logoImage} 
               alt="Prepetual Logo" 
-              className="w-14 h-14 rounded-2xl object-cover shadow-lg"
+              className="w-12 h-12 rounded-xl object-cover shadow-lg"
             />
-            <h1 className="text-4xl font-bold font-brand">Prepetual</h1>
+            <h1 className="text-3xl font-bold font-brand text-white">Prepetual</h1>
           </div>
 
-          {/* Tagline */}
-          <h2 className="text-3xl xl:text-4xl font-bold mb-4 leading-tight">
-            Turn your study materials<br />into interactive quizzes
-          </h2>
-          <p className="text-lg xl:text-xl text-white/80 mb-12 max-w-lg">
-            Upload any document or image, and let AI create personalized practice questions to help you ace your exams.
-          </p>
-
-          {/* Feature List */}
-          <div className="space-y-5">
-            {features.map((feature, index) => (
-              <div 
-                key={index}
-                className="flex items-start gap-4 bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/15 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
-                  <feature.icon className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">{feature.title}</h3>
-                  <p className="text-sm text-white/70">{feature.description}</p>
-                </div>
-              </div>
-            ))}
+          {/* Feature Slider */}
+          <div className="flex-1">
+            <FeatureSlider />
           </div>
         </div>
       </div>
