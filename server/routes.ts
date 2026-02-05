@@ -208,6 +208,42 @@ async function extractTextFromOfficeDocument(buffer: Buffer): Promise<string> {
   }
 }
 
+async function extractTextFromBase64Image(base64Url: string): Promise<string> {
+  try {
+    // Extract base64 data from data URL
+    const matches = base64Url.match(/^data:image\/[^;]+;base64,(.+)$/);
+    if (!matches) {
+      console.warn("Invalid base64 image URL format");
+      return "";
+    }
+    const base64Data = matches[1];
+    const buffer = Buffer.from(base64Data, "base64");
+    return await extractTextFromImage(buffer);
+  } catch (error) {
+    console.error("Error extracting text from base64 image:", error);
+    return "";
+  }
+}
+
+async function extractTextFromTextOnlyImages(
+  imageUrls: string[],
+  onProgress?: (step: string, progress: number, message: string) => void
+): Promise<string> {
+  if (imageUrls.length === 0) return "";
+  
+  onProgress?.("extracting", 20, "Extracting text from images...");
+  
+  const textParts: string[] = [];
+  for (const url of imageUrls) {
+    const text = await extractTextFromBase64Image(url);
+    if (text) {
+      textParts.push(text);
+    }
+  }
+  
+  return textParts.join("\n\n");
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -514,16 +550,30 @@ export async function registerRoutes(
       // Classify images to separate text-only from illustrations
       // For image-only uploads, we still need images for the AI to analyze even if they're text-only
       let imagesForQuestions: string[] | undefined;
+      let textForQuiz = text;
       const imageOnlyFlag = isImageOnly || false;
       if (documentImages && documentImages.length > 0) {
         const classifications = await classifyImages(documentImages, sendProgress, imageOnlyFlag);
         const illustrationImages = classifications
           .filter(c => c.hasIllustrations)
           .map(c => c.url);
+        const textOnlyImages = classifications
+          .filter(c => !c.hasIllustrations)
+          .map(c => c.url);
         
-        const textOnlyCount = classifications.filter(c => !c.hasIllustrations).length;
-        if (textOnlyCount > 0) {
-          console.log(`Found ${textOnlyCount} text-only images (won't embed in questions)`);
+        if (textOnlyImages.length > 0) {
+          console.log(`Found ${textOnlyImages.length} text-only images, running OCR...`);
+          // Extract text from text-only images using OCR
+          const ocrText = await extractTextFromTextOnlyImages(textOnlyImages, sendProgress);
+          if (ocrText) {
+            // Append OCR text to existing text (or replace placeholder)
+            if (text === "[Images uploaded - AI will analyze visually]" || text.length < 50) {
+              textForQuiz = ocrText;
+            } else {
+              textForQuiz = text + "\n\n" + ocrText;
+            }
+            console.log(`OCR extracted ${ocrText.length} characters from text-only images`);
+          }
         }
         
         // For image-only uploads: if all images are text-only, still pass them for AI analysis
@@ -538,7 +588,7 @@ export async function registerRoutes(
       }
 
       const { questions, title, category } = await generateQuizQuestions({
-        text,
+        text: textForQuiz,
         questionCount,
         questionTypes,
         difficulty: difficulty as DifficultyLevel,
@@ -552,7 +602,7 @@ export async function registerRoutes(
       const quiz = await storage.saveQuiz({
         userId,
         title,
-        sourceText: text,
+        sourceText: textForQuiz,
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: documentImages || null,
         questions: questions as Question[],
@@ -588,6 +638,7 @@ export async function registerRoutes(
 
       // Classify images to separate text-only from illustrations
       let imagesForQuestions: string[] | undefined;
+      let textForQuiz = text;
       const imageOnlyFlag = isImageOnly || false;
       
       if (documentImages && documentImages.length > 0) {
@@ -595,10 +646,23 @@ export async function registerRoutes(
         const illustrationImages = classifications
           .filter(c => c.hasIllustrations)
           .map(c => c.url);
+        const textOnlyImages = classifications
+          .filter(c => !c.hasIllustrations)
+          .map(c => c.url);
         
-        const textOnlyCount = classifications.filter(c => !c.hasIllustrations).length;
-        if (textOnlyCount > 0) {
-          console.log(`Found ${textOnlyCount} text-only images (won't embed in questions)`);
+        if (textOnlyImages.length > 0) {
+          console.log(`Found ${textOnlyImages.length} text-only images, running OCR...`);
+          // Extract text from text-only images using OCR
+          const ocrText = await extractTextFromTextOnlyImages(textOnlyImages);
+          if (ocrText) {
+            // Append OCR text to existing text (or replace placeholder)
+            if (text === "[Images uploaded - AI will analyze visually]" || text.length < 50) {
+              textForQuiz = ocrText;
+            } else {
+              textForQuiz = text + "\n\n" + ocrText;
+            }
+            console.log(`OCR extracted ${ocrText.length} characters from text-only images`);
+          }
         }
         
         // For image-only uploads: if all images are text-only, still pass them for AI analysis
@@ -611,7 +675,7 @@ export async function registerRoutes(
       }
 
       const { questions, title, category } = await generateQuizQuestions({
-        text,
+        text: textForQuiz,
         questionCount,
         questionTypes,
         difficulty: difficulty as DifficultyLevel,
@@ -621,7 +685,7 @@ export async function registerRoutes(
       const quiz = await storage.saveQuiz({
         userId,
         title,
-        sourceText: text,
+        sourceText: textForQuiz,
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: documentImages || null,
         questions: questions as Question[],
