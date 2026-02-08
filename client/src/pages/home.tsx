@@ -164,38 +164,9 @@ function InteractiveFlashcard() {
 
 function HeroIllustration() {
   return (
-    <div className="relative w-full h-[400px] md:h-[500px] perspective-1000">
-      {/* Background glow */}
-      <motion.div 
-        className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent rounded-[3rem] blur-3xl"
-        animate={{ scale: [1, 1.05, 1], opacity: [0.5, 0.7, 0.5] }}
-        transition={{ duration: 6, repeat: Infinity }}
-      />
-      
-      {/* Decorative SVG circles */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 500 500">
-        <motion.circle
-          cx="250" cy="250" r="200"
-          fill="none" stroke="hsl(var(--primary))" strokeOpacity="0.1"
-          strokeWidth="1" strokeDasharray="8 8"
-          initial={{ rotate: 0 }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-          style={{ transformOrigin: "center" }}
-        />
-        <motion.circle
-          cx="250" cy="250" r="160"
-          fill="none" stroke="hsl(var(--primary))" strokeOpacity="0.15"
-          strokeWidth="1" strokeDasharray="4 6"
-          initial={{ rotate: 0 }}
-          animate={{ rotate: -360 }}
-          transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
-          style={{ transformOrigin: "center" }}
-        />
-      </svg>
-
+    <div className="relative w-full h-[350px] md:h-[420px]">
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative w-full max-w-[380px] md:max-w-[450px] h-[320px] md:h-[380px] perspective-1000">
+        <div className="relative w-full max-w-[360px] md:max-w-[420px] h-[300px] md:h-[350px]">
           
           {/* Generation Board Card (Back) */}
           <motion.div
@@ -319,30 +290,6 @@ function HeroIllustration() {
           {/* Study Mode Card (Left side, lower) - Interactive like real study.tsx */}
           <InteractiveFlashcard />
 
-          {/* Floating sparkle decorations */}
-          <motion.div
-            className="absolute -top-4 left-1/2 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center"
-            animate={{ y: [0, -8, 0], rotate: [0, 10, 0] }}
-            transition={{ duration: 3, repeat: Infinity }}
-          >
-            <Sparkles className="w-4 h-4 text-primary" />
-          </motion.div>
-          
-          <motion.div
-            className="absolute top-1/2 -left-4 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center"
-            animate={{ y: [0, 6, 0] }}
-            transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-          >
-            <CheckCircle2 className="w-3 h-3 text-green-500" />
-          </motion.div>
-          
-          <motion.div
-            className="absolute top-1/3 -right-2 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center"
-            animate={{ y: [0, -6, 0] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-          >
-            <Star className="w-3 h-3 text-primary" />
-          </motion.div>
         </div>
       </div>
     </div>
@@ -624,67 +571,22 @@ function HowItWorksGallery() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, type: "spring", stiffness: 100 }}
               >
-                <Card className={`relative border-2 ${isActive ? stage.borderColor : 'border-transparent'} bg-card overflow-visible h-full min-h-[420px] transition-all duration-500 group shadow-xl`}>
-                  {/* Gradient background overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${stage.bg} to-transparent opacity-30 pointer-events-none rounded-xl overflow-hidden`} />
-                  
-                  {/* Animated corner glow */}
-                  <motion.div
-                    className={`absolute -top-24 -right-24 w-48 h-48 rounded-full ${stage.bg} blur-3xl`}
-                    animate={{ 
-                      scale: isActive ? [1, 1.3, 1] : 1,
-                      opacity: isActive ? [0.3, 0.5, 0.3] : 0.2
-                    }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  />
-                  
-                  {/* Floating decorative elements */}
-                  <motion.div
-                    className={`absolute top-12 right-12 w-2 h-2 rounded-full ${stage.bg}`}
-                    animate={{ y: [0, -8, 0], opacity: [0.5, 1, 0.5] }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  />
-                  <motion.div
-                    className={`absolute bottom-24 left-12 w-1.5 h-1.5 rounded-full ${stage.bg}`}
-                    animate={{ y: [0, 6, 0] }}
-                    transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-                  />
-                  
-                  <CardContent className="relative p-8 md:p-10 flex flex-col items-center justify-center text-center h-full z-10">
-                    {/* Step indicator with icon */}
-                    <motion.div
-                      className="relative mb-8"
-                      animate={isActive ? { y: [0, -6, 0] } : {}}
-                      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                    >
-                      {/* Glow ring */}
-                      <motion.div
-                        className={`absolute inset-0 rounded-2xl ${stage.bg} blur-xl`}
-                        animate={isActive ? { scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] } : {}}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                      <div className={`relative w-20 h-20 rounded-2xl ${stage.bg} flex items-center justify-center border-2 ${stage.borderColor} shadow-lg`}>
-                        <stage.icon className={`w-10 h-10 ${stage.color}`} />
+                <Card className={`relative border ${isActive ? stage.borderColor : 'border-border'} bg-card overflow-visible h-full min-h-[380px] transition-all duration-300`}>
+                  <CardContent className="relative p-6 md:p-8 flex flex-col items-center justify-center text-center h-full">
+                    <div className="relative mb-6">
+                      <div className={`relative w-14 h-14 rounded-xl ${stage.bg} flex items-center justify-center`}>
+                        <stage.icon className={`w-7 h-7 ${stage.color}`} />
                       </div>
-                      <motion.div 
-                        className={`absolute -top-2 -right-2 w-7 h-7 rounded-full bg-card border-2 ${stage.borderColor} flex items-center justify-center text-sm font-bold shadow-lg ${stage.color}`}
-                        whileHover={{ scale: 1.1 }}
-                      >
+                      <div className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-card border ${stage.borderColor} flex items-center justify-center text-xs font-semibold ${stage.color}`}>
                         {i + 1}
-                      </motion.div>
-                    </motion.div>
+                      </div>
+                    </div>
                     
-                    {/* Title and description */}
-                    <div className="mb-8">
-                      <motion.h3 
-                        className={`text-2xl font-bold mb-3 ${stage.color}`}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                      >
+                    <div className="mb-6">
+                      <h3 className={`text-xl font-semibold mb-2 ${stage.color}`}>
                         {stage.label}
-                      </motion.h3>
-                      <p className="text-muted-foreground max-w-md text-sm md:text-base leading-relaxed">{stage.desc}</p>
+                      </h3>
+                      <p className="text-muted-foreground max-w-md text-sm leading-relaxed">{stage.desc}</p>
                     </div>
                     
                     {/* Content area */}
@@ -710,39 +612,22 @@ function HowItWorksGallery() {
         })}
       </div>
 
-      {/* Step indicators */}
-      <div className="flex justify-center items-center gap-3 mt-4">
+      <div className="flex justify-center items-center gap-2 mt-4">
         {stages.map((stage, i) => (
           <button
             key={i}
             onClick={() => goToStep(i)}
-            className={`group relative flex items-center gap-2 transition-all duration-300 ${
-              activeStep === i ? 'scale-100' : 'scale-90 opacity-70 hover:opacity-100'
-            }`}
+            className="transition-all duration-200"
             aria-label={`Go to step ${i + 1}: ${stage.label}`}
             data-testid={`button-step-indicator-${i}`}
           >
-            <motion.div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
+            <div
+              className={`w-2 h-2 rounded-full transition-all duration-200 ${
                 activeStep === i 
-                  ? `${stage.bg} ${stage.borderColor} border-2 shadow-lg` 
-                  : 'bg-muted border border-transparent'
+                  ? 'bg-primary scale-125' 
+                  : 'bg-muted-foreground/30'
               }`}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <stage.icon className={`w-5 h-5 ${activeStep === i ? stage.color : 'text-muted-foreground'}`} />
-            </motion.div>
-            {activeStep === i && (
-              <motion.span
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                className={`text-sm font-medium ${stage.color} hidden sm:block`}
-              >
-                {stage.label}
-              </motion.span>
-            )}
+            />
           </button>
         ))}
       </div>
@@ -1149,7 +1034,7 @@ function FeatureShowcase() {
                   onClick={() => setExpandedIndex(index)}
                   className="flex"
                 >
-                  <Card className={`w-full group cursor-pointer transition-all duration-300 border ${colors.border} bg-card hover:shadow-xl ${colors.glow} hover:-translate-y-1 relative overflow-visible`}>
+                  <Card className={`w-full group cursor-pointer transition-all duration-200 border ${colors.border} bg-card hover-elevate relative overflow-visible`}>
                     <CardContent className="p-4 flex flex-col h-full">
                       <div className="flex items-center gap-3 mb-2">
                         <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center border ${colors.border} shrink-0`}>
@@ -1181,45 +1066,23 @@ function FeatureShowcase() {
               const feature = features[expandedIndex];
               const colors = colorClasses[feature.color];
               return (
-                <Card className={`w-full border-2 ${colors.border} bg-card shadow-2xl relative overflow-visible`}>
-                  <CardContent className="p-8 relative overflow-hidden">
-                    <div className={`absolute -top-20 -right-20 w-64 h-64 rounded-full ${colors.bg} blur-3xl opacity-50`} />
-                    <div className={`absolute -bottom-20 -left-20 w-48 h-48 rounded-full ${colors.bg} blur-3xl opacity-30`} />
-                    
-                    <div className="relative grid md:grid-cols-2 gap-8 items-center">
+                <Card className={`w-full border ${colors.border} bg-card relative overflow-visible`}>
+                  <CardContent className="p-6 md:p-8 relative">
+                    <div className="grid md:grid-cols-2 gap-6 items-center">
                       <div className="order-2 md:order-1">
-                        <motion.div 
-                          className={`inline-flex w-16 h-16 rounded-2xl ${colors.bg} items-center justify-center mb-6 border ${colors.border}`}
-                          initial={{ scale: 0, rotate: -180 }}
-                          animate={{ scale: 1, rotate: 0 }}
-                          transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-                        >
-                          <feature.icon className={`w-8 h-8 ${colors.text}`} />
-                        </motion.div>
+                        <div className={`inline-flex w-12 h-12 rounded-xl ${colors.bg} items-center justify-center mb-4`}>
+                          <feature.icon className={`w-6 h-6 ${colors.text}`} />
+                        </div>
                         
-                        <motion.h3 
-                          className="text-2xl md:text-3xl font-bold text-foreground mb-4"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.15 }}
-                        >
+                        <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-3">
                           {feature.title}
-                        </motion.h3>
+                        </h3>
                         
-                        <motion.p 
-                          className="text-base text-muted-foreground leading-relaxed mb-6"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 }}
-                        >
+                        <p className="text-sm text-muted-foreground leading-relaxed mb-5">
                           {feature.details}
-                        </motion.p>
+                        </p>
                         
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.25 }}
-                        >
+                        <div>
                           <Button
                             variant="outline"
                             onClick={() => setExpandedIndex(null)}
@@ -1229,19 +1092,14 @@ function FeatureShowcase() {
                             <ArrowLeft className="w-4 h-4" />
                             Back to all features
                           </Button>
-                        </motion.div>
+                        </div>
                       </div>
                       
-                      <motion.div 
-                        className="order-1 md:order-2 flex items-center justify-center"
-                        initial={{ opacity: 0, x: 30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ type: "spring", stiffness: 100, delay: 0.1 }}
-                      >
-                        <div className={`w-full max-w-[320px] aspect-[4/3] rounded-2xl ${colors.bg} border ${colors.border} p-4 flex items-center justify-center`}>
+                      <div className="order-1 md:order-2 flex items-center justify-center">
+                        <div className={`w-full max-w-[280px] aspect-[4/3] rounded-xl ${colors.bg} border ${colors.border} p-3 flex items-center justify-center`}>
                           <FeatureIllustration feature={feature.title} color={feature.color} />
                         </div>
-                      </motion.div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -1293,24 +1151,20 @@ function StatsSection() {
   ];
 
   return (
-    <div className="flex flex-wrap justify-center gap-12 md:gap-20 max-w-3xl mx-auto">
-      {stats.map((stat, index) => (
-        <motion.div
+    <div className="flex flex-wrap justify-center gap-10 md:gap-16 max-w-3xl mx-auto">
+      {stats.map((stat) => (
+        <div
           key={stat.label}
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: index * 0.1 }}
           className="text-center"
         >
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <stat.icon className="w-5 h-5 text-primary" />
-            <span className="text-3xl md:text-4xl font-bold text-foreground">
+          <div className="flex items-center justify-center gap-1.5 mb-1">
+            <stat.icon className="w-4 h-4 text-primary" />
+            <span className="text-2xl md:text-3xl font-semibold text-foreground">
               <AnimatedCounter value={stat.value} />
             </span>
           </div>
-          <div className="text-sm text-muted-foreground">{stat.label}</div>
-        </motion.div>
+          <div className="text-xs text-muted-foreground">{stat.label}</div>
+        </div>
       ))}
     </div>
   );
@@ -1359,44 +1213,21 @@ export default function Home() {
 
   return (
     <div className="min-h-screen overflow-hidden">
-      <section className="relative pt-12 pb-20 md:pt-20 md:pb-28 overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <motion.div
-            className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/8 blur-[120px]"
-            animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.6, 0.4] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute bottom-0 -left-40 w-[400px] h-[400px] rounded-full bg-primary/5 blur-[100px]"
-            animate={{ scale: [1.1, 1, 1.1], opacity: [0.3, 0.5, 0.3] }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          />
-        </div>
-
+      <section className="relative pt-10 pb-16 md:pt-16 md:pb-20 overflow-hidden">
         <div className="container relative mx-auto px-4 sm:px-6">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="text-center lg:text-left order-2 lg:order-1"
             >
-              <motion.div 
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-8"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <motion.div
-                  animate={{ rotate: [0, 15, -15, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                >
-                  <Sparkles className="h-4 w-4" />
-                </motion.div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-6">
+                <Sparkles className="h-3.5 w-3.5" />
                 <span>AI-Powered Exam Prep</span>
-              </motion.div>
+              </div>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-[1.15] tracking-tight relative">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-5 leading-[1.15] tracking-tight relative">
                 Study smarter with{" "}
                 <span className="relative inline-block">
                   <span className="text-primary">
@@ -1406,72 +1237,47 @@ export default function Home() {
                 </span>
               </h1>
               
-              <p className="text-lg md:text-xl text-muted-foreground max-w-md mx-auto lg:mx-0 mb-10 leading-relaxed">
+              <p className="text-base text-muted-foreground max-w-md mx-auto lg:mx-0 mb-8 leading-relaxed">
                 Upload your notes, textbooks, or slides. Get instant practice tests tailored to your content.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10 relative">
-                <motion.div 
-                  whileHover={{ scale: 1.03 }} 
-                  whileTap={{ scale: 0.97 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="relative"
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-8 relative">
+                <Button
+                  size="lg"
+                  onClick={handleGetStarted}
+                  className="gap-2 px-6 w-full sm:w-auto"
+                  data-testid="button-hero-get-started"
                 >
-                  <Button
-                    size="lg"
-                    onClick={handleGetStarted}
-                    className="gap-2.5 px-8 text-base h-13 w-full sm:w-auto shadow-lg shadow-primary/20 font-semibold"
-                    data-testid="button-hero-get-started"
-                  >
-                    Get Started Free
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </motion.div>
-                <motion.div 
-                  whileHover={{ scale: 1.03 }} 
-                  whileTap={{ scale: 0.97 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
+                  Get Started Free
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="gap-2 w-full sm:w-auto text-muted-foreground"
+                  data-testid="button-hero-learn-more"
                 >
-                  <Button
-                    size="lg"
-                    variant="ghost"
-                    onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="gap-2 w-full sm:w-auto h-13 text-base font-medium text-muted-foreground hover:text-foreground"
-                    data-testid="button-hero-learn-more"
-                  >
-                    <ArrowDown className="h-4 w-4" />
-                    How It Works
-                  </Button>
-                </motion.div>
+                  <ArrowDown className="h-4 w-4" />
+                  How It Works
+                </Button>
               </div>
 
-              <motion.div 
-                className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-              >
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2">
                 {[
                   { icon: CheckCircle2, text: "Free forever" },
                   { icon: CheckCircle2, text: "No account needed" },
                   { icon: CheckCircle2, text: "PDF, Word, Images" },
-                ].map((item, i) => (
-                  <motion.div 
+                ].map((item) => (
+                  <div 
                     key={item.text}
                     className="flex items-center gap-1.5 text-sm text-muted-foreground"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 + i * 0.1 }}
                   >
-                    <item.icon className="h-4 w-4 text-primary flex-shrink-0" />
+                    <item.icon className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                     <span>{item.text}</span>
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
+              </div>
             </motion.div>
 
             <motion.div
@@ -1485,84 +1291,60 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="py-16 md:py-20 border-y border-border/50">
+      <section className="py-12 md:py-16 border-y border-border/50">
         <div className="container mx-auto px-4 sm:px-6">
           <StatsSection />
         </div>
       </section>
       
-      <section id="how-it-works" className="py-20 md:py-28">
+      <section id="how-it-works" className="py-14 md:py-20">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Simple Process</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <div className="text-center mb-10">
+            <p className="text-xs font-medium text-primary uppercase tracking-wider mb-2">Simple Process</p>
+            <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3">
               How It Works
             </h2>
-            <p className="text-muted-foreground max-w-lg mx-auto">
+            <p className="text-sm text-muted-foreground max-w-lg mx-auto">
               From notes to quizzes in just a few clicks
             </p>
-          </motion.div>
+          </div>
           
           <HowItWorksGallery />
         </div>
       </section>
       
-      <section className="py-20 md:py-28 bg-muted/40 min-h-[800px] md:min-h-[650px]">
+      <section className="py-14 md:py-20 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6">
-          <motion.div 
-            className="text-center mb-14"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Features</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <div className="text-center mb-10">
+            <p className="text-xs font-medium text-primary uppercase tracking-wider mb-2">Features</p>
+            <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3">
               Everything You Need
             </h2>
-            <p className="text-muted-foreground max-w-lg mx-auto">
+            <p className="text-sm text-muted-foreground max-w-lg mx-auto">
               Powerful tools to transform how you study
             </p>
-          </motion.div>
+          </div>
           
           <div className="max-w-5xl mx-auto">
             <FeatureShowcase />
           </div>
         </div>
       </section>
-      <section className="py-20 md:py-28 relative overflow-hidden">
+      <section className="py-14 md:py-20 relative">
         <div className="container relative mx-auto px-4 sm:px-6 max-w-3xl">
-          <motion.div 
-            className="text-center mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Try It Now</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <div className="text-center mb-8">
+            <p className="text-xs font-medium text-primary uppercase tracking-wider mb-2">Try It Now</p>
+            <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3">
               Create Your First Quiz
             </h2>
-            <p className="text-muted-foreground max-w-md mx-auto">
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
               Upload any study material and watch AI turn it into practice questions
             </p>
-          </motion.div>
+          </div>
           
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ type: "spring", stiffness: 100 }}
-            className="max-w-2xl mx-auto"
-          >
-            <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-primary/10 to-primary/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <Card className="relative shadow-2xl border-primary/20 overflow-hidden bg-card/95 backdrop-blur-sm">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
-                <CardContent className="p-8 relative">
+          <div className="max-w-2xl mx-auto">
+            <Card className="border bg-card">
+              <CardContent className="p-6 relative">
                   <FileUpload onTextExtracted={handleTextExtracted} />
                   
                   {extractedText && (
@@ -1574,61 +1356,51 @@ export default function Home() {
                       <Button
                         size="lg"
                         onClick={handleContinueToGenerate}
-                        className="w-full gap-2 h-12 shadow-lg shadow-primary/20"
+                        className="w-full gap-2"
                         data-testid="button-continue-generate"
                       >
                         Continue to Generate Quiz
-                        <ArrowRight className="h-5 w-5" />
+                        <ArrowRight className="h-4 w-4" />
                       </Button>
                     </motion.div>
                   )}
                 </CardContent>
               </Card>
-            </div>
-          </motion.div>
+          </div>
         </div>
       </section>
-      <section className="py-20 md:py-28 bg-muted/40 border-t border-border/50">
+      <section className="py-14 md:py-20 bg-muted/30 border-t border-border/50">
         <div className="container mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center max-w-xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <div className="text-center max-w-xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3">
               Ready to ace your exams?
             </h2>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-sm text-muted-foreground mb-6">
               Start creating personalized practice quizzes from your study materials today.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 relative">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Button
+                size="lg"
+                onClick={handleGetStarted}
+                className="gap-2 px-6 w-full sm:w-auto"
+                data-testid="button-cta-get-started"
+              >
+                Get Started Free
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Link href="/about">
                 <Button
                   size="lg"
-                  onClick={handleGetStarted}
-                  className="gap-2 px-8 h-12 w-full sm:w-auto shadow-lg shadow-primary/20"
-                  data-testid="button-cta-get-started"
+                  variant="ghost"
+                  className="gap-2 w-full sm:w-auto text-muted-foreground"
+                  data-testid="button-learn-more"
                 >
-                  Get Started Free
-                  <ArrowRight className="h-4 w-4" />
+                  Learn More
                 </Button>
-              </motion.div>
-              <Link href="/about">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    size="lg"
-                    variant="ghost"
-                    className="gap-2 w-full sm:w-auto h-12 text-muted-foreground hover:text-foreground"
-                    data-testid="button-learn-more"
-                  >
-                    Learn More
-                  </Button>
-                </motion.div>
               </Link>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
       {/* Scroll to top button */}
@@ -1636,7 +1408,7 @@ export default function Home() {
         {showScrollTop && (
           <motion.button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-6 right-6 w-10 h-10 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center z-50 hover:scale-110 active:scale-95 transition-transform"
+            className="fixed bottom-6 right-6 w-9 h-9 rounded-full bg-primary text-primary-foreground shadow-md flex items-center justify-center z-50"
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
