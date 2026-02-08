@@ -165,8 +165,6 @@ function InteractiveFlashcard() {
 function HeroIllustration() {
   return (
     <div className="relative w-full h-[400px] md:h-[500px] perspective-1000">
-      <Doodle d={D.star} color="text-amber-400/50" className="absolute top-4 left-4 z-30" width={22} height={22} viewBox="0 0 40 40" delay={1} fill />
-      <Doodle d={D.sparkle4} color="text-pink-400/40" className="absolute bottom-12 right-6 z-30" width={16} height={16} viewBox="0 0 30 30" delay={1.3} fill />
       {/* Background glow */}
       <motion.div 
         className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent rounded-[3rem] blur-3xl"
@@ -1573,7 +1571,6 @@ export default function Home() {
             className="max-w-2xl mx-auto"
           >
             <div className="relative group">
-              <Doodle d={D.pencil} color="text-blue-400/45" className="absolute -top-4 -left-4 z-10" width={22} height={22} viewBox="0 0 40 40" delay={0.4} />
               <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-primary/10 to-primary/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <Card className="relative shadow-2xl border-primary/20 overflow-hidden bg-card/95 backdrop-blur-sm">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
@@ -1622,7 +1619,6 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 relative">
-              <Doodle d={D.rocket} color="text-sky-400/40" className="absolute -top-6 right-[25%] hidden md:block" width={20} height={20} viewBox="0 0 40 40" delay={0.7} />
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   size="lg"
