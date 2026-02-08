@@ -20,148 +20,62 @@ import { Footer } from "@/components/footer";
 
 function cn(...classes: (string | undefined)[]) { return classes.filter(Boolean).join(" "); }
 
-function DoodleUnderline({ className, delay = 0, color = "text-primary/30" }: { className?: string; delay?: number; color?: string }) {
+function Doodle({ d, color, className, delay = 0, width, height, viewBox = "0 0 100 100", strokeW = 2.5, fill = false, animate: shouldAnimate = true }: {
+  d: string; color: string; className?: string; delay?: number; width?: number; height?: number; viewBox?: string; strokeW?: number; fill?: boolean; animate?: boolean;
+}) {
   return (
     <motion.svg
-      viewBox="0 0 200 16"
+      {...(width ? { width, height: height || width } : {})}
+      viewBox={viewBox}
       fill="none"
       preserveAspectRatio="none"
       className={cn("pointer-events-none", color, className)}
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-    >
-      <motion.path
-        d="M3 9C20 5 40 11 60 7C80 3 100 12 120 6C140 2 160 10 197 5"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        fill="none"
-        initial={{ pathLength: 0 }}
-        whileInView={{ pathLength: 1 }}
-        viewport={{ once: true }}
-        transition={{ delay, duration: 0.8, ease: "easeOut" }}
-      />
-    </motion.svg>
-  );
-}
-
-function DoodleCircle({ className, delay = 0, color = "text-primary/25" }: { className?: string; delay?: number; color?: string }) {
-  return (
-    <motion.svg
-      viewBox="0 0 120 50"
-      fill="none"
-      preserveAspectRatio="none"
-      className={cn("pointer-events-none", color, className)}
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-    >
-      <motion.path
-        d="M10 25C10 10 35 3 60 5C85 7 112 12 112 25C112 38 85 47 60 45C35 43 10 38 10 25Z"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-        initial={{ pathLength: 0 }}
-        whileInView={{ pathLength: 1 }}
-        viewport={{ once: true }}
-        transition={{ delay, duration: 1, ease: "easeOut" }}
-      />
-    </motion.svg>
-  );
-}
-
-function DoodleStar({ className, delay = 0, size = 28 }: { className?: string; delay?: number; size?: number }) {
-  return (
-    <motion.svg
-      width={size}
-      height={size}
-      viewBox="0 0 40 40"
-      fill="none"
-      className={cn("pointer-events-none text-primary/30", className)}
-      initial={{ opacity: 0, scale: 0, rotate: -30 }}
-      whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay, duration: 0.5, type: "spring" }}
-    >
-      <path d="M20 4L23 15L34 15L25 22L28 33L20 27L12 33L15 22L6 15L17 15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    </motion.svg>
-  );
-}
-
-function DoodleSparkle({ className, delay = 0, size = 20 }: { className?: string; delay?: number; size?: number }) {
-  return (
-    <motion.svg
-      width={size}
-      height={size}
-      viewBox="0 0 30 30"
-      fill="none"
-      className={cn("pointer-events-none text-primary/35", className)}
-      initial={{ opacity: 0, scale: 0 }}
+      initial={{ opacity: 0, scale: 0.7 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      transition={{ delay, duration: 0.4, type: "spring" }}
+      transition={{ delay, duration: 0.5, type: "spring", stiffness: 200 }}
     >
-      <path d="M15 3L17 12L26 15L17 18L15 27L13 18L4 15L13 12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="currentColor" fillOpacity="0.15" />
+      {shouldAnimate ? (
+        <motion.path d={d} stroke="currentColor" strokeWidth={strokeW} strokeLinecap="round" strokeLinejoin="round" fill={fill ? "currentColor" : "none"} fillOpacity={fill ? 0.12 : 0}
+          initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ delay, duration: 0.8, ease: "easeOut" }} />
+      ) : (
+        <path d={d} stroke="currentColor" strokeWidth={strokeW} strokeLinecap="round" strokeLinejoin="round" fill={fill ? "currentColor" : "none"} fillOpacity={fill ? 0.12 : 0} />
+      )}
     </motion.svg>
   );
 }
 
-function DoodleArrow({ className, delay = 0 }: { className?: string; delay?: number }) {
-  return (
-    <motion.svg
-      width="50"
-      height="30"
-      viewBox="0 0 60 30"
-      fill="none"
-      className={cn("pointer-events-none text-primary/30", className)}
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-    >
-      <motion.path
-        d="M5 20C15 18 25 10 35 12C45 14 50 8 55 6M48 3L55 6L52 13"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-        initial={{ pathLength: 0 }}
-        whileInView={{ pathLength: 1 }}
-        viewport={{ once: true }}
-        transition={{ delay, duration: 0.6 }}
-      />
-    </motion.svg>
-  );
-}
-
-function DoodleScribble({ className, delay = 0 }: { className?: string; delay?: number }) {
-  return (
-    <motion.svg
-      width="60"
-      height="20"
-      viewBox="0 0 80 20"
-      fill="none"
-      className={cn("pointer-events-none text-primary/25", className)}
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-    >
-      <motion.path
-        d="M3 15C10 5 20 15 30 5C40 15 50 5 60 15C65 10 70 5 77 10"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        fill="none"
-        initial={{ pathLength: 0 }}
-        whileInView={{ pathLength: 1 }}
-        viewport={{ once: true }}
-        transition={{ delay, duration: 0.8 }}
-      />
-    </motion.svg>
-  );
-}
+const D = {
+  wavyUnderline: "M3 9C20 5 40 11 60 7C80 3 100 12 120 6C140 2 160 10 197 5",
+  loopUnderline: "M5 12C15 4 25 4 30 12C35 20 45 4 55 4C65 4 70 16 80 12C90 8 95 4 100 8C110 12 120 4 130 8C140 12 155 4 165 8C175 12 185 6 195 8",
+  doubleUnderline: "M5 6C40 3 80 9 120 4C150 0 180 7 195 5 M5 14C30 10 70 16 110 11C150 7 180 14 195 12",
+  zigzagUnderline: "M5 10L15 4L25 10L35 4L45 10L55 4L65 10L75 4L85 10L95 4L105 10L115 4L125 10L135 4L145 10L155 4L165 10L175 4L185 10L195 4",
+  star: "M20 4L23 15L34 15L25 22L28 33L20 27L12 33L15 22L6 15L17 15Z",
+  sparkle4: "M15 3L17 12L26 15L17 18L15 27L13 18L4 15L13 12Z",
+  sparkle6: "M20 2L22 14L32 8L24 17L34 22L22 21L20 33L18 21L6 22L16 17L8 8L18 14Z",
+  heart: "M20 14C20 8 28 4 28 12C28 18 20 26 20 26C20 26 12 18 12 12C12 4 20 8 20 14Z",
+  lightning: "M18 4L12 18H20L14 34L28 16H20L26 4Z",
+  arrow: "M5 20C15 18 25 10 35 12C45 14 50 8 55 6M48 3L55 6L52 13",
+  curlyArrow: "M8 28C8 14 18 6 28 8C38 10 40 22 32 26M25 22L32 26L28 32",
+  circle: "M20 6C32 4 38 14 38 22C38 30 30 38 20 38C10 38 2 28 2 20C2 12 10 6 20 6Z",
+  spiral: "M22 22C22 18 26 18 26 22C26 28 16 28 16 20C16 12 28 12 28 24C28 32 14 32 14 18",
+  book: "M20 8L20 34 M20 8C16 7 8 5 4 8L4 33C8 30 16 31 20 34 M20 8C24 7 32 5 36 8L36 33C32 30 24 31 20 34",
+  pencil: "M8 34L26 14L30 18L12 38L6 36Z M26 14L28 10C29 9 31 9 32 10L34 12C35 13 35 15 34 16L30 18",
+  lightbulb: "M16 30L24 30 M17 33L23 33 M20 33L20 36 M14 24C14 18 16 10 20 10C24 10 26 18 26 24C26 27 24 29 22 30L18 30C16 29 14 27 14 24",
+  rocket: "M20 6C16 14 14 22 16 30L20 33L24 30C26 22 24 14 20 6 M16 26L10 30 M24 26L30 30",
+  trophy: "M10 10L30 10L28 22C27 26 24 28 20 30C16 28 13 26 12 22L10 10 M8 10L6 16 M32 10L34 16 M16 30L16 34L24 34L24 30 M14 34L26 34",
+  music: "M22 8L22 28C22 31 18 31 18 28C18 25 22 25 22 28 M22 8L30 6L30 24C30 27 26 27 26 24C26 21 30 21 30 24",
+  flower: "M20 20C20 14 26 14 26 20 M20 20C26 20 26 26 20 26 M20 20C20 26 14 26 14 20 M20 20C14 20 14 14 20 14 M20 26L20 36",
+  sun: "M20 12C24 12 28 16 28 20C28 24 24 28 20 28C16 28 12 24 12 20C12 16 16 12 20 12 M20 4L20 8 M20 32L20 36 M4 20L8 20 M32 20L36 20 M8 8L11 11 M29 29L32 32 M32 8L29 11 M11 29L8 32",
+  cloud: "M12 24C6 24 4 18 8 16C6 12 10 8 16 10C18 6 26 6 28 10C34 8 36 14 32 18C36 20 34 24 30 24Z",
+  crown: "M6 28L10 12L16 20L20 8L24 20L30 12L34 28Z",
+  diamond: "M20 4L36 20L20 36L4 20Z",
+  check: "M8 20L16 28L32 10",
+  paperPlane: "M4 20L36 6L24 34L20 22L4 20 M20 22L36 6",
+  swirl: "M28 20C28 12 20 8 14 14C8 20 14 28 20 28C28 28 32 20 28 14",
+  dots3: "M10 20 M10 18C11 18 12 19 12 20C12 21 11 22 10 22C9 22 8 21 8 20C8 19 9 18 10 18 M20 18C21 18 22 19 22 20C22 21 21 22 20 22C19 22 18 21 18 20C18 19 19 18 20 18 M30 18C31 18 32 19 32 20C32 21 31 22 30 22C29 22 28 21 28 20C28 19 29 18 30 18",
+  wave: "M4 20C8 12 14 12 18 20C22 28 28 28 32 20C36 12 40 12 44 20",
+};
 
 function InteractiveFlashcard() {
   const x = useMotionValue(0);
@@ -251,9 +165,11 @@ function InteractiveFlashcard() {
 function HeroIllustration() {
   return (
     <div className="relative w-full h-[400px] md:h-[500px] perspective-1000">
-      <DoodleStar className="absolute top-4 left-4 z-30" delay={1} size={24} />
-      <DoodleSparkle className="absolute bottom-12 right-6 z-30" delay={1.3} size={18} />
-      <DoodleStar className="absolute top-[55%] -left-1 z-30" delay={1.5} size={18} />
+      <Doodle d={D.star} color="text-amber-400/60" className="absolute top-4 left-4 z-30" width={26} height={26} viewBox="0 0 40 40" delay={1} fill />
+      <Doodle d={D.sparkle4} color="text-pink-400/50" className="absolute bottom-12 right-6 z-30" width={20} height={20} viewBox="0 0 30 30" delay={1.3} fill />
+      <Doodle d={D.heart} color="text-rose-400/50" className="absolute top-[55%] -left-1 z-30" width={18} height={18} viewBox="0 0 40 40" delay={1.5} fill />
+      <Doodle d={D.lightning} color="text-yellow-400/50" className="absolute top-[30%] right-2 z-30" width={16} height={16} viewBox="0 0 40 40" delay={1.7} fill />
+      <Doodle d={D.sparkle6} color="text-violet-400/50" className="absolute bottom-[35%] left-6 z-30" width={16} height={16} viewBox="0 0 40 40" delay={1.9} fill />
       {/* Background glow */}
       <motion.div 
         className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent rounded-[3rem] blur-3xl"
@@ -755,13 +671,16 @@ function HowItWorksGallery() {
                       <div className={`relative w-20 h-20 rounded-2xl ${stage.bg} flex items-center justify-center border-2 ${stage.borderColor} shadow-lg`}>
                         <stage.icon className={`w-10 h-10 ${stage.color}`} />
                       </div>
-                      {/* Step number badge */}
                       <motion.div 
                         className={`absolute -top-2 -right-2 w-7 h-7 rounded-full bg-card border-2 ${stage.borderColor} flex items-center justify-center text-sm font-bold shadow-lg ${stage.color}`}
                         whileHover={{ scale: 1.1 }}
                       >
                         {i + 1}
                       </motion.div>
+                      {i === 0 && <Doodle d={D.paperPlane} color="text-sky-400/40" className="absolute -top-4 -left-4" width={18} height={18} viewBox="0 0 40 40" delay={0.8} />}
+                      {i === 1 && <Doodle d={D.lightbulb} color="text-yellow-400/45" className="absolute -top-4 -left-4" width={18} height={18} viewBox="0 0 40 40" delay={0.8} />}
+                      {i === 2 && <Doodle d={D.pencil} color="text-orange-400/40" className="absolute -top-4 -left-4" width={18} height={18} viewBox="0 0 40 40" delay={0.8} />}
+                      {i === 3 && <Doodle d={D.trophy} color="text-amber-400/45" className="absolute -top-4 -left-4" width={18} height={18} viewBox="0 0 40 40" delay={0.8} />}
                     </motion.div>
                     
                     {/* Title and description */}
@@ -774,7 +693,7 @@ function HowItWorksGallery() {
                       >
                         {stage.label}
                       </motion.h3>
-                      <DoodleUnderline className="w-20 h-2 mx-auto mt-1" delay={0.5} />
+                      <Doodle d={i === 0 ? D.wavyUnderline : i === 1 ? D.loopUnderline : i === 2 ? D.zigzagUnderline : D.doubleUnderline} color={i === 0 ? "text-sky-400/45" : i === 1 ? "text-emerald-400/45" : i === 2 ? "text-orange-400/45" : "text-violet-400/45"} className="w-20 h-2 mx-auto mt-1" viewBox={i === 2 ? "0 0 200 16" : "0 0 200 20"} delay={0.5} />
                       <p className="text-muted-foreground max-w-md text-sm md:text-base leading-relaxed">{stage.desc}</p>
                     </div>
                     
@@ -1241,6 +1160,10 @@ function FeatureShowcase() {
                   className="flex"
                 >
                   <Card className={`w-full group cursor-pointer transition-all duration-300 border ${colors.border} bg-card hover:shadow-xl ${colors.glow} hover:-translate-y-1 relative overflow-visible`}>
+                    {index % 4 === 0 && <Doodle d={D.star} color="text-amber-400/30" className="absolute -top-2 -right-2" width={14} height={14} viewBox="0 0 40 40" delay={0.3 + index * 0.05} fill />}
+                    {index % 4 === 1 && <Doodle d={D.heart} color="text-rose-400/30" className="absolute -top-2 -right-2" width={12} height={12} viewBox="0 0 40 40" delay={0.3 + index * 0.05} fill />}
+                    {index % 4 === 2 && <Doodle d={D.sparkle4} color="text-violet-400/30" className="absolute -top-2 -right-2" width={13} height={13} viewBox="0 0 30 30" delay={0.3 + index * 0.05} fill />}
+                    {index % 4 === 3 && <Doodle d={D.diamond} color="text-teal-400/30" className="absolute -top-2 -right-2" width={12} height={12} viewBox="0 0 40 40" delay={0.3 + index * 0.05} />}
                     <CardContent className="p-4 flex flex-col h-full">
                       <div className="flex items-center gap-3 mb-2">
                         <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center border ${colors.border} shrink-0`}>
@@ -1253,7 +1176,14 @@ function FeatureShowcase() {
                       <p className="text-xs text-muted-foreground line-clamp-2 flex-1">
                         {feature.description}
                       </p>
-                      {index < 3 && <DoodleScribble className="mt-1" delay={0.5 + index * 0.1} />}
+                      {index === 0 && <Doodle d={D.zigzagUnderline} color="text-blue-400/40" className="w-14 h-2 mt-1" viewBox="0 0 200 16" delay={0.5} />}
+                      {index === 1 && <Doodle d={D.wave} color="text-purple-400/40" className="w-12 h-2 mt-1" viewBox="0 0 48 32" delay={0.6} />}
+                      {index === 2 && <Doodle d={D.loopUnderline} color="text-orange-400/40" className="w-14 h-2 mt-1" viewBox="0 0 200 20" delay={0.7} />}
+                      {index === 3 && <Doodle d={D.wavyUnderline} color="text-rose-400/35" className="w-14 h-2 mt-1" viewBox="0 0 200 16" delay={0.5} />}
+                      {index === 4 && <Doodle d={D.doubleUnderline} color="text-emerald-400/35" className="w-14 h-2 mt-1" viewBox="0 0 200 20" delay={0.6} />}
+                      {index === 5 && <Doodle d={D.zigzagUnderline} color="text-amber-400/40" className="w-14 h-2 mt-1" viewBox="0 0 200 16" delay={0.7} />}
+                      {index === 6 && <Doodle d={D.wave} color="text-cyan-400/40" className="w-12 h-2 mt-1" viewBox="0 0 48 32" delay={0.5} />}
+                      {index === 7 && <Doodle d={D.loopUnderline} color="text-indigo-400/40" className="w-14 h-2 mt-1" viewBox="0 0 200 20" delay={0.6} />}
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -1402,6 +1332,7 @@ function StatsSection() {
             </span>
           </div>
           <div className="text-sm text-muted-foreground">{stat.label}</div>
+          <Doodle d={index === 0 ? D.wavyUnderline : index === 1 ? D.loopUnderline : D.zigzagUnderline} color={index === 0 ? "text-rose-400/35" : index === 1 ? "text-teal-400/35" : "text-amber-400/35"} className="w-16 h-2 mx-auto mt-1" viewBox={index === 2 ? "0 0 200 16" : "0 0 200 20"} delay={0.3 + index * 0.1} />
         </motion.div>
       ))}
     </div>
@@ -1489,31 +1420,15 @@ export default function Home() {
               </motion.div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-[1.15] tracking-tight relative">
+                <Doodle d={D.sparkle4} color="text-amber-400/50" className="absolute -top-6 -left-2 hidden sm:block" width={20} height={20} viewBox="0 0 30 30" delay={1.2} fill />
                 Study smarter with{" "}
                 <span className="relative inline-block">
                   <span className="text-primary">
                     AI quizzes
                   </span>
-                  <motion.svg
-                    className="absolute -bottom-2 left-0 w-full"
-                    viewBox="0 0 200 12"
-                    fill="none"
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    animate={{ pathLength: 1, opacity: 1 }}
-                    transition={{ delay: 0.8, duration: 0.8 }}
-                  >
-                    <motion.path
-                      d="M2 8C50 4 150 4 198 8"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      className="text-primary/40"
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ delay: 0.8, duration: 0.8 }}
-                    />
-                  </motion.svg>
+                  <Doodle d={D.loopUnderline} color="text-primary/40" className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 200 20" delay={0.8} />
                 </span>
+                <Doodle d={D.star} color="text-pink-400/40" className="absolute -top-4 -right-6 hidden sm:block" width={18} height={18} viewBox="0 0 40 40" delay={1.4} fill />
               </h1>
               
               <p className="text-lg md:text-xl text-muted-foreground max-w-md mx-auto lg:mx-0 mb-10 leading-relaxed">
@@ -1521,6 +1436,7 @@ export default function Home() {
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10 relative">
+                <Doodle d={D.curlyArrow} color="text-emerald-400/40" className="absolute -top-8 left-[15%] hidden lg:block" width={28} height={28} viewBox="0 0 40 40" delay={1.5} />
                 <motion.div 
                   whileHover={{ scale: 1.03 }} 
                   whileTap={{ scale: 0.97 }}
@@ -1613,7 +1529,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               How It Works
             </h2>
-            <DoodleUnderline className="w-32 h-3 mx-auto -mt-3 mb-2" delay={0.4} />
+            <Doodle d={D.loopUnderline} color="text-teal-400/45" className="w-32 h-3 mx-auto -mt-3 mb-2" viewBox="0 0 200 20" delay={0.4} />
             <p className="text-muted-foreground max-w-lg mx-auto">
               From notes to quizzes in just a few clicks
             </p>
@@ -1635,7 +1551,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Everything You Need
             </h2>
-            <DoodleUnderline className="w-40 h-3 mx-auto -mt-3 mb-2" delay={0.4} />
+            <Doodle d={D.doubleUnderline} color="text-violet-400/40" className="w-40 h-3 mx-auto -mt-3 mb-2" viewBox="0 0 200 20" delay={0.4} />
             <p className="text-muted-foreground max-w-lg mx-auto">
               Powerful tools to transform how you study
             </p>
@@ -1658,7 +1574,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Create Your First Quiz
             </h2>
-            <DoodleUnderline className="w-44 h-3 mx-auto -mt-3 mb-2" delay={0.4} />
+            <Doodle d={D.zigzagUnderline} color="text-amber-400/45" className="w-44 h-3 mx-auto -mt-3 mb-2" viewBox="0 0 200 16" delay={0.4} />
             <p className="text-muted-foreground max-w-md mx-auto">
               Upload any study material and watch AI turn it into practice questions
             </p>
@@ -1672,8 +1588,9 @@ export default function Home() {
             className="max-w-2xl mx-auto"
           >
             <div className="relative group">
-              <DoodleStar className="absolute -top-3 -left-3 z-10" delay={0.4} size={22} />
-              <DoodleSparkle className="absolute -top-2 -right-2 z-10" delay={0.6} size={16} />
+              <Doodle d={D.pencil} color="text-blue-400/50" className="absolute -top-4 -left-4 z-10" width={24} height={24} viewBox="0 0 40 40" delay={0.4} />
+              <Doodle d={D.sparkle6} color="text-orange-400/50" className="absolute -top-3 -right-3 z-10" width={18} height={18} viewBox="0 0 40 40" delay={0.6} fill />
+              <Doodle d={D.book} color="text-emerald-400/40" className="absolute -bottom-3 -left-2 z-10" width={20} height={20} viewBox="0 0 40 40" delay={0.8} />
               <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-primary/10 to-primary/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <Card className="relative shadow-2xl border-primary/20 overflow-hidden bg-card/95 backdrop-blur-sm">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
@@ -1714,14 +1631,15 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Ready to ace your exams?
             </h2>
-            <DoodleUnderline className="w-48 h-3 mx-auto -mt-3 mb-2" delay={0.4} />
+            <Doodle d={D.wavyUnderline} color="text-pink-400/45" className="w-48 h-3 mx-auto -mt-3 mb-2" viewBox="0 0 200 16" delay={0.4} />
             <p className="text-muted-foreground mb-8">
               Start creating personalized practice quizzes from your study materials today.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 relative">
-              <DoodleStar className="absolute -top-5 left-[25%] hidden md:block" delay={0.5} size={20} />
-              <DoodleSparkle className="absolute -bottom-5 right-[25%] hidden md:block" delay={0.7} size={16} />
+              <Doodle d={D.trophy} color="text-amber-400/50" className="absolute -top-6 left-[25%] hidden md:block" width={22} height={22} viewBox="0 0 40 40" delay={0.5} />
+              <Doodle d={D.rocket} color="text-sky-400/50" className="absolute -bottom-6 right-[25%] hidden md:block" width={20} height={20} viewBox="0 0 40 40" delay={0.7} />
+              <Doodle d={D.crown} color="text-yellow-400/40" className="absolute -top-5 right-[20%] hidden md:block" width={18} height={18} viewBox="0 0 40 40" delay={0.9} />
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   size="lg"
