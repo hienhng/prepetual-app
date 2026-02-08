@@ -664,7 +664,7 @@ function HowItWorksGallery() {
                         transition={{ duration: 2, repeat: Infinity }}
                       />
                       <div className={`relative w-20 h-20 rounded-2xl ${stage.bg} flex items-center justify-center border-2 ${stage.borderColor} shadow-lg`}>
-                        <stage.icon className={`w-10 h-10 ${stage.color}`} />
+                        <div className={`w-3 h-3 rounded-full ${stage.color.replace('text-', 'bg-')}`} />
                       </div>
                       <motion.div 
                         className={`absolute -top-2 -right-2 w-7 h-7 rounded-full bg-card border-2 ${stage.borderColor} flex items-center justify-center text-sm font-bold shadow-lg ${stage.color}`}
@@ -731,7 +731,7 @@ function HowItWorksGallery() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
-              <stage.icon className={`w-5 h-5 ${activeStep === i ? stage.color : 'text-muted-foreground'}`} />
+              <div className={`w-2 h-2 rounded-full ${activeStep === i ? stage.color.replace('text-', 'bg-') : 'bg-muted-foreground'}`} />
             </motion.div>
             {activeStep === i && (
               <motion.span
