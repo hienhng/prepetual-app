@@ -651,7 +651,7 @@ function HowItWorksGallery() {
                   />
                   
                   <CardContent className="relative p-8 md:p-10 flex flex-col items-center justify-center text-center h-full z-10">
-                    {/* Step indicator dot */}
+                    {/* Step indicator dot replaced with number */}
                     <motion.div
                       className="relative mb-8"
                       animate={isActive ? { y: [0, -6, 0] } : {}}
@@ -663,13 +663,9 @@ function HowItWorksGallery() {
                         animate={isActive ? { scale: [1, 2, 1], opacity: [0.3, 0.6, 0.3] } : {}}
                         transition={{ duration: 2, repeat: Infinity }}
                       />
-                      <div className={`relative w-4 h-4 rounded-full ${stage.color.replace('text-', 'bg-')} shadow-lg`} />
-                      <motion.div 
-                        className={`absolute -top-4 -right-8 w-7 h-7 rounded-full bg-card border-2 ${stage.borderColor} flex items-center justify-center text-sm font-bold shadow-lg ${stage.color}`}
-                        whileHover={{ scale: 1.1 }}
-                      >
+                      <div className={`relative w-12 h-12 rounded-full ${stage.bg} border-2 ${stage.borderColor} flex items-center justify-center text-xl font-bold shadow-lg ${stage.color}`}>
                         {i + 1}
-                      </motion.div>
+                      </div>
                     </motion.div>
                     
                     {/* Title and description */}
@@ -709,7 +705,7 @@ function HowItWorksGallery() {
       </div>
 
       {/* Step indicators */}
-      <div className="flex justify-center items-center gap-2 mt-4">
+      <div className="flex justify-center items-center gap-3 mt-4">
         {stages.map((stage, i) => (
           <button
             key={i}
@@ -721,14 +717,12 @@ function HowItWorksGallery() {
             data-testid={`button-step-indicator-${i}`}
           >
             <motion.div
-              className={`rounded-full flex items-center justify-center transition-all duration-500 ${
+              className={`rounded-full flex items-center justify-center transition-all duration-500 text-xs font-bold ${
                 activeStep === i 
-                  ? `w-8 h-2 ${stage.bg} shadow-[0_0_10px_rgba(var(--primary),0.5)]` 
-                  : 'w-2 h-2 bg-muted-foreground/40'
+                  ? `w-8 h-8 ${stage.bg} border-2 ${stage.borderColor} shadow-[0_0_10px_rgba(var(--primary),0.5)] ${stage.color}` 
+                  : 'w-6 h-6 bg-muted border border-transparent text-muted-foreground/60'
               }`}
               animate={{
-                width: activeStep === i ? 32 : 8,
-                height: 8,
                 scale: activeStep === i ? [1, 1.05, 1] : 1
               }}
               transition={{ 
@@ -742,12 +736,7 @@ function HowItWorksGallery() {
                 }
               }}
             >
-              {activeStep === i && (
-                <motion.div 
-                  className={`w-1.5 h-1.5 rounded-full ${stage.color.replace('text-', 'bg-')}`}
-                  layoutId="active-dot-inner"
-                />
-              )}
+              {i + 1}
             </motion.div>
           </button>
         ))}
