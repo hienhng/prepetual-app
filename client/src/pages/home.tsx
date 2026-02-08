@@ -684,9 +684,11 @@ function HowItWorksGallery() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
                       >
-                        {stage.label}
+                        <span className="relative inline-block">
+                          {stage.label}
+                          <Doodle d={i === 0 ? D.wavyUnderline : i === 1 ? D.loopUnderline : i === 2 ? D.zigzagUnderline : D.doubleUnderline} color={i === 0 ? "text-sky-400/45" : i === 1 ? "text-emerald-400/45" : i === 2 ? "text-orange-400/45" : "text-violet-400/45"} className="absolute -bottom-1 left-0 w-full h-2" viewBox={i === 2 ? "0 0 200 16" : "0 0 200 20"} delay={0.5} />
+                        </span>
                       </motion.h3>
-                      <Doodle d={i === 0 ? D.wavyUnderline : i === 1 ? D.loopUnderline : i === 2 ? D.zigzagUnderline : D.doubleUnderline} color={i === 0 ? "text-sky-400/45" : i === 1 ? "text-emerald-400/45" : i === 2 ? "text-orange-400/45" : "text-violet-400/45"} className="w-20 h-2 mx-auto mt-1" viewBox={i === 2 ? "0 0 200 16" : "0 0 200 20"} delay={0.5} />
                       <p className="text-muted-foreground max-w-md text-sm md:text-base leading-relaxed">{stage.desc}</p>
                     </div>
                     
@@ -1504,9 +1506,11 @@ export default function Home() {
           >
             <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Simple Process</p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              How It Works
+              <span className="relative inline-block">
+                How It Works
+                <Doodle d={D.loopUnderline} color="text-teal-400/45" className="absolute -bottom-1 left-0 w-full h-3" viewBox="0 0 200 20" delay={0.4} />
+              </span>
             </h2>
-            <Doodle d={D.loopUnderline} color="text-teal-400/45" className="w-32 h-3 mx-auto -mt-3 mb-2" viewBox="0 0 200 20" delay={0.4} />
             <p className="text-muted-foreground max-w-lg mx-auto">
               From notes to quizzes in just a few clicks
             </p>
@@ -1526,9 +1530,11 @@ export default function Home() {
           >
             <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Features</p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Everything You Need
+              <span className="relative inline-block">
+                Everything You Need
+                <Doodle d={D.doubleUnderline} color="text-violet-400/40" className="absolute -bottom-1 left-0 w-full h-3" viewBox="0 0 200 20" delay={0.4} />
+              </span>
             </h2>
-            <Doodle d={D.doubleUnderline} color="text-violet-400/40" className="w-40 h-3 mx-auto -mt-3 mb-2" viewBox="0 0 200 20" delay={0.4} />
             <p className="text-muted-foreground max-w-lg mx-auto">
               Powerful tools to transform how you study
             </p>
@@ -1549,9 +1555,11 @@ export default function Home() {
           >
             <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Try It Now</p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Create Your First Quiz
+              <span className="relative inline-block">
+                Create Your First Quiz
+                <Doodle d={D.zigzagUnderline} color="text-amber-400/45" className="absolute -bottom-1 left-0 w-full h-3" viewBox="0 0 200 16" delay={0.4} />
+              </span>
             </h2>
-            <Doodle d={D.zigzagUnderline} color="text-amber-400/45" className="w-44 h-3 mx-auto -mt-3 mb-2" viewBox="0 0 200 16" delay={0.4} />
             <p className="text-muted-foreground max-w-md mx-auto">
               Upload any study material and watch AI turn it into practice questions
             </p>
@@ -1604,9 +1612,11 @@ export default function Home() {
             className="text-center max-w-xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Ready to ace your exams?
+              <span className="relative inline-block">
+                Ready to ace your exams?
+                <Doodle d={D.wavyUnderline} color="text-pink-400/45" className="absolute -bottom-1 left-0 w-full h-3" viewBox="0 0 200 16" delay={0.4} />
+              </span>
             </h2>
-            <Doodle d={D.wavyUnderline} color="text-pink-400/45" className="w-48 h-3 mx-auto -mt-3 mb-2" viewBox="0 0 200 16" delay={0.4} />
             <p className="text-muted-foreground mb-8">
               Start creating personalized practice quizzes from your study materials today.
             </p>
