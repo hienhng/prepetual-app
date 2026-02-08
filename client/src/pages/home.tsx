@@ -651,7 +651,7 @@ function HowItWorksGallery() {
                   />
                   
                   <CardContent className="relative p-8 md:p-10 flex flex-col items-center justify-center text-center h-full z-10">
-                    {/* Step indicator with icon */}
+                    {/* Step indicator dot */}
                     <motion.div
                       className="relative mb-8"
                       animate={isActive ? { y: [0, -6, 0] } : {}}
@@ -659,15 +659,13 @@ function HowItWorksGallery() {
                     >
                       {/* Glow ring */}
                       <motion.div
-                        className={`absolute inset-0 rounded-2xl ${stage.bg} blur-xl`}
-                        animate={isActive ? { scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] } : {}}
+                        className={`absolute inset-0 rounded-full ${stage.bg} blur-xl`}
+                        animate={isActive ? { scale: [1, 2, 1], opacity: [0.3, 0.6, 0.3] } : {}}
                         transition={{ duration: 2, repeat: Infinity }}
                       />
-                      <div className={`relative w-20 h-20 rounded-2xl ${stage.bg} flex items-center justify-center border-2 ${stage.borderColor} shadow-lg`}>
-                        <div className={`w-3 h-3 rounded-full ${stage.color.replace('text-', 'bg-')}`} />
-                      </div>
+                      <div className={`relative w-4 h-4 rounded-full ${stage.color.replace('text-', 'bg-')} shadow-lg`} />
                       <motion.div 
-                        className={`absolute -top-2 -right-2 w-7 h-7 rounded-full bg-card border-2 ${stage.borderColor} flex items-center justify-center text-sm font-bold shadow-lg ${stage.color}`}
+                        className={`absolute -top-4 -right-8 w-7 h-7 rounded-full bg-card border-2 ${stage.borderColor} flex items-center justify-center text-sm font-bold shadow-lg ${stage.color}`}
                         whileHover={{ scale: 1.1 }}
                       >
                         {i + 1}
@@ -723,15 +721,15 @@ function HowItWorksGallery() {
             data-testid={`button-step-indicator-${i}`}
           >
             <motion.div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
+              className={`w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300 ${
                 activeStep === i 
-                  ? `${stage.bg} ${stage.borderColor} border-2 shadow-lg` 
-                  : 'bg-muted border border-transparent'
+                  ? `${stage.bg} shadow-lg` 
+                  : 'bg-transparent'
               }`}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
             >
-              <div className={`w-2 h-2 rounded-full ${activeStep === i ? stage.color.replace('text-', 'bg-') : 'bg-muted-foreground'}`} />
+              <div className={`w-2 h-2 rounded-full ${activeStep === i ? stage.color.replace('text-', 'bg-') : 'bg-muted-foreground/40'}`} />
             </motion.div>
             {activeStep === i && (
               <motion.span
