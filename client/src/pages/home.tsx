@@ -709,38 +709,46 @@ function HowItWorksGallery() {
       </div>
 
       {/* Step indicators */}
-      <div className="flex justify-center items-center gap-3 mt-4">
+      <div className="flex justify-center items-center gap-2 mt-4">
         {stages.map((stage, i) => (
           <button
             key={i}
             onClick={() => goToStep(i)}
-            className={`group relative flex items-center gap-2 transition-all duration-300 ${
-              activeStep === i ? 'scale-100' : 'scale-90 opacity-70 hover:opacity-100'
+            className={`group relative flex items-center transition-all duration-300 ${
+              activeStep === i ? 'scale-110' : 'scale-100 opacity-60 hover:opacity-100'
             }`}
             aria-label={`Go to step ${i + 1}: ${stage.label}`}
             data-testid={`button-step-indicator-${i}`}
           >
             <motion.div
-              className={`w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300 ${
+              className={`rounded-full flex items-center justify-center transition-all duration-500 ${
                 activeStep === i 
-                  ? `${stage.bg} shadow-lg` 
-                  : 'bg-transparent'
+                  ? `w-8 h-2 ${stage.bg} shadow-[0_0_10px_rgba(var(--primary),0.5)]` 
+                  : 'w-2 h-2 bg-muted-foreground/40'
               }`}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
+              animate={{
+                width: activeStep === i ? 32 : 8,
+                height: 8,
+                scale: activeStep === i ? [1, 1.05, 1] : 1
+              }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 300, 
+                damping: 20,
+                scale: {
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }
+              }}
             >
-              <div className={`w-2 h-2 rounded-full ${activeStep === i ? stage.color.replace('text-', 'bg-') : 'bg-muted-foreground/40'}`} />
+              {activeStep === i && (
+                <motion.div 
+                  className={`w-1.5 h-1.5 rounded-full ${stage.color.replace('text-', 'bg-')}`}
+                  layoutId="active-dot-inner"
+                />
+              )}
             </motion.div>
-            {activeStep === i && (
-              <motion.span
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                className={`text-sm font-medium ${stage.color} hidden sm:block`}
-              >
-                {stage.label}
-              </motion.span>
-            )}
           </button>
         ))}
       </div>
