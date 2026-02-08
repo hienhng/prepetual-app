@@ -161,6 +161,9 @@ function InteractiveFlashcard() {
 function HeroIllustration() {
   return (
     <div className="relative w-full h-[400px] md:h-[500px] perspective-1000">
+      <Doodle d={DOODLES.pencil} className="w-10 h-10 top-2 left-2 -rotate-12 text-primary/15 z-30" delay={1} />
+      <Doodle d={DOODLES.questionMark} className="w-8 h-8 bottom-8 right-4 rotate-6 text-primary/15 z-30" delay={1.2} />
+      <Doodle d={DOODLES.zigzag} className="w-12 h-5 top-[60%] -left-2 text-primary/12 z-30 hidden md:block" delay={1.4} />
       {/* Background glow */}
       <motion.div 
         className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent rounded-[3rem] blur-3xl"
@@ -620,9 +623,23 @@ function HowItWorksGallery() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, type: "spring", stiffness: 100 }}
               >
-                <Card className={`relative border-2 ${isActive ? stage.borderColor : 'border-transparent'} bg-card overflow-hidden h-full min-h-[420px] transition-all duration-500 group shadow-xl`}>
+                <Card className={`relative border-2 ${isActive ? stage.borderColor : 'border-transparent'} bg-card overflow-visible h-full min-h-[420px] transition-all duration-500 group shadow-xl`}>
+                  {[DOODLES.star, DOODLES.book, DOODLES.rocket, DOODLES.checkmark][i] && (
+                    <Doodle 
+                      d={[DOODLES.star, DOODLES.book, DOODLES.rocket, DOODLES.checkmark][i]} 
+                      className={cn(
+                        "w-8 h-8 text-primary/15",
+                        i === 0 ? "-top-3 -right-3 rotate-12" : "",
+                        i === 1 ? "-top-3 -left-3 -rotate-6" : "",
+                        i === 2 ? "-bottom-3 -right-3 rotate-[20deg]" : "",
+                        i === 3 ? "-bottom-3 -left-3 rotate-6" : ""
+                      )} 
+                      delay={0.4} 
+                      duration={0.8} 
+                    />
+                  )}
                   {/* Gradient background overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${stage.bg} to-transparent opacity-30 pointer-events-none`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${stage.bg} to-transparent opacity-30 pointer-events-none rounded-xl overflow-hidden`} />
                   
                   {/* Animated corner glow */}
                   <motion.div
@@ -1146,7 +1163,10 @@ function FeatureShowcase() {
                   onClick={() => setExpandedIndex(index)}
                   className="flex"
                 >
-                  <Card className={`w-full group cursor-pointer transition-all duration-300 border ${colors.border} bg-card hover:shadow-xl ${colors.glow} hover:-translate-y-1`}>
+                  <Card className={`w-full group cursor-pointer transition-all duration-300 border ${colors.border} bg-card hover:shadow-xl ${colors.glow} hover:-translate-y-1 relative overflow-visible`}>
+                    {index % 3 === 0 && <Doodle d={DOODLES.star} className="w-5 h-5 -top-2 -right-2 rotate-12 text-primary/15" delay={0.3 + index * 0.1} />}
+                    {index % 3 === 1 && <Doodle d={DOODLES.sparkle} className="w-4 h-4 -top-1.5 -left-1.5 -rotate-12 text-primary/15" delay={0.3 + index * 0.1} />}
+                    {index % 3 === 2 && <Doodle d={DOODLES.circle} className="w-4 h-4 -bottom-1.5 -right-1.5 rotate-6 text-primary/15" delay={0.3 + index * 0.1} />}
                     <CardContent className="p-4 flex flex-col h-full">
                       <div className="flex items-center gap-3 mb-2">
                         <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center border ${colors.border} shrink-0`}>
@@ -1178,7 +1198,9 @@ function FeatureShowcase() {
               const feature = features[expandedIndex];
               const colors = colorClasses[feature.color];
               return (
-                <Card className={`w-full border-2 ${colors.border} bg-card shadow-2xl`}>
+                <Card className={`w-full border-2 ${colors.border} bg-card shadow-2xl relative overflow-visible`}>
+                  <Doodle d={DOODLES.star} className="w-8 h-8 -top-3 -right-3 rotate-12 text-primary/15" delay={0.2} duration={0.6} />
+                  <Doodle d={DOODLES.heart} className="w-6 h-6 -bottom-2 -left-2 -rotate-12 text-primary/15" delay={0.4} />
                   <CardContent className="p-8 relative overflow-hidden">
                     <div className={`absolute -top-20 -right-20 w-64 h-64 rounded-full ${colors.bg} blur-3xl opacity-50`} />
                     <div className={`absolute -bottom-20 -left-20 w-48 h-48 rounded-full ${colors.bg} blur-3xl opacity-30`} />
@@ -1291,7 +1313,10 @@ function StatsSection() {
 
   return (
     <div className="flex flex-wrap justify-center gap-12 md:gap-20 max-w-3xl mx-auto">
-      {stats.map((stat, index) => (
+      {stats.map((stat, index) => {
+        const doodlePaths = [DOODLES.heart, DOODLES.circle, DOODLES.star];
+        const doodleRotations = ["rotate-12", "-rotate-6", "rotate-[20deg]"];
+        return (
         <motion.div
           key={stat.label}
           initial={{ opacity: 0, y: 15 }}
@@ -1306,9 +1331,13 @@ function StatsSection() {
               <AnimatedCounter value={stat.value} />
             </span>
           </div>
-          <div className="text-sm text-muted-foreground">{stat.label}</div>
+          <div className="text-sm text-muted-foreground relative">
+            {stat.label}
+            <Doodle d={doodlePaths[index]} className={cn("w-4 h-4 -top-1 -right-5", doodleRotations[index], "text-primary/20")} delay={0.5 + index * 0.2} />
+          </div>
         </motion.div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -1368,12 +1397,6 @@ export default function Home() {
             animate={{ scale: [1.1, 1, 1.1], opacity: [0.3, 0.5, 0.3] }}
             transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           />
-          <Doodle d={DOODLES.star} className="w-12 h-12 top-16 left-[8%] rotate-12 hidden md:block" delay={0.3} duration={1} />
-          <Doodle d={DOODLES.pencil} className="w-14 h-14 bottom-24 left-[5%] -rotate-12 hidden md:block" delay={0.6} />
-          <Doodle d={DOODLES.lightbulb} className="w-10 h-10 top-28 right-[6%] rotate-6 hidden lg:block" delay={0.5} duration={1.2} />
-          <Doodle d={DOODLES.spiral} className="w-16 h-16 bottom-12 right-[8%] -rotate-45 hidden md:block" delay={0.8} />
-          <Doodle d={DOODLES.zigzag} className="w-20 h-8 top-[45%] left-[2%] hidden lg:block" delay={0.7} />
-          <Doodle d={DOODLES.sparkle} className="w-8 h-8 top-12 left-[35%] rotate-45 hidden md:block" delay={1} />
         </div>
 
         <div className="container relative mx-auto px-4 sm:px-6">
@@ -1399,7 +1422,8 @@ export default function Home() {
                 <span>AI-Powered Exam Prep</span>
               </motion.div>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-[1.15] tracking-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-[1.15] tracking-tight relative">
+                <Doodle d={DOODLES.star} className="w-7 h-7 -top-4 -left-6 rotate-12 hidden md:block text-primary/20" delay={1} duration={0.8} />
                 Study smarter with{" "}
                 <span className="relative inline-block">
                   <span className="text-primary">
@@ -1424,6 +1448,7 @@ export default function Home() {
                       transition={{ delay: 0.8, duration: 0.8 }}
                     />
                   </motion.svg>
+                  <Doodle d={DOODLES.sparkle} className="w-5 h-5 -top-3 -right-6 rotate-12 hidden md:block text-primary/25" delay={1.2} />
                 </span>
               </h1>
               
@@ -1431,13 +1456,15 @@ export default function Home() {
                 Upload your notes, textbooks, or slides. Get instant practice tests tailored to your content.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10">
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10 relative">
+                <Doodle d={DOODLES.arrow} className="w-10 h-10 -top-8 left-[40%] rotate-[120deg] hidden md:block text-primary/20" delay={1.5} duration={0.6} />
                 <motion.div 
                   whileHover={{ scale: 1.03 }} 
                   whileTap={{ scale: 0.97 }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
+                  className="relative"
                 >
                   <Button
                     size="lg"
@@ -1505,24 +1532,14 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="py-16 md:py-20 border-y border-border/50 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <Doodle d={DOODLES.atom} className="w-10 h-10 top-6 right-[12%] rotate-12 hidden md:block" delay={0.2} />
-          <Doodle d={DOODLES.underline} className="w-16 h-6 bottom-6 left-[15%] hidden lg:block" delay={0.4} />
-        </div>
-        <div className="container relative mx-auto px-4 sm:px-6">
+      <section className="py-16 md:py-20 border-y border-border/50">
+        <div className="container mx-auto px-4 sm:px-6">
           <StatsSection />
         </div>
       </section>
       
-      <section id="how-it-works" className="py-20 md:py-28 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <Doodle d={DOODLES.arrow} className="w-14 h-14 top-20 right-[7%] rotate-12 hidden md:block" delay={0.2} duration={0.8} />
-          <Doodle d={DOODLES.book} className="w-12 h-12 bottom-16 left-[6%] -rotate-6 hidden md:block" delay={0.4} />
-          <Doodle d={DOODLES.checkmark} className="w-10 h-10 top-[40%] right-[4%] rotate-6 hidden lg:block" delay={0.5} duration={0.6} />
-          <Doodle d={DOODLES.circle} className="w-8 h-8 top-24 left-[10%] hidden md:block" delay={0.3} />
-        </div>
-        <div className="container relative mx-auto px-4 sm:px-6 max-w-4xl">
+      <section id="how-it-works" className="py-20 md:py-28">
+        <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
           <motion.div 
             className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
@@ -1530,8 +1547,9 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Simple Process</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 relative inline-block">
               How It Works
+              <Doodle d={DOODLES.curlyArrow} className="w-8 h-8 -top-5 -right-10 rotate-[30deg] hidden md:block text-primary/20" delay={0.3} duration={0.8} />
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
               From notes to quizzes in just a few clicks
@@ -1542,15 +1560,8 @@ export default function Home() {
         </div>
       </section>
       
-      <section className="py-20 md:py-28 bg-muted/40 min-h-[800px] md:min-h-[650px] relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <Doodle d={DOODLES.trophy} className="w-12 h-12 top-16 left-[5%] rotate-12 hidden md:block" delay={0.2} />
-          <Doodle d={DOODLES.paperPlane} className="w-14 h-14 top-24 right-[6%] -rotate-6 hidden md:block" delay={0.4} duration={1} />
-          <Doodle d={DOODLES.heart} className="w-8 h-8 bottom-20 left-[8%] rotate-12 hidden lg:block" delay={0.6} />
-          <Doodle d={DOODLES.star} className="w-10 h-10 bottom-28 right-[5%] -rotate-12 hidden md:block" delay={0.3} />
-          <Doodle d={DOODLES.curlyArrow} className="w-12 h-12 top-[50%] left-[3%] hidden lg:block" delay={0.5} />
-        </div>
-        <div className="container relative mx-auto px-4 sm:px-6">
+      <section className="py-20 md:py-28 bg-muted/40 min-h-[800px] md:min-h-[650px]">
+        <div className="container mx-auto px-4 sm:px-6">
           <motion.div 
             className="text-center mb-14"
             initial={{ opacity: 0, y: 20 }}
@@ -1558,8 +1569,9 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Features</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 relative inline-block">
               Everything You Need
+              <Doodle d={DOODLES.lightbulb} className="w-7 h-7 -top-4 -right-9 -rotate-12 hidden md:block text-primary/20" delay={0.3} />
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
               Powerful tools to transform how you study
@@ -1572,11 +1584,6 @@ export default function Home() {
         </div>
       </section>
       <section className="py-20 md:py-28 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <Doodle d={DOODLES.rocket} className="w-12 h-12 top-12 right-[8%] rotate-[25deg] hidden md:block" delay={0.3} duration={1} />
-          <Doodle d={DOODLES.questionMark} className="w-10 h-10 bottom-20 left-[6%] -rotate-6 hidden md:block" delay={0.5} />
-          <Doodle d={DOODLES.sparkle} className="w-8 h-8 top-20 left-[10%] rotate-12 hidden lg:block" delay={0.4} />
-        </div>
         <div className="container relative mx-auto px-4 sm:px-6 max-w-3xl">
           <motion.div 
             className="text-center mb-10"
@@ -1585,8 +1592,9 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Try It Now</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 relative inline-block">
               Create Your First Quiz
+              <Doodle d={DOODLES.pencil} className="w-7 h-7 -top-4 -right-9 rotate-12 hidden md:block text-primary/20" delay={0.3} />
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto">
               Upload any study material and watch AI turn it into practice questions
@@ -1601,6 +1609,9 @@ export default function Home() {
             className="max-w-2xl mx-auto"
           >
             <div className="relative group">
+              <Doodle d={DOODLES.book} className="w-8 h-8 -top-4 -left-4 -rotate-12 text-primary/15 hidden md:block" delay={0.4} />
+              <Doodle d={DOODLES.lightbulb} className="w-7 h-7 -top-3 -right-3 rotate-12 text-primary/15 hidden md:block" delay={0.6} />
+              <Doodle d={DOODLES.spiral} className="w-6 h-6 -bottom-3 -right-3 -rotate-45 text-primary/15 hidden md:block" delay={0.5} />
               <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-primary/10 to-primary/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <Card className="relative shadow-2xl border-primary/20 overflow-hidden bg-card/95 backdrop-blur-sm">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
@@ -1630,28 +1641,25 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
-      <section className="py-20 md:py-28 bg-muted/40 border-t border-border/50 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <Doodle d={DOODLES.book} className="w-14 h-14 top-12 left-[6%] rotate-6 hidden md:block" delay={0.2} />
-          <Doodle d={DOODLES.star} className="w-10 h-10 top-16 right-[8%] -rotate-12 hidden md:block" delay={0.4} duration={0.8} />
-          <Doodle d={DOODLES.pencil} className="w-12 h-12 bottom-12 right-[6%] rotate-[20deg] hidden lg:block" delay={0.5} />
-          <Doodle d={DOODLES.lightbulb} className="w-10 h-10 bottom-16 left-[10%] -rotate-6 hidden md:block" delay={0.3} />
-        </div>
-        <div className="container relative mx-auto px-4 sm:px-6">
+      <section className="py-20 md:py-28 bg-muted/40 border-t border-border/50">
+        <div className="container mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center max-w-xl mx-auto"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 relative inline-block">
               Ready to ace your exams?
+              <Doodle d={DOODLES.trophy} className="w-8 h-8 -top-5 -right-10 rotate-12 hidden md:block text-primary/20" delay={0.3} duration={0.8} />
             </h2>
             <p className="text-muted-foreground mb-8">
               Start creating personalized practice quizzes from your study materials today.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 relative">
+              <Doodle d={DOODLES.star} className="w-6 h-6 -top-6 left-[30%] rotate-12 hidden md:block text-primary/20" delay={0.5} />
+              <Doodle d={DOODLES.sparkle} className="w-5 h-5 -bottom-6 right-[30%] -rotate-12 hidden md:block text-primary/20" delay={0.7} />
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   size="lg"
