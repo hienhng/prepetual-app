@@ -682,10 +682,7 @@ function HowItWorksGallery() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
                       >
-                        <span className="relative inline-block">
-                          {stage.label}
-                          <Doodle d={i === 0 ? D.wavyUnderline : i === 1 ? D.loopUnderline : i === 2 ? D.zigzagUnderline : D.doubleUnderline} color={i === 0 ? "text-sky-400/45" : i === 1 ? "text-emerald-400/45" : i === 2 ? "text-orange-400/45" : "text-violet-400/45"} className="absolute -bottom-1 left-0 w-full h-2" viewBox={i === 2 ? "0 0 200 16" : "0 0 200 20"} delay={0.5} />
-                        </span>
+                        {stage.label}
                       </motion.h3>
                       <p className="text-muted-foreground max-w-md text-sm md:text-base leading-relaxed">{stage.desc}</p>
                     </div>
@@ -1504,10 +1501,7 @@ export default function Home() {
           >
             <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Simple Process</p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              <span className="relative inline-block">
-                How It Works
-                <Doodle d={D.loopUnderline} color="text-teal-400/45" className="absolute -bottom-1 left-0 w-full h-3" viewBox="0 0 200 20" delay={0.4} />
-              </span>
+              How It Works
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
               From notes to quizzes in just a few clicks
@@ -1528,10 +1522,7 @@ export default function Home() {
           >
             <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Features</p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              <span className="relative inline-block">
-                Everything You Need
-                <Doodle d={D.doubleUnderline} color="text-violet-400/40" className="absolute -bottom-1 left-0 w-full h-3" viewBox="0 0 200 20" delay={0.4} />
-              </span>
+              Everything You Need
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
               Powerful tools to transform how you study
@@ -1553,10 +1544,7 @@ export default function Home() {
           >
             <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Try It Now</p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              <span className="relative inline-block">
-                Create Your First Quiz
-                <Doodle d={D.zigzagUnderline} color="text-amber-400/45" className="absolute -bottom-1 left-0 w-full h-3" viewBox="0 0 200 16" delay={0.4} />
-              </span>
+              Create Your First Quiz
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto">
               Upload any study material and watch AI turn it into practice questions
@@ -1609,10 +1597,7 @@ export default function Home() {
             className="text-center max-w-xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              <span className="relative inline-block">
-                Ready to ace your exams?
-                <Doodle d={D.wavyUnderline} color="text-pink-400/45" className="absolute -bottom-1 left-0 w-full h-3" viewBox="0 0 200 16" delay={0.4} />
-              </span>
+              Ready to ace your exams?
             </h2>
             <p className="text-muted-foreground mb-8">
               Start creating personalized practice quizzes from your study materials today.
