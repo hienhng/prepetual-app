@@ -165,11 +165,8 @@ function InteractiveFlashcard() {
 function HeroIllustration() {
   return (
     <div className="relative w-full h-[400px] md:h-[500px] perspective-1000">
-      <Doodle d={D.star} color="text-amber-400/60" className="absolute top-4 left-4 z-30" width={26} height={26} viewBox="0 0 40 40" delay={1} fill />
-      <Doodle d={D.sparkle4} color="text-pink-400/50" className="absolute bottom-12 right-6 z-30" width={20} height={20} viewBox="0 0 30 30" delay={1.3} fill />
-      <Doodle d={D.heart} color="text-rose-400/50" className="absolute top-[55%] -left-1 z-30" width={18} height={18} viewBox="0 0 40 40" delay={1.5} fill />
-      <Doodle d={D.lightning} color="text-yellow-400/50" className="absolute top-[30%] right-2 z-30" width={16} height={16} viewBox="0 0 40 40" delay={1.7} fill />
-      <Doodle d={D.sparkle6} color="text-violet-400/50" className="absolute bottom-[35%] left-6 z-30" width={16} height={16} viewBox="0 0 40 40" delay={1.9} fill />
+      <Doodle d={D.star} color="text-amber-400/50" className="absolute top-4 left-4 z-30" width={22} height={22} viewBox="0 0 40 40" delay={1} fill />
+      <Doodle d={D.sparkle4} color="text-pink-400/40" className="absolute bottom-12 right-6 z-30" width={16} height={16} viewBox="0 0 30 30" delay={1.3} fill />
       {/* Background glow */}
       <motion.div 
         className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent rounded-[3rem] blur-3xl"
@@ -677,10 +674,6 @@ function HowItWorksGallery() {
                       >
                         {i + 1}
                       </motion.div>
-                      {i === 0 && <Doodle d={D.paperPlane} color="text-sky-400/40" className="absolute -top-4 -left-4" width={18} height={18} viewBox="0 0 40 40" delay={0.8} />}
-                      {i === 1 && <Doodle d={D.lightbulb} color="text-yellow-400/45" className="absolute -top-4 -left-4" width={18} height={18} viewBox="0 0 40 40" delay={0.8} />}
-                      {i === 2 && <Doodle d={D.pencil} color="text-orange-400/40" className="absolute -top-4 -left-4" width={18} height={18} viewBox="0 0 40 40" delay={0.8} />}
-                      {i === 3 && <Doodle d={D.trophy} color="text-amber-400/45" className="absolute -top-4 -left-4" width={18} height={18} viewBox="0 0 40 40" delay={0.8} />}
                     </motion.div>
                     
                     {/* Title and description */}
@@ -1160,10 +1153,6 @@ function FeatureShowcase() {
                   className="flex"
                 >
                   <Card className={`w-full group cursor-pointer transition-all duration-300 border ${colors.border} bg-card hover:shadow-xl ${colors.glow} hover:-translate-y-1 relative overflow-visible`}>
-                    {index % 4 === 0 && <Doodle d={D.star} color="text-amber-400/30" className="absolute -top-2 -right-2" width={14} height={14} viewBox="0 0 40 40" delay={0.3 + index * 0.05} fill />}
-                    {index % 4 === 1 && <Doodle d={D.heart} color="text-rose-400/30" className="absolute -top-2 -right-2" width={12} height={12} viewBox="0 0 40 40" delay={0.3 + index * 0.05} fill />}
-                    {index % 4 === 2 && <Doodle d={D.sparkle4} color="text-violet-400/30" className="absolute -top-2 -right-2" width={13} height={13} viewBox="0 0 30 30" delay={0.3 + index * 0.05} fill />}
-                    {index % 4 === 3 && <Doodle d={D.diamond} color="text-teal-400/30" className="absolute -top-2 -right-2" width={12} height={12} viewBox="0 0 40 40" delay={0.3 + index * 0.05} />}
                     <CardContent className="p-4 flex flex-col h-full">
                       <div className="flex items-center gap-3 mb-2">
                         <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center border ${colors.border} shrink-0`}>
@@ -1176,14 +1165,6 @@ function FeatureShowcase() {
                       <p className="text-xs text-muted-foreground line-clamp-2 flex-1">
                         {feature.description}
                       </p>
-                      {index === 0 && <Doodle d={D.zigzagUnderline} color="text-blue-400/40" className="w-14 h-2 mt-1" viewBox="0 0 200 16" delay={0.5} />}
-                      {index === 1 && <Doodle d={D.wave} color="text-purple-400/40" className="w-12 h-2 mt-1" viewBox="0 0 48 32" delay={0.6} />}
-                      {index === 2 && <Doodle d={D.loopUnderline} color="text-orange-400/40" className="w-14 h-2 mt-1" viewBox="0 0 200 20" delay={0.7} />}
-                      {index === 3 && <Doodle d={D.wavyUnderline} color="text-rose-400/35" className="w-14 h-2 mt-1" viewBox="0 0 200 16" delay={0.5} />}
-                      {index === 4 && <Doodle d={D.doubleUnderline} color="text-emerald-400/35" className="w-14 h-2 mt-1" viewBox="0 0 200 20" delay={0.6} />}
-                      {index === 5 && <Doodle d={D.zigzagUnderline} color="text-amber-400/40" className="w-14 h-2 mt-1" viewBox="0 0 200 16" delay={0.7} />}
-                      {index === 6 && <Doodle d={D.wave} color="text-cyan-400/40" className="w-12 h-2 mt-1" viewBox="0 0 48 32" delay={0.5} />}
-                      {index === 7 && <Doodle d={D.loopUnderline} color="text-indigo-400/40" className="w-14 h-2 mt-1" viewBox="0 0 200 20" delay={0.6} />}
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -1332,7 +1313,6 @@ function StatsSection() {
             </span>
           </div>
           <div className="text-sm text-muted-foreground">{stat.label}</div>
-          <Doodle d={index === 0 ? D.wavyUnderline : index === 1 ? D.loopUnderline : D.zigzagUnderline} color={index === 0 ? "text-rose-400/35" : index === 1 ? "text-teal-400/35" : "text-amber-400/35"} className="w-16 h-2 mx-auto mt-1" viewBox={index === 2 ? "0 0 200 16" : "0 0 200 20"} delay={0.3 + index * 0.1} />
         </motion.div>
       ))}
     </div>
@@ -1420,7 +1400,6 @@ export default function Home() {
               </motion.div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-[1.15] tracking-tight relative">
-                <Doodle d={D.sparkle4} color="text-amber-400/50" className="absolute -top-6 -left-2 hidden sm:block" width={20} height={20} viewBox="0 0 30 30" delay={1.2} fill />
                 Study smarter with{" "}
                 <span className="relative inline-block">
                   <span className="text-primary">
@@ -1428,7 +1407,6 @@ export default function Home() {
                   </span>
                   <Doodle d={D.loopUnderline} color="text-primary/40" className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 200 20" delay={0.8} />
                 </span>
-                <Doodle d={D.star} color="text-pink-400/40" className="absolute -top-4 -right-6 hidden sm:block" width={18} height={18} viewBox="0 0 40 40" delay={1.4} fill />
               </h1>
               
               <p className="text-lg md:text-xl text-muted-foreground max-w-md mx-auto lg:mx-0 mb-10 leading-relaxed">
@@ -1436,7 +1414,6 @@ export default function Home() {
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10 relative">
-                <Doodle d={D.curlyArrow} color="text-emerald-400/40" className="absolute -top-8 left-[15%] hidden lg:block" width={28} height={28} viewBox="0 0 40 40" delay={1.5} />
                 <motion.div 
                   whileHover={{ scale: 1.03 }} 
                   whileTap={{ scale: 0.97 }}
@@ -1588,9 +1565,7 @@ export default function Home() {
             className="max-w-2xl mx-auto"
           >
             <div className="relative group">
-              <Doodle d={D.pencil} color="text-blue-400/50" className="absolute -top-4 -left-4 z-10" width={24} height={24} viewBox="0 0 40 40" delay={0.4} />
-              <Doodle d={D.sparkle6} color="text-orange-400/50" className="absolute -top-3 -right-3 z-10" width={18} height={18} viewBox="0 0 40 40" delay={0.6} fill />
-              <Doodle d={D.book} color="text-emerald-400/40" className="absolute -bottom-3 -left-2 z-10" width={20} height={20} viewBox="0 0 40 40" delay={0.8} />
+              <Doodle d={D.pencil} color="text-blue-400/45" className="absolute -top-4 -left-4 z-10" width={22} height={22} viewBox="0 0 40 40" delay={0.4} />
               <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-primary/10 to-primary/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <Card className="relative shadow-2xl border-primary/20 overflow-hidden bg-card/95 backdrop-blur-sm">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
@@ -1637,9 +1612,7 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 relative">
-              <Doodle d={D.trophy} color="text-amber-400/50" className="absolute -top-6 left-[25%] hidden md:block" width={22} height={22} viewBox="0 0 40 40" delay={0.5} />
-              <Doodle d={D.rocket} color="text-sky-400/50" className="absolute -bottom-6 right-[25%] hidden md:block" width={20} height={20} viewBox="0 0 40 40" delay={0.7} />
-              <Doodle d={D.crown} color="text-yellow-400/40" className="absolute -top-5 right-[20%] hidden md:block" width={18} height={18} viewBox="0 0 40 40" delay={0.9} />
+              <Doodle d={D.rocket} color="text-sky-400/40" className="absolute -top-6 right-[25%] hidden md:block" width={20} height={20} viewBox="0 0 40 40" delay={0.7} />
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   size="lg"
