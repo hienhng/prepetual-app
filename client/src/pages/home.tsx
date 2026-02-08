@@ -4,7 +4,7 @@ import {
   ArrowRight, ArrowUp, ArrowLeft, CheckCircle2, Upload, Brain, Zap, BookOpen, 
   Share2, RotateCcw, Sparkles, Play, Eye, Target, Users, Star,
   ChevronRight, ChevronLeft, Layers, GraduationCap, Trophy, Flame, MousePointer2, Check, MessageCircle,
-  FileText, File, Image, X, Plus, ChevronDown, ChevronUp, Lightbulb, AlertCircle
+  FileText, File, Image, X, Plus, ChevronDown, ChevronUp, Lightbulb, AlertCircle, ArrowDown
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire } from "@fortawesome/free-solid-svg-icons";
@@ -17,6 +17,61 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
 import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, animate, PanInfo } from "framer-motion";
 import { Footer } from "@/components/footer";
+
+function Doodle({ d, className, delay = 0, duration = 0 }: { d: string; className?: string; delay?: number; duration?: number }) {
+  return (
+    <motion.svg
+      viewBox="0 0 100 100"
+      fill="none"
+      className={cn("absolute pointer-events-none text-primary/15 dark:text-primary/10", className)}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ delay }}
+    >
+      {duration > 0 ? (
+        <motion.path
+          d={d}
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          initial={{ pathLength: 0 }}
+          whileInView={{ pathLength: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay, duration }}
+        />
+      ) : (
+        <path d={d} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      )}
+    </motion.svg>
+  );
+}
+
+function cn(...classes: (string | undefined)[]) { return classes.filter(Boolean).join(" "); }
+
+const DOODLES = {
+  star: "M50 10 L58 38 L88 38 L64 55 L72 82 L50 67 L28 82 L36 55 L12 38 L42 38 Z",
+  sparkle: "M50 5 L55 40 L90 50 L55 60 L50 95 L45 60 L10 50 L45 40 Z",
+  arrow: "M15 70 C30 70 40 50 55 45 C70 40 85 45 85 30 M75 22 L85 30 L78 38",
+  curlyArrow: "M20 80 C20 40 40 20 60 25 C80 30 85 50 70 60 M62 55 L70 60 L65 68",
+  circle: "M50 15 C75 15 85 35 85 50 C85 65 75 85 50 85 C25 85 15 65 15 50 C15 35 25 15 50 15",
+  underline: "M10 60 C30 55 50 58 90 52",
+  book: "M50 20 L50 80 M50 20 C40 18 25 15 15 20 L15 78 C25 73 40 76 50 80 M50 20 C60 18 75 15 85 20 L85 78 C75 73 60 76 50 80",
+  pencil: "M20 80 L65 35 L75 45 L30 90 L18 85 Z M65 35 L72 28 C74 26 78 26 80 28 L82 30 C84 32 84 36 82 38 L75 45",
+  lightbulb: "M40 70 L60 70 M42 75 L58 75 M50 75 L50 82 M35 55 C35 40 40 25 50 25 C60 25 65 40 65 55 C65 62 58 68 55 70 L45 70 C42 68 35 62 35 55",
+  checkmark: "M20 55 L40 75 L80 30",
+  questionMark: "M35 35 C35 20 65 20 65 35 C65 45 50 48 50 58 M50 68 L50 72",
+  trophy: "M30 25 L70 25 L65 50 C63 58 55 62 50 65 C45 62 37 58 35 50 L30 25 M25 25 L20 35 M75 25 L80 35 M40 65 L40 75 L60 75 L60 65 M35 75 L65 75",
+  rocket: "M50 15 C42 30 40 50 45 70 L50 75 L55 70 C60 50 58 30 50 15 M45 60 L35 70 M55 60 L65 70",
+  zigzag: "M10 50 L25 30 L40 50 L55 30 L70 50 L85 30",
+  spiral: "M50 50 C50 42 58 42 58 50 C58 60 40 60 40 48 C40 35 62 35 62 52 C62 68 38 68 38 46",
+  heart: "M50 35 C50 25 65 20 65 35 C65 50 50 60 50 70 C50 60 35 50 35 35 C35 20 50 25 50 35",
+  musicNote: "M55 20 L55 65 C55 72 45 72 45 65 C45 58 55 58 55 65 M55 20 L70 15 L70 55 C70 62 60 62 60 55 C60 48 70 48 70 55",
+  paperPlane: "M15 50 L85 20 L60 80 L50 55 L15 50 M50 55 L85 20",
+  atom: "M50 50 M50 42 C52 42 52 58 50 58 C48 58 48 42 50 42 M50 50 C65 35 80 45 65 55 C50 65 35 55 50 50 M50 50 C35 35 20 45 35 55 C50 65 65 55 50 50",
+};
 
 function InteractiveFlashcard() {
   const x = useMotionValue(0);
@@ -1313,6 +1368,12 @@ export default function Home() {
             animate={{ scale: [1.1, 1, 1.1], opacity: [0.3, 0.5, 0.3] }}
             transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           />
+          <Doodle d={DOODLES.star} className="w-12 h-12 top-16 left-[8%] rotate-12 hidden md:block" delay={0.3} duration={1} />
+          <Doodle d={DOODLES.pencil} className="w-14 h-14 bottom-24 left-[5%] -rotate-12 hidden md:block" delay={0.6} />
+          <Doodle d={DOODLES.lightbulb} className="w-10 h-10 top-28 right-[6%] rotate-6 hidden lg:block" delay={0.5} duration={1.2} />
+          <Doodle d={DOODLES.spiral} className="w-16 h-16 bottom-12 right-[8%] -rotate-45 hidden md:block" delay={0.8} />
+          <Doodle d={DOODLES.zigzag} className="w-20 h-8 top-[45%] left-[2%] hidden lg:block" delay={0.7} />
+          <Doodle d={DOODLES.sparkle} className="w-8 h-8 top-12 left-[35%] rotate-45 hidden md:block" delay={1} />
         </div>
 
         <div className="container relative mx-auto px-4 sm:px-6">
@@ -1402,8 +1463,8 @@ export default function Home() {
                     className="gap-2 w-full sm:w-auto h-13 text-base font-medium text-muted-foreground hover:text-foreground"
                     data-testid="button-hero-learn-more"
                   >
-                    <Play className="h-4 w-4" />
-                    Watch Demo
+                    <ArrowDown className="h-4 w-4" />
+                    How It Works
                   </Button>
                 </motion.div>
               </div>
@@ -1444,14 +1505,24 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="py-16 md:py-20 border-y border-border/50">
-        <div className="container mx-auto px-4 sm:px-6">
+      <section className="py-16 md:py-20 border-y border-border/50 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <Doodle d={DOODLES.atom} className="w-10 h-10 top-6 right-[12%] rotate-12 hidden md:block" delay={0.2} />
+          <Doodle d={DOODLES.underline} className="w-16 h-6 bottom-6 left-[15%] hidden lg:block" delay={0.4} />
+        </div>
+        <div className="container relative mx-auto px-4 sm:px-6">
           <StatsSection />
         </div>
       </section>
       
-      <section id="how-it-works" className="py-20 md:py-28">
-        <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+      <section id="how-it-works" className="py-20 md:py-28 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <Doodle d={DOODLES.arrow} className="w-14 h-14 top-20 right-[7%] rotate-12 hidden md:block" delay={0.2} duration={0.8} />
+          <Doodle d={DOODLES.book} className="w-12 h-12 bottom-16 left-[6%] -rotate-6 hidden md:block" delay={0.4} />
+          <Doodle d={DOODLES.checkmark} className="w-10 h-10 top-[40%] right-[4%] rotate-6 hidden lg:block" delay={0.5} duration={0.6} />
+          <Doodle d={DOODLES.circle} className="w-8 h-8 top-24 left-[10%] hidden md:block" delay={0.3} />
+        </div>
+        <div className="container relative mx-auto px-4 sm:px-6 max-w-4xl">
           <motion.div 
             className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
@@ -1471,8 +1542,15 @@ export default function Home() {
         </div>
       </section>
       
-      <section className="py-20 md:py-28 bg-muted/40 min-h-[800px] md:min-h-[650px]">
-        <div className="container mx-auto px-4 sm:px-6">
+      <section className="py-20 md:py-28 bg-muted/40 min-h-[800px] md:min-h-[650px] relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <Doodle d={DOODLES.trophy} className="w-12 h-12 top-16 left-[5%] rotate-12 hidden md:block" delay={0.2} />
+          <Doodle d={DOODLES.paperPlane} className="w-14 h-14 top-24 right-[6%] -rotate-6 hidden md:block" delay={0.4} duration={1} />
+          <Doodle d={DOODLES.heart} className="w-8 h-8 bottom-20 left-[8%] rotate-12 hidden lg:block" delay={0.6} />
+          <Doodle d={DOODLES.star} className="w-10 h-10 bottom-28 right-[5%] -rotate-12 hidden md:block" delay={0.3} />
+          <Doodle d={DOODLES.curlyArrow} className="w-12 h-12 top-[50%] left-[3%] hidden lg:block" delay={0.5} />
+        </div>
+        <div className="container relative mx-auto px-4 sm:px-6">
           <motion.div 
             className="text-center mb-14"
             initial={{ opacity: 0, y: 20 }}
@@ -1494,6 +1572,11 @@ export default function Home() {
         </div>
       </section>
       <section className="py-20 md:py-28 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <Doodle d={DOODLES.rocket} className="w-12 h-12 top-12 right-[8%] rotate-[25deg] hidden md:block" delay={0.3} duration={1} />
+          <Doodle d={DOODLES.questionMark} className="w-10 h-10 bottom-20 left-[6%] -rotate-6 hidden md:block" delay={0.5} />
+          <Doodle d={DOODLES.sparkle} className="w-8 h-8 top-20 left-[10%] rotate-12 hidden lg:block" delay={0.4} />
+        </div>
         <div className="container relative mx-auto px-4 sm:px-6 max-w-3xl">
           <motion.div 
             className="text-center mb-10"
@@ -1547,7 +1630,13 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
-      <section className="py-20 md:py-28 bg-muted/40 border-t border-border/50">
+      <section className="py-20 md:py-28 bg-muted/40 border-t border-border/50 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <Doodle d={DOODLES.book} className="w-14 h-14 top-12 left-[6%] rotate-6 hidden md:block" delay={0.2} />
+          <Doodle d={DOODLES.star} className="w-10 h-10 top-16 right-[8%] -rotate-12 hidden md:block" delay={0.4} duration={0.8} />
+          <Doodle d={DOODLES.pencil} className="w-12 h-12 bottom-12 right-[6%] rotate-[20deg] hidden lg:block" delay={0.5} />
+          <Doodle d={DOODLES.lightbulb} className="w-10 h-10 bottom-16 left-[10%] -rotate-6 hidden md:block" delay={0.3} />
+        </div>
         <div className="container relative mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
