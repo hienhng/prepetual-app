@@ -385,14 +385,6 @@ function BeforeAfterSlider() {
         </div>
       </motion.div>
 
-      <motion.p
-        className="text-center text-xs text-muted-foreground mt-3"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 0.5 }}
-      >
-        Drag to compare
-      </motion.p>
     </div>
   );
 }
@@ -1428,7 +1420,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen overflow-hidden">
-      <section className="relative pt-12 pb-20 md:pt-20 md:pb-28 overflow-hidden">
+      <section className="relative pt-8 pb-16 md:pt-14 md:pb-20 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
             className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/8 blur-[120px]"
@@ -1443,12 +1435,13 @@ export default function Home() {
         </div>
 
         <div className="container relative mx-auto px-4 sm:px-6 max-w-5xl">
-          <div className="flex flex-col items-center gap-10">
-            <div className="w-full">
+          <div className="flex flex-col items-center">
+            <div className="w-full relative">
               <BeforeAfterSlider />
+              <div className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none z-10" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.5) 30%, hsl(var(--background) / 0.85) 55%, hsl(var(--background)) 100%)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", maskImage: "linear-gradient(to bottom, transparent 0%, black 25%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 25%)" }} />
             </div>
 
-            <div className="text-center max-w-2xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto -mt-24 sm:-mt-28 md:-mt-32 relative z-20">
               <motion.div 
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-6"
                 initial={{ opacity: 0, scale: 0.6, filter: "blur(8px)" }}
