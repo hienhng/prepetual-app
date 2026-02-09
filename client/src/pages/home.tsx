@@ -1370,17 +1370,12 @@ export default function Home() {
 
         <div className="container relative mx-auto px-4 sm:px-6">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center lg:text-left order-2 lg:order-1"
-            >
+            <div className="text-center lg:text-left order-2 lg:order-1">
               <motion.div 
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-8"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                initial={{ opacity: 0, scale: 0.6, filter: "blur(8px)" }}
+                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               >
                 <motion.div
                   animate={{ rotate: [0, 15, -15, 0] }}
@@ -1392,44 +1387,72 @@ export default function Home() {
               </motion.div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-[1.15] tracking-tight relative">
-                Study smarter with{" "}
+                <span className="overflow-hidden inline-flex">
+                  {["Study", "smarter", "with"].map((word, i) => (
+                    <motion.span
+                      key={word}
+                      className="inline-block"
+                      initial={{ y: "110%", opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.15 + i * 0.07, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      {word}{"\u00A0"}
+                    </motion.span>
+                  ))}
+                </span>
                 <span className="relative inline-block">
                   <span className="text-primary">
-                    AI quizzes
+                    {"AI quizzes".split("").map((char, i) => (
+                      <motion.span
+                        key={i}
+                        className="inline-block"
+                        initial={{ opacity: 0, y: 30, rotateX: -90 }}
+                        animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                        transition={{ delay: 0.45 + i * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                      >
+                        {char === " " ? "\u00A0" : char}
+                      </motion.span>
+                    ))}
                   </span>
-                  <Doodle d={D.loopUnderline} color="text-primary/40" className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 200 20" delay={0.8} />
+                  <Doodle d={D.loopUnderline} color="text-primary/40" className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 200 20" delay={1} />
                 </span>
               </h1>
               
-              <p className="text-lg md:text-xl text-muted-foreground max-w-md mx-auto lg:mx-0 mb-10 leading-relaxed">
+              <motion.p 
+                className="text-lg md:text-xl text-muted-foreground max-w-md mx-auto lg:mx-0 mb-10 leading-relaxed"
+                initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ delay: 0.55, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              >
                 Upload your notes, textbooks, or slides. Get instant practice tests tailored to your content.
-              </p>
+              </motion.p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10 relative">
-                <motion.div 
-                  whileHover={{ scale: 1.03 }} 
-                  whileTap={{ scale: 0.97 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="relative"
-                >
-                  <Button
-                    size="lg"
-                    onClick={handleGetStarted}
-                    className="gap-2.5 px-8 text-base h-13 w-full sm:w-auto shadow-lg shadow-primary/20 font-semibold"
-                    data-testid="button-hero-get-started"
+                <div className="overflow-hidden relative">
+                  <motion.div 
+                    whileHover={{ scale: 1.03 }} 
+                    whileTap={{ scale: 0.97 }}
+                    initial={{ y: "120%" }}
+                    animate={{ y: 0 }}
+                    transition={{ delay: 0.6, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    Get Started Free
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </motion.div>
+                    <Button
+                      size="lg"
+                      onClick={handleGetStarted}
+                      className="gap-2.5 px-8 text-base h-13 w-full sm:w-auto shadow-lg shadow-primary/20 font-semibold"
+                      data-testid="button-hero-get-started"
+                    >
+                      Get Started Free
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </motion.div>
+                </div>
                 <motion.div 
                   whileHover={{ scale: 1.03 }} 
                   whileTap={{ scale: 0.97 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
+                  initial={{ opacity: 0, x: -20, filter: "blur(4px)" }}
+                  animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                  transition={{ delay: 0.75, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <Button
                     size="lg"
@@ -1444,12 +1467,7 @@ export default function Home() {
                 </motion.div>
               </div>
 
-              <motion.div 
-                className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-              >
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2">
                 {[
                   { icon: CheckCircle2, text: "Free forever" },
                   { icon: CheckCircle2, text: "No account needed" },
@@ -1458,21 +1476,27 @@ export default function Home() {
                   <motion.div 
                     key={item.text}
                     className="flex items-center gap-1.5 text-sm text-muted-foreground"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 + i * 0.1 }}
+                    initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{ delay: 0.85 + i * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <item.icon className="h-4 w-4 text-primary flex-shrink-0" />
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.95 + i * 0.1, type: "spring", stiffness: 300, damping: 15 }}
+                    >
+                      <item.icon className="h-4 w-4 text-primary flex-shrink-0" />
+                    </motion.div>
                     <span>{item.text}</span>
                   </motion.div>
                 ))}
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
+              initial={{ opacity: 0, scale: 0.88, filter: "blur(12px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              transition={{ delay: 0.3, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
               className="order-1 lg:order-2"
             >
               <HeroIllustration />
