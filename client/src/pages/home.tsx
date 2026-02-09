@@ -335,24 +335,14 @@ function BeforeAfterSlider() {
           <div className="absolute inset-0">
             <HandwrittenPaper />
           </div>
-          <div className="absolute top-3 left-3 z-10">
-            <Badge variant="secondary" className="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-200 dark:text-amber-900 border-amber-300/50">
-              <FileText className="w-3 h-3 mr-1" />
-              Traditional
-            </Badge>
-          </div>
+          
         </div>
 
         <div className="absolute inset-0 pointer-events-none" style={{ clipPath: `inset(0 0 0 ${sliderPos}%)` }}>
           <div className="absolute inset-0">
             <PrepetualQuizPlayer />
           </div>
-          <div className="absolute top-3 right-3 z-10">
-            <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-primary/20">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Prepetual
-            </Badge>
-          </div>
+          
         </div>
 
         <div
@@ -1432,7 +1422,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen overflow-hidden">
-      <section className="relative pt-8 pb-16 md:pt-14 md:pb-20 overflow-hidden">
+      <section className="relative pb-16 md:pb-20 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
             className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/8 blur-[120px]"
