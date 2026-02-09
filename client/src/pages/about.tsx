@@ -1,14 +1,14 @@
 import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring } from "framer-motion";
 import { 
-  ArrowLeft, Rocket, Target, Heart, 
+  ArrowLeft, Rocket, Heart, 
   ArrowRight, ChevronDown, Sparkles, Users, Zap,
   Star, Brain, MessageCircle,
-  Lightbulb, Shield, Globe, Clock, FileText
+  Lightbulb, Shield, Globe, Target
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import brandLogo from "@assets/favicon_prepetual_1768124938772.png";
 
 function useMousePosition() {
@@ -121,34 +121,6 @@ export default function About() {
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  const journeySteps = [
-    { phase: "The Problem", title: "Too Much Busywork", description: "Students everywhere were manually typing flashcards, copying questions, and formatting study guides. Hours wasted before any real learning began." },
-    { phase: "The Idea", title: "What If AI Could Help?", description: "We asked a simple question: what if you could just upload your notes and instantly have a practice quiz? No setup, no formatting, no manual work." },
-    { phase: "The Build", title: "Prepetual Was Born", description: "We built an AI that doesn't just extract keywords\u2014it understands content. It creates questions that actually test comprehension, with explanations that teach." },
-    { phase: "Today", title: "Growing Every Day", description: "Students around the world use Prepetual to study smarter. We're constantly improving our AI, adding new features, and keeping it completely free." },
-  ];
-
-  const differentiators = [
-    { icon: Zap, title: "Zero setup time", description: "Other apps make you type every question and answer by hand. With Prepetual, you upload your material and get a complete quiz in seconds. Your time should be spent learning, not copying.", accent: "emerald" },
-    { icon: Target, title: "Built for exams, not memorization", description: "Our AI generates questions that test comprehension, not just recall. You'll face the same types of questions you'll see on exam day\u2014with explanations that actually teach.", accent: "primary" },
-    { icon: Users, title: "A study buddy that doesn't give up", description: "Pip is available 24/7, never judges, and actually helps you think through problems instead of just showing the answer. It's like having a patient tutor who understands exactly what you're studying.", accent: "cyan" },
-    { icon: Heart, title: "Actually free", description: "No premium tiers. No \"unlock more questions\" paywalls. No trial periods. Prepetual is free because we believe every student deserves great study tools, regardless of their budget.", accent: "rose" },
-  ];
-
-  const values = [
-    { icon: Globe, title: "Accessible to All", description: "Education tools should be free and available to every student, everywhere. No exceptions." },
-    { icon: Lightbulb, title: "Learning First", description: "Every feature we build is designed to deepen understanding, not just help you pass a test." },
-    { icon: Shield, title: "Privacy Matters", description: "Your study data belongs to you. We don't sell it, share it, or use it for anything other than helping you learn." },
-    { icon: Rocket, title: "Always Improving", description: "We listen to students, study the science of learning, and constantly evolve to serve you better." },
-  ];
-
-  const accentColors: Record<string, { bg: string; text: string; glow: string }> = {
-    emerald: { bg: "bg-emerald-500/8", text: "text-emerald-500", glow: "from-emerald-500/10" },
-    primary: { bg: "bg-primary/8", text: "text-primary", glow: "from-primary/10" },
-    cyan: { bg: "bg-cyan-500/8", text: "text-cyan-500", glow: "from-cyan-500/10" },
-    rose: { bg: "bg-rose-500/8", text: "text-rose-500", glow: "from-rose-500/10" },
-  };
-
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -211,8 +183,8 @@ export default function About() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 1 }}
           >
-            Helping students turn any study material into exam-ready practice—
-            <span className="text-foreground font-medium">without the busywork</span>.
+            Built on a simple belief:{" "}
+            <span className="text-foreground font-medium">understanding is everything</span>.
           </motion.p>
 
           <motion.div className="mt-24 text-muted-foreground/60 relative z-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
@@ -223,150 +195,199 @@ export default function About() {
         </motion.section>
 
 
-        {/* ===== OUR MISSION ===== */}
+        {/* ===== MY BELIEF ===== */}
         <section className="py-40 md:py-56">
           <div className="container mx-auto px-6 sm:px-8 max-w-4xl">
             <RevealOnScroll>
               <div className="flex items-center gap-3 mb-10">
                 <div className="w-1 h-8 rounded-full bg-primary" />
-                <span className="text-sm font-medium text-primary uppercase tracking-[0.2em]">Our Purpose</span>
+                <span className="text-sm font-medium text-primary uppercase tracking-[0.2em]">A Personal Belief</span>
+              </div>
+            </RevealOnScroll>
+
+            <div className="space-y-16">
+              <SplitReveal delay={0.05}>
+                <h2 className="text-4xl md:text-6xl font-bold text-foreground leading-[1.1] tracking-tight">
+                  Learning should be about understanding.
+                </h2>
+              </SplitReveal>
+
+              <RevealOnScroll delay={0.15}>
+                <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl">
+                  Not memorizing answers. Not cramming the night before. Not highlighting an entire textbook and hoping something sticks.
+                </p>
+              </RevealOnScroll>
+
+              <RevealOnScroll delay={0.25}>
+                <p className="text-2xl md:text-3xl text-foreground leading-snug font-semibold max-w-2xl">
+                  Only by truly understanding a concept can you crack every topic you learn.
+                </p>
+              </RevealOnScroll>
+
+              <RevealOnScroll delay={0.35}>
+                <p className="text-lg text-muted-foreground leading-relaxed max-w-3xl">
+                  That's the idea behind Prepetual. When you understand how something works—not just what the answer is—you can apply that knowledge anywhere. A new question, a different format, a harder exam. It doesn't matter. Understanding travels with you.
+                </p>
+              </RevealOnScroll>
+            </div>
+          </div>
+        </section>
+
+
+        {/* ===== THE PROBLEM I SAW ===== */}
+        <section className="py-40 md:py-56">
+          <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-20 lg:gap-16 items-start">
+              <div className="lg:col-span-3">
+                <RevealOnScroll>
+                  <div className="flex items-center gap-3 mb-10">
+                    <div className="w-1 h-8 rounded-full bg-amber-500" />
+                    <span className="text-sm font-medium text-amber-500 uppercase tracking-[0.2em]">The Problem</span>
+                  </div>
+                </RevealOnScroll>
+
+                <SplitReveal delay={0.05}>
+                  <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-12 leading-[1.1] tracking-tight">
+                    Most study tools get it backwards
+                  </h2>
+                </SplitReveal>
+
+                <div className="space-y-10">
+                  <RevealOnScroll delay={0.1}>
+                    <p className="text-lg text-muted-foreground leading-relaxed">
+                      I kept seeing the same pattern: students spending hours copying questions into flashcard apps, formatting study guides, color-coding notes. They were doing so much work around studying, but never actually studying.
+                    </p>
+                  </RevealOnScroll>
+
+                  <RevealOnScroll delay={0.2}>
+                    <p className="text-lg text-muted-foreground leading-relaxed">
+                      And even when they did quiz themselves, the questions tested recall—"What year did X happen?"—not understanding. You could ace the quiz and still not understand the material.
+                    </p>
+                  </RevealOnScroll>
+
+                  <RevealOnScroll delay={0.3}>
+                    <p className="text-xl text-foreground leading-relaxed font-medium">
+                      I wanted to build something that skips the busywork and goes straight to what matters: do you actually understand this?
+                    </p>
+                  </RevealOnScroll>
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 lg:sticky lg:top-32 z-50">
+                <RevealOnScroll delay={0.2} direction="right">
+                  <div className="space-y-6">
+                    {[
+                      { label: "The old way", items: ["Copy questions by hand", "Format flashcards for hours", "Memorize without understanding", "Hope it sticks for the exam"] },
+                      { label: "The Prepetual way", items: ["Upload your notes", "AI tests your understanding", "Learn from explanations", "Actually know the material"] },
+                    ].map((group, gi) => (
+                      <div key={group.label} className={`p-6 rounded-md border ${gi === 0 ? 'border-border/30 bg-muted/20' : 'border-primary/15 bg-primary/3'}`}>
+                        <span className={`text-xs font-medium uppercase tracking-[0.15em] mb-4 block ${gi === 0 ? 'text-muted-foreground' : 'text-primary'}`}>{group.label}</span>
+                        <div className="space-y-3">
+                          {group.items.map((item, ii) => (
+                            <motion.div
+                              key={item}
+                              className="flex items-center gap-3"
+                              initial={{ opacity: 0, x: 10 }}
+                              whileInView={{ opacity: 1, x: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ delay: 0.3 + gi * 0.2 + ii * 0.08 }}
+                            >
+                              <div className={`w-1.5 h-1.5 rounded-full ${gi === 0 ? 'bg-muted-foreground/40' : 'bg-primary'}`} />
+                              <span className={`text-sm ${gi === 0 ? 'text-muted-foreground line-through decoration-muted-foreground/30' : 'text-foreground'}`}>{item}</span>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </RevealOnScroll>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        {/* ===== MY APPROACH ===== */}
+        <section className="py-40 md:py-56">
+          <div className="container mx-auto px-6 sm:px-8 max-w-4xl">
+            <RevealOnScroll>
+              <div className="flex items-center gap-3 mb-10">
+                <div className="w-1 h-8 rounded-full bg-cyan-500" />
+                <span className="text-sm font-medium text-cyan-500 uppercase tracking-[0.2em]">My Approach</span>
               </div>
             </RevealOnScroll>
 
             <SplitReveal delay={0.05}>
-              <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-16 leading-[1.1] tracking-tight">
-                Our Mission
+              <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-20 leading-[1.1] tracking-tight">
+                Understanding over memorization
               </h2>
             </SplitReveal>
 
-            <div className="space-y-12">
-              <RevealOnScroll delay={0.1}>
-                <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl">
-                  We believe exam preparation shouldn't be about copying questions into flashcard apps or spending hours making study guides.
-                </p>
-              </RevealOnScroll>
-
-              <RevealOnScroll delay={0.2}>
-                <p className="text-3xl md:text-4xl text-foreground leading-snug font-semibold max-w-2xl">
-                  It should be about actually learning.
-                </p>
-              </RevealOnScroll>
-
-              <RevealOnScroll delay={0.3}>
-                <p className="text-lg text-muted-foreground leading-relaxed max-w-3xl">
-                  Prepetual exists to remove the friction between having study material and being ready for your exam. Upload your notes, textbook pages, or past papers—and within seconds, you have a personalized quiz that adapts to how you learn.
-                </p>
-              </RevealOnScroll>
-            </div>
-
-            <RevealOnScroll delay={0.4}>
-              <div className="mt-20 pt-16 border-t border-border/40">
-                <div className="flex flex-col md:flex-row items-start gap-6">
-                  <div className="w-14 h-14 rounded-2xl bg-primary/8 flex items-center justify-center shrink-0">
-                    <FileText className="w-7 h-7 text-primary" />
-                  </div>
-                  <div className="space-y-4 flex-1">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-foreground">biology_chapter_5.pdf</span>
-                      <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, repeat: Infinity }}>
-                        <Sparkles className="w-3.5 h-3.5 text-primary" />
+            <div className="space-y-24">
+              {[
+                {
+                  icon: Brain,
+                  title: "Questions that make you think",
+                  text: "Prepetual's AI doesn't just pull facts from your notes and ask you to repeat them. It generates questions that test whether you truly grasp the concept—the kind of questions that make you pause, connect ideas, and reason through an answer.",
+                  accent: "text-primary",
+                  accentBg: "bg-primary/8",
+                },
+                {
+                  icon: Lightbulb,
+                  title: "Explanations that actually teach",
+                  text: "Getting a question wrong shouldn't feel like a dead end. Every answer comes with a clear explanation—not just \"the correct answer is B,\" but why it's correct and how the concept works. That's where real learning happens.",
+                  accent: "text-amber-500",
+                  accentBg: "bg-amber-500/8",
+                },
+                {
+                  icon: Sparkles,
+                  title: "Pip guides, never gives away",
+                  text: "When you're stuck, Pip—your AI study companion—doesn't hand you the answer. It asks follow-up questions, gives hints, and walks you through the reasoning. Because the moment you figure it out yourself is the moment you truly understand it.",
+                  accent: "text-cyan-500",
+                  accentBg: "bg-cyan-500/8",
+                },
+                {
+                  icon: Target,
+                  title: "Revision that targets gaps",
+                  text: "Prepetual remembers what you got wrong and lets you retry just those questions. Instead of reviewing everything, you focus on the concepts that haven't clicked yet—until they do.",
+                  accent: "text-emerald-500",
+                  accentBg: "bg-emerald-500/8",
+                },
+              ].map((item, i) => (
+                <RevealOnScroll key={item.title} delay={0.05}>
+                  <div className="group">
+                    <div className="flex items-start gap-6 md:gap-8">
+                      <motion.div
+                        className={`w-14 h-14 rounded-2xl ${item.accentBg} flex items-center justify-center shrink-0 mt-1`}
+                        whileInView={{ rotate: [0, 3, -3, 0] }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }}
+                      >
+                        <item.icon className={`w-7 h-7 ${item.accent}`} />
                       </motion.div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }}>
-                        <Brain className="w-5 h-5 text-primary/60" />
-                      </motion.div>
-                      <div className="h-px flex-1 bg-gradient-to-r from-primary/20 to-transparent" />
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {["What is the role of mitochondria?", "True or False: DNA is single-stranded", "Explain cellular respiration"].map((q, i) => (
-                        <motion.div
-                          key={i}
-                          className="p-4 rounded-md bg-muted/30 border border-border/30"
-                          initial={{ opacity: 0, y: 10 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.5 + i * 0.1 }}
-                        >
-                          <p className="text-sm text-muted-foreground leading-relaxed">{q}</p>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </RevealOnScroll>
-          </div>
-        </section>
-
-
-        {/* ===== OUR JOURNEY ===== */}
-        <section className="py-40 md:py-56">
-          <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
-            <div className="max-w-4xl mb-24">
-              <RevealOnScroll>
-                <div className="flex items-center gap-3 mb-10">
-                  <div className="w-1 h-8 rounded-full bg-amber-500" />
-                  <span className="text-sm font-medium text-amber-500 uppercase tracking-[0.2em]">Our Journey</span>
-                </div>
-              </RevealOnScroll>
-
-              <SplitReveal delay={0.05}>
-                <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-8 leading-[1.1] tracking-tight">
-                  How We Got Here
-                </h2>
-              </SplitReveal>
-
-              <RevealOnScroll delay={0.1}>
-                <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
-                  Every great product starts with a frustration. Ours began when we realized that students were spending more time making study materials than actually studying them.
-                </p>
-              </RevealOnScroll>
-            </div>
-
-            <div className="space-y-6">
-              {journeySteps.map((step, i) => {
-                const ref = useRef<HTMLDivElement>(null);
-                const isInView = useInView(ref, { once: true, margin: "-60px" });
-
-                return (
-                  <motion.div
-                    ref={ref}
-                    key={step.phase}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ delay: i * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                    className="group"
-                  >
-                    <div className="flex items-start gap-6 md:gap-10 py-10 border-b border-border/30 last:border-0">
-                      <div className="shrink-0 pt-1">
-                        <div className="w-12 h-12 rounded-full flex items-center justify-center border border-border/50 bg-muted/30 text-muted-foreground font-mono text-sm font-bold">
-                          {String(i + 1).padStart(2, '0')}
-                        </div>
-                      </div>
                       <div className="flex-1 min-w-0">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-[0.15em] mb-2 block">{step.phase}</span>
-                        <h3 className="text-xl md:text-2xl font-bold text-foreground mb-3">{step.title}</h3>
-                        <p className="text-muted-foreground leading-relaxed max-w-xl">{step.description}</p>
+                        <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4 tracking-tight">{item.title}</h3>
+                        <p className="text-lg text-muted-foreground leading-relaxed">{item.text}</p>
                       </div>
                     </div>
-                  </motion.div>
-                );
-              })}
+                    <div className={`mt-8 ml-20 md:ml-[5.5rem] h-px bg-gradient-to-r ${item.accentBg.replace('bg-', 'from-')} to-transparent`} />
+                  </div>
+                </RevealOnScroll>
+              ))}
             </div>
           </div>
         </section>
 
 
-        {/* ===== MEET PIP ===== */}
+        {/* ===== MEET PIP (conversation demo) ===== */}
         <section className="py-40 md:py-56">
           <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-20 lg:gap-16 items-start">
               <div className="lg:col-span-2 lg:sticky lg:top-32 z-50">
                 <RevealOnScroll>
                   <div className="flex items-center gap-3 mb-10">
-                    <div className="w-1 h-8 rounded-full bg-cyan-500" />
-                    <span className="text-sm font-medium text-cyan-500 uppercase tracking-[0.2em]">AI Assistant</span>
+                    <div className="w-1 h-8 rounded-full bg-primary" />
+                    <span className="text-sm font-medium text-primary uppercase tracking-[0.2em]">Study Companion</span>
                   </div>
                 </RevealOnScroll>
 
@@ -451,86 +472,37 @@ export default function About() {
         </section>
 
 
-        {/* ===== WHAT MAKES US DIFFERENT ===== */}
-        <section className="py-40 md:py-56">
-          <div className="container mx-auto px-6 sm:px-8 max-w-4xl">
-            <div className="mb-28">
-              <RevealOnScroll>
-                <div className="flex items-center gap-3 mb-10">
-                  <div className="w-1 h-8 rounded-full bg-amber-500" />
-                  <span className="text-sm font-medium text-amber-500 uppercase tracking-[0.2em]">Why Prepetual</span>
-                </div>
-              </RevealOnScroll>
-
-              <SplitReveal delay={0.05}>
-                <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-8 leading-[1.1] tracking-tight">
-                  What Makes Us Different
-                </h2>
-              </SplitReveal>
-
-              <RevealOnScroll delay={0.1}>
-                <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
-                  There are plenty of flashcard and quiz apps out there. Here's why students choose Prepetual:
-                </p>
-              </RevealOnScroll>
-            </div>
-
-            <div className="space-y-24">
-              {differentiators.map((item, i) => {
-                const c = accentColors[item.accent];
-                return (
-                  <RevealOnScroll key={item.title} delay={0.05}>
-                    <div className="group">
-                      <div className="flex items-start gap-6 md:gap-8">
-                        <motion.div
-                          className={`w-14 h-14 rounded-2xl ${c.bg} flex items-center justify-center shrink-0 mt-1`}
-                          whileInView={{ rotate: [0, 3, -3, 0] }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }}
-                        >
-                          <item.icon className={`w-7 h-7 ${c.text}`} />
-                        </motion.div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4 tracking-tight">{item.title}</h3>
-                          <p className="text-lg text-muted-foreground leading-relaxed">{item.description}</p>
-                        </div>
-                      </div>
-                      <div className={`mt-8 ml-20 md:ml-[5.5rem] h-px bg-gradient-to-r ${c.glow} to-transparent`} />
-                    </div>
-                  </RevealOnScroll>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-
-        {/* ===== OUR VALUES ===== */}
+        {/* ===== WHAT I VALUE ===== */}
         <section className="py-40 md:py-56">
           <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
             <div className="mb-28">
               <RevealOnScroll>
                 <div className="flex items-center gap-3 mb-10">
                   <div className="w-1 h-8 rounded-full bg-rose-500" />
-                  <span className="text-sm font-medium text-rose-500 uppercase tracking-[0.2em]">What Drives Us</span>
+                  <span className="text-sm font-medium text-rose-500 uppercase tracking-[0.2em]">What I Value</span>
                 </div>
               </RevealOnScroll>
 
               <SplitReveal delay={0.05}>
                 <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-8 leading-[1.1] tracking-tight">
-                  Our Values
+                  Principles behind Prepetual
                 </h2>
               </SplitReveal>
 
               <RevealOnScroll delay={0.1}>
                 <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
-                  These principles guide every decision we make, every feature we build, and every student we serve.
+                  These aren't corporate values on a wall. They're the convictions that shaped every decision in building this tool.
                 </p>
               </RevealOnScroll>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border/30 rounded-md overflow-hidden">
-              {values.map((value, i) => {
+              {[
+                { icon: Globe, title: "Accessible to All", description: "Education tools should be free and available to every student, everywhere. No exceptions. No premium tiers. If you can access the internet, you can use Prepetual." },
+                { icon: Lightbulb, title: "Understanding First", description: "Every feature is designed to deepen understanding, not just help you pass a test. Because a student who understands the material doesn't need to worry about the exam." },
+                { icon: Shield, title: "Privacy Matters", description: "Your study data belongs to you. We don't sell it, share it, or use it for anything other than helping you learn. Your notes stay your notes." },
+                { icon: Heart, title: "Always Improving", description: "I study the science of learning, listen to students, and constantly evolve Prepetual. The goal is always the same: help you understand more, faster." },
+              ].map((value, i) => {
                 const ref = useRef<HTMLDivElement>(null);
                 const isInView = useInView(ref, { once: true, margin: "-40px" });
 
@@ -580,13 +552,13 @@ export default function About() {
 
             <SplitReveal>
               <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-8 tracking-tight">
-                Ready to study smarter?
+                Ready to actually understand?
               </h2>
             </SplitReveal>
 
             <RevealOnScroll delay={0.15}>
               <p className="text-lg text-muted-foreground max-w-md mx-auto mb-16 leading-relaxed">
-                Upload your first document and see how Prepetual can transform your exam prep.
+                Upload your study material and find out what you really know.
               </p>
             </RevealOnScroll>
 

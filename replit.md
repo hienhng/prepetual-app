@@ -4,7 +4,11 @@
 
 Prepetual is a full-stack web application designed to help students prepare for upcoming exams. It transforms study materials into interactive practice quizzes using AI. Users can upload documents (PDFs, Word docs, PowerPoint, Excel, images) to extract text, then generate custom quizzes with multiple question types (multiple choice, true/false, short answer). The app provides an interactive quiz-taking experience with detailed results, explanations, and an AI assistant named "Pip" to help explain concepts without giving away answers.
 
-## Recent Changes (Jan 2026)
+## Recent Changes (Feb 2026)
+
+- **About Page Redesign**: Rewrote the About page to focus on the creator's personal philosophy about learning. Core message: "Learning should be about understanding concepts—only by truly understanding can you crack every topic." Sections: Hero, Personal Belief, The Problem, My Approach (understanding over memorization), Meet Pip, Values, CTA. No feature-heavy sections. Uses first-person perspective throughout.
+
+## Previous Changes (Jan 2026)
 
 - **Revision State Persistence**: Quiz revision mode (retrying missed questions) now persists across browser sessions. The `retryAnswers` and `retryCheckedQuestions` are saved to the database, so users can close their browser and return to their revision progress later.
 - **Quiz Categories**: Each quiz is now automatically categorized by AI into one of: Math, English, Science, Social Studies, Global Languages, or Others/General. Categories are stored in the database and can be viewed but the UI currently doesn't display them. The `QUIZ_CATEGORIES` constant in `shared/schema.ts` defines all available categories.
