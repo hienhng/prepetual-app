@@ -341,13 +341,13 @@ export default function About() {
         </motion.section>
 
 
-        {/* ===== MY BELIEF ===== */}
+        {/* ===== OUR BELIEF ===== */}
         <section className="py-40 md:py-56">
           <div className="container mx-auto px-6 sm:px-8 max-w-4xl">
             <RevealOnScroll>
               <div className="flex items-center gap-3 mb-10">
                 <div className="w-1 h-8 rounded-full bg-primary" />
-                <span className="text-sm font-medium text-primary uppercase tracking-[0.2em]">A Personal Belief</span>
+                <span className="text-sm font-medium text-primary uppercase tracking-[0.2em]">Our Belief</span>
               </div>
             </RevealOnScroll>
 
@@ -372,7 +372,7 @@ export default function About() {
 
               <RevealOnScroll delay={0.35}>
                 <p className="text-lg text-muted-foreground leading-relaxed max-w-3xl">
-                  That's the idea behind Prepetual. When you understand how something works—not just what the answer is—you can apply that knowledge anywhere. A new question, a different format, a harder exam. It doesn't matter. Understanding travels with you.
+                  That's the idea behind Prepetual. When we understand how something works—not just what the answer is—we can apply that knowledge anywhere. A new question, a different format, a harder exam. It doesn't matter. Understanding travels with you.
                 </p>
               </RevealOnScroll>
             </div>
@@ -380,7 +380,7 @@ export default function About() {
         </section>
 
 
-        {/* ===== THE PROBLEM I SAW ===== */}
+        {/* ===== THE PROBLEM WE SAW ===== */}
         <section className="py-40 md:py-56">
           <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-20 lg:gap-16 items-start">
@@ -401,7 +401,7 @@ export default function About() {
                 <div className="space-y-10">
                   <RevealOnScroll delay={0.1}>
                     <p className="text-lg text-muted-foreground leading-relaxed">
-                      I kept seeing the same pattern: students spending hours copying questions into flashcard apps, formatting study guides, color-coding notes. They were doing so much work around studying, but never actually studying.
+                      We kept seeing the same pattern: students spending hours copying questions into flashcard apps, formatting study guides, color-coding notes. They were doing so much work around studying, but never actually studying.
                     </p>
                   </RevealOnScroll>
 
@@ -413,7 +413,7 @@ export default function About() {
 
                   <RevealOnScroll delay={0.3}>
                     <p className="text-xl text-foreground leading-relaxed font-medium">
-                      I wanted to build something that skips the busywork and goes straight to what matters: do you actually understand this?
+                      We wanted to build something that skips the busywork and goes straight to what matters: do you actually understand this?
                     </p>
                   </RevealOnScroll>
                 </div>
@@ -453,13 +453,13 @@ export default function About() {
         </section>
 
 
-        {/* ===== MY APPROACH ===== */}
+        {/* ===== OUR APPROACH ===== */}
         <section className="py-40 md:py-56">
           <div className="container mx-auto px-6 sm:px-8 max-w-4xl">
             <RevealOnScroll>
               <div className="flex items-center gap-3 mb-10">
                 <div className="w-1 h-8 rounded-full bg-cyan-500" />
-                <span className="text-sm font-medium text-cyan-500 uppercase tracking-[0.2em]">My Approach</span>
+                <span className="text-sm font-medium text-cyan-500 uppercase tracking-[0.2em]">Our Approach</span>
               </div>
             </RevealOnScroll>
 
@@ -495,7 +495,7 @@ export default function About() {
                 {
                   icon: Target,
                   title: "Revision that targets gaps",
-                  text: "Prepetual remembers what you got wrong and lets you retry just those questions. Instead of reviewing everything, you focus on the concepts that haven't clicked yet—until they do.",
+                  text: "Prepetual remembers what you got wrong and lets you retry just those questions. Instead of reviewing everything, we focus on the concepts that haven't clicked yet—until they do.",
                   accent: "text-emerald-500",
                   accentBg: "bg-emerald-500/8",
                 },
@@ -618,14 +618,14 @@ export default function About() {
         </section>
 
 
-        {/* ===== WHAT I VALUE ===== */}
+        {/* ===== WHAT WE VALUE ===== */}
         <section className="py-40 md:py-56">
           <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
             <div className="mb-28">
               <RevealOnScroll>
                 <div className="flex items-center gap-3 mb-10">
                   <div className="w-1 h-8 rounded-full bg-rose-500" />
-                  <span className="text-sm font-medium text-rose-500 uppercase tracking-[0.2em]">What I Value</span>
+                  <span className="text-sm font-medium text-rose-500 uppercase tracking-[0.2em]">What We Value</span>
                 </div>
               </RevealOnScroll>
 
@@ -647,7 +647,7 @@ export default function About() {
                 { icon: Globe, title: "Accessible to All", description: "Education tools should be free and available to every student, everywhere. No exceptions. No premium tiers. If you can access the internet, you can use Prepetual." },
                 { icon: Lightbulb, title: "Understanding First", description: "Every feature is designed to deepen understanding, not just help you pass a test. Because a student who understands the material doesn't need to worry about the exam." },
                 { icon: Shield, title: "Privacy Matters", description: "Your study data belongs to you. We don't sell it, share it, or use it for anything other than helping you learn. Your notes stay your notes." },
-                { icon: Heart, title: "Always Improving", description: "I study the science of learning, listen to students, and constantly evolve Prepetual. The goal is always the same: help you understand more, faster." },
+                { icon: Heart, title: "Always Improving", description: "We study the science of learning, listen to students, and constantly evolve Prepetual. The goal is always the same: help you understand more, faster." },
               ].map((value, i) => {
                 const ref = useRef<HTMLDivElement>(null);
                 const isInView = useInView(ref, { once: true, margin: "-40px" });

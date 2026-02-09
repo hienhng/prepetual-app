@@ -6,7 +6,7 @@ Prepetual is a full-stack web application designed to help students prepare for 
 
 ## Recent Changes (Feb 2026)
 
-- **About Page Redesign**: Rewrote the About page to focus on the creator's personal philosophy about learning. Core message: "Learning should be about understanding concepts—only by truly understanding can you crack every topic." Sections: Hero, Personal Belief, The Problem, My Approach (understanding over memorization), Meet Pip, Values, CTA. No feature-heavy sections. Uses first-person perspective throughout.
+- **About Page Redesign**: Rewrote the About page to focus on the team's philosophy about learning. Core message: "Learning should be about understanding concepts—only by truly understanding can we crack every topic." Sections: Hero, Personal Belief, The Problem, Our Approach (understanding over memorization), Meet Pip, Values, CTA. No feature-heavy sections. Uses first-person plural perspective throughout.
 
 ## Previous Changes (Jan 2026)
 
