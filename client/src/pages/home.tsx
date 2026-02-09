@@ -100,29 +100,30 @@ function HandwrittenPaper() {
   ];
 
   return (
-    <div className="w-full h-full bg-amber-50 dark:bg-amber-100 rounded-md p-5 relative" style={{ fontFamily: "'Architects Daughter', 'Segoe Script', cursive" }}>
-      <div className="absolute inset-0 pointer-events-none rounded-md" style={{ background: "repeating-linear-gradient(transparent, transparent 27px, #93c5fd33 27px, #93c5fd33 28px)" }} />
-      <div className="absolute left-10 top-0 bottom-0 w-px bg-red-300/40 pointer-events-none" />
+    <div className="w-full h-full bg-[#fdf6e3] relative overflow-hidden" style={{ fontFamily: "'Segoe Script', 'Comic Sans MS', cursive" }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "repeating-linear-gradient(transparent, transparent 26px, #c4daf433 26px, #c4daf433 27px)" }} />
+      <div className="absolute left-[52px] top-0 bottom-0 w-[1px] pointer-events-none" style={{ background: "linear-gradient(to bottom, transparent, #e8a0a0aa 10%, #e8a0a0aa 90%, transparent)" }} />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
 
-      <div className="relative z-10 pl-3">
-        <div className="text-center mb-3">
-          <span className="text-sm font-bold text-gray-700 underline decoration-wavy decoration-gray-400">Biology Quiz - Chapter 5</span>
+      <div className="relative z-10 pl-[62px] pr-5 pt-5 pb-4">
+        <div className="text-center mb-4 pb-1">
+          <span className="text-[13px] font-bold text-gray-700 tracking-wide" style={{ textDecoration: "underline", textDecorationStyle: "wavy", textDecorationColor: "#9ca3af80", textUnderlineOffset: "3px" }}>Biology Quiz - Chapter 5</span>
         </div>
 
         {questions.map((item, qi) => (
-          <div key={qi} className="mb-3">
-            <p className="text-[11px] text-gray-700 font-semibold leading-snug">
+          <div key={qi} className="mb-3.5">
+            <p className="text-[11.5px] text-gray-800 font-semibold leading-snug tracking-[-0.01em]">
               {item.num}. {item.q}
             </p>
-            <div className="ml-3 mt-0.5 space-y-0">
+            <div className="ml-4 mt-1 space-y-[2px]">
               {item.options.map((opt, oi) => (
-                <div key={oi} className="relative">
-                  <p className={`text-[10px] text-gray-600 leading-relaxed ${oi === item.circled ? "font-bold" : ""}`}>
+                <div key={oi} className="relative py-[1px]">
+                  <p className={`text-[10.5px] leading-relaxed ${oi === item.circled ? "font-bold text-gray-800" : "text-gray-600"}`}>
                     {opt}
                   </p>
                   {oi === item.circled && (
-                    <svg className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-[calc(100%+8px)] h-5 pointer-events-none" viewBox="0 0 200 30" preserveAspectRatio="none">
-                      <ellipse cx="100" cy="15" rx="95" ry="12" fill="none" stroke="#3b82f6" strokeWidth="1.5" opacity="0.5" strokeDasharray="3 2" transform="rotate(-1 100 15)" />
+                    <svg className="absolute -left-2 top-1/2 -translate-y-1/2 w-[calc(100%+12px)] h-[18px] pointer-events-none" viewBox="0 0 200 24" preserveAspectRatio="none">
+                      <ellipse cx="100" cy="12" rx="96" ry="10" fill="none" stroke="#4a8fe2" strokeWidth="1.2" opacity="0.45" transform="rotate(-0.5 100 12)" />
                     </svg>
                   )}
                 </div>
@@ -131,8 +132,11 @@ function HandwrittenPaper() {
           </div>
         ))}
 
-        <div className="absolute bottom-3 right-4 text-[9px] text-gray-400 italic">
+        <div className="absolute bottom-4 right-5 text-[9px] text-gray-400/80 italic tracking-wide">
           Name: ____________
+        </div>
+        <div className="absolute top-5 right-5 text-[9px] text-gray-400/60 italic">
+          Date: __ / __ / __
         </div>
       </div>
     </div>
@@ -140,38 +144,31 @@ function HandwrittenPaper() {
 }
 
 function PrepetualQuizPlayer() {
-  const questions = [
-    {
-      num: 1,
-      total: 3,
-      q: "What is the primary function of mitochondria in a cell?",
-      options: [
-        { label: "A", text: "Energy production", correct: true, selected: true },
-        { label: "B", text: "Protein synthesis", correct: false, selected: false },
-        { label: "C", text: "Cell division", correct: false, selected: false },
-        { label: "D", text: "Waste removal", correct: false, selected: false },
-      ],
-    },
-  ];
+  const q = {
+    num: 1,
+    total: 3,
+    q: "What is the primary function of mitochondria in a cell?",
+    options: [
+      { label: "A", text: "Energy production", correct: true, selected: true },
+      { label: "B", text: "Protein synthesis", correct: false, selected: false },
+      { label: "C", text: "Cell division", correct: false, selected: false },
+      { label: "D", text: "Waste removal", correct: false, selected: false },
+    ],
+  };
 
-  const q = questions[0];
   const progress = (q.num / q.total) * 100;
 
   return (
-    <div className="w-full h-full bg-background rounded-md flex flex-col overflow-hidden">
-      <div className="px-4 pt-3 pb-2 border-b border-border/50">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <span className="font-brand text-xs font-bold text-primary">Prepetual</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-orange-500/20 rounded-full">
-              <Flame className="h-2.5 w-2.5 text-orange-500" />
-              <span className="text-[8px] font-bold text-orange-600 dark:text-orange-400">3</span>
-            </div>
+    <div className="w-full h-full bg-background flex flex-col overflow-hidden">
+      <div className="px-5 pt-4 pb-2.5 border-b border-border/30 bg-background/80 backdrop-blur-sm">
+        <div className="flex items-center justify-between mb-2.5">
+          <span className="font-brand text-[13px] font-bold text-primary tracking-tight">Prepetual</span>
+          <div className="flex items-center gap-1 px-2 py-0.5 bg-orange-500/10 border border-orange-500/20 rounded-full">
+            <Flame className="h-2.5 w-2.5 text-orange-500" />
+            <span className="text-[9px] font-bold text-orange-600 dark:text-orange-400">3</span>
           </div>
         </div>
-        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+        <div className="h-1 bg-muted/80 rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-primary rounded-full"
             initial={{ width: 0 }}
@@ -179,36 +176,36 @@ function PrepetualQuizPlayer() {
             transition={{ delay: 0.5, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           />
         </div>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-[8px] text-muted-foreground">Question {q.num} of {q.total}</span>
-          <span className="text-[8px] text-muted-foreground">Multiple Choice</span>
+        <div className="flex items-center justify-between mt-1.5">
+          <span className="text-[9px] text-muted-foreground font-medium">Question {q.num} of {q.total}</span>
+          <span className="text-[9px] text-muted-foreground/70">Multiple Choice</span>
         </div>
       </div>
 
-      <div className="flex-1 px-4 py-3 overflow-hidden">
-        <div className="p-2.5 rounded-lg bg-muted/50 mb-3">
-          <p className="text-[11px] font-medium text-foreground leading-relaxed">
+      <div className="flex-1 px-5 py-4 overflow-hidden">
+        <div className="px-3 py-2.5 rounded-lg bg-muted/40 border border-border/30 mb-3.5">
+          <p className="text-[11.5px] font-medium text-foreground leading-relaxed">
             {q.q}
           </p>
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {q.options.map((opt, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, x: 8 }}
+              initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.6 + i * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className={`p-2 rounded-lg border text-[10px] font-medium flex items-center gap-2 ${
+              className={`px-3 py-2 rounded-lg border text-[10.5px] font-medium flex items-center gap-2.5 transition-colors ${
                 opt.correct && opt.selected
-                  ? "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400"
-                  : "border-border bg-background text-foreground"
+                  ? "border-green-500/40 bg-green-500/8 text-green-700 dark:text-green-400"
+                  : "border-border/60 bg-card/50 text-foreground"
               }`}
             >
-              <div className={`w-4 h-4 rounded-md flex items-center justify-center text-[8px] font-bold shrink-0 ${
+              <div className={`w-[18px] h-[18px] rounded-md flex items-center justify-center text-[8px] font-bold shrink-0 ${
                 opt.correct && opt.selected
                   ? "bg-green-500 text-white"
-                  : "bg-muted text-muted-foreground"
+                  : "bg-muted/80 text-muted-foreground border border-border/40"
               }`}>
                 {opt.correct && opt.selected ? <Check className="w-2.5 h-2.5" /> : opt.label}
               </div>
@@ -218,16 +215,16 @@ function PrepetualQuizPlayer() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 6 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.0, duration: 0.5 }}
-          className="mt-2.5 p-2 rounded-lg bg-green-500/5 border border-green-500/20"
+          transition={{ delay: 1.0, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-3 px-3 py-2.5 rounded-lg bg-green-500/5 border border-green-500/15"
         >
           <div className="flex items-center gap-1.5 mb-1">
             <Lightbulb className="w-3 h-3 text-green-600 dark:text-green-400" />
             <span className="text-[9px] font-semibold text-green-700 dark:text-green-400">Correct!</span>
           </div>
-          <p className="text-[8px] text-green-700/80 dark:text-green-400/80 leading-relaxed">
+          <p className="text-[8.5px] text-green-700/70 dark:text-green-400/70 leading-relaxed">
             Mitochondria are known as the powerhouse of the cell, producing ATP through cellular respiration.
           </p>
         </motion.div>
@@ -326,23 +323,33 @@ function BeforeAfterSlider() {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         data-testid="slider-container"
       >
         <div className="absolute inset-0 pointer-events-none" style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}>
           <div className="absolute inset-0">
             <HandwrittenPaper />
           </div>
-          
+          <div className="absolute top-3.5 left-4 z-10">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/80 dark:bg-white/90 backdrop-blur-sm border border-gray-200/60 shadow-sm">
+              <FileText className="w-3 h-3 text-gray-500" />
+              <span className="text-[10px] font-semibold text-gray-600 tracking-wide uppercase">Before</span>
+            </div>
+          </div>
         </div>
 
         <div className="absolute inset-0 pointer-events-none" style={{ clipPath: `inset(0 0 0 ${sliderPos}%)` }}>
           <div className="absolute inset-0">
             <PrepetualQuizPlayer />
           </div>
-          
+          <div className="absolute top-3.5 right-4 z-10">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 dark:bg-primary/20 backdrop-blur-sm border border-primary/20 shadow-sm">
+              <Sparkles className="w-3 h-3 text-primary" />
+              <span className="text-[10px] font-semibold text-primary tracking-wide uppercase">After</span>
+            </div>
+          </div>
         </div>
 
         <div
@@ -350,43 +357,23 @@ function BeforeAfterSlider() {
           style={{ left: `${sliderPos}%`, transform: "translateX(-50%)" }}
           data-testid="slider-handle"
         >
-          <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[2px] bg-white shadow-[0_0_6px_rgba(0,0,0,0.4),0_0_12px_rgba(0,0,0,0.15)]" />
+          <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[1.5px] bg-white/90 shadow-[0_0_8px_rgba(0,0,0,0.2),0_0_2px_rgba(0,0,0,0.3)]" />
 
           <div
-            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-gray-100 shadow-xl border-2 border-primary/40 flex items-center justify-center gap-0.5 transition-transform duration-150 ${isDragging ? "scale-110" : ""}`}
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white shadow-lg shadow-black/15 border border-gray-200 dark:border-gray-300 flex items-center justify-center gap-0 transition-all duration-200 ${isDragging ? "scale-110 shadow-xl" : ""}`}
           >
-            <ChevronLeft className="w-3.5 h-3.5 text-gray-600" />
-            <ChevronRight className="w-3.5 h-3.5 text-gray-600" />
+            <ChevronLeft className="w-3 h-3 text-gray-500 -mr-0.5" />
+            <ChevronRight className="w-3 h-3 text-gray-500 -ml-0.5" />
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.3) 20%, hsl(var(--background) / 0.7) 45%, hsl(var(--background) / 0.92) 70%, hsl(var(--background)) 100%)" }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.25) 20%, hsl(var(--background) / 0.65) 45%, hsl(var(--background) / 0.9) 65%, hsl(var(--background)) 100%)" }} />
       </motion.div>
 
-      <Doodle d={D.sparkle6} color="text-primary/25" className="absolute -top-2 left-[8%] w-8 h-8 sm:w-10 sm:h-10" viewBox="0 0 40 40" delay={0.3} />
-      <Doodle d={D.star} color="text-amber-400/30 dark:text-amber-300/25" className="absolute top-[12%] right-[6%] w-7 h-7 sm:w-9 sm:h-9" viewBox="0 0 40 40" delay={0.6} />
-      <Doodle d={D.spiral} color="text-primary/15" className="absolute top-[30%] left-[3%] w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 40 40" delay={0.9} />
-      <Doodle d={D.lightning} color="text-amber-500/25 dark:text-amber-400/20" className="absolute top-[5%] left-[25%] w-5 h-5 sm:w-7 sm:h-7" viewBox="0 0 40 40" delay={1.1} />
-      <Doodle d={D.sparkle4} color="text-primary/20" className="absolute top-[22%] right-[12%] w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 30 30" delay={0.8} />
-      <Doodle d={D.check} color="text-green-500/25 dark:text-green-400/20" className="absolute top-[8%] right-[22%] w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 40 40" delay={1.3} />
-      <Doodle d={D.pencil} color="text-muted-foreground/15" className="absolute top-[18%] left-[12%] w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 40 40" delay={1.0} />
-      <Doodle d={D.lightbulb} color="text-amber-400/20 dark:text-amber-300/15" className="absolute top-[2%] right-[35%] w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 40 40" delay={0.5} />
-
-      <motion.div
-        className="absolute -top-1 left-[15%] w-1.5 h-1.5 rounded-full bg-primary/30 pointer-events-none"
-        animate={{ y: [0, -8, 0], opacity: [0.3, 0.6, 0.3] }}
-        transition={{ duration: 3, repeat: Infinity, delay: 0.2 }}
-      />
-      <motion.div
-        className="absolute top-[10%] right-[18%] w-1 h-1 rounded-full bg-amber-400/40 pointer-events-none"
-        animate={{ y: [0, -6, 0], opacity: [0.3, 0.7, 0.3] }}
-        transition={{ duration: 2.5, repeat: Infinity, delay: 0.8 }}
-      />
-      <motion.div
-        className="absolute top-[25%] left-[6%] w-1.5 h-1.5 rounded-full bg-primary/25 pointer-events-none"
-        animate={{ y: [0, -10, 0], opacity: [0.2, 0.5, 0.2] }}
-        transition={{ duration: 3.5, repeat: Infinity, delay: 1.2 }}
-      />
+      <Doodle d={D.sparkle4} color="text-primary/20" className="absolute -top-1 left-[7%] w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 30 30" delay={0.4} />
+      <Doodle d={D.star} color="text-amber-400/25 dark:text-amber-300/20" className="absolute top-[10%] right-[5%] w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 40 40" delay={0.7} />
+      <Doodle d={D.spiral} color="text-primary/12" className="absolute top-[28%] left-[3%] w-5 h-5 sm:w-7 sm:h-7" viewBox="0 0 40 40" delay={1.0} />
+      <Doodle d={D.lightbulb} color="text-amber-400/18 dark:text-amber-300/12" className="absolute top-[4%] right-[28%] w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 40 40" delay={0.6} />
     </div>
   );
 }
