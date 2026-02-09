@@ -15,7 +15,7 @@ import { FileUpload } from "@/components/file-upload";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
-import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, animate, PanInfo } from "framer-motion";
+import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, animate } from "framer-motion";
 import { Footer } from "@/components/footer";
 
 function cn(...classes: (string | undefined)[]) { return classes.filter(Boolean).join(" "); }
@@ -235,89 +235,83 @@ function PrepetualQuizPlayer() {
 
 function BeforeAfterSlider() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const sliderMotion = useMotionValue(50);
-  const [sliderPos, setSliderPos] = useState(50);
-  const [isDragging, setIsDragging] = useState(false);
-  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const autoAnimRef = useRef<ReturnType<typeof animate> | null>(null);
-  const userInteracted = useRef(false);
+  const [isRevealing, setIsRevealing] = useState(false);
+  const [circleSize, setCircleSize] = useState(0);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const smoothX = useMotionValue(0);
+  const smoothY = useMotionValue(0);
+  const targetSize = useRef(0);
+  const currentSize = useRef(0);
+  const rafRef = useRef<number>(0);
+  const hasInteracted = useRef(false);
+  const [showHint, setShowHint] = useState(false);
 
   useEffect(() => {
-    const unsub = sliderMotion.on("change", (v) => setSliderPos(v));
-    return unsub;
+    const hintTimer = setTimeout(() => {
+      if (!hasInteracted.current) setShowHint(true);
+    }, 2000);
+    return () => clearTimeout(hintTimer);
   }, []);
-
-  const stopAutoSwipe = () => {
-    if (autoAnimRef.current) {
-      autoAnimRef.current.stop();
-      autoAnimRef.current = null;
-    }
-  };
-
-  const startAutoSwipe = () => {
-    stopAutoSwipe();
-    autoAnimRef.current = animate(sliderMotion, [25, 75], {
-      duration: 4,
-      ease: "easeInOut",
-      repeat: Infinity,
-      repeatType: "mirror",
-    });
-  };
-
-  const resetIdleTimer = () => {
-    if (idleTimer.current) clearTimeout(idleTimer.current);
-    idleTimer.current = setTimeout(() => {
-      if (!isDragging) startAutoSwipe();
-    }, 3000);
-  };
 
   useEffect(() => {
-    if (!userInteracted.current) {
-      const initTimer = setTimeout(() => {
-        if (!isDragging) startAutoSwipe();
-      }, 2500);
-      return () => clearTimeout(initTimer);
-    }
+    let active = true;
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+    const tick = () => {
+      if (!active) return;
+      smoothX.set(lerp(smoothX.get(), mouseX.get(), 0.12));
+      smoothY.set(lerp(smoothY.get(), mouseY.get(), 0.12));
+      currentSize.current = lerp(currentSize.current, targetSize.current, 0.1);
+      setCircleSize(currentSize.current);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      active = false;
+      cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
-  const getPercentage = (clientX: number) => {
-    if (!containerRef.current) return null;
+  const getRelativePos = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    const x = clientX - rect.left;
-    return Math.max(5, Math.min(95, (x / rect.width) * 100));
+    mouseX.set(e.clientX - rect.left);
+    mouseY.set(e.clientY - rect.top);
   };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.currentTarget.setPointerCapture(e.pointerId);
-    userInteracted.current = true;
-    stopAutoSwipe();
-    setIsDragging(true);
-    const pct = getPercentage(e.clientX);
-    if (pct !== null) sliderMotion.set(pct);
+    hasInteracted.current = true;
+    setShowHint(false);
+    setIsRevealing(true);
+    getRelativePos(e);
+    smoothX.set(e.clientX - (containerRef.current?.getBoundingClientRect().left || 0));
+    smoothY.set(e.clientY - (containerRef.current?.getBoundingClientRect().top || 0));
+    targetSize.current = 280;
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging) return;
-    const pct = getPercentage(e.clientX);
-    if (pct !== null) sliderMotion.set(pct);
+    getRelativePos(e);
+    if (isRevealing) {
+      targetSize.current = Math.min(400, targetSize.current + 0.5);
+    }
   };
 
   const handlePointerUp = () => {
-    setIsDragging(false);
-    resetIdleTimer();
+    setIsRevealing(false);
+    targetSize.current = 0;
   };
 
-  useEffect(() => {
-    return () => {
-      stopAutoSwipe();
-      if (idleTimer.current) clearTimeout(idleTimer.current);
-    };
-  }, []);
+  const clipPath = isRevealing || circleSize > 1
+    ? `circle(${circleSize}px at ${smoothX.get()}px ${smoothY.get()}px)`
+    : "circle(0px at 50% 50%)";
 
   return (
     <div className="relative w-full">
       <motion.div
-        className="relative w-full h-[340px] sm:h-[400px] md:h-[460px] lg:h-[500px] overflow-hidden select-none cursor-col-resize touch-none"
+        className="relative w-full h-[340px] sm:h-[400px] md:h-[460px] lg:h-[500px] overflow-hidden select-none touch-none"
         ref={containerRef}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -326,43 +320,59 @@ function BeforeAfterSlider() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        style={{ cursor: isRevealing ? "none" : "pointer" }}
         data-testid="slider-container"
       >
-        <div className="absolute inset-0 pointer-events-none" style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}>
-          <div className="absolute inset-0">
-            <HandwrittenPaper />
-          </div>
-          <div className="absolute top-3.5 left-4 z-10">
-            
-          </div>
-        </div>
-
-        <div className="absolute inset-0 pointer-events-none" style={{ clipPath: `inset(0 0 0 ${sliderPos}%)` }}>
-          <div className="absolute inset-0">
-            <PrepetualQuizPlayer />
-          </div>
-          <div className="absolute top-3.5 right-4 z-10">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 dark:bg-primary/20 backdrop-blur-sm border border-primary/20 shadow-sm">
-              <Sparkles className="w-3 h-3 text-primary" />
-              <span className="text-[10px] font-semibold text-primary tracking-wide uppercase">After</span>
-            </div>
-          </div>
+        <div className="absolute inset-0">
+          <HandwrittenPaper />
         </div>
 
         <div
-          className="absolute top-0 bottom-0 z-20 pointer-events-none"
-          style={{ left: `${sliderPos}%`, transform: "translateX(-50%)" }}
-          data-testid="slider-handle"
+          className="absolute inset-0 z-10 pointer-events-none"
+          style={{ clipPath }}
         >
-          <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[1.5px] bg-white/90 shadow-[0_0_8px_rgba(0,0,0,0.2),0_0_2px_rgba(0,0,0,0.3)]" />
-
-          <div
-            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white shadow-lg shadow-black/15 border border-gray-200 dark:border-gray-300 flex items-center justify-center gap-0 transition-all duration-200 ${isDragging ? "scale-110 shadow-xl" : ""}`}
-          >
-            <ChevronLeft className="w-3 h-3 text-gray-500 -mr-0.5" />
-            <ChevronRight className="w-3 h-3 text-gray-500 -ml-0.5" />
+          <div className="absolute inset-0">
+            <PrepetualQuizPlayer />
           </div>
         </div>
+
+        {(isRevealing || circleSize > 1) && (
+          <div
+            className="absolute z-20 pointer-events-none"
+            style={{
+              left: smoothX.get(),
+              top: smoothY.get(),
+              transform: "translate(-50%, -50%)",
+              width: circleSize * 2,
+              height: circleSize * 2,
+              borderRadius: "50%",
+              boxShadow: "0 0 0 2px rgba(255,255,255,0.5), 0 0 30px 4px rgba(0,0,0,0.12), inset 0 0 20px rgba(0,0,0,0.04)",
+            }}
+          />
+        )}
+
+        <AnimatePresence>
+          {showHint && !isRevealing && circleSize < 1 && (
+            <motion.div
+              className="absolute z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 pointer-events-none"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <motion.div
+                className="w-14 h-14 rounded-full bg-white/90 dark:bg-white/95 shadow-lg border border-gray-200/80 flex items-center justify-center"
+                animate={{ scale: [1, 1.08, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <MousePointer2 className="w-5 h-5 text-gray-600" />
+              </motion.div>
+              <span className="text-[11px] font-medium text-white bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full tracking-wide">
+                Click & hold to reveal
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.25) 20%, hsl(var(--background) / 0.65) 45%, hsl(var(--background) / 0.9) 65%, hsl(var(--background)) 100%)" }} />
       </motion.div>
