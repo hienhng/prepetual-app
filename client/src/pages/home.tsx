@@ -1706,8 +1706,8 @@ export default function Home() {
               Start creating personalized practice quizzes from your study materials today.
             </motion.p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 relative">
-              <div className="overflow-hidden">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 relative z-10">
+              <div className="overflow-hidden relative z-20">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -1715,11 +1715,12 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+                  className="relative z-30"
                 >
                   <Button
                     size="lg"
                     onClick={handleGetStarted}
-                    className="gap-2 px-8 h-12 w-full sm:w-auto shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-primary/40 hover:-translate-y-1 active:translate-y-0"
+                    className="gap-2 px-8 h-12 w-full sm:w-auto shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-primary/40 hover:-translate-y-1 active:translate-y-0 relative z-40"
                     data-testid="button-cta-get-started"
                   >
                     Get Started Free
@@ -1735,11 +1736,12 @@ export default function Home() {
                   whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}
+                  className="relative z-20"
                 >
                   <Button
                     size="lg"
                     variant="ghost"
-                    className="gap-2 w-full sm:w-auto h-12 text-muted-foreground hover:text-foreground"
+                    className="gap-2 w-full sm:w-auto h-12 text-muted-foreground hover:text-foreground relative z-30"
                     data-testid="button-learn-more"
                   >
                     Learn More
