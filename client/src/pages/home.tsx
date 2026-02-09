@@ -383,6 +383,8 @@ function BeforeAfterSlider() {
             <ChevronRight className="w-3.5 h-3.5 text-gray-600" />
           </div>
         </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.4) 25%, hsl(var(--background) / 0.8) 50%, hsl(var(--background)) 100%)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", maskImage: "linear-gradient(to bottom, transparent 0%, black 30%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 30%)" }} />
       </motion.div>
 
     </div>
@@ -1436,9 +1438,8 @@ export default function Home() {
 
         <div className="container relative mx-auto px-4 sm:px-6 max-w-5xl">
           <div className="flex flex-col items-center">
-            <div className="w-full relative">
+            <div className="w-full">
               <BeforeAfterSlider />
-              <div className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none z-10" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.5) 30%, hsl(var(--background) / 0.85) 55%, hsl(var(--background)) 100%)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", maskImage: "linear-gradient(to bottom, transparent 0%, black 25%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 25%)" }} />
             </div>
 
             <div className="text-center max-w-2xl mx-auto -mt-24 sm:-mt-28 md:-mt-32 relative z-20">
