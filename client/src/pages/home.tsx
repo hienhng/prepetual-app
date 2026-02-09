@@ -1134,13 +1134,24 @@ function FeatureShowcase() {
           >
             {features.map((feature, index) => {
               const colors = colorClasses[feature.color];
+              const entrances = [
+                { initial: { opacity: 0, y: 30, filter: "blur(6px)" }, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+                { initial: { opacity: 0, scale: 0.85, filter: "blur(4px)" }, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+                { initial: { opacity: 0, x: -25, filter: "blur(4px)" }, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+                { initial: { opacity: 0, y: 25, rotateX: -10 }, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
+                { initial: { opacity: 0, x: 25, filter: "blur(4px)" }, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+                { initial: { opacity: 0, scale: 0.8, rotate: -3 }, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+                { initial: { opacity: 0, y: -20, filter: "blur(6px)" }, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+                { initial: { opacity: 0, scale: 0.9, filter: "blur(8px)" }, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
+              ];
+              const entrance = entrances[index % entrances.length];
               return (
                 <motion.div
                   key={feature.title}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={entrance.initial}
+                  whileInView={{ opacity: 1, y: 0, x: 0, scale: 1, rotate: 0, rotateX: 0, filter: "blur(0px)" }}
                   viewport={{ once: true, margin: "-50px" }}
-                  transition={{ delay: index * 0.06, type: "spring", stiffness: 100 }}
+                  transition={{ delay: index * 0.06, ...entrance.transition }}
                   onClick={() => setExpandedIndex(index)}
                   className="flex"
                 >
@@ -1292,19 +1303,34 @@ function StatsSection() {
       {stats.map((stat, index) => (
         <motion.div
           key={stat.label}
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.7, filter: "blur(8px)" }}
+          whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           viewport={{ once: true }}
-          transition={{ delay: index * 0.1 }}
+          transition={{ delay: index * 0.12, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="text-center"
         >
           <div className="flex items-center justify-center gap-2 mb-1">
-            <stat.icon className="w-5 h-5 text-primary" />
+            <motion.div
+              initial={{ rotate: -180, scale: 0 }}
+              whileInView={{ rotate: 0, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 + index * 0.12, type: "spring", stiffness: 200, damping: 12 }}
+            >
+              <stat.icon className="w-5 h-5 text-primary" />
+            </motion.div>
             <span className="text-3xl md:text-4xl font-bold text-foreground">
               <AnimatedCounter value={stat.value} />
             </span>
           </div>
-          <div className="text-sm text-muted-foreground">{stat.label}</div>
+          <motion.div
+            className="text-sm text-muted-foreground"
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 + index * 0.12, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {stat.label}
+          </motion.div>
         </motion.div>
       ))}
     </div>
@@ -1512,20 +1538,37 @@ export default function Home() {
       
       <section id="how-it-works" className="py-20 md:py-28">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Simple Process</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              How It Works
-            </h2>
-            <p className="text-muted-foreground max-w-lg mx-auto">
+          <div className="text-center mb-16">
+            <motion.p
+              className="text-sm font-medium text-primary uppercase tracking-wider mb-3"
+              initial={{ opacity: 0, letterSpacing: "0em" }}
+              whileInView={{ opacity: 1, letterSpacing: "0.1em" }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              Simple Process
+            </motion.p>
+            <div className="overflow-hidden">
+              <motion.h2
+                className="text-3xl md:text-4xl font-bold text-foreground mb-4"
+                initial={{ y: "110%" }}
+                whileInView={{ y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
+              >
+                How It Works
+              </motion.h2>
+            </div>
+            <motion.p
+              className="text-muted-foreground max-w-lg mx-auto"
+              initial={{ opacity: 0, filter: "blur(6px)" }}
+              whileInView={{ opacity: 1, filter: "blur(0px)" }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+            >
               From notes to quizzes in just a few clicks
-            </p>
-          </motion.div>
+            </motion.p>
+          </div>
           
           <HowItWorksGallery />
         </div>
@@ -1533,20 +1576,35 @@ export default function Home() {
       
       <section className="py-20 md:py-28 bg-muted/40 min-h-[800px] md:min-h-[650px]">
         <div className="container mx-auto px-4 sm:px-6">
-          <motion.div 
-            className="text-center mb-14"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Features</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <div className="text-center mb-14">
+            <motion.p
+              className="text-sm font-medium text-primary uppercase tracking-wider mb-3"
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              Features
+            </motion.p>
+            <motion.h2
+              className="text-3xl md:text-4xl font-bold text-foreground mb-4"
+              initial={{ opacity: 0, x: -40, filter: "blur(6px)" }}
+              whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
+            >
               Everything You Need
-            </h2>
-            <p className="text-muted-foreground max-w-lg mx-auto">
+            </motion.h2>
+            <motion.p
+              className="text-muted-foreground max-w-lg mx-auto"
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+            >
               Powerful tools to transform how you study
-            </p>
-          </motion.div>
+            </motion.p>
+          </div>
           
           <div className="max-w-5xl mx-auto">
             <FeatureShowcase />
@@ -1555,26 +1613,43 @@ export default function Home() {
       </section>
       <section className="py-20 md:py-28 relative overflow-hidden">
         <div className="container relative mx-auto px-4 sm:px-6 max-w-3xl">
-          <motion.div 
-            className="text-center mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-sm font-medium text-primary uppercase tracking-wider mb-3">Try It Now</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Create Your First Quiz
-            </h2>
-            <p className="text-muted-foreground max-w-md mx-auto">
+          <div className="text-center mb-10">
+            <motion.p
+              className="text-sm font-medium text-primary uppercase tracking-wider mb-3"
+              initial={{ opacity: 0, y: -10, filter: "blur(4px)" }}
+              whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              Try It Now
+            </motion.p>
+            <div className="overflow-hidden">
+              <motion.h2
+                className="text-3xl md:text-4xl font-bold text-foreground mb-4"
+                initial={{ y: "120%", rotateX: -15 }}
+                whileInView={{ y: 0, rotateX: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
+              >
+                Create Your First Quiz
+              </motion.h2>
+            </div>
+            <motion.p
+              className="text-muted-foreground max-w-md mx-auto"
+              initial={{ opacity: 0, filter: "blur(8px)" }}
+              whileInView={{ opacity: 1, filter: "blur(0px)" }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+            >
               Upload any study material and watch AI turn it into practice questions
-            </p>
-          </motion.div>
+            </motion.p>
+          </div>
           
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.92, filter: "blur(10px)" }}
+            whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             viewport={{ once: true }}
-            transition={{ type: "spring", stiffness: 100 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
             className="max-w-2xl mx-auto"
           >
             <div className="relative group">
@@ -1609,33 +1684,58 @@ export default function Home() {
       </section>
       <section className="py-20 md:py-28 bg-muted/40 border-t border-border/50">
         <div className="container mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center max-w-xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Ready to ace your exams?
-            </h2>
-            <p className="text-muted-foreground mb-8">
+          <div className="text-center max-w-xl mx-auto">
+            <div className="overflow-hidden">
+              <motion.h2
+                className="text-3xl md:text-4xl font-bold text-foreground mb-4"
+                initial={{ y: "120%" }}
+                whileInView={{ y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              >
+                Ready to ace your exams?
+              </motion.h2>
+            </div>
+            <motion.p
+              className="text-muted-foreground mb-8"
+              initial={{ opacity: 0, y: 12, filter: "blur(5px)" }}
+              whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+            >
               Start creating personalized practice quizzes from your study materials today.
-            </p>
+            </motion.p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 relative">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button
-                  size="lg"
-                  onClick={handleGetStarted}
-                  className="gap-2 px-8 h-12 w-full sm:w-auto shadow-lg shadow-primary/20"
-                  data-testid="button-cta-get-started"
+              <div className="overflow-hidden">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ y: "130%" }}
+                  whileInView={{ y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
                 >
-                  Get Started Free
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </motion.div>
+                  <Button
+                    size="lg"
+                    onClick={handleGetStarted}
+                    className="gap-2 px-8 h-12 w-full sm:w-auto shadow-lg shadow-primary/20"
+                    data-testid="button-cta-get-started"
+                  >
+                    Get Started Free
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </motion.div>
+              </div>
               <Link href="/about">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ opacity: 0, x: -15, filter: "blur(4px)" }}
+                  whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}
+                >
                   <Button
                     size="lg"
                     variant="ghost"
@@ -1647,7 +1747,7 @@ export default function Home() {
                 </motion.div>
               </Link>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
       {/* Scroll to top button */}
