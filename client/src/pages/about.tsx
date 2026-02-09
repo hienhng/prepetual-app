@@ -1,10 +1,9 @@
-import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring } from "framer-motion";
 import { 
   ArrowLeft, Rocket, Target, Heart, 
-  ArrowRight, ChevronDown, Sparkles, Users, BookOpen, Zap,
-  Star, Check, Upload, Brain, MessageCircle, BarChart3,
-  Lightbulb, Shield, Globe, Clock, Layers, GraduationCap,
-  FileText, Eye, Flame
+  ArrowRight, ChevronDown, Sparkles, Users, Zap,
+  Star, Brain, MessageCircle,
+  Lightbulb, Shield, Globe, Clock, FileText
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -155,124 +154,6 @@ function TimelineItem({ year, title, description, index }: { year: string; title
   );
 }
 
-function BentoCard({ children, className = "", hover = true }: { children: React.ReactNode; className?: string; hover?: boolean }) {
-  return (
-    <Card className={`${hover ? 'hover-elevate' : ''} border border-border/50 transition-all duration-500 overflow-visible ${className}`}>
-      <CardContent className="p-6 md:p-8 h-full relative">
-        {children}
-      </CardContent>
-    </Card>
-  );
-}
-
-function FeatureCard({ icon: Icon, title, description, color, index }: { icon: any; title: string; description: string; color: string; index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
-  const [isHovered, setIsHovered] = useState(false);
-
-  const colorMap: Record<string, { bg: string; text: string; border: string }> = {
-    primary: { bg: "bg-primary/10", text: "text-primary", border: "border-primary/20" },
-    purple: { bg: "bg-purple-500/10", text: "text-purple-500", border: "border-purple-500/20" },
-    cyan: { bg: "bg-cyan-500/10", text: "text-cyan-500", border: "border-cyan-500/20" },
-    rose: { bg: "bg-rose-500/10", text: "text-rose-500", border: "border-rose-500/20" },
-    emerald: { bg: "bg-emerald-500/10", text: "text-emerald-500", border: "border-emerald-500/20" },
-    amber: { bg: "bg-amber-500/10", text: "text-amber-500", border: "border-amber-500/20" },
-  };
-  const c = colorMap[color] || colorMap.primary;
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay: index * 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="h-full"
-    >
-      <Card className={`h-full border ${c.border} transition-all duration-500 overflow-visible ${isHovered ? 'shadow-xl' : 'shadow-sm'}`}>
-        <CardContent className="p-6 md:p-8 relative h-full">
-          <motion.div
-            className={`absolute -right-10 -top-10 w-32 h-32 rounded-full ${c.bg} blur-2xl pointer-events-none`}
-            animate={{ scale: isHovered ? 1.5 : 0.8, opacity: isHovered ? 0.6 : 0.1 }}
-            transition={{ duration: 0.5 }}
-          />
-          <div className="relative">
-            <motion.div
-              className={`w-14 h-14 rounded-2xl ${c.bg} flex items-center justify-center mb-5 border ${c.border}`}
-              animate={{
-                rotate: isHovered ? [0, -5, 5, 0] : 0,
-                scale: isHovered ? 1.05 : 1,
-              }}
-              transition={{ duration: 0.5 }}
-            >
-              <Icon className={`w-7 h-7 ${c.text}`} />
-            </motion.div>
-            <h3 className="font-bold text-foreground text-lg mb-3">{title}</h3>
-            <p className="text-muted-foreground leading-relaxed">{description}</p>
-          </div>
-          <motion.div
-            className={`absolute bottom-0 left-0 h-[2px] ${c.text.replace('text', 'bg')} rounded-full`}
-            animate={{ width: isHovered ? "100%" : "0%" }}
-            transition={{ duration: 0.5 }}
-          />
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}
-
-function ProcessStep({ step, title, description, icon: Icon, index, isActive, onClick }: {
-  step: number; title: string; description: string; icon: any; index: number; isActive: boolean; onClick: () => void;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: -30 }}
-      animate={isInView ? { opacity: 1, x: 0 } : {}}
-      transition={{ delay: index * 0.1, duration: 0.6 }}
-      onClick={onClick}
-      className={`cursor-pointer group p-5 rounded-md border transition-all duration-500 ${
-        isActive ? 'border-primary/30 bg-primary/5 shadow-lg' : 'border-transparent'
-      }`}
-      data-testid={`button-process-step-${step}`}
-    >
-      <div className="flex items-start gap-4">
-        <motion.div
-          className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-colors duration-500 ${
-            isActive ? 'bg-primary/15 border border-primary/30' : 'bg-muted/50 border border-transparent'
-          }`}
-          animate={{ scale: isActive ? 1.05 : 1 }}
-        >
-          <Icon className={`w-6 h-6 transition-colors duration-500 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
-        </motion.div>
-        <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className={`text-sm font-medium transition-colors duration-500 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>Step {step}</span>
-          </div>
-          <h4 className={`font-bold text-lg mb-1.5 transition-colors duration-500 ${isActive ? 'text-foreground' : 'text-foreground/80'}`}>{title}</h4>
-          <AnimatePresence>
-            {isActive && (
-              <motion.p
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.4 }}
-                className="text-muted-foreground leading-relaxed"
-              >
-                {description}
-              </motion.p>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
 function ValueCard({ icon: Icon, title, description, index }: { icon: any; title: string; description: string; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-40px" });
@@ -307,87 +188,12 @@ function ValueCard({ icon: Icon, title, description, index }: { icon: any; title
 export default function About() {
   const [, setLocation] = useLocation();
   const heroRef = useRef<HTMLDivElement>(null);
-  const [activeProcess, setActiveProcess] = useState(0);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.6], [1, 0.88]);
   const heroY = useTransform(scrollYProgress, [0, 0.6], [0, 80]);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveProcess((prev) => (prev + 1) % 4);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const processSteps = [
-    { step: 1, icon: Upload, title: "Upload Your Material", description: "Drop any study material\u2014PDFs, images, Word docs, or PowerPoint files. We handle the rest." },
-    { step: 2, icon: Eye, title: "AI Reads & Analyzes", description: "Our AI instantly scans and understands your content, identifying key concepts and relationships." },
-    { step: 3, icon: Brain, title: "Questions Generated", description: "Smart questions are crafted that test comprehension, not just recall. Multiple choice, true/false, and short answer." },
-    { step: 4, icon: GraduationCap, title: "You Learn & Grow", description: "Take your quiz, get instant feedback with explanations, and track your progress over time." },
-  ];
-
-  const processVisuals = [
-    <div className="flex flex-col items-center justify-center h-full gap-4" key="upload">
-      <motion.div className="w-32 h-32 rounded-2xl bg-primary/5 border-2 border-dashed border-primary/30 flex items-center justify-center" animate={{ scale: [1, 1.03, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-        <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
-          <Upload className="w-14 h-14 text-primary" />
-        </motion.div>
-      </motion.div>
-      <div className="flex flex-wrap justify-center gap-2">
-        {['PDF', 'DOCX', 'PPTX', 'Images'].map((f, i) => (
-          <motion.div key={f} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-            <Badge variant="secondary" className="text-xs">{f}</Badge>
-          </motion.div>
-        ))}
-      </div>
-    </div>,
-    <div className="flex flex-col items-center justify-center h-full gap-4" key="analyze">
-      <div className="w-full max-w-xs space-y-3">
-        {[100, 80, 55].map((w, i) => (
-          <motion.div key={i} className="h-3 bg-primary/10 rounded-full overflow-hidden" style={{ width: `${w}%` }}>
-            <motion.div className="h-full bg-primary/30 rounded-full" animate={{ x: ["-100%", "100%"] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }} />
-          </motion.div>
-        ))}
-      </div>
-      <motion.div className="flex items-center gap-2 p-3 rounded-md bg-primary/10 border border-primary/20" animate={{ opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity }}>
-        <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}>
-          <Eye className="w-5 h-5 text-primary" />
-        </motion.div>
-        <span className="text-sm font-medium text-primary">Analyzing content...</span>
-      </motion.div>
-    </div>,
-    <div className="flex flex-col items-center justify-center h-full gap-3" key="generate">
-      {[{ q: "What is photosynthesis?", t: "Multiple Choice" }, { q: "Chloroplasts produce...", t: "True / False" }, { q: "Explain the light reaction", t: "Short Answer" }].map((item, i) => (
-        <motion.div key={i} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.15 }} className="w-full max-w-xs">
-          <div className="p-3 rounded-md bg-muted/50 border border-border/50">
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <span className="text-xs text-muted-foreground">{item.t}</span>
-              <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.3 }}>
-                <Sparkles className="w-3 h-3 text-primary" />
-              </motion.div>
-            </div>
-            <p className="text-sm font-medium text-foreground">{item.q}</p>
-          </div>
-        </motion.div>
-      ))}
-    </div>,
-    <div className="flex flex-col items-center justify-center h-full gap-4" key="learn">
-      <motion.div className="w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center" animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-        <Check className="w-10 h-10 text-emerald-500" />
-      </motion.div>
-      <div className="text-center">
-        <p className="text-2xl font-bold text-foreground">85%</p>
-        <p className="text-sm text-muted-foreground">Quiz Score</p>
-      </div>
-      <div className="flex items-center gap-2">
-        <Flame className="w-5 h-5 text-orange-500" />
-        <span className="text-sm font-medium text-foreground">5 Day Streak</span>
-      </div>
-    </div>,
-  ];
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">
@@ -574,124 +380,6 @@ export default function About() {
           </div>
         </section>
 
-        {/* ===== HOW IT WORKS (Interactive Process) ===== */}
-        <section className="py-28 md:py-40">
-          <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
-            <div className="text-center mb-20">
-              <RevealOnScroll>
-                <div className="inline-flex items-center gap-3 mb-6 mx-auto">
-                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
-                    <Layers className="w-6 h-6 text-cyan-500" />
-                  </div>
-                  <span className="text-sm font-medium text-cyan-500 uppercase tracking-widest">The Process</span>
-                </div>
-              </RevealOnScroll>
-              <SplitReveal delay={0.1}>
-                <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                  How Prepetual Works
-                </h2>
-              </SplitReveal>
-              <RevealOnScroll delay={0.2}>
-                <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-                  From upload to understanding in four simple steps. No accounts required, no complexity.
-                </p>
-              </RevealOnScroll>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-              <RevealOnScroll delay={0.2}>
-                <div className="space-y-2">
-                  {processSteps.map((step, i) => (
-                    <ProcessStep
-                      key={step.step}
-                      {...step}
-                      index={i}
-                      isActive={activeProcess === i}
-                      onClick={() => setActiveProcess(i)}
-                    />
-                  ))}
-                </div>
-              </RevealOnScroll>
-
-              <RevealOnScroll direction="right" delay={0.3}>
-                <Card className="border border-border/50 overflow-visible sticky top-24 z-50">
-                  <CardContent className="p-8 md:p-10 min-h-[360px] flex items-center justify-center relative">
-                    <motion.div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-cyan-500/5 rounded-md pointer-events-none" />
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={activeProcess}
-                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                        transition={{ duration: 0.4, ease: "easeOut" }}
-                        className="w-full"
-                      >
-                        {processVisuals[activeProcess]}
-                      </motion.div>
-                    </AnimatePresence>
-                  </CardContent>
-                </Card>
-              </RevealOnScroll>
-            </div>
-          </div>
-        </section>
-
-        {/* ===== WHAT WE OFFER (Bento Grid) ===== */}
-        <section className="py-28 md:py-40 bg-muted/30">
-          <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
-            <div className="text-center mb-20">
-              <RevealOnScroll>
-                <div className="inline-flex items-center gap-3 mb-6 mx-auto">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
-                    <BookOpen className="w-6 h-6 text-purple-500" />
-                  </div>
-                  <span className="text-sm font-medium text-purple-500 uppercase tracking-widest">Our Toolkit</span>
-                </div>
-              </RevealOnScroll>
-              <SplitReveal delay={0.1}>
-                <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                  What We Offer
-                </h2>
-              </SplitReveal>
-              <RevealOnScroll delay={0.2}>
-                <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-                  A complete suite of tools designed to transform how you prepare for exams.
-                </p>
-              </RevealOnScroll>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FeatureCard
-                icon={Brain}
-                title="AI-Powered Quiz Generation"
-                description="AI-powered quiz generation that understands your content\u2014not just keywords. Whether you're studying biology, history, or calculus, our AI creates questions that test real understanding."
-                color="primary"
-                index={0}
-              />
-              <FeatureCard
-                icon={Layers}
-                title="Multiple Study Modes"
-                description="Multiple study modes to match how you learn best. Take timed quizzes for exam simulation, flip through flashcards for quick review, or use revision mode to focus on concepts you keep missing."
-                color="purple"
-                index={1}
-              />
-              <FeatureCard
-                icon={MessageCircle}
-                title="Pip, Your AI Study Buddy"
-                description="Pip, your AI study companion, is there when you're stuck. Ask for hints, get explanations, or have concepts broken down step-by-step\u2014without spoiling the answer."
-                color="cyan"
-                index={2}
-              />
-              <FeatureCard
-                icon={BarChart3}
-                title="Progress Tracking"
-                description="Progress tracking that shows you exactly where you stand. See your accuracy trends, maintain your study streak, and know which topics need more attention before the big day."
-                color="emerald"
-                index={3}
-              />
-            </div>
-          </div>
-        </section>
 
         {/* ===== MEET PIP ===== */}
         <section className="py-28 md:py-40">
@@ -775,46 +463,6 @@ export default function About() {
                   </div>
                 </RevealOnScroll>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ===== IMPACT NUMBERS ===== */}
-        <section className="py-28 md:py-40 bg-muted/30 relative overflow-hidden">
-          <motion.div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 pointer-events-none" animate={{ x: ["-100%", "100%"] }} transition={{ duration: 15, repeat: Infinity, ease: "linear" }} />
-          <div className="container mx-auto px-4 sm:px-6 max-w-6xl relative">
-            <div className="text-center mb-20">
-              <SplitReveal>
-                <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                  Built for Students, Loved by Students
-                </h2>
-              </SplitReveal>
-              <RevealOnScroll delay={0.1}>
-                <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-                  The numbers speak for themselves. Here's how Prepetual is making a difference.
-                </p>
-              </RevealOnScroll>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {[
-                { value: 100, suffix: "%", label: "Free forever", icon: Heart },
-                { value: 5, suffix: "+", label: "File types supported", icon: FileText },
-                { value: 3, suffix: "", label: "Question types", icon: Layers },
-                { value: 24, suffix: "/7", label: "Pip availability", icon: MessageCircle },
-              ].map((stat, i) => (
-                <RevealOnScroll key={stat.label} delay={i * 0.1}>
-                  <BentoCard>
-                    <div className="text-center">
-                      <stat.icon className="w-8 h-8 text-primary mx-auto mb-4" />
-                      <p className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                        <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-                      </p>
-                      <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    </div>
-                  </BentoCard>
-                </RevealOnScroll>
-              ))}
             </div>
           </div>
         </section>
