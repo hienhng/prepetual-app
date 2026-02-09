@@ -1719,7 +1719,7 @@ export default function Home() {
                   <Button
                     size="lg"
                     onClick={handleGetStarted}
-                    className="gap-2 px-8 h-12 w-full sm:w-auto shadow-lg shadow-primary/20"
+                    className="gap-2 px-8 h-12 w-full sm:w-auto shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-primary/40 hover:-translate-y-1 active:translate-y-0"
                     data-testid="button-cta-get-started"
                   >
                     Get Started Free
