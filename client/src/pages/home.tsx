@@ -337,7 +337,7 @@ function BeforeAfterSlider() {
   return (
     <div className="relative w-full">
       <motion.div
-        className="relative w-full h-[340px] sm:h-[400px] md:h-[460px] lg:h-[500px] rounded-xl border border-border/50 shadow-2xl overflow-hidden select-none cursor-col-resize"
+        className="relative w-full h-[340px] sm:h-[400px] md:h-[460px] lg:h-[500px] overflow-hidden select-none cursor-col-resize"
         ref={containerRef}
         onPointerDown={handlePointerDown}
         initial={{ opacity: 0, y: 20 }}
@@ -1436,12 +1436,12 @@ export default function Home() {
           />
         </div>
 
+        <div className="w-full relative z-0">
+          <BeforeAfterSlider />
+        </div>
+
         <div className="container relative mx-auto px-4 sm:px-6 max-w-5xl">
           <div className="flex flex-col items-center">
-            <div className="w-full relative z-0">
-              <BeforeAfterSlider />
-            </div>
-
             <div className="text-center max-w-2xl mx-auto -mt-24 sm:-mt-28 md:-mt-32 relative z-10">
               <motion.div 
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-6"
