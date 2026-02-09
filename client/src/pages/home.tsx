@@ -373,6 +373,30 @@ function BeforeAfterSlider() {
         <div className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.3) 20%, hsl(var(--background) / 0.7) 45%, hsl(var(--background) / 0.92) 70%, hsl(var(--background)) 100%)" }} />
       </motion.div>
 
+      <Doodle d={D.sparkle6} color="text-primary/25" className="absolute -top-2 left-[8%] w-8 h-8 sm:w-10 sm:h-10" viewBox="0 0 40 40" delay={0.3} />
+      <Doodle d={D.star} color="text-amber-400/30 dark:text-amber-300/25" className="absolute top-[12%] right-[6%] w-7 h-7 sm:w-9 sm:h-9" viewBox="0 0 40 40" delay={0.6} />
+      <Doodle d={D.spiral} color="text-primary/15" className="absolute top-[30%] left-[3%] w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 40 40" delay={0.9} />
+      <Doodle d={D.lightning} color="text-amber-500/25 dark:text-amber-400/20" className="absolute top-[5%] left-[25%] w-5 h-5 sm:w-7 sm:h-7" viewBox="0 0 40 40" delay={1.1} />
+      <Doodle d={D.sparkle4} color="text-primary/20" className="absolute top-[22%] right-[12%] w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 30 30" delay={0.8} />
+      <Doodle d={D.check} color="text-green-500/25 dark:text-green-400/20" className="absolute top-[8%] right-[22%] w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 40 40" delay={1.3} />
+      <Doodle d={D.pencil} color="text-muted-foreground/15" className="absolute top-[18%] left-[12%] w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 40 40" delay={1.0} />
+      <Doodle d={D.lightbulb} color="text-amber-400/20 dark:text-amber-300/15" className="absolute top-[2%] right-[35%] w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 40 40" delay={0.5} />
+
+      <motion.div
+        className="absolute -top-1 left-[15%] w-1.5 h-1.5 rounded-full bg-primary/30 pointer-events-none"
+        animate={{ y: [0, -8, 0], opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 3, repeat: Infinity, delay: 0.2 }}
+      />
+      <motion.div
+        className="absolute top-[10%] right-[18%] w-1 h-1 rounded-full bg-amber-400/40 pointer-events-none"
+        animate={{ y: [0, -6, 0], opacity: [0.3, 0.7, 0.3] }}
+        transition={{ duration: 2.5, repeat: Infinity, delay: 0.8 }}
+      />
+      <motion.div
+        className="absolute top-[25%] left-[6%] w-1.5 h-1.5 rounded-full bg-primary/25 pointer-events-none"
+        animate={{ y: [0, -10, 0], opacity: [0.2, 0.5, 0.2] }}
+        transition={{ duration: 3.5, repeat: Infinity, delay: 1.2 }}
+      />
     </div>
   );
 }
