@@ -11,10 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useRef, useState } from "react";
 import brandLogo from "@assets/favicon_prepetual_1768124938772.png";
-import learnerUnderstanding from "@/assets/images/learner-understanding.png";
-import learnerOverwhelmed from "@/assets/images/learner-overwhelmed.png";
-import learnerWithAi from "@/assets/images/learner-with-ai.png";
-import learnerSuccess from "@/assets/images/learner-success.png";
 
 function useMousePosition() {
   const x = useMotionValue(0);
@@ -279,6 +275,135 @@ function FloatingShapesDecoration({ className = "" }: { className?: string }) {
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       />
     </div>
+  );
+}
+
+function StudentAtDeskIllustration({ className = "" }: { className?: string }) {
+  return (
+    <motion.svg
+      viewBox="0 0 200 200"
+      fill="none"
+      className={className}
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      <motion.circle cx="100" cy="45" r="18" fill="hsl(var(--primary) / 0.12)" stroke="hsl(var(--primary) / 0.25)" strokeWidth="1.5" animate={{ y: [0, -3, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.path d="M80 65 Q100 80 120 65 L125 110 L75 110 Z" fill="hsl(var(--primary) / 0.08)" stroke="hsl(var(--primary) / 0.2)" strokeWidth="1.5" animate={{ y: [0, -3, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.rect x="55" y="115" width="90" height="8" rx="2" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary) / 0.25)" strokeWidth="1" />
+      <motion.rect x="50" y="123" width="5" height="40" rx="1" fill="hsl(var(--primary) / 0.12)" />
+      <motion.rect x="145" y="123" width="5" height="40" rx="1" fill="hsl(var(--primary) / 0.12)" />
+      <motion.rect x="85" y="100" width="30" height="15" rx="2" fill="hsl(var(--primary) / 0.1)" stroke="hsl(var(--primary) / 0.15)" strokeWidth="1" animate={{ y: [0, -3, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.circle cx="155" cy="40" r="4" fill="hsl(var(--primary) / 0.15)" animate={{ scale: [1, 1.4, 1], opacity: [0.15, 0.35, 0.15] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.circle cx="45" cy="55" r="3" fill="hsl(var(--primary) / 0.1)" animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.3, 0.1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }} />
+    </motion.svg>
+  );
+}
+
+function OverwhelmedStudentIllustration({ className = "" }: { className?: string }) {
+  return (
+    <motion.svg
+      viewBox="0 0 200 200"
+      fill="none"
+      className={className}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8 }}
+    >
+      <motion.circle cx="100" cy="90" r="22" fill="hsl(var(--primary) / 0.08)" stroke="hsl(var(--primary) / 0.2)" strokeWidth="1.5" />
+      <motion.path d="M88 86 L94 92 M94 86 L88 92" stroke="hsl(var(--primary) / 0.3)" strokeWidth="1.5" strokeLinecap="round" />
+      <motion.path d="M106 86 L112 92 M112 86 L106 92" stroke="hsl(var(--primary) / 0.3)" strokeWidth="1.5" strokeLinecap="round" />
+      <motion.path d="M92 100 Q100 96 108 100" stroke="hsl(var(--primary) / 0.25)" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      {[
+        { x: 60, y: 35, r: 12, text: "?" },
+        { x: 140, y: 30, r: 14, text: "!" },
+        { x: 45, y: 70, r: 10, text: "?" },
+        { x: 155, y: 65, r: 11, text: "!" },
+        { x: 75, y: 20, r: 9, text: "?" },
+        { x: 130, y: 55, r: 10, text: "?" },
+      ].map((b, i) => (
+        <motion.g key={i} animate={{ y: [0, -6, 0], opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }}>
+          <circle cx={b.x} cy={b.y} r={b.r} fill="hsl(var(--primary) / 0.06)" stroke="hsl(var(--primary) / 0.15)" strokeWidth="1" />
+          <text x={b.x} y={b.y + 4} textAnchor="middle" fill="hsl(var(--primary) / 0.3)" fontSize="10" fontWeight="bold">{b.text}</text>
+        </motion.g>
+      ))}
+      <motion.path d="M70 130 L130 130" stroke="hsl(var(--primary) / 0.1)" strokeWidth="6" strokeLinecap="round" />
+      <motion.path d="M60 145 L140 145" stroke="hsl(var(--primary) / 0.07)" strokeWidth="6" strokeLinecap="round" />
+      <motion.path d="M75 160 L125 160" stroke="hsl(var(--primary) / 0.05)" strokeWidth="6" strokeLinecap="round" />
+    </motion.svg>
+  );
+}
+
+function StudentWithSparkIllustration({ className = "" }: { className?: string }) {
+  return (
+    <motion.svg
+      viewBox="0 0 180 180"
+      fill="none"
+      className={className}
+      initial={{ opacity: 0, scale: 0.9 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8 }}
+    >
+      <motion.circle cx="90" cy="80" r="24" fill="hsl(var(--primary) / 0.1)" stroke="hsl(var(--primary) / 0.25)" strokeWidth="1.5" animate={{ y: [0, -4, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.circle cx="82" cy="76" r="2.5" fill="hsl(var(--primary) / 0.35)" animate={{ y: [0, -4, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.circle cx="98" cy="76" r="2.5" fill="hsl(var(--primary) / 0.35)" animate={{ y: [0, -4, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.path d="M85 88 Q90 93 95 88" stroke="hsl(var(--primary) / 0.3)" strokeWidth="1.5" strokeLinecap="round" fill="none" animate={{ y: [0, -4, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.rect x="70" y="110" width="40" height="30" rx="3" fill="hsl(var(--primary) / 0.08)" stroke="hsl(var(--primary) / 0.15)" strokeWidth="1" animate={{ y: [0, -2, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.line x1="78" y1="120" x2="102" y2="120" stroke="hsl(var(--primary) / 0.12)" strokeWidth="1" />
+      <motion.line x1="78" y1="126" x2="96" y2="126" stroke="hsl(var(--primary) / 0.1)" strokeWidth="1" />
+      <motion.line x1="78" y1="132" x2="99" y2="132" stroke="hsl(var(--primary) / 0.08)" strokeWidth="1" />
+      {[
+        { x: 130, y: 45 }, { x: 140, y: 65 }, { x: 50, y: 50 },
+        { x: 45, y: 75 }, { x: 135, y: 85 },
+      ].map((s, i) => (
+        <motion.g key={i} animate={{ scale: [0.8, 1.2, 0.8], opacity: [0.2, 0.5, 0.2] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}>
+          <path d={`M${s.x},${s.y - 5} L${s.x + 1.5},${s.y - 1.5} L${s.x + 5},${s.y} L${s.x + 1.5},${s.y + 1.5} L${s.x},${s.y + 5} L${s.x - 1.5},${s.y + 1.5} L${s.x - 5},${s.y} L${s.x - 1.5},${s.y - 1.5} Z`} fill="hsl(var(--primary) / 0.25)" />
+        </motion.g>
+      ))}
+    </motion.svg>
+  );
+}
+
+function CelebrationIllustration({ className = "" }: { className?: string }) {
+  return (
+    <motion.svg
+      viewBox="0 0 180 180"
+      fill="none"
+      className={className}
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8 }}
+    >
+      <motion.circle cx="90" cy="75" r="22" fill="hsl(var(--primary) / 0.1)" stroke="hsl(var(--primary) / 0.25)" strokeWidth="1.5" animate={{ y: [0, -5, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.circle cx="82" cy="71" r="2.5" fill="hsl(var(--primary) / 0.35)" animate={{ y: [0, -5, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.circle cx="98" cy="71" r="2.5" fill="hsl(var(--primary) / 0.35)" animate={{ y: [0, -5, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.path d="M83 83 Q90 90 97 83" stroke="hsl(var(--primary) / 0.35)" strokeWidth="2" strokeLinecap="round" fill="none" animate={{ y: [0, -5, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.path d="M65 60 L55 35" stroke="hsl(var(--primary) / 0.2)" strokeWidth="2" strokeLinecap="round" animate={{ rotate: [-5, 5, -5], y: [0, -5, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} style={{ transformOrigin: "65px 60px" }} />
+      <motion.path d="M115 60 L125 35" stroke="hsl(var(--primary) / 0.2)" strokeWidth="2" strokeLinecap="round" animate={{ rotate: [5, -5, 5], y: [0, -5, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} style={{ transformOrigin: "115px 60px" }} />
+      <motion.path d="M75 100 Q90 115 105 100 L110 140 L70 140 Z" fill="hsl(var(--primary) / 0.06)" stroke="hsl(var(--primary) / 0.15)" strokeWidth="1" animate={{ y: [0, -3, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+      {[
+        { x: 50, y: 25, color: "hsl(var(--primary) / 0.2)" },
+        { x: 130, y: 20, color: "hsl(var(--primary) / 0.15)" },
+        { x: 35, y: 50, color: "hsl(var(--primary) / 0.12)" },
+        { x: 145, y: 45, color: "hsl(var(--primary) / 0.18)" },
+        { x: 60, y: 15, color: "hsl(var(--primary) / 0.1)" },
+        { x: 120, y: 10, color: "hsl(var(--primary) / 0.14)" },
+      ].map((c, i) => (
+        <motion.circle
+          key={i}
+          cx={c.x}
+          cy={c.y}
+          r={3 + (i % 3)}
+          fill={c.color}
+          animate={{ y: [0, -15 - i * 3, 0], opacity: [0.3, 0.7, 0.3], scale: [1, 1.3, 1] }}
+          transition={{ duration: 3 + i * 0.3, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }}
+        />
+      ))}
+    </motion.svg>
   );
 }
 
@@ -587,13 +712,7 @@ export default function About() {
                   <LightbulbIllustration className="w-32 h-40 opacity-60" />
                 </RevealOnScroll>
                 <RevealOnScroll delay={0.5} direction="right">
-                  <motion.img
-                    src={learnerUnderstanding}
-                    alt=""
-                    className="w-44 h-44 object-contain opacity-70"
-                    animate={{ y: [0, -8, 0] }}
-                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  />
+                  <StudentAtDeskIllustration className="w-44 h-44 opacity-60" />
                 </RevealOnScroll>
               </div>
             </div>
@@ -640,25 +759,17 @@ export default function About() {
                 </div>
 
                 <RevealOnScroll delay={0.4}>
-                  <motion.img
-                    src={learnerOverwhelmed}
-                    alt=""
-                    className="w-40 h-40 object-contain opacity-50 mt-14 lg:hidden mx-auto"
-                    animate={{ rotate: [-2, 2, -2] }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                  />
+                  <div className="lg:hidden mx-auto mt-14 w-40 h-40">
+                    <OverwhelmedStudentIllustration className="w-full h-full opacity-50" />
+                  </div>
                 </RevealOnScroll>
               </div>
 
               <div className="lg:col-span-2 lg:sticky lg:top-32 z-50">
                 <RevealOnScroll delay={0.2} direction="right">
-                  <motion.img
-                    src={learnerOverwhelmed}
-                    alt=""
-                    className="w-48 h-48 object-contain opacity-50 mb-8 mx-auto hidden lg:block"
-                    animate={{ rotate: [-2, 2, -2] }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                  />
+                  <div className="hidden lg:block mx-auto mb-8 w-48 h-48">
+                    <OverwhelmedStudentIllustration className="w-full h-full opacity-50" />
+                  </div>
                   <div className="space-y-6">
                     {[
                       { label: "The old way", items: ["Copy questions by hand", "Format flashcards for hours", "Memorize without understanding", "Hope it sticks for the exam"] },
@@ -717,7 +828,7 @@ export default function About() {
                   text: "Prepetual's AI doesn't just pull facts from your notes and ask you to repeat them. It generates questions that test whether you truly grasp the concept\u2014the kind of questions that make you pause, connect ideas, and reason through an answer.",
                   accent: "text-primary",
                   accentBg: "bg-primary/8",
-                  illustration: learnerWithAi,
+                  Illustration: StudentWithSparkIllustration,
                 },
                 {
                   icon: Lightbulb,
@@ -725,7 +836,7 @@ export default function About() {
                   text: "Getting a question wrong shouldn't feel like a dead end. Every answer comes with a clear explanation\u2014not just \"the correct answer is B,\" but why it's correct and how the concept works. That's where real learning happens.",
                   accent: "text-amber-500",
                   accentBg: "bg-amber-500/8",
-                  illustration: null,
+                  Illustration: null,
                 },
                 {
                   icon: Sparkles,
@@ -733,7 +844,7 @@ export default function About() {
                   text: "When you're stuck, Pip\u2014your AI study companion\u2014doesn't hand you the answer. It asks follow-up questions, gives hints, and walks you through the reasoning. Because the moment you figure it out yourself is the moment you truly understand it.",
                   accent: "text-cyan-500",
                   accentBg: "bg-cyan-500/8",
-                  illustration: null,
+                  Illustration: null,
                 },
                 {
                   icon: Target,
@@ -741,7 +852,7 @@ export default function About() {
                   text: "Prepetual remembers what you got wrong and lets you retry just those questions. Instead of reviewing everything, we focus on the concepts that haven't clicked yet\u2014until they do.",
                   accent: "text-emerald-500",
                   accentBg: "bg-emerald-500/8",
-                  illustration: learnerSuccess,
+                  Illustration: CelebrationIllustration,
                 },
               ].map((item, i) => (
                 <RevealOnScroll key={item.title} delay={0.05}>
@@ -758,14 +869,10 @@ export default function About() {
                       <div className="flex-1 min-w-0">
                         <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4 tracking-tight">{item.title}</h3>
                         <p className="text-lg text-muted-foreground leading-relaxed">{item.text}</p>
-                        {item.illustration && (
-                          <motion.img
-                            src={item.illustration}
-                            alt=""
-                            className="w-36 h-36 object-contain opacity-50 mt-8"
-                            animate={{ y: [0, -6, 0] }}
-                            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                          />
+                        {item.Illustration && (
+                          <div className="mt-8 w-36 h-36">
+                            <item.Illustration className="w-full h-full opacity-50" />
+                          </div>
                         )}
                       </div>
                     </div>
