@@ -333,10 +333,7 @@ function BeforeAfterSlider() {
             <HandwrittenPaper />
           </div>
           <div className="absolute top-3.5 left-4 z-10">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/80 dark:bg-white/90 backdrop-blur-sm border border-gray-200/60 shadow-sm">
-              <FileText className="w-3 h-3 text-gray-500" />
-              <span className="text-[10px] font-semibold text-gray-600 tracking-wide uppercase">Before</span>
-            </div>
+            
           </div>
         </div>
 
@@ -369,11 +366,6 @@ function BeforeAfterSlider() {
 
         <div className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.25) 20%, hsl(var(--background) / 0.65) 45%, hsl(var(--background) / 0.9) 65%, hsl(var(--background)) 100%)" }} />
       </motion.div>
-
-      <Doodle d={D.sparkle4} color="text-primary/20" className="absolute -top-1 left-[7%] w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 30 30" delay={0.4} />
-      <Doodle d={D.star} color="text-amber-400/25 dark:text-amber-300/20" className="absolute top-[10%] right-[5%] w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 40 40" delay={0.7} />
-      <Doodle d={D.spiral} color="text-primary/12" className="absolute top-[28%] left-[3%] w-5 h-5 sm:w-7 sm:h-7" viewBox="0 0 40 40" delay={1.0} />
-      <Doodle d={D.lightbulb} color="text-amber-400/18 dark:text-amber-300/12" className="absolute top-[4%] right-[28%] w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 40 40" delay={0.6} />
     </div>
   );
 }
