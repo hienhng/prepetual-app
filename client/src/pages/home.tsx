@@ -77,276 +77,275 @@ const D = {
   wave: "M4 20C8 12 14 12 18 20C22 28 28 28 32 20C36 12 40 12 44 20",
 };
 
-function InteractiveFlashcard() {
-  const x = useMotionValue(0);
-  const rotate = useTransform(x, [-100, 0, 100], [-12, 0, 12]);
-  const leftOpacity = useTransform(x, [-60, -20, 0], [1, 0.3, 0]);
-  const rightOpacity = useTransform(x, [0, 20, 60], [0, 0.3, 1]);
-
-  const handleDragEnd = async (_: any, info: PanInfo) => {
-    const threshold = 40;
-    if (Math.abs(info.offset.x) > threshold) {
-      await animate(x, info.offset.x > 0 ? 150 : -150, { duration: 0.2 });
-      await animate(x, 0, { duration: 0.3 });
-    } else {
-      await animate(x, 0, { type: "spring", stiffness: 300, damping: 25 });
-    }
-  };
+function HandwrittenPaper() {
+  const questions = [
+    {
+      num: 1,
+      q: "What is the primary function of mitochondria in a cell?",
+      options: ["A) Energy production", "B) Protein synthesis", "C) Cell division", "D) Waste removal"],
+      circled: 0,
+    },
+    {
+      num: 2,
+      q: "Which organelle is responsible for photosynthesis?",
+      options: ["A) Ribosome", "B) Chloroplast", "C) Nucleus", "D) Lysosome"],
+      circled: 1,
+    },
+    {
+      num: 3,
+      q: "DNA replication occurs during which phase?",
+      options: ["A) G1 phase", "B) S phase", "C) G2 phase", "D) M phase"],
+      circled: 1,
+    },
+  ];
 
   return (
-    <motion.div
-      className="absolute bottom-4 -left-4 md:left-0 w-[160px] md:w-[180px] rounded-xl bg-card border shadow-xl z-20"
-      initial={{ opacity: 0, x: -30, rotate: -9 }}
-      animate={{ opacity: 1, x: 0, rotate: 3 }}
-      transition={{ delay: 0.7, duration: 0.6 }}
-    >
-      {/* Draggable flashcard - works like real study page */}
-      <div className="relative h-[130px] touch-none overflow-visible">
-        <motion.div 
-          className="absolute inset-0 flex flex-col cursor-grab active:cursor-grabbing"
-          style={{ x, rotate }}
-          drag="x"
-          dragElastic={0.3}
-          dragConstraints={{ left: 0, right: 0 }}
-          onDragEnd={handleDragEnd}
-        >
-          {/* Card content */}
-          <div className="flex-1 p-3 flex flex-col bg-card rounded-xl overflow-hidden">
-            <div className="text-center mb-1">
-              <span className="text-[7px] uppercase tracking-widest text-muted-foreground font-bold">Question</span>
-            </div>
-            <div className="flex-1 flex items-center justify-center">
-              <p className="text-[10px] text-foreground font-semibold text-center leading-tight px-1">
-                What is the powerhouse of the cell?
-              </p>
-            </div>
-          </div>
-          
-          <div className="p-2 text-center border-t bg-muted/20">
-            <p className="text-[7px] font-medium text-muted-foreground">
-              Swipe to interact
+    <div className="w-full h-full bg-amber-50 dark:bg-amber-100 rounded-md p-5 relative" style={{ fontFamily: "'Architects Daughter', 'Segoe Script', cursive" }}>
+      <div className="absolute inset-0 pointer-events-none rounded-md" style={{ background: "repeating-linear-gradient(transparent, transparent 27px, #93c5fd33 27px, #93c5fd33 28px)" }} />
+      <div className="absolute left-10 top-0 bottom-0 w-px bg-red-300/40 pointer-events-none" />
+
+      <div className="relative z-10 pl-3">
+        <div className="text-center mb-3">
+          <span className="text-sm font-bold text-gray-700 underline decoration-wavy decoration-gray-400">Biology Quiz - Chapter 5</span>
+        </div>
+
+        {questions.map((item, qi) => (
+          <div key={qi} className="mb-3">
+            <p className="text-[11px] text-gray-700 font-semibold leading-snug">
+              {item.num}. {item.q}
             </p>
+            <div className="ml-3 mt-0.5 space-y-0">
+              {item.options.map((opt, oi) => (
+                <div key={oi} className="relative">
+                  <p className={`text-[10px] text-gray-600 leading-relaxed ${oi === item.circled ? "font-bold" : ""}`}>
+                    {opt}
+                  </p>
+                  {oi === item.circled && (
+                    <svg className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-[calc(100%+8px)] h-5 pointer-events-none" viewBox="0 0 200 30" preserveAspectRatio="none">
+                      <ellipse cx="100" cy="15" rx="95" ry="12" fill="none" stroke="#3b82f6" strokeWidth="1.5" opacity="0.5" strokeDasharray="3 2" transform="rotate(-1 100 15)" />
+                    </svg>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-          
-          {/* Green "KNOW" overlay */}
-          <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center bg-green-500 text-white rounded-xl pointer-events-none overflow-hidden"
-            style={{ opacity: rightOpacity }}
-          >
-            <Check className="w-6 h-6 mb-1" />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Know</span>
-          </motion.div>
-          
-          {/* Yellow "STILL LEARNING" overlay */}
-          <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center bg-yellow-500 text-white rounded-xl pointer-events-none overflow-hidden"
-            style={{ opacity: leftOpacity }}
-          >
-            <RotateCcw className="w-6 h-6 mb-1" />
-            <span className="text-[8px] font-bold uppercase tracking-wider text-center px-2">Still Learning</span>
-          </motion.div>
-        </motion.div>
-      </div>
-      
-      {/* Progress bar */}
-      <div className="px-3 pb-2">
-        <div className="flex items-center justify-between text-[7px] text-muted-foreground mb-1">
-          <span>Card 3 of 5</span>
-          <span className="text-green-600">2 known</span>
-        </div>
-        <div className="h-1 bg-muted rounded-full overflow-hidden">
-          <div className="h-full w-3/5 bg-primary rounded-full" />
-        </div>
-      </div>
-    </motion.div>
-  );
-}
+        ))}
 
-function HeroIllustration() {
-  return (
-    <div className="relative w-full h-[400px] md:h-[500px] perspective-1000">
-      {/* Background glow */}
-      <motion.div 
-        className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent rounded-[3rem] blur-3xl"
-        animate={{ scale: [1, 1.05, 1], opacity: [0.5, 0.7, 0.5] }}
-        transition={{ duration: 6, repeat: Infinity }}
-      />
-      
-      {/* Decorative SVG circles */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 500 500">
-        <motion.circle
-          cx="250" cy="250" r="200"
-          fill="none" stroke="hsl(var(--primary))" strokeOpacity="0.1"
-          strokeWidth="1" strokeDasharray="8 8"
-          initial={{ rotate: 0 }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-          style={{ transformOrigin: "center" }}
-        />
-        <motion.circle
-          cx="250" cy="250" r="160"
-          fill="none" stroke="hsl(var(--primary))" strokeOpacity="0.15"
-          strokeWidth="1" strokeDasharray="4 6"
-          initial={{ rotate: 0 }}
-          animate={{ rotate: -360 }}
-          transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
-          style={{ transformOrigin: "center" }}
-        />
-      </svg>
-
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative w-full max-w-[380px] md:max-w-[450px] h-[320px] md:h-[380px] perspective-1000">
-          
-          {/* Generation Board Card (Back) */}
-          <motion.div
-            className="absolute top-0 left-0 w-[200px] md:w-[220px] rounded-xl bg-card border shadow-xl"
-            initial={{ opacity: 0, x: -30, rotateY: -15, rotateX: 10, rotate: -8 }}
-            animate={{ opacity: 1, x: 0, rotateY: -10, rotateX: 5, rotate: -6 }}
-            whileHover={{ rotateY: -5, rotateX: 0, translateZ: 20 }}
-            transition={{ 
-              type: "spring",
-              stiffness: 400,
-              damping: 30,
-              mass: 0.8
-            }}
-            style={{ transformStyle: "preserve-3d" }}
-          >
-            <div className="p-4">
-              {/* Header */}
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-                  <Zap className="w-4 h-4 text-primary-foreground" />
-                </div>
-                <span className="text-xs font-semibold text-foreground">Generate Quiz</span>
-              </div>
-              
-              {/* Settings mockup */}
-              <div className="space-y-3">
-                <div>
-                  <div className="text-[10px] text-muted-foreground mb-1">Questions</div>
-                  <div className="flex gap-1">
-                    {[5, 10, 15].map((n, i) => (
-                      <div key={n} className={`px-2 py-1 rounded text-[10px] font-medium ${i === 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                        {n}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-muted-foreground mb-1">Difficulty</div>
-                  <div className="flex gap-1">
-                    {['Easy', 'Medium', 'Hard'].map((d, i) => (
-                      <div key={d} className={`px-2 py-1 rounded text-[10px] font-medium ${i === 1 ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
-                        {d}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <motion.div 
-                  className="mt-3 h-8 rounded-lg bg-gradient-to-r from-primary to-primary/80 flex items-center justify-center"
-                  animate={{ scale: [1, 1.02, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <span className="text-[11px] font-semibold text-primary-foreground">Generate</span>
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Quiz Question Card (Front) */}
-          <motion.div
-            className="absolute top-4 right-0 w-[220px] md:w-[250px] rounded-xl bg-card border-2 border-primary/20 shadow-2xl"
-            initial={{ opacity: 0, x: 30, rotateY: 15, rotateX: -5, rotate: 5 }}
-            animate={{ opacity: 1, x: 0, rotateY: 10, rotateX: -2, rotate: 3 }}
-            whileHover={{ rotateY: 5, rotateX: 0, translateZ: 30 }}
-            transition={{ 
-              type: "spring",
-              stiffness: 400,
-              damping: 30,
-              mass: 0.8
-            }}
-            style={{ transformStyle: "preserve-3d" }}
-          >
-            <div className="p-4">
-              {/* Question header */}
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                    3
-                  </div>
-                  <span className="text-[10px] text-muted-foreground">of 10</span>
-                </div>
-                <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                  <Target className="w-3 h-3" />
-                  <span>Multiple Choice</span>
-                </div>
-              </div>
-              
-              {/* Question text */}
-              <div className="mb-4 p-3 rounded-lg bg-muted/50">
-                <p className="text-xs font-medium text-foreground leading-relaxed">
-                  What is the primary function of mitochondria in a cell?
-                </p>
-              </div>
-              
-              {/* Answer options */}
-              <div className="space-y-2">
-                {[
-                  { text: 'Energy production', correct: true },
-                  { text: 'Protein synthesis', correct: false },
-                  { text: 'Cell division', correct: false },
-                  { text: 'Waste removal', correct: false },
-                ].map((opt, i) => (
-                  <motion.div
-                    key={i}
-                    className={`p-2.5 rounded-lg border text-[11px] font-medium flex items-center gap-2 ${
-                      opt.correct 
-                        ? 'border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400' 
-                        : 'border-border bg-background text-foreground hover:border-primary/30'
-                    }`}
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 + i * 0.1 }}
-                  >
-                    {opt.correct && <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />}
-                    <span>{opt.text}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Study Mode Card (Left side, lower) - Interactive like real study.tsx */}
-          <InteractiveFlashcard />
-
-          {/* Floating sparkle decorations */}
-          <motion.div
-            className="absolute -top-4 left-1/2 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center"
-            animate={{ y: [0, -8, 0], rotate: [0, 10, 0] }}
-            transition={{ duration: 3, repeat: Infinity }}
-          >
-            <Sparkles className="w-4 h-4 text-primary" />
-          </motion.div>
-          
-          <motion.div
-            className="absolute top-1/2 -left-4 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center"
-            animate={{ y: [0, 6, 0] }}
-            transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-          >
-            <CheckCircle2 className="w-3 h-3 text-green-500" />
-          </motion.div>
-          
-          <motion.div
-            className="absolute top-1/3 -right-2 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center"
-            animate={{ y: [0, -6, 0] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-          >
-            <Star className="w-3 h-3 text-primary" />
-          </motion.div>
+        <div className="absolute bottom-3 right-4 text-[9px] text-gray-400 italic">
+          Name: ____________
         </div>
       </div>
     </div>
   );
+}
+
+function PrepetualQuizPlayer() {
+  const questions = [
+    {
+      num: 1,
+      total: 3,
+      q: "What is the primary function of mitochondria in a cell?",
+      options: [
+        { label: "A", text: "Energy production", correct: true, selected: true },
+        { label: "B", text: "Protein synthesis", correct: false, selected: false },
+        { label: "C", text: "Cell division", correct: false, selected: false },
+        { label: "D", text: "Waste removal", correct: false, selected: false },
+      ],
+    },
+  ];
+
+  const q = questions[0];
+  const progress = (q.num / q.total) * 100;
+
+  return (
+    <div className="w-full h-full bg-background rounded-md flex flex-col overflow-hidden">
+      <div className="px-4 pt-3 pb-2 border-b border-border/50">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="font-brand text-xs font-bold text-primary">Prepetual</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-orange-500/20 rounded-full">
+              <Flame className="h-2.5 w-2.5 text-orange-500" />
+              <span className="text-[8px] font-bold text-orange-600 dark:text-orange-400">3</span>
+            </div>
+          </div>
+        </div>
+        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+          <motion.div
+            className="h-full bg-primary rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ delay: 0.5, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          />
+        </div>
+        <div className="flex items-center justify-between mt-1">
+          <span className="text-[8px] text-muted-foreground">Question {q.num} of {q.total}</span>
+          <span className="text-[8px] text-muted-foreground">Multiple Choice</span>
+        </div>
+      </div>
+
+      <div className="flex-1 px-4 py-3 overflow-hidden">
+        <div className="p-2.5 rounded-lg bg-muted/50 mb-3">
+          <p className="text-[11px] font-medium text-foreground leading-relaxed">
+            {q.q}
+          </p>
+        </div>
+
+        <div className="space-y-1.5">
+          {q.options.map((opt, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: 8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 + i * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className={`p-2 rounded-lg border text-[10px] font-medium flex items-center gap-2 ${
+                opt.correct && opt.selected
+                  ? "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400"
+                  : "border-border bg-background text-foreground"
+              }`}
+            >
+              <div className={`w-4 h-4 rounded-md flex items-center justify-center text-[8px] font-bold shrink-0 ${
+                opt.correct && opt.selected
+                  ? "bg-green-500 text-white"
+                  : "bg-muted text-muted-foreground"
+              }`}>
+                {opt.correct && opt.selected ? <Check className="w-2.5 h-2.5" /> : opt.label}
+              </div>
+              <span>{opt.text}</span>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.0, duration: 0.5 }}
+          className="mt-2.5 p-2 rounded-lg bg-green-500/5 border border-green-500/20"
+        >
+          <div className="flex items-center gap-1.5 mb-1">
+            <Lightbulb className="w-3 h-3 text-green-600 dark:text-green-400" />
+            <span className="text-[9px] font-semibold text-green-700 dark:text-green-400">Correct!</span>
+          </div>
+          <p className="text-[8px] text-green-700/80 dark:text-green-400/80 leading-relaxed">
+            Mitochondria are known as the powerhouse of the cell, producing ATP through cellular respiration.
+          </p>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+function BeforeAfterSlider() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [sliderPos, setSliderPos] = useState(50);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const updateSliderPos = (clientX: number) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const percentage = Math.max(5, Math.min(95, (x / rect.width) * 100));
+    setSliderPos(percentage);
+  };
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+    updateSliderPos(e.clientX);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: globalThis.MouseEvent) => {
+      if (!isDragging) return;
+      updateSliderPos(e.clientX);
+    };
+    const handleTouchMove = (e: globalThis.TouchEvent) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      updateSliderPos(e.touches[0].clientX);
+    };
+    const handleEnd = () => setIsDragging(false);
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleEnd);
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleEnd);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleEnd);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleEnd);
+    };
+  }, [isDragging]);
+
+  return (
+    <div className="relative w-full h-[400px] md:h-[480px]">
+      <motion.div
+        className="relative w-full h-full rounded-xl border border-border/50 shadow-2xl overflow-hidden select-none cursor-col-resize"
+        ref={containerRef}
+        onPointerDown={handlePointerDown}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        data-testid="slider-container"
+      >
+        <div className="absolute inset-0 pointer-events-none" style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}>
+          <div className="absolute inset-0">
+            <HandwrittenPaper />
+          </div>
+          <div className="absolute top-2 left-2 z-10">
+            <Badge variant="secondary" className="text-[9px] bg-amber-100 text-amber-800 dark:bg-amber-200 dark:text-amber-900 border-amber-300/50">
+              <FileText className="w-2.5 h-2.5 mr-1" />
+              Traditional
+            </Badge>
+          </div>
+        </div>
+
+        <div className="absolute inset-0 pointer-events-none" style={{ clipPath: `inset(0 0 0 ${sliderPos}%)` }}>
+          <div className="absolute inset-0">
+            <PrepetualQuizPlayer />
+          </div>
+          <div className="absolute top-2 right-2 z-10">
+            <Badge variant="secondary" className="text-[9px] bg-primary/10 text-primary border-primary/20">
+              <Sparkles className="w-2.5 h-2.5 mr-1" />
+              Prepetual
+            </Badge>
+          </div>
+        </div>
+
+        <div
+          className="absolute top-0 bottom-0 z-20 pointer-events-none"
+          style={{ left: `${sliderPos}%`, transform: "translateX(-50%)" }}
+          data-testid="slider-handle"
+        >
+          <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[2px] bg-white shadow-[0_0_6px_rgba(0,0,0,0.4),0_0_12px_rgba(0,0,0,0.15)]" />
+
+          <motion.div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-gray-100 shadow-xl border-2 border-primary/40 flex items-center justify-center gap-0.5"
+            animate={isDragging ? { scale: 1.15 } : { scale: [1, 1.05, 1] }}
+            transition={isDragging ? { duration: 0.15 } : { duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <ChevronLeft className="w-3.5 h-3.5 text-gray-600" />
+            <ChevronRight className="w-3.5 h-3.5 text-gray-600" />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      <motion.p
+        className="text-center text-[11px] text-muted-foreground mt-3"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2, duration: 0.5 }}
+      >
+        Drag the slider to compare
+      </motion.p>
+    </div>
+  );
+}
+
+function HeroIllustration() {
+  return <BeforeAfterSlider />;
 }
 
 function HowItWorksGallery() {
@@ -1496,7 +1495,7 @@ export default function Home() {
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2">
                 {[
                   { icon: CheckCircle2, text: "Free forever" },
-                  { icon: CheckCircle2, text: "No account needed" },
+                  { icon: CheckCircle2, text: "No credit card" },
                   { icon: CheckCircle2, text: "PDF, Word, Images" },
                 ].map((item, i) => (
                   <motion.div 
@@ -1544,7 +1543,7 @@ export default function Home() {
               initial={{ opacity: 0, letterSpacing: "0em" }}
               whileInView={{ opacity: 1, letterSpacing: "0.1em" }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             >
               Simple Process
             </motion.p>
