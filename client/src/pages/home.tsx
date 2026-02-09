@@ -291,7 +291,7 @@ function BeforeAfterSlider() {
   };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
     userInteracted.current = true;
     stopAutoSwipe();
     setIsDragging(true);
@@ -299,33 +299,16 @@ function BeforeAfterSlider() {
     if (pct !== null) sliderMotion.set(pct);
   };
 
-  useEffect(() => {
-    const handleMove = (clientX: number) => {
-      if (!isDragging) return;
-      const pct = getPercentage(clientX);
-      if (pct !== null) sliderMotion.set(pct);
-    };
-    const handleMouseMove = (e: globalThis.MouseEvent) => handleMove(e.clientX);
-    const handleTouchMove = (e: globalThis.TouchEvent) => {
-      e.preventDefault();
-      handleMove(e.touches[0].clientX);
-    };
-    const handleEnd = () => {
-      setIsDragging(false);
-      resetIdleTimer();
-    };
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    const pct = getPercentage(e.clientX);
+    if (pct !== null) sliderMotion.set(pct);
+  };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleEnd);
-    window.addEventListener("touchmove", handleTouchMove, { passive: false });
-    window.addEventListener("touchend", handleEnd);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleEnd);
-      window.removeEventListener("touchmove", handleTouchMove);
-      window.removeEventListener("touchend", handleEnd);
-    };
-  }, [isDragging]);
+  const handlePointerUp = () => {
+    setIsDragging(false);
+    resetIdleTimer();
+  };
 
   useEffect(() => {
     return () => {
@@ -337,9 +320,12 @@ function BeforeAfterSlider() {
   return (
     <div className="relative w-full">
       <motion.div
-        className="relative w-full h-[340px] sm:h-[400px] md:h-[460px] lg:h-[500px] overflow-hidden select-none cursor-col-resize"
+        className="relative w-full h-[340px] sm:h-[400px] md:h-[460px] lg:h-[500px] overflow-hidden select-none cursor-col-resize touch-none"
         ref={containerRef}
         onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
