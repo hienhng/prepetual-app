@@ -1,14 +1,15 @@
-import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { 
-  ArrowLeft, Rocket, Heart, 
-  ArrowRight, ChevronDown, Sparkles, Users, Zap,
-  Star, Brain, MessageCircle,
-  Lightbulb, Shield, Globe, Target
+  ArrowLeft, Heart, 
+  ChevronDown, Sparkles, Users,
+  Star, Brain,
+  Lightbulb, Shield, Globe, Target,
+  Calculator, BookOpen, FlaskConical, Globe2, Languages, Shapes
 } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import brandLogo from "@assets/favicon_prepetual_1768124938772.png";
 
 function useMousePosition() {
@@ -111,8 +112,153 @@ function FloatingDot({ delay = 0, size = 4, className = "" }: { delay?: number; 
   );
 }
 
+const subjectApproaches = [
+  {
+    icon: Calculator,
+    subject: "Math",
+    color: "text-blue-500",
+    colorBg: "bg-blue-500/8",
+    philosophy: "Math isn't about memorizing formulas\u2014it's about understanding why they work. When you truly grasp the logic behind a formula, you can derive it yourself, adapt it to new problems, and never feel lost on an exam. Prepetual generates questions that test your reasoning, not just your ability to plug in numbers.",
+    example: "Instead of asking \"What is the quadratic formula?\", Prepetual might ask \"Why does completing the square lead to the quadratic formula?\" or present a problem that requires you to decide which approach to use.",
+  },
+  {
+    icon: BookOpen,
+    subject: "English & Literature",
+    color: "text-rose-500",
+    colorBg: "bg-rose-500/8",
+    philosophy: "Literature is about interpretation, context, and connecting ideas across texts. Memorizing plot summaries won't help you write a strong essay. I believe in testing your ability to analyze themes, understand character motivations, and form your own arguments backed by evidence from the text.",
+    example: "Rather than \"Who is the protagonist of the novel?\", you might see \"How does the author use the setting to reflect the protagonist's internal conflict?\" Questions that push you to think critically.",
+  },
+  {
+    icon: FlaskConical,
+    subject: "Science",
+    color: "text-emerald-500",
+    colorBg: "bg-emerald-500/8",
+    philosophy: "Science is built on understanding processes, not memorizing facts. If you understand how photosynthesis works at a conceptual level, you can answer any question about it\u2014even ones you've never seen before. That's the power of understanding over memorization.",
+    example: "Instead of \"Name the stages of mitosis,\" Prepetual asks \"What would happen to a cell if the spindle fibers failed to form during mitosis?\" Understanding the process means you can predict outcomes.",
+  },
+  {
+    icon: Globe2,
+    subject: "Social Studies & History",
+    color: "text-amber-500",
+    colorBg: "bg-amber-500/8",
+    philosophy: "History isn't a list of dates and names\u2014it's about understanding cause and effect, recognizing patterns, and learning from human decisions. When you understand why events happened, you can connect them to other events and see the bigger picture.",
+    example: "Not \"In what year did World War I begin?\" but \"What combination of alliances and tensions made a large-scale conflict in Europe nearly inevitable by 1914?\" Understanding context makes the facts stick naturally.",
+  },
+  {
+    icon: Languages,
+    subject: "Global Languages",
+    color: "text-purple-500",
+    colorBg: "bg-purple-500/8",
+    philosophy: "Learning a language is about understanding how it works\u2014grammar patterns, sentence structure, context\u2014not just memorizing vocabulary lists. When you understand the rules, you can construct sentences you've never practiced before and communicate freely.",
+    example: "Beyond \"Translate this word,\" Prepetual tests whether you can use the word correctly in context, understand why a certain tense is used, or identify the nuance between similar expressions.",
+  },
+  {
+    icon: Shapes,
+    subject: "Other Subjects",
+    color: "text-cyan-500",
+    colorBg: "bg-cyan-500/8",
+    philosophy: "No matter the subject\u2014art, music, computer science, psychology\u2014the same principle applies. Surface-level memorization fades quickly. But when you build a mental model of how something works, that knowledge becomes part of how you think. That's what Prepetual aims for, in every subject.",
+    example: "Upload any study material and the AI adapts. It detects the subject, understands the content, and generates questions that challenge your comprehension\u2014not your short-term memory.",
+  },
+];
+
+function SubjectApproachSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggle = (i: number) => {
+    setOpenIndex(openIndex === i ? null : i);
+  };
+
+  return (
+    <section className="py-40 md:py-56">
+      <div className="container mx-auto px-6 sm:px-8 max-w-4xl">
+        <RevealOnScroll>
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-1 h-8 rounded-full bg-emerald-500" />
+            <span className="text-sm font-medium text-emerald-500 uppercase tracking-[0.2em]">Across Every Subject</span>
+          </div>
+        </RevealOnScroll>
+
+        <SplitReveal delay={0.05}>
+          <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-8 leading-[1.1] tracking-tight">
+            My approach to different topics
+          </h2>
+        </SplitReveal>
+
+        <RevealOnScroll delay={0.1}>
+          <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed mb-20">
+            Understanding looks different in every subject. Here's how Prepetual applies the same philosophy—understanding over memorization—across the topics you study.
+          </p>
+        </RevealOnScroll>
+
+        <div className="space-y-3">
+          {subjectApproaches.map((item, i) => {
+            const isOpen = openIndex === i;
+            const ref = useRef<HTMLDivElement>(null);
+            const isInView = useInView(ref, { once: true, margin: "-40px" });
+
+            return (
+              <motion.div
+                ref={ref}
+                key={item.subject}
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: i * 0.06, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div
+                  className={`rounded-md border transition-colors duration-300 ${isOpen ? 'border-border/60 bg-muted/20' : 'border-border/30'}`}
+                >
+                  <button
+                    onClick={() => toggle(i)}
+                    className="w-full flex items-center gap-4 md:gap-5 p-5 md:p-6 text-left cursor-pointer"
+                    data-testid={`button-subject-${item.subject.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    <div className={`w-11 h-11 rounded-xl ${item.colorBg} flex items-center justify-center shrink-0`}>
+                      <item.icon className={`w-5 h-5 ${item.color}`} />
+                    </div>
+                    <span className="flex-1 text-lg font-semibold text-foreground">{item.subject}</span>
+                    <motion.div
+                      animate={{ rotate: isOpen ? 180 : 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      className="shrink-0 text-muted-foreground"
+                    >
+                      <ChevronDown className="w-5 h-5" />
+                    </motion.div>
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-5 md:px-6 pb-6 md:pb-8 pt-0 ml-0 md:ml-16 space-y-6">
+                          <p className="text-muted-foreground leading-relaxed">
+                            {item.philosophy}
+                          </p>
+                          <div className="p-4 rounded-md bg-muted/30 border border-border/20">
+                            <span className="text-xs font-medium text-primary uppercase tracking-[0.15em] mb-2 block">How it works in practice</span>
+                            <p className="text-sm text-foreground/80 leading-relaxed">{item.example}</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function About() {
-  const [, setLocation] = useLocation();
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
@@ -533,55 +679,8 @@ export default function About() {
         </section>
 
 
-        {/* ===== CTA ===== */}
-        <section className="py-40 md:py-56 relative">
-          <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/4 rounded-full blur-[140px] pointer-events-none"
-            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-            transition={{ duration: 8, repeat: Infinity }}
-          />
-
-          <div className="container mx-auto px-6 sm:px-8 max-w-3xl text-center relative">
-            <RevealOnScroll>
-              <motion.div className="mb-14 inline-block" whileHover={{ scale: 1.05 }}>
-                <motion.div animate={{ y: [0, -12, 0], rotate: [0, 5, -5, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}>
-                  <Rocket className="w-20 h-20 text-primary" />
-                </motion.div>
-              </motion.div>
-            </RevealOnScroll>
-
-            <SplitReveal>
-              <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-8 tracking-tight">
-                Ready to actually understand?
-              </h2>
-            </SplitReveal>
-
-            <RevealOnScroll delay={0.15}>
-              <p className="text-lg text-muted-foreground max-w-md mx-auto mb-16 leading-relaxed">
-                Upload your study material and find out what you really know.
-              </p>
-            </RevealOnScroll>
-
-            <RevealOnScroll delay={0.25}>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button
-                  size="lg"
-                  onClick={() => setLocation("/")}
-                  data-testid="button-start-now"
-                  className="text-lg shadow-xl shadow-primary/15"
-                >
-                  Get Started Free
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-                <Link href="/faq">
-                  <Button variant="outline" size="lg" data-testid="button-learn-more" className="text-lg">
-                    Learn More
-                  </Button>
-                </Link>
-              </div>
-            </RevealOnScroll>
-          </div>
-        </section>
+        {/* ===== MY APPROACH TO SUBJECTS ===== */}
+        <SubjectApproachSection />
 
         <div className="h-20" />
       </div>
