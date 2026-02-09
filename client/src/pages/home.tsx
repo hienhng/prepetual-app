@@ -1711,8 +1711,8 @@ export default function Home() {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  initial={{ y: "130%" }}
-                  whileInView={{ y: 0 }}
+                  initial={{ opacity: 0, y: "100%" }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
                 >
