@@ -238,34 +238,82 @@ function PrepetualQuizPlayer() {
 
 function BeforeAfterSlider() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const sliderMotion = useMotionValue(50);
   const [sliderPos, setSliderPos] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoAnimRef = useRef<ReturnType<typeof animate> | null>(null);
+  const userInteracted = useRef(false);
 
-  const updateSliderPos = (clientX: number) => {
-    if (!containerRef.current) return;
+  useEffect(() => {
+    const unsub = sliderMotion.on("change", (v) => setSliderPos(v));
+    return unsub;
+  }, []);
+
+  const stopAutoSwipe = () => {
+    if (autoAnimRef.current) {
+      autoAnimRef.current.stop();
+      autoAnimRef.current = null;
+    }
+  };
+
+  const startAutoSwipe = () => {
+    stopAutoSwipe();
+    autoAnimRef.current = animate(sliderMotion, [25, 75], {
+      duration: 4,
+      ease: "easeInOut",
+      repeat: Infinity,
+      repeatType: "mirror",
+    });
+  };
+
+  const resetIdleTimer = () => {
+    if (idleTimer.current) clearTimeout(idleTimer.current);
+    idleTimer.current = setTimeout(() => {
+      if (!isDragging) startAutoSwipe();
+    }, 3000);
+  };
+
+  useEffect(() => {
+    if (!userInteracted.current) {
+      const initTimer = setTimeout(() => {
+        if (!isDragging) startAutoSwipe();
+      }, 2500);
+      return () => clearTimeout(initTimer);
+    }
+  }, []);
+
+  const getPercentage = (clientX: number) => {
+    if (!containerRef.current) return null;
     const rect = containerRef.current.getBoundingClientRect();
     const x = clientX - rect.left;
-    const percentage = Math.max(5, Math.min(95, (x / rect.width) * 100));
-    setSliderPos(percentage);
+    return Math.max(5, Math.min(95, (x / rect.width) * 100));
   };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
+    userInteracted.current = true;
+    stopAutoSwipe();
     setIsDragging(true);
-    updateSliderPos(e.clientX);
+    const pct = getPercentage(e.clientX);
+    if (pct !== null) sliderMotion.set(pct);
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: globalThis.MouseEvent) => {
+    const handleMove = (clientX: number) => {
       if (!isDragging) return;
-      updateSliderPos(e.clientX);
+      const pct = getPercentage(clientX);
+      if (pct !== null) sliderMotion.set(pct);
     };
+    const handleMouseMove = (e: globalThis.MouseEvent) => handleMove(e.clientX);
     const handleTouchMove = (e: globalThis.TouchEvent) => {
-      if (!isDragging) return;
       e.preventDefault();
-      updateSliderPos(e.touches[0].clientX);
+      handleMove(e.touches[0].clientX);
     };
-    const handleEnd = () => setIsDragging(false);
+    const handleEnd = () => {
+      setIsDragging(false);
+      resetIdleTimer();
+    };
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleEnd);
@@ -279,24 +327,31 @@ function BeforeAfterSlider() {
     };
   }, [isDragging]);
 
+  useEffect(() => {
+    return () => {
+      stopAutoSwipe();
+      if (idleTimer.current) clearTimeout(idleTimer.current);
+    };
+  }, []);
+
   return (
-    <div className="relative w-full h-[400px] md:h-[480px]">
+    <div className="relative w-full">
       <motion.div
-        className="relative w-full h-full rounded-xl border border-border/50 shadow-2xl overflow-hidden select-none cursor-col-resize"
+        className="relative w-full h-[340px] sm:h-[400px] md:h-[460px] lg:h-[500px] rounded-xl border border-border/50 shadow-2xl overflow-hidden select-none cursor-col-resize"
         ref={containerRef}
         onPointerDown={handlePointerDown}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         data-testid="slider-container"
       >
         <div className="absolute inset-0 pointer-events-none" style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}>
           <div className="absolute inset-0">
             <HandwrittenPaper />
           </div>
-          <div className="absolute top-2 left-2 z-10">
-            <Badge variant="secondary" className="text-[9px] bg-amber-100 text-amber-800 dark:bg-amber-200 dark:text-amber-900 border-amber-300/50">
-              <FileText className="w-2.5 h-2.5 mr-1" />
+          <div className="absolute top-3 left-3 z-10">
+            <Badge variant="secondary" className="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-200 dark:text-amber-900 border-amber-300/50">
+              <FileText className="w-3 h-3 mr-1" />
               Traditional
             </Badge>
           </div>
@@ -306,9 +361,9 @@ function BeforeAfterSlider() {
           <div className="absolute inset-0">
             <PrepetualQuizPlayer />
           </div>
-          <div className="absolute top-2 right-2 z-10">
-            <Badge variant="secondary" className="text-[9px] bg-primary/10 text-primary border-primary/20">
-              <Sparkles className="w-2.5 h-2.5 mr-1" />
+          <div className="absolute top-3 right-3 z-10">
+            <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-primary/20">
+              <Sparkles className="w-3 h-3 mr-1" />
               Prepetual
             </Badge>
           </div>
@@ -321,31 +376,25 @@ function BeforeAfterSlider() {
         >
           <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[2px] bg-white shadow-[0_0_6px_rgba(0,0,0,0.4),0_0_12px_rgba(0,0,0,0.15)]" />
 
-          <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-gray-100 shadow-xl border-2 border-primary/40 flex items-center justify-center gap-0.5"
-            animate={isDragging ? { scale: 1.15 } : { scale: [1, 1.05, 1] }}
-            transition={isDragging ? { duration: 0.15 } : { duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          <div
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-gray-100 shadow-xl border-2 border-primary/40 flex items-center justify-center gap-0.5 transition-transform duration-150 ${isDragging ? "scale-110" : ""}`}
           >
             <ChevronLeft className="w-3.5 h-3.5 text-gray-600" />
             <ChevronRight className="w-3.5 h-3.5 text-gray-600" />
-          </motion.div>
+          </div>
         </div>
       </motion.div>
 
       <motion.p
-        className="text-center text-[11px] text-muted-foreground mt-3"
+        className="text-center text-xs text-muted-foreground mt-3"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 0.5 }}
       >
-        Drag the slider to compare
+        Drag to compare
       </motion.p>
     </div>
   );
-}
-
-function HeroIllustration() {
-  return <BeforeAfterSlider />;
 }
 
 function HowItWorksGallery() {
@@ -1393,14 +1442,18 @@ export default function Home() {
           />
         </div>
 
-        <div className="container relative mx-auto px-4 sm:px-6">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            <div className="text-center lg:text-left order-2 lg:order-1">
+        <div className="container relative mx-auto px-4 sm:px-6 max-w-5xl">
+          <div className="flex flex-col items-center gap-10">
+            <div className="w-full">
+              <BeforeAfterSlider />
+            </div>
+
+            <div className="text-center max-w-2xl mx-auto">
               <motion.div 
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-8"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-6"
                 initial={{ opacity: 0, scale: 0.6, filter: "blur(8px)" }}
                 animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               >
                 <motion.div
                   animate={{ rotate: [0, 15, -15, 0] }}
@@ -1411,7 +1464,7 @@ export default function Home() {
                 <span>AI-Powered Exam Prep</span>
               </motion.div>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-[1.15] tracking-tight relative">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-5 leading-[1.15] tracking-tight relative">
                 <span className="overflow-hidden inline-flex">
                   {["Study", "smarter", "with"].map((word, i) => (
                     <motion.span
@@ -1444,7 +1497,7 @@ export default function Home() {
               </h1>
               
               <motion.p 
-                className="text-lg md:text-xl text-muted-foreground max-w-md mx-auto lg:mx-0 mb-10 leading-relaxed"
+                className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto mb-8 leading-relaxed"
                 initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 transition={{ delay: 0.55, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
@@ -1452,7 +1505,7 @@ export default function Home() {
                 Upload your notes, textbooks, or slides. Get instant practice tests tailored to your content.
               </motion.p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10 relative">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 relative">
                 <div className="overflow-hidden relative">
                   <motion.div 
                     whileHover={{ scale: 1.03 }} 
@@ -1492,7 +1545,7 @@ export default function Home() {
                 </motion.div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2">
+              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
                 {[
                   { icon: CheckCircle2, text: "Free forever" },
                   { icon: CheckCircle2, text: "No credit card" },
@@ -1517,15 +1570,6 @@ export default function Home() {
                 ))}
               </div>
             </div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.88, filter: "blur(12px)" }}
-              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-              transition={{ delay: 0.3, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-              className="order-1 lg:order-2"
-            >
-              <HeroIllustration />
-            </motion.div>
           </div>
         </div>
       </section>
