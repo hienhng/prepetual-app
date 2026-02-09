@@ -11,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useRef, useState } from "react";
 import brandLogo from "@assets/favicon_prepetual_1768124938772.png";
+import learnerUnderstanding from "@/assets/images/learner-understanding.png";
+import learnerOverwhelmed from "@/assets/images/learner-overwhelmed.png";
+import learnerWithAi from "@/assets/images/learner-with-ai.png";
+import learnerSuccess from "@/assets/images/learner-success.png";
 
 function useMousePosition() {
   const x = useMotionValue(0);
@@ -112,13 +116,179 @@ function FloatingDot({ delay = 0, size = 4, className = "" }: { delay?: number; 
   );
 }
 
+function BookStackIllustration({ className = "" }: { className?: string }) {
+  return (
+    <motion.svg
+      viewBox="0 0 200 180"
+      fill="none"
+      className={className}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 1, ease: "easeOut" }}
+    >
+      <motion.rect x="30" y="120" width="140" height="20" rx="3" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary) / 0.3)" strokeWidth="1" animate={{ y: [120, 116, 120] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.rect x="40" y="95" width="130" height="20" rx="3" fill="hsl(var(--primary) / 0.12)" stroke="hsl(var(--primary) / 0.25)" strokeWidth="1" animate={{ y: [95, 91, 95] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.2 }} />
+      <motion.rect x="35" y="70" width="135" height="20" rx="3" fill="hsl(var(--primary) / 0.1)" stroke="hsl(var(--primary) / 0.2)" strokeWidth="1" animate={{ y: [70, 66, 70] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.4 }} />
+      <motion.path d="M80 55 L100 20 L120 55" stroke="hsl(var(--primary) / 0.4)" strokeWidth="2" fill="none" strokeLinecap="round" animate={{ y: [0, -6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.circle cx="100" cy="15" r="5" fill="hsl(var(--primary) / 0.25)" animate={{ scale: [1, 1.3, 1], opacity: [0.25, 0.5, 0.25] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} />
+    </motion.svg>
+  );
+}
+
+function LightbulbIllustration({ className = "" }: { className?: string }) {
+  return (
+    <motion.svg
+      viewBox="0 0 120 160"
+      fill="none"
+      className={className}
+      initial={{ opacity: 0, scale: 0.8 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      <motion.ellipse cx="60" cy="55" rx="35" ry="38" fill="hsl(var(--primary) / 0.08)" stroke="hsl(var(--primary) / 0.2)" strokeWidth="1.5" animate={{ ry: [38, 40, 38] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.path d="M45 90 L45 105 Q45 115 55 115 L65 115 Q75 115 75 105 L75 90" stroke="hsl(var(--primary) / 0.3)" strokeWidth="1.5" fill="hsl(var(--primary) / 0.05)" />
+      <motion.line x1="50" y1="100" x2="70" y2="100" stroke="hsl(var(--primary) / 0.2)" strokeWidth="1" />
+      <motion.line x1="50" y1="106" x2="70" y2="106" stroke="hsl(var(--primary) / 0.2)" strokeWidth="1" />
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+        <motion.line
+          key={angle}
+          x1={60 + Math.cos((angle * Math.PI) / 180) * 42}
+          y1={55 + Math.sin((angle * Math.PI) / 180) * 46}
+          x2={60 + Math.cos((angle * Math.PI) / 180) * 50}
+          y2={55 + Math.sin((angle * Math.PI) / 180) * 54}
+          stroke="hsl(var(--primary) / 0.2)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          animate={{ opacity: [0.15, 0.4, 0.15] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: angle / 360 }}
+        />
+      ))}
+    </motion.svg>
+  );
+}
+
+function PencilIllustration({ className = "" }: { className?: string }) {
+  return (
+    <motion.svg
+      viewBox="0 0 140 160"
+      fill="none"
+      className={className}
+      initial={{ opacity: 0, rotate: -10 }}
+      whileInView={{ opacity: 1, rotate: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      <motion.g animate={{ rotate: [-2, 2, -2] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} style={{ transformOrigin: "70px 80px" }}>
+        <rect x="55" y="20" width="30" height="100" rx="2" fill="hsl(var(--primary) / 0.1)" stroke="hsl(var(--primary) / 0.25)" strokeWidth="1.5" />
+        <polygon points="55,120 85,120 70,150" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary) / 0.25)" strokeWidth="1.5" />
+        <rect x="55" y="20" width="30" height="12" rx="2" fill="hsl(var(--primary) / 0.2)" />
+        <circle cx="70" cy="148" r="2" fill="hsl(var(--primary) / 0.4)" />
+      </motion.g>
+      <motion.path d="M35 155 Q70 145 105 155" stroke="hsl(var(--primary) / 0.1)" strokeWidth="1" fill="none" animate={{ d: ["M35 155 Q70 145 105 155", "M35 155 Q70 150 105 155", "M35 155 Q70 145 105 155"] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+    </motion.svg>
+  );
+}
+
+function GraduationCapIllustration({ className = "" }: { className?: string }) {
+  return (
+    <motion.svg
+      viewBox="0 0 180 140"
+      fill="none"
+      className={className}
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      <motion.polygon points="90,20 160,55 90,90 20,55" fill="hsl(var(--primary) / 0.1)" stroke="hsl(var(--primary) / 0.25)" strokeWidth="1.5" animate={{ y: [0, -4, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.path d="M50 62 L50 95 Q90 115 130 95 L130 62" stroke="hsl(var(--primary) / 0.2)" strokeWidth="1.5" fill="none" animate={{ y: [0, -4, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.line x1="155" y1="55" x2="155" y2="105" stroke="hsl(var(--primary) / 0.25)" strokeWidth="1.5" animate={{ y: [0, -4, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+      <motion.rect x="150" y="102" width="10" height="14" rx="2" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary) / 0.2)" strokeWidth="1" animate={{ y: [0, -4, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+    </motion.svg>
+  );
+}
+
+function BrainCircuitIllustration({ className = "" }: { className?: string }) {
+  return (
+    <motion.svg
+      viewBox="0 0 200 200"
+      fill="none"
+      className={className}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 1 }}
+    >
+      {[
+        { cx: 100, cy: 50 }, { cx: 50, cy: 90 }, { cx: 150, cy: 90 },
+        { cx: 70, cy: 140 }, { cx: 130, cy: 140 }, { cx: 100, cy: 100 },
+      ].map((node, i) => (
+        <motion.circle
+          key={i}
+          cx={node.cx}
+          cy={node.cy}
+          r="8"
+          fill="hsl(var(--primary) / 0.12)"
+          stroke="hsl(var(--primary) / 0.3)"
+          strokeWidth="1.5"
+          animate={{ scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }}
+        />
+      ))}
+      {[
+        "M100,50 L50,90", "M100,50 L150,90", "M100,50 L100,100",
+        "M50,90 L70,140", "M50,90 L100,100", "M150,90 L130,140",
+        "M150,90 L100,100", "M70,140 L130,140",
+      ].map((d, i) => (
+        <motion.path
+          key={i}
+          d={d}
+          stroke="hsl(var(--primary) / 0.15)"
+          strokeWidth="1"
+          animate={{ opacity: [0.1, 0.3, 0.1] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }}
+        />
+      ))}
+    </motion.svg>
+  );
+}
+
+function FloatingShapesDecoration({ className = "" }: { className?: string }) {
+  return (
+    <div className={`absolute pointer-events-none ${className}`}>
+      <motion.div
+        className="w-16 h-16 border border-primary/10 rounded-full absolute -top-4 -left-4"
+        animate={{ scale: [1, 1.15, 1], rotate: [0, 90, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="w-8 h-8 bg-primary/5 rounded-md absolute top-20 right-0"
+        animate={{ rotate: [0, 45, 0], y: [0, -10, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="w-3 h-3 bg-primary/15 rounded-full absolute bottom-10 left-8"
+        animate={{ scale: [1, 1.5, 1], opacity: [0.15, 0.4, 0.15] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="w-12 h-1 bg-primary/10 rounded-full absolute bottom-0 right-4"
+        animate={{ scaleX: [1, 1.5, 1], opacity: [0.1, 0.25, 0.1] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+      />
+    </div>
+  );
+}
+
 const subjectApproaches = [
   {
     icon: Calculator,
     subject: "Math",
     color: "text-blue-500",
     colorBg: "bg-blue-500/8",
-    philosophy: "Math isn't about memorizing formulas\u2014it's about understanding why they work. When you truly grasp the logic behind a formula, you can derive it yourself, adapt it to new problems, and never feel lost on an exam. Prepetual generates questions that test your reasoning, not just your ability to plug in numbers.",
+    philosophy: "Math isn't about memorizing formulas\u2014it's about understanding why they work. When we truly grasp the logic behind a formula, we can derive it ourselves, adapt it to new problems, and never feel lost on an exam. Prepetual generates questions that test your reasoning, not just your ability to plug in numbers.",
     example: "Instead of asking \"What is the quadratic formula?\", Prepetual might ask \"Why does completing the square lead to the quadratic formula?\" or present a problem that requires you to decide which approach to use.",
   },
   {
@@ -126,7 +296,7 @@ const subjectApproaches = [
     subject: "English & Literature",
     color: "text-rose-500",
     colorBg: "bg-rose-500/8",
-    philosophy: "Literature is about interpretation, context, and connecting ideas across texts. Memorizing plot summaries won't help you write a strong essay. I believe in testing your ability to analyze themes, understand character motivations, and form your own arguments backed by evidence from the text.",
+    philosophy: "Literature is about interpretation, context, and connecting ideas across texts. Memorizing plot summaries won't help you write a strong essay. We believe in testing your ability to analyze themes, understand character motivations, and form your own arguments backed by evidence from the text.",
     example: "Rather than \"Who is the protagonist of the novel?\", you might see \"How does the author use the setting to reflect the protagonist's internal conflict?\" Questions that push you to think critically.",
   },
   {
@@ -150,7 +320,7 @@ const subjectApproaches = [
     subject: "Global Languages",
     color: "text-purple-500",
     colorBg: "bg-purple-500/8",
-    philosophy: "Learning a language is about understanding how it works\u2014grammar patterns, sentence structure, context\u2014not just memorizing vocabulary lists. When you understand the rules, you can construct sentences you've never practiced before and communicate freely.",
+    philosophy: "Learning a language is about understanding how it works\u2014grammar patterns, sentence structure, context\u2014not just memorizing vocabulary lists. When we understand the rules, we can construct sentences we've never practiced before and communicate freely.",
     example: "Beyond \"Translate this word,\" Prepetual tests whether you can use the word correctly in context, understand why a certain tense is used, or identify the nuance between similar expressions.",
   },
   {
@@ -163,15 +333,71 @@ const subjectApproaches = [
   },
 ];
 
+function SubjectApproachItem({ item, index, isOpen, onToggle }: { item: typeof subjectApproaches[0]; index: number; isOpen: boolean; onToggle: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-40px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ delay: index * 0.06, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div
+        className={`rounded-md border transition-colors duration-300 ${isOpen ? 'border-border/60 bg-muted/20' : 'border-border/30'}`}
+      >
+        <button
+          onClick={onToggle}
+          className="w-full flex items-center gap-4 md:gap-5 p-5 md:p-6 text-left cursor-pointer"
+          data-testid={`button-subject-${item.subject.toLowerCase().replace(/\s+/g, '-')}`}
+        >
+          <div className={`w-11 h-11 rounded-xl ${item.colorBg} flex items-center justify-center shrink-0`}>
+            <item.icon className={`w-5 h-5 ${item.color}`} />
+          </div>
+          <span className="flex-1 text-lg font-semibold text-foreground">{item.subject}</span>
+          <motion.div
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="shrink-0 text-muted-foreground"
+          >
+            <ChevronDown className="w-5 h-5" />
+          </motion.div>
+        </button>
+
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="px-5 md:px-6 pb-6 md:pb-8 pt-0 ml-0 md:ml-16 space-y-6">
+                <p className="text-muted-foreground leading-relaxed">
+                  {item.philosophy}
+                </p>
+                <div className="p-4 rounded-md bg-muted/30 border border-border/20">
+                  <span className="text-xs font-medium text-primary uppercase tracking-[0.15em] mb-2 block">How it works in practice</span>
+                  <p className="text-sm text-foreground/80 leading-relaxed">{item.example}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+}
+
 function SubjectApproachSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const toggle = (i: number) => {
-    setOpenIndex(openIndex === i ? null : i);
-  };
-
   return (
-    <section className="py-40 md:py-56">
+    <section className="py-40 md:py-56 relative">
+      <FloatingShapesDecoration className="top-20 right-10 w-40 h-40 hidden lg:block" />
+
       <div className="container mx-auto px-6 sm:px-8 max-w-4xl">
         <RevealOnScroll>
           <div className="flex items-center gap-3 mb-10">
@@ -182,79 +408,55 @@ function SubjectApproachSection() {
 
         <SplitReveal delay={0.05}>
           <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-8 leading-[1.1] tracking-tight">
-            My approach to different topics
+            Our approach to different subjects
           </h2>
         </SplitReveal>
 
         <RevealOnScroll delay={0.1}>
           <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed mb-20">
-            Understanding looks different in every subject. Here's how Prepetual applies the same philosophy—understanding over memorization—across the topics you study.
+            Understanding looks different in every subject. Here's how Prepetual applies our shared philosophy—understanding over memorization—across the topics you study.
           </p>
         </RevealOnScroll>
 
         <div className="space-y-3">
-          {subjectApproaches.map((item, i) => {
-            const isOpen = openIndex === i;
-            const ref = useRef<HTMLDivElement>(null);
-            const isInView = useInView(ref, { once: true, margin: "-40px" });
-
-            return (
-              <motion.div
-                ref={ref}
-                key={item.subject}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: i * 0.06, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <div
-                  className={`rounded-md border transition-colors duration-300 ${isOpen ? 'border-border/60 bg-muted/20' : 'border-border/30'}`}
-                >
-                  <button
-                    onClick={() => toggle(i)}
-                    className="w-full flex items-center gap-4 md:gap-5 p-5 md:p-6 text-left cursor-pointer"
-                    data-testid={`button-subject-${item.subject.toLowerCase().replace(/\s+/g, '-')}`}
-                  >
-                    <div className={`w-11 h-11 rounded-xl ${item.colorBg} flex items-center justify-center shrink-0`}>
-                      <item.icon className={`w-5 h-5 ${item.color}`} />
-                    </div>
-                    <span className="flex-1 text-lg font-semibold text-foreground">{item.subject}</span>
-                    <motion.div
-                      animate={{ rotate: isOpen ? 180 : 0 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                      className="shrink-0 text-muted-foreground"
-                    >
-                      <ChevronDown className="w-5 h-5" />
-                    </motion.div>
-                  </button>
-
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="overflow-hidden"
-                      >
-                        <div className="px-5 md:px-6 pb-6 md:pb-8 pt-0 ml-0 md:ml-16 space-y-6">
-                          <p className="text-muted-foreground leading-relaxed">
-                            {item.philosophy}
-                          </p>
-                          <div className="p-4 rounded-md bg-muted/30 border border-border/20">
-                            <span className="text-xs font-medium text-primary uppercase tracking-[0.15em] mb-2 block">How it works in practice</span>
-                            <p className="text-sm text-foreground/80 leading-relaxed">{item.example}</p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            );
-          })}
+          {subjectApproaches.map((item, i) => (
+            <SubjectApproachItem
+              key={item.subject}
+              item={item}
+              index={i}
+              isOpen={openIndex === i}
+              onToggle={() => setOpenIndex(openIndex === i ? null : i)}
+            />
+          ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function ValueCard({ value, index }: { value: { icon: React.ComponentType<{ className?: string }>; title: string; description: string }; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-40px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ delay: index * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      className="bg-background p-10 md:p-14"
+    >
+      <motion.div
+        className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center mb-8"
+        whileInView={{ rotate: [0, -5, 5, 0] }}
+        viewport={{ once: true }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: index * 0.3 }}
+      >
+        <value.icon className="w-6 h-6 text-primary" />
+      </motion.div>
+      <h3 className="text-xl font-bold text-foreground mb-3">{value.title}</h3>
+      <p className="text-muted-foreground leading-relaxed">{value.description}</p>
+    </motion.div>
   );
 }
 
@@ -342,46 +544,65 @@ export default function About() {
 
 
         {/* ===== OUR BELIEF ===== */}
-        <section className="py-40 md:py-56">
+        <section className="py-40 md:py-56 relative">
           <div className="container mx-auto px-6 sm:px-8 max-w-4xl">
-            <RevealOnScroll>
-              <div className="flex items-center gap-3 mb-10">
-                <div className="w-1 h-8 rounded-full bg-primary" />
-                <span className="text-sm font-medium text-primary uppercase tracking-[0.2em]">Our Belief</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+              <div className="lg:col-span-8">
+                <RevealOnScroll>
+                  <div className="flex items-center gap-3 mb-10">
+                    <div className="w-1 h-8 rounded-full bg-primary" />
+                    <span className="text-sm font-medium text-primary uppercase tracking-[0.2em]">Our Belief</span>
+                  </div>
+                </RevealOnScroll>
+
+                <div className="space-y-16">
+                  <SplitReveal delay={0.05}>
+                    <h2 className="text-4xl md:text-6xl font-bold text-foreground leading-[1.1] tracking-tight">
+                      Learning should be about understanding.
+                    </h2>
+                  </SplitReveal>
+
+                  <RevealOnScroll delay={0.15}>
+                    <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl">
+                      Not memorizing answers. Not cramming the night before. Not highlighting an entire textbook and hoping something sticks.
+                    </p>
+                  </RevealOnScroll>
+
+                  <RevealOnScroll delay={0.25}>
+                    <p className="text-2xl md:text-3xl text-foreground leading-snug font-semibold max-w-2xl">
+                      Only by truly understanding a concept can you crack every topic you learn.
+                    </p>
+                  </RevealOnScroll>
+
+                  <RevealOnScroll delay={0.35}>
+                    <p className="text-lg text-muted-foreground leading-relaxed max-w-3xl">
+                      That's the idea behind Prepetual. When we understand how something works—not just what the answer is—we can apply that knowledge anywhere. A new question, a different format, a harder exam. It doesn't matter. Understanding travels with you.
+                    </p>
+                  </RevealOnScroll>
+                </div>
               </div>
-            </RevealOnScroll>
 
-            <div className="space-y-16">
-              <SplitReveal delay={0.05}>
-                <h2 className="text-4xl md:text-6xl font-bold text-foreground leading-[1.1] tracking-tight">
-                  Learning should be about understanding.
-                </h2>
-              </SplitReveal>
-
-              <RevealOnScroll delay={0.15}>
-                <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl">
-                  Not memorizing answers. Not cramming the night before. Not highlighting an entire textbook and hoping something sticks.
-                </p>
-              </RevealOnScroll>
-
-              <RevealOnScroll delay={0.25}>
-                <p className="text-2xl md:text-3xl text-foreground leading-snug font-semibold max-w-2xl">
-                  Only by truly understanding a concept can you crack every topic you learn.
-                </p>
-              </RevealOnScroll>
-
-              <RevealOnScroll delay={0.35}>
-                <p className="text-lg text-muted-foreground leading-relaxed max-w-3xl">
-                  That's the idea behind Prepetual. When we understand how something works—not just what the answer is—we can apply that knowledge anywhere. A new question, a different format, a harder exam. It doesn't matter. Understanding travels with you.
-                </p>
-              </RevealOnScroll>
+              <div className="lg:col-span-4 hidden lg:flex flex-col items-center justify-center gap-8 pt-20">
+                <RevealOnScroll delay={0.3} direction="right">
+                  <LightbulbIllustration className="w-32 h-40 opacity-60" />
+                </RevealOnScroll>
+                <RevealOnScroll delay={0.5} direction="right">
+                  <motion.img
+                    src={learnerUnderstanding}
+                    alt=""
+                    className="w-44 h-44 object-contain opacity-70"
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                </RevealOnScroll>
+              </div>
             </div>
           </div>
         </section>
 
 
         {/* ===== THE PROBLEM WE SAW ===== */}
-        <section className="py-40 md:py-56">
+        <section className="py-40 md:py-56 relative">
           <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-20 lg:gap-16 items-start">
               <div className="lg:col-span-3">
@@ -417,10 +638,27 @@ export default function About() {
                     </p>
                   </RevealOnScroll>
                 </div>
+
+                <RevealOnScroll delay={0.4}>
+                  <motion.img
+                    src={learnerOverwhelmed}
+                    alt=""
+                    className="w-40 h-40 object-contain opacity-50 mt-14 lg:hidden mx-auto"
+                    animate={{ rotate: [-2, 2, -2] }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                </RevealOnScroll>
               </div>
 
               <div className="lg:col-span-2 lg:sticky lg:top-32 z-50">
                 <RevealOnScroll delay={0.2} direction="right">
+                  <motion.img
+                    src={learnerOverwhelmed}
+                    alt=""
+                    className="w-48 h-48 object-contain opacity-50 mb-8 mx-auto hidden lg:block"
+                    animate={{ rotate: [-2, 2, -2] }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                  />
                   <div className="space-y-6">
                     {[
                       { label: "The old way", items: ["Copy questions by hand", "Format flashcards for hours", "Memorize without understanding", "Hope it sticks for the exam"] },
@@ -454,7 +692,9 @@ export default function About() {
 
 
         {/* ===== OUR APPROACH ===== */}
-        <section className="py-40 md:py-56">
+        <section className="py-40 md:py-56 relative">
+          <BrainCircuitIllustration className="absolute right-8 top-32 w-48 h-48 opacity-30 hidden lg:block" />
+
           <div className="container mx-auto px-6 sm:px-8 max-w-4xl">
             <RevealOnScroll>
               <div className="flex items-center gap-3 mb-10">
@@ -474,30 +714,34 @@ export default function About() {
                 {
                   icon: Brain,
                   title: "Questions that make you think",
-                  text: "Prepetual's AI doesn't just pull facts from your notes and ask you to repeat them. It generates questions that test whether you truly grasp the concept—the kind of questions that make you pause, connect ideas, and reason through an answer.",
+                  text: "Prepetual's AI doesn't just pull facts from your notes and ask you to repeat them. It generates questions that test whether you truly grasp the concept\u2014the kind of questions that make you pause, connect ideas, and reason through an answer.",
                   accent: "text-primary",
                   accentBg: "bg-primary/8",
+                  illustration: learnerWithAi,
                 },
                 {
                   icon: Lightbulb,
                   title: "Explanations that actually teach",
-                  text: "Getting a question wrong shouldn't feel like a dead end. Every answer comes with a clear explanation—not just \"the correct answer is B,\" but why it's correct and how the concept works. That's where real learning happens.",
+                  text: "Getting a question wrong shouldn't feel like a dead end. Every answer comes with a clear explanation\u2014not just \"the correct answer is B,\" but why it's correct and how the concept works. That's where real learning happens.",
                   accent: "text-amber-500",
                   accentBg: "bg-amber-500/8",
+                  illustration: null,
                 },
                 {
                   icon: Sparkles,
                   title: "Pip guides, never gives away",
-                  text: "When you're stuck, Pip—your AI study companion—doesn't hand you the answer. It asks follow-up questions, gives hints, and walks you through the reasoning. Because the moment you figure it out yourself is the moment you truly understand it.",
+                  text: "When you're stuck, Pip\u2014your AI study companion\u2014doesn't hand you the answer. It asks follow-up questions, gives hints, and walks you through the reasoning. Because the moment you figure it out yourself is the moment you truly understand it.",
                   accent: "text-cyan-500",
                   accentBg: "bg-cyan-500/8",
+                  illustration: null,
                 },
                 {
                   icon: Target,
                   title: "Revision that targets gaps",
-                  text: "Prepetual remembers what you got wrong and lets you retry just those questions. Instead of reviewing everything, we focus on the concepts that haven't clicked yet—until they do.",
+                  text: "Prepetual remembers what you got wrong and lets you retry just those questions. Instead of reviewing everything, we focus on the concepts that haven't clicked yet\u2014until they do.",
                   accent: "text-emerald-500",
                   accentBg: "bg-emerald-500/8",
+                  illustration: learnerSuccess,
                 },
               ].map((item, i) => (
                 <RevealOnScroll key={item.title} delay={0.05}>
@@ -514,6 +758,15 @@ export default function About() {
                       <div className="flex-1 min-w-0">
                         <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4 tracking-tight">{item.title}</h3>
                         <p className="text-lg text-muted-foreground leading-relaxed">{item.text}</p>
+                        {item.illustration && (
+                          <motion.img
+                            src={item.illustration}
+                            alt=""
+                            className="w-36 h-36 object-contain opacity-50 mt-8"
+                            animate={{ y: [0, -6, 0] }}
+                            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                          />
+                        )}
                       </div>
                     </div>
                     <div className={`mt-8 ml-20 md:ml-[5.5rem] h-px bg-gradient-to-r ${item.accentBg.replace('bg-', 'from-')} to-transparent`} />
@@ -525,8 +778,71 @@ export default function About() {
         </section>
 
 
+        {/* ===== BUILT BY STUDENTS ===== */}
+        <section className="py-40 md:py-56 relative">
+          <FloatingShapesDecoration className="top-10 left-8 w-32 h-40 hidden lg:block" />
+
+          <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-20 lg:gap-16 items-center">
+              <div className="lg:col-span-3">
+                <RevealOnScroll>
+                  <div className="flex items-center gap-3 mb-10">
+                    <div className="w-1 h-8 rounded-full bg-violet-500" />
+                    <span className="text-sm font-medium text-violet-500 uppercase tracking-[0.2em]">Our Story</span>
+                  </div>
+                </RevealOnScroll>
+
+                <SplitReveal delay={0.05}>
+                  <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-12 leading-[1.1] tracking-tight">
+                    Built by students, for students
+                  </h2>
+                </SplitReveal>
+
+                <div className="space-y-10">
+                  <RevealOnScroll delay={0.1}>
+                    <p className="text-lg text-muted-foreground leading-relaxed">
+                      Prepetual wasn't born in a corporate office or a startup incubator. It was built by students who were frustrated with the same problems you face every day. Late-night cram sessions that don't stick. Study tools that feel like extra homework. The nagging feeling that you're preparing for exams the wrong way.
+                    </p>
+                  </RevealOnScroll>
+
+                  <RevealOnScroll delay={0.2}>
+                    <p className="text-lg text-muted-foreground leading-relaxed">
+                      We built Prepetual because we needed it ourselves. We understand what it's like to stare at a stack of notes and feel completely lost. We know the difference between memorizing something for a test and actually getting it. And we wanted a tool that bridges that gap.
+                    </p>
+                  </RevealOnScroll>
+
+                  <RevealOnScroll delay={0.3}>
+                    <p className="text-xl text-foreground leading-relaxed font-medium">
+                      Because when a student builds something for other students, the result isn't just functional—it's personal. Every decision we made came from our own experience in the classroom.
+                    </p>
+                  </RevealOnScroll>
+
+                  <RevealOnScroll delay={0.4}>
+                    <p className="text-lg text-muted-foreground leading-relaxed">
+                      We're not a team of engineers guessing what students need. We are the students. And we're still learning, improving, and refining Prepetual alongside everyone who uses it.
+                    </p>
+                  </RevealOnScroll>
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 flex flex-col items-center gap-6">
+                <RevealOnScroll delay={0.2} direction="right">
+                  <GraduationCapIllustration className="w-48 h-36 opacity-50" />
+                </RevealOnScroll>
+                <RevealOnScroll delay={0.3} direction="right">
+                  <BookStackIllustration className="w-44 h-40 opacity-50" />
+                </RevealOnScroll>
+                <RevealOnScroll delay={0.4} direction="right">
+                  <PencilIllustration className="w-32 h-36 opacity-40" />
+                </RevealOnScroll>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
         {/* ===== MEET PIP (conversation demo) ===== */}
-        <section className="py-40 md:py-56">
+        <section className="py-40 md:py-56 relative">
           <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-20 lg:gap-16 items-start">
               <div className="lg:col-span-2 lg:sticky lg:top-32 z-50">
@@ -619,7 +935,9 @@ export default function About() {
 
 
         {/* ===== WHAT WE VALUE ===== */}
-        <section className="py-40 md:py-56">
+        <section className="py-40 md:py-56 relative">
+          <FloatingShapesDecoration className="bottom-20 right-12 w-36 h-36 hidden lg:block" />
+
           <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
             <div className="mb-28">
               <RevealOnScroll>
@@ -647,39 +965,16 @@ export default function About() {
                 { icon: Globe, title: "Accessible to All", description: "Education tools should be free and available to every student, everywhere. No exceptions. No premium tiers. If you can access the internet, you can use Prepetual." },
                 { icon: Lightbulb, title: "Understanding First", description: "Every feature is designed to deepen understanding, not just help you pass a test. Because a student who understands the material doesn't need to worry about the exam." },
                 { icon: Shield, title: "Privacy Matters", description: "Your study data belongs to you. We don't sell it, share it, or use it for anything other than helping you learn. Your notes stay your notes." },
-                { icon: Heart, title: "Always Improving", description: "We study the science of learning, listen to students, and constantly evolve Prepetual. The goal is always the same: help you understand more, faster." },
-              ].map((value, i) => {
-                const ref = useRef<HTMLDivElement>(null);
-                const isInView = useInView(ref, { once: true, margin: "-40px" });
-
-                return (
-                  <motion.div
-                    ref={ref}
-                    key={value.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ delay: i * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                    className="bg-background p-10 md:p-14"
-                  >
-                    <motion.div
-                      className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center mb-8"
-                      whileInView={{ rotate: [0, -5, 5, 0] }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }}
-                    >
-                      <value.icon className="w-6 h-6 text-primary" />
-                    </motion.div>
-                    <h3 className="text-xl font-bold text-foreground mb-3">{value.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{value.description}</p>
-                  </motion.div>
-                );
-              })}
+                { icon: Heart, title: "Always Improving", description: "We study the science of learning, listen to students, and constantly evolve Prepetual. Our goal is always the same: help you understand more, faster." },
+              ].map((value, i) => (
+                <ValueCard key={value.title} value={value} index={i} />
+              ))}
             </div>
           </div>
         </section>
 
 
-        {/* ===== MY APPROACH TO SUBJECTS ===== */}
+        {/* ===== OUR APPROACH TO SUBJECTS ===== */}
         <SubjectApproachSection />
 
         <div className="h-20" />
