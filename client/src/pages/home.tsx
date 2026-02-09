@@ -1707,11 +1707,11 @@ export default function Home() {
             </motion.p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 relative z-10">
-              <div className="overflow-hidden relative z-20">
+              <div className="relative">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  initial={{ opacity: 0, y: "100%" }}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
