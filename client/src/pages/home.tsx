@@ -384,7 +384,7 @@ function BeforeAfterSlider() {
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.4) 25%, hsl(var(--background) / 0.8) 50%, hsl(var(--background)) 100%)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", maskImage: "linear-gradient(to bottom, transparent 0%, black 30%)", WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 30%)" }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.3) 20%, hsl(var(--background) / 0.7) 45%, hsl(var(--background) / 0.92) 70%, hsl(var(--background)) 100%)" }} />
       </motion.div>
 
     </div>
