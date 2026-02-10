@@ -343,10 +343,19 @@ function BeforeAfterSlider() {
               left: smoothX.get(),
               top: smoothY.get(),
               transform: "translate(-50%, -50%)",
-              width: circleSize * 2,
-              height: circleSize * 2,
+              width: circleSize * 2 + 24,
+              height: circleSize * 2 + 24,
               borderRadius: "50%",
-              boxShadow: "0 0 0 2px rgba(255,255,255,0.5), 0 0 30px 4px rgba(0,0,0,0.12), inset 0 0 20px rgba(0,0,0,0.04)",
+              background: "radial-gradient(circle, transparent 0%, transparent calc(50% - 12px), rgba(139,92,246,0.08) calc(50% - 8px), rgba(139,92,246,0.25) calc(50% - 3px), rgba(139,92,246,0.5) 50%, rgba(139,92,246,0.25) calc(50% + 3px), rgba(139,92,246,0.08) calc(50% + 8px), transparent calc(50% + 12px), transparent 100%)",
+              boxShadow: `
+                0 0 0 1.5px rgba(139,92,246,0.4),
+                0 0 8px 2px rgba(139,92,246,0.3),
+                0 0 20px 4px rgba(139,92,246,0.15),
+                0 0 40px 8px rgba(139,92,246,0.08),
+                inset 0 0 8px 2px rgba(139,92,246,0.2),
+                inset 0 0 20px 4px rgba(139,92,246,0.1)
+              `,
+              filter: "blur(0.5px)",
             }}
           />
         )}
