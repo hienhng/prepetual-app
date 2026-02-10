@@ -337,29 +337,37 @@ function BeforeAfterSlider() {
         </div>
 
         {(isRevealing || circleSize > 1) && (
-          <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
-            <div
-              style={{
-                position: "absolute",
-                left: smoothX.get(),
-                top: smoothY.get(),
-                transform: "translate(-50%, -50%)",
-                width: circleSize * 2 + 20,
-                height: circleSize * 2 + 20,
-                borderRadius: "50%",
-                background: `radial-gradient(circle, transparent 0%, transparent calc(50% - 10px), rgba(234,179,8,0.06) calc(50% - 7px), rgba(234,179,8,0.2) calc(50% - 3px), rgba(250,204,21,0.55) 50%, rgba(234,179,8,0.2) calc(50% + 3px), rgba(234,179,8,0.06) calc(50% + 7px), transparent calc(50% + 10px), transparent 100%)`,
-                boxShadow: `
-                  0 0 0 1.5px rgba(250,204,21,0.5),
-                  0 0 8px 2px rgba(250,204,21,0.35),
-                  0 0 20px 6px rgba(234,179,8,0.2),
-                  0 0 40px 10px rgba(234,179,8,0.1),
-                  inset 0 0 8px 2px rgba(250,204,21,0.25),
-                  inset 0 0 20px 6px rgba(234,179,8,0.12)
-                `,
-                filter: "blur(0.5px)",
-              }}
+          <svg className="absolute inset-0 z-20 pointer-events-none w-full h-full" style={{ overflow: "hidden" }}>
+            <defs>
+              <filter id="glowFilter" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur1" />
+                <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur2" />
+                <feMerge>
+                  <feMergeNode in="blur2" />
+                  <feMergeNode in="blur1" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <circle
+              cx={smoothX.get()}
+              cy={smoothY.get()}
+              r={circleSize}
+              fill="none"
+              stroke="rgba(250,204,21,0.6)"
+              strokeWidth="2.5"
+              filter="url(#glowFilter)"
             />
-          </div>
+            <circle
+              cx={smoothX.get()}
+              cy={smoothY.get()}
+              r={circleSize}
+              fill="none"
+              stroke="rgba(250,204,21,0.15)"
+              strokeWidth="8"
+              filter="url(#glowFilter)"
+            />
+          </svg>
         )}
 
         <AnimatePresence>
