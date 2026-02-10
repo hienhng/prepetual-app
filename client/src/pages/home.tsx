@@ -329,17 +329,38 @@ function BeforeAfterSlider() {
 
         <div
           className="absolute inset-0 z-10 pointer-events-none"
-          style={{
-            clipPath,
-            filter: isRevealing || circleSize > 1
-              ? "drop-shadow(0 0 6px rgba(139,92,246,0.5)) drop-shadow(0 0 15px rgba(139,92,246,0.3)) drop-shadow(0 0 30px rgba(139,92,246,0.15))"
-              : "none",
-          }}
+          style={{ clipPath }}
         >
           <div className="absolute inset-0">
             <PrepetualQuizPlayer />
           </div>
         </div>
+
+        {(isRevealing || circleSize > 1) && (
+          <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+            <div
+              style={{
+                position: "absolute",
+                left: smoothX.get(),
+                top: smoothY.get(),
+                transform: "translate(-50%, -50%)",
+                width: circleSize * 2 + 20,
+                height: circleSize * 2 + 20,
+                borderRadius: "50%",
+                background: `radial-gradient(circle, transparent 0%, transparent calc(50% - 10px), rgba(234,179,8,0.06) calc(50% - 7px), rgba(234,179,8,0.2) calc(50% - 3px), rgba(250,204,21,0.55) 50%, rgba(234,179,8,0.2) calc(50% + 3px), rgba(234,179,8,0.06) calc(50% + 7px), transparent calc(50% + 10px), transparent 100%)`,
+                boxShadow: `
+                  0 0 0 1.5px rgba(250,204,21,0.5),
+                  0 0 8px 2px rgba(250,204,21,0.35),
+                  0 0 20px 6px rgba(234,179,8,0.2),
+                  0 0 40px 10px rgba(234,179,8,0.1),
+                  inset 0 0 8px 2px rgba(250,204,21,0.25),
+                  inset 0 0 20px 6px rgba(234,179,8,0.12)
+                `,
+                filter: "blur(0.5px)",
+              }}
+            />
+          </div>
+        )}
 
         <AnimatePresence>
           {showHint && !isRevealing && circleSize < 1 && (
