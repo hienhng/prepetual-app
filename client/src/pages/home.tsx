@@ -1439,19 +1439,57 @@ export default function Home() {
         <div className="container relative mx-auto px-4 sm:px-6 max-w-5xl">
           <div className="flex flex-col items-center">
             <div className="text-center max-w-2xl mx-auto -mt-24 sm:-mt-28 md:-mt-32 relative z-10">
+
+              <motion.div
+                className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 1.5 }}
+              >
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(48_96%_53%/0.08)_0%,transparent_70%)]" />
+              </motion.div>
+
+              {[
+                { x: "15%", y: "10%", size: 4, delay: 0.5, dur: 6 },
+                { x: "80%", y: "20%", size: 3, delay: 1.2, dur: 8 },
+                { x: "25%", y: "75%", size: 3, delay: 0.8, dur: 7 },
+                { x: "70%", y: "65%", size: 5, delay: 1.5, dur: 9 },
+                { x: "50%", y: "5%", size: 3, delay: 2.0, dur: 7 },
+                { x: "90%", y: "50%", size: 4, delay: 0.3, dur: 8 },
+              ].map((p, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute rounded-full pointer-events-none"
+                  style={{ left: p.x, top: p.y, width: p.size, height: p.size, background: "hsl(48 96% 53% / 0.5)" }}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{
+                    opacity: [0, 0.8, 0.3, 0.8, 0],
+                    scale: [0.5, 1.2, 0.8, 1.2, 0.5],
+                    y: [0, -12, -6, -14, 0],
+                  }}
+                  transition={{ delay: p.delay, duration: p.dur, repeat: Infinity, ease: "easeInOut" }}
+                />
+              ))}
+
               <motion.div 
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-6"
+                className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-6 overflow-hidden"
                 initial={{ opacity: 0, scale: 0.6, filter: "blur(8px)" }}
                 animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                 transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               >
+                <motion.div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: "linear-gradient(90deg, transparent 0%, hsl(48 96% 53% / 0.15) 50%, transparent 100%)", width: "200%", left: "-100%" }}
+                  animate={{ left: ["−100%", "100%"] }}
+                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
+                />
                 <motion.div
                   animate={{ rotate: [0, 15, -15, 0] }}
                   transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                 >
                   <Sparkles className="h-4 w-4" />
                 </motion.div>
-                <span>AI-Powered Exam Prep</span>
+                <span className="relative z-10">AI-Powered Exam Prep</span>
               </motion.div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-5 leading-[1.15] tracking-tight relative">
@@ -1469,18 +1507,30 @@ export default function Home() {
                   ))}
                 </span>
                 <span className="relative inline-block">
-                  <span className="text-primary">
+                  <span className="relative">
                     {"AI quizzes".split("").map((char, i) => (
                       <motion.span
                         key={i}
-                        className="inline-block"
+                        className="inline-block bg-gradient-to-r from-primary via-yellow-300 to-primary bg-clip-text text-transparent bg-[length:200%_100%]"
                         initial={{ opacity: 0, y: 30, rotateX: -90 }}
-                        animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                        transition={{ delay: 0.45 + i * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                        animate={{ opacity: 1, y: 0, rotateX: 0, backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+                        transition={{
+                          opacity: { delay: 0.45 + i * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+                          y: { delay: 0.45 + i * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+                          rotateX: { delay: 0.45 + i * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+                          backgroundPosition: { delay: 1.2, duration: 4, repeat: Infinity, ease: "easeInOut" },
+                        }}
                       >
                         {char === " " ? "\u00A0" : char}
                       </motion.span>
                     ))}
+                    <motion.span
+                      className="absolute -inset-x-2 -inset-y-1 bg-primary/5 rounded-lg pointer-events-none"
+                      initial={{ opacity: 0, scaleX: 0 }}
+                      animate={{ opacity: [0, 1, 0.6], scaleX: 1 }}
+                      transition={{ delay: 0.9, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                      style={{ originX: 0 }}
+                    />
                   </span>
                   <Doodle d={D.loopUnderline} color="text-primary/40" className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 200 20" delay={1} />
                 </span>
@@ -1496,25 +1546,33 @@ export default function Home() {
               </motion.p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 relative">
-                <div className="overflow-hidden relative">
+                <motion.div
+                  className="overflow-hidden relative"
+                  initial={{ y: "120%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.6, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <motion.div
+                    className="absolute -inset-1 rounded-xl bg-gradient-to-r from-primary/40 via-yellow-300/30 to-primary/40 blur-md pointer-events-none"
+                    animate={{ opacity: [0.4, 0.7, 0.4] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  />
                   <motion.div 
                     whileHover={{ scale: 1.03 }} 
                     whileTap={{ scale: 0.97 }}
-                    initial={{ y: "120%" }}
-                    animate={{ y: 0 }}
-                    transition={{ delay: 0.6, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    className="relative"
                   >
                     <Button
                       size="lg"
                       onClick={handleGetStarted}
-                      className="gap-2.5 px-8 text-base h-13 w-full sm:w-auto shadow-lg shadow-primary/20 font-semibold"
+                      className="gap-2.5 px-8 text-base h-13 w-full sm:w-auto shadow-lg shadow-primary/20 font-semibold relative"
                       data-testid="button-hero-get-started"
                     >
                       Get Started Free
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </motion.div>
-                </div>
+                </motion.div>
                 <motion.div 
                   whileHover={{ scale: 1.03 }} 
                   whileTap={{ scale: 0.97 }}
