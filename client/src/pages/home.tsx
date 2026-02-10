@@ -1613,32 +1613,34 @@ export default function Home() {
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 relative">
                 <motion.div
-                  className="overflow-hidden relative"
+                  className="relative"
                   initial={{ y: "120%", opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <motion.div
                     className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/60 via-yellow-400/40 to-primary/60 blur-xl pointer-events-none"
-                    animate={{ 
-                      opacity: [0.3, 0.6, 0.3],
-                    }}
+                    animate={{ opacity: [0.3, 0.6, 0.3] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   />
-                  <div className="relative group">
+                  <div className="relative group/btn">
                     <motion.div
-                      className="absolute -inset-0.5 bg-gradient-to-r from-yellow-400 to-primary rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-500"
+                      className="absolute -inset-0.5 bg-gradient-to-r from-yellow-400 to-primary rounded-lg blur opacity-0 group-hover/btn:opacity-100 transition duration-500 pointer-events-none"
                       initial={false}
                     />
                     <Button
                       size="lg"
                       onClick={handleGetStarted}
-                      className="gap-2.5 px-8 text-base h-13 w-full sm:w-auto shadow-lg shadow-primary/20 font-semibold relative transition-all duration-300 group-hover:shadow-primary/40 group-hover:brightness-110 active:brightness-95"
+                      className="gap-2.5 px-8 text-base h-13 w-full sm:w-auto shadow-lg shadow-primary/20 font-semibold relative overflow-hidden transition-shadow duration-300 group-hover/btn:shadow-primary/40"
                       data-testid="button-hero-get-started"
                     >
-                      Get Started Free
-                      <ArrowRight className="h-4 w-4" />
+                      <span className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+                      <span className="relative z-10 flex items-center gap-2.5">
+                        Get Started Free
+                        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                      </span>
                     </Button>
+                    <span className="absolute inset-0 rounded-lg opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.15), inset 0 -1px 0 0 rgba(0,0,0,0.1)" }} />
                   </div>
                 </motion.div>
                 <motion.div 
