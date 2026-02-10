@@ -78,53 +78,88 @@ const D = {
 };
 
 function HandwrittenPaper() {
-  const questions = [
-    {
-      num: 1,
-      q: "What is the primary function of mitochondria in a cell?",
-      options: ["A) Energy production", "B) Protein synthesis", "C) Cell division", "D) Waste removal"],
-      circled: 0,
-    }
-  ];
-
   return (
-    <div className="w-full h-full bg-[#fdf6e3] relative overflow-hidden" style={{ fontFamily: "'Segoe Script', 'Comic Sans MS', cursive" }}>
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "repeating-linear-gradient(transparent, transparent 26px, #c4daf433 26px, #c4daf433 27px)" }} />
-      <div className="absolute left-[52px] top-0 bottom-0 w-[1px] pointer-events-none" style={{ background: "linear-gradient(to bottom, transparent, #e8a0a0aa 10%, #e8a0a0aa 90%, transparent)" }} />
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
+    <div className="w-full h-full bg-[#fdf6e3] relative overflow-hidden select-none" style={{ fontFamily: "'Segoe Script', 'Comic Sans MS', cursive" }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "repeating-linear-gradient(transparent, transparent 24px, #c4daf422 24px, #c4daf422 25px)" }} />
+      <div className="absolute left-[48px] top-0 bottom-0 w-[1px] pointer-events-none" style={{ background: "linear-gradient(to bottom, transparent, #e8a0a0aa 10%, #e8a0a0aa 90%, transparent)" }} />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
 
-      <div className="relative z-10 pl-[62px] pr-5 pt-5 pb-4">
-        <div className="text-center mb-6 pb-1">
-          <span className="text-[13px] font-bold text-gray-700 tracking-wide" style={{ textDecoration: "underline", textDecorationStyle: "wavy", textDecorationColor: "#9ca3af80", textUnderlineOffset: "3px" }}>Biology Quiz - Chapter 5</span>
+      <div className="relative z-10 pl-[56px] pr-4 pt-4 pb-4">
+        <div className="mb-1">
+          <span className="text-[13px] font-bold text-gray-800" style={{ transform: "rotate(-0.5deg)", display: "inline-block" }}>Cell Biology - Ch. 5 Notes</span>
+          <svg className="w-[140px] h-[4px] block mt-[-1px]" viewBox="0 0 140 4" fill="none">
+            <path d="M2 2.5 Q 30 0.5, 70 2.2 Q 100 3.5, 138 1.5" stroke="#374151" strokeWidth="0.8" opacity="0.5" fill="none" />
+          </svg>
         </div>
 
-        {questions.map((item, qi) => (
-          <div key={qi} className="mb-3.5">
-            <p className="text-[12px] text-gray-800 font-semibold leading-snug tracking-[-0.01em]">
-              {item.num}. {item.q}
-            </p>
-            <div className="ml-4 mt-2 space-y-[4px]">
-              {item.options.map((opt, oi) => (
-                <div key={oi} className="relative py-[2px]">
-                  <p className={`text-[11px] leading-relaxed ${oi === item.circled ? "font-bold text-gray-800" : "text-gray-600"}`}>
-                    {opt}
-                  </p>
-                  {oi === item.circled && (
-                    <svg className="absolute -left-2 top-1/2 -translate-y-1/2 w-[calc(100%+12px)] h-[20px] pointer-events-none" viewBox="0 0 200 24" preserveAspectRatio="none">
-                      <ellipse cx="100" cy="12" rx="96" ry="10" fill="none" stroke="#4a8fe2" strokeWidth="1.2" opacity="0.45" transform="rotate(-0.5 100 12)" />
-                    </svg>
-                  )}
-                </div>
-              ))}
-            </div>
+        <div className="mt-3 mb-2.5" style={{ transform: "rotate(0.3deg)" }}>
+          <p className="text-[11px] text-gray-700 leading-[22px] tracking-[-0.01em]" style={{ transform: "rotate(-0.2deg)" }}>
+            <span className="font-bold text-gray-800">Mitochondria</span> = "powerhouse of the cell"
+          </p>
+          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2 mt-0.5" style={{ transform: "rotate(0.4deg)" }}>
+            - produces ATP (energy!)
+          </p>
+          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2" style={{ transform: "rotate(-0.3deg)" }}>
+            - through cellular respiration
+          </p>
+          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2" style={{ transform: "rotate(0.2deg)" }}>
+            - has double membrane
+          </p>
+        </div>
+
+        <svg className="w-full h-[34px] my-1" viewBox="0 0 220 34" fill="none">
+          <ellipse cx="110" cy="17" rx="30" ry="12" stroke="#6b7280" strokeWidth="0.7" fill="#fef9c3" fillOpacity="0.3" transform="rotate(-2 110 17)" />
+          <ellipse cx="110" cy="17" rx="22" ry="8" stroke="#6b7280" strokeWidth="0.5" fill="none" strokeDasharray="2 1.5" transform="rotate(1 110 17)" />
+          <path d="M87 11 Q 95 8, 110 9 Q 125 10, 133 13" stroke="#6b7280" strokeWidth="0.4" fill="none" opacity="0.6" />
+          <path d="M85 20 Q 98 22, 110 21 Q 120 20, 135 22" stroke="#6b7280" strokeWidth="0.4" fill="none" opacity="0.6" />
+          <text x="155" y="13" fill="#6b7280" fontSize="5.5" fontFamily="Segoe Script, Comic Sans MS, cursive" opacity="0.7" transform="rotate(-1 155 13)">outer</text>
+          <line x1="145" y1="12" x2="136" y2="14" stroke="#6b7280" strokeWidth="0.4" opacity="0.5" />
+          <text x="155" y="23" fill="#6b7280" fontSize="5.5" fontFamily="Segoe Script, Comic Sans MS, cursive" opacity="0.7" transform="rotate(0.5 155 23)">inner</text>
+          <line x1="145" y1="22" x2="132" y2="20" stroke="#6b7280" strokeWidth="0.4" opacity="0.5" />
+          <text x="42" y="20" fill="#9ca3af" fontSize="5" fontFamily="Segoe Script, Comic Sans MS, cursive" opacity="0.6" transform="rotate(-1 42 20)">cristae folds ^</text>
+          <path d="M66 18 Q 75 14, 88 15" stroke="#9ca3af" strokeWidth="0.35" fill="none" opacity="0.5" markerEnd="" />
+        </svg>
+
+        <div className="mt-1 mb-2" style={{ transform: "rotate(-0.2deg)" }}>
+          <p className="text-[11px] text-gray-700 leading-[22px]" style={{ transform: "rotate(0.3deg)" }}>
+            <span className="font-bold text-gray-800">Key process:</span> glucose + O₂ → ATP
+          </p>
+          <p className="text-[10.5px] text-gray-500 leading-[22px] ml-2 italic" style={{ transform: "rotate(-0.4deg)" }}>
+            (36-38 ATP per glucose molecule)
+          </p>
+        </div>
+
+        <div className="mt-2 relative" style={{ transform: "rotate(0.4deg)" }}>
+          <p className="text-[10.5px] text-gray-600 leading-[22px]" style={{ transform: "rotate(-0.3deg)" }}>
+            Q: primary function of mitochondria?
+          </p>
+          <div className="ml-3 mt-0.5 relative inline-block">
+            <span className="text-[10.5px] text-gray-700 font-semibold" style={{ transform: "rotate(0.2deg)", display: "inline-block" }}>
+              → Energy production (ATP)
+            </span>
+            <svg className="absolute -left-1 top-1/2 -translate-y-1/2 w-[calc(100%+8px)] h-[16px] pointer-events-none" viewBox="0 0 160 16" preserveAspectRatio="none">
+              <ellipse cx="80" cy="8" rx="76" ry="6.5" fill="none" stroke="#4a8fe2" strokeWidth="0.9" opacity="0.35" transform="rotate(-0.8 80 8)" />
+            </svg>
           </div>
-        ))}
-
-        <div className="absolute bottom-6 right-8 text-[10px] text-gray-400/80 italic tracking-wide">
-          Name: ____________
         </div>
-        <div className="absolute top-6 right-8 text-[10px] text-gray-400/60 italic">
-          Date: __ / __ / __
+
+        <div className="absolute top-4 right-3">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <path d="M6 2 L16 2 Q20 2 20 6 L20 16 Q20 20 16 20 L6 20 Q2 20 2 16 L2 6 Q2 2 6 2Z" stroke="#d1d5db" strokeWidth="0.6" fill="none" opacity="0.5" transform="rotate(2 11 11)" />
+            <path d="M6 8 L16 8 M6 12 L14 12 M6 16 L10 16" stroke="#d1d5db" strokeWidth="0.5" opacity="0.35" />
+          </svg>
+        </div>
+
+        <div className="absolute bottom-3 right-4 text-[8px] text-gray-400/50 italic" style={{ transform: "rotate(-1deg)" }}>
+          pg. 47
+        </div>
+
+        <svg className="absolute top-[60px] right-[10px] w-[14px] h-[40px] pointer-events-none" viewBox="0 0 14 40" fill="none">
+          <path d="M7 2 L7 32 M3 28 L7 34 L11 28" stroke="#d97706" strokeWidth="0.7" opacity="0.3" />
+        </svg>
+
+        <div className="absolute top-[54px] right-[28px] text-[7px] text-amber-600/30 italic" style={{ transform: "rotate(-2deg)" }}>
+          imp!
         </div>
       </div>
     </div>
@@ -151,10 +186,7 @@ function PrepetualQuizPlayer() {
       <div className="px-5 pt-4 pb-2.5 border-b border-border/30 bg-background/80 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-2.5">
           <span className="font-brand text-[13px] font-bold text-primary tracking-tight">Prepetual</span>
-          <div className="flex items-center gap-1 px-2 py-0.5 bg-orange-500/10 border border-orange-500/20 rounded-full">
-            <Flame className="h-2.5 w-2.5 text-orange-500" />
-            <span className="text-[9px] font-bold text-orange-600 dark:text-orange-400">3</span>
-          </div>
+          
         </div>
         <div className="h-1 bg-muted/80 rounded-full overflow-hidden">
           <motion.div
