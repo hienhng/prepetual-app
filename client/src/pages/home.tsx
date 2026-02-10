@@ -143,6 +143,63 @@ function HandwrittenPaper() {
           </div>
         </div>
 
+        <svg className="w-[80%] h-[2px] my-2.5 ml-1" viewBox="0 0 180 2" fill="none">
+          <path d="M0 1 Q 40 0, 90 1.2 Q 140 2, 180 0.8" stroke="#d1d5db" strokeWidth="0.5" opacity="0.6" fill="none" />
+        </svg>
+
+        <div className="mt-1 mb-2" style={{ transform: "rotate(-0.3deg)" }}>
+          <p className="text-[11px] text-gray-800 font-bold leading-[22px]" style={{ transform: "rotate(0.2deg)" }}>
+            Other organelles:
+          </p>
+          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2" style={{ transform: "rotate(0.3deg)" }}>
+            - Ribosomes → protein synthesis
+          </p>
+          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2" style={{ transform: "rotate(-0.2deg)" }}>
+            - ER (rough = ribosomes, smooth = lipids)
+          </p>
+          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2 relative" style={{ transform: "rotate(0.4deg)" }}>
+            <span className="line-through decoration-red-400/40">- Lysosomes break down food</span>
+            <span className="text-[9px] text-red-400/50 ml-1 italic">*waste, not food</span>
+          </p>
+          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2" style={{ transform: "rotate(-0.1deg)" }}>
+            - Golgi body → packages proteins
+          </p>
+        </div>
+
+        <div className="mt-2 mb-1" style={{ transform: "rotate(0.2deg)" }}>
+          <p className="text-[10px] text-gray-500 leading-[20px] italic" style={{ transform: "rotate(-0.3deg)" }}>
+            remember: "cells are like tiny factories"
+          </p>
+          <p className="text-[10px] text-gray-500 leading-[20px] ml-2" style={{ transform: "rotate(0.5deg)" }}>
+            each organelle = different department
+          </p>
+        </div>
+
+        <div className="mt-2.5 relative" style={{ transform: "rotate(-0.4deg)" }}>
+          <p className="text-[10.5px] text-gray-700 leading-[22px]" style={{ transform: "rotate(0.2deg)" }}>
+            <span className="font-bold">Test review:</span>
+          </p>
+          <p className="text-[10px] text-gray-500 leading-[20px] ml-2" style={{ transform: "rotate(-0.2deg)" }}>
+            ☐ memorize organelle functions
+          </p>
+          <p className="text-[10px] text-gray-500 leading-[20px] ml-2" style={{ transform: "rotate(0.3deg)" }}>
+            ☐ draw + label cell diagram
+          </p>
+          <p className="text-[10px] text-gray-500 leading-[20px] ml-2" style={{ transform: "rotate(-0.1deg)" }}>
+            ☑ ATP production steps
+          </p>
+        </div>
+
+        <svg className="absolute bottom-[70px] right-[12px] w-[45px] h-[45px] pointer-events-none" viewBox="0 0 45 45" fill="none">
+          <circle cx="22" cy="22" r="16" stroke="#d1d5db" strokeWidth="0.5" fill="none" opacity="0.3" transform="rotate(3 22 22)" />
+          <circle cx="22" cy="22" r="5" stroke="#d1d5db" strokeWidth="0.4" fill="#fef9c3" fillOpacity="0.2" opacity="0.3" />
+          <line x1="22" y1="6" x2="22" y2="14" stroke="#d1d5db" strokeWidth="0.35" opacity="0.25" />
+          <line x1="22" y1="30" x2="22" y2="38" stroke="#d1d5db" strokeWidth="0.35" opacity="0.25" />
+          <line x1="6" y1="22" x2="14" y2="22" stroke="#d1d5db" strokeWidth="0.35" opacity="0.25" />
+          <line x1="30" y1="22" x2="38" y2="22" stroke="#d1d5db" strokeWidth="0.35" opacity="0.25" />
+          <text x="22" y="24" fill="#9ca3af" fontSize="4" textAnchor="middle" fontFamily="Segoe Script, Comic Sans MS, cursive" opacity="0.4">cell</text>
+        </svg>
+
         <div className="absolute top-4 right-3">
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
             <path d="M6 2 L16 2 Q20 2 20 6 L20 16 Q20 20 16 20 L6 20 Q2 20 2 16 L2 6 Q2 2 6 2Z" stroke="#d1d5db" strokeWidth="0.6" fill="none" opacity="0.5" transform="rotate(2 11 11)" />
@@ -151,7 +208,7 @@ function HandwrittenPaper() {
         </div>
 
         <div className="absolute bottom-3 right-4 text-[8px] text-gray-400/50 italic" style={{ transform: "rotate(-1deg)" }}>
-          pg. 47
+          pg. 47-48
         </div>
 
         <svg className="absolute top-[60px] right-[10px] w-[14px] h-[40px] pointer-events-none" viewBox="0 0 14 40" fill="none">
