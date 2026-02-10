@@ -301,11 +301,18 @@ function AIQuizzesText() {
           </motion.span>
         ))}
         <motion.span
-          className="absolute -inset-x-2 -inset-y-1 bg-primary/5 rounded-lg pointer-events-none"
-          initial={{ opacity: 0, scaleX: 0 }}
-          animate={{ opacity: [0, 1, 0.6], scaleX: 1 }}
-          transition={{ delay: 0.9, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          style={{ originX: 0 }}
+          className="absolute -inset-x-4 -inset-y-2 rounded-xl pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 0.6, 0.35, 0.5] }}
+          transition={{ delay: 0.9, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          style={{ background: "radial-gradient(ellipse at center, hsl(48 96% 53% / 0.12) 0%, hsl(48 96% 53% / 0.04) 50%, transparent 80%)" }}
+        />
+        <motion.span
+          className="absolute -inset-x-6 -inset-y-3 rounded-2xl pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0.2, 0.4, 0.2] }}
+          transition={{ delay: 1.2, duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          style={{ boxShadow: "0 0 30px 8px hsl(48 96% 53% / 0.08), 0 0 60px 20px hsl(48 96% 53% / 0.04)" }}
         />
       </span>
       <Doodle d={D.loopUnderline} color="text-primary/40" className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 200 20" delay={1} />
@@ -1563,13 +1570,13 @@ export default function Home() {
                 />
               ))}
 
-              <motion.div 
-                className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-6 overflow-hidden"
+              
+                {/* className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-6 overflow-hidden"
                 initial={{ opacity: 0, scale: 0.6, filter: "blur(8px)" }}
                 animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                 transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <motion.div
+              > */}
+                {/* <motion.div
                   className="absolute inset-0 pointer-events-none"
                   style={{ background: "linear-gradient(90deg, transparent 0%, hsl(48 96% 53% / 0.15) 50%, transparent 100%)", width: "200%", left: "-100%" }}
                   animate={{ left: ["−100%", "100%"] }}
@@ -1580,9 +1587,9 @@ export default function Home() {
                   transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                 >
                   <Sparkles className="h-4 w-4" />
-                </motion.div>
-                <span className="relative z-10">AI-Powered Exam Prep</span>
-              </motion.div>
+                </motion.div> */}
+                
+              
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-5 leading-[1.15] tracking-tight relative">
                 <span className="overflow-hidden inline-flex">
