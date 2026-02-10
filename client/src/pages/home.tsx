@@ -81,33 +81,33 @@ function HandwrittenPaper() {
   return (
     <div className="w-full h-full bg-[#fdf6e3] relative overflow-hidden select-none" style={{ fontFamily: "'Segoe Script', 'Comic Sans MS', cursive" }}>
       <div className="absolute inset-0 pointer-events-none" style={{ background: "repeating-linear-gradient(transparent, transparent 24px, #c4daf422 24px, #c4daf422 25px)" }} />
-      <div className="absolute left-[48px] top-0 bottom-0 w-[1px] pointer-events-none" style={{ background: "linear-gradient(to bottom, transparent, #e8a0a0aa 10%, #e8a0a0aa 90%, transparent)" }} />
+      <div className="absolute left-[48px] md:left-[64px] lg:left-[80px] top-0 bottom-0 w-[1px] pointer-events-none" style={{ background: "linear-gradient(to bottom, transparent, #e8a0a0aa 10%, #e8a0a0aa 90%, transparent)" }} />
       <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
 
-      <div className="relative z-10 pl-[56px] pr-4 pt-4 pb-4">
-        <div className="mb-1">
-          <span className="text-[13px] font-bold text-gray-800" style={{ transform: "rotate(-0.5deg)", display: "inline-block" }}>Cell Biology - Ch. 5 Notes</span>
-          <svg className="w-[140px] h-[4px] block mt-[-1px]" viewBox="0 0 140 4" fill="none">
+      <div className="relative z-10 pl-[56px] pr-4 pt-4 pb-4 md:pl-[72px] md:pr-6 md:pt-6 md:pb-6 lg:pl-[88px] lg:pr-8 lg:pt-7 lg:pb-7">
+        <div className="mb-1 md:mb-2">
+          <span className="text-[13px] md:text-[16px] lg:text-[18px] font-bold text-gray-800" style={{ transform: "rotate(-0.5deg)", display: "inline-block" }}>Cell Biology - Ch. 5 Notes</span>
+          <svg className="w-[140px] md:w-[180px] lg:w-[210px] h-[4px] block mt-[-1px]" viewBox="0 0 140 4" fill="none">
             <path d="M2 2.5 Q 30 0.5, 70 2.2 Q 100 3.5, 138 1.5" stroke="#374151" strokeWidth="0.8" opacity="0.5" fill="none" />
           </svg>
         </div>
 
-        <div className="mt-3 mb-2.5" style={{ transform: "rotate(0.3deg)" }}>
-          <p className="text-[11px] text-gray-700 leading-[22px] tracking-[-0.01em]" style={{ transform: "rotate(-0.2deg)" }}>
+        <div className="mt-3 mb-2.5 md:mt-4 md:mb-3" style={{ transform: "rotate(0.3deg)" }}>
+          <p className="text-[11px] md:text-[13px] lg:text-[14px] text-gray-700 leading-[22px] md:leading-[28px] lg:leading-[30px] tracking-[-0.01em]" style={{ transform: "rotate(-0.2deg)" }}>
             <span className="font-bold text-gray-800">Mitochondria</span> = "powerhouse of the cell"
           </p>
-          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2 mt-0.5" style={{ transform: "rotate(0.4deg)" }}>
+          <p className="text-[10.5px] md:text-[12.5px] lg:text-[13.5px] text-gray-600 leading-[22px] md:leading-[28px] lg:leading-[30px] ml-2 md:ml-3 mt-0.5" style={{ transform: "rotate(0.4deg)" }}>
             - produces ATP (energy!)
           </p>
-          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2" style={{ transform: "rotate(-0.3deg)" }}>
+          <p className="text-[10.5px] md:text-[12.5px] lg:text-[13.5px] text-gray-600 leading-[22px] md:leading-[28px] lg:leading-[30px] ml-2 md:ml-3" style={{ transform: "rotate(-0.3deg)" }}>
             - through cellular respiration
           </p>
-          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2" style={{ transform: "rotate(0.2deg)" }}>
+          <p className="text-[10.5px] md:text-[12.5px] lg:text-[13.5px] text-gray-600 leading-[22px] md:leading-[28px] lg:leading-[30px] ml-2 md:ml-3" style={{ transform: "rotate(0.2deg)" }}>
             - has double membrane
           </p>
         </div>
 
-        <svg className="w-full h-[34px] my-1" viewBox="0 0 220 34" fill="none">
+        <svg className="w-full h-[34px] md:h-[42px] lg:h-[48px] my-1 md:my-1.5" viewBox="0 0 220 34" fill="none">
           <ellipse cx="110" cy="17" rx="30" ry="12" stroke="#6b7280" strokeWidth="0.7" fill="#fef9c3" fillOpacity="0.3" transform="rotate(-2 110 17)" />
           <ellipse cx="110" cy="17" rx="22" ry="8" stroke="#6b7280" strokeWidth="0.5" fill="none" strokeDasharray="2 1.5" transform="rotate(1 110 17)" />
           <path d="M87 11 Q 95 8, 110 9 Q 125 10, 133 13" stroke="#6b7280" strokeWidth="0.4" fill="none" opacity="0.6" />
@@ -120,77 +120,77 @@ function HandwrittenPaper() {
           <path d="M66 18 Q 75 14, 88 15" stroke="#9ca3af" strokeWidth="0.35" fill="none" opacity="0.5" markerEnd="" />
         </svg>
 
-        <div className="mt-1 mb-2" style={{ transform: "rotate(-0.2deg)" }}>
-          <p className="text-[11px] text-gray-700 leading-[22px]" style={{ transform: "rotate(0.3deg)" }}>
+        <div className="mt-1 mb-2 md:mt-2 md:mb-2.5" style={{ transform: "rotate(-0.2deg)" }}>
+          <p className="text-[11px] md:text-[13px] lg:text-[14px] text-gray-700 leading-[22px] md:leading-[28px] lg:leading-[30px]" style={{ transform: "rotate(0.3deg)" }}>
             <span className="font-bold text-gray-800">Key process:</span> glucose + O₂ → ATP
           </p>
-          <p className="text-[10.5px] text-gray-500 leading-[22px] ml-2 italic" style={{ transform: "rotate(-0.4deg)" }}>
+          <p className="text-[10.5px] md:text-[12.5px] lg:text-[13.5px] text-gray-500 leading-[22px] md:leading-[28px] lg:leading-[30px] ml-2 md:ml-3 italic" style={{ transform: "rotate(-0.4deg)" }}>
             (36-38 ATP per glucose molecule)
           </p>
         </div>
 
-        <div className="mt-2 relative" style={{ transform: "rotate(0.4deg)" }}>
-          <p className="text-[10.5px] text-gray-600 leading-[22px]" style={{ transform: "rotate(-0.3deg)" }}>
+        <div className="mt-2 relative md:mt-3" style={{ transform: "rotate(0.4deg)" }}>
+          <p className="text-[10.5px] md:text-[12.5px] lg:text-[13.5px] text-gray-600 leading-[22px] md:leading-[28px] lg:leading-[30px]" style={{ transform: "rotate(-0.3deg)" }}>
             Q: primary function of mitochondria?
           </p>
-          <div className="ml-3 mt-0.5 relative inline-block">
-            <span className="text-[10.5px] text-gray-700 font-semibold" style={{ transform: "rotate(0.2deg)", display: "inline-block" }}>
+          <div className="ml-3 md:ml-4 mt-0.5 relative inline-block">
+            <span className="text-[10.5px] md:text-[12.5px] lg:text-[13.5px] text-gray-700 font-semibold" style={{ transform: "rotate(0.2deg)", display: "inline-block" }}>
               → Energy production (ATP)
             </span>
-            <svg className="absolute -left-1 top-1/2 -translate-y-1/2 w-[calc(100%+8px)] h-[16px] pointer-events-none" viewBox="0 0 160 16" preserveAspectRatio="none">
+            <svg className="absolute -left-1 top-1/2 -translate-y-1/2 w-[calc(100%+8px)] h-[16px] md:h-[20px] pointer-events-none" viewBox="0 0 160 16" preserveAspectRatio="none">
               <ellipse cx="80" cy="8" rx="76" ry="6.5" fill="none" stroke="#4a8fe2" strokeWidth="0.9" opacity="0.35" transform="rotate(-0.8 80 8)" />
             </svg>
           </div>
         </div>
 
-        <svg className="w-[80%] h-[2px] my-2.5 ml-1" viewBox="0 0 180 2" fill="none">
+        <svg className="w-[80%] h-[2px] my-2.5 md:my-3 ml-1" viewBox="0 0 180 2" fill="none">
           <path d="M0 1 Q 40 0, 90 1.2 Q 140 2, 180 0.8" stroke="#d1d5db" strokeWidth="0.5" opacity="0.6" fill="none" />
         </svg>
 
-        <div className="mt-1 mb-2" style={{ transform: "rotate(-0.3deg)" }}>
-          <p className="text-[11px] text-gray-800 font-bold leading-[22px]" style={{ transform: "rotate(0.2deg)" }}>
+        <div className="mt-1 mb-2 md:mt-2 md:mb-2.5" style={{ transform: "rotate(-0.3deg)" }}>
+          <p className="text-[11px] md:text-[13px] lg:text-[14px] text-gray-800 font-bold leading-[22px] md:leading-[28px] lg:leading-[30px]" style={{ transform: "rotate(0.2deg)" }}>
             Other organelles:
           </p>
-          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2" style={{ transform: "rotate(0.3deg)" }}>
+          <p className="text-[10.5px] md:text-[12.5px] lg:text-[13.5px] text-gray-600 leading-[22px] md:leading-[28px] lg:leading-[30px] ml-2 md:ml-3" style={{ transform: "rotate(0.3deg)" }}>
             - Ribosomes → protein synthesis
           </p>
-          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2" style={{ transform: "rotate(-0.2deg)" }}>
+          <p className="text-[10.5px] md:text-[12.5px] lg:text-[13.5px] text-gray-600 leading-[22px] md:leading-[28px] lg:leading-[30px] ml-2 md:ml-3" style={{ transform: "rotate(-0.2deg)" }}>
             - ER (rough = ribosomes, smooth = lipids)
           </p>
-          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2 relative" style={{ transform: "rotate(0.4deg)" }}>
+          <p className="text-[10.5px] md:text-[12.5px] lg:text-[13.5px] text-gray-600 leading-[22px] md:leading-[28px] lg:leading-[30px] ml-2 md:ml-3 relative" style={{ transform: "rotate(0.4deg)" }}>
             <span className="line-through decoration-red-400/40">- Lysosomes break down food</span>
-            <span className="text-[9px] text-red-400/50 ml-1 italic">*waste, not food</span>
+            <span className="text-[9px] md:text-[10.5px] text-red-400/50 ml-1 italic">*waste, not food</span>
           </p>
-          <p className="text-[10.5px] text-gray-600 leading-[22px] ml-2" style={{ transform: "rotate(-0.1deg)" }}>
+          <p className="text-[10.5px] md:text-[12.5px] lg:text-[13.5px] text-gray-600 leading-[22px] md:leading-[28px] lg:leading-[30px] ml-2 md:ml-3" style={{ transform: "rotate(-0.1deg)" }}>
             - Golgi body → packages proteins
           </p>
         </div>
 
-        <div className="mt-2 mb-1" style={{ transform: "rotate(0.2deg)" }}>
-          <p className="text-[10px] text-gray-500 leading-[20px] italic" style={{ transform: "rotate(-0.3deg)" }}>
+        <div className="mt-2 mb-1 md:mt-2.5 md:mb-1.5" style={{ transform: "rotate(0.2deg)" }}>
+          <p className="text-[10px] md:text-[12px] lg:text-[13px] text-gray-500 leading-[20px] md:leading-[26px] lg:leading-[28px] italic" style={{ transform: "rotate(-0.3deg)" }}>
             remember: "cells are like tiny factories"
           </p>
-          <p className="text-[10px] text-gray-500 leading-[20px] ml-2" style={{ transform: "rotate(0.5deg)" }}>
+          <p className="text-[10px] md:text-[12px] lg:text-[13px] text-gray-500 leading-[20px] md:leading-[26px] lg:leading-[28px] ml-2 md:ml-3" style={{ transform: "rotate(0.5deg)" }}>
             each organelle = different department
           </p>
         </div>
 
-        <div className="mt-2.5 relative" style={{ transform: "rotate(-0.4deg)" }}>
-          <p className="text-[10.5px] text-gray-700 leading-[22px]" style={{ transform: "rotate(0.2deg)" }}>
+        <div className="mt-2.5 relative md:mt-3" style={{ transform: "rotate(-0.4deg)" }}>
+          <p className="text-[10.5px] md:text-[12.5px] lg:text-[13.5px] text-gray-700 leading-[22px] md:leading-[28px] lg:leading-[30px]" style={{ transform: "rotate(0.2deg)" }}>
             <span className="font-bold">Test review:</span>
           </p>
-          <p className="text-[10px] text-gray-500 leading-[20px] ml-2" style={{ transform: "rotate(-0.2deg)" }}>
+          <p className="text-[10px] md:text-[12px] lg:text-[13px] text-gray-500 leading-[20px] md:leading-[26px] lg:leading-[28px] ml-2 md:ml-3" style={{ transform: "rotate(-0.2deg)" }}>
             ☐ memorize organelle functions
           </p>
-          <p className="text-[10px] text-gray-500 leading-[20px] ml-2" style={{ transform: "rotate(0.3deg)" }}>
+          <p className="text-[10px] md:text-[12px] lg:text-[13px] text-gray-500 leading-[20px] md:leading-[26px] lg:leading-[28px] ml-2 md:ml-3" style={{ transform: "rotate(0.3deg)" }}>
             ☐ draw + label cell diagram
           </p>
-          <p className="text-[10px] text-gray-500 leading-[20px] ml-2" style={{ transform: "rotate(-0.1deg)" }}>
+          <p className="text-[10px] md:text-[12px] lg:text-[13px] text-gray-500 leading-[20px] md:leading-[26px] lg:leading-[28px] ml-2 md:ml-3" style={{ transform: "rotate(-0.1deg)" }}>
             ☑ ATP production steps
           </p>
         </div>
 
-        <svg className="absolute bottom-[70px] right-[12px] w-[45px] h-[45px] pointer-events-none" viewBox="0 0 45 45" fill="none">
+        <svg className="absolute bottom-[70px] md:bottom-[90px] right-[12px] md:right-[20px] w-[45px] md:w-[60px] lg:w-[70px] h-[45px] md:h-[60px] lg:h-[70px] pointer-events-none" viewBox="0 0 45 45" fill="none">
           <circle cx="22" cy="22" r="16" stroke="#d1d5db" strokeWidth="0.5" fill="none" opacity="0.3" transform="rotate(3 22 22)" />
           <circle cx="22" cy="22" r="5" stroke="#d1d5db" strokeWidth="0.4" fill="#fef9c3" fillOpacity="0.2" opacity="0.3" />
           <line x1="22" y1="6" x2="22" y2="14" stroke="#d1d5db" strokeWidth="0.35" opacity="0.25" />
@@ -200,22 +200,22 @@ function HandwrittenPaper() {
           <text x="22" y="24" fill="#9ca3af" fontSize="4" textAnchor="middle" fontFamily="Segoe Script, Comic Sans MS, cursive" opacity="0.4">cell</text>
         </svg>
 
-        <div className="absolute top-4 right-3">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <div className="absolute top-4 right-3 md:top-6 md:right-5">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" className="md:w-[28px] md:h-[28px] lg:w-[32px] lg:h-[32px]">
             <path d="M6 2 L16 2 Q20 2 20 6 L20 16 Q20 20 16 20 L6 20 Q2 20 2 16 L2 6 Q2 2 6 2Z" stroke="#d1d5db" strokeWidth="0.6" fill="none" opacity="0.5" transform="rotate(2 11 11)" />
             <path d="M6 8 L16 8 M6 12 L14 12 M6 16 L10 16" stroke="#d1d5db" strokeWidth="0.5" opacity="0.35" />
           </svg>
         </div>
 
-        <div className="absolute bottom-3 right-4 text-[8px] text-gray-400/50 italic" style={{ transform: "rotate(-1deg)" }}>
+        <div className="absolute bottom-3 right-4 md:bottom-4 md:right-6 text-[8px] md:text-[10px] text-gray-400/50 italic" style={{ transform: "rotate(-1deg)" }}>
           pg. 47-48
         </div>
 
-        <svg className="absolute top-[60px] right-[10px] w-[14px] h-[40px] pointer-events-none" viewBox="0 0 14 40" fill="none">
+        <svg className="absolute top-[60px] md:top-[76px] right-[10px] md:right-[16px] w-[14px] md:w-[18px] h-[40px] md:h-[50px] pointer-events-none" viewBox="0 0 14 40" fill="none">
           <path d="M7 2 L7 32 M3 28 L7 34 L11 28" stroke="#d97706" strokeWidth="0.7" opacity="0.3" />
         </svg>
 
-        <div className="absolute top-[54px] right-[28px] text-[7px] text-amber-600/30 italic" style={{ transform: "rotate(-2deg)" }}>
+        <div className="absolute top-[54px] md:top-[68px] right-[28px] md:right-[38px] text-[7px] md:text-[9px] text-amber-600/30 italic" style={{ transform: "rotate(-2deg)" }}>
           imp!
         </div>
       </div>
