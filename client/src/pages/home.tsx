@@ -1621,8 +1621,7 @@ export default function Home() {
                   <motion.div
                     className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/60 via-yellow-400/40 to-primary/60 blur-xl pointer-events-none"
                     animate={{ 
-                      opacity: isRevealing ? 0.8 : [0.3, 0.6, 0.3],
-                      scale: isRevealing ? 1.1 : 1
+                      opacity: [0.3, 0.6, 0.3],
                     }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   />
