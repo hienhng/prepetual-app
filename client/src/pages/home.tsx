@@ -1619,41 +1619,44 @@ export default function Home() {
                   transition={{ delay: 0.6, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <motion.div
-                    className="absolute -inset-1 rounded-xl bg-gradient-to-r from-primary/40 via-yellow-300/30 to-primary/40 blur-md pointer-events-none"
-                    animate={{ opacity: [0.4, 0.7, 0.4] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -inset-2 rounded-xl bg-gradient-to-r from-primary/60 via-yellow-400/40 to-primary/60 blur-xl pointer-events-none"
+                    animate={{ 
+                      opacity: isRevealing ? 0.8 : [0.3, 0.6, 0.3],
+                      scale: isRevealing ? 1.1 : 1
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   />
-                  <motion.div 
-                    whileHover={{ scale: 1.03 }} 
-                    whileTap={{ scale: 0.97 }}
-                    className="relative"
-                  >
+                  <div className="relative group">
+                    <motion.div
+                      className="absolute -inset-0.5 bg-gradient-to-r from-yellow-400 to-primary rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-500"
+                      initial={false}
+                    />
                     <Button
                       size="lg"
                       onClick={handleGetStarted}
-                      className="gap-2.5 px-8 text-base h-13 w-full sm:w-auto shadow-lg shadow-primary/20 font-semibold relative"
+                      className="gap-2.5 px-8 text-base h-13 w-full sm:w-auto shadow-lg shadow-primary/20 font-semibold relative transition-all duration-300 group-hover:shadow-primary/40 group-hover:brightness-110 active:brightness-95"
                       data-testid="button-hero-get-started"
                     >
                       Get Started Free
                       <ArrowRight className="h-4 w-4" />
                     </Button>
-                  </motion.div>
+                  </div>
                 </motion.div>
                 <motion.div 
-                  whileHover={{ scale: 1.03 }} 
                   whileTap={{ scale: 0.97 }}
                   initial={{ opacity: 0, x: -20, filter: "blur(4px)" }}
                   animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
                   transition={{ delay: 0.75, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative group"
                 >
                   <Button
                     size="lg"
                     variant="ghost"
                     onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="gap-2 w-full sm:w-auto h-13 text-base font-medium text-muted-foreground hover:text-foreground"
+                    className="gap-2 w-full sm:w-auto h-13 text-base font-medium text-muted-foreground hover:text-foreground transition-all duration-300 group-hover:bg-primary/5"
                     data-testid="button-hero-learn-more"
                   >
-                    <ArrowDown className="h-4 w-4" />
+                    <ArrowDown className="h-4 w-4 group-hover:translate-y-1 transition-transform" />
                     How It Works
                   </Button>
                 </motion.div>
