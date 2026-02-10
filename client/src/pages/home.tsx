@@ -287,6 +287,7 @@ function AIQuizzesText() {
             key={i}
             ref={(el) => { charRefs.current[i] = el; }}
             className="inline-block bg-gradient-to-r from-primary via-yellow-300 to-primary bg-clip-text text-transparent bg-[length:200%_100%]"
+            style={{ fontFamily: "'Zen Dots', cursive" }}
             initial={{ opacity: 0, y: 30, rotateX: -90 }}
             animate={{ opacity: 1, y: 0, rotateX: 0, backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
             transition={{
