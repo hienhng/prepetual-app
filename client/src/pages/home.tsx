@@ -84,19 +84,7 @@ function HandwrittenPaper() {
       q: "What is the primary function of mitochondria in a cell?",
       options: ["A) Energy production", "B) Protein synthesis", "C) Cell division", "D) Waste removal"],
       circled: 0,
-    },
-    {
-      num: 2,
-      q: "Which organelle is responsible for photosynthesis?",
-      options: ["A) Ribosome", "B) Chloroplast", "C) Nucleus", "D) Lysosome"],
-      circled: 1,
-    },
-    {
-      num: 3,
-      q: "DNA replication occurs during which phase?",
-      options: ["A) G1 phase", "B) S phase", "C) G2 phase", "D) M phase"],
-      circled: 1,
-    },
+    }
   ];
 
   return (
@@ -106,23 +94,23 @@ function HandwrittenPaper() {
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
 
       <div className="relative z-10 pl-[62px] pr-5 pt-5 pb-4">
-        <div className="text-center mb-4 pb-1">
+        <div className="text-center mb-6 pb-1">
           <span className="text-[13px] font-bold text-gray-700 tracking-wide" style={{ textDecoration: "underline", textDecorationStyle: "wavy", textDecorationColor: "#9ca3af80", textUnderlineOffset: "3px" }}>Biology Quiz - Chapter 5</span>
         </div>
 
         {questions.map((item, qi) => (
           <div key={qi} className="mb-3.5">
-            <p className="text-[11.5px] text-gray-800 font-semibold leading-snug tracking-[-0.01em]">
+            <p className="text-[12px] text-gray-800 font-semibold leading-snug tracking-[-0.01em]">
               {item.num}. {item.q}
             </p>
-            <div className="ml-4 mt-1 space-y-[2px]">
+            <div className="ml-4 mt-2 space-y-[4px]">
               {item.options.map((opt, oi) => (
-                <div key={oi} className="relative py-[1px]">
-                  <p className={`text-[10.5px] leading-relaxed ${oi === item.circled ? "font-bold text-gray-800" : "text-gray-600"}`}>
+                <div key={oi} className="relative py-[2px]">
+                  <p className={`text-[11px] leading-relaxed ${oi === item.circled ? "font-bold text-gray-800" : "text-gray-600"}`}>
                     {opt}
                   </p>
                   {oi === item.circled && (
-                    <svg className="absolute -left-2 top-1/2 -translate-y-1/2 w-[calc(100%+12px)] h-[18px] pointer-events-none" viewBox="0 0 200 24" preserveAspectRatio="none">
+                    <svg className="absolute -left-2 top-1/2 -translate-y-1/2 w-[calc(100%+12px)] h-[20px] pointer-events-none" viewBox="0 0 200 24" preserveAspectRatio="none">
                       <ellipse cx="100" cy="12" rx="96" ry="10" fill="none" stroke="#4a8fe2" strokeWidth="1.2" opacity="0.45" transform="rotate(-0.5 100 12)" />
                     </svg>
                   )}
@@ -132,10 +120,10 @@ function HandwrittenPaper() {
           </div>
         ))}
 
-        <div className="absolute bottom-4 right-5 text-[9px] text-gray-400/80 italic tracking-wide">
+        <div className="absolute bottom-6 right-8 text-[10px] text-gray-400/80 italic tracking-wide">
           Name: ____________
         </div>
-        <div className="absolute top-5 right-5 text-[9px] text-gray-400/60 italic">
+        <div className="absolute top-6 right-8 text-[10px] text-gray-400/60 italic">
           Date: __ / __ / __
         </div>
       </div>
