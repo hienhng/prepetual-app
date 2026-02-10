@@ -221,6 +221,68 @@ function PrepetualQuizPlayer() {
   );
 }
 
+function AIQuizzesText() {
+  const [isHovered, setIsHovered] = useState(false);
+  const chars = "AI quizzes".split("");
+
+  return (
+    <span className="relative inline-block">
+      <span
+        className="relative cursor-default"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {chars.map((char, i) => (
+          <motion.span
+            key={i}
+            className="inline-block bg-gradient-to-r from-primary via-yellow-300 to-primary bg-clip-text text-transparent bg-[length:200%_100%]"
+            initial={{ opacity: 0, y: 30, rotateX: -90 }}
+            animate={{
+              opacity: 1,
+              y: isHovered ? [0, -6, 0] : 0,
+              rotateX: 0,
+              backgroundPosition: isHovered
+                ? ["0% 50%", "100% 50%"]
+                : ["0% 50%", "100% 50%", "0% 50%"],
+              filter: isHovered ? "brightness(1.3)" : "brightness(1)",
+            }}
+            transition={{
+              opacity: { delay: 0.45 + i * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+              y: isHovered
+                ? { delay: i * 0.04, duration: 0.4, ease: [0.16, 1, 0.3, 1] }
+                : { delay: 0.45 + i * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+              rotateX: { delay: 0.45 + i * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+              backgroundPosition: isHovered
+                ? { duration: 1.5, repeat: Infinity, ease: "linear" }
+                : { delay: 1.2, duration: 4, repeat: Infinity, ease: "easeInOut" },
+              filter: { duration: 0.3, ease: "easeOut" },
+            }}
+          >
+            {char === " " ? "\u00A0" : char}
+          </motion.span>
+        ))}
+        <motion.span
+          className="absolute -inset-x-2 -inset-y-1 rounded-lg pointer-events-none"
+          initial={{ opacity: 0, scaleX: 0 }}
+          animate={{
+            opacity: isHovered ? 0.12 : [0, 1, 0.6],
+            scaleX: 1,
+            background: isHovered
+              ? "linear-gradient(90deg, hsl(48 96% 53% / 0.15), hsl(48 96% 70% / 0.1), hsl(48 96% 53% / 0.15))"
+              : "hsl(48 96% 53% / 0.05)",
+          }}
+          transition={{
+            opacity: isHovered ? { duration: 0.3 } : { delay: 0.9, duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+            scaleX: { delay: 0.9, duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+          }}
+          style={{ originX: 0 }}
+        />
+      </span>
+      <Doodle d={D.loopUnderline} color="text-primary/40" className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 200 20" delay={1} />
+    </span>
+  );
+}
+
 function BeforeAfterSlider() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isRevealing, setIsRevealing] = useState(false);
@@ -1506,34 +1568,8 @@ export default function Home() {
                     </motion.span>
                   ))}
                 </span>
-                <span className="relative inline-block">
-                  <span className="relative">
-                    {"AI quizzes".split("").map((char, i) => (
-                      <motion.span
-                        key={i}
-                        className="inline-block bg-gradient-to-r from-primary via-yellow-300 to-primary bg-clip-text text-transparent bg-[length:200%_100%]"
-                        initial={{ opacity: 0, y: 30, rotateX: -90 }}
-                        animate={{ opacity: 1, y: 0, rotateX: 0, backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-                        transition={{
-                          opacity: { delay: 0.45 + i * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-                          y: { delay: 0.45 + i * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-                          rotateX: { delay: 0.45 + i * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-                          backgroundPosition: { delay: 1.2, duration: 4, repeat: Infinity, ease: "easeInOut" },
-                        }}
-                      >
-                        {char === " " ? "\u00A0" : char}
-                      </motion.span>
-                    ))}
-                    <motion.span
-                      className="absolute -inset-x-2 -inset-y-1 bg-primary/5 rounded-lg pointer-events-none"
-                      initial={{ opacity: 0, scaleX: 0 }}
-                      animate={{ opacity: [0, 1, 0.6], scaleX: 1 }}
-                      transition={{ delay: 0.9, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                      style={{ originX: 0 }}
-                    />
-                  </span>
-                  <Doodle d={D.loopUnderline} color="text-primary/40" className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 200 20" delay={1} />
-                </span>
+                <AIQuizzesText />
+                
               </h1>
               
               <motion.p 
