@@ -301,18 +301,18 @@ function AIQuizzesText() {
           </motion.span>
         ))}
         <motion.span
-          className="absolute -inset-x-4 -inset-y-2 rounded-xl pointer-events-none"
+          className="absolute -inset-x-8 -inset-y-4 blur-2xl pointer-events-none"
           initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0.6, 0.35, 0.5] }}
+          animate={{ opacity: [0, 0.5, 0.3, 0.4] }}
           transition={{ delay: 0.9, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          style={{ background: "radial-gradient(ellipse at center, hsl(48 96% 53% / 0.12) 0%, hsl(48 96% 53% / 0.04) 50%, transparent 80%)" }}
+          style={{ background: "radial-gradient(ellipse at center, hsl(48 96% 53% / 0.18) 0%, transparent 70%)" }}
         />
         <motion.span
-          className="absolute -inset-x-6 -inset-y-3 rounded-2xl pointer-events-none"
+          className="absolute -inset-x-10 -inset-y-6 blur-3xl pointer-events-none"
           initial={{ opacity: 0 }}
-          animate={{ opacity: [0.2, 0.4, 0.2] }}
+          animate={{ opacity: [0.15, 0.35, 0.15] }}
           transition={{ delay: 1.2, duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          style={{ boxShadow: "0 0 30px 8px hsl(48 96% 53% / 0.08), 0 0 60px 20px hsl(48 96% 53% / 0.04)" }}
+          style={{ background: "radial-gradient(ellipse at center, hsl(48 96% 53% / 0.12) 0%, transparent 70%)" }}
         />
       </span>
       <Doodle d={D.loopUnderline} color="text-primary/40" className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 200 20" delay={1} />
