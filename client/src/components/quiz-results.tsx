@@ -252,7 +252,9 @@ export function QuizResults() {
           <CardContent className="space-y-3">
             {currentQuiz.questions.map((question, index) => {
               const userAnswer = userAnswers[question.id];
-              const isCorrect = userAnswer?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
+              const isCorrect = quizResult.wrongQuestionIds
+                ? !quizResult.wrongQuestionIds.includes(question.id)
+                : userAnswer?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
               const isExpanded = expandedQuestions.has(question.id);
 
               return (
@@ -318,7 +320,7 @@ export function QuizResults() {
                             {userAnswer || "No answer provided"}
                           </p>
                         </div>
-                        {!isCorrect && (
+                        {!isCorrect && question.type !== "short_answer" && (
                           <div>
                             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Correct Answer</p>
                             <p className="text-sm font-medium text-success">{question.correctAnswer}</p>
