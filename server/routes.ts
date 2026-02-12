@@ -844,7 +844,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
               ? `\nA suggested answer was: "${question.correctAnswer}" — but do NOT treat this as the only correct answer. Use the study material to determine if the student's answer is valid.`
               : "";
             const response = await openaiClient.chat.completions.create({
-              model: "openai/gpt-4o-mini",
+              model: "gpt-4.1",
               messages: [
                 {
                   role: "system",
@@ -1495,7 +1495,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         : "";
 
       const response = await openaiClient.chat.completions.create({
-        model: "openai/gpt-4o-mini",
+        model: "gpt-4.1",
         messages: [
           {
             role: "system",
