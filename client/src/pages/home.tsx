@@ -487,7 +487,7 @@ function BeforeAfterSlider() {
   return (
     <div className="relative w-full">
       <motion.div
-        className="relative w-full h-[340px] sm:h-[400px] md:h-[460px] lg:h-[500px] overflow-hidden select-none touch-none"
+        className="relative w-full h-[280px] sm:h-[340px] md:h-[380px] lg:h-[420px] overflow-hidden select-none touch-none"
         ref={containerRef}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -1606,7 +1606,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen overflow-hidden">
-      <section className="relative pb-16 md:pb-20 overflow-hidden">
+      <section className="relative pb-8 md:pb-12 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
             className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/8 blur-[120px]"
@@ -1641,7 +1641,7 @@ export default function Home() {
 
         <div className="container relative mx-auto px-4 sm:px-6 max-w-5xl">
           <div className="flex flex-col items-center">
-            <div className="text-center max-w-4xl mx-auto -mt-24 sm:-mt-28 md:-mt-32 relative z-10">
+            <div className="text-center max-w-4xl mx-auto -mt-32 sm:-mt-40 md:-mt-48 lg:-mt-56 relative z-10">
 
               <motion.div
                 className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
@@ -1695,7 +1695,7 @@ export default function Home() {
                 
               
               
-              <h1 className="font-bold text-foreground mb-6 leading-[1.1] tracking-tight relative text-center w-full" style={{ fontSize: "clamp(2.5rem, 6vw, 6rem)" }}>
+              <h1 className="font-bold text-foreground mb-4 leading-[1.1] tracking-tight relative text-center w-full" style={{ fontSize: "clamp(2.5rem, 6vw, 6rem)" }}>
                 <span className="overflow-hidden inline-flex justify-center flex-nowrap whitespace-nowrap w-full">
                   {["Make", "your", "materials"].map((word, i) => (
                     <motion.span
@@ -1713,7 +1713,7 @@ export default function Home() {
               </h1>
               
               <motion.p 
-                className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto mb-8 leading-relaxed"
+                className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto mb-5 leading-relaxed"
                 initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 transition={{ delay: 0.55, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
@@ -1721,7 +1721,7 @@ export default function Home() {
                 Upload your notes, textbooks, or slides. Get instant practice tests tailored to your content.
               </motion.p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 relative">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-5 relative">
                 <motion.div
                   className="relative"
                   initial={{ y: "120%", opacity: 0 }}
