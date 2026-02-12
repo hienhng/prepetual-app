@@ -549,7 +549,7 @@ function BeforeAfterSlider() {
         <AnimatePresence>
           {showHint && !isRevealing && circleSize < 1 && (
             <motion.div
-              className="absolute z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 pointer-events-none"
+              className="absolute z-20 left-1/2 top-[35%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 pointer-events-none"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
@@ -569,7 +569,7 @@ function BeforeAfterSlider() {
           )}
         </AnimatePresence>
 
-        <div className="absolute bottom-0 left-0 right-0 h-[65%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.2) 15%, hsl(var(--background) / 0.55) 35%, hsl(var(--background) / 0.85) 55%, hsl(var(--background)) 75%)" }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[55%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.15) 15%, hsl(var(--background) / 0.5) 35%, hsl(var(--background) / 0.8) 55%, hsl(var(--background)) 75%)" }} />
       </motion.div>
     </div>
   );
