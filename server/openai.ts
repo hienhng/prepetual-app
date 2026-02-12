@@ -197,13 +197,14 @@ LANGUAGE HANDLING:
 
 REQUIREMENTS:
 1. Generate exactly ${questionCount} questions
-2. Use these question types: ${questionTypeDescriptions}
-3. Distribute question types roughly evenly among the selected types
-4. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
-5. Include an explanation for why the correct answer is right
-6. For multiple choice, include explanations for why EACH wrong answer is incorrect
-7. For multiple choice, always provide exactly 4 options
-8. CATEGORY: Assign exactly ONE category from: ${categoryList}
+2. ONLY use these question types: ${questionTypeDescriptions}
+3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
+4. Distribute question types roughly evenly among the selected types
+5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
+6. Include an explanation for why the correct answer is right
+7. For multiple choice, include explanations for why EACH wrong answer is incorrect
+8. For multiple choice, always provide exactly 4 options
+9. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
    - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
    - Science: biology, chemistry, physics, earth science, etc.
@@ -271,15 +272,16 @@ LANGUAGE HANDLING:
 
 REQUIREMENTS:
 1. Generate exactly ${questionCount} questions
-2. Use these question types: ${questionTypeDescriptions}
-3. Distribute question types roughly evenly among the selected types
-4. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
-5. Include an explanation for why the correct answer is right
-6. For multiple choice, include explanations for why EACH wrong answer is incorrect
-7. For multiple choice, always provide exactly 4 options labeled A, B, C, D
-8. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
-9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
-10. CATEGORY: Assign exactly ONE category from: ${categoryList}
+2. ONLY use these question types: ${questionTypeDescriptions}
+3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
+4. Distribute question types roughly evenly among the selected types
+5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
+6. Include an explanation for why the correct answer is right
+7. For multiple choice, include explanations for why EACH wrong answer is incorrect
+8. For multiple choice, always provide exactly 4 options labeled A, B, C, D
+9. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
+10. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
+11. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
    - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
    - Science: biology, chemistry, physics, earth science, etc.
@@ -349,15 +351,16 @@ LANGUAGE HANDLING:
 
 REQUIREMENTS:
 1. Generate exactly ${questionCount} questions
-2. Use these question types: ${questionTypeDescriptions}
-3. Distribute question types roughly evenly among the selected types
-4. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
-5. Include an explanation for why the correct answer is right
-6. For multiple choice, include explanations for why EACH wrong answer is incorrect
-7. For multiple choice, always provide exactly 4 options
-8. ALL questions should be based on the visual content
-9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
-10. CATEGORY: Assign exactly ONE category from: ${categoryList}
+2. ONLY use these question types: ${questionTypeDescriptions}
+3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
+4. Distribute question types roughly evenly among the selected types
+5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
+6. Include an explanation for why the correct answer is right
+7. For multiple choice, include explanations for why EACH wrong answer is incorrect
+8. For multiple choice, always provide exactly 4 options
+9. ALL questions should be based on the visual content
+10. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
+11. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
    - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
    - Science: biology, chemistry, physics, earth science, etc.
@@ -513,16 +516,26 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     const questions: Question[] = [];
 
     for (const q of rawQuestions) {
-      // Validate required fields
       if (!q.type || !q.question || !q.correctAnswer) {
         console.warn("Skipping malformed question:", q);
         continue;
       }
 
-      // Validate question type
       if (!["multiple_choice", "true_false", "short_answer"].includes(q.type)) {
         console.warn("Skipping question with invalid type:", q.type);
         continue;
+      }
+
+      if (!questionTypes.includes(q.type as QuestionType)) {
+        console.warn(`AI generated ${q.type} but user only selected [${questionTypes.join(", ")}], converting...`);
+        if (questionTypes.length === 1) {
+          q.type = questionTypes[0];
+          if (q.type === "short_answer") {
+            q.options = undefined;
+          }
+        } else {
+          continue;
+        }
       }
 
       let options =
