@@ -569,7 +569,7 @@ function BeforeAfterSlider() {
           )}
         </AnimatePresence>
 
-        <div className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.25) 20%, hsl(var(--background) / 0.65) 45%, hsl(var(--background) / 0.9) 65%, hsl(var(--background)) 100%)" }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[60%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.2) 15%, hsl(var(--background) / 0.55) 35%, hsl(var(--background) / 0.85) 55%, hsl(var(--background)) 75%)" }} />
       </motion.div>
     </div>
   );
