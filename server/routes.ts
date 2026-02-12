@@ -838,18 +838,21 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         if (question.type === "short_answer") {
           try {
             const sourceContext = quizSourceText
-              ? `\nUse the original study material to evaluate accuracy:\n---\n${quizSourceText.slice(0, 3000)}\n---`
+              ? `\nOriginal study material:\n---\n${quizSourceText.slice(0, 3000)}\n---`
+              : "";
+            const referenceHint = question.correctAnswer
+              ? `\nA suggested answer was: "${question.correctAnswer}" — but do NOT treat this as the only correct answer. Use the study material to determine if the student's answer is valid.`
               : "";
             const response = await openaiClient.chat.completions.create({
               model: "openai/gpt-4o-mini",
               messages: [
                 {
                   role: "system",
-                  content: `You are a strict but fair exam grader. Grade the student's short answer based on the question, expected answer, and original study material (if provided). Accept answers that demonstrate correct understanding even if worded differently. Accept synonyms, abbreviations, alternate phrasings, and minor spelling mistakes. Be strict about factual accuracy.${sourceContext}\nRespond ONLY with JSON: {"isCorrect": true/false}`
+                  content: `You are a strict but fair exam grader. Determine if the student's short answer is correct based on the question and the original study material — NOT by comparing to a fixed predetermined answer.${sourceContext}${referenceHint}\nAccept answers that demonstrate correct understanding even if worded differently. Accept synonyms, abbreviations, alternate phrasings, and minor spelling mistakes. Be strict about factual accuracy.\nRespond ONLY with JSON: {"isCorrect": true/false}`
                 },
                 {
                   role: "user",
-                  content: `Question: ${question.question}\nExpected Answer: ${question.correctAnswer}\nStudent's Answer: ${userAnswer}`
+                  content: `Question: ${question.question}\nStudent's Answer: ${userAnswer}`
                 }
               ],
               temperature: 0.1,
@@ -1479,12 +1482,16 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     try {
       const { question, correctAnswer, userAnswer, sourceText } = req.body;
 
-      if (!question || !correctAnswer || !userAnswer) {
+      if (!question || !userAnswer) {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
       const sourceContext = sourceText 
-        ? `\n\nYou also have access to the original study material the question was generated from. Use it to evaluate whether the student's answer is factually accurate according to the material:\n---\n${sourceText.slice(0, 3000)}\n---`
+        ? `\n\nOriginal study material the question was generated from:\n---\n${sourceText.slice(0, 3000)}\n---`
+        : "";
+
+      const referenceHint = correctAnswer 
+        ? `\nA suggested answer was: "${correctAnswer}" — but do NOT treat this as the only correct answer. Use the study material and your knowledge to determine if the student's answer is valid.`
         : "";
 
       const response = await openaiClient.chat.completions.create({
@@ -1492,10 +1499,12 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         messages: [
           {
             role: "system",
-            content: `You are a strict but fair exam grader. You grade short answer responses by evaluating the student's answer against the question, the expected answer, and the original study material (if provided).${sourceContext}
+            content: `You are a strict but fair exam grader. You grade short answer responses by evaluating the student's answer against the question and the original study material.${sourceContext}
+
+Your job is to determine whether the student's answer is correct based on the study material and the question — NOT by comparing to a fixed predetermined answer. The correct answer should come from your understanding of the material.${referenceHint}
 
 Rules:
-- Assess the answer based on the study material content first, then the expected answer
+- Determine correctness based on the study material and question context
 - Accept answers that demonstrate correct understanding even if worded differently
 - Accept reasonable synonyms, abbreviations, or alternate phrasings
 - Accept minor spelling mistakes if the intent is clearly correct
@@ -1506,14 +1515,14 @@ Respond in JSON format:
 {
   "isCorrect": true | false,
   "isPartial": false,
-  "explanation": "Brief explanation of why the answer is correct/incorrect/partial. For correct answers, affirm what makes it right. For incorrect answers, explain the correct answer and why theirs was wrong based on the material."
+  "explanation": "Brief explanation of why the answer is correct/incorrect/partial. For correct answers, affirm what makes it right. For incorrect answers, explain what the correct answer should be based on the material and why theirs was wrong."
 }
 
-If the question and correct answer are in a non-English language, respond with the explanation in that same language.`
+If the question and study material are in a non-English language, respond with the explanation in that same language.`
           },
           {
             role: "user",
-            content: `Question: ${question}\nExpected Answer: ${correctAnswer}\nStudent's Answer: ${userAnswer}`
+            content: `Question: ${question}\nStudent's Answer: ${userAnswer}`
           }
         ],
         temperature: 0.1,
