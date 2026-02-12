@@ -79,7 +79,7 @@ const D = {
 
 function HandwrittenPaper() {
   return (
-    <div className="w-full h-full bg-[#fdf6e3] relative overflow-hidden select-none" style={{ fontFamily: "'Segoe Script', 'Comic Sans MS', cursive" }}>
+    <div className="w-full h-full bg-[#fdf6e3] relative overflow-hidden select-none" style={{ fontFamily: "'Indie Flower', cursive" }}>
       <div className="absolute inset-0 pointer-events-none" style={{ background: "repeating-linear-gradient(transparent, transparent 24px, #c4daf422 24px, #c4daf422 25px)" }} />
       <div className="absolute left-[48px] md:left-[64px] lg:left-[80px] top-0 bottom-0 w-[1px] pointer-events-none" style={{ background: "linear-gradient(to bottom, transparent, #e8a0a0aa 10%, #e8a0a0aa 90%, transparent)" }} />
       <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
@@ -112,11 +112,11 @@ function HandwrittenPaper() {
           <ellipse cx="110" cy="17" rx="22" ry="8" stroke="#6b7280" strokeWidth="0.5" fill="none" strokeDasharray="2 1.5" transform="rotate(1 110 17)" />
           <path d="M87 11 Q 95 8, 110 9 Q 125 10, 133 13" stroke="#6b7280" strokeWidth="0.4" fill="none" opacity="0.6" />
           <path d="M85 20 Q 98 22, 110 21 Q 120 20, 135 22" stroke="#6b7280" strokeWidth="0.4" fill="none" opacity="0.6" />
-          <text x="155" y="13" fill="#6b7280" fontSize="5.5" fontFamily="Segoe Script, Comic Sans MS, cursive" opacity="0.7" transform="rotate(-1 155 13)">outer</text>
+          <text x="155" y="13" fill="#6b7280" fontSize="5.5" fontFamily="'Indie Flower', cursive" opacity="0.7" transform="rotate(-1 155 13)">outer</text>
           <line x1="145" y1="12" x2="136" y2="14" stroke="#6b7280" strokeWidth="0.4" opacity="0.5" />
-          <text x="155" y="23" fill="#6b7280" fontSize="5.5" fontFamily="Segoe Script, Comic Sans MS, cursive" opacity="0.7" transform="rotate(0.5 155 23)">inner</text>
+          <text x="155" y="23" fill="#6b7280" fontSize="5.5" fontFamily="'Indie Flower', cursive" opacity="0.7" transform="rotate(0.5 155 23)">inner</text>
           <line x1="145" y1="22" x2="132" y2="20" stroke="#6b7280" strokeWidth="0.4" opacity="0.5" />
-          <text x="42" y="20" fill="#9ca3af" fontSize="5" fontFamily="Segoe Script, Comic Sans MS, cursive" opacity="0.6" transform="rotate(-1 42 20)">cristae folds ^</text>
+          <text x="42" y="20" fill="#9ca3af" fontSize="5" fontFamily="'Indie Flower', cursive" opacity="0.6" transform="rotate(-1 42 20)">cristae folds ^</text>
           <path d="M66 18 Q 75 14, 88 15" stroke="#9ca3af" strokeWidth="0.35" fill="none" opacity="0.5" markerEnd="" />
         </svg>
 
@@ -197,7 +197,7 @@ function HandwrittenPaper() {
           <line x1="22" y1="30" x2="22" y2="38" stroke="#d1d5db" strokeWidth="0.35" opacity="0.25" />
           <line x1="6" y1="22" x2="14" y2="22" stroke="#d1d5db" strokeWidth="0.35" opacity="0.25" />
           <line x1="30" y1="22" x2="38" y2="22" stroke="#d1d5db" strokeWidth="0.35" opacity="0.25" />
-          <text x="22" y="24" fill="#9ca3af" fontSize="4" textAnchor="middle" fontFamily="Segoe Script, Comic Sans MS, cursive" opacity="0.4">cell</text>
+          <text x="22" y="24" fill="#9ca3af" fontSize="4" textAnchor="middle" fontFamily="'Indie Flower', cursive" opacity="0.4">cell</text>
         </svg>
 
         <div className="absolute top-4 right-3 md:top-6 md:right-5">
