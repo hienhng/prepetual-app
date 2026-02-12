@@ -346,7 +346,7 @@ function AIQuizzesChar({ char, index }: { char: string; index: number }) {
 }
 
 function AIQuizzesText() {
-  const chars = "AI quizzes".split("");
+  const chars = "talk back".split("");
   const charRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const waveRunning = useRef(false);
 
@@ -1695,9 +1695,9 @@ export default function Home() {
                 
               
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-5 leading-[1.15] tracking-tight relative">
-                <span className="overflow-hidden inline-flex">
-                  {["Study", "smarter", "with"].map((word, i) => (
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight relative text-center">
+                <span className="overflow-hidden inline-flex justify-center flex-wrap">
+                  {["Make", "your", "materials"].map((word, i) => (
                     <motion.span
                       key={word}
                       className="inline-block"
@@ -1710,7 +1710,6 @@ export default function Home() {
                   ))}
                 </span>
                 <AIQuizzesText />
-                
               </h1>
               
               <motion.p 
