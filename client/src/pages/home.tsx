@@ -2487,8 +2487,14 @@ export default function Home() {
           <motion.div
             className="absolute inset-0"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            animate={{ 
+              opacity: 1,
+              backgroundPositionY: ["0px", "-80px"]
+            }}
+            transition={{ 
+              opacity: { duration: 1.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] },
+              backgroundPositionY: { duration: 8, repeat: Infinity, ease: "linear" }
+            }}
             style={{
               backgroundImage: `
                 linear-gradient(to right, hsl(48 96% 53% / 0.07) 1px, transparent 1px),
@@ -2605,9 +2611,7 @@ export default function Home() {
                   ease: [0.16, 1, 0.3, 1],
                 }}
               >
-                Let every definition respond to you.
-                <br/>
-                Stay connected to what you learn.
+                Interactive study quizzes automatically made from your own materials. 
               </motion.p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-5 relative">
@@ -2643,10 +2647,7 @@ export default function Home() {
                     >
                       <span className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
                       <span className="relative z-10 flex items-center gap-2.5">
-                        Get Started 
-                        <span className = "font-light">
-                          -it's free!
-                        </span>
+                        Get Started Free
                         <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
                       </span>
                     </Button>
@@ -2687,20 +2688,39 @@ export default function Home() {
                 </motion.div>
               </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{
-                  delay: 0.85,
-                  duration: 0.5,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                className="flex items-center justify-center gap-2 text-sm font-bold text-muted-foreground/80 tracking-tight"
-              >
-                <span className="w-8 h-[1px] bg-border/50" />
-                Spend less time organizing and more time understanding.
-                <span className="w-8 h-[1px] bg-border/50" />
-              </motion.div>
+              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+                {[
+                  { icon: CheckCircle2, text: "Free forever" },
+                  { icon: CheckCircle2, text: "No credit card" },
+                  { icon: CheckCircle2, text: "PDF, Word, Images" },
+                ].map((item, i) => (
+                  <motion.div
+                    key={item.text}
+                    className="flex items-center gap-1.5 text-sm text-muted-foreground"
+                    initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{
+                      delay: 0.85 + i * 0.1,
+                      duration: 0.5,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                  >
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{
+                        delay: 0.95 + i * 0.1,
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 15,
+                      }}
+                    >
+                      <item.icon className="h-4 w-4 text-primary flex-shrink-0" />
+                    </motion.div>
+                    <span>{item.text}</span>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
