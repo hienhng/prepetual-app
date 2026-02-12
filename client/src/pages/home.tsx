@@ -1641,7 +1641,7 @@ export default function Home() {
 
         <div className="container relative mx-auto px-4 sm:px-6 max-w-5xl">
           <div className="flex flex-col items-center">
-            <div className="text-center max-w-2xl mx-auto -mt-24 sm:-mt-28 md:-mt-32 relative z-10">
+            <div className="text-center max-w-4xl mx-auto -mt-24 sm:-mt-28 md:-mt-32 relative z-10">
 
               <motion.div
                 className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
@@ -1695,8 +1695,8 @@ export default function Home() {
                 
               
               
-              <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight relative text-center">
-                <span className="overflow-hidden inline-flex justify-center flex-nowrap whitespace-nowrap">
+              <h1 className="font-bold text-foreground mb-6 leading-[1.1] tracking-tight relative text-center w-full" style={{ fontSize: "clamp(2.5rem, 6vw, 6rem)" }}>
+                <span className="overflow-hidden inline-flex justify-center flex-nowrap whitespace-nowrap w-full">
                   {["Make", "your", "materials"].map((word, i) => (
                     <motion.span
                       key={word}
