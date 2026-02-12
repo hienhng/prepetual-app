@@ -1629,6 +1629,8 @@ export default function Home() {
                 linear-gradient(to bottom, hsl(48 96% 53% / 0.07) 1px, transparent 1px)
               `,
               backgroundSize: "80px 80px",
+              maskImage: "linear-gradient(to bottom, transparent 0%, black 35%, black 100%)",
+              WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 35%, black 100%)",
             }}
           />
         </div>
