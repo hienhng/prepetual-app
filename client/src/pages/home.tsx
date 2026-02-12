@@ -569,7 +569,7 @@ function BeforeAfterSlider() {
           )}
         </AnimatePresence>
 
-        <div className="absolute bottom-0 left-0 right-0 h-[60%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.2) 15%, hsl(var(--background) / 0.55) 35%, hsl(var(--background) / 0.85) 55%, hsl(var(--background)) 75%)" }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[65%] pointer-events-none z-30" style={{ background: "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.2) 15%, hsl(var(--background) / 0.55) 35%, hsl(var(--background) / 0.85) 55%, hsl(var(--background)) 75%)" }} />
       </motion.div>
     </div>
   );
@@ -1606,7 +1606,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen overflow-hidden">
-      <section className="relative pb-8 md:pb-12 overflow-hidden">
+      <section className="relative pb-8 md:pb-16 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
             className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/8 blur-[120px]"
@@ -1695,7 +1695,7 @@ export default function Home() {
                 
               
               
-              <h1 className="font-bold text-foreground mb-4 leading-[1.1] tracking-tight relative text-center w-full" style={{ fontSize: "clamp(2.5rem, 6vw, 6rem)" }}>
+              <h1 className="font-bold text-foreground mb-5 leading-[1.1] tracking-tight relative text-center w-full" style={{ fontSize: "clamp(2.5rem, 6vw, 6rem)" }}>
                 <span className="overflow-hidden inline-flex justify-center flex-nowrap whitespace-nowrap w-full">
                   {["Make", "your", "materials"].map((word, i) => (
                     <motion.span
@@ -1713,7 +1713,7 @@ export default function Home() {
               </h1>
               
               <motion.p 
-                className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto mb-5 leading-relaxed"
+                className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto mb-7 leading-relaxed"
                 initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 transition={{ delay: 0.55, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
