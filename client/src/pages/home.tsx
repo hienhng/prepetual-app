@@ -1618,17 +1618,19 @@ export default function Home() {
             animate={{ scale: [1.1, 1, 1.1], opacity: [0.3, 0.5, 0.3] }}
             transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           />
-          <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-            <motion.line x1="0%" y1="18%" x2="100%" y2="12%" stroke="currentColor" className="text-primary/[0.04]" strokeWidth="1" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }} />
-            <motion.line x1="0%" y1="38%" x2="100%" y2="32%" stroke="currentColor" className="text-primary/[0.03]" strokeWidth="1" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }} />
-            <motion.line x1="0%" y1="62%" x2="100%" y2="58%" stroke="currentColor" className="text-primary/[0.04]" strokeWidth="1" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2, delay: 0.7, ease: [0.16, 1, 0.3, 1] }} />
-            <motion.line x1="0%" y1="82%" x2="100%" y2="78%" stroke="currentColor" className="text-primary/[0.03]" strokeWidth="1" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2.4, delay: 0.9, ease: [0.16, 1, 0.3, 1] }} />
-            <motion.line x1="15%" y1="0%" x2="12%" y2="100%" stroke="currentColor" className="text-primary/[0.03]" strokeWidth="1" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }} />
-            <motion.line x1="50%" y1="0%" x2="48%" y2="100%" stroke="currentColor" className="text-primary/[0.02]" strokeWidth="1" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2.5, delay: 0.6, ease: [0.16, 1, 0.3, 1] }} />
-            <motion.line x1="85%" y1="0%" x2="88%" y2="100%" stroke="currentColor" className="text-primary/[0.03]" strokeWidth="1" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2.5, delay: 0.8, ease: [0.16, 1, 0.3, 1] }} />
-            <motion.line x1="0%" y1="5%" x2="35%" y2="45%" stroke="currentColor" className="text-primary/[0.02]" strokeWidth="1" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2, delay: 1, ease: [0.16, 1, 0.3, 1] }} />
-            <motion.line x1="100%" y1="10%" x2="65%" y2="55%" stroke="currentColor" className="text-primary/[0.02]" strokeWidth="1" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2, delay: 1.2, ease: [0.16, 1, 0.3, 1] }} />
-          </svg>
+          <motion.div
+            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              backgroundImage: `
+                linear-gradient(to right, hsl(48 96% 53% / 0.07) 1px, transparent 1px),
+                linear-gradient(to bottom, hsl(48 96% 53% / 0.07) 1px, transparent 1px)
+              `,
+              backgroundSize: "80px 80px",
+            }}
+          />
         </div>
 
         <div className="w-full relative z-0">
