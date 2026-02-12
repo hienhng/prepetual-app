@@ -1696,7 +1696,7 @@ export default function Home() {
               
               
               <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight relative text-center">
-                <span className="overflow-hidden inline-flex justify-center flex-wrap">
+                <span className="overflow-hidden inline-flex justify-center flex-nowrap whitespace-nowrap">
                   {["Make", "your", "materials"].map((word, i) => (
                     <motion.span
                       key={word}
