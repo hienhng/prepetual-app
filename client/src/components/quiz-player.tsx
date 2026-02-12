@@ -339,6 +339,7 @@ export function QuizPlayer() {
               question: questionSnapshot.question,
               correctAnswer: questionSnapshot.correctAnswer,
               userAnswer: answerToCheck,
+              sourceText: sourceMaterial?.text || (currentQuiz as any)?.sourceText || "",
             }),
           });
 

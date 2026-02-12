@@ -827,6 +827,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       let correctAnswers = 0;
       const wrongQuestionIds: string[] = [];
       const questions = quiz.questions as Question[];
+      const quizSourceText = (quiz as any).sourceText || "";
       
       const gradePromises = questions.map(async (question) => {
         const userAnswer = answers[question.id];
@@ -836,12 +837,15 @@ Format with bullet points for easy reading. Keep it under 500 words.`
 
         if (question.type === "short_answer") {
           try {
+            const sourceContext = quizSourceText
+              ? `\nUse the original study material to evaluate accuracy:\n---\n${quizSourceText.slice(0, 3000)}\n---`
+              : "";
             const response = await openaiClient.chat.completions.create({
               model: "openai/gpt-4o-mini",
               messages: [
                 {
                   role: "system",
-                  content: `You are a strict but fair exam grader. Grade the student's short answer. Accept answers that demonstrate correct understanding even if worded differently. Accept synonyms, abbreviations, alternate phrasings, and minor spelling mistakes. Be strict about factual accuracy. Respond ONLY with JSON: {"isCorrect": true/false}`
+                  content: `You are a strict but fair exam grader. Grade the student's short answer based on the question, expected answer, and original study material (if provided). Accept answers that demonstrate correct understanding even if worded differently. Accept synonyms, abbreviations, alternate phrasings, and minor spelling mistakes. Be strict about factual accuracy.${sourceContext}\nRespond ONLY with JSON: {"isCorrect": true/false}`
                 },
                 {
                   role: "user",
@@ -1473,20 +1477,25 @@ Format with bullet points for easy reading. Keep it under 500 words.`
 
   app.post("/api/grade-short-answer", async (req, res) => {
     try {
-      const { question, correctAnswer, userAnswer } = req.body;
+      const { question, correctAnswer, userAnswer, sourceText } = req.body;
 
       if (!question || !correctAnswer || !userAnswer) {
         return res.status(400).json({ message: "Missing required fields" });
       }
+
+      const sourceContext = sourceText 
+        ? `\n\nYou also have access to the original study material the question was generated from. Use it to evaluate whether the student's answer is factually accurate according to the material:\n---\n${sourceText.slice(0, 3000)}\n---`
+        : "";
 
       const response = await openaiClient.chat.completions.create({
         model: "openai/gpt-4o-mini",
         messages: [
           {
             role: "system",
-            content: `You are a strict but fair exam grader. You grade short answer responses by comparing the student's answer against the correct answer and the question context.
+            content: `You are a strict but fair exam grader. You grade short answer responses by evaluating the student's answer against the question, the expected answer, and the original study material (if provided).${sourceContext}
 
 Rules:
+- Assess the answer based on the study material content first, then the expected answer
 - Accept answers that demonstrate correct understanding even if worded differently
 - Accept reasonable synonyms, abbreviations, or alternate phrasings
 - Accept minor spelling mistakes if the intent is clearly correct
@@ -1497,7 +1506,7 @@ Respond in JSON format:
 {
   "isCorrect": true | false,
   "isPartial": false,
-  "explanation": "Brief explanation of why the answer is correct/incorrect/partial. For correct answers, affirm what makes it right. For incorrect answers, explain the correct answer and why theirs was wrong."
+  "explanation": "Brief explanation of why the answer is correct/incorrect/partial. For correct answers, affirm what makes it right. For incorrect answers, explain the correct answer and why theirs was wrong based on the material."
 }
 
 If the question and correct answer are in a non-English language, respond with the explanation in that same language.`
