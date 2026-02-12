@@ -2580,7 +2580,7 @@ export default function Home() {
                 className="font-bold text-foreground mb-5 leading-[1.1] tracking-tight relative text-center w-full"
                 style={{ fontSize: "clamp(2.5rem, 6vw, 6rem)" }}
               >
-                <span className="overflow-hidden inline-flex justify-center flex-nowrap whitespace-nowrap w-full">
+                <span className="overflow-hidden inline-flex justify-center flex-wrap w-full">
                   {["Make", "your", "materials"].map((word, i) => (
                     <motion.span
                       key={word}
