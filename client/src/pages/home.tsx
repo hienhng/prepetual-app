@@ -1641,7 +1641,7 @@ export default function Home() {
 
         <div className="container relative mx-auto px-4 sm:px-6 max-w-5xl">
           <div className="flex flex-col items-center">
-            <div className="text-center max-w-4xl mx-auto -mt-20 sm:-mt-24 md:-mt-28 lg:-mt-32 relative z-10">
+            <div className="text-center max-w-4xl mx-auto -mt-24 sm:-mt-28 md:-mt-34 lg:-mt-40 relative z-10">
 
               <motion.div
                 className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
