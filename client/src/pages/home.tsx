@@ -2611,7 +2611,9 @@ export default function Home() {
                   ease: [0.16, 1, 0.3, 1],
                 }}
               >
-                Interactive study quizzes automatically made from your own materials. 
+                Let every definition respond to you.
+                <br/>
+                Stay connected to what you learn.
               </motion.p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-5 relative">
@@ -2647,7 +2649,10 @@ export default function Home() {
                     >
                       <span className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
                       <span className="relative z-10 flex items-center gap-2.5">
-                        Get Started Free
+                        Get Started
+                        <span className = "font-light">
+                          —it's free
+                        </span>
                         <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
                       </span>
                     </Button>

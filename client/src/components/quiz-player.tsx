@@ -98,6 +98,8 @@ export function QuizPlayer() {
   const [feedbackMessages, setFeedbackMessages] = useState<Record<string, { message: string; streakAtTime: number }>>({}); 
   const [showQuestionNav, setShowQuestionNav] = useState(false);
   const [showChatbot, setShowChatbot] = useState(false);
+  const [isGrading, setIsGrading] = useState(false);
+  const [aiGradingResults, setAiGradingResults] = useState<Record<string, { isCorrect: boolean; isPartial: boolean; explanation: string }>>({});
   
   const wrongAnswerIds = useRef<Set<string>>(new Set());
   const [retryAnswers, setRetryAnswers] = useState<Record<string, string>>({});
@@ -209,6 +211,12 @@ export function QuizPlayer() {
 
   const isCorrectAnswer = (answer: string | undefined, question: typeof currentQuestion) => {
     if (!answer || !question) return false;
+    if (question.type === "short_answer") {
+      const gradeKey = question.isRetry ? question.id : question.originalId;
+      const grading = aiGradingResults[gradeKey];
+      if (grading) return grading.isCorrect;
+      return false;
+    }
     const normalizedUser = answer.toLowerCase().trim();
     const normalizedCorrect = question.correctAnswer.toLowerCase().trim();
     return normalizedUser === normalizedCorrect;
@@ -241,93 +249,144 @@ export function QuizPlayer() {
     setShortAnswerInput(value);
   };
 
-  const handleCheck = () => {
-    let answerToCheck = selectedAnswer;
-    
-    if (currentQuestion.type === "short_answer" && shortAnswerInput.trim()) {
-      answerToCheck = shortAnswerInput.trim();
-      if (currentQuestion.isRetry) {
-        setRetryAnswers(prev => ({ ...prev, [currentQuestion.id]: answerToCheck! }));
+  const applyCheckResult = (correct: boolean, answerToCheck: string | undefined, qSnap: typeof currentQuestion) => {
+    let newStreak = correctStreak;
+    let message = "";
+
+    if (correct) {
+      newStreak = correctStreak + 1;
+      setCorrectStreak(newStreak);
+
+      if (qSnap.isRetry) {
+        message = getRandomMessage("retryCorrect");
       } else {
-        setUserAnswer(currentQuestion.originalId, answerToCheck);
+        message = getStreakMessage(newStreak) || getRandomMessage("correct");
+      }
+
+      if (newStreak >= 3 && user?.consecutiveCorrectConfetti === true) {
+        triggerConfetti();
+      }
+    } else {
+      setCorrectStreak(0);
+      message = getRandomMessage("incorrect");
+    }
+
+    setFeedbackMessages(prev => ({
+      ...prev,
+      [qSnap.id]: { message, streakAtTime: correct ? newStreak : 0 }
+    }));
+
+    if (qSnap.isRetry) {
+      setRetryChecked(prev => new Set(prev).add(qSnap.id));
+    } else {
+      markQuestionChecked(qSnap.originalId);
+      if (!correct) {
+        wrongAnswerIds.current.add(qSnap.originalId);
       }
     }
-    
-    if (answerToCheck || (currentQuestion.type === "short_answer" && shortAnswerInput.trim())) {
-      const correct = isCorrectAnswer(answerToCheck, currentQuestion);
-      const questionKey = currentQuestion.id;
-      
-      let newStreak = correctStreak;
-      let message = "";
-      
-      if (correct) {
-        newStreak = correctStreak + 1;
-        setCorrectStreak(newStreak);
-        
-        // Use special message for retry questions gotten correct
-        if (currentQuestion.isRetry) {
-          message = getRandomMessage("retryCorrect");
-        } else {
-          message = getStreakMessage(newStreak) || getRandomMessage("correct");
-        }
-        
-        if (newStreak >= 3 && user?.consecutiveCorrectConfetti === true) {
-          triggerConfetti();
-        }
-      } else {
-        setCorrectStreak(0);
-        message = getRandomMessage("incorrect");
+
+    const keysToExpand: string[] = [];
+    if (qSnap.type === "true_false") {
+      const correctOption = qSnap.correctAnswer.toLowerCase() === "true" ? "True" : "False";
+      keysToExpand.push(`${qSnap.id}-tf-${correctOption}`);
+      if (!correct && answerToCheck) {
+        keysToExpand.push(`${qSnap.id}-tf-${answerToCheck}`);
       }
-      
-      setFeedbackMessages(prev => ({
-        ...prev,
-        [questionKey]: { message, streakAtTime: correct ? newStreak : 0 }
-      }));
-      
-      if (currentQuestion.isRetry) {
-        setRetryChecked(prev => new Set(prev).add(currentQuestion.id));
-      } else {
-        markQuestionChecked(currentQuestion.originalId);
-        
-        if (!correct) {
-          wrongAnswerIds.current.add(currentQuestion.originalId);
+    } else if (qSnap.type === "short_answer") {
+      keysToExpand.push(`${qSnap.id}-short-answer`);
+    } else if (qSnap.options && qSnap.explanation && (!isGuest || qSnap.isRetry)) {
+      qSnap.options.forEach((opt, idx) => {
+        const isCorrectOpt = opt.toLowerCase().trim() === qSnap.correctAnswer.toLowerCase().trim();
+        const isSelectedWrong = opt === answerToCheck && !correct;
+        if (isCorrectOpt || isSelectedWrong) {
+          keysToExpand.push(`${qSnap.id}-${idx}`);
         }
+      });
+    }
+
+    if (keysToExpand.length > 0) {
+      setExpandedExplanations(prev => {
+        const next = new Set(prev);
+        keysToExpand.forEach(key => next.add(key));
+        return next;
+      });
+    }
+  };
+
+  const handleCheck = async () => {
+    let answerToCheck = selectedAnswer;
+    const questionSnapshot = { ...currentQuestion };
+
+    if (questionSnapshot.type === "short_answer" && shortAnswerInput.trim()) {
+      answerToCheck = shortAnswerInput.trim();
+      if (questionSnapshot.isRetry) {
+        setRetryAnswers(prev => ({ ...prev, [questionSnapshot.id]: answerToCheck! }));
+      } else {
+        setUserAnswer(questionSnapshot.originalId, answerToCheck);
       }
-      
-      // Auto-expand explanations when answer is checked
-      if (currentQuestion.explanation && (!isGuest || currentQuestion.isRetry)) {
-        const keysToExpand: string[] = [];
-        
-        if (currentQuestion.type === "true_false") {
-          // Expand both correct and wrong (if selected) explanations
-          const correctOption = currentQuestion.correctAnswer.toLowerCase() === "true" ? "True" : "False";
-          keysToExpand.push(`${currentQuestion.id}-tf-${correctOption}`);
-          if (!correct && answerToCheck) {
-            keysToExpand.push(`${currentQuestion.id}-tf-${answerToCheck}`);
-          }
-        } else if (currentQuestion.type === "short_answer") {
-          keysToExpand.push(`${currentQuestion.id}-short-answer`);
-        } else if (currentQuestion.options) {
-          // Multiple choice - find correct option index and selected wrong index
-          currentQuestion.options.forEach((opt, idx) => {
-            const isCorrectOpt = opt.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
-            const isSelectedWrong = opt === answerToCheck && !correct;
-            if (isCorrectOpt || isSelectedWrong) {
-              keysToExpand.push(`${currentQuestion.id}-${idx}`);
-            }
+    }
+
+    if (answerToCheck || (questionSnapshot.type === "short_answer" && shortAnswerInput.trim())) {
+      const questionKey = questionSnapshot.id;
+
+      if (questionSnapshot.type === "short_answer") {
+        setIsGrading(true);
+        try {
+          const res = await fetch("/api/grade-short-answer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              question: questionSnapshot.question,
+              correctAnswer: questionSnapshot.correctAnswer,
+              userAnswer: answerToCheck,
+            }),
           });
+
+          if (!res.ok) throw new Error("Grading failed");
+
+          const grading = await res.json();
+          const gradeKey = questionSnapshot.isRetry ? questionSnapshot.id : questionSnapshot.originalId;
+
+          setAiGradingResults(prev => ({
+            ...prev,
+            [gradeKey]: {
+              isCorrect: grading.isCorrect,
+              isPartial: grading.isPartial,
+              explanation: grading.explanation,
+            },
+          }));
+
+          applyCheckResult(grading.isCorrect, answerToCheck, questionSnapshot);
+        } catch {
+          const normalizedUser = (answerToCheck || "").toLowerCase().trim();
+          const normalizedCorrect = questionSnapshot.correctAnswer.toLowerCase().trim();
+          const fallbackCorrect = normalizedUser === normalizedCorrect;
+          const gradeKey = questionSnapshot.isRetry ? questionSnapshot.id : questionSnapshot.originalId;
+
+          setAiGradingResults(prev => ({
+            ...prev,
+            [gradeKey]: {
+              isCorrect: fallbackCorrect,
+              isPartial: false,
+              explanation: fallbackCorrect
+                ? "Your answer matches the expected answer."
+                : `The expected answer is: ${questionSnapshot.correctAnswer}`,
+            },
+          }));
+
+          applyCheckResult(fallbackCorrect, answerToCheck, questionSnapshot);
+        } finally {
+          setIsGrading(false);
         }
-        
-        setExpandedExplanations(prev => {
-          const next = new Set(prev);
-          keysToExpand.forEach(key => next.add(key));
-          return next;
-        });
+      } else {
+        const correct = isCorrectAnswer(answerToCheck, questionSnapshot);
+        applyCheckResult(correct, answerToCheck, questionSnapshot);
       }
     }
   };
 
   const goToNext = () => {
+    if (isGrading) return;
     if (currentIndex < allQuestions.length - 1) {
       const nextQuestion = allQuestions[currentIndex + 1];
       setCurrentIndex(currentIndex + 1);
@@ -340,6 +399,7 @@ export function QuizPlayer() {
   };
 
   const goToPrevious = () => {
+    if (isGrading) return;
     if (currentIndex > 0) {
       const prevQuestion = allQuestions[currentIndex - 1];
       setCurrentIndex(currentIndex - 1);
@@ -352,6 +412,7 @@ export function QuizPlayer() {
   };
 
   const goToQuestion = (index: number) => {
+    if (isGrading) return;
     setCurrentIndex(index);
     setShowQuestionNav(false);
     const question = allQuestions[index];
@@ -372,8 +433,13 @@ export function QuizPlayer() {
       let retryCorrect = 0;
       for (const rq of retryQs) {
         const answer = retryAnswers[rq.id];
-        if (answer && answer.toLowerCase().trim() === rq.correctAnswer.toLowerCase().trim()) {
-          retryCorrect++;
+        if (answer) {
+          if (rq.type === "short_answer") {
+            const grading = aiGradingResults[rq.id];
+            if (grading?.isCorrect) retryCorrect++;
+          } else if (answer.toLowerCase().trim() === rq.correctAnswer.toLowerCase().trim()) {
+            retryCorrect++;
+          }
         }
       }
       setRetryCorrectCount(retryCorrect);
@@ -584,9 +650,21 @@ export function QuizPlayer() {
     }
 
     if (currentQuestion.type === "short_answer") {
-      const showShortAnswerExplanation = isChecked && currentQuestion.explanation && (!isGuest || isRetryQuestion);
+      const gradeKey = currentQuestion.isRetry ? currentQuestion.id : currentQuestion.originalId;
+      const aiGrading = aiGradingResults[gradeKey];
       const explanationKey = `${currentQuestion.id}-short-answer`;
       const isExpanded = expandedExplanations.has(explanationKey);
+      const showAiExplanation = isChecked && aiGrading && (!isGuest || isRetryQuestion);
+      const isShortAnswerCorrect = aiGrading?.isCorrect;
+      const isPartial = aiGrading?.isPartial;
+      
+      const borderColor = isChecked 
+        ? isShortAnswerCorrect 
+          ? "border-green-500" 
+          : isPartial 
+            ? "border-yellow-500" 
+            : "border-red-500"
+        : "focus:border-primary";
       
       return (
         <div className="space-y-4">
@@ -594,22 +672,42 @@ export function QuizPlayer() {
             value={isChecked ? (selectedAnswer || shortAnswerInput) : shortAnswerInput}
             onChange={(e) => handleShortAnswerChange(e.target.value)}
             placeholder="Type your answer here..."
-            className="py-6 px-5 text-lg rounded-xl border-2 focus:border-primary"
-            disabled={isChecked}
+            className={`py-6 px-5 text-lg rounded-xl border-2 ${borderColor}`}
+            disabled={isChecked || isGrading}
             data-testid="input-short-answer"
           />
+
+          {isGrading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground px-1">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>AI is grading your answer...</span>
+            </div>
+          )}
           
-          {/* Explanation for short answer */}
-          {showShortAnswerExplanation && (
-            <div className="border-2 border-green-500 bg-green-500/5 rounded-xl overflow-hidden">
+          {showAiExplanation && (
+            <div className={`border-2 ${isShortAnswerCorrect ? "border-green-500 bg-green-500/5" : isPartial ? "border-yellow-500 bg-yellow-500/5" : "border-red-500 bg-red-500/5"} rounded-xl overflow-hidden`}>
               <button
                 onClick={() => toggleExplanation(explanationKey)}
-                className="w-full px-4 py-2.5 flex items-center justify-between text-sm font-medium transition-colors text-green-700 dark:text-green-400 hover:bg-green-500/10"
+                className={`w-full px-4 py-2.5 flex items-center justify-between text-sm font-medium transition-colors ${
+                  isShortAnswerCorrect 
+                    ? "text-green-700 dark:text-green-400 hover:bg-green-500/10" 
+                    : isPartial 
+                      ? "text-yellow-700 dark:text-yellow-400 hover:bg-yellow-500/10"
+                      : "text-red-700 dark:text-red-400 hover:bg-red-500/10"
+                }`}
                 data-testid="toggle-explanation-short-answer"
               >
                 <div className="flex items-center gap-2">
-                  <Lightbulb className="h-4 w-4" />
-                  <span>Explanation</span>
+                  {isShortAnswerCorrect ? (
+                    <Check className="h-4 w-4" />
+                  ) : isPartial ? (
+                    <AlertCircle className="h-4 w-4" />
+                  ) : (
+                    <X className="h-4 w-4" />
+                  )}
+                  <span>
+                    {isShortAnswerCorrect ? "Correct" : isPartial ? "Partially Correct" : "Incorrect"} — AI Assessment
+                  </span>
                 </div>
                 {isExpanded ? (
                   <ChevronUp className="h-4 w-4" />
@@ -629,7 +727,7 @@ export function QuizPlayer() {
                   >
                     <div className="px-4 pb-4 pt-1">
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        {currentQuestion.explanation}
+                        {aiGrading.explanation}
                       </p>
                     </div>
                   </motion.div>
@@ -858,7 +956,7 @@ export function QuizPlayer() {
   const isLastQuestion = currentIndex === allQuestions.length - 1;
   const canFinish = allOriginalChecked && (retryQuestionsInList.length === 0 || allRetryChecked);
     
-  const canCheck = !isChecked && (selectedAnswer || (currentQuestion?.type === "short_answer" && shortAnswerInput.trim()));
+  const canCheck = !isChecked && !isGrading && (selectedAnswer || (currentQuestion?.type === "short_answer" && shortAnswerInput.trim()));
 
   if (!currentQuestion) return null;
 
@@ -1011,7 +1109,7 @@ export function QuizPlayer() {
             <Button
               variant="outline"
               onClick={goToPrevious}
-              disabled={currentIndex === 0}
+              disabled={currentIndex === 0 || isGrading}
               size="icon"
               className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-11 sm:w-auto sm:px-4 shrink-0"
               data-testid="button-previous"
@@ -1040,8 +1138,12 @@ export function QuizPlayer() {
                   className="gap-1 sm:gap-2 rounded-lg sm:rounded-xl flex-1 max-w-[140px] sm:max-w-none sm:min-w-[160px] font-semibold h-9 sm:h-11 text-sm sm:text-base px-3 sm:px-4"
                   data-testid="button-check"
                 >
-                  <CheckCheck className="h-4 w-4 sm:h-5 sm:w-5" />
-                  Check
+                  {isGrading ? (
+                    <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                  ) : (
+                    <CheckCheck className="h-4 w-4 sm:h-5 sm:w-5" />
+                  )}
+                  {isGrading ? "Grading..." : "Check"}
                 </Button>
               ) : isLastQuestion ? (
                 <Button
@@ -1071,7 +1173,7 @@ export function QuizPlayer() {
             <Button
               variant="outline"
               onClick={goToNext}
-              disabled={currentIndex >= allQuestions.length - 1}
+              disabled={currentIndex >= allQuestions.length - 1 || isGrading}
               size="icon"
               className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-11 sm:w-auto sm:px-4 shrink-0"
               data-testid="button-skip"

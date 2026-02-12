@@ -828,19 +828,56 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       const wrongQuestionIds: string[] = [];
       const questions = quiz.questions as Question[];
       
-      for (const question of questions) {
+      const gradePromises = questions.map(async (question) => {
         const userAnswer = answers[question.id];
-        if (userAnswer) {
-          const normalizedUserAnswer = userAnswer.toLowerCase().trim();
-          const normalizedCorrectAnswer = question.correctAnswer.toLowerCase().trim();
-          
-          if (normalizedUserAnswer === normalizedCorrectAnswer) {
-            correctAnswers++;
-          } else {
-            wrongQuestionIds.push(question.id);
+        if (!userAnswer) {
+          return { questionId: question.id, correct: false };
+        }
+
+        if (question.type === "short_answer") {
+          try {
+            const response = await openaiClient.chat.completions.create({
+              model: "openai/gpt-4o-mini",
+              messages: [
+                {
+                  role: "system",
+                  content: `You are a strict but fair exam grader. Grade the student's short answer. Accept answers that demonstrate correct understanding even if worded differently. Accept synonyms, abbreviations, alternate phrasings, and minor spelling mistakes. Be strict about factual accuracy. Respond ONLY with JSON: {"isCorrect": true/false}`
+                },
+                {
+                  role: "user",
+                  content: `Question: ${question.question}\nExpected Answer: ${question.correctAnswer}\nStudent's Answer: ${userAnswer}`
+                }
+              ],
+              temperature: 0.1,
+              max_tokens: 50,
+            });
+            const content = response.choices[0]?.message?.content || "";
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              const result = JSON.parse(jsonMatch[0]);
+              return { questionId: question.id, correct: result.isCorrect === true };
+            }
+          } catch (e) {
+            console.error("AI grading failed for submit, falling back to exact match:", e);
           }
+          return { 
+            questionId: question.id, 
+            correct: userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim() 
+          };
+        }
+
+        return {
+          questionId: question.id,
+          correct: userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim()
+        };
+      });
+
+      const gradeResults = await Promise.all(gradePromises);
+      for (const result of gradeResults) {
+        if (result.correct) {
+          correctAnswers++;
         } else {
-          wrongQuestionIds.push(question.id);
+          wrongQuestionIds.push(result.questionId);
         }
       }
 
@@ -1431,6 +1468,65 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       res.status(500).json({ 
         message: "Failed to send message. Please try again later." 
       });
+    }
+  });
+
+  app.post("/api/grade-short-answer", async (req, res) => {
+    try {
+      const { question, correctAnswer, userAnswer } = req.body;
+
+      if (!question || !correctAnswer || !userAnswer) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      const response = await openaiClient.chat.completions.create({
+        model: "openai/gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `You are a strict but fair exam grader. You grade short answer responses by comparing the student's answer against the correct answer and the question context.
+
+Rules:
+- Accept answers that demonstrate correct understanding even if worded differently
+- Accept reasonable synonyms, abbreviations, or alternate phrasings
+- Accept minor spelling mistakes if the intent is clearly correct
+- Be strict about factual accuracy — wrong facts = incorrect
+- Partial credit: if the answer is partially correct but missing key details, mark as "partial"
+
+Respond in JSON format:
+{
+  "isCorrect": true | false,
+  "isPartial": false,
+  "explanation": "Brief explanation of why the answer is correct/incorrect/partial. For correct answers, affirm what makes it right. For incorrect answers, explain the correct answer and why theirs was wrong."
+}
+
+If the question and correct answer are in a non-English language, respond with the explanation in that same language.`
+          },
+          {
+            role: "user",
+            content: `Question: ${question}\nExpected Answer: ${correctAnswer}\nStudent's Answer: ${userAnswer}`
+          }
+        ],
+        temperature: 0.1,
+        max_tokens: 300,
+      });
+
+      const content = response.choices[0]?.message?.content || "";
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+
+      if (!jsonMatch) {
+        return res.status(500).json({ message: "Failed to parse AI grading response" });
+      }
+
+      const result = JSON.parse(jsonMatch[0]);
+      res.json({
+        isCorrect: result.isCorrect === true,
+        isPartial: result.isPartial === true,
+        explanation: result.explanation || "",
+      });
+    } catch (error: any) {
+      console.error("AI grading error:", error);
+      res.status(500).json({ message: error.message || "Failed to grade answer" });
     }
   });
 

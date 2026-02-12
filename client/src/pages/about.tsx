@@ -440,7 +440,7 @@ export default function About() {
 
               <div className="max-w-2xl">
                 <WordReveal
-                  text="Only by truly understanding a concept can you crack every topic you learn."
+                  text="When you truly understand a concept, you’re not just prepared for one question — you’re prepared for any question."
                   className="text-2xl md:text-3xl text-foreground leading-snug font-semibold"
                   delay={0.2}
                 />
