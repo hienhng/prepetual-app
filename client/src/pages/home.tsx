@@ -2595,17 +2595,11 @@ function ParsingShowcase() {
                     <p className="text-sm font-medium text-foreground truncate">Biology Midterm Exam</p>
                     <p className="text-xs text-muted-foreground">3 questions &middot; Multiple choice &middot; True/False</p>
                   </div>
-                  {phase === "result" && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
-                    >
-                      <Badge variant="outline" className="text-[10px] text-primary border-primary/25 bg-primary/5">
-                        Imported
-                      </Badge>
-                    </motion.div>
-                  )}
+                  <div className={`transition-opacity duration-300 ${phase === "result" ? "opacity-100" : "opacity-0"}`}>
+                    <Badge variant="outline" className="text-[10px] text-primary border-primary/25 bg-primary/5">
+                      Imported
+                    </Badge>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -2656,45 +2650,33 @@ function ParsingShowcase() {
                           ))}
                         </div>
 
-                        <AnimatePresence>
-                          {isHighlighted && showExplanation && (
-                            <motion.div
-                              className="mt-2 flex items-start gap-2 p-2 rounded-md bg-primary/5 border border-primary/10"
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              exit={{ opacity: 0, height: 0 }}
-                              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                            >
-                              <Lightbulb className="w-3 h-3 text-primary shrink-0 mt-0.5" />
-                              <p className="text-xs text-muted-foreground leading-relaxed">{q.explanation}</p>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                        <div
+                          className={`mt-2 flex items-start gap-2 p-2 rounded-md bg-primary/5 border border-primary/10 transition-opacity duration-300 ${
+                            isHighlighted && showExplanation ? "opacity-100" : "opacity-0"
+                          }`}
+                        >
+                          <Lightbulb className="w-3 h-3 text-primary shrink-0 mt-0.5" />
+                          <p className="text-xs text-muted-foreground leading-relaxed">{q.explanation}</p>
+                        </div>
                       </motion.div>
                     );
                   })}
                 </div>
 
-                <AnimatePresence>
-                  {phase === "result" && (
-                    <motion.div
-                      className="flex items-center justify-between gap-2 pt-4 mt-4 border-t border-border/50"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ delay: 0.3, duration: 0.4 }}
-                    >
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground" data-testid="text-import-status">
-                        <Check className="w-3.5 h-3.5 text-primary" />
-                        <span>All answers verified by AI</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs font-medium text-primary">
-                        <Play className="w-3 h-3" />
-                        <span>Ready to practice</span>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <div
+                  className={`flex items-center justify-between gap-2 pt-4 mt-4 border-t border-border/50 transition-opacity duration-400 ${
+                    phase === "result" ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground" data-testid="text-import-status">
+                    <Check className="w-3.5 h-3.5 text-primary" />
+                    <span>All answers verified by AI</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-primary">
+                    <Play className="w-3 h-3" />
+                    <span>Ready to practice</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
