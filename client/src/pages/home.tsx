@@ -3132,8 +3132,6 @@ export default function Home() {
         </div>
       </section>
 
-      <ParsingShowcase />
-
       <section id="how-it-works" className="py-20 md:py-28">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
           <div className="text-center mb-16">
@@ -3179,6 +3177,8 @@ export default function Home() {
           <HowItWorksGallery />
         </div>
       </section>
+
+      <ParsingShowcase />
 
       <section className="py-20 md:py-28 bg-muted/40 min-h-[800px] md:min-h-[650px]">
         <div className="container mx-auto px-4 sm:px-6">
