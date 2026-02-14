@@ -37,6 +37,10 @@ import {
   AlertCircle,
   ArrowDown,
   CheckCheck,
+  Import,
+  ClipboardCheck,
+  CircleDot,
+  Shield,
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire } from "@fortawesome/free-solid-svg-icons";
@@ -2330,47 +2334,69 @@ function FeatureShowcase() {
 }
 
 function ParsingShowcase() {
-  const formats = [
-    { ext: "PDF", icon: FileText, color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", label: "Research papers, textbooks, lecture slides" },
-    { ext: "DOCX", icon: File, color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", label: "Essays, reports, study guides" },
-    { ext: "PPTX", icon: Layers, color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", label: "Lecture presentations, class decks" },
-    { ext: "XLSX", icon: FileText, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", label: "Data tables, formula sheets" },
-    { ext: "IMG", icon: Image, color: "text-purple-500", bg: "bg-purple-500/10", border: "border-purple-500/20", label: "Photos of notes, whiteboard captures" },
+  const originalQuestions = [
+    {
+      num: "1",
+      question: "What is the powerhouse of the cell?",
+      options: ["A) Nucleus", "B) Mitochondria", "C) Ribosome", "D) Golgi apparatus"],
+    },
+    {
+      num: "2",
+      question: "DNA replication occurs during which phase?",
+      options: ["A) G1 phase", "B) S phase", "C) G2 phase", "D) M phase"],
+    },
+    {
+      num: "3",
+      question: "Photosynthesis takes place in the chloroplast.",
+      options: ["True", "False"],
+    },
   ];
 
-  const extractedLines = [
-    { label: "Title", value: "Cell Biology - Chapter 5", width: "w-[85%]" },
-    { label: "Key Term", value: "Mitochondria: produces ATP through cellular respiration", width: "w-full" },
-    { label: "Detail", value: "Double membrane structure with cristae folds", width: "w-[90%]" },
-    { label: "Formula", value: "Glucose + O\u2082 \u2192 36-38 ATP per molecule", width: "w-[80%]" },
-    { label: "Concept", value: "Each organelle acts as a different department in the cell factory", width: "w-[95%]" },
+  const convertedQuestions = [
+    {
+      num: "1",
+      question: "What is the powerhouse of the cell?",
+      options: ["Nucleus", "Mitochondria", "Ribosome", "Golgi apparatus"],
+      correct: 1,
+      type: "multiple_choice" as const,
+      explanation: "Mitochondria generate most of the cell's ATP through oxidative phosphorylation.",
+    },
+    {
+      num: "2",
+      question: "DNA replication occurs during which phase?",
+      options: ["G1 phase", "S phase", "G2 phase", "M phase"],
+      correct: 1,
+      type: "multiple_choice" as const,
+      explanation: "The S (synthesis) phase is when DNA is replicated before cell division.",
+    },
+    {
+      num: "3",
+      question: "Photosynthesis takes place in the chloroplast.",
+      options: ["True", "False"],
+      correct: 0,
+      type: "true_false" as const,
+      explanation: "Chloroplasts contain chlorophyll and are the site of photosynthesis in plant cells.",
+    },
   ];
 
-  const [activeFormat, setActiveFormat] = useState(0);
-  const [isParsing, setIsParsing] = useState(false);
-  const [showResult, setShowResult] = useState(false);
+  const [phase, setPhase] = useState<"source" | "converting" | "result">("source");
+  const [activeQuestion, setActiveQuestion] = useState(0);
+  const [showExplanation, setShowExplanation] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIsParsing(true);
-      setShowResult(false);
-      setTimeout(() => {
-        setIsParsing(false);
-        setShowResult(true);
-      }, 1200);
-      setTimeout(() => {
-        setActiveFormat((prev) => (prev + 1) % formats.length);
-      }, 3500);
-    }, 4000);
+    const cycle = () => {
+      setPhase("source");
+      setActiveQuestion(0);
+      setShowExplanation(false);
 
-    setTimeout(() => {
-      setIsParsing(true);
-      setTimeout(() => {
-        setIsParsing(false);
-        setShowResult(true);
-      }, 1200);
-    }, 500);
-
+      setTimeout(() => setPhase("converting"), 2500);
+      setTimeout(() => setPhase("result"), 4500);
+      setTimeout(() => { setActiveQuestion(0); setShowExplanation(true); }, 5500);
+      setTimeout(() => setActiveQuestion(1), 7000);
+      setTimeout(() => setActiveQuestion(2), 8500);
+    };
+    cycle();
+    const interval = setInterval(cycle, 11000);
     return () => clearInterval(interval);
   }, []);
 
@@ -2395,8 +2421,8 @@ function ParsingShowcase() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Zap className="w-3.5 h-3.5" />
-            Core Technology
+            <Shield className="w-3.5 h-3.5" />
+            Zero Hallucination
           </motion.div>
           <div className="overflow-hidden">
             <motion.h2
@@ -2406,7 +2432,7 @@ function ParsingShowcase() {
               viewport={{ once: true }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
             >
-              Reads anything you throw at it
+              Your exam, made interactive
             </motion.h2>
           </div>
           <motion.p
@@ -2416,98 +2442,108 @@ function ParsingShowcase() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
           >
-            Our intelligent parser handles PDFs, scanned notes, presentations, spreadsheets, and handwritten images. 
-            Every word is extracted with precision so nothing from your study material gets lost.
+            Upload an existing exam or worksheet and we'll convert it into a fully interactive quiz. 
+            Every question stays exactly as written — nothing is invented, nothing is changed.
           </motion.p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-6 md:gap-8 items-start">
           <motion.div
             initial={{ opacity: 0, x: -40, filter: "blur(8px)" }}
             whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="space-y-3">
-              {formats.map((fmt, i) => {
-                const isActive = activeFormat === i;
-                return (
-                  <motion.div
-                    key={fmt.ext}
-                    className={`relative flex items-center gap-4 p-4 rounded-xl border transition-all duration-500 cursor-pointer hover-elevate active-elevate-2 ${
-                      isActive
-                        ? `${fmt.bg} ${fmt.border}`
-                        : "border-border/50 bg-card/50"
-                    }`}
-                    onClick={() => {
-                      setActiveFormat(i);
-                      setIsParsing(true);
-                      setShowResult(false);
-                      setTimeout(() => { setIsParsing(false); setShowResult(true); }, 1200);
-                    }}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    data-testid={`button-format-${fmt.ext.toLowerCase()}`}
-                  >
-                    {isActive && (
-                      <motion.div
-                        className={`absolute inset-0 rounded-xl ${fmt.bg} opacity-50`}
-                        layoutId="activeFormatBg"
-                        transition={{ type: "spring", stiffness: 200, damping: 25 }}
-                      />
-                    )}
-                    <div className={`relative w-12 h-12 rounded-xl ${fmt.bg} ${fmt.border} border flex items-center justify-center shrink-0`}>
-                      <fmt.icon className={`w-6 h-6 ${fmt.color}`} />
-                    </div>
-                    <div className="relative flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className={`text-sm font-bold ${isActive ? fmt.color : "text-foreground"}`}>{fmt.ext}</span>
-                        {isActive && (
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                          >
-                            <Badge variant="outline" className={`text-[10px] px-2 py-0 ${fmt.color} ${fmt.border}`}>
-                              Active
-                            </Badge>
-                          </motion.div>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground truncate">{fmt.label}</p>
-                    </div>
-                    {isActive && (
-                      <motion.div
-                        className="relative"
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ type: "spring", stiffness: 300 }}
-                      >
-                        <ArrowRight className={`w-4 h-4 ${fmt.color}`} />
-                      </motion.div>
-                    )}
-                  </motion.div>
-                );
-              })}
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Original Exam Paper</span>
             </div>
+            <Card className="relative overflow-visible" data-testid="card-source-exam">
+              <CardContent className="p-5 md:p-7">
+                <div className="flex items-center gap-3 mb-5 pb-4 border-b border-border/50">
+                  <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0">
+                    <FileText className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate" data-testid="text-source-filename">Biology_Midterm_Exam.pdf</p>
+                    <p className="text-xs text-muted-foreground">3 questions detected</p>
+                  </div>
+                </div>
+
+                <div className="space-y-5">
+                  {originalQuestions.map((q, qi) => (
+                    <motion.div
+                      key={qi}
+                      className="space-y-2"
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: qi * 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <p className="text-sm font-medium text-foreground">
+                        <span className="text-muted-foreground mr-1">{q.num}.</span>
+                        {q.question}
+                      </p>
+                      <div className={`grid ${q.options.length === 2 ? "grid-cols-2" : "grid-cols-2"} gap-1.5 pl-4`}>
+                        {q.options.map((opt, oi) => (
+                          <span key={oi} className="text-xs text-muted-foreground">{opt}</span>
+                        ))}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <AnimatePresence>
+                  {phase === "converting" && (
+                    <motion.div
+                      className="absolute inset-0 rounded-xl bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <motion.div
+                        className="relative w-14 h-14"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                      >
+                        <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
+                        <div className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent" />
+                      </motion.div>
+                      <motion.p
+                        className="text-sm font-medium text-foreground"
+                        animate={{ opacity: [0.6, 1, 0.6] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        AI reading questions...
+                      </motion.p>
+                      <p className="text-xs text-muted-foreground">Identifying correct answers</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </CardContent>
+            </Card>
 
             <motion.div
-              className="mt-6 flex items-center gap-3 text-sm text-muted-foreground"
+              className="mt-5 space-y-3"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.5 }}
             >
-              <div className="flex items-center gap-1.5">
-                <Eye className="w-4 h-4 text-primary" />
-                <span>OCR for handwritten notes</span>
+              <div className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-card/50">
+                <Shield className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-medium text-foreground">100% faithful to the original</p>
+                  <p className="text-xs text-muted-foreground">Questions are extracted word-for-word. No content is generated or modified.</p>
+                </div>
               </div>
-              <span className="text-border">|</span>
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span>AI-powered extraction</span>
+              <div className="flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-card/50">
+                <Brain className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-medium text-foreground">AI identifies correct answers</p>
+                  <p className="text-xs text-muted-foreground">Uses knowledge to determine the right answer and explain why each option is correct or incorrect.</p>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -2518,125 +2554,144 @@ function ParsingShowcase() {
             viewport={{ once: true }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
           >
-            <Card className="relative border-primary/15 shadow-2xl overflow-visible bg-card/95 backdrop-blur-sm">
-              <div className="absolute -inset-px rounded-xl bg-gradient-to-br from-primary/20 via-transparent to-primary/10 pointer-events-none" />
-              <div className="absolute -top-16 -right-16 w-32 h-32 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+            <div className="flex items-center gap-2 mb-4">
+              <AnimatePresence mode="wait">
+                {phase === "result" ? (
+                  <motion.div
+                    key="ready"
+                    className="flex items-center gap-2"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <ClipboardCheck className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium text-primary uppercase tracking-wider">Interactive Quiz Ready</span>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="converting"
+                    className="flex items-center gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Converted Quiz</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
-              <CardContent className="p-6 md:p-8 relative">
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/50">
-                  <div className="flex items-center gap-2">
+            <Card className={`relative overflow-visible transition-all duration-700 ${phase === "result" ? "border-primary/20" : ""}`} data-testid="card-converted-quiz">
+              {phase === "result" && (
+                <div className="absolute -inset-px rounded-xl bg-gradient-to-br from-primary/15 via-transparent to-primary/10 pointer-events-none" />
+              )}
+              <CardContent className="p-5 md:p-7 relative">
+                <div className="flex items-center gap-3 mb-5 pb-4 border-b border-border/50">
+                  <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                    <Import className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">Biology Midterm Exam</p>
+                    <p className="text-xs text-muted-foreground">3 questions &middot; Multiple choice &middot; True/False</p>
+                  </div>
+                  {phase === "result" && (
                     <motion.div
-                      className="w-3 h-3 rounded-full bg-red-400/80"
-                      animate={isParsing ? { scale: [1, 1.3, 1] } : {}}
-                      transition={{ duration: 0.5, repeat: Infinity }}
-                    />
-                    <div className="w-3 h-3 rounded-full bg-yellow-400/80" />
-                    <div className="w-3 h-3 rounded-full bg-green-400/80" />
-                  </div>
-                  <div className="flex-1 text-center">
-                    <AnimatePresence mode="wait">
-                      <motion.span
-                        key={isParsing ? "parsing" : showResult ? "done" : "idle"}
-                        className="text-xs font-medium text-muted-foreground"
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -5 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        {isParsing ? `Parsing ${formats[activeFormat].ext} file...` : showResult ? "Extraction Complete" : "Ready"}
-                      </motion.span>
-                    </AnimatePresence>
-                  </div>
-                  <div className="w-[52px]" />
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
+                    >
+                      <Badge variant="outline" className="text-[10px] text-primary border-primary/25 bg-primary/5">
+                        Imported
+                      </Badge>
+                    </motion.div>
+                  )}
                 </div>
 
-                <AnimatePresence mode="wait">
-                  {isParsing ? (
-                    <motion.div
-                      key="parsing"
-                      className="space-y-4 py-4"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <div className="flex items-center justify-center mb-6">
-                        <motion.div
-                          className="relative w-20 h-20"
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                        >
-                          <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
-                          <div className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent" />
-                        </motion.div>
-                      </div>
-                      {[75, 55, 40].map((w, i) => (
-                        <div key={i} className="space-y-1.5">
-                          <div className={`h-2 bg-muted rounded-full overflow-hidden`} style={{ width: `${w}%` }}>
-                            <motion.div
-                              className="h-full bg-primary/30 rounded-full"
-                              initial={{ x: "-100%" }}
-                              animate={{ x: "100%" }}
-                              transition={{ duration: 1, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                      <p className="text-center text-xs text-muted-foreground mt-4">
-                        <motion.span
-                          animate={{ opacity: [0.5, 1, 0.5] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                        >
-                          Analyzing document structure...
-                        </motion.span>
-                      </p>
-                    </motion.div>
-                  ) : showResult ? (
-                    <motion.div
-                      key="result"
-                      className="space-y-3"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {extractedLines.map((line, i) => (
-                        <motion.div
-                          key={i}
-                          className={`${line.width}`}
-                          initial={{ opacity: 0, x: -15 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                        >
-                          <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0 text-primary border-primary/25 bg-primary/5 mt-0.5">
-                              {line.label}
-                            </Badge>
-                            <span className="text-sm text-foreground leading-snug">{line.value}</span>
-                          </div>
-                        </motion.div>
-                      ))}
+                <div className="space-y-4">
+                  {convertedQuestions.map((q, qi) => {
+                    const isHighlighted = phase === "result" && qi === activeQuestion;
+                    return (
                       <motion.div
-                        className="flex items-center gap-2 pt-3"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.6 }}
+                        key={qi}
+                        className={`p-3 rounded-lg border transition-all duration-500 ${
+                          isHighlighted
+                            ? "border-primary/25 bg-primary/5"
+                            : "border-transparent bg-transparent"
+                        }`}
+                        animate={phase === "result" ? { opacity: 1 } : { opacity: 0.4 }}
+                        transition={{ duration: 0.4 }}
+                        data-testid={`card-converted-question-${qi}`}
                       >
-                        <Check className="w-4 h-4 text-primary" />
-                        <span className="text-xs font-medium text-primary">5 key concepts extracted</span>
-                        <span className="text-xs text-muted-foreground ml-auto">Ready for quiz generation</span>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline" className={`text-[10px] ${
+                            q.type === "true_false"
+                              ? "text-emerald-500 dark:text-emerald-400 border-emerald-500/25 bg-emerald-500/5"
+                              : "text-blue-500 dark:text-blue-400 border-blue-500/25 bg-blue-500/5"
+                          }`}>
+                            {q.type === "true_false" ? "True/False" : "Multiple Choice"}
+                          </Badge>
+                        </div>
+                        <p className="text-sm font-medium text-foreground mb-2">{q.question}</p>
+
+                        <div className={`grid ${q.options.length === 2 ? "grid-cols-2" : "grid-cols-1"} gap-1.5`}>
+                          {q.options.map((opt, oi) => (
+                            <div
+                              key={oi}
+                              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs transition-all duration-300 ${
+                                isHighlighted && showExplanation && oi === q.correct
+                                  ? "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20"
+                                  : isHighlighted && showExplanation
+                                    ? "bg-muted/50 text-muted-foreground border border-transparent"
+                                    : "text-muted-foreground border border-transparent"
+                              }`}
+                            >
+                              {isHighlighted && showExplanation && oi === q.correct ? (
+                                <Check className="w-3 h-3 shrink-0" />
+                              ) : (
+                                <CircleDot className="w-3 h-3 shrink-0 opacity-40" />
+                              )}
+                              <span>{opt}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <AnimatePresence>
+                          {isHighlighted && showExplanation && (
+                            <motion.div
+                              className="mt-2 flex items-start gap-2 p-2 rounded-md bg-primary/5 border border-primary/10"
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                            >
+                              <Lightbulb className="w-3 h-3 text-primary shrink-0 mt-0.5" />
+                              <p className="text-xs text-muted-foreground leading-relaxed">{q.explanation}</p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </motion.div>
-                    </motion.div>
-                  ) : (
+                    );
+                  })}
+                </div>
+
+                <AnimatePresence>
+                  {phase === "result" && (
                     <motion.div
-                      key="idle"
-                      className="py-12 text-center"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
+                      className="flex items-center justify-between gap-2 pt-4 mt-4 border-t border-border/50"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
+                      transition={{ delay: 0.3, duration: 0.4 }}
                     >
-                      <Upload className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-                      <p className="text-sm text-muted-foreground">Select a format to preview</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground" data-testid="text-import-status">
+                        <Check className="w-3.5 h-3.5 text-primary" />
+                        <span>All answers verified by AI</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-primary">
+                        <Play className="w-3 h-3" />
+                        <span>Ready to practice</span>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -2644,6 +2699,27 @@ function ParsingShowcase() {
             </Card>
           </motion.div>
         </div>
+
+        <motion.div
+          className="mt-12 flex items-center justify-center gap-6 flex-wrap"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {[
+            { icon: FileText, text: "PDFs" },
+            { icon: Image, text: "Scanned exams" },
+            { icon: File, text: "Word docs" },
+            { icon: Layers, text: "Presentations" },
+            { icon: Eye, text: "Handwritten notes" },
+          ].map((item, i) => (
+            <div key={i} className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <item.icon className="w-3.5 h-3.5 text-primary/70" />
+              <span>{item.text}</span>
+            </div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );
