@@ -2329,6 +2329,326 @@ function FeatureShowcase() {
   );
 }
 
+function ParsingShowcase() {
+  const formats = [
+    { ext: "PDF", icon: FileText, color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20", label: "Research papers, textbooks, lecture slides" },
+    { ext: "DOCX", icon: File, color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", label: "Essays, reports, study guides" },
+    { ext: "PPTX", icon: Layers, color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", label: "Lecture presentations, class decks" },
+    { ext: "XLSX", icon: FileText, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", label: "Data tables, formula sheets" },
+    { ext: "IMG", icon: Image, color: "text-purple-500", bg: "bg-purple-500/10", border: "border-purple-500/20", label: "Photos of notes, whiteboard captures" },
+  ];
+
+  const extractedLines = [
+    { label: "Title", value: "Cell Biology - Chapter 5", width: "w-[85%]" },
+    { label: "Key Term", value: "Mitochondria: produces ATP through cellular respiration", width: "w-full" },
+    { label: "Detail", value: "Double membrane structure with cristae folds", width: "w-[90%]" },
+    { label: "Formula", value: "Glucose + O\u2082 \u2192 36-38 ATP per molecule", width: "w-[80%]" },
+    { label: "Concept", value: "Each organelle acts as a different department in the cell factory", width: "w-[95%]" },
+  ];
+
+  const [activeFormat, setActiveFormat] = useState(0);
+  const [isParsing, setIsParsing] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsParsing(true);
+      setShowResult(false);
+      setTimeout(() => {
+        setIsParsing(false);
+        setShowResult(true);
+      }, 1200);
+      setTimeout(() => {
+        setActiveFormat((prev) => (prev + 1) % formats.length);
+      }, 3500);
+    }, 4000);
+
+    setTimeout(() => {
+      setIsParsing(true);
+      setTimeout(() => {
+        setIsParsing(false);
+        setShowResult(true);
+      }, 1200);
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <section className="py-20 md:py-28 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-[150px]"
+          animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
+
+      <div className="container relative mx-auto px-4 sm:px-6 max-w-6xl">
+        <div className="text-center mb-14 md:mb-20">
+          <motion.div
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-5"
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            Core Technology
+          </motion.div>
+          <div className="overflow-hidden">
+            <motion.h2
+              className="text-3xl md:text-5xl font-bold text-foreground mb-5 leading-tight"
+              initial={{ y: "120%" }}
+              whileInView={{ y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
+            >
+              Reads anything you throw at it
+            </motion.h2>
+          </div>
+          <motion.p
+            className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+            initial={{ opacity: 0, filter: "blur(6px)" }}
+            whileInView={{ opacity: 1, filter: "blur(0px)" }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+          >
+            Our intelligent parser handles PDFs, scanned notes, presentations, spreadsheets, and handwritten images. 
+            Every word is extracted with precision so nothing from your study material gets lost.
+          </motion.p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -40, filter: "blur(8px)" }}
+            whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="space-y-3">
+              {formats.map((fmt, i) => {
+                const isActive = activeFormat === i;
+                return (
+                  <motion.div
+                    key={fmt.ext}
+                    className={`relative flex items-center gap-4 p-4 rounded-xl border transition-all duration-500 cursor-pointer hover-elevate active-elevate-2 ${
+                      isActive
+                        ? `${fmt.bg} ${fmt.border}`
+                        : "border-border/50 bg-card/50"
+                    }`}
+                    onClick={() => {
+                      setActiveFormat(i);
+                      setIsParsing(true);
+                      setShowResult(false);
+                      setTimeout(() => { setIsParsing(false); setShowResult(true); }, 1200);
+                    }}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    data-testid={`button-format-${fmt.ext.toLowerCase()}`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        className={`absolute inset-0 rounded-xl ${fmt.bg} opacity-50`}
+                        layoutId="activeFormatBg"
+                        transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                      />
+                    )}
+                    <div className={`relative w-12 h-12 rounded-xl ${fmt.bg} ${fmt.border} border flex items-center justify-center shrink-0`}>
+                      <fmt.icon className={`w-6 h-6 ${fmt.color}`} />
+                    </div>
+                    <div className="relative flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className={`text-sm font-bold ${isActive ? fmt.color : "text-foreground"}`}>{fmt.ext}</span>
+                        {isActive && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                          >
+                            <Badge variant="outline" className={`text-[10px] px-2 py-0 ${fmt.color} ${fmt.border}`}>
+                              Active
+                            </Badge>
+                          </motion.div>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate">{fmt.label}</p>
+                    </div>
+                    {isActive && (
+                      <motion.div
+                        className="relative"
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <ArrowRight className={`w-4 h-4 ${fmt.color}`} />
+                      </motion.div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            <motion.div
+              className="mt-6 flex items-center gap-3 text-sm text-muted-foreground"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.5 }}
+            >
+              <div className="flex items-center gap-1.5">
+                <Eye className="w-4 h-4 text-primary" />
+                <span>OCR for handwritten notes</span>
+              </div>
+              <span className="text-border">|</span>
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span>AI-powered extraction</span>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 40, filter: "blur(8px)" }}
+            whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+          >
+            <Card className="relative border-primary/15 shadow-2xl overflow-visible bg-card/95 backdrop-blur-sm">
+              <div className="absolute -inset-px rounded-xl bg-gradient-to-br from-primary/20 via-transparent to-primary/10 pointer-events-none" />
+              <div className="absolute -top-16 -right-16 w-32 h-32 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+
+              <CardContent className="p-6 md:p-8 relative">
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/50">
+                  <div className="flex items-center gap-2">
+                    <motion.div
+                      className="w-3 h-3 rounded-full bg-red-400/80"
+                      animate={isParsing ? { scale: [1, 1.3, 1] } : {}}
+                      transition={{ duration: 0.5, repeat: Infinity }}
+                    />
+                    <div className="w-3 h-3 rounded-full bg-yellow-400/80" />
+                    <div className="w-3 h-3 rounded-full bg-green-400/80" />
+                  </div>
+                  <div className="flex-1 text-center">
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={isParsing ? "parsing" : showResult ? "done" : "idle"}
+                        className="text-xs font-medium text-muted-foreground"
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {isParsing ? `Parsing ${formats[activeFormat].ext} file...` : showResult ? "Extraction Complete" : "Ready"}
+                      </motion.span>
+                    </AnimatePresence>
+                  </div>
+                  <div className="w-[52px]" />
+                </div>
+
+                <AnimatePresence mode="wait">
+                  {isParsing ? (
+                    <motion.div
+                      key="parsing"
+                      className="space-y-4 py-4"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="flex items-center justify-center mb-6">
+                        <motion.div
+                          className="relative w-20 h-20"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        >
+                          <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
+                          <div className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent" />
+                        </motion.div>
+                      </div>
+                      {[75, 55, 40].map((w, i) => (
+                        <div key={i} className="space-y-1.5">
+                          <div className={`h-2 bg-muted rounded-full overflow-hidden`} style={{ width: `${w}%` }}>
+                            <motion.div
+                              className="h-full bg-primary/30 rounded-full"
+                              initial={{ x: "-100%" }}
+                              animate={{ x: "100%" }}
+                              transition={{ duration: 1, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                      <p className="text-center text-xs text-muted-foreground mt-4">
+                        <motion.span
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                        >
+                          Analyzing document structure...
+                        </motion.span>
+                      </p>
+                    </motion.div>
+                  ) : showResult ? (
+                    <motion.div
+                      key="result"
+                      className="space-y-3"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {extractedLines.map((line, i) => (
+                        <motion.div
+                          key={i}
+                          className={`${line.width}`}
+                          initial={{ opacity: 0, x: -15 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        >
+                          <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0 text-primary border-primary/25 bg-primary/5 mt-0.5">
+                              {line.label}
+                            </Badge>
+                            <span className="text-sm text-foreground leading-snug">{line.value}</span>
+                          </div>
+                        </motion.div>
+                      ))}
+                      <motion.div
+                        className="flex items-center gap-2 pt-3"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                      >
+                        <Check className="w-4 h-4 text-primary" />
+                        <span className="text-xs font-medium text-primary">5 key concepts extracted</span>
+                        <span className="text-xs text-muted-foreground ml-auto">Ready for quiz generation</span>
+                      </motion.div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="idle"
+                      className="py-12 text-center"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <Upload className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground">Select a format to preview</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function AnimatedCounter({
   value,
   duration = 2,
@@ -2735,6 +3055,8 @@ export default function Home() {
           <StatsSection />
         </div>
       </section>
+
+      <ParsingShowcase />
 
       <section id="how-it-works" className="py-20 md:py-28">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
