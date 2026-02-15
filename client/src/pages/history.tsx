@@ -330,12 +330,20 @@ export default function HistoryPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList data-testid="tabs-archive">
-            <TabsTrigger value="quizzes" className="gap-1.5" data-testid="tab-quizzes">
+          <TabsList className="bg-transparent p-0 h-auto gap-4 rounded-none border-b border-border justify-start" data-testid="tabs-archive">
+            <TabsTrigger
+              value="quizzes"
+              className="gap-1.5 rounded-none bg-transparent px-0 pb-2.5 pt-0 shadow-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground text-muted-foreground"
+              data-testid="tab-quizzes"
+            >
               <FileText className="h-3.5 w-3.5" />
               Quizzes
             </TabsTrigger>
-            <TabsTrigger value="folders" className="gap-1.5" data-testid="tab-folders">
+            <TabsTrigger
+              value="folders"
+              className="gap-1.5 rounded-none bg-transparent px-0 pb-2.5 pt-0 shadow-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground text-muted-foreground"
+              data-testid="tab-folders"
+            >
               <Folder className="h-3.5 w-3.5" />
               Folders
               {folders.length > 0 && (
