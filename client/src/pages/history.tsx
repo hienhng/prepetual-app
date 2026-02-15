@@ -2,11 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, Archive, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, HelpCircle, FolderPlus, Folder, FolderOpen, MoreVertical, Pencil, FolderInput, X } from "lucide-react";
+import { Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, Archive, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, HelpCircle, FolderPlus, Folder, FolderOpen, MoreVertical, Pencil, FolderInput, X, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -52,6 +53,7 @@ export default function HistoryPage() {
   const [folderName, setFolderName] = useState("");
   const [editingFolder, setEditingFolder] = useState<FolderType | null>(null);
   const [folderToDelete, setFolderToDelete] = useState<FolderType | null>(null);
+  const [activeTab, setActiveTab] = useState("quizzes");
   const folderInputRef = useRef<HTMLInputElement>(null);
 
   const { data: quizzes, isLoading } = useQuery<QuizWithAttempts[]>({
@@ -296,6 +298,11 @@ export default function HistoryPage() {
     }
   };
 
+  const handleOpenFolder = (folderId: string) => {
+    setSelectedFolderId(folderId);
+    setActiveTab("quizzes");
+  };
+
   const filteredQuizzes = quizzes?.filter(quiz => {
     if (selectedFolderId === null) return true;
     if (selectedFolderId === "__unfiled__") return !quiz.folderId;
@@ -322,7 +329,7 @@ export default function HistoryPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-6"
+        className="space-y-5"
       >
         <div className="flex items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3">
@@ -345,308 +352,406 @@ export default function HistoryPage() {
           </Button>
         </div>
 
-        {quizzes && quizzes.length > 0 && (
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            <Button
-              variant={selectedFolderId === null ? "default" : "outline"}
-              size="sm"
-              className="shrink-0"
-              onClick={() => setSelectedFolderId(null)}
-              data-testid="button-folder-all"
-            >
-              <LayoutGrid className="h-3.5 w-3.5 mr-1.5" />
-              All
-              <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">{getFolderQuizCount(null)}</Badge>
-            </Button>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="w-full" data-testid="tabs-archive">
+            <TabsTrigger value="quizzes" className="flex-1 gap-1.5" data-testid="tab-quizzes">
+              <FileText className="h-3.5 w-3.5" />
+              Quizzes
+              {quizzes && quizzes.length > 0 && (
+                <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{quizzes.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="folders" className="flex-1 gap-1.5" data-testid="tab-folders">
+              <Folder className="h-3.5 w-3.5" />
+              Folders
+              {folders.length > 0 && (
+                <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{folders.length}</Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
 
-            {folders.map(folder => (
-              <div key={folder.id} className="shrink-0 flex items-center">
-                <DropdownMenu>
-                  <div className="flex items-center">
-                    <Button
-                      variant={selectedFolderId === folder.id ? "default" : "outline"}
-                      size="sm"
-                      className="shrink-0 pr-1.5"
-                      onClick={() => setSelectedFolderId(folder.id)}
-                      data-testid={`button-folder-${folder.id}`}
-                    >
-                      {selectedFolderId === folder.id ? (
-                        <FolderOpen className="h-3.5 w-3.5 mr-1.5" />
-                      ) : (
-                        <Folder className="h-3.5 w-3.5 mr-1.5" />
-                      )}
-                      {folder.name}
-                      <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">{getFolderQuizCount(folder.id)}</Badge>
-                    </Button>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="ml-0.5"
-                        data-testid={`button-folder-menu-${folder.id}`}
-                      >
-                        <MoreVertical className="h-3 w-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                  </div>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuItem onClick={() => openEditFolder(folder)} data-testid={`button-rename-folder-${folder.id}`}>
-                      <Pencil className="h-3.5 w-3.5 mr-2" />
-                      Rename
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      className="text-destructive focus:text-destructive"
-                      onClick={() => setFolderToDelete(folder)}
-                      data-testid={`button-delete-folder-${folder.id}`}
-                    >
-                      <Trash2 className="h-3.5 w-3.5 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+          <TabsContent value="quizzes" className="mt-4 space-y-4">
+            {quizzes && quizzes.length > 0 && folders.length > 0 && (
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide flex-wrap">
+                <Button
+                  variant={selectedFolderId === null ? "default" : "outline"}
+                  size="sm"
+                  className="shrink-0"
+                  onClick={() => setSelectedFolderId(null)}
+                  data-testid="button-folder-all"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5 mr-1.5" />
+                  All
+                  <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">{getFolderQuizCount(null)}</Badge>
+                </Button>
+
+                {folders.map(folder => (
+                  <Button
+                    key={folder.id}
+                    variant={selectedFolderId === folder.id ? "default" : "outline"}
+                    size="sm"
+                    className="shrink-0"
+                    onClick={() => setSelectedFolderId(folder.id)}
+                    data-testid={`button-folder-${folder.id}`}
+                  >
+                    {selectedFolderId === folder.id ? (
+                      <FolderOpen className="h-3.5 w-3.5 mr-1.5" />
+                    ) : (
+                      <Folder className="h-3.5 w-3.5 mr-1.5" />
+                    )}
+                    {folder.name}
+                    <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">{getFolderQuizCount(folder.id)}</Badge>
+                  </Button>
+                ))}
+
+                {quizzes.some(q => !q.folderId) && (
+                  <Button
+                    variant={selectedFolderId === "__unfiled__" ? "default" : "outline"}
+                    size="sm"
+                    className="shrink-0"
+                    onClick={() => setSelectedFolderId("__unfiled__")}
+                    data-testid="button-folder-unfiled"
+                  >
+                    <FileText className="h-3.5 w-3.5 mr-1.5" />
+                    Unfiled
+                    <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">{getFolderQuizCount("__unfiled__")}</Badge>
+                  </Button>
+                )}
               </div>
-            ))}
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="shrink-0 border-dashed"
-              onClick={openCreateFolder}
-              data-testid="button-create-folder"
-            >
-              <FolderPlus className="h-3.5 w-3.5 mr-1.5" />
-              New Folder
-            </Button>
-
-            {quizzes.some(q => !q.folderId) && folders.length > 0 && (
-              <Button
-                variant={selectedFolderId === "__unfiled__" ? "default" : "outline"}
-                size="sm"
-                className="shrink-0"
-                onClick={() => setSelectedFolderId("__unfiled__")}
-                data-testid="button-folder-unfiled"
-              >
-                <FileText className="h-3.5 w-3.5 mr-1.5" />
-                Unfiled
-                <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">{getFolderQuizCount("__unfiled__")}</Badge>
-              </Button>
             )}
-          </div>
-        )}
 
-        {!quizzes || quizzes.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No quizzes yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Generate your first quiz to see it here
-              </p>
-              <Button 
-                data-testid="button-create-first-quiz"
-                onClick={() => setLocation("/create")}
-              >
-                Create Your First Quiz
-              </Button>
-            </CardContent>
-          </Card>
-        ) : filteredQuizzes && filteredQuizzes.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No quizzes in this folder</h3>
-              <p className="text-muted-foreground mb-4">
-                Move quizzes here using the menu on each quiz card
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {filteredQuizzes?.map((quiz, index) => (
-              <motion.div
-                key={quiz.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Card className="group overflow-hidden border-border/40 transition-all hover:border-primary/20 hover:shadow-md dark:bg-card/50" data-testid={`card-quiz-${quiz.id}`}>
-                  <CardContent className="p-0">
-                    <div className="flex flex-col sm:flex-row">
-                      <div className={`flex-1 p-5 sm:p-6 space-y-4 relative overflow-hidden ${getDifficultyBg(quiz.difficulty).section}`}>
-                        <div className={`absolute -right-4 top-1/2 -translate-y-1/2 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none ${getDifficultyBg(quiz.difficulty).icon}`}>
-                          {getCategoryIcon(quiz.category, "h-24 w-24")}
-                        </div>
-                        <div className="relative z-10">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="space-y-1">
-                              <h3 className="text-lg font-bold tracking-tight group-hover:text-primary transition-colors leading-tight" data-testid={`text-quiz-title-${quiz.id}`}>{quiz.title}</h3>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium flex-wrap">
-                                <span className="flex items-center gap-1.5">
-                                  <Clock className="h-3.5 w-3.5" />
-                                  {formatDate(quiz.createdAt)}
-                                </span>
-                                <span>·</span>
-                                <span className="flex items-center gap-1.5">
-                                  <FileText className="h-3.5 w-3.5" />
-                                  {(quiz.questions as any[]).length} questions
-                                </span>
-                                {quiz.folderId && folders.find(f => f.id === quiz.folderId) && (
-                                  <>
-                                    <span>·</span>
-                                    <span className="flex items-center gap-1 text-primary/70">
-                                      <Folder className="h-3 w-3" />
-                                      {folders.find(f => f.id === quiz.folderId)?.name}
+            {!quizzes || quizzes.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No quizzes yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Generate your first quiz to see it here
+                  </p>
+                  <Button 
+                    data-testid="button-create-first-quiz"
+                    onClick={() => setLocation("/create")}
+                  >
+                    Create Your First Quiz
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : filteredQuizzes && filteredQuizzes.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No quizzes in this folder</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Move quizzes here using the menu on each quiz card
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {filteredQuizzes?.map((quiz, index) => (
+                  <motion.div
+                    key={quiz.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Card className="group overflow-hidden dark:bg-card/50" data-testid={`card-quiz-${quiz.id}`}>
+                      <CardContent className="p-0">
+                        <div className="flex flex-col sm:flex-row">
+                          <div className={`flex-1 p-5 sm:p-6 space-y-4 relative overflow-hidden ${getDifficultyBg(quiz.difficulty).section}`}>
+                            <div className={`absolute -right-4 top-1/2 -translate-y-1/2 pointer-events-none ${getDifficultyBg(quiz.difficulty).icon}`}>
+                              {getCategoryIcon(quiz.category, "h-24 w-24")}
+                            </div>
+                            <div className="relative z-10">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="space-y-1">
+                                  <h3 className="text-lg font-bold tracking-tight leading-tight" data-testid={`text-quiz-title-${quiz.id}`}>{quiz.title}</h3>
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium flex-wrap">
+                                    <span className="flex items-center gap-1.5">
+                                      <Clock className="h-3.5 w-3.5" />
+                                      {formatDate(quiz.createdAt)}
                                     </span>
-                                  </>
+                                    <span>·</span>
+                                    <span className="flex items-center gap-1.5">
+                                      <FileText className="h-3.5 w-3.5" />
+                                      {(quiz.questions as any[]).length} questions
+                                    </span>
+                                    {quiz.folderId && folders.find(f => f.id === quiz.folderId) && (
+                                      <>
+                                        <span>·</span>
+                                        <span className="flex items-center gap-1 text-primary/70">
+                                          <Folder className="h-3 w-3" />
+                                          {folders.find(f => f.id === quiz.folderId)?.name}
+                                        </span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                                {getDifficultyBadge(quiz.difficulty)}
+                              </div>
+
+                              <div className="flex items-center gap-4 pt-1">
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/5 border border-primary/10 text-xs font-semibold text-primary">
+                                  <Target className="h-3.5 w-3.5" />
+                                  {quiz.attemptCount || 0} {quiz.attemptCount === 1 ? "attempt" : "attempts"}
+                                </div>
+                                {quiz.isPublic === 1 && (
+                                  <div className="flex items-center gap-1.5 text-xs font-medium text-green-600 dark:text-green-400">
+                                    <Globe className="h-3.5 w-3.5" />
+                                    Publicly Shared
+                                  </div>
                                 )}
                               </div>
                             </div>
-                            {getDifficultyBadge(quiz.difficulty)}
                           </div>
 
-                          <div className="flex items-center gap-4 pt-1">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/5 border border-primary/10 text-xs font-semibold text-primary">
-                              <Target className="h-3.5 w-3.5" />
-                              {quiz.attemptCount || 0} {quiz.attemptCount === 1 ? "attempt" : "attempts"}
+                          <div className="flex flex-col sm:flex-col justify-center gap-2 p-3 sm:p-5 bg-muted/30 sm:border-l border-t sm:border-t-0 border-border/40">
+                            <div className="flex flex-row sm:flex-row items-center gap-2 w-full">
+                              <Button
+                                onClick={() => handleRetake(quiz)}
+                                className="flex-1 sm:w-28 font-semibold shadow-sm"
+                                size="sm"
+                                data-testid={`button-retake-${quiz.id}`}
+                              >
+                                <Play className="h-3.5 w-3.5 mr-1.5 fill-current" />
+                                Take
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => handleStudy(quiz)}
+                                className="flex-1 sm:w-28 font-semibold bg-background"
+                                size="sm"
+                                data-testid={`button-study-${quiz.id}`}
+                              >
+                                <BookOpen className="h-3.5 w-3.5 mr-1.5" />
+                                Review
+                              </Button>
                             </div>
-                            {quiz.isPublic === 1 && (
-                              <div className="flex items-center gap-1.5 text-xs font-medium text-green-600 dark:text-green-400">
-                                <Globe className="h-3.5 w-3.5" />
-                                Publicly Shared
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
 
-                      <div className="flex flex-col sm:flex-col justify-center gap-2 p-3 sm:p-5 bg-muted/30 sm:border-l border-t sm:border-t-0 border-border/40">
-                        <div className="flex flex-row sm:flex-row items-center gap-2 w-full">
-                          <Button
-                            onClick={() => handleRetake(quiz)}
-                            className="flex-1 sm:w-28 font-semibold shadow-sm"
-                            size="sm"
-                            data-testid={`button-retake-${quiz.id}`}
-                          >
-                            <Play className="h-3.5 w-3.5 mr-1.5 fill-current" />
-                            Take
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => handleStudy(quiz)}
-                            className="flex-1 sm:w-28 font-semibold bg-background"
-                            size="sm"
-                            data-testid={`button-study-${quiz.id}`}
-                          >
-                            <BookOpen className="h-3.5 w-3.5 mr-1.5" />
-                            Review
-                          </Button>
-                        </div>
-
-                        <div className="flex items-center justify-between sm:justify-center gap-1 px-1">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => handleEdit(quiz)}
-                            data-testid={`button-edit-${quiz.id}`}
-                            title="Edit quiz"
-                          >
-                            <Edit2 className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => togglePublicMutation.mutate({ 
-                              quizId: quiz.id, 
-                              isPublic: quiz.isPublic !== 1 
-                            })}
-                            disabled={togglePublicMutation.isPending}
-                            data-testid={`button-toggle-public-${quiz.id}`}
-                            title={quiz.isPublic === 1 ? "Make private" : "Share to community"}
-                          >
-                            {quiz.isPublic === 1 ? (
-                              <Globe className="h-3.5 w-3.5 text-primary" />
-                            ) : (
-                              <GlobeLock className="h-3.5 w-3.5" />
-                            )}
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => handleShare(quiz.id)}
-                            data-testid={`button-share-${quiz.id}`}
-                            title="Copy share link"
-                          >
-                            <Share2 className="h-3.5 w-3.5" />
-                          </Button>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
+                            <div className="flex items-center justify-between sm:justify-center gap-1 px-1">
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                data-testid={`button-more-${quiz.id}`}
-                                title="More actions"
+                                onClick={() => handleEdit(quiz)}
+                                data-testid={`button-edit-${quiz.id}`}
+                                title="Edit quiz"
                               >
-                                <MoreVertical className="h-3.5 w-3.5" />
+                                <Edit2 className="h-3.5 w-3.5" />
                               </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              {folders.length > 0 && (
-                                <DropdownMenuSub>
-                                  <DropdownMenuSubTrigger data-testid={`button-move-to-folder-${quiz.id}`}>
-                                    <FolderInput className="h-3.5 w-3.5 mr-2" />
-                                    Move to folder
-                                  </DropdownMenuSubTrigger>
-                                  <DropdownMenuSubContent>
-                                    {quiz.folderId && (
-                                      <>
-                                        <DropdownMenuItem
-                                          onClick={() => moveToFolderMutation.mutate({ quizId: quiz.id, folderId: null })}
-                                          data-testid={`button-remove-from-folder-${quiz.id}`}
-                                        >
-                                          <X className="h-3.5 w-3.5 mr-2" />
-                                          Remove from folder
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                      </>
-                                    )}
-                                    {folders.map(folder => (
-                                      <DropdownMenuItem
-                                        key={folder.id}
-                                        onClick={() => moveToFolderMutation.mutate({ quizId: quiz.id, folderId: folder.id })}
-                                        disabled={quiz.folderId === folder.id}
-                                        data-testid={`button-move-quiz-${quiz.id}-to-${folder.id}`}
-                                      >
-                                        <Folder className="h-3.5 w-3.5 mr-2" />
-                                        {folder.name}
-                                        {quiz.folderId === folder.id && (
-                                          <span className="ml-auto text-xs text-muted-foreground">(current)</span>
-                                        )}
-                                      </DropdownMenuItem>
-                                    ))}
-                                  </DropdownMenuSubContent>
-                                </DropdownMenuSub>
-                              )}
-                              {folders.length > 0 && <DropdownMenuSeparator />}
-                              <DropdownMenuItem 
-                                className="text-destructive focus:text-destructive"
-                                onClick={() => handleDeleteClick(quiz)}
-                                data-testid={`button-delete-${quiz.id}`}
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => togglePublicMutation.mutate({ 
+                                  quizId: quiz.id, 
+                                  isPublic: quiz.isPublic !== 1 
+                                })}
+                                disabled={togglePublicMutation.isPending}
+                                data-testid={`button-toggle-public-${quiz.id}`}
+                                title={quiz.isPublic === 1 ? "Make private" : "Share to community"}
                               >
-                                <Trash2 className="h-3.5 w-3.5 mr-2" />
-                                Delete quiz
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                                {quiz.isPublic === 1 ? (
+                                  <Globe className="h-3.5 w-3.5 text-primary" />
+                                ) : (
+                                  <GlobeLock className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => handleShare(quiz.id)}
+                                data-testid={`button-share-${quiz.id}`}
+                                title="Copy share link"
+                              >
+                                <Share2 className="h-3.5 w-3.5" />
+                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    data-testid={`button-more-${quiz.id}`}
+                                    title="More actions"
+                                  >
+                                    <MoreVertical className="h-3.5 w-3.5" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  {folders.length > 0 && (
+                                    <DropdownMenuSub>
+                                      <DropdownMenuSubTrigger data-testid={`button-move-to-folder-${quiz.id}`}>
+                                        <FolderInput className="h-3.5 w-3.5 mr-2" />
+                                        Move to folder
+                                      </DropdownMenuSubTrigger>
+                                      <DropdownMenuSubContent>
+                                        {quiz.folderId && (
+                                          <>
+                                            <DropdownMenuItem
+                                              onClick={() => moveToFolderMutation.mutate({ quizId: quiz.id, folderId: null })}
+                                              data-testid={`button-remove-from-folder-${quiz.id}`}
+                                            >
+                                              <X className="h-3.5 w-3.5 mr-2" />
+                                              Remove from folder
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                          </>
+                                        )}
+                                        {folders.map(folder => (
+                                          <DropdownMenuItem
+                                            key={folder.id}
+                                            onClick={() => moveToFolderMutation.mutate({ quizId: quiz.id, folderId: folder.id })}
+                                            disabled={quiz.folderId === folder.id}
+                                            data-testid={`button-move-quiz-${quiz.id}-to-${folder.id}`}
+                                          >
+                                            <Folder className="h-3.5 w-3.5 mr-2" />
+                                            {folder.name}
+                                            {quiz.folderId === folder.id && (
+                                              <span className="ml-auto text-xs text-muted-foreground">(current)</span>
+                                            )}
+                                          </DropdownMenuItem>
+                                        ))}
+                                      </DropdownMenuSubContent>
+                                    </DropdownMenuSub>
+                                  )}
+                                  {folders.length > 0 && <DropdownMenuSeparator />}
+                                  <DropdownMenuItem 
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() => handleDeleteClick(quiz)}
+                                    data-testid={`button-delete-${quiz.id}`}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5 mr-2" />
+                                    Delete quiz
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        )}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="folders" className="mt-4 space-y-4">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <p className="text-sm text-muted-foreground">
+                Organize your quizzes into folders for easy access
+              </p>
+              <Button
+                size="sm"
+                className="shrink-0 group"
+                onClick={openCreateFolder}
+                data-testid="button-create-folder"
+              >
+                <FolderPlus className="h-3.5 w-3.5 mr-1.5 transition-transform duration-300 ease-in-out group-hover:scale-110" />
+                New Folder
+              </Button>
+            </div>
+
+            {folders.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Folder className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No folders yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Create folders to organize your quizzes by topic or subject
+                  </p>
+                  <Button
+                    onClick={openCreateFolder}
+                    data-testid="button-create-first-folder"
+                  >
+                    <FolderPlus className="h-4 w-4 mr-2" />
+                    Create Your First Folder
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {folders.map((folder, index) => {
+                  const count = getFolderQuizCount(folder.id);
+                  return (
+                    <motion.div
+                      key={folder.id}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      <Card
+                        className="cursor-pointer hover-elevate"
+                        onClick={() => handleOpenFolder(folder.id)}
+                        data-testid={`card-folder-${folder.id}`}
+                      >
+                        <CardContent className="p-4 flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                            <FolderOpen className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold truncate" data-testid={`text-folder-name-${folder.id}`}>
+                              {folder.name}
+                            </h3>
+                            <p className="text-xs text-muted-foreground">
+                              {count} {count === 1 ? "quiz" : "quizzes"}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  data-testid={`button-folder-menu-${folder.id}`}
+                                >
+                                  <MoreVertical className="h-3.5 w-3.5" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => openEditFolder(folder)} data-testid={`button-rename-folder-${folder.id}`}>
+                                  <Pencil className="h-3.5 w-3.5 mr-2" />
+                                  Rename
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  className="text-destructive focus:text-destructive"
+                                  onClick={() => setFolderToDelete(folder)}
+                                  data-testid={`button-delete-folder-${folder.id}`}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+
+            {quizzes && quizzes.some(q => !q.folderId) && folders.length > 0 && (
+              <div
+                className="flex items-center gap-3 p-4 rounded-md border border-dashed border-border/60 cursor-pointer hover-elevate"
+                onClick={() => { setSelectedFolderId("__unfiled__"); setActiveTab("quizzes"); }}
+                data-testid="card-unfiled-quizzes"
+              >
+                <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center shrink-0">
+                  <FileText className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-muted-foreground">Unfiled Quizzes</h3>
+                  <p className="text-xs text-muted-foreground">
+                    {getFolderQuizCount("__unfiled__")} {getFolderQuizCount("__unfiled__") === 1 ? "quiz" : "quizzes"} not in any folder
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </motion.div>
 
       <Dialog open={folderDialogOpen} onOpenChange={setFolderDialogOpen}>
