@@ -1133,6 +1133,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       const folder = await storage.createFolder({ userId, name: name.trim() });
       res.json({ ...folder, createdAt: folder.createdAt.toISOString() });
     } catch (error) {
+      console.error("Failed to create folder:", error);
       res.status(500).json({ message: "Failed to create folder" });
     }
   });
