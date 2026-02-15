@@ -694,7 +694,7 @@ export default function AuthPage() {
                             {...field}
                             type="email"
                             placeholder="Email address"
-                            className="pl-10 h-12 text-base"
+                            className="pl-10 h-12 text-base bg-[#1c1c1c]"
                             data-testid="input-login-email"
                           />
                         </FormControl>
@@ -715,7 +715,7 @@ export default function AuthPage() {
                             {...field}
                             type="password"
                             placeholder="Password"
-                            className="pl-10 h-12 text-base"
+                            className="pl-10 h-12 text-base bg-[#1c1c1c]"
                             data-testid="input-login-password"
                           />
                         </FormControl>
@@ -767,7 +767,7 @@ export default function AuthPage() {
                             {...field}
                             type="email"
                             placeholder="Email address"
-                            className="pl-10 h-12 text-base"
+                            className="pl-10 h-12 text-base bg-[#1c1c1c]"
                             data-testid="input-register-email"
                           />
                         </FormControl>
@@ -788,7 +788,7 @@ export default function AuthPage() {
                             {...field}
                             type="password"
                             placeholder="Password (min 8 characters)"
-                            className="pl-10 h-12 text-base"
+                            className="pl-10 h-12 text-base bg-[#1c1c1c]"
                             data-testid="input-register-password"
                           />
                         </FormControl>

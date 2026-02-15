@@ -41,6 +41,7 @@ import {
   ClipboardCheck,
   CircleDot,
   Shield,
+  ListCheck
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire } from "@fortawesome/free-solid-svg-icons";
@@ -2415,14 +2416,14 @@ function ParsingShowcase() {
       <div className="container relative mx-auto px-4 sm:px-6 max-w-6xl">
         <div className="text-center mb-14 md:mb-20">
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-5"
+            className="text-sm font-medium text-primary uppercase tracking-wider mb-3"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Shield className="w-3.5 h-3.5" />
-            Zero Hallucination
+            
+            Import your own questions
           </motion.div>
           <div className="overflow-hidden">
             <motion.h2
