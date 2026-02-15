@@ -1112,7 +1112,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
   // Folder CRUD routes
   app.get("/api/folders", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const userFolders = await storage.getFoldersByUserId(userId);
       res.json(userFolders.map(f => ({
         ...f,
@@ -1125,7 +1125,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
 
   app.post("/api/folders", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const { name } = req.body;
       if (!name || typeof name !== "string" || name.trim().length === 0) {
         return res.status(400).json({ message: "Folder name is required" });
@@ -1140,7 +1140,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
 
   app.patch("/api/folders/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const { name } = req.body;
       if (!name || typeof name !== "string" || name.trim().length === 0) {
         return res.status(400).json({ message: "Folder name is required" });
@@ -1157,7 +1157,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
 
   app.delete("/api/folders/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       await storage.deleteFolder(req.params.id, userId);
       res.json({ success: true });
     } catch (error) {
