@@ -8,6 +8,7 @@ import {
   quizVotes,
   quizProgress,
   verificationTokens,
+  folders,
   type User, 
   type UpsertUser, 
   type Quiz, 
@@ -20,6 +21,8 @@ import {
   type InsertComment,
   type InsertVote,
   type InsertQuizProgress,
+  type InsertFolder,
+  type Folder,
   type Question,
   type VerificationToken
 } from "@shared/schema";
@@ -73,6 +76,11 @@ export interface IStorage {
   getQuizProgressByUserId(userId: string): Promise<(QuizProgress & { quiz: Quiz })[]>;
   saveQuizProgress(progress: InsertQuizProgress): Promise<QuizProgress & { quiz: Quiz }>;
   deleteQuizProgress(userId: string, quizId: string): Promise<boolean>;
+  // Folders
+  createFolder(folder: InsertFolder): Promise<Folder>;
+  getFoldersByUserId(userId: string): Promise<Folder[]>;
+  updateFolder(id: string, userId: string, name: string): Promise<Folder | undefined>;
+  deleteFolder(id: string, userId: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -209,6 +217,7 @@ export class DatabaseStorage implements IStorage {
     if (updates.questions !== undefined) updateData.questions = updates.questions as Question[];
     if (updates.difficulty !== undefined) updateData.difficulty = updates.difficulty;
     if (updates.isPublic !== undefined) updateData.isPublic = updates.isPublic;
+    if (updates.folderId !== undefined) updateData.folderId = updates.folderId;
     
     const [updated] = await db.update(quizzes)
       .set(updateData)
@@ -704,6 +713,29 @@ export class DatabaseStorage implements IStorage {
         eq(quizProgress.userId, userId),
         eq(quizProgress.quizId, quizId)
       ));
+    return true;
+  }
+
+  async createFolder(folder: InsertFolder): Promise<Folder> {
+    const [created] = await db.insert(folders).values(folder).returning();
+    return created;
+  }
+
+  async getFoldersByUserId(userId: string): Promise<Folder[]> {
+    return db.select().from(folders).where(eq(folders.userId, userId)).orderBy(folders.name);
+  }
+
+  async updateFolder(id: string, userId: string, name: string): Promise<Folder | undefined> {
+    const [updated] = await db.update(folders)
+      .set({ name })
+      .where(and(eq(folders.id, id), eq(folders.userId, userId)))
+      .returning();
+    return updated;
+  }
+
+  async deleteFolder(id: string, userId: string): Promise<boolean> {
+    const result = await db.delete(folders)
+      .where(and(eq(folders.id, id), eq(folders.userId, userId)));
     return true;
   }
 }

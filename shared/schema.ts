@@ -85,10 +85,27 @@ export const questionSchema = z.object({
 
 export type Question = z.infer<typeof questionSchema>;
 
+// Folders table for organizing quizzes
+export const folders = pgTable("folders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertFolderSchema = createInsertSchema(folders).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertFolder = z.infer<typeof insertFolderSchema>;
+export type Folder = typeof folders.$inferSelect;
+
 // Quizzes table
 export const quizzes = pgTable("quizzes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
+  folderId: varchar("folder_id").references(() => folders.id, { onDelete: "set null" }),
   title: text("title").notNull(),
   sourceText: text("source_text").notNull(),
   sourceImageUrl: text("source_image_url"),

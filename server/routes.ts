@@ -1079,10 +1079,12 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       const { id } = req.params;
       const { title, questions, isPublic } = req.body;
       
+      const { folderId } = req.body;
       const updates: any = {};
       if (title !== undefined) updates.title = title;
       if (questions !== undefined) updates.questions = questions;
       if (isPublic !== undefined) updates.isPublic = isPublic ? 1 : 0;
+      if (folderId !== undefined) updates.folderId = folderId;
 
       const quiz = await storage.updateQuiz(id, updates);
       if (!quiz) {
@@ -1104,6 +1106,61 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete quiz" });
+    }
+  });
+
+  // Folder CRUD routes
+  app.get("/api/folders", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const userFolders = await storage.getFoldersByUserId(userId);
+      res.json(userFolders.map(f => ({
+        ...f,
+        createdAt: f.createdAt.toISOString(),
+      })));
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get folders" });
+    }
+  });
+
+  app.post("/api/folders", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { name } = req.body;
+      if (!name || typeof name !== "string" || name.trim().length === 0) {
+        return res.status(400).json({ message: "Folder name is required" });
+      }
+      const folder = await storage.createFolder({ userId, name: name.trim() });
+      res.json({ ...folder, createdAt: folder.createdAt.toISOString() });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create folder" });
+    }
+  });
+
+  app.patch("/api/folders/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { name } = req.body;
+      if (!name || typeof name !== "string" || name.trim().length === 0) {
+        return res.status(400).json({ message: "Folder name is required" });
+      }
+      const folder = await storage.updateFolder(req.params.id, userId, name.trim());
+      if (!folder) {
+        return res.status(404).json({ message: "Folder not found" });
+      }
+      res.json({ ...folder, createdAt: folder.createdAt.toISOString() });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update folder" });
+    }
+  });
+
+  app.delete("/api/folders/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      await storage.deleteFolder(req.params.id, userId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete folder" });
     }
   });
 
