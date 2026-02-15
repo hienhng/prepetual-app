@@ -67,7 +67,7 @@ export function QuizResults() {
     if (percentage >= 80) return "you are ready to ace this!";
     if (percentage >= 70) return "you're on the right track!";
     if (percentage >= 60) return "great effort, keep practicing!";
-    return "efforts mattter more than results!";
+    return "efforts matter more than results!";
   };
 
   const toggleQuestion = (questionId: string) => {
