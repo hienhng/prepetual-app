@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { motion } from "framer-motion";
-import { Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, HelpCircle, FolderPlus, Folder, FolderOpen, MoreVertical, Pencil, FolderInput, X, ChevronRight, Sparkles, Hash } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, HelpCircle, FolderPlus, Folder, FolderOpen, MoreVertical, Pencil, FolderInput, X, ChevronDown, Sparkles, Hash } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -48,12 +48,12 @@ export default function HistoryPage() {
   const { setCurrentQuiz, setSourceMaterial, savedProgresses, loadSavedProgress } = useQuiz();
   const { toast } = useToast();
   const [quizToDelete, setQuizToDelete] = useState<QuizWithAttempts | null>(null);
-  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [folderName, setFolderName] = useState("");
   const [editingFolder, setEditingFolder] = useState<FolderType | null>(null);
   const [folderToDelete, setFolderToDelete] = useState<FolderType | null>(null);
   const [activeTab, setActiveTab] = useState("quizzes");
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const folderInputRef = useRef<HTMLInputElement>(null);
 
   const { data: quizzes, isLoading } = useQuery<QuizWithAttempts[]>({
@@ -142,9 +142,6 @@ export default function HistoryPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
       queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
-      if (folderToDelete && selectedFolderId === folderToDelete.id) {
-        setSelectedFolderId(null);
-      }
       setFolderToDelete(null);
       toast({ title: "Folder deleted" });
     },
@@ -272,16 +269,23 @@ export default function HistoryPage() {
     }
   };
 
-  const handleOpenFolder = (folderId: string) => {
-    setSelectedFolderId(folderId);
-    setActiveTab("quizzes");
+  const toggleFolder = (folderId: string) => {
+    setExpandedFolders(prev => {
+      const next = new Set(prev);
+      if (next.has(folderId)) {
+        next.delete(folderId);
+      } else {
+        next.add(folderId);
+      }
+      return next;
+    });
   };
 
-  const filteredQuizzes = quizzes?.filter(quiz => {
-    if (selectedFolderId === null) return true;
-    if (selectedFolderId === "__unfiled__") return !quiz.folderId;
-    return quiz.folderId === selectedFolderId;
-  });
+  const getQuizzesInFolder = (folderId: string | null) => {
+    if (!quizzes) return [];
+    if (folderId === null) return quizzes.filter(q => !q.folderId);
+    return quizzes.filter(q => q.folderId === folderId);
+  };
 
   const getFolderQuizCount = (folderId: string | null) => {
     if (!quizzes) return 0;
@@ -341,41 +345,6 @@ export default function HistoryPage() {
           </TabsList>
 
           <TabsContent value="quizzes" className="mt-5 space-y-4">
-            {quizzes && quizzes.length > 0 && folders.length > 0 && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <Button
-                  variant={selectedFolderId === null ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedFolderId(null)}
-                  data-testid="button-folder-all"
-                >
-                  All
-                </Button>
-                {folders.map(folder => (
-                  <Button
-                    key={folder.id}
-                    variant={selectedFolderId === folder.id ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedFolderId(folder.id)}
-                    data-testid={`button-folder-${folder.id}`}
-                  >
-                    {folder.name}
-                    <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">{getFolderQuizCount(folder.id)}</Badge>
-                  </Button>
-                ))}
-                {quizzes.some(q => !q.folderId) && (
-                  <Button
-                    variant={selectedFolderId === "__unfiled__" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedFolderId("__unfiled__")}
-                    data-testid="button-folder-unfiled"
-                  >
-                    Unfiled
-                  </Button>
-                )}
-              </div>
-            )}
-
             {!quizzes || quizzes.length === 0 ? (
               <div className="py-16 text-center">
                 <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
@@ -392,19 +361,9 @@ export default function HistoryPage() {
                   Create Quiz
                 </Button>
               </div>
-            ) : filteredQuizzes && filteredQuizzes.length === 0 ? (
-              <div className="py-16 text-center">
-                <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                  <FolderOpen className="h-6 w-6 text-muted-foreground" />
-                </div>
-                <h3 className="text-base font-semibold mb-1">This folder is empty</h3>
-                <p className="text-sm text-muted-foreground">
-                  Move quizzes here from the quiz menu
-                </p>
-              </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {filteredQuizzes?.map((quiz, index) => (
+                {quizzes?.map((quiz, index) => (
                   <motion.div
                     key={quiz.id}
                     initial={{ opacity: 0, y: 12 }}
@@ -596,9 +555,11 @@ export default function HistoryPage() {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="space-y-3">
                 {folders.map((folder, index) => {
                   const count = getFolderQuizCount(folder.id);
+                  const isExpanded = expandedFolders.has(folder.id);
+                  const folderQuizzes = getQuizzesInFolder(folder.id);
                   return (
                     <motion.div
                       key={folder.id}
@@ -606,80 +567,127 @@ export default function HistoryPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.04 }}
                     >
-                      <Card
-                        className="cursor-pointer overflow-visible hover-elevate"
-                        onClick={() => handleOpenFolder(folder.id)}
-                        data-testid={`card-folder-${folder.id}`}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between gap-2 mb-3">
-                            <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
-                              <FolderOpen className="h-4.5 w-4.5 text-primary" />
+                      <Card className="overflow-visible" data-testid={`card-folder-${folder.id}`}>
+                        <CardContent className="p-0">
+                          <div
+                            className="flex items-center justify-between gap-3 p-4 cursor-pointer select-none flex-wrap"
+                            onClick={() => toggleFolder(folder.id)}
+                            data-testid={`button-toggle-folder-${folder.id}`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                                {isExpanded ? (
+                                  <FolderOpen className="h-4 w-4 text-primary" />
+                                ) : (
+                                  <Folder className="h-4 w-4 text-primary" />
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <h3 className="font-semibold text-sm truncate" data-testid={`text-folder-name-${folder.id}`}>
+                                  {folder.name}
+                                </h3>
+                                <p className="text-xs text-muted-foreground">
+                                  {count} {count === 1 ? "quiz" : "quizzes"}
+                                </p>
+                              </div>
                             </div>
-                            <div onClick={(e) => e.stopPropagation()}>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    data-testid={`button-folder-menu-${folder.id}`}
-                                  >
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => openEditFolder(folder)} data-testid={`button-rename-folder-${folder.id}`}>
-                                    <Pencil className="h-3.5 w-3.5 mr-2" />
-                                    Rename
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    className="text-destructive focus:text-destructive"
-                                    onClick={() => setFolderToDelete(folder)}
-                                    data-testid={`button-delete-folder-${folder.id}`}
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5 mr-2" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                            <div className="flex items-center gap-1 shrink-0 flex-wrap">
+                              <div onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      data-testid={`button-folder-menu-${folder.id}`}
+                                    >
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => openEditFolder(folder)} data-testid={`button-rename-folder-${folder.id}`}>
+                                      <Pencil className="h-3.5 w-3.5 mr-2" />
+                                      Rename
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      className="text-destructive focus:text-destructive"
+                                      onClick={() => setFolderToDelete(folder)}
+                                      data-testid={`button-delete-folder-${folder.id}`}
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5 mr-2" />
+                                      Delete
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                              <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
                             </div>
                           </div>
-                          <h3 className="font-semibold text-sm truncate" data-testid={`text-folder-name-${folder.id}`}>
-                            {folder.name}
-                          </h3>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {count} {count === 1 ? "quiz" : "quizzes"}
-                          </p>
+
+                          <AnimatePresence initial={false}>
+                            {isExpanded && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="border-t px-4 pb-4 pt-3 space-y-2">
+                                  {folderQuizzes.length === 0 ? (
+                                    <p className="text-xs text-muted-foreground py-3 text-center">
+                                      No quizzes in this folder yet
+                                    </p>
+                                  ) : (
+                                    folderQuizzes.map(quiz => (
+                                      <div
+                                        key={quiz.id}
+                                        className="flex items-center justify-between gap-3 p-3 rounded-md bg-muted/40 flex-wrap"
+                                        data-testid={`folder-quiz-${quiz.id}`}
+                                      >
+                                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                          <div className="w-7 h-7 rounded bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+                                            {getCategoryIcon(quiz.category)}
+                                          </div>
+                                          <div className="min-w-0">
+                                            <p className="text-sm font-medium truncate">{quiz.title}</p>
+                                            <p className="text-[11px] text-muted-foreground">
+                                              {(quiz.questions as any[]).length} questions
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+                                          <Button
+                                            size="sm"
+                                            onClick={() => handleRetake(quiz)}
+                                            data-testid={`button-folder-retake-${quiz.id}`}
+                                          >
+                                            <Play className="h-3 w-3 mr-1 fill-current" />
+                                            Take
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => handleStudy(quiz)}
+                                            data-testid={`button-folder-study-${quiz.id}`}
+                                          >
+                                            <BookOpen className="h-3 w-3 mr-1" />
+                                            Review
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    ))
+                                  )}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </CardContent>
                       </Card>
                     </motion.div>
                   );
                 })}
               </div>
-            )}
-
-            {quizzes && quizzes.some(q => !q.folderId) && folders.length > 0 && (
-              <Card
-                className="cursor-pointer overflow-visible hover-elevate"
-                onClick={() => { setSelectedFolderId("__unfiled__"); setActiveTab("quizzes"); }}
-                data-testid="card-unfiled-quizzes"
-              >
-                <CardContent className="p-4 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-md bg-muted flex items-center justify-center shrink-0">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="font-semibold text-sm text-muted-foreground">Unfiled Quizzes</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {getFolderQuizCount("__unfiled__")} {getFolderQuizCount("__unfiled__") === 1 ? "quiz" : "quizzes"}
-                      </p>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                </CardContent>
-              </Card>
             )}
           </TabsContent>
         </Tabs>
