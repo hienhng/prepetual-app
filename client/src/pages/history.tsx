@@ -41,7 +41,7 @@ import type { Quiz, Folder as FolderType } from "@shared/schema";
 type QuizWithAttempts = Quiz & { attemptCount?: number };
 
 export default function HistoryPage() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial, savedProgresses, loadSavedProgress } = useQuiz();
   const { toast } = useToast();
   const [quizToDelete, setQuizToDelete] = useState<QuizWithAttempts | null>(null);
@@ -65,9 +65,11 @@ export default function HistoryPage() {
   });
 
   useEffect(() => {
-    refetchQuizzes();
-    refetchFolders();
-  }, []);
+    if (location === "/history") {
+      refetchQuizzes();
+      refetchFolders();
+    }
+  }, [location]);
 
   useEffect(() => {
     if (folderDialogOpen && folderInputRef.current) {
@@ -353,7 +355,7 @@ export default function HistoryPage() {
       >
         <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" data-testid="text-page-title">Archive</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" data-testid="text-page-title">Your Quizzes</h1>
             <p className="text-sm text-muted-foreground mt-1">
               {quizzes && quizzes.length > 0
                 ? `${quizzes.length} ${quizzes.length === 1 ? "quiz" : "quizzes"} saved`

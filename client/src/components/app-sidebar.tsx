@@ -15,7 +15,8 @@ import {
   PanelRight,
   Compass,
   HelpCircle,
-  Settings
+  Settings,
+  Folders
 } from "lucide-react";
 import { useQuizNavigationGuard } from "@/lib/quiz-navigation-guard";
 import {
@@ -57,9 +58,9 @@ const mainNavItems = [
     icon: Plus,
   },
   {
-    title: "Archive",
+    title: "Your Quizzes",
     url: "/history",
-    icon: Archive,
+    icon: Folders,
   },
   {
     title: "Discover",
