@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, ChevronLeft, ChevronRight, FileText, Image } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, ChevronLeft, ChevronRight, Image } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,11 +11,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSidebarOptional } from "@/components/ui/sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
 import confetti from "canvas-confetti";
 import { QuizChatbot, CutePenguin } from "@/components/quiz-chatbot";
 
@@ -942,8 +937,6 @@ export function QuizPlayer() {
   const [expandedImageUrl, setExpandedImageUrl] = useState<string | null>(null);
   const [showMaterialViewer, setShowMaterialViewer] = useState(false);
   const [materialImageIndex, setMaterialImageIndex] = useState(0);
-  const [materialViewMode, setMaterialViewMode] = useState<"images" | "text">("images");
-  const materialPanelRef = useRef<any>(null);
   const [materialPanelWidth, setMaterialPanelWidth] = useState(45);
   const isDraggingRef = useRef(false);
   const dragStartXRef = useRef(0);
@@ -986,10 +979,6 @@ export function QuizPlayer() {
   const singleSourceImage = sourceMaterial?.imageDataUrl || (currentQuiz as any)?.sourceImageUrl;
   const allMaterialImages = singleSourceImage ? [singleSourceImage, ...materialImages] : materialImages;
   const hasMaterialImages = allMaterialImages.length > 0;
-  const isImageOnlySource = sourceMaterial?.isImageOnly === true;
-  const hasExtractedText = !isImageOnlySource && !!(sourceMaterial?.text || (currentQuiz as any)?.sourceText);
-  const hasMaterial = hasMaterialImages || hasExtractedText;
-  const materialText = sourceMaterial?.text || (currentQuiz as any)?.sourceText || "";
 
   const retryQuestionsInList = allQuestions.filter(q => q.isRetry);
   const allRetryChecked = retryQuestionsInList.every(q => retryChecked.has(q.id));
@@ -1014,253 +1003,205 @@ export function QuizPlayer() {
       <div className="flex w-full min-h-[calc(100vh-4rem)] overflow-x-hidden">
         <div className="flex-1 min-w-0">
           <div className="w-full mx-auto pb-32 sm:pb-28 max-w-3xl px-4">
-              <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 py-4 -mx-4 px-4 sm:mx-0 sm:px-0">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    {isRetryQuestion && (
-                      <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400 text-xs font-semibold">
-                        <RotateCcw className="h-3 w-3 mr-1" />
-                        Retry
-                      </Badge>
-                    )}
-                    <button
-                      onClick={() => setShowQuestionNav(!showQuestionNav)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                      data-testid="button-question-nav"
+            <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 py-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  {isRetryQuestion && (
+                    <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400 text-xs font-semibold">
+                      <RotateCcw className="h-3 w-3 mr-1" />
+                      Retry
+                    </Badge>
+                  )}
+                  <button
+                    onClick={() => setShowQuestionNav(!showQuestionNav)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                    data-testid="button-question-nav"
+                  >
+                    <span className="text-sm font-semibold">{displayQuestionNum}/{originalQuestionCount}</span>
+                    <ChevronUp className={`h-4 w-4 transition-transform ${showQuestionNav ? "rotate-180" : ""}`} />
+                  </button>
+                  {hasMaterialImages && (
+                    <Button
+                      variant={showMaterialViewer ? "secondary" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setMaterialImageIndex(0);
+                        setShowMaterialViewer(!showMaterialViewer);
+                      }}
+                      className="gap-1.5 rounded-full h-8"
+                      data-testid="button-view-material"
                     >
-                      <span className="text-sm font-semibold">{displayQuestionNum}/{originalQuestionCount}</span>
-                      <ChevronUp className={`h-4 w-4 transition-transform ${showQuestionNav ? "rotate-180" : ""}`} />
-                    </button>
-                    {hasMaterial && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setMaterialImageIndex(0);
-                          setMaterialViewMode(hasMaterialImages ? "images" : "text");
-                          setShowMaterialViewer(true);
-                        }}
-                        className="gap-1.5 rounded-full h-8"
-                        data-testid="button-view-material"
-                      >
-                        <FileImage className="h-4 w-4" />
-                        <span className="hidden sm:inline">Material</span>
-                      </Button>
-                    )}
-                    <ThemeToggle />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {correctStreak >= 2 && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="flex items-center gap-1 px-2.5 py-1 bg-orange-500/20 rounded-full"
-                      >
-                        <Flame className="h-4 w-4 text-orange-500" />
-                        <span className="text-sm font-bold text-orange-600 dark:text-orange-400">{correctStreak}</span>
-                      </motion.div>
-                    )}
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500/20 rounded-full">
-                      <BadgeCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
-                      <span className="text-sm font-bold text-green-600 dark:text-green-400">{correctCount}</span>
-                    </div>
-                  </div>
+                      <FileImage className="h-4 w-4" />
+                      <span className="hidden sm:inline">Material</span>
+                    </Button>
+                  )}
+                  <ThemeToggle />
                 </div>
-                
-                <div className="relative">
-                  <Progress value={progress} className="h-2.5 rounded-full" data-testid="progress-quiz" />
-                  <motion.div
-                    className="absolute -top-1 h-4 w-4 bg-primary rounded-full border-2 border-background shadow-lg"
-                    style={{ left: `calc(${progress}% - 8px)` }}
-                    layoutId="progress-indicator"
-                  />
-                </div>
-              </div>
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentQuestion.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
-                  className="mt-6"
-                >
-                  <div className="mb-6">
-                    <div className="flex items-center gap-2 mb-4 flex-wrap">
-                      {isRetryQuestion ? (
-                        <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400">
-                          <RotateCcw className="h-3 w-3 mr-1" />
-                          Give it another try
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="font-semibold">
-                          Question {displayQuestionNum}
-                        </Badge>
-                      )}
-                      {getQuestionTypeBadge(currentQuestion.type)}
-                    </div>
-                    
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-snug" data-testid="text-question">
-                      {currentQuestion.question}
-                    </h2>
-                  </div>
-
-                  {currentQuestion.imageUrl && (
-                    <motion.div 
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="mb-6 rounded-2xl overflow-hidden border-2 border-border bg-muted/30 cursor-pointer relative group/img"
-                      onClick={() => setExpandedImageUrl(currentQuestion.imageUrl || null)}
+                <div className="flex items-center gap-3">
+                  {correctStreak >= 2 && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="flex items-center gap-1 px-2.5 py-1 bg-orange-500/20 rounded-full"
                     >
-                      <img 
-                        src={currentQuestion.imageUrl} 
-                        alt="Question reference"
-                        className="w-full max-h-72 sm:max-h-80 object-contain"
-                        data-testid="image-question-reference"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-colors flex items-center justify-center">
-                        <ZoomIn className="h-8 w-8 text-white opacity-0 group-hover/img:opacity-100 transition-opacity drop-shadow-md" />
-                      </div>
+                      <Flame className="h-4 w-4 text-orange-500" />
+                      <span className="text-sm font-bold text-orange-600 dark:text-orange-400">{correctStreak}</span>
                     </motion.div>
                   )}
-
-                  {renderAnswerOptions()}
-                  {renderFeedback()}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </ResizablePanel>
-
-          {hasMaterial && !isMobile && (
-            <>
-              <ResizableHandle withHandle className={showMaterialViewer ? "" : "hidden"} />
-              <ResizablePanel
-                ref={materialPanelRef}
-                defaultSize={45}
-                minSize={20}
-                maxSize={70}
-                collapsible
-                collapsedSize={0}
-                onCollapse={() => setShowMaterialViewer(false)}
-                onExpand={() => setShowMaterialViewer(true)}
-                className={showMaterialViewer ? "" : "hidden"}
-              >
-                <div className="h-full flex flex-col bg-muted/30 overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 border-b bg-background/80 backdrop-blur-sm shrink-0">
-                    <div className="flex items-center gap-2">
-                      {hasMaterialImages && hasExtractedText && (
-                        <div className="flex items-center gap-1 bg-muted rounded-full p-0.5">
-                          <Button
-                            variant={materialViewMode === "images" ? "secondary" : "ghost"}
-                            size="sm"
-                            onClick={() => setMaterialViewMode("images")}
-                            className="rounded-full h-7 px-3 text-xs"
-                            data-testid="button-material-images-tab"
-                          >
-                            <Image className="h-3.5 w-3.5 mr-1" />
-                            Images
-                          </Button>
-                          <Button
-                            variant={materialViewMode === "text" ? "secondary" : "ghost"}
-                            size="sm"
-                            onClick={() => setMaterialViewMode("text")}
-                            className="rounded-full h-7 px-3 text-xs"
-                            data-testid="button-material-text-tab"
-                          >
-                            <FileText className="h-3.5 w-3.5 mr-1" />
-                            Text
-                          </Button>
-                        </div>
-                      )}
-                      {!hasExtractedText && (
-                        <div className="flex items-center gap-2">
-                          <Image className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {allMaterialImages.length > 1 ? `${materialImageIndex + 1} / ${allMaterialImages.length}` : "Source Material"}
-                          </span>
-                        </div>
-                      )}
-                      {!hasMaterialImages && (
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium text-muted-foreground">Source Material</span>
-                        </div>
-                      )}
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        setShowMaterialViewer(false);
-                        materialPanelRef.current?.collapse();
-                      }}
-                      data-testid="button-close-material-panel"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  <div className="flex-1 overflow-auto">
-                    {materialViewMode === "images" && hasMaterialImages ? (
-                      <div className="flex flex-col h-full">
-                        <div className="flex-1 flex items-center justify-center p-4 relative">
-                          {allMaterialImages.length > 1 && (
-                            <Button
-                              variant="secondary"
-                              size="icon"
-                              className="absolute left-2 z-10 rounded-full shadow-md"
-                              onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
-                              data-testid="button-material-prev"
-                            >
-                              <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                          )}
-                          <img
-                            src={allMaterialImages[materialImageIndex]}
-                            alt={`Study material ${materialImageIndex + 1}`}
-                            className="max-w-full max-h-[calc(100vh-12rem)] object-contain rounded-lg"
-                            data-testid="image-material-side"
-                          />
-                          {allMaterialImages.length > 1 && (
-                            <Button
-                              variant="secondary"
-                              size="icon"
-                              className="absolute right-2 z-10 rounded-full shadow-md"
-                              onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
-                              data-testid="button-material-next"
-                            >
-                              <ChevronRight className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                        {allMaterialImages.length > 1 && (
-                          <div className="flex justify-center gap-2 py-3 border-t shrink-0">
-                            {allMaterialImages.map((_: string, idx: number) => (
-                              <button
-                                key={idx}
-                                onClick={() => setMaterialImageIndex(idx)}
-                                className={`w-2 h-2 rounded-full transition-colors ${
-                                  idx === materialImageIndex ? 'bg-primary' : 'bg-muted-foreground/30'
-                                }`}
-                                data-testid={`button-material-dot-${idx}`}
-                              />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="p-4">
-                        <pre className="whitespace-pre-wrap text-sm text-foreground/80 font-sans leading-relaxed">{materialText}</pre>
-                      </div>
-                    )}
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500/20 rounded-full">
+                    <BadgeCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <span className="text-sm font-bold text-green-600 dark:text-green-400">{correctCount}</span>
                   </div>
                 </div>
-              </ResizablePanel>
-            </>
-          )}
+              </div>
+              
+              <div className="relative">
+                <Progress value={progress} className="h-2.5 rounded-full" data-testid="progress-quiz" />
+                <motion.div
+                  className="absolute -top-1 h-4 w-4 bg-primary rounded-full border-2 border-background shadow-lg"
+                  style={{ left: `calc(${progress}% - 8px)` }}
+                  layoutId="progress-indicator"
+                />
+              </div>
+            </div>
 
-        </ResizablePanelGroup>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentQuestion.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="mt-6"
+              >
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-4 flex-wrap">
+                    {isRetryQuestion ? (
+                      <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400">
+                        <RotateCcw className="h-3 w-3 mr-1" />
+                        Give it another try
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="font-semibold">
+                        Question {displayQuestionNum}
+                      </Badge>
+                    )}
+                    {getQuestionTypeBadge(currentQuestion.type)}
+                  </div>
+                  
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-snug" data-testid="text-question">
+                    {currentQuestion.question}
+                  </h2>
+                </div>
+
+                {currentQuestion.imageUrl && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mb-6 rounded-2xl overflow-hidden border-2 border-border bg-muted/30 cursor-pointer relative group/img"
+                    onClick={() => setExpandedImageUrl(currentQuestion.imageUrl || null)}
+                  >
+                    <img 
+                      src={currentQuestion.imageUrl} 
+                      alt="Question reference"
+                      className="w-full max-h-72 sm:max-h-80 object-contain"
+                      data-testid="image-question-reference"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-colors flex items-center justify-center">
+                      <ZoomIn className="h-8 w-8 text-white opacity-0 group-hover/img:opacity-100 transition-opacity drop-shadow-md" />
+                    </div>
+                  </motion.div>
+                )}
+
+                {renderAnswerOptions()}
+                {renderFeedback()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {showMaterialViewer && hasMaterialImages && !isMobile && (
+          <>
+            <div
+              onMouseDown={startDrag}
+              className="w-1.5 cursor-col-resize bg-border hover:bg-primary/50 transition-colors shrink-0 relative group"
+              data-testid="drag-handle-material"
+            >
+              <div className="absolute inset-y-0 -left-1 -right-1" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-8 rounded-full bg-muted-foreground/30 group-hover:bg-primary/60 transition-colors" />
+            </div>
+            <div
+              className="h-full flex flex-col bg-muted/30 overflow-hidden shrink-0"
+              style={{ width: `${materialPanelWidth}%` }}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b bg-background/80 backdrop-blur-sm shrink-0">
+                <div className="flex items-center gap-2">
+                  <Image className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {allMaterialImages.length > 1 ? `${materialImageIndex + 1} / ${allMaterialImages.length}` : "Source Material"}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowMaterialViewer(false)}
+                  data-testid="button-close-material-panel"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="flex-1 overflow-auto">
+                <div className="flex flex-col h-full">
+                  <div className="flex-1 flex items-center justify-center p-4 relative">
+                    {allMaterialImages.length > 1 && (
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute left-2 z-10 rounded-full shadow-md"
+                        onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
+                        data-testid="button-material-prev"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <img
+                      src={allMaterialImages[materialImageIndex]}
+                      alt={`Study material ${materialImageIndex + 1}`}
+                      className="max-w-full max-h-[calc(100vh-12rem)] object-contain rounded-lg"
+                      data-testid="image-material-side"
+                    />
+                    {allMaterialImages.length > 1 && (
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute right-2 z-10 rounded-full shadow-md"
+                        onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
+                        data-testid="button-material-next"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  {allMaterialImages.length > 1 && (
+                    <div className="flex justify-center gap-2 py-3 border-t shrink-0">
+                      {allMaterialImages.map((_: string, idx: number) => (
+                        <button
+                          key={idx}
+                          onClick={() => setMaterialImageIndex(idx)}
+                          className={`w-2 h-2 rounded-full transition-colors ${
+                            idx === materialImageIndex ? 'bg-primary' : 'bg-muted-foreground/30'
+                          }`}
+                          data-testid={`button-material-dot-${idx}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {renderQuestionNav()}
@@ -1352,7 +1293,6 @@ export function QuizPlayer() {
         </div>
       </div>
 
-
       <QuizChatbot
         quizTitle={currentQuiz.title}
         questions={currentQuiz.questions}
@@ -1397,7 +1337,7 @@ export function QuizPlayer() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showMaterialViewer && isMobile && (
+        {showMaterialViewer && isMobile && hasMaterialImages && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1407,31 +1347,10 @@ export function QuizPlayer() {
           >
             <div className="flex items-center justify-between p-4 border-b border-white/10">
               <div className="flex items-center gap-3">
-                {hasMaterialImages && hasExtractedText ? (
-                  <div className="flex items-center gap-1 bg-white/10 rounded-full p-0.5">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setMaterialViewMode("images"); }}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${materialViewMode === "images" ? "bg-white/20 text-white" : "text-white/60"}`}
-                    >
-                      Images
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setMaterialViewMode("text"); }}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${materialViewMode === "text" ? "bg-white/20 text-white" : "text-white/60"}`}
-                    >
-                      Text
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <Image className="h-5 w-5 text-white/80" />
-                    <span className="text-white font-medium">
-                      {hasMaterialImages
-                        ? `Images ${allMaterialImages.length > 1 ? `(${materialImageIndex + 1}/${allMaterialImages.length})` : ""}`
-                        : "Source Material"}
-                    </span>
-                  </>
-                )}
+                <Image className="h-5 w-5 text-white/80" />
+                <span className="text-white font-medium">
+                  {`Images ${allMaterialImages.length > 1 ? `(${materialImageIndex + 1}/${allMaterialImages.length})` : ""}`}
+                </span>
               </div>
               <Button
                 variant="ghost"
@@ -1444,64 +1363,54 @@ export function QuizPlayer() {
             </div>
             
             <div 
-              className="flex-1 overflow-auto"
+              className="flex-1 flex items-center justify-center p-4 relative"
               onClick={(e) => e.stopPropagation()}
             >
-              {materialViewMode === "images" && hasMaterialImages ? (
-                <div className="flex flex-col h-full">
-                  <div className="flex-1 flex items-center justify-center p-4 relative">
-                    {allMaterialImages.length > 1 && (
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        className="absolute left-4 z-10 rounded-full shadow-lg"
-                        onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
-                        data-testid="button-material-prev-mobile"
-                      >
-                        <ChevronLeft className="h-5 w-5" />
-                      </Button>
-                    )}
-                    <img
-                      src={allMaterialImages[materialImageIndex]}
-                      alt={`Study material ${materialImageIndex + 1}`}
-                      className="max-w-full max-h-[calc(100vh-120px)] object-contain rounded-lg"
-                    />
-                    {allMaterialImages.length > 1 && (
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        className="absolute right-4 z-10 rounded-full shadow-lg"
-                        onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
-                        data-testid="button-material-next-mobile"
-                      >
-                        <ChevronRight className="h-5 w-5" />
-                      </Button>
-                    )}
-                  </div>
-                  {allMaterialImages.length > 1 && (
-                    <div className="flex justify-center gap-2 p-4 border-t border-white/10">
-                      {allMaterialImages.map((_: string, idx: number) => (
-                        <button
-                          key={idx}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setMaterialImageIndex(idx);
-                          }}
-                          className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                            idx === materialImageIndex ? 'bg-white' : 'bg-white/30'
-                          }`}
-                          data-testid={`button-material-dot-${idx}`}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="p-4">
-                  <pre className="whitespace-pre-wrap text-sm text-white/80 font-sans leading-relaxed">{materialText}</pre>
-                </div>
+              {allMaterialImages.length > 1 && (
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute left-4 z-10 rounded-full shadow-lg"
+                  onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
+                  data-testid="button-material-prev-mobile"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
+              )}
+              <img
+                src={allMaterialImages[materialImageIndex]}
+                alt={`Study material ${materialImageIndex + 1}`}
+                className="max-w-full max-h-[calc(100vh-120px)] object-contain rounded-lg"
+              />
+              {allMaterialImages.length > 1 && (
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute right-4 z-10 rounded-full shadow-lg"
+                  onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
+                  data-testid="button-material-next-mobile"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
               )}
             </div>
+            {allMaterialImages.length > 1 && (
+              <div className="flex justify-center gap-2 p-4 border-t border-white/10">
+                {allMaterialImages.map((_: string, idx: number) => (
+                  <button
+                    key={idx}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMaterialImageIndex(idx);
+                    }}
+                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                      idx === materialImageIndex ? 'bg-white' : 'bg-white/30'
+                    }`}
+                    data-testid={`button-material-dot-${idx}`}
+                  />
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
