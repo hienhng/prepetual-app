@@ -12,6 +12,7 @@ import { useSidebarOptional } from "@/components/ui/sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
 import {
+  ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
@@ -942,6 +943,44 @@ export function QuizPlayer() {
   const [showMaterialViewer, setShowMaterialViewer] = useState(false);
   const [materialImageIndex, setMaterialImageIndex] = useState(0);
   const [materialViewMode, setMaterialViewMode] = useState<"images" | "text">("images");
+  const materialPanelRef = useRef<any>(null);
+  const [materialPanelWidth, setMaterialPanelWidth] = useState(45);
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartWidthRef = useRef(45);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return;
+      const containerWidth = window.innerWidth;
+      const deltaX = e.clientX - dragStartXRef.current;
+      const deltaPercent = (deltaX / containerWidth) * 100;
+      const newWidth = Math.min(70, Math.max(20, dragStartWidthRef.current - deltaPercent));
+      setMaterialPanelWidth(newWidth);
+    };
+    const handleMouseUp = () => {
+      if (isDraggingRef.current) {
+        isDraggingRef.current = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
+  const startDrag = (e: React.MouseEvent) => {
+    isDraggingRef.current = true;
+    dragStartXRef.current = e.clientX;
+    dragStartWidthRef.current = materialPanelWidth;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  };
 
   const materialImages = sourceMaterial?.documentImages || (currentQuiz as any)?.sourceImages || [];
   const singleSourceImage = sourceMaterial?.imageDataUrl || (currentQuiz as any)?.sourceImageUrl;
@@ -973,9 +1012,8 @@ export function QuizPlayer() {
   return (
     <>
       <div className="flex w-full min-h-[calc(100vh-4rem)] overflow-x-hidden">
-        <ResizablePanelGroup direction="horizontal" className="w-full">
-          <ResizablePanel defaultSize={100} minSize={30}>
-            <div className="w-full mx-auto pb-32 sm:pb-28 max-w-3xl px-4">
+        <div className="flex-1 min-w-0">
+          <div className="w-full mx-auto pb-32 sm:pb-28 max-w-3xl px-4">
               <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 py-4 -mx-4 px-4 sm:mx-0 sm:px-0">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
@@ -1093,6 +1131,134 @@ export function QuizPlayer() {
               </AnimatePresence>
             </div>
           </ResizablePanel>
+
+          {hasMaterial && !isMobile && (
+            <>
+              <ResizableHandle withHandle className={showMaterialViewer ? "" : "hidden"} />
+              <ResizablePanel
+                ref={materialPanelRef}
+                defaultSize={45}
+                minSize={20}
+                maxSize={70}
+                collapsible
+                collapsedSize={0}
+                onCollapse={() => setShowMaterialViewer(false)}
+                onExpand={() => setShowMaterialViewer(true)}
+                className={showMaterialViewer ? "" : "hidden"}
+              >
+                <div className="h-full flex flex-col bg-muted/30 overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-3 border-b bg-background/80 backdrop-blur-sm shrink-0">
+                    <div className="flex items-center gap-2">
+                      {hasMaterialImages && hasExtractedText && (
+                        <div className="flex items-center gap-1 bg-muted rounded-full p-0.5">
+                          <Button
+                            variant={materialViewMode === "images" ? "secondary" : "ghost"}
+                            size="sm"
+                            onClick={() => setMaterialViewMode("images")}
+                            className="rounded-full h-7 px-3 text-xs"
+                            data-testid="button-material-images-tab"
+                          >
+                            <Image className="h-3.5 w-3.5 mr-1" />
+                            Images
+                          </Button>
+                          <Button
+                            variant={materialViewMode === "text" ? "secondary" : "ghost"}
+                            size="sm"
+                            onClick={() => setMaterialViewMode("text")}
+                            className="rounded-full h-7 px-3 text-xs"
+                            data-testid="button-material-text-tab"
+                          >
+                            <FileText className="h-3.5 w-3.5 mr-1" />
+                            Text
+                          </Button>
+                        </div>
+                      )}
+                      {!hasExtractedText && (
+                        <div className="flex items-center gap-2">
+                          <Image className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium text-muted-foreground">
+                            {allMaterialImages.length > 1 ? `${materialImageIndex + 1} / ${allMaterialImages.length}` : "Source Material"}
+                          </span>
+                        </div>
+                      )}
+                      {!hasMaterialImages && (
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium text-muted-foreground">Source Material</span>
+                        </div>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setShowMaterialViewer(false);
+                        materialPanelRef.current?.collapse();
+                      }}
+                      data-testid="button-close-material-panel"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="flex-1 overflow-auto">
+                    {materialViewMode === "images" && hasMaterialImages ? (
+                      <div className="flex flex-col h-full">
+                        <div className="flex-1 flex items-center justify-center p-4 relative">
+                          {allMaterialImages.length > 1 && (
+                            <Button
+                              variant="secondary"
+                              size="icon"
+                              className="absolute left-2 z-10 rounded-full shadow-md"
+                              onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
+                              data-testid="button-material-prev"
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <img
+                            src={allMaterialImages[materialImageIndex]}
+                            alt={`Study material ${materialImageIndex + 1}`}
+                            className="max-w-full max-h-[calc(100vh-12rem)] object-contain rounded-lg"
+                            data-testid="image-material-side"
+                          />
+                          {allMaterialImages.length > 1 && (
+                            <Button
+                              variant="secondary"
+                              size="icon"
+                              className="absolute right-2 z-10 rounded-full shadow-md"
+                              onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
+                              data-testid="button-material-next"
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                        {allMaterialImages.length > 1 && (
+                          <div className="flex justify-center gap-2 py-3 border-t shrink-0">
+                            {allMaterialImages.map((_: string, idx: number) => (
+                              <button
+                                key={idx}
+                                onClick={() => setMaterialImageIndex(idx)}
+                                className={`w-2 h-2 rounded-full transition-colors ${
+                                  idx === materialImageIndex ? 'bg-primary' : 'bg-muted-foreground/30'
+                                }`}
+                                data-testid={`button-material-dot-${idx}`}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="p-4">
+                        <pre className="whitespace-pre-wrap text-sm text-foreground/80 font-sans leading-relaxed">{materialText}</pre>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </ResizablePanel>
+            </>
+          )}
 
         </ResizablePanelGroup>
       </div>
@@ -1231,7 +1397,7 @@ export function QuizPlayer() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showMaterialViewer && (
+        {showMaterialViewer && isMobile && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1241,79 +1407,101 @@ export function QuizPlayer() {
           >
             <div className="flex items-center justify-between p-4 border-b border-white/10">
               <div className="flex items-center gap-3">
-                <Image className="h-5 w-5 text-white/80" />
-                <span className="text-white font-medium">
-                  {`Images ${allMaterialImages.length > 1 ? `(${materialImageIndex + 1}/${allMaterialImages.length})` : ""}`}
-                </span>
+                {hasMaterialImages && hasExtractedText ? (
+                  <div className="flex items-center gap-1 bg-white/10 rounded-full p-0.5">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setMaterialViewMode("images"); }}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${materialViewMode === "images" ? "bg-white/20 text-white" : "text-white/60"}`}
+                    >
+                      Images
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setMaterialViewMode("text"); }}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${materialViewMode === "text" ? "bg-white/20 text-white" : "text-white/60"}`}
+                    >
+                      Text
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <Image className="h-5 w-5 text-white/80" />
+                    <span className="text-white font-medium">
+                      {hasMaterialImages
+                        ? `Images ${allMaterialImages.length > 1 ? `(${materialImageIndex + 1}/${allMaterialImages.length})` : ""}`
+                        : "Source Material"}
+                    </span>
+                  </>
+                )}
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white hover:bg-white/10 rounded-full"
-                  onClick={() => setShowMaterialViewer(false)}
-                >
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white"
+                onClick={() => setShowMaterialViewer(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
             </div>
             
             <div 
-              className="flex-1 flex items-center justify-center p-4 sm:p-8 relative"
+              className="flex-1 overflow-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              {allMaterialImages.length > 1 && (
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute left-4 z-10 rounded-full shadow-lg h-12 w-12"
-                  onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
-                  data-testid="button-material-prev"
-                >
-                  <ChevronLeft className="h-6 w-6" />
-                </Button>
-              )}
-              
-              <motion.img
-                key={materialImageIndex}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                src={allMaterialImages[materialImageIndex]}
-                alt={`Study material ${materialImageIndex + 1}`}
-                className="max-w-full max-h-[calc(100vh-120px)] object-contain rounded-lg shadow-2xl"
-              />
-              
-              {allMaterialImages.length > 1 && (
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute right-4 z-10 rounded-full shadow-lg h-12 w-12"
-                  onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
-                  data-testid="button-material-next"
-                >
-                  <ChevronRight className="h-6 w-6" />
-                </Button>
+              {materialViewMode === "images" && hasMaterialImages ? (
+                <div className="flex flex-col h-full">
+                  <div className="flex-1 flex items-center justify-center p-4 relative">
+                    {allMaterialImages.length > 1 && (
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute left-4 z-10 rounded-full shadow-lg"
+                        onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
+                        data-testid="button-material-prev-mobile"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </Button>
+                    )}
+                    <img
+                      src={allMaterialImages[materialImageIndex]}
+                      alt={`Study material ${materialImageIndex + 1}`}
+                      className="max-w-full max-h-[calc(100vh-120px)] object-contain rounded-lg"
+                    />
+                    {allMaterialImages.length > 1 && (
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute right-4 z-10 rounded-full shadow-lg"
+                        onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
+                        data-testid="button-material-next-mobile"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </Button>
+                    )}
+                  </div>
+                  {allMaterialImages.length > 1 && (
+                    <div className="flex justify-center gap-2 p-4 border-t border-white/10">
+                      {allMaterialImages.map((_: string, idx: number) => (
+                        <button
+                          key={idx}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setMaterialImageIndex(idx);
+                          }}
+                          className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                            idx === materialImageIndex ? 'bg-white' : 'bg-white/30'
+                          }`}
+                          data-testid={`button-material-dot-${idx}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="p-4">
+                  <pre className="whitespace-pre-wrap text-sm text-white/80 font-sans leading-relaxed">{materialText}</pre>
+                </div>
               )}
             </div>
-            
-            {allMaterialImages.length > 1 && (
-              <div className="flex justify-center gap-2 p-4 border-t border-white/10">
-                {allMaterialImages.map((_: string, idx: number) => (
-                  <button
-                    key={idx}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setMaterialImageIndex(idx);
-                    }}
-                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                      idx === materialImageIndex ? 'bg-white' : 'bg-white/30 hover:bg-white/50'
-                    }`}
-                    data-testid={`button-material-dot-${idx}`}
-                  />
-                ))}
-              </div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>
