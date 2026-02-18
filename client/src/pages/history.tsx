@@ -55,14 +55,19 @@ export default function HistoryPage() {
   const [selectedQuizIds, setSelectedQuizIds] = useState<Set<string>>(new Set());
   const folderInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: quizzes, isLoading } = useQuery<QuizWithAttempts[]>({
+  const { data: quizzes, isLoading, refetch: refetchQuizzes } = useQuery<QuizWithAttempts[]>({
     queryKey: ["/api/quizzes"],
     refetchOnMount: "always",
   });
 
-  const { data: folders = [] } = useQuery<FolderType[]>({
+  const { data: folders = [], refetch: refetchFolders } = useQuery<FolderType[]>({
     queryKey: ["/api/folders"],
   });
+
+  useEffect(() => {
+    refetchQuizzes();
+    refetchFolders();
+  }, []);
 
   useEffect(() => {
     if (folderDialogOpen && folderInputRef.current) {
@@ -282,10 +287,14 @@ export default function HistoryPage() {
       await Promise.all(promises);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
-      const folderObj = folders.find(f => f.id === addQuizzesFolderId);
+      const folderId = addQuizzesFolderId;
+      const folderObj = folders.find(f => f.id === folderId);
       setAddQuizzesFolderId(null);
       setSelectedQuizIds(new Set());
+      if (folderId) {
+        setExpandedFolders(prev => new Set(prev).add(folderId));
+      }
+      refetchQuizzes();
       toast({ title: `Updated quizzes in ${folderObj?.name || "folder"}` });
     },
     onError: () => {
