@@ -192,7 +192,7 @@ export function QuizGenerator() {
           isOfficeWithImages: sourceMaterial.isOfficeWithImages, 
           documentImages: documentImages 
         });
-        await queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
+        await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
         setLocation("/history");
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred while importing the quiz");
@@ -284,7 +284,7 @@ export function QuizGenerator() {
                   isOfficeWithImages: sourceMaterial.isOfficeWithImages, 
                   documentImages: documentImages 
                 });
-                await queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
+                await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
                 setLocation("/history");
               } else if (data.type === "error") {
                 throw new Error(data.message);

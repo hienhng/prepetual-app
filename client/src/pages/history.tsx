@@ -41,7 +41,7 @@ import type { Quiz, Folder as FolderType } from "@shared/schema";
 type QuizWithAttempts = Quiz & { attemptCount?: number };
 
 export default function HistoryPage() {
-  const [location, setLocation] = useLocation();
+  const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial, savedProgresses, loadSavedProgress } = useQuiz();
   const { toast } = useToast();
   const [quizToDelete, setQuizToDelete] = useState<QuizWithAttempts | null>(null);
@@ -58,18 +58,14 @@ export default function HistoryPage() {
   const { data: quizzes, isLoading, refetch: refetchQuizzes } = useQuery<QuizWithAttempts[]>({
     queryKey: ["/api/quizzes"],
     refetchOnMount: "always",
+    staleTime: 0,
   });
 
   const { data: folders = [], refetch: refetchFolders } = useQuery<FolderType[]>({
     queryKey: ["/api/folders"],
+    refetchOnMount: "always",
+    staleTime: 0,
   });
-
-  useEffect(() => {
-    if (location === "/history") {
-      refetchQuizzes();
-      refetchFolders();
-    }
-  }, [location]);
 
   useEffect(() => {
     if (folderDialogOpen && folderInputRef.current) {
