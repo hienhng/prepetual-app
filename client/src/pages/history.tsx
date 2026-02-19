@@ -8,6 +8,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -352,8 +359,8 @@ export default function HistoryPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="flex flex-col gap-3">
-                  <div className="relative">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="relative flex-1 min-w-[180px]">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                     <Input
                       value={searchQuery}
@@ -373,28 +380,25 @@ export default function HistoryPage() {
                     )}
                   </div>
                   {availableCategories.length > 1 && (
-                    <div className="flex items-center gap-1.5 flex-wrap" data-testid="filter-categories">
-                      <Button
-                        size="sm"
-                        variant={selectedCategory === null ? "default" : "outline"}
-                        onClick={() => setSelectedCategory(null)}
-                        data-testid="filter-all"
-                      >
-                        All
-                      </Button>
-                      {availableCategories.map(cat => (
-                        <Button
-                          key={cat}
-                          size="sm"
-                          variant={selectedCategory === cat ? "default" : "outline"}
-                          onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
-                          data-testid={`filter-${cat.toLowerCase().replace(/[^a-z]/g, "-")}`}
-                        >
-                          {getCategoryIcon(cat)}
-                          <span className="ml-1">{cat}</span>
-                        </Button>
-                      ))}
-                    </div>
+                    <Select
+                      value={selectedCategory || "all"}
+                      onValueChange={(val) => setSelectedCategory(val === "all" ? null : val)}
+                    >
+                      <SelectTrigger className="w-[160px] shrink-0" data-testid="filter-categories">
+                        <SelectValue placeholder="All Subjects" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all" data-testid="filter-all">All Subjects</SelectItem>
+                        {availableCategories.map(cat => (
+                          <SelectItem key={cat} value={cat} data-testid={`filter-${cat.toLowerCase().replace(/[^a-z]/g, "-")}`}>
+                            <span className="flex items-center gap-1.5">
+                              {getCategoryIcon(cat)}
+                              {cat}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
                 </div>
 
