@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, useParams } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
-import { Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, Sparkles, MoreVertical, Pencil, X, ArrowLeft, Plus, FolderOpen, Check, FolderPlus } from "lucide-react";
+import { motion } from "framer-motion";
+import { Play, BookOpen, Share2, Trash2, Loader2, Edit2, Globe, GlobeLock, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, Sparkles, MoreVertical, Pencil, X, ArrowLeft, Plus, FolderOpen, Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -283,24 +282,8 @@ export default function FolderPage() {
     });
   };
 
-  const getDifficultyStats = () => {
-    const easy = folderQuizzes.filter(q => q.difficulty === "easy").length;
-    const medium = folderQuizzes.filter(q => !q.difficulty || q.difficulty === "medium").length;
-    const hard = folderQuizzes.filter(q => q.difficulty === "hard").length;
-    return { easy, medium, hard };
-  };
-
   const getTotalQuestions = () => {
     return folderQuizzes.reduce((sum, q) => sum + ((q.questions as any[])?.length || 0), 0);
-  };
-
-  const getCategoryBreakdown = () => {
-    const categories: Record<string, number> = {};
-    folderQuizzes.forEach(q => {
-      const cat = q.category || "Others/General";
-      categories[cat] = (categories[cat] || 0) + 1;
-    });
-    return Object.entries(categories).sort((a, b) => b[1] - a[1]);
   };
 
   if (isLoading) {
@@ -327,48 +310,44 @@ export default function FolderPage() {
     );
   }
 
-  const diffStats = getDifficultyStats();
   const totalQuestions = getTotalQuestions();
-  const categoryBreakdown = getCategoryBreakdown();
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-5xl">
+    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-4xl">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="space-y-6"
+        className="space-y-5"
       >
-        <div>
+        <div className="space-y-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setLocation("/history")}
-            className="mb-3 -ml-2 text-muted-foreground"
+            className="-ml-2 text-muted-foreground"
             data-testid="button-back-to-archive"
           >
             <ArrowLeft className="h-4 w-4 mr-1.5" />
-            Back to Archive
+            Archive
           </Button>
 
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <FolderOpen className="h-5 w-5 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate" data-testid="text-folder-title">
-                  {folder.name}
-                </h1>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  {folderQuizzes.length} {folderQuizzes.length === 1 ? "quiz" : "quizzes"} &middot; {totalQuestions} questions
-                </p>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight truncate" data-testid="text-folder-title">
+                {folder.name}
+              </h1>
+              <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
+                <span>{folderQuizzes.length} {folderQuizzes.length === 1 ? "quiz" : "quizzes"}</span>
+                <span className="text-border">|</span>
+                <span>{totalQuestions} questions</span>
               </div>
             </div>
 
             <div className="flex items-center gap-2 shrink-0 flex-wrap">
               <Button
                 size="sm"
+                variant="outline"
                 onClick={openAddQuizzes}
                 data-testid="button-add-quizzes"
               >
@@ -377,14 +356,14 @@ export default function FolderPage() {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="outline" data-testid="button-folder-actions">
+                  <Button size="icon" variant="ghost" data-testid="button-folder-actions">
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={openRenameDialog} data-testid="button-rename-folder">
                     <Pencil className="h-3.5 w-3.5 mr-2" />
-                    Rename Folder
+                    Rename
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -393,7 +372,7 @@ export default function FolderPage() {
                     data-testid="button-delete-folder"
                   >
                     <Trash2 className="h-3.5 w-3.5 mr-2" />
-                    Delete Folder
+                    Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -401,205 +380,138 @@ export default function FolderPage() {
           </div>
         </div>
 
-        {folderQuizzes.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <Card>
-              <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold text-foreground">{folderQuizzes.length}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Quizzes</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold text-foreground">{totalQuestions}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Questions</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center gap-2">
-                  {diffStats.easy > 0 && (
-                    <span className="text-green-600 dark:text-green-400 text-sm font-semibold">{diffStats.easy}E</span>
-                  )}
-                  {diffStats.medium > 0 && (
-                    <span className="text-yellow-600 dark:text-yellow-400 text-sm font-semibold">{diffStats.medium}M</span>
-                  )}
-                  {diffStats.hard > 0 && (
-                    <span className="text-red-500 dark:text-red-400 text-sm font-semibold">{diffStats.hard}H</span>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">Difficulty</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold text-foreground">
-                  {categoryBreakdown.length}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {categoryBreakdown.length === 1 ? "Subject" : "Subjects"}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {categoryBreakdown.length > 1 && (
-          <div className="flex items-center gap-2 flex-wrap">
-            {categoryBreakdown.map(([cat, count]) => (
-              <Badge key={cat} variant="secondary" className="text-xs gap-1.5">
-                {getCategoryIcon(cat)}
-                {cat}
-                <span className="text-muted-foreground">({count})</span>
-              </Badge>
-            ))}
-          </div>
-        )}
-
         {folderQuizzes.length === 0 ? (
-          <div className="py-16 text-center">
-            <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-              <FolderOpen className="h-6 w-6 text-muted-foreground" />
+          <div className="py-20 text-center">
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+              <FolderOpen className="h-5 w-5 text-muted-foreground" />
             </div>
-            <h3 className="text-base font-semibold mb-1">This folder is empty</h3>
-            <p className="text-sm text-muted-foreground mb-5">
-              Add quizzes to this folder to keep your studies organized
+            <h3 className="text-sm font-semibold mb-1">No quizzes yet</h3>
+            <p className="text-xs text-muted-foreground mb-5 max-w-xs mx-auto">
+              Add existing quizzes or create new ones to organize here
             </p>
-            <div className="flex items-center justify-center gap-3 flex-wrap">
+            <div className="flex items-center justify-center gap-2 flex-wrap">
               <Button
+                size="sm"
                 onClick={openAddQuizzes}
                 data-testid="button-add-first-quizzes"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-3.5 w-3.5 mr-1.5" />
                 Add Quizzes
               </Button>
               <Button
+                size="sm"
                 variant="outline"
                 onClick={() => setLocation("/create")}
                 data-testid="button-create-new-quiz"
               >
-                <Sparkles className="h-4 w-4 mr-2" />
-                Create New Quiz
+                Create New
               </Button>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-2">
             {folderQuizzes.map((quiz, index) => (
               <motion.div
                 key={quiz.id}
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.03 }}
+                transition={{ delay: index * 0.025 }}
               >
                 <Card className="overflow-visible" data-testid={`card-quiz-${quiz.id}`}>
-                  <CardContent className="p-4 space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-start gap-3 min-w-0 flex-1">
-                        <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 text-primary">
-                          {getCategoryIcon(quiz.category)}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-semibold text-sm leading-snug line-clamp-2" data-testid={`text-quiz-title-${quiz.id}`}>
-                            {quiz.title}
-                          </h3>
-                          <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground flex-wrap">
-                            <span>{formatDate(quiz.createdAt)}</span>
-                            <span className="text-border">|</span>
-                            <span>{(quiz.questions as any[]).length}q</span>
-                            <span className="text-border">|</span>
-                            <span className={`capitalize font-medium ${getDifficultyColor(quiz.difficulty)}`}>
-                              {quiz.difficulty || "medium"}
-                            </span>
-                          </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+                        {getCategoryIcon(quiz.category)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-medium text-sm truncate" data-testid={`text-quiz-title-${quiz.id}`}>
+                          {quiz.title}
+                        </h3>
+                        <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground flex-wrap">
+                          <span>{(quiz.questions as any[]).length}q</span>
+                          <span className="text-border">·</span>
+                          <span className={`capitalize ${getDifficultyColor(quiz.difficulty)}`}>
+                            {quiz.difficulty || "medium"}
+                          </span>
+                          <span className="text-border">·</span>
+                          <span>{formatDate(quiz.createdAt)}</span>
+                          {quiz.isPublic === 1 && (
+                            <>
+                              <span className="text-border">·</span>
+                              <span className="text-green-600 dark:text-green-400">Public</span>
+                            </>
+                          )}
                         </div>
                       </div>
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            data-testid={`button-more-${quiz.id}`}
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEdit(quiz)} data-testid={`button-edit-${quiz.id}`}>
-                            <Edit2 className="h-3.5 w-3.5 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => togglePublicMutation.mutate({
-                              quizId: quiz.id,
-                              isPublic: quiz.isPublic !== 1
-                            })}
-                            data-testid={`button-toggle-public-${quiz.id}`}
-                          >
-                            {quiz.isPublic === 1 ? (
-                              <><GlobeLock className="h-3.5 w-3.5 mr-2" />Make Private</>
-                            ) : (
-                              <><Globe className="h-3.5 w-3.5 mr-2" />Share Publicly</>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleShare(quiz.id)} data-testid={`button-share-${quiz.id}`}>
-                            <Share2 className="h-3.5 w-3.5 mr-2" />
-                            Copy Link
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => removeFromFolderMutation.mutate(quiz.id)}
-                            data-testid={`button-remove-from-folder-${quiz.id}`}
-                          >
-                            <X className="h-3.5 w-3.5 mr-2" />
-                            Remove from Folder
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={() => setQuizToDelete(quiz)}
-                            data-testid={`button-delete-${quiz.id}`}
-                          >
-                            <Trash2 className="h-3.5 w-3.5 mr-2" />
-                            Delete Quiz
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-
-                    <div className="flex items-center gap-x-3 gap-y-1 flex-wrap">
-                      {quiz.isPublic === 1 && (
-                        <span className="flex items-center gap-1 text-[11px] text-green-600 dark:text-green-400">
-                          <Globe className="h-3 w-3" />
-                          Public
-                        </span>
-                      )}
-                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                        <Target className="h-3 w-3" />
-                        {quiz.attemptCount || 0} {quiz.attemptCount === 1 ? "attempt" : "attempts"}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Button
-                        onClick={() => handleRetake(quiz)}
-                        size="sm"
-                        className="flex-1"
-                        data-testid={`button-retake-${quiz.id}`}
-                      >
-                        <Play className="h-3.5 w-3.5 mr-1.5 fill-current" />
-                        Take
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => handleStudy(quiz)}
-                        size="sm"
-                        className="flex-1"
-                        data-testid={`button-study-${quiz.id}`}
-                      >
-                        <BookOpen className="h-3.5 w-3.5 mr-1.5" />
-                        Review
-                      </Button>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Button
+                          onClick={() => handleRetake(quiz)}
+                          size="sm"
+                          data-testid={`button-retake-${quiz.id}`}
+                        >
+                          <Play className="h-3 w-3 mr-1 fill-current" />
+                          Take
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleStudy(quiz)}
+                          size="sm"
+                          data-testid={`button-study-${quiz.id}`}
+                        >
+                          <BookOpen className="h-3 w-3 mr-1" />
+                          Review
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              data-testid={`button-more-${quiz.id}`}
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEdit(quiz)} data-testid={`button-edit-${quiz.id}`}>
+                              <Edit2 className="h-3.5 w-3.5 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => togglePublicMutation.mutate({
+                                quizId: quiz.id,
+                                isPublic: quiz.isPublic !== 1
+                              })}
+                              data-testid={`button-toggle-public-${quiz.id}`}
+                            >
+                              {quiz.isPublic === 1 ? (
+                                <><GlobeLock className="h-3.5 w-3.5 mr-2" />Make Private</>
+                              ) : (
+                                <><Globe className="h-3.5 w-3.5 mr-2" />Share Publicly</>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleShare(quiz.id)} data-testid={`button-share-${quiz.id}`}>
+                              <Share2 className="h-3.5 w-3.5 mr-2" />
+                              Copy Link
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => removeFromFolderMutation.mutate(quiz.id)}
+                              data-testid={`button-remove-from-folder-${quiz.id}`}
+                            >
+                              <X className="h-3.5 w-3.5 mr-2" />
+                              Remove from Folder
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => setQuizToDelete(quiz)}
+                              data-testid={`button-delete-${quiz.id}`}
+                            >
+                              <Trash2 className="h-3.5 w-3.5 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
