@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Play, BookOpen, Share2, Trash2, FileText, Loader2, Edit2, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, FolderPlus, Folder, MoreVertical, Pencil, Sparkles } from "lucide-react";
+import { Play, BookOpen, Share2, Trash2, FileText, Loader2, Edit2, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, FolderPlus, Folder, MoreVertical, Pencil, Sparkles, Search, X } from "lucide-react";
+import { QUIZ_CATEGORIES } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +51,8 @@ export default function HistoryPage() {
   const [editingFolder, setEditingFolder] = useState<FolderType | null>(null);
   const [folderToDelete, setFolderToDelete] = useState<FolderType | null>(null);
   const [activeTab, setActiveTab] = useState("quizzes");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
 
   const { data: quizzes, isLoading } = useQuery<QuizWithAttempts[]>({
@@ -257,6 +260,21 @@ export default function HistoryPage() {
     return quizzes.filter(q => q.folderId === folderId).length;
   };
 
+  const filteredQuizzes = (quizzes || []).filter(quiz => {
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const titleMatch = quiz.title?.toLowerCase().includes(q);
+      if (!titleMatch) return false;
+    }
+    if (selectedCategory) {
+      const cat = quiz.category || "Others/General";
+      if (cat !== selectedCategory) return false;
+    }
+    return true;
+  });
+
+  const availableCategories = [...new Set((quizzes || []).map(q => q.category || "Others/General"))].sort();
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16 flex items-center justify-center">
@@ -333,8 +351,71 @@ export default function HistoryPage() {
                 </Button>
               </div>
             ) : (
+              <div className="space-y-4">
+                <div className="flex flex-col gap-3">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Input
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search quizzes..."
+                      className="pl-9 pr-9"
+                      data-testid="input-search-quizzes"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        data-testid="button-clear-search"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  {availableCategories.length > 1 && (
+                    <div className="flex items-center gap-1.5 flex-wrap" data-testid="filter-categories">
+                      <Button
+                        size="sm"
+                        variant={selectedCategory === null ? "default" : "outline"}
+                        onClick={() => setSelectedCategory(null)}
+                        data-testid="filter-all"
+                      >
+                        All
+                      </Button>
+                      {availableCategories.map(cat => (
+                        <Button
+                          key={cat}
+                          size="sm"
+                          variant={selectedCategory === cat ? "default" : "outline"}
+                          onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
+                          data-testid={`filter-${cat.toLowerCase().replace(/[^a-z]/g, "-")}`}
+                        >
+                          {getCategoryIcon(cat)}
+                          <span className="ml-1">{cat}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {filteredQuizzes.length === 0 ? (
+                  <div className="py-12 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      No quizzes match your {searchQuery ? "search" : "filter"}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => { setSearchQuery(""); setSelectedCategory(null); }}
+                      data-testid="button-clear-filters"
+                    >
+                      Clear filters
+                    </Button>
+                  </div>
+                ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {quizzes?.map((quiz, index) => (
+                {filteredQuizzes.map((quiz, index) => (
                   <motion.div
                     key={quiz.id}
                     initial={{ opacity: 0, y: 12 }}
@@ -453,6 +534,8 @@ export default function HistoryPage() {
                     </Card>
                   </motion.div>
                 ))}
+              </div>
+                )}
               </div>
             )}
           </TabsContent>
