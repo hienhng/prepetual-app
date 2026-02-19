@@ -46,9 +46,9 @@ export async function sendVerificationEmail(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
       </head>
-      <body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'DM+Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'Raleway', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <table role="presentation" style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 40px 20px;">
@@ -56,35 +56,35 @@ export async function sendVerificationEmail(
                 <!-- Header -->
                 <tr>
                   <td style="background-color: #FACC15; padding: 28px 40px; text-align: center;">
-                    <h1 style="margin: 0; color: #171717; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; font-family: 'DM Sans', sans-serif;">Prepetual</h1>
+                    <h1 style="margin: 0; color: #171717; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; font-family: 'Raleway', sans-serif;">Prepetual</h1>
                   </td>
                 </tr>
                 <!-- Content -->
                 <tr>
                   <td style="padding: 40px;">
-                    <h2 style="margin: 0 0 16px 0; color: #171717; font-size: 20px; font-weight: 600; font-family: 'DM Sans', sans-serif;">Welcome aboard, ${name}!</h2>
-                    <p style="margin: 0 0 28px 0; color: #525252; font-size: 15px; line-height: 1.7; font-family: 'DM Sans', sans-serif;">
+                    <h2 style="margin: 0 0 16px 0; color: #171717; font-size: 20px; font-weight: 600; font-family: 'Raleway', sans-serif;">Welcome aboard, ${name}!</h2>
+                    <p style="margin: 0 0 28px 0; color: #525252; font-size: 15px; line-height: 1.7; font-family: 'Raleway', sans-serif;">
                       You're just one step away from unlocking the power of AI-generated quizzes. Verify your email to get started.
                     </p>
                     <!-- Button -->
                     <table role="presentation" style="width: 100%; border-collapse: collapse;">
                       <tr>
                         <td style="text-align: center; padding: 8px 0 32px 0;">
-                          <a href="${verificationUrl}" style="display: inline-block; background-color: #FACC15; color: #171717; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; font-family: 'DM Sans', sans-serif; border: 1px solid #E5B800;">
+                          <a href="${verificationUrl}" style="display: inline-block; background-color: #FACC15; color: #171717; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; font-family: 'Raleway', sans-serif; border: 1px solid #E5B800;">
                             Verify My Email
                           </a>
                         </td>
                       </tr>
                     </table>
-                    <p style="margin: 0 0 8px 0; color: #737373; font-size: 13px; font-family: 'DM Sans', sans-serif;">Or copy this link:</p>
+                    <p style="margin: 0 0 8px 0; color: #737373; font-size: 13px; font-family: 'Raleway', sans-serif;">Or copy this link:</p>
                     <p style="margin: 0 0 24px 0; padding: 12px; background-color: #e5e5e5; border-radius: 8px; word-break: break-all; color: #525252; font-size: 12px; font-family: monospace;">${verificationUrl}</p>
-                    <p style="margin: 0; color: #737373; font-size: 13px; font-family: 'DM Sans', sans-serif;">This link expires in 24 hours.</p>
+                    <p style="margin: 0; color: #737373; font-size: 13px; font-family: 'Raleway', sans-serif;">This link expires in 24 hours.</p>
                   </td>
                 </tr>
                 <!-- Footer -->
                 <tr>
                   <td style="padding: 24px 40px; background-color: #ebebeb; border-top: 1px solid #e0e0e0;">
-                    <p style="margin: 0; color: #737373; font-size: 12px; text-align: center; font-family: 'DM Sans', sans-serif;">
+                    <p style="margin: 0; color: #737373; font-size: 12px; text-align: center; font-family: 'Raleway', sans-serif;">
                       Didn't sign up for Prepetual? You can safely ignore this email.
                     </p>
                   </td>
@@ -153,9 +153,9 @@ export async function sendStreakReminderEmail(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
       </head>
-      <body style="margin: 0; padding: 0; background-color: #1a1a1a; font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <body style="margin: 0; padding: 0; background-color: #1a1a1a; font-family: 'Raleway', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <table role="presentation" style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 40px 20px;">
@@ -164,23 +164,23 @@ export async function sendStreakReminderEmail(
                 <tr>
                   <td style="background: linear-gradient(135deg, #F97316 0%, #EA580C 50%, #C2410C 100%); padding: 48px 40px; text-align: center;">
                     <div style="margin-bottom: 8px;">${flameIconSvg}</div>
-                    <h1 style="margin: 0; color: #ffffff; font-size: 42px; font-weight: 800; letter-spacing: -1px; font-family: 'DM Sans', sans-serif; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">${currentStreak}</h1>
-                    <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; font-family: 'DM Sans', sans-serif;">Day Streak</p>
+                    <h1 style="margin: 0; color: #ffffff; font-size: 42px; font-weight: 800; letter-spacing: -1px; font-family: 'Raleway', sans-serif; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">${currentStreak}</h1>
+                    <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; font-family: 'Raleway', sans-serif;">Day Streak</p>
                   </td>
                 </tr>
                 <!-- Content -->
                 <tr>
                   <td style="padding: 40px;">
-                    <h2 style="margin: 0 0 12px 0; color: #ffffff; font-size: 24px; font-weight: 700; font-family: 'DM Sans', sans-serif;">${headline}</h2>
-                    <p style="margin: 0 0 32px 0; color: #a3a3a3; font-size: 16px; line-height: 1.7; font-family: 'DM Sans', sans-serif;">
+                    <h2 style="margin: 0 0 12px 0; color: #ffffff; font-size: 24px; font-weight: 700; font-family: 'Raleway', sans-serif;">${headline}</h2>
+                    <p style="margin: 0 0 32px 0; color: #a3a3a3; font-size: 16px; line-height: 1.7; font-family: 'Raleway', sans-serif;">
                       Hey ${name}! ${subheadline}
                     </p>
                     <!-- Stats Box -->
                     <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 32px;">
                       <tr>
                         <td style="background-color: #1a1a1a; border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #404040;">
-                          <p style="margin: 0 0 4px 0; color: #F97316; font-size: 28px; font-weight: 800; font-family: 'DM Sans', sans-serif;">${currentStreak} days</p>
-                          <p style="margin: 0; color: #737373; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-family: 'DM Sans', sans-serif;">Current Streak</p>
+                          <p style="margin: 0 0 4px 0; color: #F97316; font-size: 28px; font-weight: 800; font-family: 'Raleway', sans-serif;">${currentStreak} days</p>
+                          <p style="margin: 0; color: #737373; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-family: 'Raleway', sans-serif;">Current Streak</p>
                         </td>
                       </tr>
                     </table>
@@ -188,7 +188,7 @@ export async function sendStreakReminderEmail(
                     <table role="presentation" style="width: 100%; border-collapse: collapse;">
                       <tr>
                         <td style="text-align: center;">
-                          <a href="${dashboardUrl}" style="display: inline-block; background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 700; font-family: 'DM Sans', sans-serif; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);">
+                          <a href="${dashboardUrl}" style="display: inline-block; background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 700; font-family: 'Raleway', sans-serif; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);">
                             Continue Learning ${arrowIconSvg}
                           </a>
                         </td>
@@ -202,7 +202,7 @@ export async function sendStreakReminderEmail(
                     <table role="presentation" style="width: 100%; border-collapse: collapse;">
                       <tr>
                         <td style="background-color: #1a1a1a; border-radius: 12px; padding: 20px; border-left: 4px solid #F97316;">
-                          <p style="margin: 0; color: #d4d4d4; font-size: 14px; font-style: italic; line-height: 1.6; font-family: 'DM Sans', sans-serif;">
+                          <p style="margin: 0; color: #d4d4d4; font-size: 14px; font-style: italic; line-height: 1.6; font-family: 'Raleway', sans-serif;">
                             "Small daily improvements are the key to staggering long-term results."
                           </p>
                         </td>
@@ -213,10 +213,10 @@ export async function sendStreakReminderEmail(
                 <!-- Footer -->
                 <tr>
                   <td style="padding: 24px 40px; background-color: #1a1a1a; border-top: 1px solid #404040;">
-                    <p style="margin: 0 0 8px 0; color: #737373; font-size: 12px; text-align: center; font-family: 'DM Sans', sans-serif;">
+                    <p style="margin: 0 0 8px 0; color: #737373; font-size: 12px; text-align: center; font-family: 'Raleway', sans-serif;">
                       You're receiving this because you're awesome and have an active streak on Prepetual.
                     </p>
-                    <p style="margin: 0; color: #525252; font-size: 11px; text-align: center; font-family: 'DM Sans', sans-serif;">
+                    <p style="margin: 0; color: #525252; font-size: 11px; text-align: center; font-family: 'Raleway', sans-serif;">
                       <a href="${baseUrl}/dashboard" style="color: #525252; text-decoration: underline;">Manage email preferences</a>
                     </p>
                   </td>
@@ -257,9 +257,9 @@ export async function sendPasswordResetEmail(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
       </head>
-      <body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'DM+Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'Raleway', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <table role="presentation" style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 40px 20px;">
@@ -267,38 +267,38 @@ export async function sendPasswordResetEmail(
                 <!-- Header -->
                 <tr>
                   <td style="background-color: #FACC15; padding: 28px 40px; text-align: center;">
-                    <h1 style="margin: 0; color: #171717; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; font-family: 'DM Sans', sans-serif;">Prepetual</h1>
+                    <h1 style="margin: 0; color: #171717; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; font-family: 'Raleway', sans-serif;">Prepetual</h1>
                   </td>
                 </tr>
                 <!-- Content -->
                 <tr>
                   <td style="padding: 40px;">
-                    <h2 style="margin: 0 0 16px 0; color: #171717; font-size: 20px; font-weight: 600; font-family: 'DM Sans', sans-serif;">Reset your password</h2>
-                    <p style="margin: 0 0 8px 0; color: #525252; font-size: 15px; line-height: 1.7; font-family: 'DM Sans', sans-serif;">
+                    <h2 style="margin: 0 0 16px 0; color: #171717; font-size: 20px; font-weight: 600; font-family: 'Raleway', sans-serif;">Reset your password</h2>
+                    <p style="margin: 0 0 8px 0; color: #525252; font-size: 15px; line-height: 1.7; font-family: 'Raleway', sans-serif;">
                       Hi ${name},
                     </p>
-                    <p style="margin: 0 0 28px 0; color: #525252; font-size: 15px; line-height: 1.7; font-family: 'DM Sans', sans-serif;">
+                    <p style="margin: 0 0 28px 0; color: #525252; font-size: 15px; line-height: 1.7; font-family: 'Raleway', sans-serif;">
                       We received a request to reset your password. Click the button below to create a new one.
                     </p>
                     <!-- Button -->
                     <table role="presentation" style="width: 100%; border-collapse: collapse;">
                       <tr>
                         <td style="text-align: center; padding: 8px 0 32px 0;">
-                          <a href="${resetUrl}" style="display: inline-block; background-color: #FACC15; color: #171717; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; font-family: 'DM Sans', sans-serif; border: 1px solid #E5B800;">
+                          <a href="${resetUrl}" style="display: inline-block; background-color: #FACC15; color: #171717; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; font-family: 'Raleway', sans-serif; border: 1px solid #E5B800;">
                             Reset Password
                           </a>
                         </td>
                       </tr>
                     </table>
-                    <p style="margin: 0 0 8px 0; color: #737373; font-size: 13px; font-family: 'DM Sans', sans-serif;">Or copy this link:</p>
+                    <p style="margin: 0 0 8px 0; color: #737373; font-size: 13px; font-family: 'Raleway', sans-serif;">Or copy this link:</p>
                     <p style="margin: 0 0 24px 0; padding: 12px; background-color: #e5e5e5; border-radius: 8px; word-break: break-all; color: #525252; font-size: 12px; font-family: monospace;">${resetUrl}</p>
-                    <p style="margin: 0; color: #737373; font-size: 13px; font-family: 'DM Sans', sans-serif;">This link expires in 1 hour.</p>
+                    <p style="margin: 0; color: #737373; font-size: 13px; font-family: 'Raleway', sans-serif;">This link expires in 1 hour.</p>
                   </td>
                 </tr>
                 <!-- Footer -->
                 <tr>
                   <td style="padding: 24px 40px; background-color: #ebebeb; border-top: 1px solid #e0e0e0;">
-                    <p style="margin: 0; color: #737373; font-size: 12px; text-align: center; font-family: 'DM Sans', sans-serif;">
+                    <p style="margin: 0; color: #737373; font-size: 12px; text-align: center; font-family: 'Raleway', sans-serif;">
                       Didn't request a password reset? You can safely ignore this email.
                     </p>
                   </td>
