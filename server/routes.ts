@@ -1123,6 +1123,20 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     }
   });
 
+  app.get("/api/folders/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const userFolders = await storage.getFoldersByUserId(userId);
+      const folder = userFolders.find(f => f.id === req.params.id);
+      if (!folder) {
+        return res.status(404).json({ message: "Folder not found" });
+      }
+      res.json({ ...folder, createdAt: folder.createdAt.toISOString() });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get folder" });
+    }
+  });
+
   app.post("/api/folders", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
