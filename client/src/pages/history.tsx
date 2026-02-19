@@ -418,7 +418,7 @@ export default function HistoryPage() {
                     </Button>
                   </div>
                 ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex flex-col gap-3">
                 {filteredQuizzes.map((quiz, index) => (
                   <motion.div
                     key={quiz.id}
