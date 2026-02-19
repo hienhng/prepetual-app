@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
-import { Play, BookOpen, Share2, Trash2, Clock, FileText, Loader2, Edit2, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, HelpCircle, FolderPlus, Folder, FolderOpen, MoreVertical, Pencil, X, ChevronDown, Sparkles, Hash, Check, Plus } from "lucide-react";
+import { motion } from "framer-motion";
+import { Play, BookOpen, Share2, Trash2, FileText, Loader2, Edit2, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, FolderPlus, Folder, MoreVertical, Pencil, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,18 +50,15 @@ export default function HistoryPage() {
   const [editingFolder, setEditingFolder] = useState<FolderType | null>(null);
   const [folderToDelete, setFolderToDelete] = useState<FolderType | null>(null);
   const [activeTab, setActiveTab] = useState("quizzes");
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
-  const [addQuizzesFolderId, setAddQuizzesFolderId] = useState<string | null>(null);
-  const [selectedQuizIds, setSelectedQuizIds] = useState<Set<string>>(new Set());
   const folderInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: quizzes, isLoading, refetch: refetchQuizzes } = useQuery<QuizWithAttempts[]>({
+  const { data: quizzes, isLoading } = useQuery<QuizWithAttempts[]>({
     queryKey: ["/api/quizzes"],
     refetchOnMount: "always",
     staleTime: 0,
   });
 
-  const { data: folders = [], refetch: refetchFolders } = useQuery<FolderType[]>({
+  const { data: folders = [] } = useQuery<FolderType[]>({
     queryKey: ["/api/folders"],
     refetchOnMount: "always",
     staleTime: 0,
@@ -255,81 +252,8 @@ export default function HistoryPage() {
     }
   };
 
-  const openAddQuizzesDialog = (folderId: string) => {
-    const currentQuizIds = getQuizzesInFolder(folderId).map(q => q.id);
-    setSelectedQuizIds(new Set(currentQuizIds));
-    setAddQuizzesFolderId(folderId);
-  };
-
-  const toggleQuizSelection = (quizId: string) => {
-    setSelectedQuizIds(prev => {
-      const next = new Set(prev);
-      if (next.has(quizId)) {
-        next.delete(quizId);
-      } else {
-        next.add(quizId);
-      }
-      return next;
-    });
-  };
-
-  const addQuizzesToFolderMutation = useMutation({
-    mutationFn: async ({ folderId, quizIds }: { folderId: string; quizIds: string[] }) => {
-      const currentInFolder = getQuizzesInFolder(folderId).map(q => q.id);
-      const toAdd = quizIds.filter(id => !currentInFolder.includes(id));
-      const toRemove = currentInFolder.filter(id => !quizIds.includes(id));
-      const promises = [
-        ...toAdd.map(id => apiRequest("PUT", `/api/quiz/${id}`, { folderId })),
-        ...toRemove.map(id => apiRequest("PUT", `/api/quiz/${id}`, { folderId: null })),
-      ];
-      await Promise.all(promises);
-    },
-    onSuccess: () => {
-      const folderId = addQuizzesFolderId;
-      const folderObj = folders.find(f => f.id === folderId);
-      setAddQuizzesFolderId(null);
-      setSelectedQuizIds(new Set());
-      if (folderId) {
-        setExpandedFolders(prev => new Set(prev).add(folderId));
-      }
-      refetchQuizzes();
-      toast({ title: `Updated quizzes in ${folderObj?.name || "folder"}` });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update folder quizzes", variant: "destructive" });
-    },
-  });
-
-  const handleSaveQuizSelection = () => {
-    if (!addQuizzesFolderId) return;
-    addQuizzesToFolderMutation.mutate({
-      folderId: addQuizzesFolderId,
-      quizIds: Array.from(selectedQuizIds),
-    });
-  };
-
-  const toggleFolder = (folderId: string) => {
-    setExpandedFolders(prev => {
-      const next = new Set(prev);
-      if (next.has(folderId)) {
-        next.delete(folderId);
-      } else {
-        next.add(folderId);
-      }
-      return next;
-    });
-  };
-
-  const getQuizzesInFolder = (folderId: string | null) => {
-    if (!quizzes) return [];
-    if (folderId === null) return quizzes.filter(q => !q.folderId);
-    return quizzes.filter(q => q.folderId === folderId);
-  };
-
-  const getFolderQuizCount = (folderId: string | null) => {
+  const getFolderQuizCount = (folderId: string) => {
     if (!quizzes) return 0;
-    if (folderId === null) return quizzes.length;
-    if (folderId === "__unfiled__") return quizzes.filter(q => !q.folderId).length;
     return quizzes.filter(q => q.folderId === folderId).length;
   };
 
@@ -566,11 +490,9 @@ export default function HistoryPage() {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {folders.map((folder, index) => {
                   const count = getFolderQuizCount(folder.id);
-                  const isExpanded = expandedFolders.has(folder.id);
-                  const folderQuizzes = getQuizzesInFolder(folder.id);
                   return (
                     <motion.div
                       key={folder.id}
@@ -578,20 +500,16 @@ export default function HistoryPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.04 }}
                     >
-                      <Card className="overflow-visible" data-testid={`card-folder-${folder.id}`}>
-                        <CardContent className="p-0">
-                          <div
-                            className="flex items-center justify-between gap-3 p-4 cursor-pointer select-none flex-wrap"
-                            onClick={() => toggleFolder(folder.id)}
-                            data-testid={`button-toggle-folder-${folder.id}`}
-                          >
+                      <Card
+                        className="overflow-visible cursor-pointer hover-elevate"
+                        onClick={() => setLocation(`/folder/${folder.id}`)}
+                        data-testid={`card-folder-${folder.id}`}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between gap-3 flex-wrap">
                             <div className="flex items-center gap-3 min-w-0 flex-1">
                               <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
-                                {isExpanded ? (
-                                  <FolderOpen className="h-4 w-4 text-primary" />
-                                ) : (
-                                  <Folder className="h-4 w-4 text-primary" />
-                                )}
+                                <Folder className="h-4 w-4 text-primary" />
                               </div>
                               <div className="min-w-0">
                                 <h3 className="font-semibold text-sm truncate" data-testid={`text-folder-name-${folder.id}`}>
@@ -602,101 +520,35 @@ export default function HistoryPage() {
                                 </p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-1 shrink-0 flex-wrap">
-                              <div onClick={(e) => e.stopPropagation()}>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      size="icon"
-                                      variant="ghost"
-                                      data-testid={`button-folder-menu-${folder.id}`}
-                                    >
-                                      <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => openAddQuizzesDialog(folder.id)} data-testid={`button-add-quizzes-${folder.id}`}>
-                                      <Plus className="h-3.5 w-3.5 mr-2" />
-                                      Add Quizzes
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => openEditFolder(folder)} data-testid={`button-rename-folder-${folder.id}`}>
-                                      <Pencil className="h-3.5 w-3.5 mr-2" />
-                                      Rename
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem
-                                      className="text-destructive focus:text-destructive"
-                                      onClick={() => setFolderToDelete(folder)}
-                                      data-testid={`button-delete-folder-${folder.id}`}
-                                    >
-                                      <Trash2 className="h-3.5 w-3.5 mr-2" />
-                                      Delete
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                              <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
+                            <div className="flex items-center gap-1 shrink-0 flex-wrap" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    data-testid={`button-folder-menu-${folder.id}`}
+                                  >
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => openEditFolder(folder)} data-testid={`button-rename-folder-${folder.id}`}>
+                                    <Pencil className="h-3.5 w-3.5 mr-2" />
+                                    Rename
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() => setFolderToDelete(folder)}
+                                    data-testid={`button-delete-folder-${folder.id}`}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5 mr-2" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
                           </div>
-
-                          <AnimatePresence initial={false}>
-                            {isExpanded && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="overflow-hidden"
-                              >
-                                <div className="border-t px-4 pb-4 pt-3 space-y-2">
-                                  {folderQuizzes.length === 0 ? (
-                                    <p className="text-xs text-muted-foreground py-3 text-center">
-                                      No quizzes in this folder yet
-                                    </p>
-                                  ) : (
-                                    folderQuizzes.map(quiz => (
-                                      <div
-                                        key={quiz.id}
-                                        className="flex items-center justify-between gap-3 p-3 rounded-md bg-muted/40 flex-wrap"
-                                        data-testid={`folder-quiz-${quiz.id}`}
-                                      >
-                                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                                          <div className="w-7 h-7 rounded bg-primary/10 flex items-center justify-center shrink-0 text-primary">
-                                            {getCategoryIcon(quiz.category)}
-                                          </div>
-                                          <div className="min-w-0">
-                                            <p className="text-sm font-medium truncate">{quiz.title}</p>
-                                            <p className="text-[11px] text-muted-foreground">
-                                              {(quiz.questions as any[]).length} questions
-                                            </p>
-                                          </div>
-                                        </div>
-                                        <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
-                                          <Button
-                                            size="sm"
-                                            onClick={() => handleRetake(quiz)}
-                                            data-testid={`button-folder-retake-${quiz.id}`}
-                                          >
-                                            <Play className="h-3 w-3 mr-1 fill-current" />
-                                            Take
-                                          </Button>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => handleStudy(quiz)}
-                                            data-testid={`button-folder-study-${quiz.id}`}
-                                          >
-                                            <BookOpen className="h-3 w-3 mr-1" />
-                                            Review
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    ))
-                                  )}
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
                         </CardContent>
                       </Card>
                     </motion.div>
@@ -739,65 +591,6 @@ export default function HistoryPage() {
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               )}
               {editingFolder ? "Rename" : "Create"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!addQuizzesFolderId} onOpenChange={(open) => { if (!open) { setAddQuizzesFolderId(null); setSelectedQuizIds(new Set()); } }}>
-        <DialogContent className="max-h-[80vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>Add Quizzes to Folder</DialogTitle>
-            <DialogDescription>
-              Select quizzes to include in "{folders.find(f => f.id === addQuizzesFolderId)?.name}"
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto space-y-1 py-1 -mx-1 px-1">
-            {quizzes && quizzes.length > 0 ? (
-              quizzes.map(quiz => {
-                const isSelected = selectedQuizIds.has(quiz.id);
-                return (
-                  <div
-                    key={quiz.id}
-                    className={`flex items-center gap-3 p-3 rounded-md cursor-pointer select-none flex-wrap ${isSelected ? "bg-primary/10" : "bg-muted/30"}`}
-                    onClick={() => toggleQuizSelection(quiz.id)}
-                    data-testid={`select-quiz-${quiz.id}`}
-                  >
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? "bg-primary border-primary" : "border-muted-foreground/30"}`}>
-                      {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
-                    </div>
-                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <div className="w-7 h-7 rounded bg-primary/10 flex items-center justify-center shrink-0 text-primary">
-                        {getCategoryIcon(quiz.category)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">{quiz.title}</p>
-                        <p className="text-[11px] text-muted-foreground">
-                          {(quiz.questions as any[]).length} questions
-                          {quiz.folderId && quiz.folderId !== addQuizzesFolderId && folders.find(f => f.id === quiz.folderId) && (
-                            <> &middot; in {folders.find(f => f.id === quiz.folderId)?.name}</>
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-6">No quizzes available</p>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setAddQuizzesFolderId(null); setSelectedQuizIds(new Set()); }} data-testid="button-cancel-add-quizzes">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSaveQuizSelection}
-              disabled={addQuizzesToFolderMutation.isPending}
-              data-testid="button-save-add-quizzes"
-            >
-              {addQuizzesToFolderMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              Save
             </Button>
           </DialogFooter>
         </DialogContent>
