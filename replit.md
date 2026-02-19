@@ -50,9 +50,9 @@ Prepetual is a full-stack web application designed to help students prepare for 
 Preferred communication style: Simple, everyday language.
 
 ### Typography (IMPORTANT)
-- **Brand Font**: Funnel Display (Bold 800) for the brand name.
+- **Brand Font**: Righteous for the brand name.
 - **Body Font**: DM Sans for all other text
-- The `.font-brand` CSS class applies Funnel Display (800) to the brand name
+- The `.font-brand` CSS class applies Righteous to the brand name
 
 ## System Architecture
 
