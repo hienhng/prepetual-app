@@ -56,7 +56,7 @@ export async function sendVerificationEmail(
                 <!-- Header -->
                 <tr>
                   <td style="background-color: #FACC15; padding: 28px 40px; text-align: center;">
-                    <h1 style="margin: 0; color: #171717; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; font-family: 'Funnel Display', sans-serif;">Prepetual</h1>
+                    <h1 style="margin: 0; color: #171717; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; font-family: 'Funnel Display', sans-serif;">Prepetual</h1>
                   </td>
                 </tr>
                 <!-- Content -->
@@ -267,7 +267,7 @@ export async function sendPasswordResetEmail(
                 <!-- Header -->
                 <tr>
                   <td style="background-color: #FACC15; padding: 28px 40px; text-align: center;">
-                    <h1 style="margin: 0; color: #171717; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; font-family: 'Funnel Display', sans-serif;">Prepetual</h1>
+                    <h1 style="margin: 0; color: #171717; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; font-family: 'Funnel Display', sans-serif;">Prepetual</h1>
                   </td>
                 </tr>
                 <!-- Content -->
