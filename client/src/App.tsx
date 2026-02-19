@@ -48,6 +48,7 @@ import RevisionSummary from "@/pages/revision-summary";
 import Settings from "@/pages/settings";
 import Blog from "@/pages/blog";
 import BlogPost from "@/pages/blog-post";
+import FolderPage from "@/pages/folder";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth";
 import { Footer } from "@/components/footer";
@@ -86,6 +87,7 @@ function AuthenticatedRouter() {
       <Route path="/quiz" component={Quiz} />
       <Route path="/results" component={Results} />
       <Route path="/history" component={HistoryPage} />
+      <Route path="/folder/:id" component={FolderPage} />
       <Route path="/study" component={Study} />
       <Route path="/share/:id" component={Share} />
       <Route path="/edit-quiz" component={EditQuiz} />
@@ -134,6 +136,7 @@ function PublicRouter() {
       <Route path="/feed">{() => <ProtectedRoute component={Feed} />}</Route>
       <Route path="/generate">{() => <ProtectedRoute component={Generate} />}</Route>
       <Route path="/history">{() => <ProtectedRoute component={HistoryPage} />}</Route>
+      <Route path="/folder/:id">{() => <ProtectedRoute component={FolderPage} />}</Route>
       <Route path="/study">{() => <ProtectedRoute component={Study} />}</Route>
       <Route path="/edit-quiz">{() => <ProtectedRoute component={EditQuiz} />}</Route>
       <Route path="/streak-complete">{() => <ProtectedRoute component={StreakComplete} />}</Route>
