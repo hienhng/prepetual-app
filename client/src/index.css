@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Questrial&family=Righteous&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Righteous&family=TikTok+Sans:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -100,7 +100,7 @@ select:-webkit-autofill:active {
   --chart-3: 142 76% 36%;
   --chart-4: 28 100% 50%;
   --chart-5: 340 82% 52%;
-  --font-sans: 'Questrial', sans-serif;
+  --font-sans: 'TikTok Sans', sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
   --radius: .5rem;
