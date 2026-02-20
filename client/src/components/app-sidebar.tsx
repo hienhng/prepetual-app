@@ -228,11 +228,12 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {pinnedFolders.map((folder) => (
-                  <SidebarMenuItem key={folder.id}>
+                  <SidebarMenuItem key={folder.id} className="relative group">
                     <SidebarMenuButton
                       asChild
                       isActive={location === `/folder/${folder.id}`}
                       tooltip={folder.name}
+                      className="pr-8"
                     >
                       <Link
                         href={`/folder/${folder.id}`}
@@ -249,13 +250,13 @@ export function AppSidebar() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="h-7 w-7 absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity z-10"
                             data-testid={`button-folder-actions-${folder.id}`}
                           >
                             <MoreHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" side="right" className="w-48">
+                        <DropdownMenuContent align="start" side="right" className="w-45">
                           <DropdownMenuItem asChild>
                             <Link href="/history?tab=folders">
                               <Pencil className="h-3.5 w-3.5 mr-2" />
