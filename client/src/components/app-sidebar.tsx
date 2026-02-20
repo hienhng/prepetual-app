@@ -16,7 +16,8 @@ import {
   Compass,
   HelpCircle,
   Settings,
-  Folders
+  Folders,
+  ChartLine
 } from "lucide-react";
 import { useQuizNavigationGuard } from "@/lib/quiz-navigation-guard";
 import {
@@ -61,6 +62,11 @@ const mainNavItems = [
     title: "Your Quizzes",
     url: "/history",
     icon: Folders,
+  },
+  {
+    title: "Progress",
+    url: "/progress",
+    icon: ChartLine,
   },
   {
     title: "Discover",

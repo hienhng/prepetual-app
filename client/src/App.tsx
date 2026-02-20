@@ -49,6 +49,7 @@ import Settings from "@/pages/settings";
 import Blog from "@/pages/blog";
 import BlogPost from "@/pages/blog-post";
 import FolderPage from "@/pages/folder";
+import ProgressPage from "@/pages/progress";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth";
 import { Footer } from "@/components/footer";
@@ -93,6 +94,7 @@ function AuthenticatedRouter() {
       <Route path="/edit-quiz" component={EditQuiz} />
       <Route path="/streak-complete" component={StreakComplete} />
       <Route path="/revision-summary" component={RevisionSummary} />
+      <Route path="/progress" component={ProgressPage} />
       <Route path="/settings" component={Settings} />
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:id" component={BlogPost} />
@@ -140,6 +142,7 @@ function PublicRouter() {
       <Route path="/study">{() => <ProtectedRoute component={Study} />}</Route>
       <Route path="/edit-quiz">{() => <ProtectedRoute component={EditQuiz} />}</Route>
       <Route path="/streak-complete">{() => <ProtectedRoute component={StreakComplete} />}</Route>
+      <Route path="/progress">{() => <ProtectedRoute component={ProgressPage} />}</Route>
       <Route path="/settings">{() => <ProtectedRoute component={Settings} />}</Route>
       <Route component={NotFound} />
     </Switch>
@@ -205,6 +208,7 @@ function AuthenticatedHeader() {
       case "/results": return "Results";
       case "/study": return "Study Mode";
       case "/edit-quiz": return "Edit Quiz";
+      case "/progress": return "Progress";
       case "/about": return "About";
       case "/contact": return "Contact";
       case "/terms": return "Terms of Service";

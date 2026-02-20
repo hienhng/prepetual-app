@@ -49,7 +49,7 @@ export interface IStorage {
   getQuizResult(quizId: string): Promise<QuizResult | undefined>;
   getQuizResultsByQuizId(quizId: string): Promise<QuizResult[]>;
   getUserAverageAccuracy(userId: string): Promise<{ averageAccuracy: number; totalAttempts: number }>;
-  getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number }[]>;
+  getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string }[]>;
   // Streak
   getUserStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; lastActivityDate: string | null; isActive: boolean }>;
   getUserStreakHistory(userId: string): Promise<string[]>;
@@ -285,27 +285,31 @@ export class DatabaseStorage implements IStorage {
     return { averageAccuracy, totalAttempts: allResults.length };
   }
 
-  async getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number }[]> {
+  async getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string }[]> {
     const userQuizzes = await this.getQuizzesByUserId(userId);
     if (userQuizzes.length === 0) {
       return [];
     }
 
     const quizIds = userQuizzes.map(q => q.id);
-    const quizMap = new Map(userQuizzes.map(q => [q.id, q.title]));
+    const quizMap = new Map(userQuizzes.map(q => [q.id, { title: q.title, category: q.category || "Others/General" }]));
     
     const allResults = await db.select()
       .from(quizResults)
       .where(inArray(quizResults.quizId, quizIds))
       .orderBy(quizResults.completedAt);
 
-    return allResults.map(r => ({
-      date: r.completedAt.toISOString(),
-      accuracy: r.totalQuestions > 0 ? Math.round((r.correctAnswers / r.totalQuestions) * 100) : 0,
-      quizTitle: quizMap.get(r.quizId) || "Unknown Quiz",
-      correctAnswers: r.correctAnswers,
-      totalQuestions: r.totalQuestions,
-    }));
+    return allResults.map(r => {
+      const quizInfo = quizMap.get(r.quizId);
+      return {
+        date: r.completedAt.toISOString(),
+        accuracy: r.totalQuestions > 0 ? Math.round((r.correctAnswers / r.totalQuestions) * 100) : 0,
+        quizTitle: quizInfo?.title || "Unknown Quiz",
+        correctAnswers: r.correctAnswers,
+        totalQuestions: r.totalQuestions,
+        category: quizInfo?.category || "Others/General",
+      };
+    });
   }
 
   // Comments

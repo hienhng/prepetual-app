@@ -34,7 +34,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { AccuracyDialog } from "@/components/accuracy-dialog";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import type { Quiz } from "@shared/schema";
@@ -889,7 +888,6 @@ export default function Dashboard() {
   } = useQuiz();
   const { user } = useAuth();
   const [streakCalendarOpen, setStreakCalendarOpen] = useState(false);
-  const [accuracyDialogOpen, setAccuracyDialogOpen] = useState(false);
   const [revisionExitWarning, setRevisionExitWarning] = useState<{ open: boolean; quizId: string | null; type: 'saved' | null }>({ 
     open: false, 
     quizId: null, 
@@ -1177,7 +1175,7 @@ export default function Dashboard() {
                 icon={() => <FontAwesomeIcon icon={faChartSimple} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
                 isActive={(userStats?.totalAttempts ?? 0) > 0}
-                onClick={() => setAccuracyDialogOpen(true)}
+                onClick={() => setLocation("/progress")}
               />
             </div>
           </motion.section>
@@ -1371,13 +1369,6 @@ export default function Dashboard() {
           />
         </DialogContent>
       </Dialog>
-
-      <AccuracyDialog
-        open={accuracyDialogOpen}
-        onOpenChange={setAccuracyDialogOpen}
-        averageAccuracy={userStats?.averageAccuracy ?? 0}
-        totalAttempts={userStats?.totalAttempts ?? 0}
-      />
 
       <AlertDialog 
         open={revisionExitWarning.open} 
