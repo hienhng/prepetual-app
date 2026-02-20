@@ -228,7 +228,10 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     if (material.type === null) {
       sessionStorage.removeItem("source_material");
     } else {
-      sessionStorage.setItem("source_material", JSON.stringify(material));
+      try {
+        sessionStorage.setItem("source_material", JSON.stringify(material));
+      } catch {
+      }
     }
   };
 
