@@ -49,7 +49,7 @@ export interface IStorage {
   getQuizResult(quizId: string): Promise<QuizResult | undefined>;
   getQuizResultsByQuizId(quizId: string): Promise<QuizResult[]>;
   getUserAverageAccuracy(userId: string): Promise<{ averageAccuracy: number; totalAttempts: number }>;
-  getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string }[]>;
+  getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string; quizId: string }[]>;
   // Streak
   getUserStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; lastActivityDate: string | null; isActive: boolean }>;
   getUserStreakHistory(userId: string): Promise<string[]>;
@@ -285,7 +285,7 @@ export class DatabaseStorage implements IStorage {
     return { averageAccuracy, totalAttempts: allResults.length };
   }
 
-  async getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string }[]> {
+  async getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string; quizId: string }[]> {
     const userQuizzes = await this.getQuizzesByUserId(userId);
     if (userQuizzes.length === 0) {
       return [];
@@ -308,6 +308,7 @@ export class DatabaseStorage implements IStorage {
         correctAnswers: r.correctAnswers,
         totalQuestions: r.totalQuestions,
         category: quizInfo?.category || "Others/General",
+        quizId: r.quizId,
       };
     });
   }
