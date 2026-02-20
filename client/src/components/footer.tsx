@@ -14,7 +14,7 @@ export function Footer() {
               alt="Prepetual Logo" 
               className="w-8 h-8 rounded-full object-cover"
             />
-            <span className="text-lg font-brand text-foreground">Prepetual</span>
+            <span className="text-lg font-brand text-foreground">prepetual</span>
           </div>
 
           <nav className="flex flex-wrap gap-x-6 gap-y-2">

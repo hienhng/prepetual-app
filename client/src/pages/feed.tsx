@@ -402,7 +402,7 @@ export default function Feed() {
         >
           <h1 className="text-3xl font-bold text-foreground mb-2">Discover</h1>
           <p className="text-muted-foreground">
-            Explore quizzes shared by the <span className="font-brand">Prepetual</span> community
+            Explore quizzes shared by the <span className="font-brand">prepetual</span> community
           </p>
         </motion.div>
 

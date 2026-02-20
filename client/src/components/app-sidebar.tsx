@@ -145,7 +145,7 @@ export function AppSidebar() {
                 alt="Prepetual Logo" 
                 className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0"
               />
-              <span className="text-xl font-brand text-foreground whitespace-nowrap hidden sm:inline">Prepetual</span>
+              <span className="text-xl font-brand text-foreground whitespace-nowrap hidden sm:inline">prepetual</span>
             </Link>
           )}
           {!isCollapsed && (

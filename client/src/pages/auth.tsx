@@ -588,7 +588,7 @@ export default function AuthPage() {
               alt="Prepetual Logo" 
               className="w-12 h-12 rounded-xl object-cover shadow-lg"
             />
-            <h1 className="text-3xl font-bold font-brand text-white">Prepetual</h1>
+            <h1 className="text-3xl font-bold font-brand text-white">prepetual</h1>
           </div>
 
           {/* Feature Slider */}
@@ -618,7 +618,7 @@ export default function AuthPage() {
               alt="Prepetual Logo" 
               className="w-12 h-12 rounded-xl object-cover"
             />
-            <span className="text-2xl font-bold font-brand">Prepetual</span>
+            <span className="text-2xl font-bold font-brand">prepetual</span>
           </div>
 
           {/* Form Header */}

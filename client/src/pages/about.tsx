@@ -393,7 +393,7 @@ export default function About() {
           <SplitReveal>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-foreground mb-10 relative z-10 tracking-tight">
               About{" "}
-              <AnimatedText text="Prepetual" className="font-brand bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent" />
+              <AnimatedText text="prepetual" className="font-brand bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent" />
             </h1>
           </SplitReveal>
 

@@ -50,9 +50,9 @@ Prepetual is a full-stack web application designed to help students prepare for 
 Preferred communication style: Simple, everyday language.
 
 ### Typography (IMPORTANT)
-- **Brand Font**: Righteous for the brand name.
+- **Brand Font**: Climate Crisis for the brand name (always lowercase "prepetual").
 - **Body Font**: DM Sans for all other text
-- The `.font-brand` CSS class applies Righteous to the brand name
+- The `.font-brand` CSS class applies Climate Crisis to the brand name
 
 ## System Architecture
 
