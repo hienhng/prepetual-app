@@ -212,16 +212,17 @@ REQUIREMENTS:
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
 
-FACTUAL ACCURACY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
 - Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
 - If the source content contains a factual claim, use it as the basis for the correct answer
-- Double-check every correct answer before finalizing: re-read the source content, verify definitions, formulas, dates, names, and relationships
-- For math/science: verify all calculations, unit conversions, and formulas step by step before setting the correct answer
+- For math/science: work through all calculations, unit conversions, and formulas step by step FIRST, arrive at the numerical result, THEN set the correctAnswer to the option that matches your calculated result
+- SELF-CHECK (MANDATORY): After writing each question, re-read your own explanation. The value/conclusion stated in the explanation MUST match the correctAnswer field EXACTLY. If your explanation says the answer is "0.05kg" then correctAnswer MUST be "0,05kg" or "0.05kg" — NEVER a different value like "5kg". Fix any mismatch before moving to the next question.
 - For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
 - For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
 - NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
 - Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
 - The explanation must logically and clearly justify why the correct answer is right and why each wrong answer is wrong
+- wrongAnswerExplanations: for EACH wrong option, explain specifically why that value is wrong (e.g., "This is off by a factor of 100 due to a unit conversion error"). Do NOT just restate the correct answer — explain the specific mistake that would lead someone to pick that wrong option.
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
@@ -300,16 +301,17 @@ REQUIREMENTS:
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
 
-FACTUAL ACCURACY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
 - Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
 - If the source content contains a factual claim, use it as the basis for the correct answer
-- Double-check every correct answer before finalizing: re-read the source content, verify definitions, formulas, dates, names, and relationships
-- For math/science: verify all calculations, unit conversions, and formulas step by step before setting the correct answer
+- For math/science: work through all calculations, unit conversions, and formulas step by step FIRST, arrive at the numerical result, THEN set the correctAnswer to the option that matches your calculated result
+- SELF-CHECK (MANDATORY): After writing each question, re-read your own explanation. The value/conclusion stated in the explanation MUST match the correctAnswer field EXACTLY. If your explanation says the answer is "0.05kg" then correctAnswer MUST be "0,05kg" or "0.05kg" — NEVER a different value like "5kg". Fix any mismatch before moving to the next question.
 - For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
 - For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
 - NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
 - Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
 - The explanation must logically and clearly justify why the correct answer is right and why each wrong answer is wrong
+- wrongAnswerExplanations: for EACH wrong option, explain specifically why that value is wrong (e.g., "This is off by a factor of 100 due to a unit conversion error"). Do NOT just restate the correct answer — explain the specific mistake that would lead someone to pick that wrong option.
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
@@ -390,16 +392,17 @@ REQUIREMENTS:
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
 
-FACTUAL ACCURACY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
 - Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
 - If the source content contains a factual claim, use it as the basis for the correct answer
-- Double-check every correct answer before finalizing: re-read the source content, verify definitions, formulas, dates, names, and relationships
-- For math/science: verify all calculations, unit conversions, and formulas step by step before setting the correct answer
+- For math/science: work through all calculations, unit conversions, and formulas step by step FIRST, arrive at the numerical result, THEN set the correctAnswer to the option that matches your calculated result
+- SELF-CHECK (MANDATORY): After writing each question, re-read your own explanation. The value/conclusion stated in the explanation MUST match the correctAnswer field EXACTLY. If your explanation says the answer is "0.05kg" then correctAnswer MUST be "0,05kg" or "0.05kg" — NEVER a different value like "5kg". Fix any mismatch before moving to the next question.
 - For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
 - For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
 - NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
 - Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
 - The explanation must logically and clearly justify why the correct answer is right and why each wrong answer is wrong
+- wrongAnswerExplanations: for EACH wrong option, explain specifically why that value is wrong (e.g., "This is off by a factor of 100 due to a unit conversion error"). Do NOT just restate the correct answer — explain the specific mistake that would lead someone to pick that wrong option.
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
@@ -696,13 +699,13 @@ LANGUAGE HANDLING:
 - If the content is in Vietnamese, write explanations and title in Vietnamese
 - If the content is in English, write explanations and title in English
 
-FACTUAL ACCURACY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
 - Every correct answer MUST be verifiably, objectively correct based on established academic knowledge
-- Double-check every answer before finalizing: verify definitions, formulas, dates, names, scientific facts, and relationships
-- For math/science: verify all calculations, unit conversions, and formulas step by step
-- For true/false: ensure the statement is UNAMBIGUOUSLY true or false
+- For math/science: work through all calculations, unit conversions, and formulas step by step FIRST, arrive at the result, THEN set correctAnswer to the option matching your result
+- SELF-CHECK (MANDATORY): After writing each question, re-read your own explanation. The value/conclusion in the explanation MUST match the correctAnswer field EXACTLY. If your explanation derives "0.05kg" then correctAnswer MUST be "0,05kg" or "0.05kg" — NEVER a different value. Fix any mismatch before moving on.
 - NEVER mark a wrong answer as correct. If uncertain, use the most defensible and commonly accepted answer
-- The explanation must clearly and logically justify why the correct answer is right and each wrong answer is wrong
+- The explanation must clearly and logically justify why the correct answer is right
+- wrongAnswerExplanations: for EACH wrong option, explain specifically why that value is wrong (e.g., "This is off by a factor of 100 due to a unit conversion error"). Do NOT just restate the correct answer.
 
 IMPORTANT INSTRUCTIONS:
 - Extract questions EXACTLY as they appear (preserving the original wording)
@@ -753,13 +756,13 @@ LANGUAGE HANDLING:
 - Preserve the original language of the questions and options
 - Write explanations and the QUIZ TITLE in the SAME language as the content
 
-FACTUAL ACCURACY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
 - Every correct answer MUST be verifiably, objectively correct based on established academic knowledge
-- Double-check every answer before finalizing: verify definitions, formulas, dates, names, scientific facts, and relationships
-- For math/science: verify all calculations, unit conversions, and formulas step by step
-- For true/false: ensure the statement is UNAMBIGUOUSLY true or false
+- For math/science: work through all calculations, unit conversions, and formulas step by step FIRST, arrive at the result, THEN set correctAnswer to the option matching your result
+- SELF-CHECK (MANDATORY): After writing each question, re-read your own explanation. The value/conclusion in the explanation MUST match the correctAnswer field EXACTLY. If your explanation derives "0.05kg" then correctAnswer MUST be "0,05kg" or "0.05kg" — NEVER a different value. Fix any mismatch before moving on.
 - NEVER mark a wrong answer as correct. If uncertain, use the most defensible and commonly accepted answer
-- The explanation must clearly and logically justify why the correct answer is right and each wrong answer is wrong
+- The explanation must clearly and logically justify why the correct answer is right
+- wrongAnswerExplanations: for EACH wrong option, explain specifically why that value is wrong (e.g., "This is off by a factor of 100 due to a unit conversion error"). Do NOT just restate the correct answer.
 
 IMPORTANT INSTRUCTIONS:
 - Extract questions EXACTLY as they appear (from both text and images)
