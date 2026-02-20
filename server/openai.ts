@@ -140,6 +140,73 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
   }
 }
 
+function normalizeValue(v: string): string {
+  return v.toLowerCase().replace(/,/g, ".").replace(/\s+/g, "").replace(/\.+$/, "");
+}
+
+function extractNumericParts(s: string): { number: string; unit: string } {
+  const norm = normalizeValue(s);
+  const match = norm.match(/^([0-9]*\.?[0-9]+)\s*(.*)$/);
+  if (match) {
+    return { number: match[1], unit: match[2] };
+  }
+  return { number: norm, unit: "" };
+}
+
+function valuesMatch(a: string, b: string): boolean {
+  const normA = normalizeValue(a);
+  const normB = normalizeValue(b);
+  if (normA === normB) return true;
+
+  const partsA = extractNumericParts(a);
+  const partsB = extractNumericParts(b);
+
+  if (partsA.number && partsB.number) {
+    const numA = parseFloat(partsA.number);
+    const numB = parseFloat(partsB.number);
+    if (!isNaN(numA) && !isNaN(numB) && numA === numB) {
+      if (partsA.unit === partsB.unit || partsA.unit === "" || partsB.unit === "") {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function verifyAnswerMatchesExplanation(
+  explanation: string,
+  markedCorrect: string,
+  options: string[]
+): string | null {
+  const allMatches = explanation.match(/[=→⇒]\s*([0-9]+[.,]?[0-9]*)\s*(kg|g|m|cm|mm|s|n|j|w|v|a|hz|rad|mol|l|ml|°c|k|pa|atm|ev|cal)?\.?(?=[\s,;.)⇒→=]|$)/gi);
+
+  if (!allMatches || allMatches.length === 0) return null;
+
+  const lastMatch = allMatches[allMatches.length - 1];
+  const conclusionRaw = lastMatch.replace(/^[=→⇒]\s*/, "").replace(/\.+$/, "").trim();
+
+  console.log(`[VERIFY] Explanation last conclusion: "${conclusionRaw}", markedCorrect: "${markedCorrect}"`);
+
+  if (valuesMatch(conclusionRaw, markedCorrect)) {
+    return null;
+  }
+
+  for (const opt of options) {
+    if (valuesMatch(conclusionRaw, opt) && opt !== markedCorrect) {
+      return opt;
+    }
+  }
+
+  const lastSentence = explanation.split(/[.!。]\s*/).filter(s => s.trim().length > 0).pop() || "";
+  for (const opt of options) {
+    if (opt !== markedCorrect && valuesMatch(lastSentence, opt)) {
+      return opt;
+    }
+  }
+
+  return null;
+}
+
 interface QuizGenerationParams {
   text: string;
   questionCount: number;
@@ -554,37 +621,14 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     // Server-side answer-explanation consistency check
     for (const q of rawQuestions) {
       if (q.type === "multiple_choice" && q.explanation && q.correctAnswer && Array.isArray(q.options)) {
-        const explanation = String(q.explanation).toLowerCase();
+        const explanation = String(q.explanation);
         const markedCorrect = String(q.correctAnswer).trim();
         const options = q.options.map((o: any) => String(o).trim());
 
-        // Check if a different option's value appears at the end of the explanation
-        // (the conclusion) but the marked correct answer does NOT
-        const markedCorrectLower = markedCorrect.toLowerCase().replace(",", ".").replace(/\s/g, "");
-        const explanationNorm = explanation.replace(",", ".").replace(/\s/g, "");
-
-        // Extract numeric conclusions from explanation (patterns like "= 0.05", "= 0.05kg", "= 0,05 kg")
-        const conclusionMatches = explanation.match(/[=→]\s*([0-9]+[.,]?[0-9]*)\s*(kg|g|m|cm|mm|s|n|j|w|v|a|hz|rad|mol|l|ml)?/gi);
-        if (conclusionMatches && conclusionMatches.length > 0) {
-          // Get the last conclusion (final answer in the derivation chain)
-          const lastConclusion = conclusionMatches[conclusionMatches.length - 1];
-          const conclusionValue = lastConclusion.replace(/^[=→]\s*/, "").trim().toLowerCase().replace(",", ".");
-
-          // Find which option best matches the explanation's conclusion
-          let bestMatchIdx = -1;
-          for (let i = 0; i < options.length; i++) {
-            const optNorm = options[i].toLowerCase().replace(",", ".").replace(/\s/g, "");
-            if (conclusionValue.replace(/\s/g, "") === optNorm || optNorm.includes(conclusionValue.replace(/\s/g, ""))) {
-              bestMatchIdx = i;
-              break;
-            }
-          }
-
-          if (bestMatchIdx !== -1 && options[bestMatchIdx] !== markedCorrect) {
-            const derivedAnswer = options[bestMatchIdx];
-            console.warn(`[ANSWER FIX] Explanation derives "${conclusionValue}" matching option "${derivedAnswer}" but correctAnswer was "${markedCorrect}". Fixing to "${derivedAnswer}".`);
-            q.correctAnswer = derivedAnswer;
-          }
+        const fixedAnswer = verifyAnswerMatchesExplanation(explanation, markedCorrect, options);
+        if (fixedAnswer && fixedAnswer !== markedCorrect) {
+          console.warn(`[ANSWER FIX] Explanation concludes "${fixedAnswer}" but correctAnswer was "${markedCorrect}". Auto-correcting.`);
+          q.correctAnswer = fixedAnswer;
         }
       }
     }
@@ -905,29 +949,14 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
     // Server-side answer-explanation consistency check for imported quizzes
     for (const q of parsed.questions) {
       if (q.explanation && q.correctAnswer && Array.isArray(q.options) && q.options.length > 0) {
-        const explanation = String(q.explanation).toLowerCase();
+        const explanation = String(q.explanation);
         const markedCorrect = String(q.correctAnswer).trim();
         const opts = q.options.map((o: any) => String(o).trim());
 
-        const conclusionMatches = explanation.match(/[=→]\s*([0-9]+[.,]?[0-9]*)\s*(kg|g|m|cm|mm|s|n|j|w|v|a|hz|rad|mol|l|ml)?/gi);
-        if (conclusionMatches && conclusionMatches.length > 0) {
-          const lastConclusion = conclusionMatches[conclusionMatches.length - 1];
-          const conclusionValue = lastConclusion.replace(/^[=→]\s*/, "").trim().toLowerCase().replace(",", ".");
-
-          let bestMatchIdx = -1;
-          for (let i = 0; i < opts.length; i++) {
-            const optNorm = opts[i].toLowerCase().replace(",", ".").replace(/\s/g, "");
-            if (conclusionValue.replace(/\s/g, "") === optNorm || optNorm.includes(conclusionValue.replace(/\s/g, ""))) {
-              bestMatchIdx = i;
-              break;
-            }
-          }
-
-          if (bestMatchIdx !== -1 && opts[bestMatchIdx] !== markedCorrect) {
-            const derivedAnswer = opts[bestMatchIdx];
-            console.warn(`[IMPORT ANSWER FIX] Explanation derives "${conclusionValue}" matching "${derivedAnswer}" but correctAnswer was "${markedCorrect}". Fixing.`);
-            q.correctAnswer = derivedAnswer;
-          }
+        const fixedAnswer = verifyAnswerMatchesExplanation(explanation, markedCorrect, opts);
+        if (fixedAnswer && fixedAnswer !== markedCorrect) {
+          console.warn(`[IMPORT ANSWER FIX] Explanation concludes "${fixedAnswer}" but correctAnswer was "${markedCorrect}". Auto-correcting.`);
+          q.correctAnswer = fixedAnswer;
         }
       }
     }
