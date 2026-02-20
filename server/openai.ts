@@ -1346,6 +1346,7 @@ export async function reviseQuizQuestions(params: {
 4. Generate explanations for why each wrong answer is incorrect
 
 CRITICAL RULES:
+- LANGUAGE: You MUST write ALL output (question, explanation, wrongAnswerExplanations) in the SAME language as the original question. If the question is in Vietnamese, respond in Vietnamese. If in Spanish, respond in Spanish. Never switch to English unless the original is in English.
 - Your explanation MUST match your chosen correct answer exactly
 - For math/science: show all calculations step-by-step and verify the final answer
 - For unit conversions: double-check every conversion factor
@@ -1353,13 +1354,13 @@ CRITICAL RULES:
 
 Respond in valid JSON with this exact structure:
 {
-  "question": "revised question text",
+  "question": "revised question text (SAME LANGUAGE as original)",
   "correctAnswer": "the correct option (must be one of the provided options, verbatim)",
-  "explanation": "detailed explanation showing why the correct answer is right",
-  "wrongAnswerExplanations": { "wrong option text": "why this is wrong", ... }
+  "explanation": "detailed explanation (SAME LANGUAGE as original question)",
+  "wrongAnswerExplanations": { "wrong option text": "why this is wrong (SAME LANGUAGE)", ... }
 }`;
               
-              userPrompt = `Revise this question completely:
+              userPrompt = `Revise this question completely. IMPORTANT: Keep everything in the same language as the original question — do NOT translate to English.
 
 Question: ${q.question}
 Type: ${q.type}
@@ -1367,11 +1368,12 @@ ${q.options ? `Options: ${JSON.stringify(q.options)}` : ""}
 Current correct answer: ${q.correctAnswer}
 ${sourceText ? `\nSource material (for context): ${sourceText.substring(0, 2000)}` : ""}
 
-Remember: Pick the correct answer from the existing options. Show your work in the explanation.`;
+Remember: Pick the correct answer from the existing options. Show your work in the explanation. Write in the SAME language as the question above.`;
             } else {
               systemPrompt = `You are an expert answer verifier. Your job is to independently determine the correct answer for a quiz question and write proper explanations. You must NOT change the question text or answer options — only determine which answer is correct and write explanations.
 
 CRITICAL RULES:
+- LANGUAGE: You MUST write ALL output (explanation, wrongAnswerExplanations) in the SAME language as the original question. If the question is in Vietnamese, respond in Vietnamese. If in Spanish, respond in Spanish. Never switch to English unless the original is in English.
 - Independently solve the problem — do NOT trust the currently marked answer
 - Your explanation MUST match your chosen correct answer exactly
 - For math/science: show all calculations step-by-step
@@ -1381,11 +1383,11 @@ CRITICAL RULES:
 Respond in valid JSON with this exact structure:
 {
   "correctAnswer": "the correct option (must be one of the provided options, verbatim)",
-  "explanation": "detailed explanation showing why the correct answer is right",
-  "wrongAnswerExplanations": { "wrong option text": "why this is wrong", ... }
+  "explanation": "detailed explanation (SAME LANGUAGE as the question)",
+  "wrongAnswerExplanations": { "wrong option text": "why this is wrong (SAME LANGUAGE)", ... }
 }`;
               
-              userPrompt = `Determine the correct answer and write explanations for this question:
+              userPrompt = `Determine the correct answer and write explanations for this question. IMPORTANT: Keep everything in the same language as the original question — do NOT translate to English.
 
 Question: ${q.question}
 Type: ${q.type}
@@ -1393,7 +1395,7 @@ ${q.options ? `Options: ${JSON.stringify(q.options)}` : ""}
 Currently marked correct: ${q.correctAnswer}
 ${sourceText ? `\nSource material (for context): ${sourceText.substring(0, 2000)}` : ""}
 
-Independently solve this and determine which option is actually correct. Show your full reasoning.`;
+Independently solve this and determine which option is actually correct. Show your full reasoning. Write in the SAME language as the question above.`;
             }
 
             const completion = await openai.chat.completions.create({
