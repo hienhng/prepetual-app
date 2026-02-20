@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { 
   Home, 
@@ -44,6 +45,15 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -114,12 +124,21 @@ export function AppSidebar() {
   const { handleLinkClick } = useQuizNavigationGuard();
   const { toast } = useToast();
   const isCollapsed = state === "collapsed";
+  const [renamingFolder, setRenamingFolder] = useState<Folder | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const renameInputRef = useRef<HTMLInputElement>(null);
 
   const { data: allFolders } = useQuery<Folder[]>({
     queryKey: ["/api/folders"],
     enabled: !!user,
   });
   const pinnedFolders = allFolders?.filter(f => f.pinnedToSidebar) || [];
+
+  useEffect(() => {
+    if (renamingFolder && renameInputRef.current) {
+      setTimeout(() => renameInputRef.current?.focus(), 100);
+    }
+  }, [renamingFolder]);
 
   const togglePinMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -132,6 +151,31 @@ export function AppSidebar() {
       toast({ title: "Error", description: "Failed to toggle pin", variant: "destructive" });
     },
   });
+
+  const renameFolderMutation = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      return apiRequest("PATCH", `/api/folders/${id}`, { name });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
+      setRenamingFolder(null);
+      setRenameValue("");
+      toast({ title: "Folder renamed" });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to rename folder", variant: "destructive" });
+    },
+  });
+
+  const openRenameDialog = (folder: Folder) => {
+    setRenamingFolder(folder);
+    setRenameValue(folder.name);
+  };
+
+  const handleRenameSubmit = () => {
+    if (!renameValue.trim() || !renamingFolder) return;
+    renameFolderMutation.mutate({ id: renamingFolder.id, name: renameValue.trim() });
+  };
 
   const getInitials = () => {
     if (user?.username) {
@@ -247,7 +291,7 @@ export function AppSidebar() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button
-                            className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center rounded-md opacity-0 group-hover/pinned:opacity-100 focus:opacity-100 data-[state=open]:opacity-100 hover:bg-sidebar-accent/80 transition-opacity z-10"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center rounded-xl opacity-0 group-hover/pinned:opacity-100 focus:opacity-100 data-[state=open]:opacity-100 hover:bg-sidebar-accent/90 transition-all z-10"
                             onClick={(e) => e.stopPropagation()}
                             data-testid={`button-folder-actions-${folder.id}`}
                           >
@@ -255,11 +299,9 @@ export function AppSidebar() {
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent side="right" align="start">
-                          <DropdownMenuItem asChild>
-                            <Link href="/history?tab=folders">
-                              <Pencil className="h-3.5 w-3.5 mr-2" />
-                              Rename
-                            </Link>
+                          <DropdownMenuItem onClick={() => openRenameDialog(folder)}>
+                            <Pencil className="h-3.5 w-3.5 mr-2" />
+                            Rename
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => togglePinMutation.mutate(folder.id)}>
                             <PinOff className="h-3.5 w-3.5 mr-2" />
@@ -340,6 +382,31 @@ export function AppSidebar() {
           </div>
         </div>
       </SidebarFooter>
+      <Dialog open={!!renamingFolder} onOpenChange={(open) => { if (!open) { setRenamingFolder(null); setRenameValue(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename Folder</DialogTitle>
+            <DialogDescription>Enter a new name for this folder.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={(e) => { e.preventDefault(); handleRenameSubmit(); }}>
+            <Input
+              ref={renameInputRef}
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              placeholder="Folder name"
+              data-testid="input-rename-folder"
+            />
+            <DialogFooter className="mt-4">
+              <Button type="button" variant="outline" onClick={() => { setRenamingFolder(null); setRenameValue(""); }}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={!renameValue.trim() || renameFolderMutation.isPending} data-testid="button-rename-folder-submit">
+                {renameFolderMutation.isPending ? "Renaming..." : "Rename"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   );
 }
