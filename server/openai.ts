@@ -153,13 +153,19 @@ function extractNumericParts(s: string): { number: string; unit: string } {
   return { number: norm, unit: "" };
 }
 
+function stripOptionPrefix(s: string): string {
+  return s.replace(/^[A-Da-d]\)\s*/, "").trim();
+}
+
 function valuesMatch(a: string, b: string): boolean {
-  const normA = normalizeValue(a);
-  const normB = normalizeValue(b);
+  const cleanA = stripOptionPrefix(a);
+  const cleanB = stripOptionPrefix(b);
+  const normA = normalizeValue(cleanA);
+  const normB = normalizeValue(cleanB);
   if (normA === normB) return true;
 
-  const partsA = extractNumericParts(a);
-  const partsB = extractNumericParts(b);
+  const partsA = extractNumericParts(cleanA);
+  const partsB = extractNumericParts(cleanB);
 
   if (partsA.number && partsB.number) {
     const numA = parseFloat(partsA.number);
@@ -743,6 +749,14 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     );
     await aiVerifyAnswers(mcQuestions, "[AI VERIFY]");
 
+    for (const q of mcQuestions) {
+      const fixedAnswer = verifyAnswerMatchesExplanation(String(q.explanation), String(q.correctAnswer), q.options.map((o: any) => String(o)));
+      if (fixedAnswer && fixedAnswer !== q.correctAnswer) {
+        console.warn(`[REGEX VERIFY] Correcting answer: "${q.correctAnswer}" -> "${fixedAnswer}" for: "${String(q.question).substring(0, 60)}..."`);
+        q.correctAnswer = fixedAnswer;
+      }
+    }
+
     for (const q of rawQuestions) {
       if (!q.type || !q.question || !q.correctAnswer) {
         console.warn("Skipping malformed question:", q);
@@ -1060,6 +1074,14 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
       q.explanation && q.correctAnswer && Array.isArray(q.options) && q.options.length > 0
     );
     await aiVerifyAnswers(importMcQuestions, "[IMPORT AI VERIFY]");
+
+    for (const q of importMcQuestions) {
+      const fixedAnswer = verifyAnswerMatchesExplanation(String(q.explanation), String(q.correctAnswer), q.options.map((o: any) => String(o)));
+      if (fixedAnswer && fixedAnswer !== q.correctAnswer) {
+        console.warn(`[IMPORT REGEX VERIFY] Correcting answer: "${q.correctAnswer}" -> "${fixedAnswer}" for: "${String(q.question).substring(0, 60)}..."`);
+        q.correctAnswer = fixedAnswer;
+      }
+    }
 
     for (const q of parsed.questions) {
       if (!q.question || !q.correctAnswer) {
