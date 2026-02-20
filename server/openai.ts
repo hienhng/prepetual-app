@@ -1322,3 +1322,157 @@ INSTRUCTIONS:
   }
 }
 
+export async function reviseQuizQuestions(params: {
+  questions: Question[];
+  mode: "full" | "answers_only";
+  sourceText?: string;
+}): Promise<Question[]> {
+  const { questions, mode, sourceText } = params;
+  const limit = pLimit(3);
+  
+  const revisedQuestions = await Promise.all(
+    questions.map((q, idx) => limit(async () => {
+      try {
+        const revised = await pRetry(
+          async () => {
+            let systemPrompt: string;
+            let userPrompt: string;
+
+            if (mode === "full") {
+              systemPrompt = `You are an expert quiz question writer and verifier. Your job is to revise a quiz question from scratch. You must:
+1. Rewrite the question to be clearer and more precise
+2. Independently solve the problem to determine the correct answer
+3. Write a thorough explanation that shows the full solution process
+4. Generate explanations for why each wrong answer is incorrect
+
+CRITICAL RULES:
+- Your explanation MUST match your chosen correct answer exactly
+- For math/science: show all calculations step-by-step and verify the final answer
+- For unit conversions: double-check every conversion factor
+- The correct answer must be one of the provided options (do not change the options themselves)
+
+Respond in valid JSON with this exact structure:
+{
+  "question": "revised question text",
+  "correctAnswer": "the correct option (must be one of the provided options, verbatim)",
+  "explanation": "detailed explanation showing why the correct answer is right",
+  "wrongAnswerExplanations": { "wrong option text": "why this is wrong", ... }
+}`;
+              
+              userPrompt = `Revise this question completely:
+
+Question: ${q.question}
+Type: ${q.type}
+${q.options ? `Options: ${JSON.stringify(q.options)}` : ""}
+Current correct answer: ${q.correctAnswer}
+${sourceText ? `\nSource material (for context): ${sourceText.substring(0, 2000)}` : ""}
+
+Remember: Pick the correct answer from the existing options. Show your work in the explanation.`;
+            } else {
+              systemPrompt = `You are an expert answer verifier. Your job is to independently determine the correct answer for a quiz question and write proper explanations. You must NOT change the question text or answer options — only determine which answer is correct and write explanations.
+
+CRITICAL RULES:
+- Independently solve the problem — do NOT trust the currently marked answer
+- Your explanation MUST match your chosen correct answer exactly
+- For math/science: show all calculations step-by-step
+- For unit conversions: double-check every conversion factor
+- The correct answer must be one of the provided options (verbatim)
+
+Respond in valid JSON with this exact structure:
+{
+  "correctAnswer": "the correct option (must be one of the provided options, verbatim)",
+  "explanation": "detailed explanation showing why the correct answer is right",
+  "wrongAnswerExplanations": { "wrong option text": "why this is wrong", ... }
+}`;
+              
+              userPrompt = `Determine the correct answer and write explanations for this question:
+
+Question: ${q.question}
+Type: ${q.type}
+${q.options ? `Options: ${JSON.stringify(q.options)}` : ""}
+Currently marked correct: ${q.correctAnswer}
+${sourceText ? `\nSource material (for context): ${sourceText.substring(0, 2000)}` : ""}
+
+Independently solve this and determine which option is actually correct. Show your full reasoning.`;
+            }
+
+            const completion = await openai.chat.completions.create({
+              model: "gpt-4o-mini",
+              messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userPrompt },
+              ],
+              temperature: 0.3,
+              max_tokens: 2000,
+              response_format: { type: "json_object" },
+            });
+
+            const content = completion.choices[0]?.message?.content;
+            if (!content) throw new Error("No response from AI");
+
+            const parsed = JSON.parse(content);
+
+            if (mode === "full") {
+              if (!parsed.question || !parsed.correctAnswer || !parsed.explanation) {
+                throw new Error("Invalid AI response structure for full revise");
+              }
+              if (q.options && !q.options.includes(parsed.correctAnswer)) {
+                console.log(`[AI REVISE] Q${idx + 1}: AI picked answer not in options, finding closest match`);
+                const match = q.options.find(opt => 
+                  opt.toLowerCase().includes(parsed.correctAnswer.toLowerCase()) ||
+                  parsed.correctAnswer.toLowerCase().includes(opt.toLowerCase())
+                );
+                if (match) parsed.correctAnswer = match;
+                else parsed.correctAnswer = q.correctAnswer;
+              }
+              return {
+                ...q,
+                question: parsed.question,
+                correctAnswer: parsed.correctAnswer,
+                explanation: parsed.explanation,
+                wrongAnswerExplanations: parsed.wrongAnswerExplanations || {},
+              };
+            } else {
+              if (!parsed.correctAnswer || !parsed.explanation) {
+                throw new Error("Invalid AI response structure for answers_only revise");
+              }
+              if (q.options && !q.options.includes(parsed.correctAnswer)) {
+                console.log(`[AI REVISE] Q${idx + 1}: AI picked answer not in options, finding closest match`);
+                const match = q.options.find(opt => 
+                  opt.toLowerCase().includes(parsed.correctAnswer.toLowerCase()) ||
+                  parsed.correctAnswer.toLowerCase().includes(opt.toLowerCase())
+                );
+                if (match) parsed.correctAnswer = match;
+                else parsed.correctAnswer = q.correctAnswer;
+              }
+              return {
+                ...q,
+                correctAnswer: parsed.correctAnswer,
+                explanation: parsed.explanation,
+                wrongAnswerExplanations: parsed.wrongAnswerExplanations || {},
+              };
+            }
+          },
+          {
+            retries: 2,
+            minTimeout: 1000,
+            maxTimeout: 5000,
+            factor: 2,
+            onFailedAttempt: (error: any) => {
+              console.log(`[AI REVISE] Q${idx + 1} retry (attempt ${error.attemptNumber}): ${error.message}`);
+              if (!isRateLimitError(error)) throw error;
+            },
+          }
+        );
+        console.log(`[AI REVISE] Q${idx + 1} revised successfully (mode: ${mode})`);
+        return revised;
+      } catch (error) {
+        console.error(`[AI REVISE] Q${idx + 1} failed, keeping original:`, error);
+        return q;
+      }
+    }))
+  );
+
+  return revisedQuestions;
+}
+

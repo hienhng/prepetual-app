@@ -6,7 +6,7 @@ import {
   Copy, ArrowUp, ArrowDown, Eye, EyeOff, CheckSquare, Square,
   Search, Filter, MoreHorizontal, GripVertical, Shuffle,
   ChevronLeft, ChevronRight, FileText, ListChecks, ToggleLeft,
-  ImagePlus, Image as ImageIcon
+  ImagePlus, Image as ImageIcon, Sparkles, Loader2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,6 +57,8 @@ export default function EditQuizPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<QuestionFilter>("all");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showReviseDialog, setShowReviseDialog] = useState(false);
+  const [isRevising, setIsRevising] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
 
   useEffect(() => {
@@ -288,6 +290,33 @@ export default function EditQuizPage() {
     }
   };
 
+  const handleAiRevise = async () => {
+    setIsRevising(true);
+    setShowReviseDialog(false);
+    try {
+      const isImported = (currentQuiz as any)?.generationMode === "import";
+      const response = await apiRequest("POST", `/api/quiz/${currentQuiz.id}/ai-revise`);
+      const updatedQuiz = await response.json();
+      setQuestions(updatedQuiz.questions);
+      setCurrentQuiz(updatedQuiz);
+      queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
+      toast({
+        title: "AI Revise complete",
+        description: isImported
+          ? "Correct answers and explanations have been revised"
+          : "Questions, answers, and explanations have been revised",
+      });
+    } catch (error) {
+      toast({
+        title: "Revise failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRevising(false);
+    }
+  };
+
   const handleStartQuiz = async () => {
     const saved = await handleSave();
     if (saved) {
@@ -336,6 +365,20 @@ export default function EditQuizPage() {
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowReviseDialog(true)}
+              disabled={isRevising}
+              data-testid="button-ai-revise"
+            >
+              {isRevising ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4 mr-1" />
+              )}
+              {isRevising ? "Revising..." : "AI Revise"}
+            </Button>
             <Button 
               variant="outline" 
               size="sm"
@@ -954,6 +997,65 @@ export default function EditQuizPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={showReviseDialog} onOpenChange={setShowReviseDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5" />
+              AI Revise
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {(currentQuiz as any)?.generationMode === "import" ? (
+                <>AI will independently solve each question and revise the <strong>correct answers</strong> and <strong>explanations</strong>. Questions and answer options will stay the same.</>
+              ) : (
+                <>AI will revise each question from scratch — rewriting the <strong>question text</strong>, verifying the <strong>correct answer</strong>, and generating fresh <strong>explanations</strong>. Answer options will stay the same.</>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleAiRevise} data-testid="button-confirm-revise">
+              <Sparkles className="h-4 w-4 mr-1" />
+              Revise All Questions
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AnimatePresence>
+        {isRevising && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="flex flex-col items-center gap-4 p-8 rounded-2xl bg-card border shadow-lg max-w-sm text-center"
+            >
+              <div className="relative">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                <Sparkles className="h-4 w-4 text-primary absolute -top-1 -right-1" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">AI is revising your quiz</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {(currentQuiz as any)?.generationMode === "import"
+                    ? "Verifying answers and rewriting explanations..."
+                    : "Rewriting questions, verifying answers, and generating explanations..."}
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  This may take a minute for larger quizzes
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

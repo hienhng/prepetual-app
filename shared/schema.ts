@@ -112,6 +112,7 @@ export const quizzes = pgTable("quizzes", {
   questions: jsonb("questions").notNull().$type<Question[]>(),
   difficulty: text("difficulty").default("medium"),
   category: text("category").default("Others/General"),
+  generationMode: text("generation_mode").$type<"generate" | "import">(),
   isPublic: integer("is_public").default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

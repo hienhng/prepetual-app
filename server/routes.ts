@@ -7,7 +7,7 @@ import multer from "multer";
 import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { parseOffice } from "officeparser";
-import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages } from "./openai";
+import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, reviseQuizQuestions } from "./openai";
 import { generateQuizRequestSchema, submitQuizRequestSchema } from "@shared/schema";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs";
@@ -608,6 +608,7 @@ export async function registerRoutes(
         questions: questions as Question[],
         difficulty: difficulty || "medium",
         category,
+        generationMode: "generate",
         isPublic: 0,
       });
 
@@ -691,6 +692,7 @@ export async function registerRoutes(
         questions: questions as Question[],
         difficulty: difficulty || "medium",
         category,
+        generationMode: "generate",
         isPublic: 0,
       });
 
@@ -749,6 +751,7 @@ export async function registerRoutes(
         sourceImages: Array.isArray(documentImages) ? documentImages : null,
         questions: questions as Question[],
         difficulty: "medium",
+        generationMode: "import",
         isPublic: 0,
       });
 
@@ -1075,6 +1078,43 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to update quiz" });
+    }
+  });
+
+  app.post("/api/quiz/:id/ai-revise", isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.claims.sub;
+      const quiz = await storage.getQuiz(id);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      if (quiz.userId && quiz.userId !== userId) {
+        return res.status(403).json({ message: "Not authorized to revise this quiz" });
+      }
+
+      const mode = quiz.generationMode === "import" ? "answers_only" : "full";
+      console.log(`[AI REVISE] Starting revise for quiz ${id}, mode: ${mode}, generationMode: ${quiz.generationMode || 'null (legacy)'}, ${(quiz.questions as Question[]).length} questions`);
+
+      const revisedQuestions = await reviseQuizQuestions({
+        questions: quiz.questions as Question[],
+        mode,
+        sourceText: quiz.sourceText,
+      });
+
+      const updatedQuiz = await storage.updateQuiz(id, {
+        questions: revisedQuestions,
+      });
+
+      res.json({
+        ...updatedQuiz,
+        createdAt: updatedQuiz!.createdAt.toISOString(),
+      });
+    } catch (error) {
+      console.error("AI revise error:", error);
+      res.status(500).json({
+        message: error instanceof Error ? error.message : "Failed to revise quiz",
+      });
     }
   });
 
