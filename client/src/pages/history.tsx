@@ -59,6 +59,14 @@ export default function HistoryPage() {
   const [folderToDelete, setFolderToDelete] = useState<FolderType | null>(null);
   const [activeTab, setActiveTab] = useState("quizzes");
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    if (tab === "folders") {
+      setActiveTab("folders");
+    }
+  }, []);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
 

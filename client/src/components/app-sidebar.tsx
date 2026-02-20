@@ -19,10 +19,15 @@ import {
   Folders,
   ChartLine,
   FolderOpen,
-  Pin
+  Pin,
+  PinOff,
+  MoreHorizontal,
+  Pencil
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useQuizNavigationGuard } from "@/lib/quiz-navigation-guard";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import {
   Sidebar,
   SidebarContent,
@@ -107,6 +112,7 @@ export function AppSidebar() {
   const { user } = useAuth();
   const { setOpenMobile, state, toggleSidebar } = useSidebar();
   const { handleLinkClick } = useQuizNavigationGuard();
+  const { toast } = useToast();
   const isCollapsed = state === "collapsed";
 
   const { data: allFolders } = useQuery<Folder[]>({
@@ -114,6 +120,18 @@ export function AppSidebar() {
     enabled: !!user,
   });
   const pinnedFolders = allFolders?.filter(f => f.pinnedToSidebar) || [];
+
+  const togglePinMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest("PATCH", `/api/folders/${id}/pin`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to toggle pin", variant: "destructive" });
+    },
+  });
 
   const getInitials = () => {
     if (user?.username) {
@@ -204,7 +222,7 @@ export function AppSidebar() {
         {pinnedFolders.length > 0 && (
           <SidebarGroup>
             <SidebarGroupLabel>
-              <Pin className="w-3 h-3 mr-1 inline" />
+              
               Pinned Folders
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -225,6 +243,32 @@ export function AppSidebar() {
                         <span>{folder.name}</span>
                       </Link>
                     </SidebarMenuButton>
+                    {!isCollapsed && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            data-testid={`button-folder-actions-${folder.id}`}
+                          >
+                            <MoreHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" side="right" className="w-48">
+                          <DropdownMenuItem asChild>
+                            <Link href="/history?tab=folders">
+                              <Pencil className="h-3.5 w-3.5 mr-2" />
+                              Rename
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => togglePinMutation.mutate(folder.id)}>
+                            <PinOff className="h-3.5 w-3.5 mr-2" />
+                            Unpin from Sidebar
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
