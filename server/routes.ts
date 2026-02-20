@@ -7,7 +7,7 @@ import multer from "multer";
 import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { parseOffice } from "officeparser";
-import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages } from "./openai";
+import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, verifyAnswerMatchesExplanation } from "./openai";
 import { generateQuizRequestSchema, submitQuizRequestSchema } from "@shared/schema";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs";
@@ -597,6 +597,16 @@ export async function registerRoutes(
         isImageOnly: isImageOnly || false,
       });
 
+      for (const q of questions) {
+        if (q.type === "multiple_choice" && q.explanation && q.correctAnswer && Array.isArray(q.options)) {
+          const fixedAnswer = verifyAnswerMatchesExplanation(q.explanation, q.correctAnswer, q.options);
+          if (fixedAnswer && fixedAnswer !== q.correctAnswer) {
+            console.warn(`[ROUTE VERIFY] Correcting answer: "${q.correctAnswer}" -> "${fixedAnswer}" for question: "${q.question.substring(0, 60)}..."`);
+            q.correctAnswer = fixedAnswer;
+          }
+        }
+      }
+
       sendProgress("saving", 98, "Saving your quiz...");
 
       const quiz = await storage.saveQuiz({
@@ -681,6 +691,16 @@ export async function registerRoutes(
         difficulty: difficulty as DifficultyLevel,
         documentImages: imagesForQuestions,
       });
+
+      for (const q of questions) {
+        if (q.type === "multiple_choice" && q.explanation && q.correctAnswer && Array.isArray(q.options)) {
+          const fixedAnswer = verifyAnswerMatchesExplanation(q.explanation, q.correctAnswer, q.options);
+          if (fixedAnswer && fixedAnswer !== q.correctAnswer) {
+            console.warn(`[ROUTE VERIFY] Correcting answer: "${q.correctAnswer}" -> "${fixedAnswer}" for question: "${q.question.substring(0, 60)}..."`);
+            q.correctAnswer = fixedAnswer;
+          }
+        }
+      }
 
       const quiz = await storage.saveQuiz({
         userId,

@@ -173,12 +173,12 @@ function valuesMatch(a: string, b: string): boolean {
   return false;
 }
 
-function verifyAnswerMatchesExplanation(
+export function verifyAnswerMatchesExplanation(
   explanation: string,
   markedCorrect: string,
   options: string[]
 ): string | null {
-  const allMatches = explanation.match(/[=→⇒]\s*([0-9]+[.,]?[0-9]*)\s*(kg|g|m|cm|mm|s|n|j|w|v|a|hz|rad|mol|l|ml|°c|k|pa|atm|ev|cal)?\.?(?=[\s,;.)⇒→=]|$)/gi);
+  const allMatches = explanation.match(/[=→⇒]\s*([0-9]+[.,]?[0-9]*)\s*(kg|g|m|cm|mm|km|m\/s|m\/s²|km\/h|s|n|j|w|v|a|hz|rad|mol|l|ml|°c|°f|k|pa|atm|ev|cal|%|nm|μm)?\.?(?=[\s,;.)⇒→=]|$)/gi);
 
   if (!allMatches || allMatches.length === 0) return null;
 
@@ -308,6 +308,14 @@ ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
 - Wrong answers should be equally plausible and well-formed, not obviously wrong or shorter
 - Randomize which position (1st, 2nd, 3rd, or 4th) contains the correct answer - do NOT always put it first or last
 
+ANSWER DERIVATION PROCESS (MANDATORY for every question):
+- Step 1: Write the "explanation" field FIRST — show your full reasoning, calculations, and derivation
+- Step 2: Identify the final conclusion/value from your explanation
+- Step 3: Find which option EXACTLY matches that conclusion
+- Step 4: Set "correctAnswer" to THAT option — the one your explanation concludes is correct
+- NEVER set correctAnswer independently from the explanation. The correctAnswer MUST be derived FROM the explanation.
+- If your explanation calculates "= 0,05 kg", the correctAnswer MUST be the option containing "0,05kg" or "0,05 kg" — NEVER "5kg" or any other value.
+
 OUTPUT FORMAT (JSON):
 {
   "title": "A short descriptive title for the quiz",
@@ -316,9 +324,9 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"], // 4 plausible answers with MATCHING LENGTHS. NO placeholders, NO prefixes.
-      "correctAnswer": "The exact correct option text (without any prefix)",
-      "explanation": "Brief explanation of why this is correct",
+      "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
+      "explanation": "FIRST: Full explanation with step-by-step reasoning. For math/science: show all calculation steps and arrive at the final value.",
+      "correctAnswer": "THEN: The exact option text that matches the conclusion of the explanation above (without any prefix)",
       "wrongAnswerExplanations": {
         "Wrong option 1 text": "Why this specific option is incorrect",
         "Wrong option 2 text": "Why this specific option is incorrect",
@@ -397,6 +405,14 @@ ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
 - Wrong answers should be equally plausible and well-formed, not obviously wrong or shorter
 - Randomize which position (1st, 2nd, 3rd, or 4th) contains the correct answer - do NOT always put it first or last
 
+ANSWER DERIVATION PROCESS (MANDATORY for every question):
+- Step 1: Write the "explanation" field FIRST — show your full reasoning, calculations, and derivation
+- Step 2: Identify the final conclusion/value from your explanation
+- Step 3: Find which option EXACTLY matches that conclusion
+- Step 4: Set "correctAnswer" to THAT option — the one your explanation concludes is correct
+- NEVER set correctAnswer independently from the explanation. The correctAnswer MUST be derived FROM the explanation.
+- If your explanation calculates "= 0,05 kg", the correctAnswer MUST be the option containing "0,05kg" or "0,05 kg" — NEVER "5kg" or any other value.
+
 OUTPUT FORMAT (JSON):
 {
   "title": "A short descriptive title for the quiz",
@@ -405,15 +421,15 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"], // 4 plausible answers with MATCHING LENGTHS. NO placeholders, NO prefixes.
-      "correctAnswer": "The exact correct option text (without any prefix)",
-      "explanation": "Brief explanation of why this is correct",
+      "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
+      "explanation": "FIRST: Full explanation with step-by-step reasoning. For math/science: show all calculation steps and arrive at the final value.",
+      "correctAnswer": "THEN: The exact option text that matches the conclusion of the explanation above (without any prefix)",
       "wrongAnswerExplanations": {
         "Wrong option 1 text": "Why this specific option is incorrect",
         "Wrong option 2 text": "Why this specific option is incorrect",
         "Wrong option 3 text": "Why this specific option is incorrect"
       },
-      "imageIndex": 0 // Optional: 0-based index of the attached image this question references (only if question is about a specific image)
+      "imageIndex": 0
     }
   ]
 }
@@ -488,6 +504,14 @@ ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
 - Wrong answers should be equally plausible and well-formed, not obviously wrong or shorter
 - Randomize which position (1st, 2nd, 3rd, or 4th) contains the correct answer - do NOT always put it first or last
 
+ANSWER DERIVATION PROCESS (MANDATORY for every question):
+- Step 1: Write the "explanation" field FIRST — show your full reasoning, calculations, and derivation
+- Step 2: Identify the final conclusion/value from your explanation
+- Step 3: Find which option EXACTLY matches that conclusion
+- Step 4: Set "correctAnswer" to THAT option — the one your explanation concludes is correct
+- NEVER set correctAnswer independently from the explanation. The correctAnswer MUST be derived FROM the explanation.
+- If your explanation calculates "= 0,05 kg", the correctAnswer MUST be the option containing "0,05kg" or "0,05 kg" — NEVER "5kg" or any other value.
+
 OUTPUT FORMAT (JSON):
 {
   "title": "A short descriptive title for the quiz",
@@ -497,14 +521,14 @@ OUTPUT FORMAT (JSON):
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
       "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
-      "correctAnswer": "The exact correct option text (without any prefix)",
-      "explanation": "Brief explanation of why this is correct",
+      "explanation": "FIRST: Full explanation with step-by-step reasoning.",
+      "correctAnswer": "THEN: The exact option text that matches the conclusion of the explanation above (without any prefix)",
       "wrongAnswerExplanations": {
         "Wrong option 1 text": "Why this specific option is incorrect",
         "Wrong option 2 text": "Why this specific option is incorrect",
         "Wrong option 3 text": "Why this specific option is incorrect"
       },
-      "imageIndex": 0 // 0-based index of the attached image this question references
+      "imageIndex": 0
     }
   ]
 }
