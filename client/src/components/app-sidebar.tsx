@@ -228,48 +228,46 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {pinnedFolders.map((folder) => (
-                  <SidebarMenuItem key={folder.id}>
-                    <div className="flex items-center w-full group/pinned">
-                      <SidebarMenuButton
-                        asChild
-                        isActive={location === `/folder/${folder.id}`}
-                        tooltip={folder.name}
-                        className="flex-1 min-w-0"
+                  <SidebarMenuItem key={folder.id} className="group/pinned relative">
+                    <SidebarMenuButton
+                      asChild
+                      isActive={location === `/folder/${folder.id}`}
+                      tooltip={folder.name}
+                    >
+                      <Link
+                        href={`/folder/${folder.id}`}
+                        onClick={(e) => handleNavClick(e, `/folder/${folder.id}`)}
+                        data-testid={`sidebar-pinned-folder-${folder.id}`}
                       >
-                        <Link
-                          href={`/folder/${folder.id}`}
-                          onClick={(e) => handleNavClick(e, `/folder/${folder.id}`)}
-                          data-testid={`sidebar-pinned-folder-${folder.id}`}
-                        >
-                          <FolderOpen className="w-4 h-4" />
-                          <span>{folder.name}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                      {!isCollapsed && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button
-                              className="h-6 w-6 flex items-center justify-center rounded-md shrink-0 opacity-0 group-hover/pinned:opacity-100 focus:opacity-100 data-[state=open]:opacity-100 hover:bg-sidebar-accent transition-opacity"
-                              data-testid={`button-folder-actions-${folder.id}`}
-                            >
-                              <MoreHorizontal className="h-4 w-4 text-sidebar-foreground" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent side="right" align="start">
-                            <DropdownMenuItem asChild>
-                              <Link href="/history?tab=folders">
-                                <Pencil className="h-3.5 w-3.5 mr-2" />
-                                Rename
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => togglePinMutation.mutate(folder.id)}>
-                              <PinOff className="h-3.5 w-3.5 mr-2" />
-                              Unpin from Sidebar
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
-                    </div>
+                        <FolderOpen className="w-4 h-4" />
+                        <span>{folder.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                    {!isCollapsed && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center rounded-md opacity-0 group-hover/pinned:opacity-100 focus:opacity-100 data-[state=open]:opacity-100 hover:bg-sidebar-accent/80 transition-opacity z-10"
+                            onClick={(e) => e.stopPropagation()}
+                            data-testid={`button-folder-actions-${folder.id}`}
+                          >
+                            <MoreHorizontal className="h-4 w-4 text-sidebar-foreground" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="right" align="start">
+                          <DropdownMenuItem asChild>
+                            <Link href="/history?tab=folders">
+                              <Pencil className="h-3.5 w-3.5 mr-2" />
+                              Rename
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => togglePinMutation.mutate(folder.id)}>
+                            <PinOff className="h-3.5 w-3.5 mr-2" />
+                            Unpin from Sidebar
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
