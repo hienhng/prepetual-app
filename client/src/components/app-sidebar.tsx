@@ -248,6 +248,7 @@ export function AppSidebar() {
                       <DropdownMenuTrigger asChild>
                         <SidebarMenuAction
                           showOnHover
+                          className="pointer-events-none group-hover/menu-item:pointer-events-auto data-[state=open]:pointer-events-auto"
                           data-testid={`button-folder-actions-${folder.id}`}
                         >
                           <MoreHorizontal />
