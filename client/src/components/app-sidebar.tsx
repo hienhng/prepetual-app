@@ -17,8 +17,11 @@ import {
   HelpCircle,
   Settings,
   Folders,
-  ChartLine
+  ChartLine,
+  FolderOpen,
+  Pin
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useQuizNavigationGuard } from "@/lib/quiz-navigation-guard";
 import {
   Sidebar,
@@ -46,6 +49,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { queryClient } from "@/lib/queryClient";
 import { ThemeToggle } from "@/components/theme-toggle";
 import logoImage from "@assets/image_1765894870887.png";
+import type { Folder } from "@shared/schema";
 
 const mainNavItems = [
   {
@@ -104,6 +108,12 @@ export function AppSidebar() {
   const { setOpenMobile, state, toggleSidebar } = useSidebar();
   const { handleLinkClick } = useQuizNavigationGuard();
   const isCollapsed = state === "collapsed";
+
+  const { data: allFolders } = useQuery<Folder[]>({
+    queryKey: ["/api/folders"],
+    enabled: !!user,
+  });
+  const pinnedFolders = allFolders?.filter(f => f.pinnedToSidebar) || [];
 
   const getInitials = () => {
     if (user?.username) {
@@ -190,6 +200,37 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {pinnedFolders.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <Pin className="w-3 h-3 mr-1 inline" />
+              Pinned Folders
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {pinnedFolders.map((folder) => (
+                  <SidebarMenuItem key={folder.id}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={location === `/folder/${folder.id}`}
+                      tooltip={folder.name}
+                    >
+                      <Link
+                        href={`/folder/${folder.id}`}
+                        onClick={(e) => handleNavClick(e, `/folder/${folder.id}`)}
+                        data-testid={`sidebar-pinned-folder-${folder.id}`}
+                      >
+                        <FolderOpen className="w-4 h-4" />
+                        <span>{folder.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         <SidebarGroup>
           <SidebarGroupLabel>Information</SidebarGroupLabel>
