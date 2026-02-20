@@ -1157,6 +1157,19 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     }
   });
 
+  app.patch("/api/folders/:id/pin", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const folder = await storage.toggleFolderPin(req.params.id, userId);
+      if (!folder) {
+        return res.status(404).json({ message: "Folder not found" });
+      }
+      res.json({ ...folder, createdAt: folder.createdAt.toISOString() });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to toggle folder pin" });
+    }
+  });
+
   app.get("/api/quiz/:id/results", async (req, res) => {
     try {
       const results = await storage.getQuizResultsByQuizId(req.params.id);

@@ -88,6 +88,7 @@ export const folders = pgTable("folders", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
+  pinnedToSidebar: boolean("pinned_to_sidebar").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -75,6 +75,7 @@ export interface IStorage {
   getFoldersByUserId(userId: string): Promise<Folder[]>;
   updateFolder(id: string, userId: string, name: string): Promise<Folder | undefined>;
   deleteFolder(id: string, userId: string): Promise<boolean>;
+  toggleFolderPin(id: string, userId: string): Promise<Folder | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -547,6 +548,18 @@ export class DatabaseStorage implements IStorage {
     const result = await db.delete(folders)
       .where(and(eq(folders.id, id), eq(folders.userId, userId)));
     return true;
+  }
+
+  async toggleFolderPin(id: string, userId: string): Promise<Folder | undefined> {
+    const existing = await db.select().from(folders)
+      .where(and(eq(folders.id, id), eq(folders.userId, userId)))
+      .limit(1);
+    if (existing.length === 0) return undefined;
+    const [updated] = await db.update(folders)
+      .set({ pinnedToSidebar: !existing[0].pinnedToSidebar })
+      .where(and(eq(folders.id, id), eq(folders.userId, userId)))
+      .returning();
+    return updated;
   }
 }
 
