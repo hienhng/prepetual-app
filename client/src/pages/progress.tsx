@@ -1,12 +1,12 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import {
   TrendingUp, TrendingDown, Target, Trophy, Zap, Star, ChartLine,
   Binary, Book, FlaskConical, Globe, Languages, GraduationCap,
-  CheckCircle2, XCircle, Clock, Loader2
+  CheckCircle2, XCircle, Clock, Loader2, ChevronDown
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBullseye, faChartSimple, faClipboardList } from "@fortawesome/free-solid-svg-icons";
@@ -35,6 +35,17 @@ interface ResultHistoryItem {
   correctAnswers: number;
   totalQuestions: number;
   category: string;
+  quizId: string;
+}
+
+interface GroupedQuiz {
+  quizId: string;
+  quizTitle: string;
+  category: string;
+  attempts: ResultHistoryItem[];
+  bestAccuracy: number;
+  avgAccuracy: number;
+  lastAttemptDate: string;
 }
 
 interface UserStats {
@@ -178,6 +189,134 @@ const itemVariants = {
   },
 };
 
+function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const Icon = categoryIcons[group.category] || GraduationCap;
+  const gradient = categoryGradients[group.category] || categoryGradients["Others/General"];
+  const hasMultipleAttempts = group.attempts.length > 1;
+  const singleAttempt = !hasMultipleAttempts ? group.attempts[0] : null;
+
+  const headerContent = (
+    <>
+      <div className="flex items-center justify-center flex-shrink-0">
+        <div className={`w-9 h-9 rounded-lg ${gradient} flex items-center justify-center`}>
+          <Icon className="w-4 h-4 text-white" />
+        </div>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium truncate text-foreground" data-testid={`text-quiz-title-${index}`}>{group.quizTitle}</p>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 flex-wrap">
+          <span>{group.category}</span>
+          <span className="text-muted-foreground/50">·</span>
+          {singleAttempt ? (
+            <>
+              <span>{format(parseISO(singleAttempt.date), "MMM d, yyyy")}</span>
+              <span className="text-muted-foreground/50">·</span>
+              <span>{singleAttempt.correctAnswers}/{singleAttempt.totalQuestions} correct</span>
+            </>
+          ) : (
+            <>
+              <span>{group.attempts.length} attempts</span>
+              <span className="text-muted-foreground/50">·</span>
+              <span>Best: {group.bestAccuracy}%</span>
+            </>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center gap-2 flex-shrink-0" data-testid={`text-quiz-accuracy-${index}`}>
+        <span className={`text-lg font-bold ${
+          group.bestAccuracy >= 80 ? "text-emerald-500" :
+          group.bestAccuracy >= 60 ? "text-amber-500" : "text-rose-500"
+        }`}>
+          {group.bestAccuracy}%
+        </span>
+        {hasMultipleAttempts && (
+          <motion.div
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          </motion.div>
+        )}
+      </div>
+    </>
+  );
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
+      <div className="rounded-lg bg-muted/40 transition-all duration-200 overflow-hidden" data-testid={`card-quiz-group-${index}`}>
+        {hasMultipleAttempts ? (
+          <button
+            type="button"
+            onClick={() => setIsOpen(!isOpen)}
+            className="w-full flex gap-3 p-3 items-center text-left cursor-pointer transition-colors rounded-lg"
+            data-testid={`button-toggle-attempts-${index}`}
+          >
+            {headerContent}
+          </button>
+        ) : (
+          <div className="flex gap-3 p-3 items-center" data-testid={`row-single-result-${index}`}>
+            {headerContent}
+          </div>
+        )}
+
+        <AnimatePresence initial={false}>
+          {isOpen && hasMultipleAttempts && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="overflow-hidden"
+            >
+              <div className="px-3 pb-3 space-y-1.5">
+                <div className="border-t border-border/40 pt-2 mb-1" />
+                {group.attempts.map((attempt, attemptIndex) => (
+                  <div
+                    key={attemptIndex}
+                    className="flex items-center gap-3 py-2 px-3 rounded-md bg-background/60"
+                    data-testid={`row-attempt-${index}-${attemptIndex}`}
+                  >
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-[10px] font-semibold text-muted-foreground flex-shrink-0">
+                      {group.attempts.length - attemptIndex}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                        <span>{format(parseISO(attempt.date), "MMM d, yyyy 'at' h:mm a")}</span>
+                        <span className="text-muted-foreground/50">·</span>
+                        <span>{attempt.correctAnswers}/{attempt.totalQuestions} correct</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className={`text-sm font-semibold ${
+                        attempt.accuracy >= 80 ? "text-emerald-500" :
+                        attempt.accuracy >= 60 ? "text-amber-500" : "text-rose-500"
+                      }`}>
+                        {attempt.accuracy}%
+                      </span>
+                      {attempt.accuracy >= 80 ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                      ) : attempt.accuracy >= 60 ? (
+                        <Target className="w-3.5 h-3.5 text-amber-500" />
+                      ) : (
+                        <XCircle className="w-3.5 h-3.5 text-rose-500" />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function ProgressPage() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
@@ -268,8 +407,30 @@ export default function ProgressPage() {
     { range: "0-39%", count: history.filter(h => h.accuracy < 40).length, color: "bg-rose-500" },
   ].filter(d => d.count > 0), [history]);
 
-  const allResults = useMemo(() => {
-    return [...history].reverse();
+  const groupedQuizzes = useMemo((): GroupedQuiz[] => {
+    const groups: Record<string, ResultHistoryItem[]> = {};
+    history.forEach(item => {
+      if (!groups[item.quizId]) {
+        groups[item.quizId] = [];
+      }
+      groups[item.quizId].push(item);
+    });
+
+    return Object.entries(groups)
+      .map(([quizId, attempts]) => {
+        const sorted = [...attempts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        const accuracies = sorted.map(a => a.accuracy);
+        return {
+          quizId,
+          quizTitle: sorted[0].quizTitle,
+          category: sorted[0].category,
+          attempts: sorted,
+          bestAccuracy: Math.max(...accuracies),
+          avgAccuracy: Math.round(accuracies.reduce((a, b) => a + b, 0) / accuracies.length),
+          lastAttemptDate: sorted[0].date,
+        };
+      })
+      .sort((a, b) => new Date(b.lastAttemptDate).getTime() - new Date(a.lastAttemptDate).getTime());
   }, [history]);
 
   if (historyLoading) {
@@ -548,7 +709,7 @@ export default function ProgressPage() {
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-5 space-y-2">
-                  {allResults.length === 0 ? (
+                  {groupedQuizzes.length === 0 ? (
                     <div className="text-center py-12">
                       <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                         <Clock className="h-6 w-6 text-muted-foreground" />
@@ -557,54 +718,9 @@ export default function ProgressPage() {
                       <p className="text-sm text-muted-foreground">Your quiz results will appear here.</p>
                     </div>
                   ) : (
-                    allResults.map((result, index) => {
-                      const Icon = categoryIcons[result.category] || GraduationCap;
-                      const gradient = categoryGradients[result.category] || categoryGradients["Others/General"];
-                      return (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        >
-                          <div
-                            className="relative flex gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted/70 transition-all duration-200 border border-transparent hover:border-border/40"
-                            data-testid={`card-result-${index}`}
-                          >
-                            <div className="flex items-center justify-center flex-shrink-0">
-                              <div className={`w-9 h-9 rounded-lg ${gradient} flex items-center justify-center`}>
-                                <Icon className="w-4 h-4 text-white" />
-                              </div>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate text-foreground" data-testid={`text-result-title-${index}`}>{result.quizTitle}</p>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 flex-wrap">
-                                <span>{result.category}</span>
-                                <span className="text-muted-foreground/50">·</span>
-                                <span>{format(parseISO(result.date), "MMM d, yyyy")}</span>
-                                <span className="text-muted-foreground/50">·</span>
-                                <span>{result.correctAnswers}/{result.totalQuestions} correct</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 flex-shrink-0" data-testid={`text-result-accuracy-${index}`}>
-                              <span className={`text-lg font-bold ${
-                                result.accuracy >= 80 ? "text-emerald-500" :
-                                result.accuracy >= 60 ? "text-amber-500" : "text-rose-500"
-                              }`}>
-                                {result.accuracy}%
-                              </span>
-                              {result.accuracy >= 80 ? (
-                                <CheckCircle2 className="w-4 h-4 text-emerald-500 hidden sm:block" />
-                              ) : result.accuracy >= 60 ? (
-                                <Target className="w-4 h-4 text-amber-500 hidden sm:block" />
-                              ) : (
-                                <XCircle className="w-4 h-4 text-rose-500 hidden sm:block" />
-                              )}
-                            </div>
-                          </div>
-                        </motion.div>
-                      );
-                    })
+                    groupedQuizzes.map((group, groupIndex) => (
+                      <QuizAttemptGroup key={group.quizId} group={group} index={groupIndex} />
+                    ))
                   )}
                 </TabsContent>
               </Tabs>
