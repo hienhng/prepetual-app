@@ -207,6 +207,107 @@ export function verifyAnswerMatchesExplanation(
   return null;
 }
 
+async function aiVerifyAnswers(mcQuestions: any[], logPrefix: string = "[AI VERIFY]"): Promise<void> {
+  if (mcQuestions.length === 0) return;
+
+  try {
+    const verificationItems = mcQuestions.map((q: any, i: number) => ({
+      index: i,
+      question: q.question,
+      options: q.options,
+      markedCorrect: q.correctAnswer,
+      explanation: q.explanation,
+    }));
+
+    const verificationPrompt = `You are a strict answer verifier specializing in catching numeric and unit errors. For each question below, you must INDEPENDENTLY solve the problem and determine which option is correct. Do NOT trust the marked answer or explanation — verify by solving it yourself.
+
+STEP-BY-STEP PROCESS FOR EACH QUESTION:
+1. Read the question carefully
+2. Solve it yourself from scratch (do the math, apply the formula, check the facts)
+3. Find the option that matches YOUR calculated/determined answer
+4. Compare with the "markedCorrect" — if they differ, output YOUR answer
+5. If the answer changed, write a corrected explanation that supports the new answer
+
+CRITICAL NUMERIC/UNIT RULES:
+- 50g = 0.05kg (NOT 5kg) — always check decimal places and unit conversions
+- 0.05kg and 0,05kg are the SAME value (comma vs period decimal notation)
+- When converting: g→kg divide by 1000, kg→g multiply by 1000, cm→m divide by 100, mm→cm divide by 10
+- Common AI mistakes: off by factor of 10, 100, or 1000 in unit conversions
+- For calculations: re-do the arithmetic yourself, don't trust the explanation
+- The correct answer must have the right NUMBER and the right UNIT
+- If explanation says "50g = 0,05kg" but markedCorrect is "5kg", the correct answer is the option with "0,05kg" NOT "5kg"
+
+Questions to verify:
+${JSON.stringify(verificationItems, null, 2)}
+
+Respond with ONLY a JSON array. For each question:
+- "correctAnswer": the EXACT text from the options array
+- "explanation": if changed, a corrected explanation; if unchanged, copy the original
+- "wrongAnswerExplanations": object mapping each WRONG option text (without prefix) to why it's wrong
+[{"index": 0, "correctAnswer": "exact option text", "explanation": "why correct", "wrongAnswerExplanations": {"wrong opt text": "why wrong", ...}}, ...]`;
+
+    const verifyResponse = await pRetry(
+      async () => {
+        const result = await openai.chat.completions.create({
+          model: "openai/gpt-4o-mini",
+          messages: [{ role: "user", content: verificationPrompt }],
+          temperature: 0,
+          max_tokens: 4000,
+        });
+        return result.choices[0]?.message?.content || "";
+      },
+      { retries: 2, minTimeout: 1000 }
+    );
+
+    const cleanVerify = verifyResponse.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+    const verifications = JSON.parse(cleanVerify);
+
+    if (Array.isArray(verifications)) {
+      for (const v of verifications) {
+        if (typeof v.index === "number" && typeof v.correctAnswer === "string") {
+          const q = mcQuestions[v.index];
+          if (q) {
+            const options = q.options.map((o: any) => String(o).trim());
+            const verifiedAnswer = v.correctAnswer.trim();
+            const markedCorrect = String(q.correctAnswer).trim();
+
+            if (verifiedAnswer !== markedCorrect && options.includes(verifiedAnswer)) {
+              console.warn(`${logPrefix} Question "${String(q.question).substring(0, 60)}..." — changing answer from "${markedCorrect}" to "${verifiedAnswer}"`);
+              q.correctAnswer = verifiedAnswer;
+            }
+
+            if (v.explanation && typeof v.explanation === "string" && v.explanation.trim().length > 10) {
+              q.explanation = v.explanation.trim();
+            }
+
+            if (v.wrongAnswerExplanations && typeof v.wrongAnswerExplanations === "object") {
+              q.wrongAnswerExplanations = {};
+              for (const [key, val] of Object.entries(v.wrongAnswerExplanations)) {
+                if (val && typeof val === "string") {
+                  q.wrongAnswerExplanations[String(key).trim()] = String(val).trim();
+                }
+              }
+            }
+            
+            const finalCorrect = String(q.correctAnswer).trim();
+            if (!q.wrongAnswerExplanations) q.wrongAnswerExplanations = {};
+            for (const opt of options) {
+              if (opt === finalCorrect) continue;
+              const optText = opt.replace(/^[A-D]\)\s*/, "").trim();
+              const hasExplanation = q.wrongAnswerExplanations[optText] || q.wrongAnswerExplanations[opt];
+              if (!hasExplanation) {
+                q.wrongAnswerExplanations[optText] = `This is incorrect. The correct answer is ${finalCorrect.replace(/^[A-D]\)\s*/, "").trim()}.`;
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch (verifyError) {
+    console.warn(`${logPrefix} Verification step failed, using original answers:`, verifyError);
+  }
+}
+
 interface QuizGenerationParams {
   text: string;
   questionCount: number;
@@ -636,77 +737,11 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     const category: QuizCategory = QUIZ_CATEGORIES.includes(rawCategory) ? rawCategory : "Others/General";
     const questions: Question[] = [];
 
-    // AI-powered answer verification: cross-check every MC answer against its explanation
     onProgress?.("verifying", 85, "Verifying answer accuracy...");
     const mcQuestions = rawQuestions.filter((q: any) => 
       q.type === "multiple_choice" && q.explanation && q.correctAnswer && Array.isArray(q.options)
     );
-
-    if (mcQuestions.length > 0) {
-      try {
-        const verificationItems = mcQuestions.map((q: any, i: number) => ({
-          index: i,
-          question: q.question,
-          options: q.options,
-          markedCorrect: q.correctAnswer,
-          explanation: q.explanation,
-        }));
-
-        const verificationPrompt = `You are a strict answer verifier. For each question below, read the explanation carefully and determine which option is ACTUALLY correct based on the explanation's reasoning and facts.
-
-For each question, respond with the index and the correct option text. If the marked answer matches the explanation, keep it. If the explanation contradicts the marked answer, pick the option that the explanation actually supports.
-
-IMPORTANT RULES:
-- Focus on what the explanation CONCLUDES, not what it starts with
-- For math: if the explanation shows a calculation like "= 16/2 = 8", the answer is 8, NOT 16
-- For math: always follow the FINAL result of the calculation chain
-- The correct option must match the explanation's conclusion EXACTLY
-- If the explanation says the answer is X, the correctAnswer must be the option containing X
-
-Questions to verify:
-${JSON.stringify(verificationItems, null, 2)}
-
-Respond with ONLY a JSON array like:
-[{"index": 0, "correctAnswer": "the exact option text"}, ...]`;
-
-        const verifyResponse = await pRetry(
-          async () => {
-            const result = await openai.chat.completions.create({
-              model: "openai/gpt-4o-mini",
-              messages: [{ role: "user", content: verificationPrompt }],
-              temperature: 0,
-              max_tokens: 2000,
-            });
-            return result.choices[0]?.message?.content || "";
-          },
-          { retries: 2, minTimeout: 1000 }
-        );
-
-        const cleanVerify = verifyResponse.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-        const verifications = JSON.parse(cleanVerify);
-
-        if (Array.isArray(verifications)) {
-          for (const v of verifications) {
-            if (typeof v.index === "number" && typeof v.correctAnswer === "string") {
-              const q = mcQuestions[v.index];
-              if (q) {
-                const options = q.options.map((o: any) => String(o).trim());
-                const verifiedAnswer = v.correctAnswer.trim();
-                const markedCorrect = String(q.correctAnswer).trim();
-
-                // Only fix if the verified answer is actually in the options and differs from marked
-                if (verifiedAnswer !== markedCorrect && options.includes(verifiedAnswer)) {
-                  console.warn(`[AI VERIFY] Question "${String(q.question).substring(0, 60)}..." — changing answer from "${markedCorrect}" to "${verifiedAnswer}"`);
-                  q.correctAnswer = verifiedAnswer;
-                }
-              }
-            }
-          }
-        }
-      } catch (verifyError) {
-        console.warn("[AI VERIFY] Verification step failed, using original answers:", verifyError);
-      }
-    }
+    await aiVerifyAnswers(mcQuestions, "[AI VERIFY]");
 
     for (const q of rawQuestions) {
       if (!q.type || !q.question || !q.correctAnswer) {
@@ -1021,75 +1056,10 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
     const title = parsed.title?.trim() || "Imported Quiz";
     const questions: Question[] = [];
 
-    // AI-powered answer verification for imported quizzes
     const importMcQuestions = parsed.questions.filter((q: any) =>
       q.explanation && q.correctAnswer && Array.isArray(q.options) && q.options.length > 0
     );
-
-    if (importMcQuestions.length > 0) {
-      try {
-        const verificationItems = importMcQuestions.map((q: any, i: number) => ({
-          index: i,
-          question: q.question,
-          options: q.options,
-          markedCorrect: q.correctAnswer,
-          explanation: q.explanation,
-        }));
-
-        const verificationPrompt = `You are a strict answer verifier. For each question below, read the explanation carefully and determine which option is ACTUALLY correct based on the explanation's reasoning and facts.
-
-For each question, respond with the index and the correct option text. If the marked answer matches the explanation, keep it. If the explanation contradicts the marked answer, pick the option that the explanation actually supports.
-
-IMPORTANT RULES:
-- Focus on what the explanation CONCLUDES, not what it starts with
-- For math: if the explanation shows a calculation like "= 16/2 = 8", the answer is 8, NOT 16
-- For math: always follow the FINAL result of the calculation chain
-- The correct option must match the explanation's conclusion EXACTLY
-- If the explanation says the answer is X, the correctAnswer must be the option containing X
-
-Questions to verify:
-${JSON.stringify(verificationItems, null, 2)}
-
-Respond with ONLY a JSON array like:
-[{"index": 0, "correctAnswer": "the exact option text"}, ...]`;
-
-        const verifyResponse = await pRetry(
-          async () => {
-            const result = await openai.chat.completions.create({
-              model: "openai/gpt-4o-mini",
-              messages: [{ role: "user", content: verificationPrompt }],
-              temperature: 0,
-              max_tokens: 2000,
-            });
-            return result.choices[0]?.message?.content || "";
-          },
-          { retries: 2, minTimeout: 1000 }
-        );
-
-        const cleanVerify = verifyResponse.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-        const verifications = JSON.parse(cleanVerify);
-
-        if (Array.isArray(verifications)) {
-          for (const v of verifications) {
-            if (typeof v.index === "number" && typeof v.correctAnswer === "string") {
-              const q = importMcQuestions[v.index];
-              if (q) {
-                const options = q.options.map((o: any) => String(o).trim());
-                const verifiedAnswer = v.correctAnswer.trim();
-                const markedCorrect = String(q.correctAnswer).trim();
-
-                if (verifiedAnswer !== markedCorrect && options.includes(verifiedAnswer)) {
-                  console.warn(`[IMPORT AI VERIFY] Question "${String(q.question).substring(0, 60)}..." — changing answer from "${markedCorrect}" to "${verifiedAnswer}"`);
-                  q.correctAnswer = verifiedAnswer;
-                }
-              }
-            }
-          }
-        }
-      } catch (verifyError) {
-        console.warn("[IMPORT AI VERIFY] Verification step failed, using original answers:", verifyError);
-      }
-    }
+    await aiVerifyAnswers(importMcQuestions, "[IMPORT AI VERIFY]");
 
     for (const q of parsed.questions) {
       if (!q.question || !q.correctAnswer) {

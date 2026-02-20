@@ -488,10 +488,24 @@ export function QuizPlayer() {
       return currentQuestion.wrongAnswerExplanations[answerWithoutPrefix];
     }
     
+    const normalize = (s: string) => s.replace(/^[A-D]\)\s*/, "").trim().toLowerCase()
+      .replace(/\s+/g, " ")
+      .replace(/,/g, ".")
+      .replace(/\u00A0/g, " ");
+    
+    const normalizedAnswer = normalize(answer);
+    
     for (const [key, value] of Object.entries(currentQuestion.wrongAnswerExplanations)) {
-      const keyWithoutPrefix = key.replace(/^[A-D]\)\s*/, "").trim();
-      if (keyWithoutPrefix.toLowerCase() === answerWithoutPrefix.toLowerCase() ||
-          key.toLowerCase() === answer.toLowerCase()) {
+      const normalizedKey = normalize(key);
+      if (normalizedKey === normalizedAnswer) {
+        return value;
+      }
+    }
+    
+    for (const [key, value] of Object.entries(currentQuestion.wrongAnswerExplanations)) {
+      const normalizedKey = normalize(key);
+      if (normalizedKey.length > 3 && normalizedAnswer.length > 3 && 
+          (normalizedAnswer.includes(normalizedKey) || normalizedKey.includes(normalizedAnswer))) {
         return value;
       }
     }
