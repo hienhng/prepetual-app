@@ -1326,8 +1326,9 @@ export async function reviseQuizQuestions(params: {
   questions: Question[];
   mode: "full" | "answers_only";
   sourceText?: string;
+  userCorrectAnswer?: string;
 }): Promise<Question[]> {
-  const { questions, mode, sourceText } = params;
+  const { questions, mode, sourceText, userCorrectAnswer } = params;
   const limit = pLimit(3);
   
   const revisedQuestions = await Promise.all(
@@ -1338,7 +1339,36 @@ export async function reviseQuizQuestions(params: {
             let systemPrompt: string;
             let userPrompt: string;
 
-            if (mode === "full") {
+            if (userCorrectAnswer) {
+              systemPrompt = `You are an expert quiz question writer. The user has told you which answer is correct. Your job is to accept their chosen answer and generate a detailed explanation that proves why it is correct, plus explanations for why each other option is wrong.
+
+CRITICAL RULES:
+- LANGUAGE: You MUST write ALL output in the SAME language as the original question. If the question is in Vietnamese, respond in Vietnamese. If in Spanish, respond in Spanish. Never switch to English unless the original is in English.
+- The user's chosen answer is FINAL — do NOT question or override it
+- Your explanation MUST clearly demonstrate why the chosen answer is correct
+- For math/science: show all calculations step-by-step leading to the chosen answer
+- For unit conversions: show every conversion factor
+${mode === "full" ? "- You may also rewrite the question text to be clearer and more precise" : "- Do NOT change the question text or answer options"}
+
+Respond in valid JSON with this exact structure:
+{
+  ${mode === "full" ? '"question": "revised question text (SAME LANGUAGE as original)",' : ""}
+  "correctAnswer": "the user's chosen correct answer (verbatim)",
+  "explanation": "detailed explanation proving this answer is correct (SAME LANGUAGE)",
+  "wrongAnswerExplanations": { "wrong option text": "why this is wrong (SAME LANGUAGE)", ... }
+}`;
+
+              userPrompt = `The user says the correct answer is: "${userCorrectAnswer}"
+
+Generate an explanation that proves this answer is correct.${mode === "full" ? " You may also rewrite the question to be clearer." : ""} IMPORTANT: Keep everything in the same language as the original question.
+
+Question: ${q.question}
+Type: ${q.type}
+${q.options ? `Options: ${JSON.stringify(q.options)}` : ""}
+${sourceText ? `\nSource material (for context): ${sourceText.substring(0, 2000)}` : ""}
+
+Write in the SAME language as the question above.`;
+            } else if (mode === "full") {
               systemPrompt = `You are an expert quiz question writer and verifier. Your job is to revise a quiz question from scratch. You must:
 1. Rewrite the question to be clearer and more precise
 2. Independently solve the problem to determine the correct answer
@@ -1414,46 +1444,32 @@ Independently solve this and determine which option is actually correct. Show yo
 
             const parsed = JSON.parse(content);
 
-            if (mode === "full") {
-              if (!parsed.question || !parsed.correctAnswer || !parsed.explanation) {
-                throw new Error("Invalid AI response structure for full revise");
-              }
-              if (q.options && !q.options.includes(parsed.correctAnswer)) {
-                console.log(`[AI REVISE] Q${idx + 1}: AI picked answer not in options, finding closest match`);
-                const match = q.options.find(opt => 
-                  opt.toLowerCase().includes(parsed.correctAnswer.toLowerCase()) ||
-                  parsed.correctAnswer.toLowerCase().includes(opt.toLowerCase())
-                );
-                if (match) parsed.correctAnswer = match;
-                else parsed.correctAnswer = q.correctAnswer;
-              }
-              return {
-                ...q,
-                question: parsed.question,
-                correctAnswer: parsed.correctAnswer,
-                explanation: parsed.explanation,
-                wrongAnswerExplanations: parsed.wrongAnswerExplanations || {},
-              };
-            } else {
-              if (!parsed.correctAnswer || !parsed.explanation) {
-                throw new Error("Invalid AI response structure for answers_only revise");
-              }
-              if (q.options && !q.options.includes(parsed.correctAnswer)) {
-                console.log(`[AI REVISE] Q${idx + 1}: AI picked answer not in options, finding closest match`);
-                const match = q.options.find(opt => 
-                  opt.toLowerCase().includes(parsed.correctAnswer.toLowerCase()) ||
-                  parsed.correctAnswer.toLowerCase().includes(opt.toLowerCase())
-                );
-                if (match) parsed.correctAnswer = match;
-                else parsed.correctAnswer = q.correctAnswer;
-              }
-              return {
-                ...q,
-                correctAnswer: parsed.correctAnswer,
-                explanation: parsed.explanation,
-                wrongAnswerExplanations: parsed.wrongAnswerExplanations || {},
-              };
+            if (!parsed.explanation) {
+              throw new Error("Invalid AI response: missing explanation");
             }
+
+            const finalAnswer = userCorrectAnswer || parsed.correctAnswer;
+            if (!finalAnswer) {
+              throw new Error("Invalid AI response: missing correctAnswer");
+            }
+
+            let resolvedAnswer = finalAnswer;
+            if (!userCorrectAnswer && q.options && !q.options.includes(resolvedAnswer)) {
+              console.log(`[AI REVISE] Q${idx + 1}: AI picked answer not in options, finding closest match`);
+              const match = q.options.find(opt => 
+                opt.toLowerCase().includes(resolvedAnswer.toLowerCase()) ||
+                resolvedAnswer.toLowerCase().includes(opt.toLowerCase())
+              );
+              resolvedAnswer = match || q.correctAnswer;
+            }
+
+            return {
+              ...q,
+              ...(mode === "full" && parsed.question ? { question: parsed.question } : {}),
+              correctAnswer: resolvedAnswer,
+              explanation: parsed.explanation,
+              wrongAnswerExplanations: parsed.wrongAnswerExplanations || {},
+            };
           },
           {
             retries: 2,

@@ -33,6 +33,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useQuiz } from "@/lib/quiz-context";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -58,6 +59,8 @@ export default function EditQuizPage() {
   const [typeFilter, setTypeFilter] = useState<QuestionFilter>("all");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isRevising, setIsRevising] = useState<number | null>(null);
+  const [reviseDialogIndex, setReviseDialogIndex] = useState<number | null>(null);
+  const [reviseSelectedAnswer, setReviseSelectedAnswer] = useState<string>("");
   const [previewIndex, setPreviewIndex] = useState(0);
 
   useEffect(() => {
@@ -289,10 +292,22 @@ export default function EditQuizPage() {
     }
   };
 
-  const handleAiRevise = async (questionIndex: number) => {
+  const handleAiRevise = (questionIndex: number) => {
+    const q = questions[questionIndex];
+    setReviseDialogIndex(questionIndex);
+    setReviseSelectedAnswer(q.correctAnswer);
+  };
+
+  const confirmAiRevise = async () => {
+    if (reviseDialogIndex === null) return;
+    const questionIndex = reviseDialogIndex;
+    setReviseDialogIndex(null);
     setIsRevising(questionIndex);
     try {
-      const response = await apiRequest("POST", `/api/quiz/${currentQuiz.id}/ai-revise`, { questionIndex });
+      const response = await apiRequest("POST", `/api/quiz/${currentQuiz.id}/ai-revise`, {
+        questionIndex,
+        userCorrectAnswer: reviseSelectedAnswer,
+      });
       const updatedQuiz = await response.json();
       setQuestions(updatedQuiz.questions);
       setCurrentQuiz(updatedQuiz);
@@ -980,6 +995,67 @@ export default function EditQuizPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={deleteSelected} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={reviseDialogIndex !== null} onOpenChange={(open) => { if (!open) setReviseDialogIndex(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5" />
+              Which answer is correct?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div>
+                <p className="mb-3">Select the correct answer, and AI will generate a matching explanation.</p>
+                {reviseDialogIndex !== null && (
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-foreground mb-3">{questions[reviseDialogIndex]?.question}</p>
+                    {questions[reviseDialogIndex]?.type === "short_answer" ? (
+                      <Input
+                        value={reviseSelectedAnswer}
+                        onChange={(e) => setReviseSelectedAnswer(e.target.value)}
+                        placeholder="Type the correct answer..."
+                        data-testid="input-revise-answer"
+                      />
+                    ) : (
+                      <RadioGroup
+                        value={reviseSelectedAnswer}
+                        onValueChange={setReviseSelectedAnswer}
+                        className="space-y-2"
+                      >
+                        {(questions[reviseDialogIndex]?.options || []).map((option, i) => (
+                          <label
+                            key={i}
+                            className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                              reviseSelectedAnswer === option
+                                ? "border-primary bg-primary/5"
+                                : "border-border hover:bg-muted/50"
+                            }`}
+                            data-testid={`label-revise-option-${i}`}
+                          >
+                            <RadioGroupItem value={option} />
+                            <span className="text-sm text-foreground">{option}</span>
+                          </label>
+                        ))}
+                      </RadioGroup>
+                    )}
+                  </div>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmAiRevise}
+              disabled={!reviseSelectedAnswer}
+              data-testid="button-confirm-revise"
+            >
+              <Sparkles className="h-4 w-4 mr-1" />
+              Revise with AI
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
