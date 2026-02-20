@@ -46,9 +46,9 @@ export async function sendVerificationEmail(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://fonts.googleapis.com/css2?family=Righteous&family=TikTok+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Righteous&display=swap" rel="stylesheet">
       </head>
-      <body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'TikTok Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <table role="presentation" style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 40px 20px;">
@@ -153,9 +153,9 @@ export async function sendStreakReminderEmail(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://fonts.googleapis.com/css2?family=Righteous&family=TikTok+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Righteous&display=swap" rel="stylesheet">
       </head>
-      <body style="margin: 0; padding: 0; background-color: #1a1a1a; font-family: 'TikTok Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <body style="margin: 0; padding: 0; background-color: #1a1a1a; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <table role="presentation" style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 40px 20px;">
@@ -257,9 +257,9 @@ export async function sendPasswordResetEmail(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://fonts.googleapis.com/css2?family=Righteous&family=TikTok+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Righteous&display=swap" rel="stylesheet">
       </head>
-      <body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'TikTok Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <table role="presentation" style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 40px 20px;">

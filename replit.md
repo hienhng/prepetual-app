@@ -51,7 +51,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Typography (IMPORTANT)
 - **Brand Font**: Righteous for the brand name.
-- **Body Font**: TikTok Sans for all other text
+- **Body Font**: Poppins for all other text
 - The `.font-brand` CSS class applies Righteous to the brand name
 
 ## System Architecture
