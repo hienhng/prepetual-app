@@ -107,7 +107,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   // Fetch saved progresses from API
   const { data: apiProgresses = [], refetch: refetchProgresses } = useQuery<SavedProgressFromAPI[]>({
     queryKey: ["/api/quiz-progress"],
-    staleTime: 30000, // 30 seconds
+    staleTime: 0,
   });
 
   // Mutation to save progress
