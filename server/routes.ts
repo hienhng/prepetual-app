@@ -1094,21 +1094,38 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       }
 
       const mode = quiz.generationMode === "import" ? "answers_only" : "full";
-      console.log(`[AI REVISE] Starting revise for quiz ${id}, mode: ${mode}, generationMode: ${quiz.generationMode || 'null (legacy)'}, ${(quiz.questions as Question[]).length} questions`);
+      const { questionIndex } = req.body;
+      const allQuestions = quiz.questions as Question[];
 
-      const revisedQuestions = await reviseQuizQuestions({
-        questions: quiz.questions as Question[],
-        mode,
-        sourceText: quiz.sourceText,
-      });
+      if (questionIndex !== undefined && typeof questionIndex === "number") {
+        if (questionIndex < 0 || questionIndex >= allQuestions.length) {
+          return res.status(400).json({ message: "Invalid question index" });
+        }
+        console.log(`[AI REVISE] Revising single question ${questionIndex + 1}/${allQuestions.length} for quiz ${id}, mode: ${mode}`);
+        const revisedSingle = await reviseQuizQuestions({
+          questions: [allQuestions[questionIndex]],
+          mode,
+          sourceText: quiz.sourceText,
+        });
+        allQuestions[questionIndex] = revisedSingle[0];
+      } else {
+        console.log(`[AI REVISE] Revising all ${allQuestions.length} questions for quiz ${id}, mode: ${mode}`);
+        const revisedAll = await reviseQuizQuestions({
+          questions: allQuestions,
+          mode,
+          sourceText: quiz.sourceText,
+        });
+        allQuestions.splice(0, allQuestions.length, ...revisedAll);
+      }
 
       const updatedQuiz = await storage.updateQuiz(id, {
-        questions: revisedQuestions,
+        questions: allQuestions,
       });
 
       res.json({
         ...updatedQuiz,
         createdAt: updatedQuiz!.createdAt.toISOString(),
+        revisedQuestionIndex: questionIndex,
       });
     } catch (error) {
       console.error("AI revise error:", error);
