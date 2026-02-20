@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
-import { sendStreakReminderEmail, sendContactEmail } from "./email";
+import { sendContactEmail } from "./email";
 import multer from "multer";
 import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
@@ -951,28 +951,6 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     }
   });
 
-  app.get("/api/user/streak", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const streak = await storage.getUserStreak(userId);
-      res.json(streak);
-    } catch (error) {
-      console.error("Streak fetch error:", error);
-      res.status(500).json({ message: "Failed to get streak" });
-    }
-  });
-
-  app.get("/api/user/streak-history", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const dates = await storage.getUserStreakHistory(userId);
-      res.json(dates);
-    } catch (error) {
-      console.error("Streak history fetch error:", error);
-      res.status(500).json({ message: "Failed to get streak history" });
-    }
-  });
-
   app.get("/api/user/stats", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
@@ -1439,95 +1417,6 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     } catch (error) {
       console.error("Failed to delete quiz progress:", error);
       res.status(500).json({ message: "Failed to delete progress" });
-    }
-  });
-
-  // Streak reminder endpoint (can be called by a cron job or manually)
-  app.post("/api/send-streak-reminders", async (req: any, res) => {
-    try {
-      // Require STREAK_REMINDER_SECRET to be set for security
-      const expectedSecret = process.env.STREAK_REMINDER_SECRET;
-      
-      if (!expectedSecret) {
-        console.error("[Streak Reminder] STREAK_REMINDER_SECRET environment variable is not set");
-        return res.status(500).json({ message: "Server configuration error: STREAK_REMINDER_SECRET not configured" });
-      }
-      
-      const authHeader = req.headers.authorization;
-      if (authHeader !== `Bearer ${expectedSecret}`) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-      
-      const eligibleUsers = await storage.getUsersForStreakReminder();
-      let sentCount = 0;
-      let skippedCount = 0;
-      const errors: string[] = [];
-      
-      for (const user of eligibleUsers) {
-        try {
-          // Get user's streak info
-          const streakInfo = await storage.getUserStreak(user.id);
-          
-          // Only send reminder if user has an active streak (>= 1 day)
-          // and hasn't completed a quiz today (streak would be lost tomorrow)
-          if (streakInfo.currentStreak >= 1) {
-            const today = new Date().toISOString().split('T')[0];
-            const lastActivity = streakInfo.lastActivityDate;
-            
-            // If last activity was yesterday, they need a reminder today
-            if (lastActivity && lastActivity !== today) {
-              await sendStreakReminderEmail(
-                user.email,
-                user.username,
-                streakInfo.currentStreak
-              );
-              await storage.updateLastStreakReminderSentAt(user.id);
-              sentCount++;
-            } else {
-              skippedCount++;
-            }
-          } else {
-            skippedCount++;
-          }
-        } catch (error) {
-          errors.push(`Failed to send to ${user.email}: ${error instanceof Error ? error.message : "Unknown error"}`);
-        }
-      }
-      
-      res.json({
-        success: true,
-        sent: sentCount,
-        skipped: skippedCount,
-        errors: errors.length > 0 ? errors : undefined
-      });
-    } catch (error) {
-      console.error("Streak reminder error:", error);
-      res.status(500).json({ message: "Failed to send streak reminders" });
-    }
-  });
-
-  // Manual test endpoint for sending streak reminder to current user
-  app.post("/api/test-streak-reminder", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      
-      const streakInfo = await storage.getUserStreak(userId);
-      
-      await sendStreakReminderEmail(
-        user.email,
-        user.username,
-        Math.max(streakInfo.currentStreak, 1) // Use at least 1 for testing
-      );
-      
-      res.json({ success: true, message: "Test streak reminder sent to your email" });
-    } catch (error) {
-      console.error("Test streak reminder error:", error);
-      res.status(500).json({ message: "Failed to send test streak reminder" });
     }
   });
 

@@ -54,7 +54,6 @@ export default function RevisionSummary() {
   const { quizResult, revisedQuestionsCount, retryCorrectCount } = useQuiz();
   const { user } = useAuth();
   const [weeklyRevisionCount, setWeeklyRevisionCount] = useState(0);
-  const [isFirstCompletionToday, setIsFirstCompletionToday] = useState(false);
   const hasTrackedRevisions = useRef(false);
 
   useEffect(() => {
@@ -66,31 +65,6 @@ export default function RevisionSummary() {
       setWeeklyRevisionCount(getWeeklyRevisions().count);
     }
   }, [revisedQuestionsCount]);
-
-  useEffect(() => {
-    if (quizResult && user) {
-      const today = new Date().toISOString().split('T')[0];
-      const resultDate = new Date(quizResult.completedAt).toISOString().split('T')[0];
-      
-      // Check if we've already shown the streak notification today
-      const STREAK_SHOWN_KEY = "prepetual_streak_shown_date";
-      const lastShownDate = localStorage.getItem(STREAK_SHOWN_KEY);
-      
-      if (resultDate === today && lastShownDate !== today) {
-        fetch(`/api/user/streak`)
-          .then(res => res.json())
-          .then(data => {
-            // Only mark as first completion if server says so AND we haven't shown today
-            if (data.isFirstCompletionToday) {
-              setIsFirstCompletionToday(true);
-              // Mark that we're going to show the streak notification today
-              localStorage.setItem(STREAK_SHOWN_KEY, today);
-            }
-          })
-          .catch(err => console.error("Failed to fetch streak:", err));
-      }
-    }
-  }, [quizResult, user]);
 
   useEffect(() => {
     if (!quizResult) {
@@ -105,11 +79,7 @@ export default function RevisionSummary() {
   const totalCorrectWithRetries = quizResult.correctAnswers + retryCorrectCount;
 
   const handleContinue = () => {
-    if (user && isFirstCompletionToday) {
-      setLocation("/streak-complete");
-    } else {
-      setLocation(user ? "/dashboard" : "/");
-    }
+    setLocation(user ? "/dashboard" : "/");
   };
 
   return (

@@ -43,7 +43,6 @@ import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import FAQ from "@/pages/faq";
 import HelpCenter from "@/pages/help-center";
-import StreakComplete from "@/pages/streak-complete";
 import RevisionSummary from "@/pages/revision-summary";
 import Settings from "@/pages/settings";
 import Blog from "@/pages/blog";
@@ -92,7 +91,6 @@ function AuthenticatedRouter() {
       <Route path="/study" component={Study} />
       <Route path="/share/:id" component={Share} />
       <Route path="/edit-quiz" component={EditQuiz} />
-      <Route path="/streak-complete" component={StreakComplete} />
       <Route path="/revision-summary" component={RevisionSummary} />
       <Route path="/progress" component={ProgressPage} />
       <Route path="/settings" component={Settings} />
@@ -141,7 +139,6 @@ function PublicRouter() {
       <Route path="/folder/:id">{() => <ProtectedRoute component={FolderPage} />}</Route>
       <Route path="/study">{() => <ProtectedRoute component={Study} />}</Route>
       <Route path="/edit-quiz">{() => <ProtectedRoute component={EditQuiz} />}</Route>
-      <Route path="/streak-complete">{() => <ProtectedRoute component={StreakComplete} />}</Route>
       <Route path="/progress">{() => <ProtectedRoute component={ProgressPage} />}</Route>
       <Route path="/settings">{() => <ProtectedRoute component={Settings} />}</Route>
       <Route component={NotFound} />

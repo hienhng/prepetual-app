@@ -22,7 +22,6 @@ import {
   Layers,
   GraduationCap,
   Trophy,
-  Flame,
   MousePointer2,
   Check,
   MessageCircle,
@@ -43,8 +42,6 @@ import {
   Shield,
   ListCheck
 } from "lucide-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFire } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -1844,44 +1841,6 @@ function FeatureIllustration({
     );
   }
 
-  if (feature === "Streak Tracking") {
-    return (
-      <div className="w-full h-full flex items-center justify-center p-2 pointer-events-none">
-        <div className="w-full max-w-[240px] transform scale-[0.85]">
-          <Card className="border bg-card">
-            <CardContent className="p-4 flex flex-col items-center">
-              <div
-                className={`w-12 h-12 rounded-full ${c.bg}/10 flex items-center justify-center mb-2`}
-              >
-                <div
-                  className={`w-10 h-10 rounded-full ${c.bg}/15 flex items-center justify-center`}
-                >
-                  <FontAwesomeIcon
-                    icon={faFire}
-                    className={`w-5 h-5 ${c.text}`}
-                  />
-                </div>
-              </div>
-              <p className="text-2xl font-bold text-foreground">7</p>
-              <p className="text-[9px] text-muted-foreground">day streak</p>
-              <div className="flex gap-1 mt-3">
-                {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <div
-                      className={`w-4 h-4 rounded-full flex items-center justify-center ${i < 5 ? c.bg : "bg-muted"}`}
-                    >
-                      {i < 5 && <Check className="w-2.5 h-2.5 text-white" />}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   if (feature === "Pip AI Assistant") {
     return (
       <div className="w-full h-full flex items-center justify-center p-2 pointer-events-none">
@@ -1951,9 +1910,9 @@ function FeatureIllustration({
               <Card className="bg-primary/80 border-0">
                 <CardContent className="p-2 text-center">
                   <p className="text-[7px] text-primary-foreground/80">
-                    Streak
+                    Score
                   </p>
-                  <p className="text-sm font-bold text-primary-foreground">7</p>
+                  <p className="text-sm font-bold text-primary-foreground">92%</p>
                 </CardContent>
               </Card>
               <Card className="bg-primary/60 border-0">
@@ -2047,14 +2006,6 @@ function FeatureShowcase() {
         "Share your quizzes with friends or make them public for others to use. Discover quizzes created by the community, sorted by subject and popularity. Collaborate and learn together.",
     },
     {
-      icon: Flame,
-      title: "Streak Tracking",
-      description: "Build daily learning habits.",
-      color: "amber",
-      details:
-        "Stay motivated with daily streak tracking. Set personal goals, receive friendly reminders, and watch your consistency grow. Building a study habit has never been more rewarding.",
-    },
-    {
       icon: MessageCircle,
       title: "Pip AI Assistant",
       description: "Your personal study companion.",
@@ -2068,7 +2019,7 @@ function FeatureShowcase() {
       description: "Monitor your exam readiness.",
       color: "indigo",
       details:
-        "Track your accuracy, streak, and quiz history all in one dashboard. See which topics need more practice and watch your scores improve over time as you prepare for your exams.",
+        "Track your accuracy and quiz history all in one dashboard. See which topics need more practice and watch your scores improve over time as you prepare for your exams.",
     },
   ];
 

@@ -11,19 +11,16 @@ import {
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
-  faFire, 
   faFileLines, 
   faBullseye, 
   faChartSimple, 
   faComment,
-  faMessage,
-  faAlarmClock
+  faMessage
 } from "@fortawesome/free-solid-svg-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -79,14 +76,6 @@ const difficultyColors: Record<string, { border: string, from: string, via: stri
     badge: "bg-rose-500/10 text-rose-600 border-rose-200 dark:border-rose-900",
   }
 };
-
-interface StreakData {
-  currentStreak: number;
-  longestStreak: number;
-  lastActivityDate: string | null;
-  isActive: boolean;
-  isFirstCompletionToday: boolean;
-}
 
 interface UserStats {
   averageAccuracy: number;
@@ -190,283 +179,6 @@ function StatCard({
   );
 }
 
-const streakTriviaByNumber: Record<number, string> = {
-  0: "Every journey begins with a single step. Start your streak today!",
-  1: "The number 1 symbolizes new beginnings. You've taken the first step!",
-  2: "Two is the first prime number. Keep the momentum going!",
-  3: "Three is considered a lucky number in many cultures.",
-  4: "Four seasons, four directions - balance in learning!",
-  5: "High five! You're building a solid habit.",
-  6: "Six is a perfect number in mathematics.",
-  7: "Seven days make a week. You're on your way to a full week!",
-  8: "In many cultures, 8 symbolizes infinity and abundance.",
-  9: "Nine is the highest single digit. Almost double digits!",
-  10: "Double digits! 10 represents completion and perfection.",
-  14: "Two weeks of consistent learning. Habits are forming!",
-  21: "21 days - the classic habit formation milestone!",
-  30: "One month of dedication. You're truly committed!",
-  50: "Half a century of learning days. Incredible dedication!",
-  100: "Triple digits! You're a learning legend!",
-  365: "One full year! You've mastered consistency.",
-};
-
-const dateTriviaByDay: Record<number, string> = {
-  1: "First day of the month - fresh starts and new possibilities.",
-  7: "A week into the month. Time flies when you're learning!",
-  13: "Lucky 13! Some say it brings fortune to the bold.",
-  15: "Mid-month milestone. Half the month, all the progress!",
-  21: "The 21st - a popular day for new beginnings.",
-  25: "The 25th - counting down to a new month ahead.",
-  28: "Day 28 - every February ends here or beyond.",
-  31: "The longest month's final day. Maximum effort!",
-};
-
-function getStreakTrivia(streak: number): string {
-  if (streakTriviaByNumber[streak]) {
-    return streakTriviaByNumber[streak];
-  }
-  
-  if (streak > 100) return "You're in the elite league of learners!";
-  if (streak > 50) return `${streak} days! You're unstoppable!`;
-  if (streak > 30) return `${streak} days of pure dedication!`;
-  if (streak > 14) return `${streak} days - habits are becoming second nature.`;
-  if (streak > 7) return `${streak} days strong! Keep pushing forward.`;
-  
-  const today = new Date().getDate();
-  if (dateTriviaByDay[today]) {
-    return dateTriviaByDay[today];
-  }
-  
-  return `Day ${streak} of your learning adventure!`;
-}
-
-function StreakCalendar({ 
-  streakDates, 
-  currentStreak,
-  longestStreak,
-  isActive,
-  quizzes = []
-}: { 
-  streakDates: string[]; 
-  currentStreak: number;
-  longestStreak: number;
-  isActive: boolean;
-  quizzes?: Quiz[];
-}) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [, setLocation] = useLocation();
-  const { setCurrentQuiz, setSourceMaterial } = useQuiz();
-  
-  const streakSet = useMemo(() => new Set(streakDates), [streakDates]);
-  const trivia = useMemo(() => getStreakTrivia(currentStreak), [currentStreak]);
-
-  const handleRandomQuiz = () => {
-    const eligibleQuizzes = quizzes.filter(q => (q.questions as any[]).length >= 8);
-    if (eligibleQuizzes.length > 0) {
-      const randomQuiz = eligibleQuizzes[Math.floor(Math.random() * eligibleQuizzes.length)];
-      setCurrentQuiz({
-        ...randomQuiz,
-        createdAt: typeof randomQuiz.createdAt === "string" ? randomQuiz.createdAt : randomQuiz.createdAt.toISOString(),
-      } as any);
-      setSourceMaterial({
-        type: randomQuiz.sourceImageUrl ? "image" : null,
-        text: randomQuiz.sourceText,
-        imageDataUrl: randomQuiz.sourceImageUrl || null,
-        isOfficeWithImages: (randomQuiz.sourceImages?.length || 0) > 0,
-        documentImages: randomQuiz.sourceImages || [],
-      });
-      setLocation("/quiz");
-    } else {
-      setLocation("/create");
-    }
-  };
-  
-  const daysInMonth = new Date(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth() + 1,
-    0
-  ).getDate();
-  
-  const firstDayOfMonth = new Date(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth(),
-    1
-  ).getDay();
-  
-  const monthName = currentMonth.toLocaleString("default", { month: "long", year: "numeric" });
-  
-  const goToPreviousMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
-  };
-  
-  const goToNextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
-  };
-  
-  const isToday = (day: number) => {
-    const today = new Date();
-    return (
-      day === today.getDate() &&
-      currentMonth.getMonth() === today.getMonth() &&
-      currentMonth.getFullYear() === today.getFullYear()
-    );
-  };
-  
-  const hasStreak = (day: number) => {
-    const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return streakSet.has(dateStr);
-  };
-
-  const isConsecutiveStreak = (day: number, direction: "prev" | "next") => {
-    const checkDay = direction === "prev" ? day - 1 : day + 1;
-    if (checkDay < 1 || checkDay > daysInMonth) return false;
-    const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(checkDay).padStart(2, "0")}`;
-    return streakSet.has(dateStr);
-  };
-
-  const days = [];
-  for (let i = 0; i < firstDayOfMonth; i++) {
-    days.push(<div key={`empty-${i}`} className="h-10" />);
-  }
-  for (let day = 1; day <= daysInMonth; day++) {
-    const streakDay = hasStreak(day);
-    const today = isToday(day);
-    const hasPrevStreak = streakDay && isConsecutiveStreak(day, "prev");
-    const hasNextStreak = streakDay && isConsecutiveStreak(day, "next");
-    const dayPosition = (firstDayOfMonth + day - 1) % 7;
-    const isStartOfRow = dayPosition === 0;
-    const isEndOfRow = dayPosition === 6;
-    
-    const isStreakStart = streakDay && !hasPrevStreak;
-    const isStreakEnd = streakDay && !hasNextStreak;
-    const isStreakMiddle = streakDay && hasPrevStreak && hasNextStreak;
-    const wrapAtRowStart = streakDay && hasPrevStreak && isStartOfRow;
-    const wrapAtRowEnd = streakDay && hasNextStreak && isEndOfRow;
-    
-    const showLeftBar = streakDay && (hasPrevStreak && !isStartOfRow);
-    const showRightBar = streakDay && (hasNextStreak && !isEndOfRow);
-    const isSingleStreakDay = isStreakStart && isStreakEnd;
-    
-    days.push(
-      <div
-        key={day}
-        className="h-12 flex items-center justify-center relative overflow-visible hide-scrollbar::-webkit-scrollbar"
-      >
-        {streakDay && !isSingleStreakDay && (
-          <div 
-            className="absolute top-1/2 -translate-y-1/2 h-12 bg-orange-200 dark:bg-orange-900"
-            style={{
-              left: (isStreakStart || wrapAtRowStart) ? 'calc(50% - 24px)' : '-4px',
-              right: (isStreakEnd || wrapAtRowEnd) ? 'calc(50% - 24px)' : '-4px',
-              borderRadius: `${(isStreakStart || wrapAtRowStart) ? '9999px' : '0'} ${(isStreakEnd || wrapAtRowEnd) ? '9999px' : '0'} ${(isStreakEnd || wrapAtRowEnd) ? '9999px' : '0'} ${(isStreakStart || wrapAtRowStart) ? '9999px' : '0'}`,
-            }}
-          />
-        )}
-        <div
-          className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all z-10
-            ${streakDay ? "bg-orange-400 dark:bg-orange-700 text-white" : ""}
-            ${today && !streakDay ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
-            ${!streakDay && !today ? "text-muted-foreground" : ""}
-          `}
-        >
-          {day}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Streak Header with Fire Icon and Trivia */}
-      <div className={`flex items-center gap-5 p-4 rounded-lg ${
-        isActive 
-          ? "bg-orange-100 dark:bg-orange-950/50" 
-          : "bg-muted/50"
-      }`}>
-        <motion.div
-          animate={isActive ? { scale: [1, 1.1, 1] } : {}}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className={`flex-shrink-0 ${!isActive ? "grayscale opacity-70" : ""}`}
-        >
-          <FontAwesomeIcon 
-            icon={faFire} 
-            className={`h-16 w-16 ${isActive ? "text-orange-500" : "text-muted-foreground"}`} 
-          />
-        </motion.div>
-        <div className="flex-1">
-          <span className={`text-2xl font-bold ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
-             {currentStreak} day streak
-          </span>
-          {isActive ? (
-            <p className="text-sm text-muted-foreground mt-1">{trivia}</p>
-          ) : (
-            <div className="mt-2 p-3 bg-white dark:bg-muted/30 border border-orange-100 dark:border-orange-900/30 rounded-lg flex items-center gap-3 shadow-sm group/streak">
-              <div className="p-2 rounded-full bg-orange-100 dark:bg-orange-900/30 flex-shrink-0">
-                 <FontAwesomeIcon icon={faAlarmClock} className="h-4 w-4 text-orange-500"/>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-muted-foreground leading-tight mb-1">
-                  Go finish a quiz to extend your streak!
-                </p>
-                <button 
-                  onClick={handleRandomQuiz}
-                  className="text-xs font-bold text-orange-500 hover:text-orange-600 transition-all p-0 h-auto bg-transparent border-0 uppercase tracking-wider flex items-center gap-1 group-hover/streak:translate-x-1 duration-300"
-                  data-testid="button-random-quiz-streak"
-                >
-                  Extend streak <ArrowRight className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" size="icon" onClick={goToPreviousMonth} data-testid="button-prev-month">
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        <h3 className="text-lg font-semibold text-foreground">{monthName}</h3>
-        <Button variant="ghost" size="icon" onClick={goToNextMonth} data-testid="button-next-month">
-          <ChevronRight className="h-5 w-5" />
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-7 gap-1 text-center">
-        {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
-          <div key={d} className="h-8 flex items-center justify-center text-xs font-medium text-muted-foreground">
-            {d}
-          </div>
-        ))}
-      </div>
-      {/* Fixed height calendar grid - 6 rows max */}
-      <div className="grid grid-cols-7 gap-1 text-center" style={{ minHeight: '312px' }}>
-        {days}
-      </div>
-
-      <div className="flex items-center justify-center gap-8 pt-4 border-t">
-        <div className="text-center">
-          <div className="flex items-center gap-2 justify-center mb-1">
-            <FontAwesomeIcon 
-              icon={faFire} 
-              className={`h-5 w-5 ${isActive ? "text-orange-500" : "text-muted-foreground"}`} 
-            />
-            <span className={`text-2xl font-bold ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
-              {currentStreak}
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground">Current Streak</p>
-        </div>
-        <div className="text-center">
-          <div className="flex items-center gap-2 justify-center mb-1">
-            <Target className="h-5 w-5 text-primary" />
-            <span className="text-2xl font-bold text-foreground">{longestStreak}</span>
-          </div>
-          <p className="text-xs text-muted-foreground">Longest Streak</p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function QuickActionCard({ 
   title, 
@@ -887,7 +599,6 @@ export default function Dashboard() {
     clearRestoredState,
   } = useQuiz();
   const { user } = useAuth();
-  const [streakCalendarOpen, setStreakCalendarOpen] = useState(false);
   const [revisionExitWarning, setRevisionExitWarning] = useState<{ open: boolean; quizId: string | null; type: 'saved' | null }>({ 
     open: false, 
     quizId: null, 
@@ -896,15 +607,6 @@ export default function Dashboard() {
 
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
     queryKey: ["/api/quizzes"],
-  });
-
-  const { data: streakData } = useQuery<StreakData>({
-    queryKey: ["/api/user/streak"],
-  });
-
-  const { data: streakHistory } = useQuery<string[]>({
-    queryKey: ["/api/user/streak-history"],
-    enabled: streakCalendarOpen,
   });
 
   const { data: userStats } = useQuery<UserStats>({
@@ -1148,7 +850,7 @@ export default function Dashboard() {
         {/* Stats Section */}
         {hasQuizzes && (
           <motion.section variants={itemVariants}>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
               <StatCard
                 label="CREATED"
                 value={totalQuizzes}
@@ -1160,14 +862,6 @@ export default function Dashboard() {
                 value={totalQuestions}
                 icon={() => <FontAwesomeIcon icon={faMessage} className="h-6 w-6" />}
                 gradient="bg-gradient-to-br from-violet-500 to-violet-600"
-              />
-              <StatCard
-                label="STREAK"
-                value={streakData?.currentStreak ?? 0}
-                icon={() => <FontAwesomeIcon icon={faFire} className="h-6 w-6" />}
-                gradient="bg-gradient-to-br from-orange-500 to-orange-600"
-                isActive={streakData?.isActive ?? false}
-                onClick={() => setStreakCalendarOpen(true)}
               />
               <StatCard
                 label="ACCURACY"
@@ -1351,24 +1045,6 @@ export default function Dashboard() {
         {/* Learning Tip */}
         {hasQuizzes && <LearningTipCard />}
       </motion.div>
-
-      <Dialog open={streakCalendarOpen} onOpenChange={setStreakCalendarOpen}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto scrollbar-hide">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {/* <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-orange-500" /> */}
-              Streak
-            </DialogTitle>
-          </DialogHeader>
-          <StreakCalendar 
-            streakDates={streakHistory ?? []} 
-            currentStreak={streakData?.currentStreak ?? 0}
-            longestStreak={streakData?.longestStreak ?? 0}
-            isActive={streakData?.isActive ?? false}
-            quizzes={quizzes}
-          />
-        </DialogContent>
-      </Dialog>
 
       <AlertDialog 
         open={revisionExitWarning.open} 
