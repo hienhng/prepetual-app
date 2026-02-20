@@ -551,6 +551,44 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     const category: QuizCategory = QUIZ_CATEGORIES.includes(rawCategory) ? rawCategory : "Others/General";
     const questions: Question[] = [];
 
+    // Server-side answer-explanation consistency check
+    for (const q of rawQuestions) {
+      if (q.type === "multiple_choice" && q.explanation && q.correctAnswer && Array.isArray(q.options)) {
+        const explanation = String(q.explanation).toLowerCase();
+        const markedCorrect = String(q.correctAnswer).trim();
+        const options = q.options.map((o: any) => String(o).trim());
+
+        // Check if a different option's value appears at the end of the explanation
+        // (the conclusion) but the marked correct answer does NOT
+        const markedCorrectLower = markedCorrect.toLowerCase().replace(",", ".").replace(/\s/g, "");
+        const explanationNorm = explanation.replace(",", ".").replace(/\s/g, "");
+
+        // Extract numeric conclusions from explanation (patterns like "= 0.05", "= 0.05kg", "= 0,05 kg")
+        const conclusionMatches = explanation.match(/[=→]\s*([0-9]+[.,]?[0-9]*)\s*(kg|g|m|cm|mm|s|n|j|w|v|a|hz|rad|mol|l|ml)?/gi);
+        if (conclusionMatches && conclusionMatches.length > 0) {
+          // Get the last conclusion (final answer in the derivation chain)
+          const lastConclusion = conclusionMatches[conclusionMatches.length - 1];
+          const conclusionValue = lastConclusion.replace(/^[=→]\s*/, "").trim().toLowerCase().replace(",", ".");
+
+          // Find which option best matches the explanation's conclusion
+          let bestMatchIdx = -1;
+          for (let i = 0; i < options.length; i++) {
+            const optNorm = options[i].toLowerCase().replace(",", ".").replace(/\s/g, "");
+            if (conclusionValue.replace(/\s/g, "") === optNorm || optNorm.includes(conclusionValue.replace(/\s/g, ""))) {
+              bestMatchIdx = i;
+              break;
+            }
+          }
+
+          if (bestMatchIdx !== -1 && options[bestMatchIdx] !== markedCorrect) {
+            const derivedAnswer = options[bestMatchIdx];
+            console.warn(`[ANSWER FIX] Explanation derives "${conclusionValue}" matching option "${derivedAnswer}" but correctAnswer was "${markedCorrect}". Fixing to "${derivedAnswer}".`);
+            q.correctAnswer = derivedAnswer;
+          }
+        }
+      }
+    }
+
     for (const q of rawQuestions) {
       if (!q.type || !q.question || !q.correctAnswer) {
         console.warn("Skipping malformed question:", q);
@@ -863,6 +901,36 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
 
     const title = parsed.title?.trim() || "Imported Quiz";
     const questions: Question[] = [];
+
+    // Server-side answer-explanation consistency check for imported quizzes
+    for (const q of parsed.questions) {
+      if (q.explanation && q.correctAnswer && Array.isArray(q.options) && q.options.length > 0) {
+        const explanation = String(q.explanation).toLowerCase();
+        const markedCorrect = String(q.correctAnswer).trim();
+        const opts = q.options.map((o: any) => String(o).trim());
+
+        const conclusionMatches = explanation.match(/[=→]\s*([0-9]+[.,]?[0-9]*)\s*(kg|g|m|cm|mm|s|n|j|w|v|a|hz|rad|mol|l|ml)?/gi);
+        if (conclusionMatches && conclusionMatches.length > 0) {
+          const lastConclusion = conclusionMatches[conclusionMatches.length - 1];
+          const conclusionValue = lastConclusion.replace(/^[=→]\s*/, "").trim().toLowerCase().replace(",", ".");
+
+          let bestMatchIdx = -1;
+          for (let i = 0; i < opts.length; i++) {
+            const optNorm = opts[i].toLowerCase().replace(",", ".").replace(/\s/g, "");
+            if (conclusionValue.replace(/\s/g, "") === optNorm || optNorm.includes(conclusionValue.replace(/\s/g, ""))) {
+              bestMatchIdx = i;
+              break;
+            }
+          }
+
+          if (bestMatchIdx !== -1 && opts[bestMatchIdx] !== markedCorrect) {
+            const derivedAnswer = opts[bestMatchIdx];
+            console.warn(`[IMPORT ANSWER FIX] Explanation derives "${conclusionValue}" matching "${derivedAnswer}" but correctAnswer was "${markedCorrect}". Fixing.`);
+            q.correctAnswer = derivedAnswer;
+          }
+        }
+      }
+    }
 
     for (const q of parsed.questions) {
       if (!q.question || !q.correctAnswer) {
