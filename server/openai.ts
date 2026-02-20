@@ -184,7 +184,7 @@ export async function generateQuizQuestions(
 
   const categoryList = QUIZ_CATEGORIES.join(", ");
   
-  const prompt = `You are an expert educator. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz and categorize it.
+  const prompt = `You are an expert educator and subject-matter specialist. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz and categorize it.
 
 CONTENT:
 ${truncatedText}
@@ -211,6 +211,17 @@ REQUIREMENTS:
    - Social Studies: history, geography, civics, economics, etc.
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
+
+FACTUAL ACCURACY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+- Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
+- If the source content contains a factual claim, use it as the basis for the correct answer
+- Double-check every correct answer before finalizing: re-read the source content, verify definitions, formulas, dates, names, and relationships
+- For math/science: verify all calculations, unit conversions, and formulas step by step before setting the correct answer
+- For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
+- For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
+- NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
+- Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
+- The explanation must logically and clearly justify why the correct answer is right and why each wrong answer is wrong
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
@@ -251,7 +262,7 @@ OUTPUT FORMAT (JSON):
 
 Respond with ONLY valid JSON, no markdown or additional text.`;
 
-  const visionPrompt = hasImages ? `You are an expert educator. Based on the following document content AND the attached images/diagrams/charts from the document, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material.
+  const visionPrompt = hasImages ? `You are an expert educator and subject-matter specialist. Based on the following document content AND the attached images/diagrams/charts from the document, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material.
 
 IMPORTANT: Carefully analyze ALL attached images. These may contain:
 - Charts, graphs, and diagrams with important data
@@ -288,6 +299,17 @@ REQUIREMENTS:
    - Social Studies: history, geography, civics, economics, etc.
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
+
+FACTUAL ACCURACY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+- Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
+- If the source content contains a factual claim, use it as the basis for the correct answer
+- Double-check every correct answer before finalizing: re-read the source content, verify definitions, formulas, dates, names, and relationships
+- For math/science: verify all calculations, unit conversions, and formulas step by step before setting the correct answer
+- For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
+- For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
+- NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
+- Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
+- The explanation must logically and clearly justify why the correct answer is right and why each wrong answer is wrong
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
@@ -330,7 +352,7 @@ OUTPUT FORMAT (JSON):
 Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
 
   // Special prompt for image-only uploads (no text content)
-  const imageOnlyPrompt = `You are an expert educator. Analyze the attached images carefully and generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions based ENTIRELY on what you see in the images.
+  const imageOnlyPrompt = `You are an expert educator and subject-matter specialist. Analyze the attached images carefully and generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions based ENTIRELY on what you see in the images.
 
 IMPORTANT: These are study materials uploaded as images. They may contain:
 - Study sheets, worksheets, or exam papers
@@ -367,6 +389,17 @@ REQUIREMENTS:
    - Social Studies: history, geography, civics, economics, etc.
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
+
+FACTUAL ACCURACY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+- Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
+- If the source content contains a factual claim, use it as the basis for the correct answer
+- Double-check every correct answer before finalizing: re-read the source content, verify definitions, formulas, dates, names, and relationships
+- For math/science: verify all calculations, unit conversions, and formulas step by step before setting the correct answer
+- For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
+- For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
+- NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
+- Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
+- The explanation must logically and clearly justify why the correct answer is right and why each wrong answer is wrong
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
@@ -644,7 +677,7 @@ export async function importExistingQuiz(
   const truncatedText =
     text.length > 8000 ? text.substring(0, 8000) + "..." : text;
 
-  const prompt = `You are an expert educator. The following text appears to be from an existing exam, quiz, or worksheet that already contains questions with answer options.
+  const prompt = `You are an expert educator and subject-matter specialist. The following text appears to be from an existing exam, quiz, or worksheet that already contains questions with answer options.
 
 Your task is to:
 1. Parse and extract ALL existing questions from the content
@@ -663,10 +696,18 @@ LANGUAGE HANDLING:
 - If the content is in Vietnamese, write explanations and title in Vietnamese
 - If the content is in English, write explanations and title in English
 
+FACTUAL ACCURACY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+- Every correct answer MUST be verifiably, objectively correct based on established academic knowledge
+- Double-check every answer before finalizing: verify definitions, formulas, dates, names, scientific facts, and relationships
+- For math/science: verify all calculations, unit conversions, and formulas step by step
+- For true/false: ensure the statement is UNAMBIGUOUSLY true or false
+- NEVER mark a wrong answer as correct. If uncertain, use the most defensible and commonly accepted answer
+- The explanation must clearly and logically justify why the correct answer is right and each wrong answer is wrong
+
 IMPORTANT INSTRUCTIONS:
 - Extract questions EXACTLY as they appear (preserving the original wording)
 - For multiple choice, preserve all answer options as they appear (e.g., a, b, c, d or A, B, C, D)
-- Use your knowledge to determine the correct answer - DO NOT just guess
+- Use your expert knowledge to determine the correct answer with high confidence - DO NOT guess
 - If a question is unclear or you cannot determine the answer confidently, still include it but note the uncertainty in the explanation
 - AUTOMATICALLY DETECT QUESTION TYPE based on the options:
   * If options are exactly "True" and "False" (or similar like "T/F", "Đúng/Sai") → use "true_false" type
@@ -694,7 +735,7 @@ OUTPUT FORMAT (JSON):
 
 Respond with ONLY valid JSON, no markdown or additional text.`;
 
-  const visionPrompt = hasImages ? `You are an expert educator. The following content appears to be from an existing exam, quiz, or worksheet that already contains questions with answer options. The content includes IMAGES that may contain questions, diagrams, or visual content that are part of the quiz.
+  const visionPrompt = hasImages ? `You are an expert educator and subject-matter specialist. The following content appears to be from an existing exam, quiz, or worksheet that already contains questions with answer options. The content includes IMAGES that may contain questions, diagrams, or visual content that are part of the quiz.
 
 Your task is to:
 1. Parse and extract ALL existing questions from BOTH the text content AND the attached images
@@ -712,10 +753,18 @@ LANGUAGE HANDLING:
 - Preserve the original language of the questions and options
 - Write explanations and the QUIZ TITLE in the SAME language as the content
 
+FACTUAL ACCURACY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+- Every correct answer MUST be verifiably, objectively correct based on established academic knowledge
+- Double-check every answer before finalizing: verify definitions, formulas, dates, names, scientific facts, and relationships
+- For math/science: verify all calculations, unit conversions, and formulas step by step
+- For true/false: ensure the statement is UNAMBIGUOUSLY true or false
+- NEVER mark a wrong answer as correct. If uncertain, use the most defensible and commonly accepted answer
+- The explanation must clearly and logically justify why the correct answer is right and each wrong answer is wrong
+
 IMPORTANT INSTRUCTIONS:
 - Extract questions EXACTLY as they appear (from both text and images)
 - For multiple choice, preserve all answer options as they appear
-- Use your knowledge to determine the correct answer - DO NOT just guess
+- Use your expert knowledge to determine the correct answer with high confidence - DO NOT guess
 - AUTOMATICALLY DETECT QUESTION TYPE based on the options:
   * If options are exactly "True" and "False" (or similar like "T/F", "Đúng/Sai") → use "true_false" type
   * If there are NO options provided (open-ended question) → use "short_answer" type
