@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Play, BookOpen, Share2, Trash2, FileText, Loader2, Edit2, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, FolderPlus, Folder, MoreVertical, Pencil, Sparkles, Search, X } from "lucide-react";
+import { Play, BookOpen, Share2, Trash2, FileText, Loader2, Edit2, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, FolderPlus, Folder, MoreVertical, Pencil, Sparkles, Search, X, Pin, PinOff } from "lucide-react";
 import { QUIZ_CATEGORIES } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -156,6 +156,18 @@ export default function HistoryPage() {
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to delete folder", variant: "destructive" });
+    },
+  });
+
+  const togglePinMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest("PATCH", `/api/folders/${id}/pin`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to toggle pin", variant: "destructive" });
     },
   });
 
@@ -599,9 +611,14 @@ export default function HistoryPage() {
                                 <Folder className="h-4 w-4 text-primary" />
                               </div>
                               <div className="min-w-0">
-                                <h3 className="font-semibold text-sm truncate" data-testid={`text-folder-name-${folder.id}`}>
-                                  {folder.name}
-                                </h3>
+                                <div className="flex items-center gap-1.5">
+                                  <h3 className="font-semibold text-sm truncate" data-testid={`text-folder-name-${folder.id}`}>
+                                    {folder.name}
+                                  </h3>
+                                  {folder.pinnedToSidebar && (
+                                    <Pin className="h-3 w-3 text-muted-foreground shrink-0" />
+                                  )}
+                                </div>
                                 <p className="text-xs text-muted-foreground">
                                   {count} {count === 1 ? "quiz" : "quizzes"}
                                 </p>
@@ -619,6 +636,13 @@ export default function HistoryPage() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => togglePinMutation.mutate(folder.id)} data-testid={`button-toggle-pin-folder-${folder.id}`}>
+                                    {folder.pinnedToSidebar ? (
+                                      <><PinOff className="h-3.5 w-3.5 mr-2" />Unpin from Sidebar</>
+                                    ) : (
+                                      <><Pin className="h-3.5 w-3.5 mr-2" />Pin to Sidebar</>
+                                    )}
+                                  </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => openEditFolder(folder)} data-testid={`button-rename-folder-${folder.id}`}>
                                     <Pencil className="h-3.5 w-3.5 mr-2" />
                                     Rename

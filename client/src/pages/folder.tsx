@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, useParams } from "wouter";
 import { motion } from "framer-motion";
-import { Play, BookOpen, Share2, Trash2, Loader2, Edit2, Globe, GlobeLock, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, Sparkles, MoreVertical, Pencil, X, ArrowLeft, Plus, FolderOpen, Check } from "lucide-react";
+import { Play, BookOpen, Share2, Trash2, Loader2, Edit2, Globe, GlobeLock, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, Sparkles, MoreVertical, Pencil, X, ArrowLeft, Plus, FolderOpen, Check, Pin, PinOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -147,6 +147,20 @@ export default function FolderPage() {
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to delete folder", variant: "destructive" });
+    },
+  });
+
+  const togglePinMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("PATCH", `/api/folders/${folderId}/pin`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/folders", folderId] });
+      toast({ title: folder?.pinnedToSidebar ? "Unpinned from sidebar" : "Pinned to sidebar" });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to toggle pin", variant: "destructive" });
     },
   });
 
@@ -361,6 +375,13 @@ export default function FolderPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => togglePinMutation.mutate()} data-testid="button-toggle-pin-folder">
+                    {folder.pinnedToSidebar ? (
+                      <><PinOff className="h-3.5 w-3.5 mr-2" />Unpin from Sidebar</>
+                    ) : (
+                      <><Pin className="h-3.5 w-3.5 mr-2" />Pin to Sidebar</>
+                    )}
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={openRenameDialog} data-testid="button-rename-folder">
                     <Pencil className="h-3.5 w-3.5 mr-2" />
                     Rename
