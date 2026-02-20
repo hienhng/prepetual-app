@@ -279,17 +279,14 @@ REQUIREMENTS:
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
 
-FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+FACTUAL ACCURACY (HIGHEST PRIORITY):
 - Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
 - If the source content contains a factual claim, use it as the basis for the correct answer
-- For math/science: work through all calculations, unit conversions, and formulas step by step FIRST, arrive at the numerical result, THEN set the correctAnswer to the option that matches your calculated result
-- SELF-CHECK (MANDATORY): After writing each question, re-read your own explanation. The value/conclusion stated in the explanation MUST match the correctAnswer field EXACTLY. If your explanation says the answer is "0.05kg" then correctAnswer MUST be "0,05kg" or "0.05kg" — NEVER a different value like "5kg". Fix any mismatch before moving to the next question.
+- For math/science: mentally solve the problem first, determine the correct numerical result, then set correctAnswer to the option matching that result. Write the explanation afterward to show the work that leads to your already-chosen answer.
 - For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
 - For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
 - NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
 - Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
-- The explanation must logically and clearly justify why the correct answer is right and why each wrong answer is wrong
-- wrongAnswerExplanations: for EACH wrong option, explain specifically why that value is wrong (e.g., "This is off by a factor of 100 due to a unit conversion error"). Do NOT just restate the correct answer — explain the specific mistake that would lead someone to pick that wrong option.
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
@@ -308,13 +305,14 @@ ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
 - Wrong answers should be equally plausible and well-formed, not obviously wrong or shorter
 - Randomize which position (1st, 2nd, 3rd, or 4th) contains the correct answer - do NOT always put it first or last
 
-ANSWER DERIVATION PROCESS (MANDATORY for every question):
-- Step 1: Write the "explanation" field FIRST — show your full reasoning, calculations, and derivation
-- Step 2: Identify the final conclusion/value from your explanation
-- Step 3: Find which option EXACTLY matches that conclusion
-- Step 4: Set "correctAnswer" to THAT option — the one your explanation concludes is correct
-- NEVER set correctAnswer independently from the explanation. The correctAnswer MUST be derived FROM the explanation.
-- If your explanation calculates "= 0,05 kg", the correctAnswer MUST be the option containing "0,05kg" or "0,05 kg" — NEVER "5kg" or any other value.
+QUESTION GENERATION FLOW (MANDATORY - follow this exact order for each question):
+- Step 1: Write the question text
+- Step 2: Generate the answer options
+- Step 3: DECIDE which option is the correct answer and set "correctAnswer" — this is your commitment, do NOT change it later
+- Step 4: All other options are now wrong. Write "explanation" to explain why correctAnswer is right (for math/science, show the full calculation that arrives at the correctAnswer value)
+- Step 5: Write "wrongAnswerExplanations" — for EACH wrong option, explain the specific mistake or misconception that would lead someone to pick it
+
+SELF-CONSISTENCY CHECK: The explanation MUST support the correctAnswer you already chose. If you realize during explanation that a different option is actually correct, go back and fix the correctAnswer BEFORE writing the explanation.
 
 OUTPUT FORMAT (JSON):
 {
@@ -325,12 +323,12 @@ OUTPUT FORMAT (JSON):
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
       "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
-      "explanation": "FIRST: Full explanation with step-by-step reasoning. For math/science: show all calculation steps and arrive at the final value.",
-      "correctAnswer": "THEN: The exact option text that matches the conclusion of the explanation above (without any prefix)",
+      "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
+      "explanation": "Why correctAnswer is right. For math/science: show full calculation arriving at the correctAnswer value.",
       "wrongAnswerExplanations": {
-        "Wrong option 1 text": "Why this specific option is incorrect",
-        "Wrong option 2 text": "Why this specific option is incorrect",
-        "Wrong option 3 text": "Why this specific option is incorrect"
+        "Wrong option 1 text": "The specific mistake that leads to this wrong value",
+        "Wrong option 2 text": "The specific mistake that leads to this wrong value",
+        "Wrong option 3 text": "The specific mistake that leads to this wrong value"
       }
     }
   ]
@@ -376,17 +374,14 @@ REQUIREMENTS:
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
 
-FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+FACTUAL ACCURACY (HIGHEST PRIORITY):
 - Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
 - If the source content contains a factual claim, use it as the basis for the correct answer
-- For math/science: work through all calculations, unit conversions, and formulas step by step FIRST, arrive at the numerical result, THEN set the correctAnswer to the option that matches your calculated result
-- SELF-CHECK (MANDATORY): After writing each question, re-read your own explanation. The value/conclusion stated in the explanation MUST match the correctAnswer field EXACTLY. If your explanation says the answer is "0.05kg" then correctAnswer MUST be "0,05kg" or "0.05kg" — NEVER a different value like "5kg". Fix any mismatch before moving to the next question.
+- For math/science: mentally solve the problem first, determine the correct numerical result, then set correctAnswer to the option matching that result. Write the explanation afterward to show the work that leads to your already-chosen answer.
 - For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
 - For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
 - NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
 - Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
-- The explanation must logically and clearly justify why the correct answer is right and why each wrong answer is wrong
-- wrongAnswerExplanations: for EACH wrong option, explain specifically why that value is wrong (e.g., "This is off by a factor of 100 due to a unit conversion error"). Do NOT just restate the correct answer — explain the specific mistake that would lead someone to pick that wrong option.
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
@@ -405,13 +400,14 @@ ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
 - Wrong answers should be equally plausible and well-formed, not obviously wrong or shorter
 - Randomize which position (1st, 2nd, 3rd, or 4th) contains the correct answer - do NOT always put it first or last
 
-ANSWER DERIVATION PROCESS (MANDATORY for every question):
-- Step 1: Write the "explanation" field FIRST — show your full reasoning, calculations, and derivation
-- Step 2: Identify the final conclusion/value from your explanation
-- Step 3: Find which option EXACTLY matches that conclusion
-- Step 4: Set "correctAnswer" to THAT option — the one your explanation concludes is correct
-- NEVER set correctAnswer independently from the explanation. The correctAnswer MUST be derived FROM the explanation.
-- If your explanation calculates "= 0,05 kg", the correctAnswer MUST be the option containing "0,05kg" or "0,05 kg" — NEVER "5kg" or any other value.
+QUESTION GENERATION FLOW (MANDATORY - follow this exact order for each question):
+- Step 1: Write the question text
+- Step 2: Generate the answer options
+- Step 3: DECIDE which option is the correct answer and set "correctAnswer" — this is your commitment, do NOT change it later
+- Step 4: All other options are now wrong. Write "explanation" to explain why correctAnswer is right (for math/science, show the full calculation that arrives at the correctAnswer value)
+- Step 5: Write "wrongAnswerExplanations" — for EACH wrong option, explain the specific mistake or misconception that would lead someone to pick it
+
+SELF-CONSISTENCY CHECK: The explanation MUST support the correctAnswer you already chose. If you realize during explanation that a different option is actually correct, go back and fix the correctAnswer BEFORE writing the explanation.
 
 OUTPUT FORMAT (JSON):
 {
@@ -422,12 +418,12 @@ OUTPUT FORMAT (JSON):
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
       "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
-      "explanation": "FIRST: Full explanation with step-by-step reasoning. For math/science: show all calculation steps and arrive at the final value.",
-      "correctAnswer": "THEN: The exact option text that matches the conclusion of the explanation above (without any prefix)",
+      "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
+      "explanation": "Why correctAnswer is right. For math/science: show full calculation arriving at the correctAnswer value.",
       "wrongAnswerExplanations": {
-        "Wrong option 1 text": "Why this specific option is incorrect",
-        "Wrong option 2 text": "Why this specific option is incorrect",
-        "Wrong option 3 text": "Why this specific option is incorrect"
+        "Wrong option 1 text": "The specific mistake that leads to this wrong value",
+        "Wrong option 2 text": "The specific mistake that leads to this wrong value",
+        "Wrong option 3 text": "The specific mistake that leads to this wrong value"
       },
       "imageIndex": 0
     }
@@ -475,17 +471,14 @@ REQUIREMENTS:
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
 
-FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
+FACTUAL ACCURACY (HIGHEST PRIORITY):
 - Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
 - If the source content contains a factual claim, use it as the basis for the correct answer
-- For math/science: work through all calculations, unit conversions, and formulas step by step FIRST, arrive at the numerical result, THEN set the correctAnswer to the option that matches your calculated result
-- SELF-CHECK (MANDATORY): After writing each question, re-read your own explanation. The value/conclusion stated in the explanation MUST match the correctAnswer field EXACTLY. If your explanation says the answer is "0.05kg" then correctAnswer MUST be "0,05kg" or "0.05kg" — NEVER a different value like "5kg". Fix any mismatch before moving to the next question.
+- For math/science: mentally solve the problem first, determine the correct numerical result, then set correctAnswer to the option matching that result. Write the explanation afterward to show the work that leads to your already-chosen answer.
 - For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
 - For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
 - NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
 - Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
-- The explanation must logically and clearly justify why the correct answer is right and why each wrong answer is wrong
-- wrongAnswerExplanations: for EACH wrong option, explain specifically why that value is wrong (e.g., "This is off by a factor of 100 due to a unit conversion error"). Do NOT just restate the correct answer — explain the specific mistake that would lead someone to pick that wrong option.
 
 CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
@@ -504,13 +497,14 @@ ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
 - Wrong answers should be equally plausible and well-formed, not obviously wrong or shorter
 - Randomize which position (1st, 2nd, 3rd, or 4th) contains the correct answer - do NOT always put it first or last
 
-ANSWER DERIVATION PROCESS (MANDATORY for every question):
-- Step 1: Write the "explanation" field FIRST — show your full reasoning, calculations, and derivation
-- Step 2: Identify the final conclusion/value from your explanation
-- Step 3: Find which option EXACTLY matches that conclusion
-- Step 4: Set "correctAnswer" to THAT option — the one your explanation concludes is correct
-- NEVER set correctAnswer independently from the explanation. The correctAnswer MUST be derived FROM the explanation.
-- If your explanation calculates "= 0,05 kg", the correctAnswer MUST be the option containing "0,05kg" or "0,05 kg" — NEVER "5kg" or any other value.
+QUESTION GENERATION FLOW (MANDATORY - follow this exact order for each question):
+- Step 1: Write the question text
+- Step 2: Generate the answer options
+- Step 3: DECIDE which option is the correct answer and set "correctAnswer" — this is your commitment, do NOT change it later
+- Step 4: All other options are now wrong. Write "explanation" to explain why correctAnswer is right (for math/science, show the full calculation that arrives at the correctAnswer value)
+- Step 5: Write "wrongAnswerExplanations" — for EACH wrong option, explain the specific mistake or misconception that would lead someone to pick it
+
+SELF-CONSISTENCY CHECK: The explanation MUST support the correctAnswer you already chose. If you realize during explanation that a different option is actually correct, go back and fix the correctAnswer BEFORE writing the explanation.
 
 OUTPUT FORMAT (JSON):
 {
@@ -521,12 +515,12 @@ OUTPUT FORMAT (JSON):
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
       "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
-      "explanation": "FIRST: Full explanation with step-by-step reasoning.",
-      "correctAnswer": "THEN: The exact option text that matches the conclusion of the explanation above (without any prefix)",
+      "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
+      "explanation": "Why correctAnswer is right. For math/science: show full calculation arriving at the correctAnswer value.",
       "wrongAnswerExplanations": {
-        "Wrong option 1 text": "Why this specific option is incorrect",
-        "Wrong option 2 text": "Why this specific option is incorrect",
-        "Wrong option 3 text": "Why this specific option is incorrect"
+        "Wrong option 1 text": "The specific mistake that leads to this wrong value",
+        "Wrong option 2 text": "The specific mistake that leads to this wrong value",
+        "Wrong option 3 text": "The specific mistake that leads to this wrong value"
       },
       "imageIndex": 0
     }
