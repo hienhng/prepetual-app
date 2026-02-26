@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Upload, FileText, Image, Sparkles, ArrowRight, 
+import {
+  Upload, FileText, Image, Sparkles, ArrowRight,
   CheckCircle2, Loader2, X, Wand2,
   Type, Youtube, Link, AlertCircle, FileUp, FilePlusIcon
 } from "lucide-react";
@@ -95,7 +95,7 @@ export default function Create() {
     setExtractedText(text);
     setSourceInputType("upload");
     setActiveModal(null);
-    
+
     // Always set source material with images if available
     setSourceMaterial({
       type: "document",
@@ -173,7 +173,7 @@ export default function Create() {
   };
 
   const handleClearText = () => {
-    setExtractedText("");  
+    setExtractedText("");
     setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
     clearJobs();
     setIsReady(false);
@@ -201,156 +201,186 @@ export default function Create() {
   const inputOptions = [
     {
       id: "upload",
-      title: "Upload File",
-      description: "PDF, Word, PowerPoint, or images",
+      title: "Upload Documents",
+      description: "Upload your PDFs, class notes, or textbook photos",
       icon: FileUp,
-      gradient: "from-blue-500 to-cyan-500",
-      bgLight: "bg-blue-50 dark:bg-blue-950/30",
-      iconBg: "bg-blue-500",
-      badgeClass: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800",
-      formats: ["PDF", "DOCX", "PPTX", "PNG", "JPG"],
+      gradient: "from-blue-600 to-indigo-700",
+      bgLight: "bg-blue-50/50 dark:bg-blue-950/20",
+      iconBg: "bg-blue-600",
+      badgeClass: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+      formats: ["PDF / DOCX", "Photo of notes"],
     },
     {
       id: "manual",
-      title: "Paste Text",
-      description: "Copy and paste your study notes",
+      title: "Paste Study Notes",
+      description: "Copy and paste your digital notes or summaries",
       icon: Type,
-      gradient: "from-violet-500 to-purple-500",
-      bgLight: "bg-violet-50 dark:bg-violet-950/30",
-      iconBg: "bg-violet-500",
-      badgeClass: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 border-violet-200 dark:border-violet-800",
-      formats: ["Notes", "Articles", "Textbooks"],
+      gradient: "from-violet-600 to-purple-700",
+      bgLight: "bg-violet-50/50 dark:bg-violet-950/20",
+      iconBg: "bg-violet-600",
+      badgeClass: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
+      formats: ["Handwritten notes", "Typed summaries"],
     },
     {
       id: "youtube",
-      title: "YouTube Video",
-      description: "Extract transcript from video",
+      title: "Learn from YouTube",
+      description: "Turn any educational video into a practice test",
       icon: Youtube,
-      gradient: "from-red-500 to-rose-500",
-      bgLight: "bg-red-50 dark:bg-red-950/30",
-      iconBg: "bg-red-500",
-      badgeClass: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800",
-      formats: ["Lectures", "Tutorials", "Talks"],
+      gradient: "from-red-600 to-rose-700",
+      bgLight: "bg-red-50/50 dark:bg-red-950/20",
+      iconBg: "bg-red-600",
+      badgeClass: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+      formats: ["Video lectures", "Short explainers"],
     },
   ];
 
   return (
-    <div className="container mx-auto px-4 py-4 md:py-6 max-w-3xl">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="space-y-5"
-      >
-        <motion.div variants={itemVariants} className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/60 mb-1">
-            <FilePlusIcon className="w-6 h-6 text-primary-foreground" />
-          </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            Create Your Quiz
-          </h1>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            Choose how you want to add your study material
-          </p>
-        </motion.div>
+    <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+        <motion.div
+          className="absolute -top-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-[120px]"
+          animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute top-1/2 -right-24 w-[30rem] h-[30rem] bg-violet-500/5 rounded-full blur-[150px]"
+          animate={{ x: [0, -40, 0], y: [0, 60, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        />
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`, backgroundSize: '24px 24px' }} />
+      </div>
 
-        {!isReady && (
-          <div className="space-y-3">
-            {inputOptions.map((option) => (
-              <motion.div
-                key={option.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.01, y: -2 }}
-                whileTap={{ scale: 0.99 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              >
-                <Card 
-                  className={`cursor-pointer overflow-visible border-2 hover:border-primary/60 transition-all duration-200 ${option.bgLight} hover:shadow-lg`}
-                  onClick={() => setActiveModal(option.id as ActiveModal)}
-                  data-testid={`card-${option.id}`}
+      <div className="container mx-auto px-4 py-8 md:py-12 max-w-3xl relative z-10">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="space-y-8"
+        >
+          <motion.div variants={itemVariants} className="text-center space-y-4 pb-4">
+            <div className="relative inline-flex mb-2">
+              <div className="absolute -inset-2 bg-primary/20 rounded-full blur-xl animate-pulse" />
+              <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-2xl shadow-primary/20">
+                <FilePlusIcon className="w-8 h-8 text-primary-foreground stroke-[2.5]" />
+              </div>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
+              Create a <span className="text-primary">Practice Quiz</span>
+            </h1>
+            <p className="text-muted-foreground text-lg font-medium max-w-md mx-auto">
+              How would you like to add your learning material today?
+            </p>
+          </motion.div>
+
+          {!isReady && (
+            <div className="space-y-4">
+              {inputOptions.map((option) => (
+                <motion.div
+                  key={option.id}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  className="relative group"
                 >
-                  <CardContent className="p-5 flex items-center gap-5">
-                    <div className={`w-14 h-14 rounded-xl ${option.iconBg} flex items-center justify-center shadow-lg flex-shrink-0`}>
-                      <option.icon className="w-7 h-7 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-lg text-foreground mb-1">
-                        {option.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {option.description}
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {option.formats.map((format) => (
-                          <Badge 
-                            key={format} 
-                            variant="outline"
-                            className={`text-[10px] md:text-xs px-2 py-0.5 font-medium transition-colors ${option.badgeClass}`}
-                          >
-                            {format}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <ArrowRight className="w-5 h-5 text-primary" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        )}
+                  {/* Glow effect on hover */}
+                  <div className={`absolute -inset-0.5 rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-r ${option.gradient}`} />
 
-        {isReady && (
-          <motion.div
-            key="ready"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
-          >
-              <Card className="border border-green-500/40 bg-gradient-to-br from-green-50 to-emerald-50/50 dark:from-green-950/30 dark:to-emerald-950/20">
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-green-500 flex items-center justify-center shadow-md">
-                          <CheckCircle2 className="w-5 h-5 text-white" />
+                  <Card
+                    className={`relative cursor-pointer overflow-hidden border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-300 group-hover:bg-background group-hover:border-primary/30 group-hover:shadow-xl shadow-primary/5`}
+                    onClick={() => setActiveModal(option.id as ActiveModal)}
+                    data-testid={`card-${option.id}`}
+                  >
+                    <CardContent className="p-6 flex items-center gap-6 relative">
+                      {/* Mesh pattern overlay */}
+                      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`, backgroundSize: '16px 16px' }} />
+
+                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${option.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500 flex-shrink-0`}>
+                        <option.icon className="w-8 h-8 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0 z-10">
+                        <h3 className="font-black text-xl text-foreground mb-1 tracking-tight">
+                          {option.title}
+                        </h3>
+                        <p className="text-muted-foreground font-medium mb-3">
+                          {option.description}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {option.formats.map((format) => (
+                            <Badge
+                              key={format}
+                              variant="secondary"
+                              className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 ${option.badgeClass}`}
+                            >
+                              {format}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex-shrink-0 z-10">
+                        <div className="w-12 h-12 rounded-2xl bg-muted group-hover:bg-primary/10 transition-colors flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <ArrowRight className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          )}
+
+          {isReady && (
+            <motion.div
+              key="ready"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              <Card className="relative overflow-hidden border-border/50 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent backdrop-blur-md shadow-xl">
+                <CardContent className="p-6 relative">
+                  {/* Mesh pattern overlay */}
+                  <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 2px 2px, #10b981 1px, transparent 0)`, backgroundSize: '16px 16px' }} />
+
+                  <div className="space-y-5 relative z-10">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                          <CheckCircle2 className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-foreground">Content Ready</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {sourceMaterial.isImageOnly 
-                              ? `${sourceMaterial.documentImages?.length || 0} images ready for AI analysis`
-                              : `${getWordCount(extractedText || "")} words from your ${getSourceLabel()}`
+                          <h3 className="text-xl font-black text-foreground tracking-tight">Study Material Ready</h3>
+                          <p className="text-muted-foreground font-medium">
+                            {sourceMaterial.isImageOnly
+                              ? `${sourceMaterial.documentImages?.length || 0} pages added and ready for Pip to review`
+                              : `${getWordCount(extractedText || "")} words added from your ${getSourceLabel()}`
                             }
                           </p>
                         </div>
                       </div>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button 
-                            size="icon" 
-                            variant="ghost" 
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-10 w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive group/close"
                             data-testid="button-clear-text"
                           >
-                            <X className="w-4 h-4" />
+                            <X className="w-5 h-5 transition-transform group-hover/close:rotate-90" />
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent className="rounded-2xl border-border/50 backdrop-blur-xl">
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Remove content?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This will remove the extracted content and you will need to add it again.
+                            <AlertDialogTitle className="text-2xl font-black tracking-tight">Remove study material?</AlertDialogTitle>
+                            <AlertDialogDescription className="text-base font-medium">
+                              This will clear your current notes. You'll need to re-upload or re-paste to continue.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleClearText} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 border-destructive/30">
-                              Remove
+                          <AlertDialogFooter className="gap-2">
+                            <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleClearText} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl font-bold">
+                              Confirm Removal
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -358,62 +388,58 @@ export default function Create() {
                     </div>
 
                     {(sourceMaterial?.isOfficeWithImages || sourceMaterial?.isImageOnly) && sourceMaterial?.documentImages && sourceMaterial.documentImages.length > 0 ? (
-                      <div className="p-3 rounded-lg bg-white/60 dark:bg-background/60 border">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Image className="w-4 h-4 text-primary" />
-                          <p className="text-xs font-medium text-foreground">
-                            {sourceMaterial.documentImages.length} images detected
+                      <div className="p-4 rounded-2xl bg-background/50 border border-border/50 backdrop-blur-sm shadow-inner group/images">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Image className="w-4 h-4 text-emerald-500" />
+                          <p className="text-sm font-bold text-foreground">
+                            {sourceMaterial.documentImages.length} Visual Assets Found
                           </p>
                         </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {sourceMaterial.documentImages.slice(0, 4).map((img, index) => (
-                            <div key={index} className="w-10 h-10 rounded-md overflow-hidden border border-white shadow-sm">
-                              <img 
-                                src={img} 
-                                alt={`Document image ${index + 1}`} 
+                        <div className="flex flex-wrap gap-2">
+                          {sourceMaterial.documentImages.slice(0, 5).map((img, index) => (
+                            <motion.div
+                              key={index}
+                              whileHover={{ scale: 1.05, y: -2 }}
+                              className="w-14 h-14 rounded-xl overflow-hidden border-2 border-background shadow-md"
+                            >
+                              <img
+                                src={img}
+                                alt={`Asset ${index + 1}`}
                                 className="w-full h-full object-cover"
                               />
-                            </div>
+                            </motion.div>
                           ))}
-                          {sourceMaterial.documentImages.length > 4 && (
-                            <div className="w-10 h-10 rounded-md border border-dashed border-muted flex items-center justify-center bg-muted/50">
-                              <span className="text-[10px] text-muted-foreground font-medium">
-                                +{sourceMaterial.documentImages.length - 4}
+                          {sourceMaterial.documentImages.length > 5 && (
+                            <div className="w-14 h-14 rounded-xl border-2 border-dashed border-muted flex items-center justify-center bg-muted/30">
+                              <span className="text-xs text-muted-foreground font-black">
+                                +{sourceMaterial.documentImages.length - 5}
                               </span>
                             </div>
                           )}
                         </div>
                       </div>
                     ) : (
-                      <div className="p-3 rounded-lg bg-white/60 dark:bg-background/60 border">
-                        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
-                          {getPreviewText(extractedText || "", 250)}
+                      <div className="p-4 rounded-2xl bg-background/50 border border-border/50 backdrop-blur-sm shadow-inner overflow-hidden">
+                        <div className="flex items-center gap-2 mb-2 opacity-60">
+                          <FileText className="w-4 h-4" />
+                          <p className="text-xs font-bold uppercase tracking-wider">Preview</p>
+                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed font-medium italic line-clamp-3">
+                          "{getPreviewText(extractedText || "", 250)}"
                         </p>
                       </div>
                     )}
 
                     <div className="flex items-center gap-2" data-testid="badges-source-info">
-                      <Badge variant="secondary" className="gap-1.5" data-testid="badge-source-type">
+                      <Badge variant="secondary" className="gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-black tracking-wide uppercase text-[10px] px-3 py-1" data-testid="badge-source-type">
                         {sourceInputType === "youtube" ? (
-                          <>
-                            <Youtube className="w-3.5 h-3.5" />
-                            YouTube
-                          </>
+                          <><Youtube className="w-3.5 h-3.5" />Video Lecture</>
                         ) : sourceInputType === "manual" ? (
-                          <>
-                            <Type className="w-3.5 h-3.5" />
-                            Pasted Text
-                          </>
+                          <><Type className="w-3.5 h-3.5" />Student Notes</>
                         ) : sourceMaterial?.type === "image" ? (
-                          <>
-                            <Image className="w-3.5 h-3.5" />
-                            Image
-                          </>
+                          <><Image className="w-3.5 h-3.5" />Study Photos</>
                         ) : (
-                          <>
-                            <FileText className="w-3.5 h-3.5" />
-                            Document
-                          </>
+                          <><FileText className="w-3.5 h-3.5" />Study Document</>
                         )}
                       </Badge>
                     </div>
@@ -421,157 +447,206 @@ export default function Create() {
                 </CardContent>
               </Card>
 
-              <div className="flex flex-col items-center gap-2">
-                <Button
-                  size="lg"
-                  onClick={handleContinueToGenerate}
-                  className="w-full sm:w-auto gap-2 min-w-[200px]"
-                  data-testid="button-continue-generate"
+              <div className="flex flex-col items-center gap-4 pt-4">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full sm:w-auto"
                 >
-                  <Wand2 className="w-4 h-4" />
-                  Generate Quiz
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-                <p className="text-xs text-muted-foreground text-center">
-                  Customize question types, difficulty, and more
-                </p>
+                  <Button
+                    size="xl"
+                    onClick={handleContinueToGenerate}
+                    className="w-full sm:min-w-[280px] h-16 gap-3 rounded-2xl font-black text-xl shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all group"
+                    data-testid="button-continue-generate"
+                  >
+                    <Wand2 className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                    Generate Questions
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </motion.div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-muted/50 rounded-full border border-border/50">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                    Pip is ready to help you study
+                  </p>
+                </div>
               </div>
-          </motion.div>
-        )}
-      </motion.div>
+            </motion.div>
+          )}
+        </motion.div>
 
-      <Dialog open={activeModal === "upload"} onOpenChange={(open) => !open && setActiveModal(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
-                <FileUp className="w-5 h-5 text-white" />
-              </div>
-              Upload Your File
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-4">
-            <FileUpload onTextExtracted={handleTextExtracted} />
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={activeModal === "manual"} onOpenChange={(open) => !open && setActiveModal(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-violet-500 flex items-center justify-center">
-                <Type className="w-5 h-5 text-white" />
-              </div>
-              Paste Your Text
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-4 space-y-4">
-            <Textarea
-              placeholder="Paste your study material here... (minimum 50 characters)"
-              value={manualText}
-              onChange={(e) => setManualText(e.target.value)}
-              className="min-h-[250px] resize-none text-base"
-              data-testid="textarea-manual-text"
-            />
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                {getWordCount(manualText)} words
-              </span>
-              <Button
-                onClick={handleManualTextSubmit}
-                disabled={manualText.trim().length < 50}
-                className="gap-2"
-                data-testid="button-submit-manual-text"
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                Use This Text
-              </Button>
+        <Dialog open={activeModal === "upload"} onOpenChange={(open) => !open && setActiveModal(null)}>
+          <DialogContent className="max-w-2xl rounded-3xl border-border/50 backdrop-blur-xl p-0 overflow-hidden">
+            <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/5 p-8 pb-4">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-4 text-3xl font-black tracking-tight">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <FileUp className="w-8 h-8 text-white" />
+                  </div>
+                  Add Study Materials
+                </DialogTitle>
+              </DialogHeader>
             </div>
-            
-            {manualText.length > 0 && manualText.trim().length < 50 && (
-              <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-2" data-testid="text-manual-validation">
-                <AlertCircle className="h-4 w-4" />
-                Please enter at least 50 characters
-              </p>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={activeModal === "youtube"} onOpenChange={(open) => {
-        if (!open) {
-          setActiveModal(null);
-          setYoutubeError(null);
-        }
-      }}>
-        <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-red-500 flex items-center justify-center">
-                <Youtube className="w-5 h-5 text-white" />
+            <div className="p-8 pt-4">
+              <FileUpload onTextExtracted={handleTextExtracted} />
+              <div className="mt-8 pt-6 border-t border-border/50 flex items-center justify-between">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                  AI Vision enabled for images
+                </p>
+                <div className="flex gap-2">
+                  <Badge variant="outline" className="text-[10px] font-bold">PDF</Badge>
+                  <Badge variant="outline" className="text-[10px] font-bold">DOCX</Badge>
+                  <Badge variant="outline" className="text-[10px] font-bold">IMAGES</Badge>
+                </div>
               </div>
-              YouTube Video
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-4 space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Enter a YouTube URL to extract the transcript and generate questions
-            </p>
-            
-            <div className="space-y-3">
-              <div className="relative">
-                <Link className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="https://www.youtube.com/watch?v=..."
-                  value={youtubeUrl}
-                  onChange={(e) => {
-                    setYoutubeUrl(e.target.value);
-                    setYoutubeError(null);
-                  }}
-                  className="pl-10 h-11"
-                  data-testid="input-youtube-url"
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={activeModal === "manual"} onOpenChange={(open) => !open && setActiveModal(null)}>
+          <DialogContent className="max-w-2xl rounded-3xl border-border/50 backdrop-blur-xl p-0 overflow-hidden">
+            <div className="bg-gradient-to-br from-violet-500/10 to-purple-500/5 p-8 pb-4">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-4 text-3xl font-black tracking-tight">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                    <Type className="w-8 h-8 text-white" />
+                  </div>
+                  Paste Study Notes
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-8 pt-4 space-y-6">
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/20 to-purple-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500" />
+                <Textarea
+                  placeholder="Paste your study material here... (AI thrives on detail, give it at least 50 characters)"
+                  value={manualText}
+                  onChange={(e) => setManualText(e.target.value)}
+                  className="relative min-h-[300px] resize-none text-lg font-medium bg-background/50 border-border/50 rounded-xl focus:ring-violet-500/20 focus:border-violet-500/50"
+                  data-testid="textarea-manual-text"
                 />
               </div>
-              
-              <Button
-                onClick={() => handleYoutubeSubmit()}
-                disabled={isLoadingYoutube || !youtubeUrl.trim()}
-                className="w-full gap-2 h-11"
-                data-testid="button-fetch-youtube"
-              >
-                {isLoadingYoutube ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Fetching Transcript...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4" />
-                    Get Transcript
-                  </>
-                )}
-              </Button>
-            </div>
-            
-            {youtubeError && (
-              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20" data-testid="text-youtube-error">
-                <p className="text-sm text-destructive flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                  {youtubeError}
-                </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-xl border border-border/50">
+                  <FileText className="w-4 h-4 text-violet-500" />
+                  <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
+                    {getWordCount(manualText)} Words Detected
+                  </span>
+                </div>
+                <Button
+                  size="lg"
+                  onClick={handleManualTextSubmit}
+                  disabled={manualText.trim().length < 50}
+                  className="w-full sm:w-auto gap-3 rounded-xl font-black shadow-xl shadow-violet-500/10 hover:shadow-violet-500/20 transition-all bg-gradient-to-r from-violet-600 to-purple-600"
+                  data-testid="button-submit-manual-text"
+                >
+                  <CheckCircle2 className="h-5 w-5" />
+                  Ready to Quiz
+                </Button>
               </div>
-            )}
-            
-            <div className="pt-3 border-t">
-              <p className="text-xs text-muted-foreground">
-                Supported: youtube.com/watch?v=... and youtu.be/... links
-              </p>
+
+              {manualText.length > 0 && manualText.trim().length < 50 && (
+                <motion.p
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-sm text-amber-600 dark:text-amber-400 font-bold flex items-center gap-2 bg-amber-500/10 p-3 rounded-xl border border-amber-500/20"
+                  data-testid="text-manual-validation"
+                >
+                  <AlertCircle className="h-4 w-4" />
+                  Deeper content results in better quizzes. Please provide at least 50 characters.
+                </motion.p>
+              )}
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={activeModal === "youtube"} onOpenChange={(open) => {
+          if (!open) {
+            setActiveModal(null);
+            setYoutubeError(null);
+          }
+        }}>
+          <DialogContent className="max-w-xl rounded-3xl border-border/50 backdrop-blur-xl p-0 overflow-hidden">
+            <div className="bg-gradient-to-br from-red-500/10 to-rose-500/5 p-8 pb-4">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-4 text-3xl font-black tracking-tight">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+                    <Youtube className="w-8 h-8 text-white" />
+                  </div>
+                  Study with YouTube
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-8 pt-4 space-y-8">
+              <p className="text-lg font-medium text-muted-foreground leading-relaxed">
+                Drop a YouTube link below and we'll extract its core knowledge for your quiz.
+              </p>
+
+              <div className="space-y-4">
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-red-500/20 to-rose-500/20 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition duration-500" />
+                  <Link className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
+                  <Input
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    value={youtubeUrl}
+                    onChange={(e) => {
+                      setYoutubeUrl(e.target.value);
+                      setYoutubeError(null);
+                    }}
+                    className="relative pl-12 h-14 text-lg font-medium bg-background/50 border-border/50 rounded-xl focus:ring-red-500/20 focus:border-red-500/50"
+                    data-testid="input-youtube-url"
+                  />
+                </div>
+
+                <Button
+                  size="lg"
+                  onClick={() => handleYoutubeSubmit()}
+                  disabled={isLoadingYoutube || !youtubeUrl.trim()}
+                  className="w-full h-14 gap-3 rounded-xl font-black text-lg shadow-xl shadow-red-500/10 hover:shadow-red-500/20 transition-all bg-gradient-to-r from-red-600 to-rose-600"
+                  data-testid="button-fetch-youtube"
+                >
+                  {isLoadingYoutube ? (
+                    <>
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                      Learning from video...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-6 w-6" />
+                      Prepare Quiz
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {youtubeError && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-4 rounded-xl bg-destructive/10 border border-destructive/20"
+                  data-testid="text-youtube-error"
+                >
+                  <p className="text-sm font-bold text-destructive flex items-center gap-3">
+                    <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                    {youtubeError}
+                  </p>
+                </motion.div>
+              )}
+
+              <div className="pt-6 border-t border-border/50 flex items-center justify-between">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                  Compatibility: Watch or Short links
+                </p>
+                <div className="flex gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-500/40" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-500/20" />
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

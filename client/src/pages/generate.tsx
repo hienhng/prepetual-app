@@ -24,7 +24,7 @@ export default function Generate() {
     const hasImages = hasOfficeWithImages();
     const isImageOnlyMode = hasImageOnlyUploads();
     const combinedImages = getCombinedDocumentImages();
-    
+
     // For image-only uploads (PNG/JPG), set source material with images only (no text)
     if (allCompleted && hasCompletedJobs && isImageOnlyMode && !sourceMaterial.isImageOnly) {
       setExtractedText("[Images uploaded - AI will analyze visually]");
@@ -36,11 +36,11 @@ export default function Generate() {
         documentImages: combinedImages,
         isImageOnly: true,
       });
-    } 
+    }
     // For documents with text
     else if (allCompleted && hasCompletedJobs && !extractedText && !isImageOnlyMode) {
       const combinedText = getCombinedText();
-      
+
       setExtractedText(combinedText);
       setSourceMaterial({
         type: "document",
@@ -72,46 +72,80 @@ export default function Generate() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-4 md:py-6 max-w-3xl">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="space-y-5"
-      >
+    <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLocation("/create")}
-            className="gap-2 -ml-2"
-            data-testid="button-back-home"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-        </motion.div>
+          className="absolute -top-32 -left-32 w-[32rem] h-[32rem] bg-primary/5 rounded-full blur-[140px]"
+          animate={{ x: [0, 40, 0], y: [0, 20, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 -right-32 w-[28rem] h-[28rem] bg-violet-500/5 rounded-full blur-[130px]"
+          animate={{ x: [0, -30, 0], y: [0, 50, 0] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+        />
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`, backgroundSize: '32px 32px' }} />
+      </div>
 
+      <div className="container mx-auto px-4 py-8 md:py-12 max-w-3xl relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="space-y-8"
         >
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 mb-1">
-            <Wand2 className="w-6 h-6 text-white" />
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-4">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setLocation("/create")}
+                className="gap-2 px-4 h-10 rounded-xl hover:bg-background/80 hover:shadow-sm border border-transparent hover:border-border/50 text-muted-foreground hover:text-foreground transition-all"
+                data-testid="button-back-home"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Go Back
+              </Button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center gap-3 px-4 py-2 bg-background/50 backdrop-blur-sm rounded-full border border-border/50 shadow-sm"
+            >
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                Material Processed & Ready
+              </span>
+            </motion.div>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            Configure Your Quiz
-          </h1>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            Choose your quiz settings and let AI do the rest
-          </p>
-        </motion.div>
 
-        <QuizGenerator />
-      </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center space-y-4"
+          >
+            <div className="relative inline-flex mb-2 group">
+              <div className="absolute -inset-2 bg-violet-500/20 rounded-2xl blur-xl transition-all duration-500 group-hover:bg-violet-500/30" />
+              <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-xl shadow-violet-500/20">
+                <Wand2 className="w-8 h-8 text-white stroke-[2.5]" />
+              </div>
+            </div>
+
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
+              Customize Your <span className="text-primary">Practice</span>
+            </h1>
+            <p className="text-muted-foreground text-lg font-medium max-w-md mx-auto">
+              Set your preferences and let Prepetual build the perfect quiz for you.
+            </p>
+          </motion.div>
+
+          <QuizGenerator />
+        </motion.div>
+      </div>
     </div>
   );
 }

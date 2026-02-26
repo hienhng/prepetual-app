@@ -28,21 +28,21 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { setSourceMaterial } = useQuiz();
-  
+
   // Pending files that haven't been processed yet
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const isLoading = isUploading || isAnyProcessing();
-  
+
   const completedJobs = activeJobs.filter(job => job.status === "completed");
   const processingJobs = activeJobs.filter(job => job.status === "pending" || job.status === "processing");
   const errorJobs = activeJobs.filter(job => job.status === "error");
-  
-  const overallProgress = activeJobs.length > 0 
+
+  const overallProgress = activeJobs.length > 0
     ? Math.round(activeJobs.reduce((sum, job) => sum + job.progress, 0) / activeJobs.length)
     : 0;
 
-  const loadingMessage = processingJobs.length > 0 
+  const loadingMessage = processingJobs.length > 0
     ? processingJobs[0].message || "Processing files..."
     : isUploading ? "Uploading files..." : "";
 
@@ -50,7 +50,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
     if (isAllCompleted() && completedJobs.length > 0) {
       const combinedText = getCombinedText();
       const combinedImages = getCombinedDocumentImages();
-      
+
       // Always pass images if available
       if (combinedImages.length > 0) {
         onTextExtracted(combinedText, true, combinedImages);
@@ -58,11 +58,11 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
         onTextExtracted(combinedText, false, []);
       }
     }
-    
+
     if (activeJobs.length === 0 && pendingFiles.length === 0) {
       setError(null);
     }
-    
+
     const firstError = errorJobs[0];
     if (firstError) {
       setError(firstError.error || "An error occurred while processing files");
@@ -173,161 +173,203 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="flex flex-col items-center justify-center py-12"
+            className="flex flex-col items-center justify-center py-16 px-8 rounded-3xl bg-background/50 backdrop-blur-md border border-border/50 shadow-2xl relative overflow-hidden"
           >
-            <div className="relative mb-6">
-              <div className="w-20 h-20 rounded-full border-4 border-muted animate-pulse" />
-              <div 
-                className="absolute inset-0 w-20 h-20 rounded-full border-4 border-primary border-t-transparent animate-spin"
-                style={{ animationDuration: "1s" }}
-              />
-              <Upload className="absolute inset-0 m-auto h-8 w-8 text-primary" />
+            {/* Mesh pattern overlay */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`, backgroundSize: '16px 16px' }} />
+
+            <div className="relative mb-8">
+              <div className="absolute -inset-4 bg-primary/20 rounded-full blur-2xl animate-pulse" />
+              <div className="relative w-24 h-24 rounded-full border-4 border-muted flex items-center justify-center">
+                <div
+                  className="absolute inset-[-4px] w-[calc(100%+8px)] h-[calc(100%+8px)] rounded-full border-4 border-primary border-t-transparent animate-spin"
+                  style={{ animationDuration: "0.8s" }}
+                />
+                <Upload className="h-10 w-10 text-primary animate-bounce fill-current opacity-20" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Loader2 className="h-12 w-12 text-primary animate-spin-slow opacity-80" />
+                </div>
+              </div>
             </div>
-            <p className="text-lg font-medium text-foreground mb-2">{loadingMessage}</p>
-            <p className="text-sm text-muted-foreground mb-3">
-              Processing {processingJobs.length} of {activeJobs.length} files
+
+            <h3 className="text-2xl font-black text-foreground mb-2 tracking-tight">
+              {loadingMessage}
+            </h3>
+            <p className="text-muted-foreground font-medium mb-6">
+              Synthesizing {processingJobs.length} of {activeJobs.length} assets
             </p>
-            <div className="w-64 h-2 bg-muted rounded-full overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-primary to-quiz-purple rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${overallProgress}%` }}
-                transition={{ duration: 0.3 }}
-              />
+
+            <div className="w-full max-w-xs space-y-3">
+              <div className="h-3 bg-muted/50 rounded-full overflow-hidden border border-border/50 p-0.5">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-primary via-violet-500 to-primary rounded-full shadow-[0_0_10px_rgba(var(--primary),0.5)]"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${overallProgress}%` }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                />
+              </div>
+              <div className="flex justify-between items-center px-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Progress</span>
+                <span className="text-xs font-black text-primary">{overallProgress}%</span>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground mt-2">{overallProgress}% complete</p>
           </motion.div>
         ) : pendingFiles.length > 0 ? (
           <motion.div
             key="pending-files"
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="space-y-4"
+            exit={{ opacity: 0, y: -15 }}
+            className="space-y-6"
           >
             {/* File list */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-foreground">
-                  {pendingFiles.length} file{pendingFiles.length !== 1 ? 's' : ''} selected
-                </p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <File className="w-4 h-4 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-black tracking-tight">
+                    {pendingFiles.length} Selection{pendingFiles.length !== 1 ? 's' : ''} Ready
+                  </h3>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={removeAllFiles}
-                  className="text-muted-foreground hover:text-destructive"
+                  className="rounded-xl font-bold text-xs uppercase tracking-widest text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                   data-testid="button-clear-pending"
                 >
-                  Clear all
+                  Discard All
                 </Button>
               </div>
-              
-              {pendingFiles.map((file, index) => (
-                <motion.div
-                  key={file.name}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Card className="p-3 flex items-center justify-between gap-3 hover-elevate">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      {getFileIcon(file.type)}
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">{file.name}</p>
-                        <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+
+              <div className="grid gap-3">
+                {pendingFiles.map((file, index) => (
+                  <motion.div
+                    key={file.name}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Card className="p-4 flex items-center justify-between gap-4 border-border/50 bg-background/50 backdrop-blur-sm group hover:border-primary/30 transition-all duration-300">
+                      <div className="flex items-center gap-4 min-w-0 flex-1">
+                        <div className="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          {getFileIcon(file.type)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-base font-bold truncate tracking-tight">{file.name}</p>
+                          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{formatFileSize(file.size)}</p>
+                        </div>
                       </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 shrink-0"
-                      onClick={() => removePendingFile(file.name)}
-                      data-testid={`button-remove-pending-${index}`}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </Card>
-                </motion.div>
-              ))}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-10 w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive group/close"
+                        onClick={() => removePendingFile(file.name)}
+                        data-testid={`button-remove-pending-${index}`}
+                      >
+                        <X className="h-5 w-5 transition-transform group-hover/close:rotate-90" />
+                      </Button>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
             </div>
 
             {/* Add more files dropzone */}
             <Card
               {...getRootProps()}
               className={`
-                p-4 border-2 border-dashed cursor-pointer transition-all duration-200
-                ${isDragActive 
-                  ? "border-primary bg-primary/5" 
-                  : "border-muted hover:border-primary/50 hover:bg-muted/30"
+                relative p-6 border-2 border-dashed rounded-3xl cursor-pointer transition-all duration-300 group
+                ${isDragActive
+                  ? "border-primary bg-primary/5 scale-[1.01]"
+                  : "border-border/50 bg-muted/20 hover:border-primary/30 hover:bg-muted/40"
                 }
               `}
               data-testid="dropzone-add-more"
             >
               <input {...getInputProps()} data-testid="input-file-more" />
-              <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                <Upload className="h-4 w-4" />
-                <span className="text-sm">Drop more files or click to add (max 10)</span>
+              <div className="flex items-center justify-center gap-3 text-muted-foreground group-hover:text-primary transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-background/50 flex items-center justify-center">
+                  <Upload className="h-5 w-5" />
+                </div>
+                <span className="text-sm font-black uppercase tracking-widest">Append more assets</span>
               </div>
             </Card>
 
             {/* Proceed button */}
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
+              className="pt-2"
             >
               <Button
+                size="xl"
                 onClick={handleProceed}
-                className="w-full gap-2 bg-primary hover:bg-primary/90"
-                size="lg"
+                className="w-full gap-3 rounded-2xl font-black shadow-xl shadow-primary/20 hover:shadow-primary/30 group"
                 data-testid="button-proceed-scan"
               >
-                <span>Proceed to Scan</span>
-                <ArrowRight className="h-4 w-4" />
+                <span>Ready to Scan</span>
+                <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
               </Button>
             </motion.div>
           </motion.div>
         ) : (
           <motion.div
             key="dropzone"
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0, y: -15 }}
           >
             <Card
               {...getRootProps()}
               className={`
-                relative p-6 sm:p-10 border-2 border-dashed cursor-pointer transition-all duration-200
-                ${isDragActive 
-                  ? "border-primary bg-primary/5 scale-[1.02]" 
-                  : "border-muted hover:border-primary/50 hover:bg-muted/30"
+                relative p-12 sm:p-20 border-2 border-dashed rounded-[2.5rem] cursor-pointer transition-all duration-500 overflow-hidden group
+                ${isDragActive
+                  ? "border-primary bg-primary/5 scale-[1.02]"
+                  : "border-border/50 bg-muted/10 hover:border-primary/40 hover:bg-muted/20"
                 }
-                ${error ? "border-destructive/50" : ""}
+                ${error ? "border-destructive/40 bg-destructive/5" : ""}
               `}
               data-testid="dropzone-upload"
             >
+              {/* Mesh background */}
+              <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`, backgroundSize: '16px 16px' }} />
+
               <input {...getInputProps()} data-testid="input-file" />
-              
-              <div className="flex flex-col items-center text-center gap-3">
-                <div className={`
-                  w-14 h-14 rounded-full flex items-center justify-center transition-colors
-                  ${isDragActive ? "bg-primary/20" : "bg-primary/10"}
-                `}>
-                  <Upload className={`h-7 w-7 ${isDragActive ? "text-primary" : "text-primary/80"}`} />
+
+              <div className="flex flex-col items-center text-center gap-6 relative z-10">
+                <div className="relative">
+                  <div className={`
+                    absolute -inset-4 rounded-full blur-2xl transition-all duration-500
+                    ${isDragActive ? "bg-primary/30 opacity-100" : "bg-primary/20 opacity-0 group-hover:opacity-100"}
+                  `} />
+                  <div className={`
+                    w-20 h-20 rounded-3xl flex items-center justify-center transition-all duration-500 shadow-xl
+                    ${isDragActive ? "bg-primary text-white scale-110 rotate-12" : "bg-background border border-border/50 group-hover:border-primary/50 group-hover:-translate-y-2"}
+                  `}>
+                    <Upload className={`h-10 w-10 transition-transform duration-500 ${isDragActive ? "" : "text-primary group-hover:scale-110"}`} />
+                  </div>
                 </div>
-                
-                <div className="space-y-1">
-                  <p className="text-base font-medium text-foreground">
-                    {isDragActive ? "Drop files here" : "Drop files or click to upload"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    PDF, Word, PowerPoint, Excel, or images (up to 10 files)
+
+                <div className="space-y-2 max-w-sm">
+                  <h3 className="text-2xl font-black text-foreground tracking-tight">
+                    {isDragActive ? "Release to Scan" : "Upload your materials"}
+                  </h3>
+                  <p className="text-muted-foreground font-medium text-lg">
+                    Drag and drop your files or <span className="text-primary font-bold">click to browse</span>
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-1.5 justify-center mt-1">
+                <div className="flex flex-wrap gap-2 justify-center mt-2 px-6">
                   {["PDF", "DOCX", "PPTX", "XLSX", "JPG", "PNG"].map((format) => (
-                    <Badge key={format} variant="secondary" className="text-xs px-2 py-0.5">
+                    <Badge
+                      key={format}
+                      variant="secondary"
+                      className={`text-[10px] uppercase font-black tracking-widest px-3 py-1 bg-background/50 border border-border/50 transition-colors group-hover:border-primary/20`}
+                    >
                       {format}
                     </Badge>
                   ))}
@@ -341,66 +383,82 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
       {/* Active jobs display (processing/completed) */}
       {activeJobs.length > 0 && !isLoading && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 space-y-3"
+          className="mt-8 space-y-4"
         >
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-foreground">
-              {completedJobs.length === activeJobs.length 
-                ? `${completedJobs.length} file${completedJobs.length !== 1 ? 's' : ''} ready`
-                : `Processing ${activeJobs.length} files`}
-            </p>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              </div>
+              <p className="text-lg font-black tracking-tight text-foreground">
+                {completedJobs.length === activeJobs.length
+                  ? `${completedJobs.length} Knowledge Asset${completedJobs.length !== 1 ? 's' : ''} Synced`
+                  : `Scanning ${activeJobs.length} Asset${activeJobs.length !== 1 ? 's' : ''}`}
+              </p>
+            </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive" data-testid="button-clear-all">
-                  Clear all
+                <Button variant="ghost" size="sm" className="rounded-xl font-bold text-xs uppercase tracking-widest text-muted-foreground hover:text-destructive hover:bg-destructive/10" data-testid="button-clear-all">
+                  Wipe Data
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="rounded-3xl border-border/50 backdrop-blur-xl">
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Clear all files?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will remove all uploaded files and extracted text.
+                  <AlertDialogTitle className="text-2xl font-black tracking-tight">Erase all assets?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-base font-medium">
+                    This will remove all uploaded knowledge and extracted information from the current session.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={removeAllFiles} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                    Clear all
+                <AlertDialogFooter className="gap-2">
+                  <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={removeAllFiles} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl font-bold">
+                    Erase Everything
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           </div>
-          
-          <div className="space-y-2">
+
+          <div className="grid gap-3">
             {activeJobs.map((job) => (
-              <Card key={job.jobId} className="p-3 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  {getFileIcon(job.fileType)}
+              <Card key={job.jobId} className="p-4 flex items-center justify-between gap-4 border-border/50 bg-background/50 backdrop-blur-sm group hover:border-emerald-500/30 transition-all duration-300">
+                <div className="flex items-center gap-4 min-w-0 flex-1">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${job.status === "completed" ? "bg-emerald-500/10" : "bg-muted/50"} group-hover:scale-110`}>
+                    {getFileIcon(job.fileType)}
+                  </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium truncate">{job.fileName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {job.status === "completed" ? "Ready" : job.status === "error" ? job.error : `${job.progress}%`}
-                    </p>
+                    <p className="text-base font-bold truncate tracking-tight">{job.fileName}</p>
+                    <div className="flex items-center gap-2">
+                      <p className={`text-xs font-black uppercase tracking-widest ${job.status === "completed" ? "text-emerald-500" : job.status === "error" ? "text-destructive" : "text-muted-foreground"}`}>
+                        {job.status === "completed" ? "Synchronized" : job.status === "error" ? "Failed" : `Analyzing ${job.progress}%`}
+                      </p>
+                      {job.status === "error" && (
+                        <span className="text-[10px] font-medium text-muted-foreground truncate max-w-[150px]">
+                          ({job.error})
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {getStatusIcon(job.status)}
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${job.status === "completed" ? "bg-emerald-500/20" : "bg-muted"}`}>
+                    {getStatusIcon(job.status)}
+                  </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7"
+                    className="h-10 w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive group/close"
                     onClick={(e) => {
                       e.stopPropagation();
                       const remainingJobs = activeJobs.filter(j => j.jobId !== job.jobId && j.status === "completed" && j.text);
                       const remainingText = remainingJobs.map(j => j.text).join("\n\n---\n\n");
                       const remainingImages = remainingJobs.flatMap(j => j.documentImages || []);
                       const hasRemainingImages = remainingJobs.some(j => j.isOfficeWithImages);
-                      
+
                       removeJob(job.jobId);
-                      
+
                       if (remainingJobs.length === 0) {
                         onTextExtracted("");
                         setSourceMaterial({ type: null, text: null, imageDataUrl: null });
@@ -410,7 +468,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                     }}
                     data-testid={`button-remove-file-${job.jobId}`}
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-5 w-5 transition-transform group-hover/close:rotate-90" />
                   </Button>
                 </div>
               </Card>

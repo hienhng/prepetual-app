@@ -72,7 +72,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     const response = await pRetry(
       async () => {
         const completion = await openai.chat.completions.create({
-          model: "gpt-4.1",
+          model: "meta-llama/llama-4-scout-17b-16e-instruct",
           messages: [{
             role: "user",
             content: [
@@ -104,7 +104,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     );
 
     const parsed = JSON.parse(response);
-    
+
     if (!parsed.images || !Array.isArray(parsed.images)) {
       // Fallback behavior depends on mode:
       // - Image-only mode: treat as text-only (conservative, won't embed but will analyze)
@@ -255,7 +255,7 @@ Respond with ONLY a JSON array. For each question:
     const verifyResponse = await pRetry(
       async () => {
         const result = await openai.chat.completions.create({
-          model: "openai/gpt-4o-mini",
+          model: "llama-3.3-70b-versatile",
           messages: [{ role: "user", content: verificationPrompt }],
           temperature: 0,
           max_tokens: 4000,
@@ -294,7 +294,7 @@ Respond with ONLY a JSON array. For each question:
                 }
               }
             }
-            
+
             const finalCorrect = String(q.correctAnswer).trim();
             if (!q.wrongAnswerExplanations) q.wrongAnswerExplanations = {};
             for (const opt of options) {
@@ -330,7 +330,7 @@ export async function generateQuizQuestions(
   const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress, isImageOnly = false } = params;
 
   const hasImages = documentImages.length > 0;
-  
+
   // Step 1: Reading material
   onProgress?.("reading", 10, "Reading your study material...");
   const truncatedText =
@@ -357,7 +357,7 @@ export async function generateQuizQuestions(
   };
 
   const categoryList = QUIZ_CATEGORIES.join(", ");
-  
+
   const prompt = `You are an expert educator and subject-matter specialist. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz and categorize it.
 
 CONTENT:
@@ -643,23 +643,23 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     // Step 2: Analyzing content
     onProgress?.("analyzing", 25, "Analyzing content structure...");
     await new Promise(resolve => setTimeout(resolve, 300));
-    
+
     // Step 3: Preparing AI request
     onProgress?.("preparing", 35, hasImages ? "Processing visual content..." : "Preparing quiz generation...");
-    
+
     const response = await pRetry(
       async () => {
         let messages: any[];
-        
+
         // Step 4: Generating questions
         onProgress?.("generating", 50, "AI is generating questions...");
-        
+
         if (hasImages) {
           const imageContent = documentImages.slice(0, 6).map(imageUrl => ({
             type: "image_url" as const,
             image_url: { url: imageUrl, detail: "high" as const }
           }));
-          
+
           messages = [{
             role: "user",
             content: [
@@ -667,27 +667,27 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
               ...imageContent
             ]
           }];
-          
+
           console.log(`Generating quiz with ${imageContent.length} images using vision model (isImageOnly: ${isImageOnly})`);
         } else {
           messages = [{ role: "user", content: prompt }];
         }
-        
+
         // Retry loop for empty responses
         let content: string | null = null;
         let emptyRetries = 0;
         const maxEmptyRetries = 3;
-        
+
         while (!content && emptyRetries < maxEmptyRetries) {
           const completion = await openai.chat.completions.create({
-            model: hasImages ? "gpt-4.1" : "gpt-5",
+            model: hasImages ? "meta-llama/llama-4-scout-17b-16e-instruct" : "llama-3.3-70b-versatile",
             messages,
             response_format: { type: "json_object" },
-            max_completion_tokens: 12000,
+            max_completion_tokens: 8192,
           });
 
           content = completion.choices[0]?.message?.content;
-          
+
           if (!content) {
             emptyRetries++;
             console.error(`Empty AI response for quiz generation (attempt ${emptyRetries}/${maxEmptyRetries}), retrying...`);
@@ -699,7 +699,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
             onProgress?.("processing", 70, "Processing AI response...");
           }
         }
-        
+
         if (!content) {
           throw new Error("No response from AI after multiple attempts");
         }
@@ -722,7 +722,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
 
     // Step 5: Validating response
     onProgress?.("validating", 80, "Validating generated questions...");
-    
+
     const parsed = JSON.parse(response);
 
     if (!parsed.questions || !Array.isArray(parsed.questions)) {
@@ -744,7 +744,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     const questions: Question[] = [];
 
     onProgress?.("verifying", 85, "Verifying answer accuracy...");
-    const mcQuestions = rawQuestions.filter((q: any) => 
+    const mcQuestions = rawQuestions.filter((q: any) =>
       q.type === "multiple_choice" && q.explanation && q.correctAnswer && Array.isArray(q.options)
     );
     await aiVerifyAnswers(mcQuestions, "[AI VERIFY]");
@@ -864,7 +864,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
 
     // Step 6: Finalizing
     onProgress?.("finalizing", 95, "Finalizing your quiz...");
-    
+
     return { questions, title, category };
   } catch (error) {
     console.error("Error generating quiz:", error);
@@ -881,7 +881,7 @@ export async function importExistingQuiz(
   params: ImportQuizParams,
 ): Promise<{ questions: Question[]; title: string }> {
   const { text, documentImages = [] } = params;
-  
+
   const hasImages = documentImages.length > 0;
   const truncatedText =
     text.length > 8000 ? text.substring(0, 8000) + "..." : text;
@@ -1004,13 +1004,13 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
     const response = await pRetry(
       async () => {
         let messages: any[];
-        
+
         if (hasImages) {
           const imageContent = documentImages.slice(0, 6).map(imageUrl => ({
             type: "image_url" as const,
             image_url: { url: imageUrl, detail: "high" as const }
           }));
-          
+
           messages = [{
             role: "user",
             content: [
@@ -1018,14 +1018,14 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
               ...imageContent
             ]
           }];
-          
+
           console.log(`Importing quiz with ${imageContent.length} images using vision model`);
         } else {
           messages = [{ role: "user", content: prompt }];
         }
-        
+
         const completion = await openai.chat.completions.create({
-          model: hasImages ? "gpt-4.1" : "gpt-5",
+          model: hasImages ? "meta-llama/llama-4-scout-17b-16e-instruct" : "llama-3.3-70b-versatile",
           messages,
           response_format: { type: "json_object" },
           max_completion_tokens: 8192,
@@ -1099,7 +1099,7 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
 
       // Auto-detect question type based on options
       let questionType: QuestionType = "multiple_choice";
-      
+
       if (!options || options.length === 0) {
         // No options = short answer
         questionType = "short_answer";
@@ -1117,7 +1117,7 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
           ["đúng", "sai"],
           ["sai", "đúng"],
         ];
-        const isTrueFalse = trueFalsePatterns.some(pattern => 
+        const isTrueFalse = trueFalsePatterns.some(pattern =>
           (normalizedOptions[0] === pattern[0] && normalizedOptions[1] === pattern[1]) ||
           (normalizedOptions.includes(pattern[0]) && normalizedOptions.includes(pattern[1]))
         );
@@ -1132,7 +1132,7 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
       }
 
       let correctAnswer = String(q.correctAnswer).trim();
-      
+
       // Normalize correct answer for true/false questions
       if (questionType === "true_false") {
         const lowerAnswer = correctAnswer.toLowerCase();
@@ -1230,10 +1230,10 @@ export interface QuizChatParams {
 
 export async function quizChatResponse(params: QuizChatParams): Promise<string> {
   const { quizTitle, questions, currentQuestionIndex, userMessage, chatHistory, sourceMaterial } = params;
-  
+
   const safeIndex = Math.max(0, Math.min(currentQuestionIndex, questions.length - 1));
   const currentQuestion = questions[safeIndex];
-  
+
   const quizContext = `You are Pip, the friendly penguin study buddy of Prepetual! You're an adorable arctic penguin who loves helping students learn. You live in a cozy igloo within the Prepetual app and get excited when students understand new concepts.
 
 ABOUT PREPETUAL (the app you're part of):
@@ -1295,9 +1295,9 @@ INSTRUCTIONS:
     const response = await pRetry(
       async () => {
         const completion = await openai.chat.completions.create({
-          model: "gpt-4.1",
+          model: "llama-3.3-70b-versatile",
           messages,
-          max_tokens: 500,
+          max_tokens: 1000,
         });
         return completion.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
       },
@@ -1314,7 +1314,7 @@ INSTRUCTIONS:
         },
       }
     );
-    
+
     return response;
   } catch (error: any) {
     console.error("Quiz chat error:", error);
@@ -1330,7 +1330,7 @@ export async function reviseQuizQuestions(params: {
 }): Promise<Question[]> {
   const { questions, mode, sourceText, userCorrectAnswer } = params;
   const limit = pLimit(3);
-  
+
   const revisedQuestions = await Promise.all(
     questions.map((q, idx) => limit(async () => {
       try {
@@ -1389,7 +1389,7 @@ Respond in valid JSON with this exact structure:
   "explanation": "detailed explanation (SAME LANGUAGE as original question)",
   "wrongAnswerExplanations": { "wrong option text": "why this is wrong (SAME LANGUAGE)", ... }
 }`;
-              
+
               userPrompt = `Revise this question completely. IMPORTANT: Keep everything in the same language as the original question — do NOT translate to English.
 
 Question: ${q.question}
@@ -1416,7 +1416,7 @@ Respond in valid JSON with this exact structure:
   "explanation": "detailed explanation (SAME LANGUAGE as the question)",
   "wrongAnswerExplanations": { "wrong option text": "why this is wrong (SAME LANGUAGE)", ... }
 }`;
-              
+
               userPrompt = `Determine the correct answer and write explanations for this question. IMPORTANT: Keep everything in the same language as the original question — do NOT translate to English.
 
 Question: ${q.question}
@@ -1429,13 +1429,13 @@ Independently solve this and determine which option is actually correct. Show yo
             }
 
             const completion = await openai.chat.completions.create({
-              model: "gpt-4o-mini",
+              model: "llama-3.3-70b-versatile",
               messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt },
               ],
               temperature: 0.3,
-              max_tokens: 2000,
+              max_tokens: 3000,
               response_format: { type: "json_object" },
             });
 
@@ -1456,7 +1456,7 @@ Independently solve this and determine which option is actually correct. Show yo
             let resolvedAnswer = finalAnswer;
             if (!userCorrectAnswer && q.options && !q.options.includes(resolvedAnswer)) {
               console.log(`[AI REVISE] Q${idx + 1}: AI picked answer not in options, finding closest match`);
-              const match = q.options.find(opt => 
+              const match = q.options.find(opt =>
                 opt.toLowerCase().includes(resolvedAnswer.toLowerCase()) ||
                 resolvedAnswer.toLowerCase().includes(opt.toLowerCase())
               );

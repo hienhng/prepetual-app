@@ -33,35 +33,35 @@ async function transcribeYouTubeAudio(videoId: string): Promise<string> {
   const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
   const tempDir = os.tmpdir();
   const tempFilePath = path.join(tempDir, `youtube_${videoId}_${Date.now()}.mp3`);
-  
+
   try {
     // First check video info to validate duration
     const info = await ytdl.getInfo(videoUrl);
     const durationSeconds = parseInt(info.videoDetails.lengthSeconds, 10);
-    
+
     // Limit to 15 minutes max for transcription
     if (durationSeconds > 900) {
       throw new Error("Video is too long. Audio transcription is limited to videos under 15 minutes.");
     }
-    
+
     // Download audio stream with size limit and timeout
     const audioStream = ytdl(videoUrl, {
       filter: 'audioonly',
       quality: 'lowestaudio',
     });
-    
+
     // Write to temp file with size limit
     const writeStream = fs.createWriteStream(tempFilePath);
     let downloadedBytes = 0;
     const maxBytes = MAX_AUDIO_SIZE_MB * 1024 * 1024;
-    
+
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {
         audioStream.destroy();
         writeStream.close();
         reject(new Error("Download timed out. Please try a shorter video."));
       }, MAX_DOWNLOAD_TIMEOUT_MS);
-      
+
       audioStream.on('data', (chunk: Buffer) => {
         downloadedBytes += chunk.length;
         if (downloadedBytes > maxBytes) {
@@ -71,7 +71,7 @@ async function transcribeYouTubeAudio(videoId: string): Promise<string> {
           reject(new Error("Audio file too large. Please try a shorter video."));
         }
       });
-      
+
       audioStream.pipe(writeStream);
       writeStream.on('finish', () => {
         clearTimeout(timeout);
@@ -86,14 +86,14 @@ async function transcribeYouTubeAudio(videoId: string): Promise<string> {
         reject(err);
       });
     });
-    
-    // Transcribe using OpenAI Whisper
+
+    // Transcribe using OpenAI Whisper (Groq compatible version)
     const transcription = await openaiClient.audio.transcriptions.create({
       file: fs.createReadStream(tempFilePath),
-      model: "gpt-4o-mini-transcribe",
+      model: "whisper-large-v3",
       response_format: "json",
     });
-    
+
     return transcription.text;
   } finally {
     // Clean up temp file
@@ -138,16 +138,16 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
     const data = new Uint8Array(buffer);
     const loadingTask = pdfjsLib.getDocument({ data });
     const pdf = await loadingTask.promise;
-    
+
     let fullText = "";
-    
+
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
-      
+
       let lastY: number | null = null;
       const pageTextParts: string[] = [];
-      
+
       for (const item of content.items as any[]) {
         if (item.str) {
           if (lastY !== null && Math.abs(item.transform[5] - lastY) > 5) {
@@ -159,10 +159,10 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
           lastY = item.transform[5];
         }
       }
-      
+
       fullText += pageTextParts.join("") + "\n\n";
     }
-    
+
     return fullText
       .replace(/\s+/g, " ")
       .replace(/\n\s*\n/g, "\n\n")
@@ -190,7 +190,7 @@ async function extractTextFromImage(buffer: Buffer): Promise<string> {
   } catch (error) {
     console.error("OCR error:", error);
     if (tesseractWorker) {
-      try { await tesseractWorker.terminate(); } catch {}
+      try { await tesseractWorker.terminate(); } catch { }
       tesseractWorker = null;
     }
     throw new Error("Failed to extract text from image");
@@ -230,9 +230,9 @@ async function extractTextFromTextOnlyImages(
   onProgress?: (step: string, progress: number, message: string) => void
 ): Promise<string> {
   if (imageUrls.length === 0) return "";
-  
+
   onProgress?.("extracting", 20, "Extracting text from images...");
-  
+
   const textParts: string[] = [];
   for (const url of imageUrls) {
     const text = await extractTextFromBase64Image(url);
@@ -240,7 +240,7 @@ async function extractTextFromTextOnlyImages(
       textParts.push(text);
     }
   }
-  
+
   return textParts.join("\n\n");
 }
 
@@ -262,7 +262,7 @@ export async function registerRoutes(
   app.post("/api/youtube-transcript", async (req, res) => {
     try {
       const { url } = req.body;
-      
+
       if (!url || typeof url !== "string") {
         return res.status(400).json({ message: "YouTube URL is required" });
       }
@@ -271,14 +271,14 @@ export async function registerRoutes(
       const videoIdMatch = url.match(
         /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
       );
-      
+
       if (!videoIdMatch || !videoIdMatch[1]) {
         return res.status(400).json({ message: "Invalid YouTube URL. Please provide a valid YouTube video link." });
       }
 
       const videoId = videoIdMatch[1];
       console.log(`[YouTube] Fetching transcript for video ${videoId}`);
-      
+
       // Method 1: Try youtube-transcript.io API (external service - most reliable)
       const youtubeTranscriptApiKey = process.env.YOUTUBE_TRANSCRIPT_API_KEY;
       if (youtubeTranscriptApiKey) {
@@ -292,7 +292,7 @@ export async function registerRoutes(
             },
             body: JSON.stringify({ ids: [videoId] })
           });
-          
+
           if (response.ok) {
             const data = await response.json();
             if (data && Array.isArray(data) && data.length > 0 && data[0].transcript) {
@@ -305,10 +305,10 @@ export async function registerRoutes(
                 .replace(/&quot;/g, '"')
                 .replace(/&amp;/g, '&')
                 .trim();
-              
+
               if (fullText.length >= 50) {
                 console.log(`[YouTube] Successfully got transcript via youtube-transcript.io`);
-                return res.json({ 
+                return res.json({
                   text: fullText,
                   videoId,
                   segmentCount: transcriptSegments.length,
@@ -324,24 +324,24 @@ export async function registerRoutes(
           console.log(`[YouTube] youtube-transcript.io API error: ${apiError.message}`);
         }
       }
-      
+
       // Method 2: Try youtube-transcript-api npm package (uses youtube-transcript.io backend)
       try {
         console.log(`[YouTube] Trying youtube-transcript-api npm for ${videoId}`);
         const client = new TranscriptClient();
         await client.ready;
         const result = await client.getTranscript(videoId);
-        
+
         if (result && result.transcript && result.transcript.length > 0) {
           const fullText = result.transcript
             .map((segment: { text: string }) => segment.text)
             .join(" ")
             .replace(/\s+/g, " ")
             .trim();
-          
+
           if (fullText.length >= 50) {
             console.log(`[YouTube] Successfully got transcript via youtube-transcript-api npm`);
-            return res.json({ 
+            return res.json({
               text: fullText,
               videoId,
               segmentCount: result.transcript.length,
@@ -352,13 +352,13 @@ export async function registerRoutes(
       } catch (apiError: any) {
         console.log(`[YouTube] youtube-transcript-api npm failed: ${apiError.message}`);
       }
-      
+
       // Method 3: Try youtube-transcript-plus (direct scraping - fallback)
       try {
         console.log(`[YouTube] Trying youtube-transcript-plus for ${videoId}`);
         let transcript;
         const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-        
+
         try {
           transcript = await fetchTranscript(videoId, { userAgent });
         } catch (langError: any) {
@@ -372,7 +372,7 @@ export async function registerRoutes(
             throw langError;
           }
         }
-        
+
         if (transcript && transcript.length > 0) {
           const fullText = transcript
             .map((segment: { text: string }) => segment.text)
@@ -382,7 +382,7 @@ export async function registerRoutes(
 
           if (fullText.length >= 50) {
             console.log(`[YouTube] Successfully got transcript via youtube-transcript-plus`);
-            return res.json({ 
+            return res.json({
               text: fullText,
               videoId,
               segmentCount: transcript.length,
@@ -395,7 +395,7 @@ export async function registerRoutes(
       }
 
       // All methods failed
-      return res.status(400).json({ 
+      return res.status(400).json({
         message: "Could not fetch video transcript. The video may not have captions available, or YouTube is blocking access. Try pasting the transcript text directly instead."
       });
     } catch (error) {
@@ -450,7 +450,7 @@ export async function registerRoutes(
   app.post("/api/upload-async", upload.array("files", 10), async (req, res) => {
     try {
       const files = req.files as Express.Multer.File[];
-      
+
       if (!files || files.length === 0) {
         return res.status(400).json({ message: "No files uploaded" });
       }
@@ -460,14 +460,14 @@ export async function registerRoutes(
       for (const file of files) {
         const { buffer, mimetype, originalname } = file;
         const jobId = crypto.randomUUID();
-        
+
         const job = createJob(jobId, mimetype);
         storeBuffer(jobId, buffer);
-        
+
         setImmediate(() => {
           processJob(jobId);
         });
-        
+
         jobs.push({ jobId, fileName: originalname, status: job.status, message: job.message });
       }
 
@@ -483,7 +483,7 @@ export async function registerRoutes(
   app.get("/api/upload-status/:jobId", async (req, res) => {
     try {
       const job = getJob(req.params.jobId);
-      
+
       if (!job) {
         return res.status(404).json({ message: "Job not found", expired: true });
       }
@@ -530,13 +530,13 @@ export async function registerRoutes(
         (res as any).flush();
       }
     };
-    
+
     // Send initial progress immediately
     sendProgress("starting", 5, "Starting quiz generation...");
 
     try {
       const validation = generateQuizRequestSchema.safeParse(req.body);
-      
+
       if (!validation.success) {
         res.write(`data: ${JSON.stringify({ type: "error", message: validation.error.errors[0]?.message || "Invalid request" })}\n\n`);
         res.end();
@@ -560,7 +560,7 @@ export async function registerRoutes(
         const textOnlyImages = classifications
           .filter(c => !c.hasIllustrations)
           .map(c => c.url);
-        
+
         if (textOnlyImages.length > 0) {
           console.log(`Found ${textOnlyImages.length} text-only images, running OCR...`);
           // Extract text from text-only images using OCR
@@ -575,7 +575,7 @@ export async function registerRoutes(
             console.log(`OCR extracted ${ocrText.length} characters from text-only images`);
           }
         }
-        
+
         // For image-only uploads: if all images are text-only, still pass them for AI analysis
         // For mixed uploads: only embed illustration images in questions
         if (isImageOnly && illustrationImages.length === 0) {
@@ -626,7 +626,7 @@ export async function registerRoutes(
   app.post("/api/generate-quiz", isAuthenticated, async (req: any, res) => {
     try {
       const validation = generateQuizRequestSchema.safeParse(req.body);
-      
+
       if (!validation.success) {
         return res.status(400).json({
           message: validation.error.errors[0]?.message || "Invalid request",
@@ -641,7 +641,7 @@ export async function registerRoutes(
       let imagesForQuestions: string[] | undefined;
       let textForQuiz = text;
       const imageOnlyFlag = isImageOnly || false;
-      
+
       if (documentImages && documentImages.length > 0) {
         const classifications = await classifyImages(documentImages, undefined, imageOnlyFlag);
         const illustrationImages = classifications
@@ -650,7 +650,7 @@ export async function registerRoutes(
         const textOnlyImages = classifications
           .filter(c => !c.hasIllustrations)
           .map(c => c.url);
-        
+
         if (textOnlyImages.length > 0) {
           console.log(`Found ${textOnlyImages.length} text-only images, running OCR...`);
           // Extract text from text-only images using OCR
@@ -665,7 +665,7 @@ export async function registerRoutes(
             console.log(`OCR extracted ${ocrText.length} characters from text-only images`);
           }
         }
-        
+
         // For image-only uploads: if all images are text-only, still pass them for AI analysis
         if (isImageOnly && illustrationImages.length === 0) {
           imagesForQuestions = documentImages;
@@ -712,7 +712,7 @@ export async function registerRoutes(
     try {
       const { text, sourceImageUrl, documentImages } = req.body;
       const userId = req.user.claims.sub;
-      
+
       if (!text || typeof text !== "string") {
         return res.status(400).json({
           message: "Text content is required",
@@ -738,7 +738,7 @@ export async function registerRoutes(
         });
       }
 
-      const { questions, title } = await importExistingQuiz({ 
+      const { questions, title } = await importExistingQuiz({
         text: textForImport,
         documentImages: Array.isArray(documentImages) ? documentImages : undefined,
       });
@@ -771,17 +771,17 @@ export async function registerRoutes(
   app.post("/api/summarize-text", async (req, res) => {
     try {
       const { text } = req.body;
-      
+
       if (!text || typeof text !== "string") {
         return res.status(400).json({ message: "Text is required" });
       }
-      
+
       if (text.length < 100) {
         return res.status(400).json({ message: "Text is too short to summarize" });
       }
-      
+
       const completion = await openaiClient.chat.completions.create({
-        model: "gpt-4.1-nano",
+        model: "llama-3.3-70b-versatile",
         messages: [
           {
             role: "system",
@@ -798,9 +798,9 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         max_tokens: 800,
         temperature: 0.3,
       });
-      
+
       const summary = completion.choices[0]?.message?.content || "Could not generate summary.";
-      
+
       res.json({ summary });
     } catch (error) {
       console.error("Summarize error:", error);
@@ -813,7 +813,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
   app.post("/api/submit-quiz", async (req: any, res) => {
     try {
       const validation = submitQuizRequestSchema.safeParse(req.body);
-      
+
       if (!validation.success) {
         return res.status(400).json({
           message: validation.error.errors[0]?.message || "Invalid request",
@@ -831,7 +831,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       const wrongQuestionIds: string[] = [];
       const questions = quiz.questions as Question[];
       const quizSourceText = (quiz as any).sourceText || "";
-      
+
       const gradePromises = questions.map(async (question) => {
         const userAnswer = answers[question.id];
         if (!userAnswer) {
@@ -847,7 +847,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
               ? `\nA suggested answer was: "${question.correctAnswer}" — but do NOT treat this as the only correct answer. Use the study material to determine if the student's answer is valid.`
               : "";
             const response = await openaiClient.chat.completions.create({
-              model: "gpt-4.1",
+              model: "llama-3.3-70b-versatile",
               messages: [
                 {
                   role: "system",
@@ -870,9 +870,9 @@ Format with bullet points for easy reading. Keep it under 500 words.`
           } catch (e) {
             console.error("AI grading failed for submit, falling back to exact match:", e);
           }
-          return { 
-            questionId: question.id, 
-            correct: userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim() 
+          return {
+            questionId: question.id,
+            correct: userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim()
           };
         }
 
@@ -935,7 +935,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     try {
       const userId = req.user.claims.sub;
       const quizzes = await storage.getQuizzesByUserId(userId);
-      
+
       // Get attempt counts for each quiz
       const quizzesWithAttempts = await Promise.all(
         quizzes.map(async (q) => {
@@ -947,7 +947,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
           };
         })
       );
-      
+
       res.json(quizzesWithAttempts);
     } catch (error) {
       res.status(500).json({ message: "Failed to get quizzes" });
@@ -1000,7 +1000,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     try {
       const userId = req.user.claims.sub;
       const { username, autoDeleteFiles, profileImageUrl, consecutiveCorrectConfetti, skipRevisionQuestions } = req.body;
-      
+
       const updates: any = {};
       if (username !== undefined) {
         const trimmedUsername = typeof username === "string" ? username.trim() : "";
@@ -1022,7 +1022,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
-      
+
       res.json({
         username: updatedUser.username,
         profileImageUrl: updatedUser.profileImageUrl,
@@ -1045,9 +1045,9 @@ Format with bullet points for easy reading. Keep it under 500 words.`
 
       const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
       const userId = req.user.claims.sub;
-      
+
       await storage.updateUser(userId, { profileImageUrl: base64Image });
-      
+
       res.json({ imageUrl: base64Image });
     } catch (error) {
       console.error("Profile image upload error:", error);
@@ -1059,7 +1059,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     try {
       const { id } = req.params;
       const { title, questions, isPublic } = req.body;
-      
+
       const { folderId } = req.body;
       const updates: any = {};
       if (title !== undefined) updates.title = title;
@@ -1071,7 +1071,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       if (!quiz) {
         return res.status(404).json({ message: "Quiz not found" });
       }
-      
+
       res.json({
         ...quiz,
         createdAt: quiz.createdAt.toISOString(),
@@ -1272,40 +1272,40 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     try {
       const userId = req.user.claims.sub;
       const recommendationData = await storage.getUserRecommendationData(userId);
-      
+
       if (!recommendationData.hasData) {
-        return res.json({ 
-          hasData: false, 
+        return res.json({
+          hasData: false,
           recommendations: [],
-          message: "Complete a quiz to get personalized recommendations" 
+          message: "Complete a quiz to get personalized recommendations"
         });
       }
 
       // Get all public quizzes
       const publicQuizzes = await storage.getPublicQuizzes();
-      
+
       // Filter out user's own quizzes and score remaining ones
       const availableQuizzes = publicQuizzes.filter(quiz => !recommendationData.recentQuizIds.includes(quiz.id));
-      
+
       let scoredQuizzes = availableQuizzes
         .map(quiz => {
           let score = 0;
           const category = quiz.category || "Others/General";
-          
+
           // Boost quizzes in weak categories (needs improvement)
           if (recommendationData.weakCategories.includes(category)) {
             score += 3;
           }
-          
+
           // Boost quizzes in user's preferred categories
           if (recommendationData.userCategories.includes(category)) {
             score += 2;
           }
-          
+
           // Small boost for newer quizzes
           const ageInDays = (Date.now() - new Date(quiz.createdAt).getTime()) / (1000 * 60 * 60 * 24);
           if (ageInDays < 7) score += 1;
-          
+
           return { quiz, score };
         })
         .sort((a, b) => b.score - a.score)
@@ -1313,8 +1313,8 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         .map(item => ({
           ...item.quiz,
           createdAt: item.quiz.createdAt.toISOString(),
-          recommendationReason: item.score >= 3 ? "needs_improvement" : 
-                               item.score >= 2 ? "matches_interests" : "popular"
+          recommendationReason: item.score >= 3 ? "needs_improvement" :
+            item.score >= 2 ? "matches_interests" : "popular"
         }));
 
       // Fallback: if no recommendations found after filtering, show newest unvisited quizzes
@@ -1358,20 +1358,20 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     try {
       const userId = req.user.claims.sub;
       const { content } = req.body;
-      
+
       if (!content || content.trim().length === 0) {
         return res.status(400).json({ message: "Comment content is required" });
       }
-      
+
       const comment = await storage.addComment({
         quizId: req.params.id,
         userId,
         content: content.trim(),
       });
-      
+
       // Get user info for the response
       const user = await storage.getUser(userId);
-      
+
       res.json({
         ...comment,
         createdAt: comment.createdAt.toISOString(),
@@ -1399,13 +1399,13 @@ Format with bullet points for easy reading. Keep it under 500 words.`
   app.get("/api/quiz/:id/votes", async (req: any, res) => {
     try {
       const votes = await storage.getVotesByQuizId(req.params.id);
-      
+
       // Get user's vote if authenticated
       let userVote: number | null = null;
       if (req.user?.claims?.sub) {
         userVote = await storage.getUserVote(req.params.id, req.user.claims.sub);
       }
-      
+
       res.json({ ...votes, userVote });
     } catch (error) {
       res.status(500).json({ message: "Failed to get votes" });
@@ -1416,14 +1416,14 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     try {
       const userId = req.user.claims.sub;
       const { voteType } = req.body;
-      
+
       if (voteType !== 1 && voteType !== -1) {
         return res.status(400).json({ message: "Vote type must be 1 (upvote) or -1 (downvote)" });
       }
-      
+
       // Check if user already has this vote type
       const existingVote = await storage.getUserVote(req.params.id, userId);
-      
+
       if (existingVote === voteType) {
         // Same vote type, remove the vote (toggle off)
         await storage.removeVote(req.params.id, userId);
@@ -1431,11 +1431,11 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         // Different or no vote, upsert the new vote
         await storage.upsertVote(req.params.id, userId, voteType);
       }
-      
+
       // Get updated vote counts
       const votes = await storage.getVotesByQuizId(req.params.id);
       const userVote = await storage.getUserVote(req.params.id, userId);
-      
+
       res.json({ ...votes, userVote });
     } catch (error) {
       res.status(500).json({ message: "Failed to vote" });
@@ -1494,18 +1494,18 @@ Format with bullet points for easy reading. Keep it under 500 words.`
   app.post("/api/contact", async (req, res) => {
     try {
       const { name, email, subject, message } = req.body;
-      
+
       if (!name || !email || !subject || !message) {
         return res.status(400).json({ message: "All fields are required" });
       }
 
       await sendContactEmail({ name, email, subject, message });
-      
+
       res.json({ success: true, message: "Your message has been sent successfully" });
     } catch (error) {
       console.error("Contact form error:", error);
-      res.status(500).json({ 
-        message: "Failed to send message. Please try again later." 
+      res.status(500).json({
+        message: "Failed to send message. Please try again later."
       });
     }
   });
@@ -1518,16 +1518,16 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         return res.status(400).json({ message: "Missing required fields" });
       }
 
-      const sourceContext = sourceText 
+      const sourceContext = sourceText
         ? `\n\nOriginal study material the question was generated from:\n---\n${sourceText.slice(0, 3000)}\n---`
         : "";
 
-      const referenceHint = correctAnswer 
+      const referenceHint = correctAnswer
         ? `\nA suggested answer was: "${correctAnswer}" — but do NOT treat this as the only correct answer. Use the study material and your knowledge to determine if the student's answer is valid.`
         : "";
 
       const response = await openaiClient.chat.completions.create({
-        model: "gpt-4.1",
+        model: "llama-3.3-70b-versatile",
         messages: [
           {
             role: "system",
@@ -1584,11 +1584,11 @@ If the question and study material are in a non-English language, respond with t
   app.post("/api/quiz-chat", async (req, res) => {
     try {
       const { quizTitle, questions, currentQuestionIndex, userMessage, chatHistory, sourceMaterial } = req.body;
-      
+
       if (!quizTitle || !questions || currentQuestionIndex === undefined || !userMessage) {
         return res.status(400).json({ message: "Missing required fields" });
       }
-      
+
       const response = await quizChatResponse({
         quizTitle,
         questions,
@@ -1597,7 +1597,7 @@ If the question and study material are in a non-English language, respond with t
         chatHistory: chatHistory || [],
         sourceMaterial,
       });
-      
+
       res.json({ response });
     } catch (error: any) {
       console.error("Quiz chat error:", error);

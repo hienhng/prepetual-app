@@ -4,11 +4,34 @@ let cachedTransporter: ReturnType<typeof nodemailer.createTransport> | null = nu
 
 function getTransporter() {
   if (cachedTransporter) return cachedTransporter;
-  
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    throw new Error("Email configuration missing: GMAIL_USER or GMAIL_APP_PASSWORD not set");
+
+  const isDev = process.env.NODE_ENV !== "production";
+  const hasCredentials = process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD;
+
+  if (!hasCredentials) {
+    if (!isDev) {
+      throw new Error("Email configuration missing: GMAIL_USER or GMAIL_APP_PASSWORD not set");
+    }
+
+    console.warn("\x1b[33m%s\x1b[0m", "[Email] Gmail credentials missing. Using console-log fallback for development.");
+
+    // Return a mock transporter that just logs to console
+    return {
+      sendMail: async (options: any) => {
+        console.log("\x1b[36m%s\x1b[0m", "--- DEV EMAIL SENT ---");
+        console.log("To:", options.to);
+        console.log("Subject:", options.subject);
+        // Extract the link from the HTML if possible for ease of use
+        const linkMatch = options.html.match(/href="([^"]+)"/);
+        if (linkMatch) {
+          console.log("\x1b[32m%s\x1b[0m", "Action Link:", linkMatch[1]);
+        }
+        console.log("--- END DEV EMAIL ---");
+        return { messageId: "dev-mock-id" };
+      }
+    } as any;
   }
-  
+
   cachedTransporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -16,7 +39,7 @@ function getTransporter() {
       pass: process.env.GMAIL_APP_PASSWORD,
     },
   });
-  
+
   return cachedTransporter;
 }
 
@@ -188,7 +211,7 @@ export async function sendContactEmail(data: {
   message: string;
 }): Promise<void> {
   const transporter = getTransporter();
-  
+
   // Send email TO the admin (giahienhn@gmail.com)
   await transporter.sendMail({
     from: `"Prepetual Contact" <${process.env.GMAIL_USER}>`,

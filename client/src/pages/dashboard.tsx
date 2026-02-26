@@ -2,18 +2,18 @@ import { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { 
-  Plus, BookOpen, Play, Target, 
-  Clock, FileText, Loader2, Sparkles, ArrowRight, 
+import {
+  Plus, BookOpen, Play, Target,
+  Clock, FileText, Loader2, Sparkles, ArrowRight,
   Brain, GraduationCap, Lightbulb, ChartNoAxesColumn, ChevronLeft, ChevronRight, X,
   Calculator, Languages, FlaskConical, Globe2, HelpCircle, BookText, Zap,
   Binary, Book, Globe
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
-  faFileLines, 
-  faBullseye, 
-  faChartSimple, 
+import {
+  faFileLines,
+  faBullseye,
+  faChartSimple,
   faComment,
   faMessage
 } from "@fortawesome/free-solid-svg-icons";
@@ -131,46 +131,97 @@ const floatAnimation = {
   },
 };
 
-function StatCard({ 
-  label, 
-  value, 
-  icon: Icon, 
-  gradient,
+function CountingNumber({ value, duration = 2 }: { value: number | string, duration?: number }) {
+  const [displayValue, setDisplayValue] = useState(0);
+  const targetValue = typeof value === 'number' ? value : parseInt(String(value).replace(/[^0-9]/g, '')) || 0;
+  const isPercent = typeof value === 'string' && value.includes('%');
+
+  useEffect(() => {
+    let start = 0;
+    const end = targetValue;
+    if (start === end) {
+      setDisplayValue(end);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      start += Math.ceil(end / (duration * 60));
+      if (start >= end) {
+        setDisplayValue(end);
+        clearInterval(timer);
+      } else {
+        setDisplayValue(start);
+      }
+    }, 1000 / 60);
+
+    return () => clearInterval(timer);
+  }, [targetValue, duration]);
+
+  return <>{isPercent ? `${displayValue}%` : displayValue}</>;
+}
+
+function StatCard({
+  label,
+  value,
+  icon: Icon,
   isActive = true,
-  onClick
-}: { 
-  label: string; 
-  value: number | string; 
-  icon: any; 
-  gradient: string;
+  onClick,
+  color = "blue"
+}: {
+  label: string;
+  value: number | string;
+  icon: any;
   isActive?: boolean;
   onClick?: () => void;
+  color?: "blue" | "violet" | "emerald";
 }) {
+  const colorSchemes = {
+    blue: {
+      bg: "bg-blue-50/50 dark:bg-blue-500/5",
+      border: "border-blue-100 dark:border-blue-500/10",
+      iconBg: "bg-blue-500/10 dark:bg-blue-500/20",
+      iconText: "text-blue-600 dark:text-blue-400"
+    },
+    violet: {
+      bg: "bg-violet-50/50 dark:bg-violet-500/5",
+      border: "border-violet-100 dark:border-violet-500/10",
+      iconBg: "bg-violet-500/10 dark:bg-violet-500/20",
+      iconText: "text-violet-600 dark:text-violet-400"
+    },
+    emerald: {
+      bg: "bg-emerald-50/50 dark:bg-emerald-500/5",
+      border: "border-emerald-100 dark:border-emerald-500/10",
+      iconBg: "bg-emerald-500/10 dark:bg-emerald-500/20",
+      iconText: "text-emerald-600 dark:text-emerald-400"
+    },
+    muted: {
+      bg: "bg-muted/30",
+      border: "border-border",
+      iconBg: "bg-muted",
+      iconText: "text-muted-foreground"
+    }
+  };
+
+  const scheme = isActive ? colorSchemes[color] : colorSchemes.muted;
+
   return (
-    <motion.div 
-      whileHover={{ y: -4, scale: 1.02 }} 
-      transition={{ duration: 0.2 }}
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       onClick={onClick}
-      className={onClick ? "cursor-pointer" : ""}
+      className={`relative h-full ${onClick ? "cursor-pointer" : ""}`}
     >
-      <Card className="overflow-visible border-0 shadow-md">
-        <CardContent className="p-0">
-          <div className={`p-4 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="mb-0.5 transition-colors text-white/60 text-[10px] text-left font-medium uppercase tracking-wider">{label}</p>
-                <motion.p 
-                  className={`text-2xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-                >
-                  {value}
-                </motion.p>
-              </div>
-              <div className="p-3 rounded-xl transition-all duration-500 flex items-center justify-center bg-white/20 backdrop-blur-sm scale-110 shadow-lg text-[#ffffff]">
-                <Icon className="w-6 h-6 transition-colors text-white" />
-              </div>
+      <Card className={`h-full border ${scheme.border} ${scheme.bg} shadow-sm overflow-hidden group transition-all duration-300`}>
+        <CardContent className="p-5 h-full flex items-center gap-4">
+          <div className={`p-3 rounded-2xl ${scheme.iconBg} ${scheme.iconText} transition-transform duration-300 group-hover:scale-110 flex-shrink-0`}>
+            <Icon className="w-6 h-6" />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60 mb-0.5">
+              {label}
+            </p>
+            <div className="text-2xl font-black tracking-tight text-foreground">
+              <CountingNumber value={value} />
             </div>
           </div>
         </CardContent>
@@ -180,55 +231,54 @@ function StatCard({
 }
 
 
-function QuickActionCard({ 
-  title, 
-  description, 
-  icon: Icon, 
+function QuickActionCard({
+  title,
+  description,
+  icon: Icon,
   onClick,
   variant = "default",
   testId
-}: { 
-  title: string; 
-  description: string; 
-  icon: any; 
+}: {
+  title: string;
+  description: string;
+  icon: any;
   onClick: () => void;
   variant?: "default" | "primary";
   testId: string;
 }) {
   const isPrimary = variant === "primary";
-  
+
   return (
-    <motion.div 
-      whileHover={{ scale: 1.02 }} 
+    <motion.div
+      whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.2 }}
       className={isPrimary ? "relative group" : ""}
     >
       {isPrimary && (
-        <motion.div 
+        <motion.div
           className="absolute -inset-0.5 bg-gradient-to-r from-primary via-quiz-purple to-primary rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-tilt"
-          animate={{ 
-            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] 
+          animate={{
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
           }}
-          transition={{ 
-            duration: 5, 
-            repeat: Infinity, 
-            ease: "linear" 
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            ease: "linear"
           }}
         />
       )}
-      <Card 
-        className={`relative cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl  ${
-          isPrimary 
-            ? "bg-gradient-to-br from-primary via-primary to-primary/90 border-0 shadow-lg shadow-primary/20" 
-            : "border-border/50"
-        }`}
+      <Card
+        className={`relative cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl  ${isPrimary
+          ? "bg-gradient-to-br from-primary via-primary to-primary/90 border-0 shadow-lg shadow-primary/20"
+          : "border-border/50"
+          }`}
         onClick={onClick}
         data-testid={testId}
       >
         <CardContent className="p-6 relative z-20">
           <div className="flex items-center gap-4">
-            <motion.div 
+            <motion.div
               className={`p-3 rounded-xl ${isPrimary ? "bg-white/20 backdrop-blur-sm border border-white/20" : "bg-primary/10"}`}
               whileHover={{ rotate: isPrimary ? 90 : 0, scale: 1.1 }}
               transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
@@ -257,81 +307,83 @@ function QuickActionCard({
 
 function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
   return (
-    <Card className="overflow-visible">
-      <CardContent className="py-16 px-8">
+    <Card className="overflow-hidden border-border/50 bg-gradient-to-b from-card to-card/50">
+      <CardContent className="py-12 px-8 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+          <motion.div
+            className="absolute -top-24 -left-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 8, repeat: Infinity }}
+          />
+          <motion.div
+            className="absolute -bottom-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"
+            animate={{ scale: [1.2, 1, 1.2], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 8, repeat: Infinity }}
+          />
+        </div>
+
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-md mx-auto"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-center max-w-md mx-auto relative z-10"
         >
-          <motion.div 
-            className="relative w-32 h-32 mx-auto mb-8 cursor-pointer group"
+          <motion.div
+            className="relative w-28 h-28 mx-auto mb-6 cursor-pointer group"
             animate={floatAnimation}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
+            whileHover={{ scale: 1.1, rotate: 5 }}
           >
-            <motion.div 
-              className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-quiz-purple/20 to-primary/20 rounded-full blur-xl"
-              animate={{ opacity: [0.3, 0.6, 0.3], scale: [0.95, 1.05, 0.95] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div 
-              className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full transition-all duration-300 group-hover:from-primary/30 group-hover:to-primary/15"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              style={{ background: "conic-gradient(from 0deg, hsl(var(--primary) / 0.2), hsl(var(--quiz-purple) / 0.1), hsl(var(--primary) / 0.2))" }}
-            />
-            <div className="absolute inset-1 bg-background rounded-full" />
-            <div className="absolute inset-4 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full transition-all duration-300 group-hover:from-primary/40 group-hover:to-primary/20" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <motion.div
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <Brain className="w-12 h-12 text-primary transition-transform duration-300 group-hover:scale-110" />
-              </motion.div>
+            <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl group-hover:bg-primary/30 transition-colors" />
+
+            <div className="absolute inset-2 bg-background rounded-full shadow-inner flex items-center justify-center border border-border/50 overflow-hidden">
+              <div className="absolute inset-2 bg-gradient-to-br from-primary/10 to-transparent rounded-full" />
+              <Brain className="w-12 h-12 text-primary drop-shadow-sm group-hover:scale-110 transition-transform duration-500" />
             </div>
-            <motion.div 
-              className="absolute -top-1 -right-1"
-              animate={{ y: [0, -4, 0], rotate: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+
+            <motion.div
+              className="absolute -top-2 -right-2 p-1.5 bg-card rounded-xl shadow-lg border border-border/50"
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 4, repeat: Infinity }}
             >
-              <Sparkles className="w-6 h-6 text-primary transition-all duration-300 group-hover:scale-125 group-hover:text-quiz-purple" />
-            </motion.div>
-            <motion.div 
-              className="absolute -bottom-1 -left-1"
-              animate={{ y: [0, 3, 0], rotate: [0, -10, 0] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-            >
-              <Sparkles className="w-4 h-4 text-quiz-purple/70 transition-all duration-300 group-hover:scale-125 group-hover:text-primary" />
+              <Sparkles className="w-4 h-4 text-primary" />
             </motion.div>
           </motion.div>
-          
-          <h3 className="text-2xl font-bold text-foreground mb-3">
-            Ready to learn smarter?
+
+          <h3 className="text-2xl font-black text-foreground mb-3 tracking-tight">
+            Level Up Your Learning
           </h3>
-          <p className="text-muted-foreground mb-8 leading-relaxed">
-            Upload your study materials and let AI create personalized quizzes tailored just for you.
+          <p className="text-muted-foreground mb-8 leading-relaxed text-base font-medium">
+            Turn your study notes into powerful AI-driven quizzes in seconds.
           </p>
-          
-          <Button size="lg" onClick={onCreateQuiz} data-testid="button-create-first">
-            <Plus className="w-5 h-5 mr-2" />
-            Create Your First Quiz
+
+          <Button
+            size="lg"
+            onClick={onCreateQuiz}
+            data-testid="button-create-first"
+            className="h-12 px-8 text-base font-bold rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-1 active:translate-y-0"
+          >
+            <Plus className="w-5 h-5 mr-2 stroke-[3]" />
+            Get Started Now
           </Button>
-          
-          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
+
+          <div className="mt-8 flex items-center justify-center gap-6 text-xs font-medium text-muted-foreground/60">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center border border-border/50">
+                <FileText className="w-6 h-6" />
+              </div>
               <span>PDFs</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Lightbulb className="w-4 h-4" />
-              <span>Images</span>
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center border border-border/50">
+                <Brain className="w-6 h-6" />
+              </div>
+              <span>AI Analysis</span>
             </div>
-            <div className="flex items-center gap-2">
-              <GraduationCap className="w-4 h-4" />
-              <span>Any topic</span>
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center border border-border/50">
+                <Target className="w-6 h-6" />
+              </div>
+              <span>Master Topic</span>
             </div>
           </div>
         </motion.div>
@@ -340,14 +392,14 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
   );
 }
 
-function QuizCard({ 
-  quiz, 
-  onTake, 
-  onStudy, 
-  index 
-}: { 
-  quiz: Quiz; 
-  onTake: () => void; 
+function QuizCard({
+  quiz,
+  onTake,
+  onStudy,
+  index
+}: {
+  quiz: Quiz;
+  onTake: () => void;
   onStudy: () => void;
   index: number;
 }) {
@@ -359,53 +411,60 @@ function QuizCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
-      whileTap={{ scale: 0.99 }}
-      className="group cursor-pointer"
+      whileHover={{ scale: 1.005 }}
+      whileTap={{ scale: 0.995 }}
+      className="group"
       data-testid={`card-recent-quiz-${quiz.id}`}
       onClick={onTake}
     >
-      <div className="relative flex gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted/70 transition-all duration-200 border border-transparent hover:border-border/40">
-        <div className="flex items-center justify-center flex-shrink-0">
-          <div className={`w-9 h-9 rounded-lg ${colors.icon} flex items-center justify-center`}>
-            <CategoryIcon className="w-4 h-4 text-white" />
+      <div className="relative flex items-center gap-4 p-4 rounded-2xl bg-card/40 hover:bg-card border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+        <div className="relative flex-shrink-0">
+          <div className={`w-12 h-12 rounded-xl ${colors.icon} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+            <CategoryIcon className="w-6 h-6 text-white" />
           </div>
+          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${colors.icon.replace('bg-gradient-to-br', 'bg')}`} />
         </div>
-        
+
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
+          <h3 className="text-base font-bold text-foreground truncate group-hover:text-primary transition-colors">
             {quiz.title}
           </h3>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-            <span>{questionCount} <span className="hidden sm:inline">questions</span><span className="sm:hidden">q</span></span>
-            <span className="flex items-center gap-1">
-              <span className={`w-1.5 h-1.5 rounded-full ${colors.badge.split(' ')[0].replace('text-', 'bg-')}`} />
-              <span className={`capitalize ${colors.text} font-medium`}>{difficulty}</span>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+            <span className="flex items-center gap-1 font-medium bg-muted px-2 py-0.5 rounded-md">
+              <HelpCircle className="w-3 h-3" />
+              {questionCount} questions
             </span>
-            <span className="hidden sm:inline">{formatDistanceToNow(new Date(quiz.createdAt))} ago</span>
+            <Badge variant="outline" className={`h-5 text-[10px] capitalize px-2 font-bold ${colors.badge}`}>
+              {difficulty}
+            </Badge>
+            <span className="hidden sm:inline-flex items-center gap-1 opacity-70">
+              <Clock className="w-3 h-3" />
+              {formatDistanceToNow(new Date(quiz.createdAt))} ago
+            </span>
           </div>
         </div>
-        
-        <div className="flex items-center gap-1 flex-shrink-0">
+
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Button
             size="icon"
             variant="ghost"
-            className="h-8 w-8 hidden sm:flex"
+            className="h-10 w-10 rounded-xl hidden sm:flex hover:bg-muted"
             onClick={(e) => { e.stopPropagation(); onStudy(); }}
             data-testid={`button-study-${quiz.id}`}
           >
-            <BookOpen className="w-4 h-4" />
+            <BookOpen className="w-5 h-5" />
           </Button>
           <Button
-            size="sm"
-            className="h-8 px-3"
+            size="default"
+            className="h-10 px-5 rounded-xl font-bold shadow-sm shadow-primary/20 group-hover:shadow-primary/40 transition-all"
             onClick={(e) => { e.stopPropagation(); onTake(); }}
             data-testid={`button-take-${quiz.id}`}
           >
-            <Play className="w-3.5 h-3.5 sm:mr-1.5 fill-black" />
-            <span className="hidden sm:inline">Take</span>
+            <Play className="w-4 h-4 mr-2 fill-current" />
+            <span className="hidden sm:inline">Start</span>
           </Button>
         </div>
       </div>
@@ -439,22 +498,22 @@ function LearningTipCard() {
   );
 }
 
-function ContinueQuizCard({ 
-  quiz, 
-  answeredCount, 
-  totalCount, 
-  onContinue, 
+function ContinueQuizCard({
+  quiz,
+  answeredCount,
+  totalCount,
+  onContinue,
   onDiscard,
   isCurrent = true,
   savedAt,
   isRevising = false,
   retryAnsweredCount = 0,
   retryTotalCount = 0,
-}: { 
-  quiz: Quiz; 
-  answeredCount: number; 
-  totalCount: number; 
-  onContinue: () => void; 
+}: {
+  quiz: Quiz;
+  answeredCount: number;
+  totalCount: number;
+  onContinue: () => void;
   onDiscard: () => void;
   isCurrent?: boolean;
   savedAt?: string;
@@ -466,7 +525,7 @@ function ContinueQuizCard({
   const displayTotal = isRevising ? retryTotalCount : totalCount;
   const progress = Math.round((displayAnswered / displayTotal) * 100) || 0;
   const remaining = displayTotal - displayAnswered;
-  
+
   const difficultyRaw = quiz.difficulty?.toLowerCase() || "medium";
   const difficulty = (["easy", "medium", "hard"].includes(difficultyRaw) ? difficultyRaw : "medium") as "easy" | "medium" | "hard";
   const colors = difficultyColors[difficulty] || difficultyColors.medium;
@@ -489,7 +548,7 @@ function ContinueQuizCard({
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 ${isRevising ? 'bg-gradient-to-br from-violet-500 to-purple-600' : colors.icon}`}>
                 <CategoryIcon className="w-6 h-6 text-white" />
               </div>
-              
+
               {/* Title and meta */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
@@ -498,7 +557,7 @@ function ContinueQuizCard({
                     <div className="flex items-center gap-2 flex-wrap">
                       {isRevising ? (
                         <Badge className="gap-1 text-[10px] px-2 py-0.5 bg-violet-500/15 text-violet-600 dark:text-violet-400 border-violet-300 dark:border-violet-800">
-                          <motion.div 
+                          <motion.div
                             className="w-1.5 h-1.5 rounded-full bg-violet-500"
                             animate={{ opacity: [1, 0.4, 1] }}
                             transition={{ duration: 1.5, repeat: Infinity }}
@@ -528,11 +587,11 @@ function ContinueQuizCard({
                 </div>
               </div>
             </div>
-            
+
             {/* Progress section */}
             {isRevising ? (
               <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-violet-500/10 dark:bg-violet-500/15 border border-violet-200/50 dark:border-violet-800/30">
-                <motion.div 
+                <motion.div
                   className="w-2 h-2 rounded-full bg-violet-500"
                   animate={{ scale: [1, 1.3, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
@@ -551,7 +610,7 @@ function ContinueQuizCard({
                   <span className={`font-bold ${colors.text}`}>{progress}%</span>
                 </div>
                 <div className="relative h-2.5 bg-muted/30 dark:bg-muted/20 rounded-full overflow-hidden">
-                  <motion.div 
+                  <motion.div
                     className={`absolute inset-y-0 left-0 rounded-full ${colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')}`}
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
@@ -560,15 +619,14 @@ function ContinueQuizCard({
                 </div>
               </div>
             )}
-            
+
             {/* Action button */}
             <Button
               onClick={onContinue}
-              className={`w-full gap-2 h-10 shadow-md transition-all duration-300 ${
-                isRevising 
-                  ? 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700' 
-                  : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
-              } hover:brightness-110 text-white border-0`}
+              className={`w-full gap-2 h-10 shadow-md transition-all duration-300 ${isRevising
+                ? 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700'
+                : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
+                } hover:brightness-110 text-white border-0`}
               data-testid="button-continue-quiz"
             >
               <Play className="w-4 h-4 fill-current" />
@@ -584,13 +642,13 @@ function ContinueQuizCard({
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
-  const { 
-    currentQuiz, 
+  const {
+    currentQuiz,
     userAnswers,
     checkedQuestions,
-    setCurrentQuiz, 
-    setSourceMaterial, 
-    resetQuiz, 
+    setCurrentQuiz,
+    setSourceMaterial,
+    resetQuiz,
     clearUserAnswers,
     clearRetryProgress,
     savedProgresses,
@@ -599,10 +657,10 @@ export default function Dashboard() {
     clearRestoredState,
   } = useQuiz();
   const { user } = useAuth();
-  const [revisionExitWarning, setRevisionExitWarning] = useState<{ open: boolean; quizId: string | null; type: 'saved' | null }>({ 
-    open: false, 
-    quizId: null, 
-    type: null 
+  const [revisionExitWarning, setRevisionExitWarning] = useState<{ open: boolean; quizId: string | null; type: 'saved' | null }>({
+    open: false,
+    quizId: null,
+    type: null
   });
 
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
@@ -664,7 +722,7 @@ export default function Dashboard() {
     const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
     const totalQuestions = item.quiz.questions?.length || 0;
     const checkedQuestionsCount = item.checkedQuestions?.length || 0;
-    
+
     // Calculate wrong answers from first attempt (case-insensitive comparison)
     let wrongQuestionsCount = 0;
     if (item.quiz.questions) {
@@ -674,11 +732,11 @@ export default function Dashboard() {
         return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
       }).length;
     }
-    
+
     const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
     const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
     const hasRetryProgress = retryAnswerKeys.length > 0;
-    
+
     return (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
   };
 
@@ -698,7 +756,7 @@ export default function Dashboard() {
   // Handle discard with revision warning
   const handleAttemptDiscard = (item: { type: 'saved'; quizId: string; quiz: Quiz; answers: Record<string, string>; checkedQuestions: string[] }) => {
     const isRevising = isQuizInRevisionMode(item);
-    
+
     if (isRevising) {
       // Show warning dialog for revision mode exit
       setRevisionExitWarning({ open: true, quizId: item.quizId, type: 'saved' });
@@ -711,11 +769,11 @@ export default function Dashboard() {
   // Confirm revision exit - delete the entire quiz progress
   const handleConfirmRevisionExit = () => {
     const { quizId } = revisionExitWarning;
-    
+
     if (quizId) {
       handleDiscardSavedProgress(quizId);
     }
-    
+
     setRevisionExitWarning({ open: false, quizId: null, type: null });
   };
 
@@ -733,7 +791,7 @@ export default function Dashboard() {
       checkedQuestions: string[];
       savedAt: string;
     }> = [];
-    
+
     // Only show saved progresses from the API (with savedAt timestamps)
     savedProgresses.forEach(p => {
       // Merge retryAnswers into answers with 'retry-' prefix for revision detection
@@ -743,7 +801,7 @@ export default function Dashboard() {
           mergedAnswers[`retry-${key}`] = value;
         });
       }
-      
+
       items.push({
         type: 'saved',
         quizId: p.quizId,
@@ -753,7 +811,7 @@ export default function Dashboard() {
         savedAt: p.savedAt,
       });
     });
-    
+
     return items;
   }, [savedProgresses]);
 
@@ -806,7 +864,7 @@ export default function Dashboard() {
   const totalQuestions = quizzes?.reduce((acc, q) => acc + (q.questions as any[]).length, 0) || 0;
   const recentQuizzes = quizzes?.slice(0, 6) || [];
   const hasQuizzes = totalQuizzes > 0;
-  
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning";
@@ -814,10 +872,10 @@ export default function Dashboard() {
     return "Good evening";
   };
 
-  
+
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -828,226 +886,227 @@ export default function Dashboard() {
         <motion.section variants={itemVariants}>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
-                {getGreeting()}
+              <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
+                {getGreeting()}, <span className="text-primary">{user?.username || 'Learner'}</span>
               </h1>
               <p className="text-muted-foreground">
-                {hasQuizzes 
+                {hasQuizzes
                   ? "Continue where you left off or create something new."
                   : "Let's create your first quiz and start learning."
                 }
               </p>
             </div>
-            {/* {hasQuizzes && (
-              <Button onClick={() => setLocation("/create")} data-testid="button-create-new">
-                <Plus className="w-4 h-4 mr-2" />
-                New Quiz
-              </Button>
-            )} */}
           </div>
         </motion.section>
 
-        {/* Stats Section */}
-        {hasQuizzes && (
-          <motion.section variants={itemVariants}>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-              <StatCard
-                label="CREATED"
-                value={totalQuizzes}
-                icon={() => <FontAwesomeIcon icon={faFileLines} className="h-6 w-6" />}
-                gradient="bg-gradient-to-br from-blue-500 to-blue-600"
-              />
-              <StatCard
-                label="QUESTIONS"
-                value={totalQuestions}
-                icon={() => <FontAwesomeIcon icon={faMessage} className="h-6 w-6" />}
-                gradient="bg-gradient-to-br from-violet-500 to-violet-600"
-              />
-              <StatCard
-                label="ACCURACY"
-                value={userStats?.totalAttempts ? `${userStats.averageAccuracy}%` : "-"}
-                icon={() => <FontAwesomeIcon icon={faChartSimple} className="h-6 w-6" />}
-                gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
-                isActive={(userStats?.totalAttempts ?? 0) > 0}
-                onClick={() => setLocation("/progress")}
-              />
-            </div>
-          </motion.section>
-        )}
-
-        {/* Continue Section - Horizontally Scrollable Saved Quizzes */}
-        {hasSavedQuizzes && (
-          <motion.section variants={itemVariants} className="relative group/carousel">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                <Play className="w-4 h-4 text-primary fill-primary" />
-                Continue Learning
-              </h2>
-              <div className="hidden md:flex items-center gap-2">
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className={`h-8 w-8 rounded-full transition-all duration-300 ${!canScrollLeft ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
-                  onClick={() => scroll('left')}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className={`h-8 w-8 rounded-full transition-all duration-300 ${!canScrollRight ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
-                  onClick={() => scroll('right')}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div 
-                ref={scrollContainerRef}
-                onScroll={checkScroll}
-                className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none scroll-smooth"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              >
-                {allSavedQuizzes.map((item, idx) => {
-                  const answerKeys = Object.keys(item.answers);
-                  const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
-                  const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
-                  const totalQuestions = item.quiz.questions?.length || 0;
-                  const checkedQuestionsCount = item.checkedQuestions?.length || 0;
-                  
-                  // Calculate total wrong questions from first attempt by comparing answers to correct answers
-                  let wrongQuestionsCount = 0;
-                  if (item.quiz.questions) {
-                    const questions = item.quiz.questions as any[];
-                    wrongQuestionsCount = questions.filter(q => {
-                      const userAnswer = item.answers[q.id];
-                      return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
-                    }).length;
-                  }
-                  
-                  // User is in revision mode if:
-                  // 1. All original questions are checked (completed first attempt) AND there are wrong answers to retry
-                  // 2. OR there are already retry answers (actively revising)
-                  const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
-                  const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
-                  const hasRetryProgress = retryAnswerKeys.length > 0;
-                  const isRevising = (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
-                  
-                  // retryAnsweredCount = number of retry answers given
-                  // retryTotalCount = number of wrong questions from first attempt (the retry questions that need to be answered)
-                  const retryAnsweredCount = retryAnswerKeys.length;
-                  const retryTotalCount = wrongQuestionsCount;
-                  
-                  return (
-                    <div 
-                      key={item.quizId + idx} 
-                      className="w-full flex-shrink-0 snap-center"
+        {/* Dynamic Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Main Content (Left Column) */}
+          <div className="lg:col-span-8 space-y-8">
+            {/* Continue Section */}
+            {hasSavedQuizzes && (
+              <motion.section variants={itemVariants} className="relative group/carousel">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                    <Play className="w-5 h-5 text-primary fill-primary" />
+                    Continue Learning
+                  </h2>
+                  <div className="hidden md:flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className={`h-9 w-9 rounded-full transition-all duration-300 ${!canScrollLeft ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
+                      onClick={() => scroll('left')}
                     >
-                      <ContinueQuizCard
-                        quiz={item.quiz}
-                        answeredCount={originalAnswerKeys.length}
-                        totalCount={item.quiz.questions?.length || 0}
-                        onContinue={() => handleContinueSavedQuiz(item.quizId)}
-                        onDiscard={() => handleAttemptDiscard(item)}
-                        isCurrent={false}
-                        savedAt={item.savedAt}
-                        isRevising={isRevising}
-                        retryAnsweredCount={retryAnsweredCount}
-                        retryTotalCount={retryTotalCount}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-
-            {/* Dots for PC & Mobile */}
-            {allSavedQuizzes.length > 1 && (
-              <div className="flex justify-center gap-1.5 mt-2">
-                {allSavedQuizzes.map((_, i) => (
-                  <div 
-                    key={i} 
-                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                      activeIndex === i ? 'bg-primary w-3' : 'bg-muted-foreground/30'
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-            </div>
-          </motion.section>
-        )}
-
-        {/* Quick Actions */}
-        {hasQuizzes && (
-          <motion.section variants={itemVariants}>
-            <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <QuickActionCard
-                title="Create New Quiz"
-                description="Upload materials and generate questions"
-                icon={Plus}
-                onClick={() => setLocation("/create")}
-                variant="primary"
-                testId="card-create-quiz"
-              />
-              {recentQuizzes[0] && (
-                <QuickActionCard
-                  title="Continue Studying"
-                  description={recentQuizzes[0].title}
-                  icon={BookOpen}
-                  onClick={() => handleStudyQuiz(recentQuizzes[0])}
-                  testId="card-continue-studying"
-                />
-              )}
-            </div>
-          </motion.section>
-        )}
-
-        {/* Recent Quizzes or Empty State */}
-        <motion.section variants={itemVariants}>
-          {!hasQuizzes ? (
-            <EmptyState onCreateQuiz={() => setLocation("/create")} />
-          ) : (
-            <div>
-              <div className="flex items-center justify-between gap-4 mb-4">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                  <h2 className="font-semibold text-foreground">Recent Quizzes</h2>
+                      <ChevronLeft className="w-5 h-5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className={`h-9 w-9 rounded-full transition-all duration-300 ${!canScrollRight ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
+                      onClick={() => scroll('right')}
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </Button>
+                  </div>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => setLocation("/history")}
-                  data-testid="button-view-all"
-                >
-                  View all
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-              
-              <div className="space-y-2">
-                {recentQuizzes.map((quiz, index) => (
-                  <QuizCard
-                    key={quiz.id}
-                    quiz={quiz}
-                    index={index}
-                    onTake={() => handleTakeQuiz(quiz)}
-                    onStudy={() => handleStudyQuiz(quiz)}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </motion.section>
 
-        {/* Learning Tip */}
-        {hasQuizzes && <LearningTipCard />}
+                <div className="relative">
+                  <div
+                    ref={scrollContainerRef}
+                    onScroll={checkScroll}
+                    className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none scroll-smooth"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  >
+                    {allSavedQuizzes.map((item, idx) => {
+                      const answerKeys = Object.keys(item.answers);
+                      const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
+                      const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
+                      const totalQuestions = item.quiz.questions?.length || 0;
+                      const checkedQuestionsCount = item.checkedQuestions?.length || 0;
+
+                      let wrongQuestionsCount = 0;
+                      if (item.quiz.questions) {
+                        const questions = item.quiz.questions as any[];
+                        wrongQuestionsCount = questions.filter(q => {
+                          const userAnswer = item.answers[q.id];
+                          return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
+                        }).length;
+                      }
+
+                      const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
+                      const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
+                      const hasRetryProgress = retryAnswerKeys.length > 0;
+                      const isRevising = (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
+
+                      const retryAnsweredCount = retryAnswerKeys.length;
+                      const retryTotalCount = wrongQuestionsCount;
+
+                      return (
+                        <div
+                          key={item.quizId + idx}
+                          className="w-full flex-shrink-0 snap-center"
+                        >
+                          <ContinueQuizCard
+                            quiz={item.quiz}
+                            answeredCount={originalAnswerKeys.length}
+                            totalCount={item.quiz.questions?.length || 0}
+                            onContinue={() => handleContinueSavedQuiz(item.quizId)}
+                            onDiscard={() => handleAttemptDiscard(item)}
+                            isCurrent={false}
+                            savedAt={item.savedAt}
+                            isRevising={isRevising}
+                            retryAnsweredCount={retryAnsweredCount}
+                            retryTotalCount={retryTotalCount}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {allSavedQuizzes.length > 1 && (
+                    <div className="flex justify-center gap-1.5 mt-2">
+                      {allSavedQuizzes.map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${activeIndex === i ? 'bg-primary w-3' : 'bg-muted-foreground/30'}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.section>
+            )}
+
+            {/* Recent Quizzes or Empty State */}
+            <motion.section variants={itemVariants}>
+              {!hasQuizzes ? (
+                <EmptyState onCreateQuiz={() => setLocation("/create")} />
+              ) : (
+                <div>
+                  <div className="flex items-center justify-between gap-4 mb-5">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-muted-foreground" />
+                      <h2 className="text-xl font-bold text-foreground">Recent Quizzes</h2>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setLocation("/history")}
+                      className="font-bold"
+                    >
+                      View all
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {recentQuizzes.map((quiz, index) => (
+                      <QuizCard
+                        key={quiz.id}
+                        quiz={quiz}
+                        index={index}
+                        onTake={() => handleTakeQuiz(quiz)}
+                        onStudy={() => handleStudyQuiz(quiz)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.section>
+          </div>
+
+          {/* Sidebar (Right Column) */}
+          <div className="lg:col-span-4 space-y-8">
+            {/* Stats Sidebar Block */}
+            {hasQuizzes && (
+              <motion.section variants={itemVariants} className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <ChartNoAxesColumn className="w-5 h-5 text-muted-foreground" />
+                  <h2 className="text-xl font-bold text-foreground">Your Stats</h2>
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                  <StatCard
+                    label="CREATED"
+                    value={totalQuizzes}
+                    icon={() => <FontAwesomeIcon icon={faFileLines} className="h-6 w-6" />}
+                    color="blue"
+                  />
+                  <StatCard
+                    label="QUESTIONS"
+                    value={totalQuestions}
+                    icon={() => <FontAwesomeIcon icon={faMessage} className="h-6 w-6" />}
+                    color="violet"
+                  />
+                  <StatCard
+                    label="ACCURACY"
+                    value={userStats?.totalAttempts ? `${userStats.averageAccuracy}%` : "-"}
+                    icon={() => <FontAwesomeIcon icon={faChartSimple} className="h-6 w-6" />}
+                    color="emerald"
+                    isActive={(userStats?.totalAttempts ?? 0) > 0}
+                    onClick={() => setLocation("/progress")}
+                  />
+                </div>
+              </motion.section>
+            )}
+
+            {/* Quick Actions Sidebar Block */}
+            {hasQuizzes && (
+              <motion.section variants={itemVariants} className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap className="w-5 h-5 text-muted-foreground" />
+                  <h2 className="text-xl font-bold text-foreground">Quick Actions</h2>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <QuickActionCard
+                    title="Create New Quiz"
+                    description="AI-powered generation"
+                    icon={Plus}
+                    onClick={() => setLocation("/create")}
+                    variant="primary"
+                    testId="card-create-quiz"
+                  />
+                  {recentQuizzes[0] && (
+                    <QuickActionCard
+                      title="Continue Study"
+                      description={recentQuizzes[0].title}
+                      icon={BookOpen}
+                      onClick={() => handleStudyQuiz(recentQuizzes[0])}
+                      testId="card-continue-studying"
+                    />
+                  )}
+                </div>
+              </motion.section>
+            )}
+
+            {/* Learning Tip Sidebar Block */}
+            {hasQuizzes && <LearningTipCard />}
+          </div>
+        </div>
       </motion.div>
 
-      <AlertDialog 
-        open={revisionExitWarning.open} 
+      <AlertDialog
+        open={revisionExitWarning.open}
         onOpenChange={(open) => !open && setRevisionExitWarning({ open: false, quizId: null, type: null })}
       >
         <AlertDialogContent data-testid="dialog-revision-exit-warning">
@@ -1061,7 +1120,7 @@ export default function Dashboard() {
             <AlertDialogCancel data-testid="button-cancel-revision-exit">
               Keep Revising
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleConfirmRevisionExit}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               data-testid="button-confirm-revision-exit"

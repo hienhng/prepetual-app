@@ -50,7 +50,11 @@ app.use((req, res, next) => {
     if (path.startsWith("/api")) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+        let resData = JSON.stringify(capturedJsonResponse);
+        if (resData.length > 200) {
+          resData = resData.substring(0, 200) + " ... (truncated)";
+        }
+        logLine += ` :: ${resData}`;
       }
 
       log(logLine);
@@ -90,7 +94,6 @@ app.use((req, res, next) => {
     {
       port,
       host: "0.0.0.0",
-      reusePort: true,
     },
     () => {
       log(`serving on port ${port}`);

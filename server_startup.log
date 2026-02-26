@@ -1,0 +1,51 @@
+﻿node.exe : C:\Users\Gia Hie
+n\Downloads\PrepetualApp\Pr
+epetual\node_modules\openai
+\src\client.ts:376
+At C:\Program 
+Files\nodejs\npx.ps1:29 
+char:3
++   & $NODE_EXE 
+$NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~
+    + CategoryInfo         
+     : NotSpecified: (C:\  
+  Users\Gia Hi...c\clien   
+ t.ts:376:String) [], R    
+emoteException
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+      throw new 
+Errors.OpenAIError(
+            ^
+
+
+OpenAIError: Missing 
+credentials. Please pass 
+an `apiKey`, or set the 
+`OPENAI_API_KEY` 
+environment variable.
+    at new OpenAI 
+(C:\Users\Gia Hien\Download
+s\PrepetualApp\Prepetual\no
+de_modules\openai\src\clien
+t.ts:376:13)
+    at <anonymous> 
+(C:\Users\Gia Hien\Download
+s\PrepetualApp\Prepetual\se
+rver\openai.ts:8:16)
+    at ModuleJob.run (node:
+internal/modules/esm/module
+_job:329:25)
+    at async onImport.trace
+Promise.__proto__ (node:int
+ernal/modules/esm/loader:64
+4:26)
+    at async asyncRunEntryP
+ointWithESMLoader (node:int
+ernal/modules/run_main:117:
+5)
+
+Node.js v22.17.1

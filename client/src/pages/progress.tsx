@@ -123,44 +123,85 @@ function getTrend(history: ResultHistoryItem[]): { trend: "up" | "down" | "neutr
   return { trend: "neutral", change: 0 };
 }
 
-function StatCard({ 
-  label, 
-  value, 
-  icon: Icon, 
-  gradient,
+function StatCard({
+  label,
+  value,
+  icon: Icon,
   isActive = true,
   testId,
-}: { 
-  label: string; 
-  value: number | string; 
-  icon: any; 
-  gradient: string;
+  color = "blue"
+}: {
+  label: string;
+  value: number | string;
+  icon: any;
   isActive?: boolean;
   testId: string;
+  color?: "blue" | "violet" | "emerald" | "teal" | "rose" | "slate";
 }) {
+  const colorSchemes = {
+    blue: {
+      bg: "bg-blue-50/50 dark:bg-blue-500/5",
+      border: "border-blue-100 dark:border-blue-500/10",
+      iconBg: "bg-blue-500/10 dark:bg-blue-500/20",
+      iconText: "text-blue-600 dark:text-blue-400"
+    },
+    violet: {
+      bg: "bg-violet-50/50 dark:bg-violet-500/5",
+      border: "border-violet-100 dark:border-violet-500/10",
+      iconBg: "bg-violet-500/10 dark:bg-violet-500/20",
+      iconText: "text-violet-600 dark:text-violet-400"
+    },
+    emerald: {
+      bg: "bg-emerald-50/50 dark:bg-emerald-500/5",
+      border: "border-emerald-100 dark:border-emerald-500/10",
+      iconBg: "bg-emerald-500/10 dark:bg-emerald-500/20",
+      iconText: "text-emerald-600 dark:text-emerald-400"
+    },
+    teal: {
+      bg: "bg-teal-50/50 dark:bg-teal-500/5",
+      border: "border-teal-100 dark:border-teal-500/10",
+      iconBg: "bg-teal-500/10 dark:bg-teal-500/20",
+      iconText: "text-teal-600 dark:text-teal-400"
+    },
+    rose: {
+      bg: "bg-rose-50/50 dark:bg-rose-500/5",
+      border: "border-rose-100 dark:border-rose-500/10",
+      iconBg: "bg-rose-500/10 dark:bg-rose-500/20",
+      iconText: "text-rose-600 dark:text-rose-400"
+    },
+    slate: {
+      bg: "bg-slate-50/50 dark:bg-slate-500/5",
+      border: "border-slate-100 dark:border-slate-500/10",
+      iconBg: "bg-slate-500/10 dark:bg-slate-500/20",
+      iconText: "text-slate-600 dark:text-slate-400"
+    },
+    muted: {
+      bg: "bg-muted/30",
+      border: "border-border",
+      iconBg: "bg-muted",
+      iconText: "text-muted-foreground"
+    }
+  };
+
+  const scheme = isActive ? colorSchemes[color] : colorSchemes.muted;
+
   return (
-    <motion.div 
-      whileHover={{ y: -4, scale: 1.02 }} 
-      transition={{ duration: 0.2 }}
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      className="relative h-full"
     >
-      <Card className="overflow-visible border-0 shadow-md" data-testid={testId}>
-        <CardContent className="p-0">
-          <div className={`p-4 rounded-md transition-all duration-500 ${isActive ? gradient : "bg-muted shadow-inner"}`}>
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="mb-0.5 transition-colors text-white/60 text-[10px] text-left font-medium uppercase tracking-wider">{label}</p>
-                <motion.p 
-                  className={`text-2xl font-bold transition-colors ${isActive ? "text-white" : "text-foreground"}`}
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-                >
-                  {value}
-                </motion.p>
-              </div>
-              <div className="p-3 rounded-xl transition-all duration-500 flex items-center justify-center bg-white/20 backdrop-blur-sm scale-110 shadow-lg text-[#ffffff]">
-                <Icon className="w-6 h-6 transition-colors text-white" />
-              </div>
+      <Card className={`h-full border ${scheme.border} ${scheme.bg} shadow-sm overflow-hidden group transition-all duration-300`} data-testid={testId}>
+        <CardContent className="p-4 md:p-5 h-full flex items-center gap-3 md:gap-4 text-left">
+          <div className={`p-2.5 md:p-3 rounded-2xl ${scheme.iconBg} ${scheme.iconText} transition-transform duration-300 group-hover:scale-110 flex-shrink-0`}>
+            <Icon className="w-5 h-5 md:w-6 md:h-6" />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/60 mb-0.5 truncate">
+              {label}
+            </p>
+            <div className="text-xl md:text-2xl font-black tracking-tight text-foreground">
+              {value}
             </div>
           </div>
         </CardContent>
@@ -224,10 +265,9 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
         </div>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0" data-testid={`text-quiz-accuracy-${index}`}>
-        <span className={`text-lg font-bold ${
-          group.bestAccuracy >= 80 ? "text-emerald-500" :
+        <span className={`text-lg font-bold ${group.bestAccuracy >= 80 ? "text-emerald-500" :
           group.bestAccuracy >= 60 ? "text-amber-500" : "text-rose-500"
-        }`}>
+          }`}>
           {group.bestAccuracy}%
         </span>
         {hasMultipleAttempts && (
@@ -292,10 +332,9 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <span className={`text-sm font-semibold ${
-                        attempt.accuracy >= 80 ? "text-emerald-500" :
+                      <span className={`text-sm font-semibold ${attempt.accuracy >= 80 ? "text-emerald-500" :
                         attempt.accuracy >= 60 ? "text-amber-500" : "text-rose-500"
-                      }`}>
+                        }`}>
                         {attempt.accuracy}%
                       </span>
                       {attempt.accuracy >= 80 ? (
@@ -354,7 +393,7 @@ export default function ProgressPage() {
     if (history.length === 0) return [];
 
     const grouped: Record<string, { date: string; dateLabel: string; entries: Record<string, number[]> }> = {};
-    
+
     history.forEach(item => {
       const dateKey = format(parseISO(item.date), "yyyy-MM-dd");
       const dateLabel = format(parseISO(item.date), "M/d");
@@ -490,7 +529,7 @@ export default function ProgressPage() {
                   label="ACCURACY"
                   value={`${averageAccuracy}%`}
                   icon={() => <FontAwesomeIcon icon={faBullseye} className="h-6 w-6" />}
-                  gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
+                  color="emerald"
                   isActive={totalAttempts > 0}
                   testId="stat-avg-accuracy"
                 />
@@ -498,24 +537,24 @@ export default function ProgressPage() {
                   label="QUIZZES TAKEN"
                   value={totalAttempts}
                   icon={() => <FontAwesomeIcon icon={faClipboardList} className="h-6 w-6" />}
-                  gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+                  color="blue"
                   testId="stat-total-attempts"
                 />
                 <StatCard
                   label="TREND"
                   value={
                     trend.trend === "up" ? `+${trend.change}%` :
-                    trend.trend === "down" ? `-${trend.change}%` : "—"
+                      trend.trend === "down" ? `-${trend.change}%` : "—"
                   }
                   icon={() => {
                     if (trend.trend === "up") return <TrendingUp className="h-6 w-6" />;
                     if (trend.trend === "down") return <TrendingDown className="h-6 w-6" />;
                     return <FontAwesomeIcon icon={faChartSimple} className="h-6 w-6" />;
                   }}
-                  gradient={
-                    trend.trend === "up" ? "bg-gradient-to-br from-teal-500 to-teal-600" :
-                    trend.trend === "down" ? "bg-gradient-to-br from-rose-500 to-rose-600" :
-                    "bg-gradient-to-br from-slate-500 to-slate-600"
+                  color={
+                    trend.trend === "up" ? "teal" :
+                      trend.trend === "down" ? "rose" :
+                        "slate"
                   }
                   isActive={trend.trend !== "neutral"}
                   testId="stat-trend"
@@ -686,10 +725,9 @@ export default function ProgressPage() {
                                 </div>
                                 <div className="mt-4 grid grid-cols-2 gap-3">
                                   <div className="text-center p-2.5 rounded-lg bg-muted/50" data-testid={`stat-subject-avg-${stat.category.toLowerCase().replace(/\//g, '-')}`}>
-                                    <div className={`text-xl font-bold ${
-                                      stat.avgAccuracy >= 80 ? "text-emerald-500" :
+                                    <div className={`text-xl font-bold ${stat.avgAccuracy >= 80 ? "text-emerald-500" :
                                       stat.avgAccuracy >= 60 ? "text-amber-500" : "text-rose-500"
-                                    }`}>
+                                      }`}>
                                       {stat.avgAccuracy}%
                                     </div>
                                     <div className="text-[10px] text-muted-foreground mt-0.5">Average</div>

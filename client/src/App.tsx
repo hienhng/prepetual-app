@@ -151,27 +151,44 @@ function PublicHeader() {
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2" data-testid="link-logo">
-          <img 
-            src={logoImage} 
-            alt="Prepetual Logo" 
-            className="w-9 h-9 rounded-full object-cover"
-          />
-          <span className="pb-1 text-xl font-brand text-foreground hidden sm:inline">prepetual</span>
+    <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[96%] max-w-6xl transition-all duration-300">
+      <div className="bg-background/40 backdrop-blur-lg border border-border/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.08)] rounded-full px-5 sm:px-8 h-16 flex items-center justify-between gap-4">
+        <Link href="/" className="flex items-center gap-3 group" data-testid="link-logo">
+          <div className="relative">
+            <img
+              src={logoImage}
+              alt="Prepetual Logo"
+              className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 transition-transform duration-500 group-hover:rotate-[360deg]"
+            />
+            <div className="absolute inset-0 rounded-full bg-primary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          </div>
+          <span className="pb-0.5 text-2xl font-brand font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent hidden sm:inline tracking-tight">
+            prepetual
+          </span>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:gap-4">
           <ThemeToggle />
           {!isLoading && (
-            <>
-              <Button variant="ghost" onClick={openLoginDialog} data-testid="button-login">
+            <div className="flex items-center gap-2 sm:gap-4 border-l border-border/40 pl-3 sm:pl-6 ml-1 sm:ml-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={openLoginDialog}
+                className="rounded-full text-sm font-semibold hover:bg-foreground/5 transition-all duration-300"
+                data-testid="button-login"
+              >
                 Log in
               </Button>
-              <Button variant="default" onClick={openSignUpDialog} data-testid="button-signup">
+              <Button
+                variant="default"
+                size="lg"
+                onClick={openSignUpDialog}
+                className="rounded-full text-sm font-bold shadow-[0_4px_12px_rgba(var(--primary),0.2)] px-8 bg-primary hover:bg-primary/90 text-primary-foreground border-none transition-all duration-300 hover:scale-[1.03] active:scale-95"
+                data-testid="button-signup"
+              >
                 Sign up
               </Button>
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -242,7 +259,7 @@ function AuthenticatedHeader() {
                 Settings
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={async () => {
                 await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
                 queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
@@ -318,7 +335,7 @@ function PublicLayout() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col pt-16">
+    <div className="min-h-screen flex flex-col">
       <PublicHeader />
       <main className="flex-1">
         <PublicRouter />
@@ -344,7 +361,7 @@ function AppContent() {
 
 function AppWithAuth() {
   const [, setLocation] = useLocation();
-  
+
   return (
     <AuthDialogProvider navigate={setLocation}>
       <QuizProvider>

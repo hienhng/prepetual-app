@@ -91,9 +91,12 @@ export default function FolderPage() {
     mutationFn: async ({ quizId, isPublic }: { quizId: string; isPublic: boolean }) => {
       return apiRequest("PUT", `/api/quiz/${quizId}`, { isPublic });
     },
-    onSuccess: (_, { isPublic }) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/public-quizzes"] });
+    onSuccess: async (_, { isPublic }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/public-quizzes"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/folders"] })
+      ]);
       toast({
         title: isPublic ? "Quiz shared" : "Quiz hidden",
         description: isPublic
@@ -110,8 +113,11 @@ export default function FolderPage() {
     mutationFn: async (quizId: string) => {
       return apiRequest("PUT", `/api/quiz/${quizId}`, { folderId: null });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/folders"] })
+      ]);
       toast({ title: "Quiz removed from folder" });
     },
     onError: () => {
@@ -139,9 +145,11 @@ export default function FolderPage() {
     mutationFn: async () => {
       return apiRequest("DELETE", `/api/folders/${folderId}`);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["/api/folders"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] })
+      ]);
       toast({ title: "Folder deleted" });
       setLocation("/history");
     },
@@ -175,10 +183,14 @@ export default function FolderPage() {
       ];
       await Promise.all(promises);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       setAddQuizzesOpen(false);
       setSelectedQuizIds(new Set());
-      queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
+      // Await invalidation to ensure UI updates immediately
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/folders"] })
+      ]);
       toast({ title: "Quizzes updated" });
     },
     onError: () => {
@@ -431,113 +443,150 @@ export default function FolderPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {folderQuizzes.map((quiz, index) => (
-              <motion.div
-                key={quiz.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.025 }}
-              >
-                <Card className="overflow-visible" data-testid={`card-quiz-${quiz.id}`}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center shrink-0 text-primary">
-                        {getCategoryIcon(quiz.category)}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-medium text-sm truncate" data-testid={`text-quiz-title-${quiz.id}`}>
-                          {quiz.title}
-                        </h3>
-                        <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground flex-wrap">
-                          <span>{(quiz.questions as any[]).length}q</span>
-                          <span className="text-border">·</span>
-                          <span className={`capitalize ${getDifficultyColor(quiz.difficulty)}`}>
-                            {quiz.difficulty || "medium"}
-                          </span>
-                          <span className="text-border">·</span>
-                          <span>{formatDate(quiz.createdAt)}</span>
-                          {quiz.isPublic === 1 && (
-                            <>
-                              <span className="text-border">·</span>
-                              <span className="text-green-600 dark:text-green-400">Public</span>
-                            </>
-                          )}
+            {folderQuizzes.map((quiz, index) => {
+              const cat = quiz.category || "Others/General";
+              const colorClass =
+                cat === "Math" ? "text-blue-600 bg-blue-500/10 border-blue-200/50" :
+                  cat === "Science" ? "text-emerald-600 bg-emerald-500/10 border-emerald-200/50" :
+                    cat === "English" || cat === "Global Languages" ? "text-violet-600 bg-violet-500/10 border-violet-200/50" :
+                      cat === "Social Studies" ? "text-indigo-600 bg-indigo-500/10 border-indigo-200/50" :
+                        "text-slate-600 bg-slate-500/10 border-slate-200/50";
+
+              return (
+                <motion.div
+                  key={quiz.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.025 }}
+                >
+                  <Card
+                    className="group overflow-hidden border-border/40 hover:border-primary/30 hover:bg-muted/10 transition-all duration-200 shadow-none rounded-xl"
+                    data-testid={`card-quiz-${quiz.id}`}
+                  >
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${colorClass} transition-transform duration-300 group-hover:scale-105`}>
+                          {getCategoryIcon(cat)}
                         </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <Button
-                          onClick={() => handleRetake(quiz)}
-                          size="sm"
-                          data-testid={`button-retake-${quiz.id}`}
-                        >
-                          <Play className="h-3 w-3 mr-1 fill-current" />
-                          Take
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => handleStudy(quiz)}
-                          size="sm"
-                          data-testid={`button-study-${quiz.id}`}
-                        >
-                          <BookOpen className="h-3 w-3 mr-1" />
-                          Review
-                        </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
+
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-bold text-sm sm:text-base leading-tight truncate text-foreground group-hover:text-primary transition-colors" data-testid={`text-quiz-title-${quiz.id}`}>
+                            {quiz.title}
+                          </h3>
+
+                          <div className="flex items-center gap-3 mt-1.5 text-[11px] font-medium text-muted-foreground/70">
+                            <div className="flex items-center gap-1">
+                              {formatDate(quiz.createdAt)}
+                            </div>
+                            <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                            <div className="flex items-center gap-1">
+                              {(quiz.questions as any[]).length} questions
+                            </div>
+                            <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                            <div className={`capitalize ${getDifficultyColor(quiz.difficulty)}`}>
+                              {quiz.difficulty || "medium"}
+                            </div>
+                            {quiz.isPublic === 1 && (
+                              <>
+                                <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                                <div className="text-green-600 dark:text-green-400 font-bold">Public</div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="hidden sm:flex items-center gap-2 shrink-0">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-3 text-xs font-bold hover:bg-primary/10 hover:text-primary rounded-lg"
+                            onClick={() => handleStudy(quiz)}
+                            data-testid={`button-study-${quiz.id}`}
+                          >
+                            <BookOpen className="h-3.5 w-3.5 mr-1.5" />
+                            Review
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="h-8 px-4 text-xs font-bold rounded-lg shadow-none"
+                            onClick={() => handleRetake(quiz)}
+                            data-testid={`button-retake-${quiz.id}`}
+                          >
+                            <Play className="h-3.5 w-3.5 mr-1.5 fill-current" />
+                            Take
+                          </Button>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <div className="sm:hidden">
                             <Button
                               size="icon"
                               variant="ghost"
-                              data-testid={`button-more-${quiz.id}`}
+                              className="h-8 w-8 text-primary"
+                              onClick={() => handleRetake(quiz)}
                             >
-                              <MoreVertical className="h-4 w-4" />
+                              <Play className="h-4 w-4 fill-current" />
                             </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEdit(quiz)} data-testid={`button-edit-${quiz.id}`}>
-                              <Edit2 className="h-3.5 w-3.5 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => togglePublicMutation.mutate({
-                                quizId: quiz.id,
-                                isPublic: quiz.isPublic !== 1
-                              })}
-                              data-testid={`button-toggle-public-${quiz.id}`}
-                            >
-                              {quiz.isPublic === 1 ? (
-                                <><GlobeLock className="h-3.5 w-3.5 mr-2" />Make Private</>
-                              ) : (
-                                <><Globe className="h-3.5 w-3.5 mr-2" />Share Publicly</>
-                              )}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleShare(quiz.id)} data-testid={`button-share-${quiz.id}`}>
-                              <Share2 className="h-3.5 w-3.5 mr-2" />
-                              Copy Link
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => removeFromFolderMutation.mutate(quiz.id)}
-                              data-testid={`button-remove-from-folder-${quiz.id}`}
-                            >
-                              <X className="h-3.5 w-3.5 mr-2" />
-                              Remove from Folder
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={() => setQuizToDelete(quiz)}
-                              data-testid={`button-delete-${quiz.id}`}
-                            >
-                              <Trash2 className="h-3.5 w-3.5 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                          </div>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+                                data-testid={`button-more-${quiz.id}`}
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 shadow-xl border-border/50">
+                              <DropdownMenuItem onClick={() => handleEdit(quiz)} data-testid={`button-edit-${quiz.id}`}>
+                                <Edit2 className="h-3.5 w-3.5 mr-2" />
+                                Edit Quiz
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => togglePublicMutation.mutate({
+                                  quizId: quiz.id,
+                                  isPublic: quiz.isPublic !== 1
+                                })}
+                                data-testid={`button-toggle-public-${quiz.id}`}
+                              >
+                                {quiz.isPublic === 1 ? (
+                                  <><GlobeLock className="h-3.5 w-3.5 mr-2" />Draft Mode</>
+                                ) : (
+                                  <><Globe className="h-3.5 w-3.5 mr-2" />Publish to Library</>
+                                )}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleShare(quiz.id)} data-testid={`button-share-${quiz.id}`}>
+                                <Share2 className="h-3.5 w-3.5 mr-2" />
+                                Copy Share Link
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => removeFromFolderMutation.mutate(quiz.id)}
+                                data-testid={`button-remove-from-folder-${quiz.id}`}
+                              >
+                                <X className="h-3.5 w-3.5 mr-2" />
+                                Remove from Folder
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                                onClick={() => setQuizToDelete(quiz)}
+                                data-testid={`button-delete-${quiz.id}`}
+                              >
+                                <Trash2 className="h-3.5 w-3.5 mr-2" />
+                                Permanently Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </motion.div>
@@ -588,23 +637,36 @@ export default function FolderPage() {
             {allQuizzes.length > 0 ? (
               allQuizzes.map(quiz => {
                 const isSelected = selectedQuizIds.has(quiz.id);
+                const cat = quiz.category || "Others/General";
                 return (
                   <div
                     key={quiz.id}
-                    className={`flex items-center gap-3 p-3 rounded-md cursor-pointer select-none flex-wrap ${isSelected ? "bg-primary/10" : "bg-muted/30"}`}
+                    className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer select-none transition-all border ${isSelected
+                      ? "bg-primary/5 border-primary/20"
+                      : "bg-muted/10 border-transparent hover:border-border/50"
+                      }`}
                     onClick={() => toggleQuizSelection(quiz.id)}
                     data-testid={`select-quiz-${quiz.id}`}
                   >
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? "bg-primary border-primary" : "border-muted-foreground/30"}`}>
-                      {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
+                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${isSelected
+                      ? "bg-primary border-primary"
+                      : "border-muted-foreground/30"
+                      }`}>
+                      {isSelected && <Check className="h-3 w-3 text-primary-foreground stroke-[3px]" />}
                     </div>
-                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <div className="w-7 h-7 rounded bg-primary/10 flex items-center justify-center shrink-0 text-primary">
-                        {getCategoryIcon(quiz.category)}
+
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${cat === "Math" ? "text-blue-600 bg-blue-500/10 border-blue-200/50" :
+                        cat === "Science" ? "text-emerald-600 bg-emerald-500/10 border-emerald-200/50" :
+                          cat === "English" || cat === "Global Languages" ? "text-violet-600 bg-violet-500/10 border-violet-200/50" :
+                            cat === "Social Studies" ? "text-indigo-600 bg-indigo-500/10 border-indigo-200/50" :
+                              "text-slate-600 bg-slate-500/10 border-slate-200/50"
+                        }`}>
+                        {getCategoryIcon(cat)}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">{quiz.title}</p>
-                        <p className="text-[11px] text-muted-foreground">
+                        <p className="text-sm font-bold truncate text-foreground">{quiz.title}</p>
+                        <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/60">
                           {(quiz.questions as any[]).length} questions
                         </p>
                       </div>

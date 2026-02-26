@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import, FileQuestionIcon, Settings2 } from "lucide-react";
+import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, CheckSquare, ToggleLeft, MessageSquare, Gauge, Import, FileQuestionIcon, Settings2, ArrowRight } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,11 +17,11 @@ type QuizMode = "generate" | "import";
 
 export function QuizGenerator() {
   const [, setLocation] = useLocation();
-  const { 
-    extractedText, setExtractedText, 
-    sourceMaterial, setSourceMaterial, 
-    setCurrentQuiz, 
-    setIsLoading, isLoading, 
+  const {
+    extractedText, setExtractedText,
+    sourceMaterial, setSourceMaterial,
+    setCurrentQuiz,
+    setIsLoading, isLoading,
     setLoadingMessage, loadingMessage,
     processingProgress, setProcessingProgress,
     currentGenerationStep, setCurrentGenerationStep
@@ -43,10 +43,10 @@ export function QuizGenerator() {
     if (isLoading) {
       // Different settings for generate vs import mode
       const isImportMode = mode === "import";
-      
+
       let totalDuration: number;
       let steps: { threshold: number; step: string }[];
-      
+
       if (isImportMode) {
         // Import mode - typically faster, simpler steps
         totalDuration = 12000;
@@ -75,7 +75,7 @@ export function QuizGenerator() {
           { threshold: 90, step: "finalizing" },
         ];
       }
-      
+
       const updateInterval = 50;
       const maxProgress = 90;
 
@@ -91,16 +91,16 @@ export function QuizGenerator() {
         const linearProgress = Math.min(elapsed / totalDuration, 1);
         const easedProgress = linearProgress * (2 - linearProgress);
         const progress = Math.min(easedProgress * maxProgress, maxProgress);
-        
+
         setProcessingProgress(progress);
-        
+
         while (currentStepIndex < steps.length && progress >= steps[currentStepIndex].threshold) {
           const step = steps[currentStepIndex].step;
           setCurrentGenerationStep(step);
           setLoadingMessage(getStepMessage(step, isImportMode));
           currentStepIndex++;
         }
-        
+
         if (progress >= maxProgress) {
           clearInterval(interval);
         }
@@ -130,7 +130,7 @@ export function QuizGenerator() {
       };
       return importMessages[step] || "Processing...";
     }
-    
+
     const messages: Record<string, string> = {
       starting: "Starting quiz generation...",
       reading: "Reading your study material...",
@@ -163,7 +163,7 @@ export function QuizGenerator() {
     setIsLoading(true);
     setProcessingProgress(0);
     setCurrentGenerationStep("reading");
-    
+
     if (mode === "import") {
       setLoadingMessage("AI is parsing your questions and finding answers...");
       // Use non-streaming endpoint for import mode
@@ -185,12 +185,12 @@ export function QuizGenerator() {
         clearJob();
         setExtractedText("");
         // Preserve documentImages for viewing in quiz player
-        setSourceMaterial({ 
-          type: sourceMaterial.type, 
-          text: null, 
-          imageDataUrl: sourceMaterial.imageDataUrl, 
-          isOfficeWithImages: sourceMaterial.isOfficeWithImages, 
-          documentImages: documentImages 
+        setSourceMaterial({
+          type: sourceMaterial.type,
+          text: null,
+          imageDataUrl: sourceMaterial.imageDataUrl,
+          isOfficeWithImages: sourceMaterial.isOfficeWithImages,
+          documentImages: documentImages
         });
         await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
         setLocation("/history");
@@ -209,12 +209,12 @@ export function QuizGenerator() {
     try {
       const sourceImageUrl = sourceMaterial.type === "image" ? sourceMaterial.imageDataUrl : null;
       const isImageOnly = sourceMaterial.isImageOnly === true;
-      const body = { 
-        text: extractedText, 
-        questionCount, 
-        questionTypes, 
-        difficulty, 
-        sourceImageUrl, 
+      const body = {
+        text: extractedText,
+        questionCount,
+        questionTypes,
+        difficulty,
+        sourceImageUrl,
         documentImages: documentImages.length > 0 ? documentImages : undefined,
         isImageOnly,
       };
@@ -251,7 +251,7 @@ export function QuizGenerator() {
             try {
               const data = JSON.parse(line.slice(6));
               console.log("[SSE] Received:", data);
-              
+
               if (data.type === "progress") {
                 console.log("[SSE] Progress update:", data.step, data.progress);
                 setProcessingProgress(data.progress);
@@ -262,27 +262,27 @@ export function QuizGenerator() {
                 setProcessingProgress(98);
                 setCurrentGenerationStep("saving");
                 setLoadingMessage("Saving your quiz...");
-                
+
                 // Brief pause to show saving state
                 await new Promise(resolve => setTimeout(resolve, 500));
-                
+
                 setProcessingProgress(100);
                 setCurrentGenerationStep("complete");
                 setLoadingMessage("Quiz created successfully!");
-                
+
                 // Another brief pause before redirect
                 await new Promise(resolve => setTimeout(resolve, 800));
-                
+
                 setCurrentQuiz(data.quiz);
                 clearJob();
                 setExtractedText("");
                 // Preserve documentImages for viewing in quiz player
-                setSourceMaterial({ 
-                  type: sourceMaterial.type, 
-                  text: null, 
-                  imageDataUrl: sourceMaterial.imageDataUrl, 
-                  isOfficeWithImages: sourceMaterial.isOfficeWithImages, 
-                  documentImages: documentImages 
+                setSourceMaterial({
+                  type: sourceMaterial.type,
+                  text: null,
+                  imageDataUrl: sourceMaterial.imageDataUrl,
+                  isOfficeWithImages: sourceMaterial.isOfficeWithImages,
+                  documentImages: documentImages
                 });
                 await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
                 setLocation("/history");
@@ -307,7 +307,7 @@ export function QuizGenerator() {
 
   const truncatedText = extractedText?.substring(0, 300) || "";
   const hasMoreText = (extractedText?.length || 0) > 300;
-  
+
   // Check if we have images to display (from document images or single image upload)
   const singleImageUrl = sourceMaterial?.imageDataUrl;
   const allImages = singleImageUrl ? [singleImageUrl] : documentImages;
@@ -334,8 +334,8 @@ export function QuizGenerator() {
               className="relative max-w-[90vw] max-h-[90vh]"
               onClick={(e) => e.stopPropagation()}
             >
-              <img 
-                src={expandedImage} 
+              <img
+                src={expandedImage}
                 alt="Expanded view"
                 className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
               />
@@ -372,38 +372,39 @@ export function QuizGenerator() {
                   </p>
                 </div>
               </div>
-              
+
               {/* Image Grid Gallery */}
-              <div className="bg-white/60 dark:bg-background/60 rounded-lg p-3 border">
-                <div className={`grid gap-2 ${
-                  allImages.length === 1 ? "grid-cols-1" :
+              <div className="bg-background/40 dark:bg-background/20 rounded-2xl p-3 border border-border/50 backdrop-blur-sm shadow-inner">
+                <div className={`grid gap-2.5 ${allImages.length === 1 ? "grid-cols-1" :
                   allImages.length === 2 ? "grid-cols-2" :
-                  "grid-cols-2 sm:grid-cols-3"
-                }`}>
+                    "grid-cols-3 sm:grid-cols-4"
+                  }`}>
                   {allImages.map((img, index) => (
-                    <motion.div 
-                      key={index} 
-                      className="relative aspect-[4/3] rounded-lg overflow-hidden border shadow-sm cursor-pointer group"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                    <motion.div
+                      key={index}
+                      className="relative aspect-square rounded-xl overflow-hidden border border-border/50 shadow-sm cursor-pointer group"
+                      whileHover={{ scale: 1.05, zIndex: 10 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => setExpandedImage(img)}
                     >
-                      <img 
-                        src={img} 
-                        alt={`Document page ${index + 1}`} 
-                        className="w-full h-full object-cover"
+                      <img
+                        src={img}
+                        alt={`Document page ${index + 1}`}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-black/80 rounded-full p-2">
-                          <Sparkles className="w-4 h-4 text-foreground" />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-primary/20 transition-colors flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 bg-white/90 dark:bg-black/80 rounded-full p-2.5 shadow-xl">
+                          <Sparkles className="w-4 h-4 text-primary" />
                         </div>
                       </div>
                     </motion.div>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground mt-2 text-center">Click any image to expand</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 mt-3 text-center">
+                  Click to inspect pages
+                </p>
               </div>
-              
+
               {/* Toggle to show text */}
               {extractedText && (
                 <Button
@@ -439,8 +440,8 @@ export function QuizGenerator() {
                   </p>
                 </div>
               </div>
-              <div className="bg-white/60 dark:bg-background/60 rounded-lg p-4 border max-h-[300px] overflow-y-auto">
-                <p className={`text-sm text-muted-foreground whitespace-pre-wrap ${!showFullText ? "line-clamp-4" : ""}`}>
+              <div className="bg-background/40 dark:bg-background/20 rounded-2xl p-4 border border-border/50 backdrop-blur-sm shadow-inner max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/20">
+                <p className={`text-sm text-foreground/80 leading-relaxed font-medium whitespace-pre-wrap ${!showFullText ? "line-clamp-4" : ""}`}>
                   {showFullText ? extractedText : truncatedText}
                   {!showFullText && hasMoreText && "..."}
                 </p>
@@ -448,25 +449,25 @@ export function QuizGenerator() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="mt-2 gap-1 -ml-2"
+                    className="mt-3 h-8 gap-2 rounded-lg bg-background/50 border border-border/50 text-xs font-bold uppercase tracking-wider hover:bg-background transition-colors"
                     onClick={() => setShowFullText(!showFullText)}
                     data-testid="button-toggle-text"
                   >
                     {showFullText ? (
                       <>
-                        <ChevronUp className="h-4 w-4" />
-                        Show less
+                        <ChevronUp className="h-3 w-3" />
+                        Collapse
                       </>
                     ) : (
                       <>
-                        <ChevronDown className="h-4 w-4" />
-                        Show full text
+                        <ChevronDown className="h-3 w-3" />
+                        Expand Full Text
                       </>
                     )}
                   </Button>
                 )}
               </div>
-              
+
               {/* Toggle back to images */}
               {hasVisualContent && showTextInstead && (
                 <Button
@@ -493,32 +494,36 @@ export function QuizGenerator() {
           whileTap={{ scale: 0.99 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
-          <Card 
-            className={`cursor-pointer overflow-visible border-2 transition-all duration-200 hover:shadow-lg ${
-              mode === "generate" 
-                ? "border-violet-500 bg-violet-50 dark:bg-violet-950/30" 
-                : "border-muted bg-muted/20 hover:border-violet-300"
-            }`}
+          <Card
+            className={`group relative overflow-hidden cursor-pointer border-2 transition-all duration-500 hover:shadow-2xl ${mode === "generate"
+              ? "border-violet-500 bg-violet-500/[0.03] shadow-violet-500/10"
+              : "border-border/50 bg-background/50 hover:border-violet-300"
+              }`}
             onClick={() => setMode("generate")}
             data-testid="mode-generate"
           >
-            <CardContent className="p-5 flex items-center gap-5">
-              <div className="w-14 h-14 rounded-xl bg-violet-500 flex items-center justify-center shadow-lg flex-shrink-0">
-                <Sparkles className="w-7 h-7 text-white" />
+            {/* Active Highlight */}
+            {mode === "generate" && (
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-violet-500" />
+            )}
+
+            <CardContent className="p-6 flex items-center gap-6">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:scale-110 ${mode === "generate" ? "bg-violet-500 text-white" : "bg-muted text-muted-foreground"
+                }`}>
+                <Sparkles className="w-8 h-8" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-lg text-foreground mb-1">
-                  Generate New Quiz
+                <h3 className={`font-black text-xl tracking-tight mb-0.5 ${mode === "generate" ? "text-violet-600 dark:text-violet-400" : "text-foreground"}`}>
+                  Smart Practice
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  AI creates new questions from your study material
+                <p className="text-sm font-medium text-muted-foreground leading-snug">
+                  Prepetual creates original questions based on your specific notes.
                 </p>
               </div>
               <div className="flex-shrink-0">
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                  mode === "generate" ? "border-violet-500 bg-violet-500" : "border-muted-foreground/30"
-                }`}>
-                  {mode === "generate" && <div className="w-2 h-2 rounded-full bg-white" />}
+                <div className={`w-6 h-6 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${mode === "generate" ? "border-violet-500 bg-violet-500" : "border-muted-foreground/30"
+                  }`}>
+                  {mode === "generate" && <div className="w-2.5 h-2.5 rounded-full bg-white animate-in zoom-in duration-300" />}
                 </div>
               </div>
             </CardContent>
@@ -532,32 +537,36 @@ export function QuizGenerator() {
           whileTap={{ scale: 0.99 }}
           transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.05 }}
         >
-          <Card 
-            className={`cursor-pointer overflow-visible border-2 transition-all duration-200 hover:shadow-lg ${
-              mode === "import" 
-                ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30" 
-                : "border-muted bg-muted/20 hover:border-amber-300"
-            }`}
+          <Card
+            className={`group relative overflow-hidden cursor-pointer border-2 transition-all duration-500 hover:shadow-2xl ${mode === "import"
+              ? "border-amber-500 bg-amber-500/[0.03] shadow-amber-500/10"
+              : "border-border/50 bg-background/50 hover:border-amber-300"
+              }`}
             onClick={() => setMode("import")}
             data-testid="mode-import"
           >
-            <CardContent className="p-5 flex items-center gap-5">
-              <div className="w-14 h-14 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg flex-shrink-0">
-                <Import className="w-7 h-7 text-white" />
+            {/* Active Highlight */}
+            {mode === "import" && (
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-500" />
+            )}
+
+            <CardContent className="p-6 flex items-center gap-6">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:scale-110 ${mode === "import" ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"
+                }`}>
+                <Import className="w-8 h-8" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-lg text-foreground mb-1">
-                  Import Existing Quiz
+                <h3 className={`font-black text-xl tracking-tight mb-0.5 ${mode === "import" ? "text-amber-600 dark:text-amber-400" : "text-foreground"}`}>
+                  Import Questions
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  Parse questions from an exam or worksheet
+                <p className="text-sm font-medium text-muted-foreground leading-snug">
+                  Already have an exam? Prepetual can scan it and find the answers.
                 </p>
               </div>
               <div className="flex-shrink-0">
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                  mode === "import" ? "border-amber-500 bg-amber-500" : "border-muted-foreground/30"
-                }`}>
-                  {mode === "import" && <div className="w-2 h-2 rounded-full bg-white" />}
+                <div className={`w-6 h-6 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${mode === "import" ? "border-amber-500 bg-amber-500" : "border-muted-foreground/30"
+                  }`}>
+                  {mode === "import" && <div className="w-2.5 h-2.5 rounded-full bg-white animate-in zoom-in duration-300" />}
                 </div>
               </div>
             </CardContent>
@@ -618,15 +627,14 @@ export function QuizGenerator() {
                       key={level}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className={`p-3 rounded-lg border-2 font-medium transition-all ${
-                        difficulty === level 
-                          ? color === "green" 
-                            ? "border-green-500 bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300"
-                            : color === "amber"
+                      className={`p-3 rounded-lg border-2 font-medium transition-all ${difficulty === level
+                        ? color === "green"
+                          ? "border-green-500 bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300"
+                          : color === "amber"
                             ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300"
                             : "border-red-500 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300"
-                          : "border-muted hover:border-muted-foreground/30 text-muted-foreground"
-                      }`}
+                        : "border-muted hover:border-muted-foreground/30 text-muted-foreground"
+                        }`}
                       onClick={() => setDifficulty(level)}
                       data-testid={`button-difficulty-${level}`}
                     >
@@ -648,40 +656,45 @@ export function QuizGenerator() {
                 </div>
                 <div className="space-y-2">
                   {([
-                    { type: "multiple_choice" as QuestionType, icon: CheckSquare, label: "Multiple Choice", desc: "Pick the correct answer", color: "blue" },
-                    { type: "true_false" as QuestionType, icon: ToggleLeft, label: "True/False", desc: "Decide if statements are correct", color: "violet" },
-                    { type: "short_answer" as QuestionType, icon: MessageSquare, label: "Short Answer", desc: "Write brief responses", color: "orange" }
+                    { type: "multiple_choice" as QuestionType, icon: CheckSquare, label: "Multiple Choice", desc: "A, B, C or D", color: "blue" },
+                    { type: "true_false" as QuestionType, icon: ToggleLeft, label: "True / False", desc: "Right or Wrong", color: "violet" },
+                    { type: "short_answer" as QuestionType, icon: MessageSquare, label: "Short Answer", desc: "Write it out", color: "orange" }
                   ]).map(({ type, icon: Icon, label, desc, color }) => (
                     <motion.div
                       key={type}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
-                      className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                        questionTypes.includes(type)
-                          ? color === "blue"
-                            ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30"
-                            : color === "violet"
-                            ? "border-violet-500 bg-violet-50 dark:bg-violet-950/30"
-                            : "border-orange-500 bg-orange-50 dark:bg-orange-950/30"
-                          : "border-muted hover:border-muted-foreground/30"
-                      }`}
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`relative flex flex-col gap-3 p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${questionTypes.includes(type)
+                        ? color === "blue"
+                          ? "border-blue-500 bg-blue-500/[0.03] shadow-lg shadow-blue-500/5"
+                          : color === "violet"
+                            ? "border-violet-500 bg-violet-500/[0.03] shadow-lg shadow-violet-500/5"
+                            : "border-orange-500 bg-orange-500/[0.03] shadow-lg shadow-orange-500/5"
+                        : "border-border/50 bg-background/50 hover:border-muted-foreground/30"
+                        }`}
                       onClick={() => toggleQuestionType(type)}
                       data-testid={`option-${type.replace("_", "-")}`}
                     >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm ${
-                        color === "blue" ? "bg-blue-500" : color === "violet" ? "bg-violet-500" : "bg-orange-500"
-                      }`}>
-                        <Icon className="w-5 h-5 text-white" />
+                      <div className="flex items-start justify-between">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${color === "blue" ? "bg-blue-500" : color === "violet" ? "bg-violet-500" : "bg-orange-500"
+                          }`}>
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <Checkbox
+                          checked={questionTypes.includes(type)}
+                          onCheckedChange={() => toggleQuestionType(type)}
+                          className={`pointer-events-none rounded-full ${questionTypes.includes(type) ? "border-transparent bg-foreground" : "border-border"
+                            }`}
+                        />
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-foreground">{label}</p>
-                        <p className="text-xs text-muted-foreground">{desc}</p>
+                      <div>
+                        <p className={`font-black text-sm tracking-tight ${questionTypes.includes(type) ? "text-foreground" : "text-muted-foreground"}`}>
+                          {label}
+                        </p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                          {desc}
+                        </p>
                       </div>
-                      <Checkbox
-                        checked={questionTypes.includes(type)}
-                        onCheckedChange={() => toggleQuestionType(type)}
-                        className="pointer-events-none"
-                      />
                     </motion.div>
                   ))}
                 </div>
@@ -705,12 +718,14 @@ export function QuizGenerator() {
           <Button
             onClick={generateQuiz}
             disabled={isLoading || questionTypes.length === 0}
-            size="lg"
-            className="w-full gap-2 h-14 text-lg font-semibold"
+            size="xl"
+            className="w-full gap-3 h-16 text-xl font-black rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all group overflow-hidden relative"
             data-testid="button-generate-quiz"
           >
-            <Sparkles className="h-5 w-5" />
-            Generate Quiz
+            <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-primary translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out opacity-20" />
+            <Sparkles className="h-6 w-6 group-hover:rotate-12 transition-transform" />
+            Prepare Practice Quiz
+            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </motion.div>
       )}
@@ -722,34 +737,36 @@ export function QuizGenerator() {
           transition={{ delay: 0.1 }}
           className="space-y-4"
         >
-          <Card className="border-2 border-amber-200 dark:border-amber-800/50 bg-amber-50/50 dark:bg-amber-950/20">
-            <CardContent className="p-5 space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg flex-shrink-0">
-                  <Import className="w-6 h-6 text-white" />
+          <Card className="border-border/50 bg-background/50 backdrop-blur-sm overflow-hidden border-2 border-amber-500/20">
+            <CardContent className="p-8 space-y-6">
+              <div className="flex items-start gap-6">
+                <div className="w-16 h-16 rounded-2xl bg-amber-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Import className="w-8 h-8 text-white" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-lg text-foreground mb-1">How Import Works</h3>
-                  <p className="text-sm text-muted-foreground">
-                    AI scans your document to find existing questions and uses its knowledge to identify the correct answers.
+                <div className="space-y-1">
+                  <h3 className="font-black text-2xl tracking-tight text-foreground">Smart Import</h3>
+                  <p className="text-muted-foreground font-medium leading-relaxed">
+                    Already have a test? Prepetual will scan it, recognize the questions, and verify the correct answers for you.
                   </p>
                 </div>
               </div>
-              
-              <div className="bg-white/60 dark:bg-background/60 rounded-lg p-4 border">
-                <p className="text-sm font-medium text-foreground mb-2">Works best with:</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
+
+              <div className="bg-amber-500/5 rounded-2xl p-6 border border-amber-500/10">
+                <p className="inline-block text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 mb-4 bg-amber-100 dark:bg-amber-900/30 px-3 py-1 rounded-full">
+                  Perfect For
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-amber-500" />
-                    Multiple choice exams
+                    <span className="text-sm font-bold text-foreground/80">Multiple Choice</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-amber-500" />
-                    Quiz papers (A, B, C, D)
+                    <span className="text-sm font-bold text-foreground/80">Quiz Papers</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-amber-500" />
-                    Practice tests
+                    <span className="text-sm font-bold text-foreground/80">Worksheets</span>
                   </div>
                 </div>
               </div>
@@ -772,12 +789,13 @@ export function QuizGenerator() {
           <Button
             onClick={generateQuiz}
             disabled={isLoading}
-            size="lg"
-            className="w-full gap-2 h-14 text-lg font-semibold bg-amber-500 hover:bg-amber-600"
+            size="xl"
+            className="w-full gap-3 h-16 text-xl font-black rounded-2xl shadow-xl shadow-amber-500/20 hover:shadow-amber-500/30 transition-all bg-amber-500 hover:bg-amber-600 group"
             data-testid="button-import-quiz"
           >
-            <Import className="h-5 w-5" />
-            Import Quiz
+            <Import className="h-6 w-6 group-hover:-translate-y-1 transition-transform" />
+            Import Practice Quiz
+            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </motion.div>
       )}
