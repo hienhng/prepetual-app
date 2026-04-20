@@ -118,6 +118,84 @@ function AnimatedLogo() {
   );
 }
 
+function PremiumProgressBar({ progress }: { progress: number }) {
+  return (
+    <div className="relative pt-2 pb-6">
+      <div className="flex items-center justify-between mb-2.5 px-1">
+        <motion.span 
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/50"
+        >
+          Engine Status
+        </motion.span>
+        <motion.div 
+          key={Math.round(progress)}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="flex items-center gap-1.5"
+        >
+          <span className="text-lg font-black text-primary tabular-nums tracking-tighter">
+            {Math.round(progress)}
+          </span>
+          <span className="text-[10px] font-bold text-primary/40 mt-1">%</span>
+        </motion.div>
+      </div>
+      
+      <div className="relative h-2 w-full bg-primary/5 rounded-full overflow-hidden border border-white/[0.03]">
+        {/* Background shimmer */}
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent w-1/2"
+          animate={{ x: ["-100%", "200%"] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+        />
+        
+        {/* Active progress bar */}
+        <motion.div 
+          className="absolute inset-y-0 left-0 bg-primary rounded-full"
+          initial={{ width: "0%" }}
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          style={{
+            boxShadow: `0 0 20px hsl(var(--primary) / 0.4), inset 0 1px 1px rgba(255,255,255,0.3)`
+          }}
+        >
+          {/* Animated gradient strip */}
+          <div className="absolute inset-0 bg-[length:20px_20px] bg-[linear-gradient(45deg,rgba(255,255,255,0.15)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.15)_50%,rgba(255,255,255,0.15)_75%,transparent_75%,transparent)] animate-[shine_1s_linear_infinite]" />
+        </motion.div>
+        
+        {/* Leading edge glow */}
+        <motion.div 
+          className="absolute inset-y-0 w-8 blur-md bg-white/40"
+          initial={{ left: "0%" }}
+          animate={{ left: `calc(${progress}% - 16px)` }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        />
+        
+        {/* Particle spark at tip */}
+        <motion.div 
+          className="absolute top-1/2 -translate-y-1/2 w-1.5 h-4 bg-white rounded-full shadow-[0_0_15px_#fff] z-10"
+          initial={{ left: "0%" }}
+          animate={{ left: `calc(${progress}% - 3px)` }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        />
+      </div>
+      
+      {/* Decorative dots below */}
+      <div className="flex justify-between mt-3 px-0.5 opacity-20">
+        {[...Array(10)].map((_, i) => (
+          <div 
+            key={i} 
+            className={`w-1 h-1 rounded-full transition-colors duration-500 ${
+              (i + 1) * 10 <= progress ? 'bg-primary' : 'bg-white/20'
+            }`} 
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const STUDY_TIPS = [
   "Break your study sessions into 25-minute chunks with short breaks in between.",
   "Teaching someone else what you've learned is one of the best ways to retain information.",
@@ -194,59 +272,76 @@ export function QuizGenerationDialog({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="relative z-10 w-full max-w-md mx-4"
+            className="relative z-10 w-full max-w-sm mx-4"
           >
-            <div className="relative bg-card/40 border border-white/10 rounded-3xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden backdrop-blur-2xl">
-              <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+            <div className="relative bg-black/40 border border-white/5 rounded-[2.5rem] shadow-[0_0_100px_-20px_rgba(0,0,0,0.8)] overflow-hidden backdrop-blur-3xl">
+              {/* Animated orbital glow */}
+              <motion.div 
+                className="absolute -top-24 -left-24 w-48 h-48 bg-primary/20 blur-[80px] rounded-full"
+                animate={{
+                  x: [0, 100, 0],
+                  y: [0, 50, 0],
+                }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              />
+              <motion.div 
+                className="absolute -bottom-24 -right-24 w-48 h-48 bg-blue-500/10 blur-[80px] rounded-full"
+                animate={{
+                  x: [0, -80, 0],
+                  y: [0, -40, 0],
+                }}
+                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 pointer-events-none" />
               
-              <div className="p-10 text-center relative z-10">
-                <div className="mb-10 flex justify-center">
+              <div className="p-8 pt-10 text-center relative z-10">
+                <div className="mb-8 flex justify-center">
                   <AnimatedLogo />
                 </div>
 
-                <h2 className="text-2xl font-bold tracking-tight text-foreground mb-8">
+                <h2 className="text-xl font-bold tracking-tight text-white mb-2 font-brand uppercase tracking-widest text-[14px]">
                   {mode === "import" ? "Perfecting Your Quiz" : "Crafting Your Quiz"}
                 </h2>
 
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-3 px-1">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">Progress</span>
-                    <span className="text-sm font-bold text-primary tabular-nums">{Math.round(progress)}%</span>
-                  </div>
-                  <div className="relative">
-                    <Progress value={progress} className="h-1.5 bg-primary/10 [&>div]:transition-all [&>div]:duration-300 [&>div]:ease-out [&>div]:shadow-[0_0_15px_rgba(var(--primary),0.5)]" />
-                  </div>
-                </div>
+                <PremiumProgressBar progress={progress} />
 
                 <AnimatePresence mode="wait">
                   <motion.p
                     key={currentStep}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 1.05 }}
-                    transition={{ duration: 0.4, ease: "circOut" }}
-                    className="text-sm font-medium text-primary/80 min-h-[1.25rem]"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.3 }}
+                    className="text-[11px] font-bold text-primary/60 tracking-[0.15em] uppercase min-h-[1.25rem]"
                   >
                     {stepMessage}
                   </motion.p>
                 </AnimatePresence>
               </div>
 
-              <div className="px-10 pb-10 pt-0 text-center relative z-10">
-                <div className="h-px w-12 bg-primary/20 mx-auto mb-6" />
-                <div className="min-h-[3.5rem] flex items-center justify-center">
-                  <AnimatePresence mode="wait">
-                    <motion.p
-                      key={currentTipIndex}
-                      initial={{ opacity: 0, filter: "blur(4px)" }}
-                      animate={{ opacity: tipVisible ? 1 : 0, filter: tipVisible ? "blur(0px)" : "blur(4px)" }}
-                      exit={{ opacity: 0, filter: "blur(4px)" }}
-                      transition={{ duration: 0.5 }}
-                      className="text-xs italic text-muted-foreground/60 leading-relaxed max-w-[280px]"
-                    >
-                      "{STUDY_TIPS[currentTipIndex]}"
-                    </motion.p>
-                  </AnimatePresence>
+              <div className="px-8 pb-8 pt-0 relative z-10 flex flex-col items-center">
+                <div className="w-full h-px bg-white/5 mb-6" />
+                <div className="flex items-start gap-4 px-4">
+                  <div className="mt-0.5 flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+                      <Lightbulb className="w-4 h-4 text-primary" />
+                    </div>
+                  </div>
+                  <div className="flex-1 text-left min-h-[3.5rem] flex items-center">
+                    <AnimatePresence mode="wait">
+                      <motion.p
+                        key={currentTipIndex}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: tipVisible ? 1 : 0, x: tipVisible ? 0 : -10 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.5 }}
+                        className="text-[11px] text-white/40 leading-relaxed italic font-medium"
+                      >
+                        {STUDY_TIPS[currentTipIndex]}
+                      </motion.p>
+                    </AnimatePresence>
+                  </div>
                 </div>
               </div>
             </div>

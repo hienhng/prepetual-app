@@ -7,6 +7,7 @@ import {
   quizComments,
   quizVotes,
   quizProgress,
+  bugReports,
   verificationTokens,
   folders,
   type User, 
@@ -24,7 +25,9 @@ import {
   type InsertFolder,
   type Folder,
   type Question,
-  type VerificationToken
+  type VerificationToken,
+  type BugReport,
+  type InsertBugReport
 } from "@shared/schema";
 
 export interface IStorage {
@@ -70,6 +73,8 @@ export interface IStorage {
   getQuizProgressByUserId(userId: string): Promise<(QuizProgress & { quiz: Quiz })[]>;
   saveQuizProgress(progress: InsertQuizProgress): Promise<QuizProgress & { quiz: Quiz }>;
   deleteQuizProgress(userId: string, quizId: string): Promise<boolean>;
+  // Bug Reports
+  saveBugReport(report: InsertBugReport): Promise<BugReport>;
   // Folders
   createFolder(folder: InsertFolder): Promise<Folder>;
   getFoldersByUserId(userId: string): Promise<Folder[]>;
@@ -561,6 +566,11 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(folders.id, id), eq(folders.userId, userId)))
       .returning();
     return updated;
+  }
+
+  async saveBugReport(report: InsertBugReport): Promise<BugReport> {
+    const [saved] = await db.insert(bugReports).values(report).returning();
+    return saved;
   }
 }
 

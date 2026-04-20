@@ -180,10 +180,11 @@ function valuesMatch(a: string, b: string): boolean {
 }
 
 export function verifyAnswerMatchesExplanation(
-  explanation: string,
+  explanation: string | undefined,
   markedCorrect: string,
   options: string[]
 ): string | null {
+  if (!explanation) return null;
   const allMatches = explanation.match(/[=→⇒]\s*([0-9]+[.,]?[0-9]*)\s*(kg|g|m|cm|mm|km|m\/s|m\/s²|km\/h|s|n|j|w|v|a|hz|rad|mol|l|ml|°c|°f|k|pa|atm|ev|cal|%|nm|μm)?\.?(?=[\s,;.)⇒→=]|$)/gi);
 
   if (!allMatches || allMatches.length === 0) return null;
@@ -222,35 +223,31 @@ async function aiVerifyAnswers(mcQuestions: any[], logPrefix: string = "[AI VERI
       question: q.question,
       options: q.options,
       markedCorrect: q.correctAnswer,
-      explanation: q.explanation,
     }));
 
-    const verificationPrompt = `You are a strict answer verifier specializing in catching numeric and unit errors. For each question below, you must INDEPENDENTLY solve the problem and determine which option is correct. Do NOT trust the marked answer or explanation — verify by solving it yourself.
+    const verificationPrompt = `You are a strict answer verifier specializing in catching numeric and unit errors. For each question below, you must INDEPENDENTLY solve the problem and determine which option is correct. Do NOT trust the marked answer — verify by solving it yourself.
 
 STEP-BY-STEP PROCESS FOR EACH QUESTION:
 1. Read the question carefully
 2. Solve it yourself from scratch (do the math, apply the formula, check the facts)
 3. Find the option that matches YOUR calculated/determined answer
 4. Compare with the "markedCorrect" — if they differ, output YOUR answer
-5. If the answer changed, write a corrected explanation that supports the new answer
 
 CRITICAL NUMERIC/UNIT RULES:
 - 50g = 0.05kg (NOT 5kg) — always check decimal places and unit conversions
 - 0.05kg and 0,05kg are the SAME value (comma vs period decimal notation)
 - When converting: g→kg divide by 1000, kg→g multiply by 1000, cm→m divide by 100, mm→cm divide by 10
 - Common AI mistakes: off by factor of 10, 100, or 1000 in unit conversions
-- For calculations: re-do the arithmetic yourself, don't trust the explanation
+- For calculations: re-do the arithmetic yourself
 - The correct answer must have the right NUMBER and the right UNIT
-- If explanation says "50g = 0,05kg" but markedCorrect is "5kg", the correct answer is the option with "0,05kg" NOT "5kg"
+- If you calculate "0,05kg" but markedCorrect is "5kg", the correct answer is the option with "0,05kg" NOT "5kg"
 
 Questions to verify:
 ${JSON.stringify(verificationItems, null, 2)}
 
 Respond with ONLY a JSON array. For each question:
 - "correctAnswer": the EXACT text from the options array
-- "explanation": if changed, a corrected explanation; if unchanged, copy the original
-- "wrongAnswerExplanations": object mapping each WRONG option text (without prefix) to why it's wrong
-[{"index": 0, "correctAnswer": "exact option text", "explanation": "why correct", "wrongAnswerExplanations": {"wrong opt text": "why wrong", ...}}, ...]`;
+[{"index": 0, "correctAnswer": "exact option text"}, ...]`;
 
     const verifyResponse = await pRetry(
       async () => {
@@ -280,30 +277,6 @@ Respond with ONLY a JSON array. For each question:
             if (verifiedAnswer !== markedCorrect && options.includes(verifiedAnswer)) {
               console.warn(`${logPrefix} Question "${String(q.question).substring(0, 60)}..." — changing answer from "${markedCorrect}" to "${verifiedAnswer}"`);
               q.correctAnswer = verifiedAnswer;
-            }
-
-            if (v.explanation && typeof v.explanation === "string" && v.explanation.trim().length > 10) {
-              q.explanation = v.explanation.trim();
-            }
-
-            if (v.wrongAnswerExplanations && typeof v.wrongAnswerExplanations === "object") {
-              q.wrongAnswerExplanations = {};
-              for (const [key, val] of Object.entries(v.wrongAnswerExplanations)) {
-                if (val && typeof val === "string") {
-                  q.wrongAnswerExplanations[String(key).trim()] = String(val).trim();
-                }
-              }
-            }
-
-            const finalCorrect = String(q.correctAnswer).trim();
-            if (!q.wrongAnswerExplanations) q.wrongAnswerExplanations = {};
-            for (const opt of options) {
-              if (opt === finalCorrect) continue;
-              const optText = opt.replace(/^[A-D]\)\s*/, "").trim();
-              const hasExplanation = q.wrongAnswerExplanations[optText] || q.wrongAnswerExplanations[opt];
-              if (!hasExplanation) {
-                q.wrongAnswerExplanations[optText] = `This is incorrect. The correct answer is ${finalCorrect.replace(/^[A-D]\)\s*/, "").trim()}.`;
-              }
             }
           }
         }
@@ -375,10 +348,8 @@ REQUIREMENTS:
 3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
 4. Distribute question types roughly evenly among the selected types
 5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
-6. Include an explanation for why the correct answer is right
-7. For multiple choice, include explanations for why EACH wrong answer is incorrect
-8. For multiple choice, always provide exactly 4 options
-9. CATEGORY: Assign exactly ONE category from: ${categoryList}
+6. For multiple choice, always provide exactly 4 options
+7. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
    - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
    - Science: biology, chemistry, physics, earth science, etc.
@@ -389,7 +360,6 @@ REQUIREMENTS:
 FACTUAL ACCURACY (HIGHEST PRIORITY):
 - Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
 - If the source content contains a factual claim, use it as the basis for the correct answer
-- For math/science: mentally solve the problem first, determine the correct numerical result, then set correctAnswer to the option matching that result. Write the explanation afterward to show the work that leads to your already-chosen answer.
 - For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
 - For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
 - NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
@@ -399,7 +369,6 @@ CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
 - Do not contain any prefix like "A) ", "1. ", "a. ", etc. in the options or correct answer. Provide ONLY the answer text.
 - All options must be real, meaningful answers related to the question
-- The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
 ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
 - The correct answer must NOT be noticeably longer or more detailed than wrong answers
@@ -415,11 +384,7 @@ ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
 QUESTION GENERATION FLOW (MANDATORY - follow this exact order for each question):
 - Step 1: Write the question text
 - Step 2: Generate the answer options
-- Step 3: DECIDE which option is the correct answer and set "correctAnswer" — this is your commitment, do NOT change it later
-- Step 4: All other options are now wrong. Write "explanation" to explain why correctAnswer is right (for math/science, show the full calculation that arrives at the correctAnswer value)
-- Step 5: Write "wrongAnswerExplanations" — for EACH wrong option, explain the specific mistake or misconception that would lead someone to pick it
-
-SELF-CONSISTENCY CHECK: The explanation MUST support the correctAnswer you already chose. If you realize during explanation that a different option is actually correct, go back and fix the correctAnswer BEFORE writing the explanation.
+- Step 3: DECIDE which option is the correct answer and set "correctAnswer" — this is your commitment.
 
 OUTPUT FORMAT (JSON):
 {
@@ -430,13 +395,7 @@ OUTPUT FORMAT (JSON):
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
       "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
-      "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
-      "explanation": "Why correctAnswer is right. For math/science: show full calculation arriving at the correctAnswer value.",
-      "wrongAnswerExplanations": {
-        "Wrong option 1 text": "The specific mistake that leads to this wrong value",
-        "Wrong option 2 text": "The specific mistake that leads to this wrong value",
-        "Wrong option 3 text": "The specific mistake that leads to this wrong value"
-      }
+      "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)"
     }
   ]
 }
@@ -468,12 +427,10 @@ REQUIREMENTS:
 3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
 4. Distribute question types roughly evenly among the selected types
 5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
-6. Include an explanation for why the correct answer is right
-7. For multiple choice, include explanations for why EACH wrong answer is incorrect
-8. For multiple choice, always provide exactly 4 options labeled A, B, C, D
-9. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
-10. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
-11. CATEGORY: Assign exactly ONE category from: ${categoryList}
+6. For multiple choice, always provide exactly 4 options labeled A, B, C, D
+7. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
+8. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
+9. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
    - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
    - Science: biology, chemistry, physics, earth science, etc.
@@ -484,7 +441,6 @@ REQUIREMENTS:
 FACTUAL ACCURACY (HIGHEST PRIORITY):
 - Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
 - If the source content contains a factual claim, use it as the basis for the correct answer
-- For math/science: mentally solve the problem first, determine the correct numerical result, then set correctAnswer to the option matching that result. Write the explanation afterward to show the work that leads to your already-chosen answer.
 - For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
 - For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
 - NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
@@ -494,7 +450,6 @@ CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
 - Do not contain any prefix like "A) ", "1. ", "a. ", etc. in the options or correct answer. Provide ONLY the answer text.
 - All options must be real, meaningful answers related to the question
-- The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
 ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
 - The correct answer must NOT be noticeably longer or more detailed than wrong answers
@@ -510,11 +465,7 @@ ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
 QUESTION GENERATION FLOW (MANDATORY - follow this exact order for each question):
 - Step 1: Write the question text
 - Step 2: Generate the answer options
-- Step 3: DECIDE which option is the correct answer and set "correctAnswer" — this is your commitment, do NOT change it later
-- Step 4: All other options are now wrong. Write "explanation" to explain why correctAnswer is right (for math/science, show the full calculation that arrives at the correctAnswer value)
-- Step 5: Write "wrongAnswerExplanations" — for EACH wrong option, explain the specific mistake or misconception that would lead someone to pick it
-
-SELF-CONSISTENCY CHECK: The explanation MUST support the correctAnswer you already chose. If you realize during explanation that a different option is actually correct, go back and fix the correctAnswer BEFORE writing the explanation.
+- Step 3: DECIDE which option is the correct answer and set "correctAnswer" — this is your commitment.
 
 OUTPUT FORMAT (JSON):
 {
@@ -526,12 +477,6 @@ OUTPUT FORMAT (JSON):
       "question": "The question text",
       "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
       "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
-      "explanation": "Why correctAnswer is right. For math/science: show full calculation arriving at the correctAnswer value.",
-      "wrongAnswerExplanations": {
-        "Wrong option 1 text": "The specific mistake that leads to this wrong value",
-        "Wrong option 2 text": "The specific mistake that leads to this wrong value",
-        "Wrong option 3 text": "The specific mistake that leads to this wrong value"
-      },
       "imageIndex": 0
     }
   ]
@@ -565,12 +510,10 @@ REQUIREMENTS:
 3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
 4. Distribute question types roughly evenly among the selected types
 5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
-6. Include an explanation for why the correct answer is right
-7. For multiple choice, include explanations for why EACH wrong answer is incorrect
-8. For multiple choice, always provide exactly 4 options
-9. ALL questions should be based on the visual content
-10. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
-11. CATEGORY: Assign exactly ONE category from: ${categoryList}
+6. For multiple choice, always provide exactly 4 options
+7. ALL questions should be based on the visual content
+8. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
+9. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
    - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
    - Science: biology, chemistry, physics, earth science, etc.
@@ -581,7 +524,6 @@ REQUIREMENTS:
 FACTUAL ACCURACY (HIGHEST PRIORITY):
 - Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
 - If the source content contains a factual claim, use it as the basis for the correct answer
-- For math/science: mentally solve the problem first, determine the correct numerical result, then set correctAnswer to the option matching that result. Write the explanation afterward to show the work that leads to your already-chosen answer.
 - For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
 - For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
 - NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
@@ -591,7 +533,6 @@ CRITICAL RULES:
 - NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
 - Do not contain any prefix like "A) ", "1. ", "a. ", etc. in the options or correct answer. Provide ONLY the answer text.
 - All options must be real, meaningful answers related to the question
-- The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
 ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
 - The correct answer must NOT be noticeably longer or more detailed than wrong answers
@@ -607,11 +548,7 @@ ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
 QUESTION GENERATION FLOW (MANDATORY - follow this exact order for each question):
 - Step 1: Write the question text
 - Step 2: Generate the answer options
-- Step 3: DECIDE which option is the correct answer and set "correctAnswer" — this is your commitment, do NOT change it later
-- Step 4: All other options are now wrong. Write "explanation" to explain why correctAnswer is right (for math/science, show the full calculation that arrives at the correctAnswer value)
-- Step 5: Write "wrongAnswerExplanations" — for EACH wrong option, explain the specific mistake or misconception that would lead someone to pick it
-
-SELF-CONSISTENCY CHECK: The explanation MUST support the correctAnswer you already chose. If you realize during explanation that a different option is actually correct, go back and fix the correctAnswer BEFORE writing the explanation.
+- Step 3: DECIDE which option is the correct answer and set "correctAnswer" — this is your commitment.
 
 OUTPUT FORMAT (JSON):
 {
@@ -623,12 +560,6 @@ OUTPUT FORMAT (JSON):
       "question": "The question text",
       "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
       "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
-      "explanation": "Why correctAnswer is right. For math/science: show full calculation arriving at the correctAnswer value.",
-      "wrongAnswerExplanations": {
-        "Wrong option 1 text": "The specific mistake that leads to this wrong value",
-        "Wrong option 2 text": "The specific mistake that leads to this wrong value",
-        "Wrong option 3 text": "The specific mistake that leads to this wrong value"
-      },
       "imageIndex": 0
     }
   ]
@@ -892,10 +823,8 @@ export async function importExistingQuiz(
 Your task is to:
 1. Parse and extract ALL existing questions from the content
 2. Identify the correct answer for each question using your knowledge
-3. Provide a brief explanation for why each answer is correct
-4. For each WRONG answer option, provide a brief explanation of why it is incorrect
-5. Generate a short, descriptive title (max 6 words) for this quiz.
-6. Assign exactly ONE category from: ${categoryList}
+3. Generate a short, descriptive title (max 6 words) for this quiz.
+4. Assign exactly ONE category from: ${categoryList}
    - Math, English, Science, Social Studies, Global Languages, Others/General
 
 CONTENT:
@@ -904,28 +833,21 @@ ${truncatedText}
 LANGUAGE HANDLING:
 - Detect the primary language of the content above (English, Vietnamese, or other)
 - Preserve the original language of the questions and options
-- Write explanations and the QUIZ TITLE in the SAME language as the content
-- If the content is in Vietnamese, write explanations and title in Vietnamese
-- If the content is in English, write explanations and title in English
+- Write the QUIZ TITLE in the SAME language as the content
 
 FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
 - Every correct answer MUST be verifiably, objectively correct based on established academic knowledge
 - For math/science: work through all calculations, unit conversions, and formulas step by step FIRST, arrive at the result, THEN set correctAnswer to the option matching your result
-- SELF-CHECK (MANDATORY): After writing each question, re-read your own explanation. The value/conclusion in the explanation MUST match the correctAnswer field EXACTLY. If your explanation derives "0.05kg" then correctAnswer MUST be "0,05kg" or "0.05kg" — NEVER a different value. Fix any mismatch before moving on.
 - NEVER mark a wrong answer as correct. If uncertain, use the most defensible and commonly accepted answer
-- The explanation must clearly and logically justify why the correct answer is right
-- wrongAnswerExplanations: for EACH wrong option, explain specifically why that value is wrong (e.g., "This is off by a factor of 100 due to a unit conversion error"). Do NOT just restate the correct answer.
 
 IMPORTANT INSTRUCTIONS:
 - Extract questions EXACTLY as they appear (preserving the original wording)
 - For multiple choice, preserve all answer options as they appear (e.g., a, b, c, d or A, B, C, D)
 - Use your expert knowledge to determine the correct answer with high confidence - DO NOT guess
-- If a question is unclear or you cannot determine the answer confidently, still include it but note the uncertainty in the explanation
 - AUTOMATICALLY DETECT QUESTION TYPE based on the options:
   * If options are exactly "True" and "False" (or similar like "T/F", "Đúng/Sai") → use "true_false" type
   * If there are NO options provided (open-ended question) → use "short_answer" type
   * Otherwise (multiple options A, B, C, D etc.) → use "multiple_choice" type
-- The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
 OUTPUT FORMAT (JSON):
 {
@@ -936,12 +858,7 @@ OUTPUT FORMAT (JSON):
       "type": "multiple_choice OR true_false OR short_answer",
       "question": "The exact question text as it appears",
       "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // For multiple_choice/true_false only. Extract exactly as they appear, but REMOVE any prefixes like "A) ", "1. ", "a. ", etc. For short_answer, omit this field or use empty array.
-      "correctAnswer": "The exact full text of the correct option (without any prefix)",
-      "explanation": "Brief explanation of why this is the correct answer",
-      "wrongAnswerExplanations": {
-        "Option 1": "Why this option is incorrect",
-        "Option 2": "Why this option is incorrect"
-      }
+      "correctAnswer": "The exact full text of the correct option (without any prefix)"
     }
   ]
 }
@@ -954,10 +871,8 @@ Your task is to:
 1. Parse and extract ALL existing questions from BOTH the text content AND the attached images
 2. Questions may appear in the images - extract those too
 3. Identify the correct answer for each question using your knowledge
-4. Provide a brief explanation for why each answer is correct
-5. For each WRONG answer option, provide a brief explanation of why it is incorrect
-6. Generate a short, descriptive title (max 6 words) for this quiz.
-7. Assign exactly ONE category from: ${categoryList}
+4. Generate a short, descriptive title (max 6 words) for this quiz.
+5. Assign exactly ONE category from: ${categoryList}
    - Math, English, Science, Social Studies, Global Languages, Others/General
 
 TEXT CONTENT:
@@ -966,15 +881,12 @@ ${truncatedText}
 LANGUAGE HANDLING:
 - Detect the primary language of the content (English, Vietnamese, or other)
 - Preserve the original language of the questions and options
-- Write explanations and the QUIZ TITLE in the SAME language as the content
+- Write the QUIZ TITLE in the SAME language as the content
 
 FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
 - Every correct answer MUST be verifiably, objectively correct based on established academic knowledge
 - For math/science: work through all calculations, unit conversions, and formulas step by step FIRST, arrive at the result, THEN set correctAnswer to the option matching your result
-- SELF-CHECK (MANDATORY): After writing each question, re-read your own explanation. The value/conclusion in the explanation MUST match the correctAnswer field EXACTLY. If your explanation derives "0.05kg" then correctAnswer MUST be "0,05kg" or "0.05kg" — NEVER a different value. Fix any mismatch before moving on.
 - NEVER mark a wrong answer as correct. If uncertain, use the most defensible and commonly accepted answer
-- The explanation must clearly and logically justify why the correct answer is right
-- wrongAnswerExplanations: for EACH wrong option, explain specifically why that value is wrong (e.g., "This is off by a factor of 100 due to a unit conversion error"). Do NOT just restate the correct answer.
 
 IMPORTANT INSTRUCTIONS:
 - Extract questions EXACTLY as they appear (from both text and images)
@@ -984,7 +896,6 @@ IMPORTANT INSTRUCTIONS:
   * If options are exactly "True" and "False" (or similar like "T/F", "Đúng/Sai") → use "true_false" type
   * If there are NO options provided (open-ended question) → use "short_answer" type
   * Otherwise (multiple options A, B, C, D etc.) → use "multiple_choice" type
-- The wrongAnswerExplanations keys must be the EXACT text of the wrong options (without any prefix)
 
 OUTPUT FORMAT (JSON):
 {
@@ -995,12 +906,7 @@ OUTPUT FORMAT (JSON):
       "type": "multiple_choice OR true_false OR short_answer",
       "question": "The exact question text as it appears",
       "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // For multiple_choice/true_false only. Extract exactly as they appear, but REMOVE any prefixes. For short_answer, omit this field or use empty array.
-      "correctAnswer": "The exact full text of the correct option (without any prefix)",
-      "explanation": "Brief explanation of why this is the correct answer",
-      "wrongAnswerExplanations": {
-        "Option 1": "Why this option is incorrect",
-        "Option 2": "Why this option is incorrect"
-      }
+      "correctAnswer": "The exact full text of the correct option (without any prefix)"
     }
   ]
 }
@@ -1080,15 +986,17 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
     const questions: Question[] = [];
 
     const importMcQuestions = parsed.questions.filter((q: any) =>
-      q.explanation && q.correctAnswer && Array.isArray(q.options) && q.options.length > 0
+      q.correctAnswer && Array.isArray(q.options) && q.options.length > 0
     );
     await aiVerifyAnswers(importMcQuestions, "[IMPORT AI VERIFY]");
 
     for (const q of importMcQuestions) {
-      const fixedAnswer = verifyAnswerMatchesExplanation(String(q.explanation), String(q.correctAnswer), q.options.map((o: any) => String(o)));
-      if (fixedAnswer && fixedAnswer !== q.correctAnswer) {
-        console.warn(`[IMPORT REGEX VERIFY] Correcting answer: "${q.correctAnswer}" -> "${fixedAnswer}" for: "${String(q.question).substring(0, 60)}..."`);
-        q.correctAnswer = fixedAnswer;
+      if (q.explanation) {
+        const fixedAnswer = verifyAnswerMatchesExplanation(String(q.explanation), String(q.correctAnswer), q.options.map((o: any) => String(o)));
+        if (fixedAnswer && fixedAnswer !== q.correctAnswer) {
+          console.warn(`[IMPORT REGEX VERIFY] Correcting answer: "${q.correctAnswer}" -> "${fixedAnswer}" for: "${String(q.question).substring(0, 60)}..."`);
+          q.correctAnswer = fixedAnswer;
+        }
       }
     }
 

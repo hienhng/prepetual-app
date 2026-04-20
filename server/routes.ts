@@ -2,18 +2,18 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
-import { sendContactEmail } from "./email";
+import { sendContactEmail, sendBugReportEmail } from "./email";
 import multer from "multer";
 import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { parseOffice } from "officeparser";
 import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, reviseQuizQuestions } from "./openai";
-import { generateQuizRequestSchema, submitQuizRequestSchema } from "@shared/schema";
+import { generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "@shared/schema";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs";
 import crypto from "crypto";
 import { fetchTranscript } from "youtube-transcript-plus";
-import TranscriptClient from "youtube-transcript-api";
+import TranscriptClient from "youtube-transcript-api";  // type: ignore
 import ytdl from "@distube/ytdl-core";
 import { Readable } from "stream";
 import OpenAI from "openai";
@@ -1395,6 +1395,42 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     }
   });
 
+  app.post("/api/report-bug", isAuthenticated, async (req: any, res) => {
+    try {
+      const validation = insertBugReportSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({
+          message: validation.error.errors[0]?.message || "Invalid report data",
+        });
+      }
+
+      const report = await storage.saveBugReport({
+        ...validation.data,
+        userId: req.user.claims.sub,
+      });
+
+      // Send email asynchronously without awaiting to avoid stalling response
+      sendBugReportEmail({
+        userId: req.user.claims.sub,
+        userEmail: req.user.claims.email, // If Clerk provides this
+        quizId: validation.data.quizId,
+        questionId: validation.data.questionId,
+        questionText: validation.data.questionText,
+        reportReason: validation.data.reportReason,
+        details: validation.data.details ?? undefined,
+      }).catch(err => {
+        console.error("Failed to send bug report email:", err);
+      });
+
+      res.status(201).json(report);
+    } catch (error) {
+      console.error("Bug report error:", error);
+      res.status(500).json({
+        message: "Failed to submit bug report",
+      });
+    }
+  });
+
   // Votes endpoints
   app.get("/api/quiz/:id/votes", async (req: any, res) => {
     try {
@@ -1577,6 +1613,60 @@ If the question and study material are in a non-English language, respond with t
     } catch (error: any) {
       console.error("AI grading error:", error);
       res.status(500).json({ message: error.message || "Failed to grade answer" });
+    }
+  });
+
+  app.post("/api/generate-explanation", async (req, res) => {
+    try {
+      const { question, options, correctAnswer, selectedAnswer, isCorrect, sourceText } = req.body;
+
+      if (!question || !correctAnswer || !selectedAnswer) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      const sourceContext = sourceText
+        ? `\n\nOriginal study material:\n---\n${sourceText.slice(0, 3000)}\n---`
+        : "";
+
+      const response = await openaiClient.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert tutor explaining a quiz question to a student.${sourceContext}
+            
+The student answered a multiple choice or true/false question.
+Your job is to provide short, concise explanations formatted in JSON.
+1. "explanation": Explain clearly why the correct answer is right. For math/science, briefly show the calculation.
+2. "wrongExplanation": Explain specifically why their selected answer is incorrect (if applicable) or the common misconception it represents. If they answered correctly, you can leave this empty or explain why options are generally tricky.
+
+If the question and study material are in a non-English language, respond with the explanations in that same language.
+Always return JSON:
+{
+  "explanation": "Why correct answer is right...",
+  "wrongExplanation": "Why selected answer is wrong..."
+}`
+          },
+          {
+            role: "user",
+            content: `Question: ${question}\nOptions: ${options ? options.join(", ") : "N/A"}\nCorrect Answer: ${correctAnswer}\nStudent Selected: ${selectedAnswer}\nDid student answer correctly?: ${isCorrect ? "Yes" : "No"}`
+          }
+        ],
+        temperature: 0.1,
+        max_tokens: 350,
+        response_format: { type: "json_object" }
+      });
+
+      const content = response.choices[0]?.message?.content || "{}";
+      const result = JSON.parse(content);
+      
+      res.json({
+        explanation: result.explanation || "",
+        wrongExplanation: result.wrongExplanation || "",
+      });
+    } catch (error: any) {
+      console.error("AI explanation error:", error);
+      res.status(500).json({ message: error.message || "Failed to generate explanation" });
     }
   });
 

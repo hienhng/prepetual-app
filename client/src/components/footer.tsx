@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import logoImage from "@assets/image_1765894870887.png";
-
+import { Facebook, Linkedin, Instagram, Twitter, Github } from "lucide-react";
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
@@ -63,15 +63,63 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="mt-6 pt-6 border-t">
-          <p className="text-sm text-muted-foreground text-center md:text-left">
-            © {currentYear} Prepetual. All rights reserved.
-          </p>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground text-center md:text-left">
-            Made with ❤️ by Gia Hien
-          </p>
+        <div className="mt-8 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="space-y-2 text-center md:text-left">
+            <p className="text-sm text-muted-foreground">
+              © {currentYear} Prepetual. All rights reserved.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Made with ❤️ by Gia Hien
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <a 
+              href="https://web.facebook.com/hn.giahien/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="p-2.5 rounded-xl bg-secondary/50 hover:bg-secondary hover:text-primary transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-border social-button"
+              aria-label="Facebook"
+            >
+              <Facebook className="w-5 h-5" />
+            </a>
+            <a 
+              href="https://x.com/HoangNgocG97530" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="p-2.5 rounded-xl bg-secondary/50 hover:bg-secondary hover:text-primary transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-border social-button"
+              aria-label="Twitter"
+            >
+              <Twitter className="w-5 h-5" />
+            </a>
+            <a 
+              href="https://www.instagram.com/hng.hien/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="p-2.5 rounded-xl bg-secondary/50 hover:bg-secondary hover:text-primary transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-border social-button"
+              aria-label="Instagram"
+            >
+              <Instagram className="w-5 h-5" />
+            </a>
+            <a 
+              href="https://www.linkedin.com/in/hoang-ngoc-gia-hien-4b42bb3a0/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="p-2.5 rounded-xl bg-secondary/50 hover:bg-secondary hover:text-primary transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-border social-button"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="w-5 h-5" />
+            </a>
+            <a 
+              href="https://github.com/hienhng" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="p-2.5 rounded-xl bg-secondary/50 hover:bg-secondary hover:text-primary transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-border social-button"
+              aria-label="GitHub"
+            >
+              <Github className="w-5 h-5" />
+            </a>
+          </div>
         </div>
       </div>
     </footer>

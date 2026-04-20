@@ -201,6 +201,26 @@ export const insertQuizProgressSchema = createInsertSchema(quizProgress).omit({
 export type InsertQuizProgress = z.infer<typeof insertQuizProgressSchema>;
 export type QuizProgress = typeof quizProgress.$inferSelect;
 
+// Bug reports table for reporting incorrect AI answers
+export const bugReports = pgTable("bug_reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
+  quizId: varchar("quiz_id").notNull().references(() => quizzes.id, { onDelete: "cascade" }),
+  questionId: varchar("question_id").notNull(),
+  questionText: text("question_text").notNull(),
+  reportReason: text("report_reason").notNull(),
+  details: text("details"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertBugReportSchema = createInsertSchema(bugReports).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBugReport = z.infer<typeof insertBugReportSchema>;
+export type BugReport = typeof bugReports.$inferSelect;
+
 // Legacy types for backward compatibility with frontend
 export const quizSchemaLegacy = z.object({
   id: z.string(),

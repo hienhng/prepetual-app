@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation, Link } from "wouter";
 import {
   ArrowRight,
@@ -40,7 +40,8 @@ import {
   ClipboardCheck,
   CircleDot,
   Shield,
-  ListCheck
+  ListCheck,
+  Pause
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -1134,438 +1135,411 @@ function BeforeAfterSlider() {
 }
 
 function HowItWorksGallery() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
   const stages = [
     {
+      id: 0,
       icon: Upload,
+      title: "Step 1: Upload",
       label: "Upload",
-      desc: "Drop your study materials - PDFs, images, Word docs, or PowerPoint files",
-      color: "text-primary",
-      bg: "bg-primary/10",
-      borderColor: "border-primary/30",
+      desc: "Drop your study materials — PDFs, images, Word docs, or PowerPoint files. We handle the rest.",
+      gradient: "from-amber-400 to-yellow-500",
+      glowColor: "rgba(251, 191, 36, 0.25)",
+      bg: "bg-amber-400/5",
+      accent: "text-amber-500",
       content: (
-        <div className="text-center w-full">
+        <div className="space-y-4 w-full max-w-sm mx-auto">
           <motion.div
-            className="w-28 h-28 mx-auto mb-5 rounded-2xl bg-primary/5 border-2 border-dashed border-primary/30 flex items-center justify-center relative overflow-hidden"
-            whileHover={{ scale: 1.05, borderStyle: "solid" }}
-            transition={{ type: "spring", stiffness: 300 }}
+            className="relative w-full aspect-square rounded-3xl border-3 border-dashed border-amber-400/30 bg-amber-400/5 flex flex-col items-center justify-center gap-4 group/upload"
+            animate={{ scale: [1, 1.02, 1] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           >
+            <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.1)_0%,transparent_70%)]" />
             <motion.div
-              className="absolute inset-0 bg-primary/5"
-              animate={{ opacity: [0, 0.5, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-            <motion.div
-              animate={{ y: [0, -5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
+              className="w-20 h-20 rounded-2xl bg-amber-400/20 flex items-center justify-center shadow-lg shadow-amber-400/10"
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             >
-              <Upload className="w-12 h-12 text-primary" />
+              <Upload className="w-10 h-10 text-amber-500" />
             </motion.div>
+            <div className="text-center space-y-1 z-10">
+              <p className="text-sm font-bold text-foreground">Click to upload</p>
+              <p className="text-xs text-muted-foreground">or drag & drop files</p>
+            </div>
           </motion.div>
-          <p className="text-base font-semibold text-foreground mb-3">
-            Drop your study materials
-          </p>
           <div className="flex flex-wrap justify-center gap-2">
-            {["PDF", "Images", "Word", "PPT"].map((f, idx) => (
-              <motion.div
-                key={f}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-              >
-                <Badge variant="secondary" className="text-xs px-3 py-1.5">
-                  {f}
-                </Badge>
-              </motion.div>
+            {[
+              { label: "PDF", icon: FileText },
+              { label: "Images", icon: Image },
+              { label: "Word", icon: File },
+              { label: "PPT", icon: Layers },
+            ].map((f) => (
+              <Badge key={f.label} variant="secondary" className="text-[11px] px-3 py-1.5 gap-2 border-amber-400/10 bg-amber-400/5 text-amber-600 dark:text-amber-400">
+                <f.icon className="w-3.5 h-3.5" />
+                {f.label}
+              </Badge>
             ))}
           </div>
         </div>
       ),
     },
     {
+      id: 1,
       icon: Eye,
+      title: "Step 2: Extract",
       label: "Extract",
-      desc: "Our AI reads and analyzes your content instantly with precision",
-      color: "text-primary",
-      bg: "bg-primary/10",
-      borderColor: "border-primary/30",
+      desc: "Our AI reads and understands your content with high precision — text, diagrams, and tables included.",
+      gradient: "from-cyan-400 to-blue-500",
+      glowColor: "rgba(34, 211, 238, 0.2)",
+      bg: "bg-cyan-400/5",
+      accent: "text-cyan-500",
       content: (
-        <div className="w-full max-w-sm mx-auto">
-          <div className="space-y-3 mb-5">
-            {[100, 85, 60].map((width, i) => (
-              <motion.div
-                key={i}
-                className="h-3 bg-primary/20 rounded-full overflow-hidden"
-                style={{ width: `${width}%` }}
-              >
-                <motion.div
-                  className="h-full bg-primary/40 rounded-full"
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "100%" }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    delay: i * 0.2,
-                  }}
-                />
-              </motion.div>
+        <div className="w-full max-w-sm mx-auto space-y-6">
+          <div className="space-y-4">
+            {[
+              { w: "100%", label: "Parsing document...", delay: 0 },
+              { w: "85%", label: "Extracting key concepts...", delay: 0.3 },
+              { w: "65%", label: "Identifying relationships...", delay: 0.6 },
+            ].map((item, i) => (
+              <div key={i} className="space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-xs font-semibold text-cyan-600 dark:text-cyan-400">{item.label}</span>
+                  <span className="text-[10px] text-muted-foreground">{item.w} complete</span>
+                </div>
+                <div className="h-2.5 bg-cyan-400/10 rounded-full overflow-hidden border border-cyan-400/10">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"
+                    initial={{ width: "0%" }}
+                    animate={{ width: item.w }}
+                    transition={{ duration: 1.5, delay: item.delay, ease: [0.16, 1, 0.3, 1] }}
+                  />
+                </div>
+              </div>
             ))}
           </div>
           <motion.div
-            className="flex items-center justify-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20"
-            animate={{ opacity: [0.7, 1, 0.7] }}
+            className="flex items-center gap-4 p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20"
+            animate={{ boxShadow: ["0 0 0px rgba(34,211,238,0)", "0 0 15px rgba(34,211,238,0.2)", "0 0 0px rgba(34,211,238,0)"] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            >
-              <Eye className="w-5 h-5 text-primary" />
-            </motion.div>
-            <span className="text-sm font-medium text-primary">
-              Analyzing your content...
-            </span>
+            <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-6 h-6 text-cyan-500" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-foreground">Advanced Extraction</p>
+              <p className="text-[11px] text-muted-foreground">Omission-free high-fidelity parsing</p>
+            </div>
           </motion.div>
         </div>
       ),
     },
     {
+      id: 2,
       icon: Brain,
+      title: "Step 3: Generate",
       label: "Generate",
-      desc: "AI transforms your text into personalized quiz questions",
-      color: "text-primary",
-      bg: "bg-primary/10",
-      borderColor: "border-primary/30",
+      desc: "Smart AI creates diverse, personalized quiz questions from your material — instantly.",
+      gradient: "from-violet-400 to-purple-500",
+      glowColor: "rgba(167, 139, 250, 0.2)",
+      bg: "bg-violet-400/5",
+      accent: "text-violet-500",
       content: (
-        <div className="w-full max-w-sm mx-auto space-y-3">
+        <div className="w-full max-w-sm mx-auto space-y-4">
           {[
-            {
-              type: "Multiple Choice",
-              q: "What is the main concept discussed?",
-            },
-            { type: "True/False", q: "This statement accurately reflects..." },
+            { type: "Multiple Choice", q: "What is the primary function of mitochondria?", color: "violet" },
+            { type: "True / False", q: "DNA replication occurs in the G1 phase.", color: "purple" },
+            { type: "Short Answer", q: "Define the term 'Osmosis' in your own words.", color: "indigo" },
           ].map((item, i) => (
             <motion.div
               key={i}
-              className="p-4 rounded-xl bg-primary/5 border border-primary/20 text-left"
-              initial={{ opacity: 0, x: -20, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ delay: i * 0.2, type: "spring", stiffness: 200 }}
-              whileHover={{ scale: 1.02 }}
+              className="p-4 rounded-2xl bg-violet-400/5 border border-violet-400/15 group/q relative overflow-hidden"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.15 }}
             >
-              <Badge
-                variant="outline"
-                className="mb-2 text-primary border-primary/30 text-xs bg-primary/10"
-              >
+              <div className="absolute top-0 right-0 p-2 opacity-50">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+              </div>
+              <Badge className="mb-2 bg-violet-500/10 text-violet-600 dark:text-violet-400 border-none px-2 py-0.5 text-[10px]">
                 {item.type}
               </Badge>
-              <p className="text-sm font-medium text-foreground">{item.q}</p>
+              <p className="text-sm font-medium text-foreground leading-relaxed">{item.q}</p>
             </motion.div>
           ))}
-          <motion.div
-            className="flex items-center justify-center gap-2 pt-2"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 1, repeat: Infinity }}
-            >
-              <Brain className="w-4 h-4 text-primary" />
-            </motion.div>
-            <span className="text-sm text-primary">Generating more...</span>
-          </motion.div>
+          <div className="flex items-center justify-center gap-3 py-2 text-violet-500/60 animate-pulse">
+            <Brain className="w-4 h-4" />
+            <span className="text-[11px] font-bold tracking-widest uppercase">AI Architecting...</span>
+          </div>
         </div>
       ),
     },
     {
-      icon: GraduationCap,
+      id: 3,
+      icon: Trophy,
+      title: "Step 4: Learn",
       label: "Learn",
-      desc: "Master your subjects with interactive quizzes and flashcards",
-      color: "text-primary",
-      bg: "bg-primary/10",
-      borderColor: "border-primary/30",
+      desc: "Master every topic with interactive quizzes, flashcards, and spaced repetition.",
+      gradient: "from-emerald-400 to-green-500",
+      glowColor: "rgba(52, 211, 153, 0.2)",
+      bg: "bg-emerald-400/5",
+      accent: "text-emerald-500",
       content: (
-        <div className="text-center w-full">
+        <div className="w-full max-w-sm mx-auto space-y-6">
           <motion.div
-            className="w-28 h-28 mx-auto mb-5 rounded-full bg-primary/10 flex items-center justify-center relative"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200 }}
+            className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/15 relative overflow-hidden"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
           >
-            <motion.div
-              className="absolute inset-0 rounded-full border-2 border-primary/30"
-              animate={{ scale: [1, 1.1, 1], opacity: [1, 0, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-            <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <CheckCheck className="w-12 h-12 text-primary" />
-            </motion.div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full" />
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center">
+                  <Trophy className="w-6 h-6 text-emerald-500" />
+                </div>
+                <div>
+                  <p className="text-xl font-bold text-foreground">85%</p>
+                  <p className="text-xs text-muted-foreground">Expert Proficiency</p>
+                </div>
+              </div>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star key={s} className={`w-4 h-4 ${s <= 4 ? "fill-amber-400 text-amber-400" : "text-muted/30"}`} />
+                ))}
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs font-semibold px-1">
+                <p>Mastery Progress</p>
+                <p className="text-emerald-500">Fast tracking</p>
+              </div>
+              <div className="h-3 bg-emerald-500/10 rounded-full overflow-hidden border border-emerald-500/10">
+                <motion.div
+                  className="h-full bg-emerald-500"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "85%" }}
+                  transition={{ duration: 2, ease: "easeOut" }}
+                />
+              </div>
+            </div>
           </motion.div>
-          <p className="text-base font-semibold text-foreground mb-4">
-            Ready to learn!
-          </p>
-          <div className="flex justify-center gap-3">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Badge className="bg-primary/15 text-primary border border-primary/30 px-4 py-1.5 cursor-pointer">
-                <Play className="w-3.5 h-3.5 mr-1.5" /> Take Quiz
-              </Badge>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Badge
-                variant="outline"
-                className="border-primary/30 px-4 py-1.5 cursor-pointer"
-              >
-                <BookOpen className="w-3.5 h-3.5 mr-1.5" /> Study
-              </Badge>
-            </motion.div>
+          <div className="grid grid-cols-2 gap-3">
+            <Button className="rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-12">
+              <Play className="w-4 h-4 mr-2" /> Start Quiz
+            </Button>
+            <Button variant="outline" className="rounded-2xl border-emerald-500/20 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 h-12" onClick={() => window.location.href = '#study'}>
+              <BookOpen className="w-4 h-4 mr-2" /> Study
+            </Button>
           </div>
         </div>
       ),
     },
   ];
 
-  const handleScroll = () => {
-    if (!containerRef.current) return;
-    const scrollLeft = containerRef.current.scrollLeft;
-    const width = containerRef.current.offsetWidth;
-    const index = Math.round(scrollLeft / width);
-    setActiveStep(index);
-  };
-
-  const goToStep = (index: number) => {
-    if (!containerRef.current) return;
-    containerRef.current.scrollTo({
-      left: index * containerRef.current.offsetWidth,
-      behavior: "smooth",
-    });
-  };
-
-  const goNext = () => {
-    if (activeStep < stages.length - 1) {
-      goToStep(activeStep + 1);
+  useEffect(() => {
+    if (isAutoPlaying) {
+      autoPlayRef.current = setInterval(() => {
+        setActiveStep((prev) => (prev + 1) % stages.length);
+      }, 5000);
     }
-  };
+    return () => {
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    };
+  }, [isAutoPlaying, stages.length]);
 
-  const goPrev = () => {
-    if (activeStep > 0) {
-      goToStep(activeStep - 1);
-    }
-  };
+  const orbitRadius = 280;
+  const rotationAngle = activeStep * (360 / stages.length);
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Progress bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-muted rounded-full overflow-hidden z-20">
-        <motion.div
-          className="h-full bg-primary"
-          initial={{ width: "25%" }}
-          animate={{ width: `${((activeStep + 1) / stages.length) * 100}%` }}
-          transition={{ type: "spring", stiffness: 100, damping: 20 }}
-        />
-      </div>
-
-      {/* Navigation arrows */}
-      <AnimatePresence>
-        {activeStep > 0 && (
-          <motion.button
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: isHovered ? 1 : 0.5, x: 0 }}
-            exit={{ opacity: 0, x: 10 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={goPrev}
-            className="absolute left-2 top-[40%] -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
-            aria-label="Previous step"
-            data-testid="button-carousel-prev"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {activeStep < stages.length - 1 && (
-          <motion.button
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: isHovered ? 1 : 0.5, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={goNext}
-            className="absolute right-2 top-[40%] -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm border border-border shadow-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
-            aria-label="Next step"
-            data-testid="button-carousel-next"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
-      <div
-        ref={containerRef}
-        onScroll={handleScroll}
-        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-6 pb-8 pt-4"
-        style={{ scrollBehavior: "smooth" }}
-      >
-        {stages.map((stage, i) => {
-          const isActive = activeStep === i;
-
-          return (
-            <div key={stage.label} className="min-w-full snap-center px-4">
-              <motion.div
-                className="relative h-full"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, type: "spring", stiffness: 100 }}
-              >
-                <Card
-                  className={`relative border-2 ${isActive ? stage.borderColor : "border-transparent"} bg-card overflow-visible h-full min-h-[420px] transition-all duration-500 group shadow-xl`}
+    <div className="w-full relative py-20 overflow-hidden">
+      {/* ── Desktop: Orbit Animation ── */}
+      <div className="hidden lg:flex flex-col items-center justify-center min-h-[700px] relative">
+        
+        {/* Central Display Area */}
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+          <div className="relative w-full max-w-7xl flex items-center justify-between px-20">
+            {/* Left side: Text Content */}
+            <div className="w-[400px] pointer-events-auto">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeStep}
+                  initial={{ opacity: 0, x: -50, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, x: -30, filter: "blur(10px)" }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  className="space-y-8"
                 >
-                  {/* Gradient background overlay */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${stage.bg} to-transparent opacity-30 pointer-events-none rounded-xl overflow-hidden`}
-                  />
-
-                  {/* Animated corner glow */}
-                  <motion.div
-                    className={`absolute -top-24 -right-24 w-48 h-48 rounded-full ${stage.bg} blur-3xl`}
-                    animate={{
-                      scale: isActive ? [1, 1.3, 1] : 1,
-                      opacity: isActive ? [0.3, 0.5, 0.3] : 0.2,
-                    }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  />
-
-                  {/* Floating decorative elements */}
-                  <motion.div
-                    className={`absolute top-12 right-12 w-2 h-2 rounded-full ${stage.bg}`}
-                    animate={{ y: [0, -8, 0], opacity: [0.5, 1, 0.5] }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  />
-                  <motion.div
-                    className={`absolute bottom-24 left-12 w-1.5 h-1.5 rounded-full ${stage.bg}`}
-                    animate={{ y: [0, 6, 0] }}
-                    transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-                  />
-
-                  <CardContent className="relative p-8 md:p-10 flex flex-col items-center justify-center text-center h-full z-10">
-                    {/* Step indicator dot replaced with number */}
-                    <motion.div
-                      className="relative mb-8"
-                      animate={isActive ? { y: [0, -6, 0] } : {}}
-                      transition={{
-                        duration: 2.5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      {/* Glow ring */}
-                      <motion.div
-                        className={`absolute inset-0 rounded-full ${stage.bg} blur-xl`}
-                        animate={
-                          isActive
-                            ? { scale: [1, 2, 1], opacity: [0.3, 0.6, 0.3] }
-                            : {}
-                        }
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                      <div
-                        className={`relative w-12 h-12 rounded-full ${stage.bg} border-2 ${stage.borderColor} flex items-center justify-center text-xl font-bold shadow-lg ${stage.color}`}
-                      >
-                        {i + 1}
-                      </div>
-                    </motion.div>
-
-                    {/* Title and description */}
-                    <div className="mb-8">
-                      <motion.h3
-                        className={`text-2xl font-bold mb-3 ${stage.color}`}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        {stage.label}
-                      </motion.h3>
-                      <p className="text-muted-foreground max-w-md text-sm md:text-base leading-relaxed">
-                        {stage.desc}
-                      </p>
+                  <div className="space-y-4">
+                    <div className={cn(
+                      "inline-flex items-center gap-3 px-5 py-2 rounded-2xl text-xs font-bold tracking-widest uppercase border border-current/30 bg-white/5",
+                      stages[activeStep].accent
+                    )}>
+                      {React.createElement(stages[activeStep].icon, { className: "w-4 h-4" })}
+                      {stages[activeStep].title}
                     </div>
-
-                    {/* Content area */}
-                    <div className="flex-1 flex items-center justify-center w-full">
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={stage.label}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.3 }}
-                          className="w-full"
-                        >
-                          {stage.content}
-                        </motion.div>
-                      </AnimatePresence>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                    <h3 className="text-7xl font-black tracking-tighter text-foreground leading-[0.9]">
+                      {stages[activeStep].label}
+                    </h3>
+                  </div>
+                  <p className="text-2xl text-muted-foreground leading-relaxed font-medium">
+                    {stages[activeStep].desc}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
             </div>
-          );
-        })}
+
+            {/* Right side: Illustration Frame */}
+            <div className="w-[500px] aspect-square pointer-events-auto">
+              <div className="relative w-full h-full rounded-[60px] border border-white/10 bg-white/[0.03] backdrop-blur-3xl shadow-[0_40px_100px_-20px_rgba(0,0,0,0.4)] overflow-hidden flex items-center justify-center">
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeStep}
+                    initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute inset-0 flex items-center justify-center p-12"
+                  >
+                    {stages[activeStep].content}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Orbit System */}
+        <div className="absolute left-[63%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-[800px] h-[800px] pointer-events-none opacity-40">
+           {/* Static orbital rings */}
+           <div className="absolute inset-x-[15%] inset-y-[15%] border border-white/5 rounded-full" />
+           <div className="absolute inset-x-[0%] inset-y-[0%] border border-white/5 rounded-full" />
+           
+           {/* Rotating Container */}
+           <motion.div 
+             className="absolute inset-0"
+             animate={{ rotate: rotationAngle }}
+             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+           >
+             {stages.map((stage, i) => {
+               const angle = (i * -360) / stages.length;
+               const radian = (angle * Math.PI) / 180;
+               const x = Math.cos(radian) * orbitRadius;
+               const y = Math.sin(radian) * orbitRadius;
+               
+               return (
+                 <motion.button
+                   key={stage.id}
+                   className="absolute pointer-events-auto"
+                   style={{
+                     left: `calc(50% + ${x}px)`,
+                     top: `calc(50% + ${y}px)`,
+                     x: "-50%",
+                     y: "-50%",
+                   }}
+                   onClick={() => {
+                     setActiveStep(i);
+                     setIsAutoPlaying(false);
+                   }}
+                 >
+                   {/* Satellite Icon Container */}
+                   <motion.div
+                     className={cn(
+                       "w-24 h-24 rounded-3xl backdrop-blur-2xl flex items-center justify-center border-2 transition-all duration-700",
+                       activeStep === i 
+                         ? "bg-white/10 border-white/20 scale-110 shadow-[0_0_50px_-10px_rgba(255,255,255,0.1)]" 
+                         : "bg-white/5 border-white/10 grayscale hover:grayscale-0 hover:bg-white/10"
+                     )}
+                     animate={{ rotate: -rotationAngle }}
+                     transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                   >
+                     <stage.icon className={cn(
+                       "w-10 h-10 transition-colors duration-500",
+                       activeStep === i ? stage.accent : "text-white/40"
+                     )} />
+                     
+                     {/* Active Indicator Glow */}
+                     {activeStep === i && (
+                       <motion.div
+                         layoutId="active-orbit-glow"
+                         className={cn("absolute inset-0 rounded-3xl blur-xl opacity-20", stage.accent.replace('text-', 'bg-'))}
+                       />
+                     )}
+                     
+                     {/* Label on outer ring */}
+                     <span className={cn(
+                       "absolute -bottom-10 whitespace-nowrap text-xs font-bold tracking-widest uppercase transition-opacity duration-700",
+                       activeStep === i ? "opacity-100 text-primary" : "opacity-0"
+                     )}>
+                       {stage.label}
+                     </span>
+                   </motion.div>
+                 </motion.button>
+               );
+             })}
+           </motion.div>
+        </div>
+
+        {/* Manual Navigation Controls */}
+        <div className="absolute bottom-10 flex items-center gap-8 z-20">
+          <div className="flex gap-3">
+            {stages.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  setActiveStep(i);
+                  setIsAutoPlaying(false);
+                }}
+                className={cn(
+                  "h-1.5 transition-all duration-700 rounded-full",
+                  activeStep === i ? "w-12 bg-primary" : "w-2 bg-white/20 hover:bg-white/40"
+                )}
+              />
+            ))}
+          </div>
+          <button
+            onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+            className="text-white/40 hover:text-white transition-colors"
+          >
+            {isAutoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
 
-      {/* Step indicators */}
-      <div className="flex justify-center items-center gap-3 mt-4">
+      {/* ── Mobile/Tablet: Simplified Sequential Reveal ── */}
+      <div className="lg:hidden space-y-16 py-12 px-6">
         {stages.map((stage, i) => (
-          <button
-            key={i}
-            onClick={() => goToStep(i)}
-            className={`group relative flex items-center transition-all duration-300 ${activeStep === i
-              ? "scale-110"
-              : "scale-100 opacity-60 hover:opacity-100"
-              }`}
-            aria-label={`Go to step ${i + 1}: ${stage.label}`}
-            data-testid={`button-step-indicator-${i}`}
+          <motion.div
+            key={stage.id}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.8 }}
+            className="space-y-10"
           >
-            <motion.div
-              className={`rounded-full flex items-center justify-center transition-all duration-500 text-xs font-bold ${activeStep === i
-                ? `w-8 h-8 ${stage.bg} border-2 ${stage.borderColor} shadow-[0_0_10px_rgba(var(--primary),0.5)] ${stage.color}`
-                : "w-6 h-6 bg-muted border border-transparent text-muted-foreground/60"
-                }`}
-              animate={{
-                scale: activeStep === i ? [1, 1.05, 1] : 1,
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 300,
-                damping: 20,
-                scale: {
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                },
-              }}
-            >
-              {i + 1}
-            </motion.div>
-          </button>
+            <div className="space-y-5 text-center">
+              <div className={cn(
+                "w-16 h-16 rounded-[24px] flex items-center justify-center mx-auto shadow-2xl",
+                "bg-gradient-to-br",
+                stage.gradient
+              )}>
+                <stage.icon className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-3xl font-bold tracking-tight">{stage.label}</h3>
+              <p className="text-muted-foreground leading-relaxed max-w-md mx-auto">{stage.desc}</p>
+            </div>
+            <div className="p-10 rounded-[48px] border border-border/60 bg-card/60 backdrop-blur-sm shadow-2xl overflow-hidden flex items-center justify-center">
+              {stage.content}
+            </div>
+          </motion.div>
         ))}
       </div>
     </div>
   );
 }
+
 
 function FeatureIllustration({
   feature,
@@ -2595,7 +2569,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden">
+    <div className="min-h-screen">
       <section ref={heroRef} className="relative pb-8 md:pb-16 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
@@ -2860,50 +2834,62 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="how-it-works" className="py-20 md:py-28">
-        <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
-          <div className="text-center mb-16">
-            <motion.p
-              className="text-sm font-medium text-primary uppercase tracking-wider mb-3"
-              initial={{ opacity: 0, letterSpacing: "0em" }}
-              whileInView={{ opacity: 1, letterSpacing: "0.1em" }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            >
-              Simple Process
-            </motion.p>
-            <div className="overflow-hidden">
-              <motion.h2
-                className="text-3xl md:text-4xl font-bold text-foreground mb-4"
-                initial={{ y: "110%" }}
-                whileInView={{ y: 0 }}
-                viewport={{ once: true }}
-                transition={{
-                  duration: 0.7,
-                  ease: [0.16, 1, 0.3, 1],
-                  delay: 0.05,
-                }}
-              >
-                How It Works
-              </motion.h2>
-            </div>
-            <motion.p
-              className="text-muted-foreground max-w-lg mx-auto"
-              initial={{ opacity: 0, filter: "blur(6px)" }}
-              whileInView={{ opacity: 1, filter: "blur(0px)" }}
+      <section id="how-it-works" className="py-20 md:py-28 relative overflow-visible">
+        {/* Background decoration */}
+        <div className="absolute inset-0 pointer-events-none">
+          <motion.div
+            className="absolute top-20 -left-40 w-80 h-80 rounded-full bg-primary/5 blur-3xl"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 8, repeat: Infinity }}
+          />
+          <motion.div
+            className="absolute bottom-20 -right-40 w-80 h-80 rounded-full bg-violet-400/5 blur-3xl"
+            animate={{ scale: [1.2, 1, 1.2], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 8, repeat: Infinity, delay: 4 }}
+          />
+        </div>
+
+        <div className="text-center mb-16">
+          <motion.p
+            className="text-sm font-semibold text-primary uppercase tracking-[0.2em] mb-3"
+            initial={{ opacity: 0, letterSpacing: "0em" }}
+            whileInView={{ opacity: 1, letterSpacing: "0.2em" }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          >
+            Simple Process
+          </motion.p>
+          <div className="overflow-hidden">
+            <motion.h2
+              className="text-3xl md:text-5xl font-bold text-foreground mb-4 tracking-tight"
+              initial={{ y: "110%" }}
+              whileInView={{ y: 0 }}
               viewport={{ once: true }}
               transition={{
-                duration: 0.6,
+                duration: 0.7,
                 ease: [0.16, 1, 0.3, 1],
-                delay: 0.15,
+                delay: 0.05,
               }}
             >
-              From notes to quizzes in just a few clicks
-            </motion.p>
+              How It Works
+            </motion.h2>
           </div>
-
-          <HowItWorksGallery />
+          <motion.p
+            className="text-muted-foreground max-w-lg mx-auto text-base md:text-lg"
+            initial={{ opacity: 0, filter: "blur(6px)" }}
+            whileInView={{ opacity: 1, filter: "blur(0px)" }}
+            viewport={{ once: true }}
+            transition={{
+              duration: 0.6,
+              ease: [0.16, 1, 0.3, 1],
+              delay: 0.15,
+            }}
+          >
+            From notes to quizzes in just a few clicks
+          </motion.p>
         </div>
+        
+        <HowItWorksGallery />
       </section>
 
       <ParsingShowcase />
@@ -3123,7 +3109,7 @@ export default function Home() {
           <motion.div
             className="absolute -bottom-[20%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-primary/10 blur-[140px] rounded-full"
             animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
           />
           <div className="absolute inset-x-0 flex items-center justify-center opacity-[0.025] select-none whitespace-nowrap overflow-hidden">
             <span className="text-[25vw] font-black tracking-tighter uppercase leading-none transform translate-y-1/2">PREPETUAL</span>

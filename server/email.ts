@@ -252,3 +252,35 @@ export async function sendContactEmail(data: {
     console.error("Failed to send contact confirmation email:", err);
   }
 }
+
+export async function sendBugReportEmail(data: {
+  userId: string;
+  quizId: string;
+  questionId: string;
+  questionText: string;
+  reportReason: string;
+  details?: string;
+  userEmail?: string;
+}): Promise<void> {
+  const transporter = getTransporter();
+
+  await transporter.sendMail({
+    from: `"Prepetual Bug Report" <${process.env.GMAIL_USER}>`,
+    to: "giahienhn@gmail.com",
+    subject: `Bug Report: ${data.reportReason}`,
+    html: `
+      <div style="font-family: sans-serif; padding: 20px; color: #333; border: 1px solid #eee; border-radius: 8px;">
+        <h2 style="color: #ef4444;">New Question Bug Report</h2>
+        <p><strong>User ID:</strong> ${data.userId}</p>
+        <p><strong>User Email:</strong> ${data.userEmail || "N/A"}</p>
+        <p><strong>Quiz ID:</strong> ${data.quizId}</p>
+        <p><strong>Question ID:</strong> ${data.questionId}</p>
+        <hr style="border: 1px solid #eee; margin: 20px 0;" />
+        <p><strong>Issue:</strong> ${data.reportReason}</p>
+        <p><strong>Question Text:</strong></p>
+        <blockquote style="background: #f9f9f9; padding: 10px; border-left: 4px solid #ddd;">${data.questionText}</blockquote>
+        ${data.details ? `<p><strong>Additional Details:</strong></p><p>${data.details}</p>` : ""}
+      </div>
+    `,
+  });
+}

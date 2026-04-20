@@ -49,7 +49,7 @@ export function QuizGenerator() {
 
       if (isImportMode) {
         // Import mode - typically faster, simpler steps
-        totalDuration = 12000;
+        totalDuration = 5000;
         steps = [
           { threshold: 5, step: "starting" },
           { threshold: 15, step: "scanning" },
@@ -63,7 +63,7 @@ export function QuizGenerator() {
         const questionMultiplier = questionCount / 10;
         const difficultyMultiplier = difficulty === "easy" ? 0.7 : difficulty === "medium" ? 1.0 : 1.4;
         const totalMultiplier = Math.max(0.5, questionMultiplier * difficultyMultiplier);
-        totalDuration = 15000 * totalMultiplier;
+        totalDuration = 7000 * totalMultiplier;
         steps = [
           { threshold: 5, step: "starting" },
           { threshold: 15, step: "reading" },
@@ -77,7 +77,7 @@ export function QuizGenerator() {
       }
 
       const updateInterval = 50;
-      const maxProgress = 90;
+      const maxProgress = 96;
 
       let startTime = Date.now();
       let currentStepIndex = 0;

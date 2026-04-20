@@ -1,11 +1,14 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, ChevronLeft, ChevronRight, Image } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, FileText, ChevronLeft, ChevronRight, Image, Flag, AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useSidebarOptional } from "@/components/ui/sidebar";
@@ -95,7 +98,13 @@ export function QuizPlayer() {
   const [showQuestionNav, setShowQuestionNav] = useState(false);
   const [showChatbot, setShowChatbot] = useState(false);
   const [isGrading, setIsGrading] = useState(false);
-  const [aiGradingResults, setAiGradingResults] = useState<Record<string, { isCorrect: boolean; isPartial: boolean; explanation: string }>>({});
+  const [aiGradingResults, setAiGradingResults] = useState<Record<string, { isCorrect: boolean; isPartial: boolean; explanation: string; wrongExplanation?: string }>>({});
+  const [isGeneratingExplanation, setIsGeneratingExplanation] = useState<Record<string, boolean>>({});
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [reportReason, setReportReason] = useState<string>("Correct answer is wrong");
+  const [reportDetails, setReportDetails] = useState("");
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  const { toast } = useToast();
   
   const wrongAnswerIds = useRef<Set<string>>(new Set());
   const [retryAnswers, setRetryAnswers] = useState<Record<string, string>>({});
@@ -306,6 +315,25 @@ export function QuizPlayer() {
         keysToExpand.forEach(key => next.add(key));
         return next;
       });
+
+      // Automatically trigger explanation generation when answer is checked
+      keysToExpand.forEach(key => {
+        let optionText = "";
+        let isCorrectOpt = false;
+
+        if (qSnap.type === "true_false") {
+          optionText = key.includes("-tf-True") ? "True" : "False";
+          isCorrectOpt = optionText.toLowerCase() === qSnap.correctAnswer.toLowerCase();
+        } else if (qSnap.type === "multiple_choice") {
+          const optIdx = parseInt(key.split("-").pop() || "0");
+          optionText = qSnap.options?.[optIdx] || "";
+          isCorrectOpt = optionText.toLowerCase().trim() === qSnap.correctAnswer.toLowerCase().trim();
+        }
+
+        if (optionText) {
+          fetchExplanationIfMissing(key, optionText, isCorrectOpt, qSnap, answerToCheck);
+        }
+      });
     }
   };
 
@@ -380,6 +408,85 @@ export function QuizPlayer() {
         applyCheckResult(correct, answerToCheck, questionSnapshot);
       }
     }
+  };
+
+  const fetchExplanationIfMissing = async (
+    explanationKey: string, 
+    option: string, 
+    isCorrectOpt: boolean, 
+    qSnap: any, 
+    ansToCheck: string | undefined
+  ) => {
+    const gradeKey = qSnap.isRetry ? qSnap.id : qSnap.originalId;
+    const aiExplanation = aiGradingResults[gradeKey];
+    const currentExplanation = qSnap.explanation || aiExplanation?.explanation;
+    
+    // Use the component's getWrongAnswerExplanation with the provided qSnap context
+    const getWrongExplanationForQ = (answer: string | undefined) => {
+      if (!answer || !qSnap.wrongAnswerExplanations) return null;
+      const answerWithoutPrefix = answer.replace(/^[A-D]\)\s*/, "").trim();
+      return qSnap.wrongAnswerExplanations[answer] || qSnap.wrongAnswerExplanations[answerWithoutPrefix];
+    };
+
+    const currentWrongExplanation = qSnap.wrongAnswerExplanations && Object.keys(qSnap.wrongAnswerExplanations).length > 0
+      ? getWrongExplanationForQ(option)
+      : (ansToCheck === option ? aiExplanation?.wrongExplanation : null);
+
+    const neededExplanation = isCorrectOpt ? currentExplanation : currentWrongExplanation;
+    if (neededExplanation) return;
+
+    setIsGeneratingExplanation(prev => ({ ...prev, [explanationKey]: true }));
+    try {
+      const res = await fetch("/api/generate-explanation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: qSnap.question,
+          options: qSnap.options,
+          correctAnswer: qSnap.correctAnswer,
+          selectedAnswer: ansToCheck,
+          isCorrect: isCorrectAnswer(ansToCheck, qSnap),
+          sourceText: sourceMaterial?.text || (currentQuiz as any)?.sourceText || "",
+        }),
+      });
+
+      if (res.ok) {
+        const grading = await res.json();
+        
+        setAiGradingResults(prev => ({
+          ...prev,
+          [gradeKey]: {
+            ...prev[gradeKey],
+            isCorrect: prev[gradeKey]?.isCorrect ?? isCorrectAnswer(ansToCheck, qSnap),
+            isPartial: prev[gradeKey]?.isPartial ?? false,
+            explanation: grading.explanation,
+            wrongExplanation: grading.wrongExplanation,
+          },
+        }));
+        
+        qSnap.explanation = grading.explanation;
+        if (!qSnap.wrongAnswerExplanations) {
+          qSnap.wrongAnswerExplanations = {};
+        }
+        if (ansToCheck) {
+          qSnap.wrongAnswerExplanations[ansToCheck.replace(/^[A-D]\)\s*/, "").trim()] = grading.wrongExplanation;
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch explanation:", error);
+    } finally {
+      setIsGeneratingExplanation(prev => ({ ...prev, [explanationKey]: false }));
+    }
+  };
+
+  const handleToggleExplanation = async (explanationKey: string, option: string, isCorrectOpt: boolean) => {
+    if (expandedExplanations.has(explanationKey)) {
+      toggleExplanation(explanationKey);
+      return;
+    }
+
+    toggleExplanation(explanationKey);
+    await fetchExplanationIfMissing(explanationKey, option, isCorrectOpt, currentQuestion, selectedAnswer);
   };
 
   const goToNext = () => {
@@ -465,6 +572,43 @@ export function QuizPlayer() {
     }
   };
 
+  const handleReportBug = async () => {
+    if (!currentQuestion) return;
+    
+    setIsSubmittingReport(true);
+    try {
+      const response = await fetch("/api/report-bug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quizId: currentQuiz.id,
+          questionId: currentQuestion.originalId,
+          questionText: currentQuestion.question,
+          reportReason: reportReason,
+          details: reportDetails,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to submit report");
+
+      toast({
+        title: "Report submitted",
+        description: "Thank you for your feedback! We'll look into this question.",
+      });
+      setShowReportDialog(false);
+      setReportDetails("");
+    } catch (error) {
+      console.error("Error submitting bug report:", error);
+      toast({
+        title: "Error",
+        description: "Failed to submit report. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingReport(false);
+    }
+  };
+
   const getQuestionTypeBadge = (type: Question["type"]) => {
     switch (type) {
       case "multiple_choice":
@@ -473,6 +617,8 @@ export function QuizPlayer() {
         return <Badge className="bg-quiz-purple text-white text-xs">True/False</Badge>;
       case "short_answer":
         return <Badge className="bg-quiz-orange text-white text-xs">Short Answer</Badge>;
+      default:
+        return null;
     }
   };
 
@@ -536,12 +682,19 @@ export function QuizPlayer() {
           {["True", "False"].map((option, index) => {
             const isSelected = selectedAnswer === option;
             const isCorrectOpt = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
-            const showCorrectExplanation = isChecked && isCorrectOpt && currentQuestion.explanation && (!isGuest || isRetryQuestion);
-            const wrongExplanationForOption = isChecked && isSelected && !isCorrectOpt ? getWrongAnswerExplanation(option) : null;
-            const showWrongExplanation = wrongExplanationForOption && (!isGuest || isRetryQuestion);
+            const gradeKey = currentQuestion.isRetry ? currentQuestion.id : currentQuestion.originalId;
+            const aiExplanation = aiGradingResults[gradeKey];
+            const currentExplanation = currentQuestion.explanation || aiExplanation?.explanation;
+            const currentWrongExplanation = currentQuestion.wrongAnswerExplanations && Object.keys(currentQuestion.wrongAnswerExplanations).length > 0
+              ? getWrongAnswerExplanation(option)
+              : (isSelected ? aiExplanation?.wrongExplanation : null);
+
+            const showCorrectExplanation = isChecked && isCorrectOpt && (!isGuest || isRetryQuestion);
+            const showWrongExplanation = isChecked && isSelected && !isCorrectOpt && (!isGuest || isRetryQuestion);
             const explanationKey = `${currentQuestion.id}-tf-${option}`;
             const isExpanded = expandedExplanations.has(explanationKey);
             const hasExplanation = showCorrectExplanation || showWrongExplanation;
+            const isLoadingExplanation = isGeneratingExplanation[explanationKey];
             
             return (
               <div key={option} className="flex flex-col">
@@ -608,7 +761,7 @@ export function QuizPlayer() {
                     ${isCorrectOpt ? "border-green-500 bg-green-500/5" : "border-red-500 bg-red-500/5"}
                   `}>
                     <button
-                      onClick={() => toggleExplanation(explanationKey)}
+                      onClick={() => handleToggleExplanation(explanationKey, option, isCorrectOpt)}
                       className={`
                         w-full px-3 py-2 flex items-center justify-between text-xs sm:text-sm font-medium transition-colors
                         ${isCorrectOpt 
@@ -624,18 +777,21 @@ export function QuizPlayer() {
                         ) : (
                           <AlertCircle className="h-3.5 w-3.5" />
                         )}
-                        <span className="hidden sm:inline">{isCorrectOpt && isSelected ? "Great job! Here's why" : isCorrectOpt ? "The correct answer" : "Learn from this"}</span>
-                        <span className="sm:hidden">{isCorrectOpt && isSelected ? "Nice!" : isCorrectOpt ? "Answer" : "Learn"}</span>
+                        <span className="hidden sm:inline">View Explanation</span>
+                        <span className="sm:hidden">Explain</span>
                       </div>
-                      {isExpanded ? (
-                        <ChevronUp className="h-3.5 w-3.5" />
-                      ) : (
-                        <ChevronDown className="h-3.5 w-3.5" />
-                      )}
+                      <div className="flex items-center gap-2">
+                        {isLoadingExplanation && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                        {isExpanded ? (
+                          <ChevronUp className="h-3.5 w-3.5" />
+                        ) : (
+                          <ChevronDown className="h-3.5 w-3.5" />
+                        )}
+                      </div>
                     </button>
                     
                     <AnimatePresence>
-                      {isExpanded && (
+                      {isExpanded && !isLoadingExplanation && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
@@ -645,7 +801,7 @@ export function QuizPlayer() {
                         >
                           <div className="px-3 pb-3 pt-1">
                             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                              {isCorrectOpt ? currentQuestion.explanation : wrongExplanationForOption}
+                              {isCorrectOpt ? currentExplanation : currentWrongExplanation}
                             </p>
                           </div>
                         </motion.div>
@@ -757,12 +913,20 @@ export function QuizPlayer() {
         {currentQuestion.options?.map((option, index) => {
           const isSelected = selectedAnswer === option;
           const isCorrectOpt = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
-          const showCorrectExplanation = isChecked && isCorrectOpt && currentQuestion.explanation && (!isGuest || isRetryQuestion);
-          const wrongExplanationForOption = isChecked && isSelected && !isCorrectOpt ? getWrongAnswerExplanation(option) : null;
-          const showWrongExplanation = wrongExplanationForOption && (!isGuest || isRetryQuestion);
+          
+          const gradeKey = currentQuestion.isRetry ? currentQuestion.id : currentQuestion.originalId;
+          const aiExplanation = aiGradingResults[gradeKey];
+          const currentExplanation = currentQuestion.explanation || aiExplanation?.explanation;
+          const currentWrongExplanation = currentQuestion.wrongAnswerExplanations && Object.keys(currentQuestion.wrongAnswerExplanations).length > 0
+              ? getWrongAnswerExplanation(option)
+              : (isSelected ? aiExplanation?.wrongExplanation : null);
+
+          const showCorrectExplanation = isChecked && isCorrectOpt && (!isGuest || isRetryQuestion);
+          const showWrongExplanation = isChecked && isSelected && !isCorrectOpt && (!isGuest || isRetryQuestion);
           const explanationKey = `${currentQuestion.id}-${index}`;
           const isExpanded = expandedExplanations.has(explanationKey);
           const hasExplanation = showCorrectExplanation || showWrongExplanation;
+          const isLoadingExplanation = isGeneratingExplanation[explanationKey];
           
           return (
             <div key={index} className="space-y-0">
@@ -846,7 +1010,7 @@ export function QuizPlayer() {
                   ${isCorrectOpt ? "border-green-500 bg-green-500/5" : "border-red-500 bg-red-500/5"}
                 `}>
                   <button
-                    onClick={() => toggleExplanation(explanationKey)}
+                    onClick={() => handleToggleExplanation(explanationKey, option, isCorrectOpt)}
                     className={`
                       w-full px-4 py-2.5 flex items-center justify-between text-sm font-medium transition-colors
                       ${isCorrectOpt 
@@ -862,17 +1026,20 @@ export function QuizPlayer() {
                       ) : (
                         <AlertCircle className="h-4 w-4" />
                       )}
-                      <span>{isCorrectOpt && isSelected ? "Great job! Here's why" : isCorrectOpt ? "The correct answer" : "Learn from this"}</span>
+                      <span>View Explanation</span>
                     </div>
-                    {isExpanded ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
+                    <div className="flex items-center gap-2">
+                        {isLoadingExplanation && <Loader2 className="h-4 w-4 animate-spin" />}
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                    </div>
                   </button>
                   
                   <AnimatePresence>
-                    {isExpanded && (
+                    {isExpanded && !isLoadingExplanation && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
@@ -882,7 +1049,7 @@ export function QuizPlayer() {
                       >
                         <div className="px-4 pb-4 pt-1">
                           <p className="text-sm text-muted-foreground leading-relaxed">
-                            {isCorrectOpt ? currentQuestion.explanation : wrongExplanationForOption}
+                            {isCorrectOpt ? currentExplanation : currentWrongExplanation}
                           </p>
                         </div>
                       </motion.div>
@@ -994,6 +1161,11 @@ export function QuizPlayer() {
   const allMaterialImages = singleSourceImage ? [singleSourceImage, ...materialImages] : materialImages;
   const hasMaterialImages = allMaterialImages.length > 0;
 
+  const rawText = sourceMaterial?.text || (currentQuiz as any)?.sourceText || "";
+  const materialText = rawText === "[Images uploaded - AI will analyze visually]" ? "" : rawText;
+  const hasMaterialText = Boolean(materialText.trim());
+  const hasMaterialContent = hasMaterialImages || hasMaterialText;
+
   const retryQuestionsInList = allQuestions.filter(q => q.isRetry);
   const allRetryChecked = retryQuestionsInList.every(q => retryChecked.has(q.id));
   const isLastQuestion = currentIndex === allQuestions.length - 1;
@@ -1014,7 +1186,76 @@ export function QuizPlayer() {
 
   return (
     <>
-      <div className="flex w-full min-h-[calc(100vh-4rem)] overflow-x-hidden">
+      <div className="flex w-full min-h-[calc(100vh-4rem)] overflow-x-hidden relative">
+        <AnimatePresence>
+          {showMaterialViewer && !isMobile && hasMaterialContent && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: `${materialPanelWidth}%`, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="border-r border-border shrink-0 bg-muted/20 relative"
+            >
+              <div 
+                className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-primary/50 transition-colors z-[100]"
+                onMouseDown={startDrag}
+              />
+              <div className="h-full flex flex-col pt-4 pb-8 px-4 overflow-y-auto w-full absolute inset-0">
+                <div className="flex items-center justify-between mb-4 shrink-0">
+                  <div className="flex items-center gap-2">
+                    {hasMaterialImages ? <Image className="h-5 w-5 text-muted-foreground" /> : <FileText className="h-5 w-5 text-muted-foreground" />}
+                    <h3 className="font-semibold text-lg">Study Material</h3>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full"
+                    onClick={() => setShowMaterialViewer(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                {hasMaterialText && !hasMaterialImages ? (
+                   <div className="w-full text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap select-text p-4 bg-card rounded-lg shadow-sm border border-border">
+                     {materialText}
+                   </div>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center min-h-0">
+                    <img
+                      src={allMaterialImages[materialImageIndex]}
+                      alt="Study material"
+                      className="max-w-full rounded-lg border border-border/50 shadow-sm min-h-0 object-contain cursor-zoom-in"
+                      onClick={() => setExpandedImageUrl(allMaterialImages[materialImageIndex])}
+                    />
+                    {allMaterialImages.length > 1 && (
+                      <div className="w-full mt-4 flex items-center justify-between shrink-0 bg-background/50 p-2 rounded-xl backdrop-blur-sm border border-border/50">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
+                        >
+                          <ChevronLeft className="h-5 w-5" />
+                        </Button>
+                        <span className="text-xs font-semibold px-3 py-1 bg-muted rounded-full">
+                          {materialImageIndex + 1} / {allMaterialImages.length}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="flex-1 min-w-0">
           <div className="w-full mx-auto pb-32 sm:pb-28 max-w-3xl px-4">
             <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 py-4 -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -1034,7 +1275,7 @@ export function QuizPlayer() {
                     <span className="text-sm font-semibold">{displayQuestionNum}/{originalQuestionCount}</span>
                     <ChevronUp className={`h-4 w-4 transition-transform ${showQuestionNav ? "rotate-180" : ""}`} />
                   </button>
-                  {hasMaterialImages && (
+                  {hasMaterialContent && (
                     <Button
                       variant={showMaterialViewer ? "secondary" : "outline"}
                       size="sm"
@@ -1045,7 +1286,7 @@ export function QuizPlayer() {
                       className="gap-1.5 rounded-full h-8"
                       data-testid="button-view-material"
                     >
-                      <FileImage className="h-4 w-4" />
+                      {hasMaterialImages ? <FileImage className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
                       <span className="hidden sm:inline">Material</span>
                     </Button>
                   )}
@@ -1101,6 +1342,90 @@ export function QuizPlayer() {
                       </Badge>
                     )}
                     {getQuestionTypeBadge(currentQuestion.type)}
+                    
+                    <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
+                      <DialogTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 px-2 text-muted-foreground hover:text-destructive gap-1 rounded-full"
+                          data-testid="button-report-problem"
+                        >
+                          <Flag className="h-3.5 w-3.5" />
+                          <span className="text-xs font-medium">Something is wrong?</span>
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-orange-500" />
+                            Report a problem
+                          </DialogTitle>
+                          <DialogDescription>
+                            Is there something wrong with this question or its answer? Let us know and we'll fix it.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">What is the issue?</label>
+                            <div className="grid grid-cols-1 gap-2">
+                              {[
+                                "Correct answer is wrong",
+                                "Explanation is incorrect",
+                                "Typo or formatting issue",
+                                "Question is unclear",
+                                "Other"
+                              ].map((reason) => (
+                                <button
+                                  key={reason}
+                                  onClick={() => setReportReason(reason)}
+                                  className={`w-full text-left px-3 py-2 rounded-lg text-sm border-2 transition-all ${
+                                    reportReason === reason 
+                                      ? "border-primary bg-primary/5 font-semibold" 
+                                      : "border-transparent bg-muted/50 hover:bg-muted"
+                                  }`}
+                                >
+                                  {reason}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Details (optional)</label>
+                            <Textarea 
+                              placeholder="Describe what's wrong..." 
+                              value={reportDetails}
+                              onChange={(e) => setReportDetails(e.target.value)}
+                              className="min-h-[100px] rounded-xl"
+                            />
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button 
+                            variant="ghost" 
+                            onClick={() => setShowReportDialog(false)}
+                            disabled={isSubmittingReport}
+                            className="rounded-xl"
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            onClick={handleReportBug}
+                            disabled={isSubmittingReport}
+                            className="rounded-xl px-6"
+                          >
+                            {isSubmittingReport ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Submitting...
+                              </>
+                            ) : (
+                              "Submit Report"
+                            )}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                   
                   <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-snug" data-testid="text-question">
@@ -1351,7 +1676,7 @@ export function QuizPlayer() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showMaterialViewer && isMobile && hasMaterialImages && (
+        {showMaterialViewer && isMobile && hasMaterialContent && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1359,11 +1684,11 @@ export function QuizPlayer() {
             className="fixed inset-0 z-[100] bg-black/90 flex flex-col"
             onClick={() => setShowMaterialViewer(false)}
           >
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
+            <div className="flex items-center justify-between p-4 border-b border-white/10 shrink-0">
               <div className="flex items-center gap-3">
-                <Image className="h-5 w-5 text-white/80" />
+                {hasMaterialImages ? <Image className="h-5 w-5 text-white/80" /> : <FileText className="h-5 w-5 text-white/80" />}
                 <span className="text-white font-medium">
-                  {`Images ${allMaterialImages.length > 1 ? `(${materialImageIndex + 1}/${allMaterialImages.length})` : ""}`}
+                  {hasMaterialImages && allMaterialImages.length > 1 ? `Images (${materialImageIndex + 1}/${allMaterialImages.length})` : "Study Material"}
                 </span>
               </div>
               <Button
@@ -1377,39 +1702,45 @@ export function QuizPlayer() {
             </div>
             
             <div 
-              className="flex-1 flex items-center justify-center p-4 relative"
+              className="flex-1 flex flex-col p-4 relative overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              {allMaterialImages.length > 1 && (
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute left-4 z-10 rounded-full shadow-lg"
-                  onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
-                  data-testid="button-material-prev-mobile"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </Button>
-              )}
-              <img
-                src={allMaterialImages[materialImageIndex]}
-                alt={`Study material ${materialImageIndex + 1}`}
-                className="max-w-full max-h-[calc(100vh-120px)] object-contain rounded-lg"
-              />
-              {allMaterialImages.length > 1 && (
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute right-4 z-10 rounded-full shadow-lg"
-                  onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
-                  data-testid="button-material-next-mobile"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </Button>
+              {hasMaterialText && !hasMaterialImages ? (
+                <div className="w-full text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap select-text p-4 bg-zinc-900 rounded-lg shadow-sm border border-white/10">
+                  {materialText}
+                </div>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center relative">
+                  {allMaterialImages.length > 1 && (
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="absolute left-0 z-10 rounded-full shadow-lg"
+                      onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                  )}
+                  <img
+                    src={allMaterialImages[materialImageIndex]}
+                    alt={`Study material ${materialImageIndex + 1}`}
+                    className="max-w-full max-h-[85vh] object-contain rounded-lg"
+                  />
+                  {allMaterialImages.length > 1 && (
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="absolute right-0 z-10 rounded-full shadow-lg"
+                      onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
-            {allMaterialImages.length > 1 && (
-              <div className="flex justify-center gap-2 p-4 border-t border-white/10">
+            {hasMaterialImages && allMaterialImages.length > 1 && (
+              <div className="flex justify-center gap-2 p-4 border-t border-white/10 shrink-0">
                 {allMaterialImages.map((_: string, idx: number) => (
                   <button
                     key={idx}
@@ -1420,7 +1751,6 @@ export function QuizPlayer() {
                     className={`w-2.5 h-2.5 rounded-full transition-colors ${
                       idx === materialImageIndex ? 'bg-white' : 'bg-white/30'
                     }`}
-                    data-testid={`button-material-dot-${idx}`}
                   />
                 ))}
               </div>
