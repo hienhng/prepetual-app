@@ -37,7 +37,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useQuiz } from "@/lib/quiz-context";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { Question, QuestionType } from "@shared/schema";
+import { type Question, type QuestionType, QUIZ_CATEGORIES, type QuizCategory } from "@shared/schema";
 
 type ViewMode = "edit" | "preview";
 type QuestionFilter = "all" | "multiple_choice" | "true_false" | "short_answer";
@@ -50,6 +50,9 @@ export default function EditQuizPage() {
   const [title, setTitle] = useState(currentQuiz?.title || "");
   const [questions, setQuestions] = useState<Question[]>(
     (currentQuiz?.questions as Question[]) || []
+  );
+  const [category, setCategory] = useState<QuizCategory>(
+    (currentQuiz as any)?.category || "Others/General"
   );
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -67,6 +70,7 @@ export default function EditQuizPage() {
     if (currentQuiz) {
       setTitle(currentQuiz.title || "");
       setQuestions((currentQuiz.questions as Question[]) || []);
+      setCategory((currentQuiz as any).category || "Others/General");
     }
   }, [currentQuiz?.id]);
 
@@ -278,6 +282,7 @@ export default function EditQuizPage() {
       const response = await apiRequest("PUT", `/api/quiz/${currentQuiz.id}`, {
         title,
         questions,
+        category,
       });
       const updatedQuiz = await response.json();
       setCurrentQuiz(updatedQuiz);
@@ -327,6 +332,7 @@ export default function EditQuizPage() {
         ...currentQuiz,
         title,
         questions,
+        category,
       } as any);
       setLocation("/quiz");
     }
@@ -398,20 +404,40 @@ export default function EditQuizPage() {
               exit={{ opacity: 0 }}
               className="space-y-6"
             >
-              <Card>
-                <CardHeader className="py-4">
-                  <CardTitle className="text-base">Quiz Title</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <Input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Enter quiz title"
-                    className="text-lg font-medium"
-                    data-testid="input-quiz-title"
-                  />
-                </CardContent>
-              </Card>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="md:col-span-2">
+                  <CardHeader className="py-2.5">
+                    <CardTitle className="text-sm font-medium">Quiz Title</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Input
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Enter quiz title"
+                      className="text-lg font-medium"
+                      data-testid="input-quiz-title"
+                    />
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="py-2.5">
+                    <CardTitle className="text-sm font-medium">Category</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Select value={category} onValueChange={(v: QuizCategory) => setCategory(v)}>
+                      <SelectTrigger data-testid="select-category">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {QUIZ_CATEGORIES.map((cat) => (
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+              </div>
 
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="outline" className="gap-1">

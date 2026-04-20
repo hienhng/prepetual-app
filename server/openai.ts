@@ -740,7 +740,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
 
     const title = parsed.title?.trim() || "Untitled Quiz";
     const rawCategory = parsed.category?.trim() || "Others/General";
-    const category: QuizCategory = QUIZ_CATEGORIES.includes(rawCategory) ? rawCategory : "Others/General";
+    const category: QuizCategory = QUIZ_CATEGORIES.find(c => c.toLowerCase() === rawCategory.toLowerCase()) || "Others/General";
     const questions: Question[] = [];
 
     onProgress?.("verifying", 85, "Verifying answer accuracy...");
@@ -879,10 +879,11 @@ interface ImportQuizParams {
 
 export async function importExistingQuiz(
   params: ImportQuizParams,
-): Promise<{ questions: Question[]; title: string }> {
+): Promise<{ questions: Question[]; title: string; category: QuizCategory }> {
   const { text, documentImages = [] } = params;
 
   const hasImages = documentImages.length > 0;
+  const categoryList = QUIZ_CATEGORIES.join(", ");
   const truncatedText =
     text.length > 8000 ? text.substring(0, 8000) + "..." : text;
 
@@ -894,6 +895,8 @@ Your task is to:
 3. Provide a brief explanation for why each answer is correct
 4. For each WRONG answer option, provide a brief explanation of why it is incorrect
 5. Generate a short, descriptive title (max 6 words) for this quiz.
+6. Assign exactly ONE category from: ${categoryList}
+   - Math, English, Science, Social Studies, Global Languages, Others/General
 
 CONTENT:
 ${truncatedText}
@@ -927,6 +930,7 @@ IMPORTANT INSTRUCTIONS:
 OUTPUT FORMAT (JSON):
 {
   "title": "A short descriptive title for the quiz",
+  "category": "One of: ${categoryList}",
   "questions": [
     {
       "type": "multiple_choice OR true_false OR short_answer",
@@ -953,6 +957,8 @@ Your task is to:
 4. Provide a brief explanation for why each answer is correct
 5. For each WRONG answer option, provide a brief explanation of why it is incorrect
 6. Generate a short, descriptive title (max 6 words) for this quiz.
+7. Assign exactly ONE category from: ${categoryList}
+   - Math, English, Science, Social Studies, Global Languages, Others/General
 
 TEXT CONTENT:
 ${truncatedText}
@@ -983,6 +989,7 @@ IMPORTANT INSTRUCTIONS:
 OUTPUT FORMAT (JSON):
 {
   "title": "A short descriptive title for the quiz",
+  "category": "One of: ${categoryList}",
   "questions": [
     {
       "type": "multiple_choice OR true_false OR short_answer",
@@ -1068,6 +1075,8 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
     }
 
     const title = parsed.title?.trim() || "Imported Quiz";
+    const rawCategory = parsed.category?.trim() || "Others/General";
+    const category: QuizCategory = QUIZ_CATEGORIES.find(c => c.toLowerCase() === rawCategory.toLowerCase()) || "Others/General";
     const questions: Question[] = [];
 
     const importMcQuestions = parsed.questions.filter((q: any) =>
@@ -1209,7 +1218,11 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
       );
     }
 
-    return { questions, title };
+    return {
+      questions,
+      title,
+      category,
+    };
   } catch (error: any) {
     console.error("Error importing quiz:", error);
     if (error.message && error.message.includes("No quiz questions")) {

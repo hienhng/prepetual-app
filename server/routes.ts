@@ -738,7 +738,7 @@ export async function registerRoutes(
         });
       }
 
-      const { questions, title } = await importExistingQuiz({
+      const { questions, title, category } = await importExistingQuiz({
         text: textForImport,
         documentImages: Array.isArray(documentImages) ? documentImages : undefined,
       });
@@ -751,6 +751,7 @@ export async function registerRoutes(
         sourceImages: Array.isArray(documentImages) ? documentImages : null,
         questions: questions as Question[],
         difficulty: "medium",
+        category,
         generationMode: "import",
         isPublic: 0,
       });
@@ -1058,12 +1059,11 @@ Format with bullet points for easy reading. Keep it under 500 words.`
   app.put("/api/quiz/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const { title, questions, isPublic } = req.body;
-
-      const { folderId } = req.body;
+      const { title, questions, isPublic, category, folderId } = req.body;
       const updates: any = {};
       if (title !== undefined) updates.title = title;
       if (questions !== undefined) updates.questions = questions;
+      if (category !== undefined) updates.category = category;
       if (isPublic !== undefined) updates.isPublic = isPublic ? 1 : 0;
       if (folderId !== undefined) updates.folderId = folderId;
 

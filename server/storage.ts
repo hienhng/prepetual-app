@@ -161,12 +161,12 @@ export class DatabaseStorage implements IStorage {
       title: quiz.title,
       sourceText: quiz.sourceText,
       sourceImageUrl: quiz.sourceImageUrl,
-      sourceImages: quiz.sourceImages || null,
+      sourceImages: (quiz.sourceImages as string[]) || null,
       questions: quiz.questions as Question[],
       difficulty: quiz.difficulty || "medium",
       category: quiz.category || "Others/General",
       isPublic: quiz.isPublic || 0,
-    }).returning();
+    } as any).returning();
     return savedQuiz;
   }
 
@@ -211,6 +211,7 @@ export class DatabaseStorage implements IStorage {
     if (updates.sourceImageUrl !== undefined) updateData.sourceImageUrl = updates.sourceImageUrl;
     if (updates.questions !== undefined) updateData.questions = updates.questions as Question[];
     if (updates.difficulty !== undefined) updateData.difficulty = updates.difficulty;
+    if (updates.category !== undefined) updateData.category = updates.category;
     if (updates.isPublic !== undefined) updateData.isPublic = updates.isPublic;
     if (updates.folderId !== undefined) updateData.folderId = updates.folderId;
     
@@ -233,12 +234,12 @@ export class DatabaseStorage implements IStorage {
     const [savedResult] = await db.insert(quizResults).values({
       quizId: result.quizId,
       userId: result.userId,
-      answers: result.answers,
+      answers: result.answers as Record<string, string>,
       score: result.score,
       totalQuestions: result.totalQuestions,
       correctAnswers: result.correctAnswers,
       wrongQuestionIds: (result.wrongQuestionIds || []) as string[]
-    }).returning();
+    } as any).returning();
     return savedResult;
   }
 
@@ -501,12 +502,12 @@ export class DatabaseStorage implements IStorage {
       .values({
         userId: progress.userId,
         quizId: progress.quizId,
-        answers: progress.answers,
-        checkedQuestions: progress.checkedQuestions || [],
+        answers: progress.answers as Record<string, string>,
+        checkedQuestions: (progress.checkedQuestions as string[]) || [],
         currentIndex: progress.currentIndex ?? 0,
-        retryAnswers: progress.retryAnswers ?? {},
-        retryCheckedQuestions: progress.retryCheckedQuestions ?? [],
-      })
+        retryAnswers: (progress.retryAnswers as Record<string, string>) ?? {},
+        retryCheckedQuestions: (progress.retryCheckedQuestions as string[]) || [],
+      } as any)
       .returning();
 
     // Fetch the quiz to return joined data

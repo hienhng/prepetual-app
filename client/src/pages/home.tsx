@@ -3141,20 +3141,17 @@ export default function Home() {
             >
               Start your journey today
             </motion.p>
-
-            <div className="overflow-hidden mb-8">
-              <motion.h2
-                className="font-bold tracking-tight text-foreground leading-[1.05]"
-                style={{ fontSize: "clamp(2.5rem, 7vw, 5.5rem)" }}
-                initial={{ y: "110%" }}
-                whileInView={{ y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-              >
-                Master your materials. <br className="hidden md:block" />
-                <span className="text-primary italic">Elevate</span> your performance.
-              </motion.h2>
-            </div>
+            <motion.h2
+              className="font-bold tracking-tight text-foreground leading-[1.05] mb-8"
+              style={{ fontSize: "clamp(2.5rem, 7vw, 5.5rem)" }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
+            >
+              Master your materials. <br className="hidden md:block" />
+              <span className="text-primary"><em>Elevate</em></span> your performance.
+            </motion.h2>
 
             <motion.p
               className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-14 text-pretty"
@@ -3173,7 +3170,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1]}}
                 className="w-full sm:w-auto"
               >
                 <Button
@@ -3194,7 +3191,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   className="w-full sm:w-auto"
                 >
                   <Button

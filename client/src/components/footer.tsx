@@ -68,6 +68,11 @@ export function Footer() {
             © {currentYear} Prepetual. All rights reserved.
           </p>
         </div>
+        <div>
+          <p className="text-sm text-muted-foreground text-center md:text-left">
+            Made with ❤️ by Gia Hien
+          </p>
+        </div>
       </div>
     </footer>
   );

@@ -440,6 +440,9 @@ function QuizCard({
             <Badge variant="outline" className={`h-5 text-[10px] capitalize px-2 font-bold ${colors.badge}`}>
               {difficulty}
             </Badge>
+            <span className="flex items-center gap-1 font-medium bg-muted px-2 py-0.5 rounded-md">
+              {quiz.category || "Others/General"}
+            </span>
             <span className="hidden sm:inline-flex items-center gap-1 opacity-70">
               <Clock className="w-3 h-3" />
               {formatDistanceToNow(new Date(quiz.createdAt))} ago

@@ -490,14 +490,14 @@ export default function Create() {
             <div className="p-8 pt-4">
               <FileUpload onTextExtracted={handleTextExtracted} />
               <div className="mt-8 pt-6 border-t border-border/50 flex items-center justify-between">
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                  AI Vision enabled for images
-                </p>
                 <div className="flex gap-2">
                   <Badge variant="outline" className="text-[10px] font-bold">PDF</Badge>
                   <Badge variant="outline" className="text-[10px] font-bold">DOCX</Badge>
                   <Badge variant="outline" className="text-[10px] font-bold">IMAGES</Badge>
                 </div>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                  File size up to 10MB
+                </p>
               </div>
             </div>
           </DialogContent>
@@ -531,14 +531,14 @@ export default function Create() {
                 <div className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-xl border border-border/50">
                   <FileText className="w-4 h-4 text-violet-500" />
                   <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
-                    {getWordCount(manualText)} Words Detected
+                    {getWordCount(manualText)} Words
                   </span>
                 </div>
                 <Button
                   size="lg"
                   onClick={handleManualTextSubmit}
                   disabled={manualText.trim().length < 50}
-                  className="w-full sm:w-auto gap-3 rounded-xl font-black shadow-xl shadow-violet-500/10 hover:shadow-violet-500/20 transition-all bg-gradient-to-r from-violet-600 to-purple-600"
+                  className="w-full sm:w-auto gap-3 border-violet-700 rounded-xl font-black shadow-xl shadow-violet-500/10 hover:shadow-violet-500/20 transition-all bg-gradient-to-r from-violet-600 to-purple-600"
                   data-testid="button-submit-manual-text"
                 >
                   <CheckCircle2 className="h-5 w-5" />

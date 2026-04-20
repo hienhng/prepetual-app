@@ -481,6 +481,10 @@ export default function HistoryPage() {
                                       {formatDate(quiz.createdAt)}
                                     </div>
                                     <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                                    <div className="font-semibold text-primary/80">
+                                      {quiz.category || "Others/General"}
+                                    </div>
+                                    <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                                     <div className="flex items-center gap-1">
                                       {(quiz.questions as any[]).length} questions
                                     </div>
