@@ -10,6 +10,11 @@ const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
 });
 
+const gemini = new OpenAI({
+  baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+  apiKey: process.env.GEMINI_API_KEY,
+});
+
 const ollama = new OpenAI({
   baseURL: process.env.OLLAMA_BASE_URL || "http://localhost:11434/v1",
   apiKey: "ollama", // Ollama doesn't need an API key
@@ -310,7 +315,8 @@ export async function generateQuizQuestions(
   const hasImages = documentImages.length > 0;
 
   // Automatically select model based on content
-  const selectedModel = hasImages ? "default" : "mistral-ollama";
+  // In production/Vercel, we prefer Gemini 1.5 Flash for text-only tasks
+  const selectedModel = hasImages ? "default" : "gemini";
 
   // Step 1: Reading material
   onProgress?.("reading", 10, "Reading your study material...");
@@ -617,16 +623,16 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
         let emptyRetries = 0;
         const maxEmptyRetries = 3;
 
-        const aiClient = selectedModel === "default" ? openai : ollama;
+        const aiClient = selectedModel === "default" ? openai : (selectedModel === "gemini" ? gemini : ollama);
         const aiModel = selectedModel === "default" 
           ? (hasImages ? "meta-llama/llama-4-scout-17b-16e-instruct" : "llama-3.3-70b-versatile")
-          : "mistral";
+          : (selectedModel === "gemini" ? "gemini-1.5-flash" : "mistral");
 
         while (!content && emptyRetries < maxEmptyRetries) {
           const completion = await aiClient.chat.completions.create({
             model: aiModel,
             messages,
-            response_format: selectedModel === "default" ? { type: "json_object" } : undefined, // Some local models don't support json_object
+            response_format: selectedModel === "default" ? { type: "json_object" } : undefined, // Some models don't support json_object
             max_completion_tokens: 8192,
           });
 
