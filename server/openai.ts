@@ -10,6 +10,11 @@ const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
 });
 
+const ollama = new OpenAI({
+  baseURL: process.env.OLLAMA_BASE_URL || "http://localhost:11434/v1",
+  apiKey: "ollama", // Ollama doesn't need an API key
+});
+
 function isRateLimitError(error: any): boolean {
   const errorMsg = error?.message || String(error);
   return (
@@ -295,14 +300,17 @@ interface QuizGenerationParams {
   documentImages?: string[];
   onProgress?: ProgressCallback;
   isImageOnly?: boolean;
+  model?: "default" | "mistral-ollama" | "llama3-ollama";
 }
 
 export async function generateQuizQuestions(
   params: QuizGenerationParams,
 ): Promise<{ questions: Question[]; title: string; category: QuizCategory }> {
   const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress, isImageOnly = false } = params;
-
   const hasImages = documentImages.length > 0;
+
+  // Automatically select model based on content
+  const selectedModel = hasImages ? "default" : "mistral-ollama";
 
   // Step 1: Reading material
   onProgress?.("reading", 10, "Reading your study material...");
@@ -609,15 +617,28 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
         let emptyRetries = 0;
         const maxEmptyRetries = 3;
 
+        const aiClient = selectedModel === "default" ? openai : ollama;
+        const aiModel = selectedModel === "default" 
+          ? (hasImages ? "meta-llama/llama-4-scout-17b-16e-instruct" : "llama-3.3-70b-versatile")
+          : "mistral";
+
         while (!content && emptyRetries < maxEmptyRetries) {
-          const completion = await openai.chat.completions.create({
-            model: hasImages ? "meta-llama/llama-4-scout-17b-16e-instruct" : "llama-3.3-70b-versatile",
+          const completion = await aiClient.chat.completions.create({
+            model: aiModel,
             messages,
-            response_format: { type: "json_object" },
+            response_format: selectedModel === "default" ? { type: "json_object" } : undefined, // Some local models don't support json_object
             max_completion_tokens: 8192,
           });
 
           content = completion.choices[0]?.message?.content;
+          
+          // Basic JSON extraction if not using json_object mode
+          if (content && selectedModel !== "default") {
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              content = jsonMatch[0];
+            }
+          }
 
           if (!content) {
             emptyRetries++;

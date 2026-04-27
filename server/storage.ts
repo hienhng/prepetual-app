@@ -1,4 +1,4 @@
-import { eq, desc, and, gt, inArray, count } from "drizzle-orm";
+import { eq, desc, and, gt, inArray, count, sql } from "drizzle-orm";
 import { db } from "./db";
 import { 
   users, 
@@ -45,7 +45,8 @@ export interface IStorage {
   getQuiz(id: string): Promise<Quiz | undefined>;
   getAllQuizzes(): Promise<Quiz[]>;
   getQuizzesByUserId(userId: string): Promise<Quiz[]>;
-  getPublicQuizzes(): Promise<(Quiz & { author?: { username: string | null; profileImageUrl: string | null } })[]>;
+  getQuizzesByUserIdLight(userId: string): Promise<(Omit<Quiz, "questions" | "sourceText" | "sourceImages"> & { questionCount: number })[]>;
+  getPublicQuizzes(): Promise<(Quiz & { author?: { username: string | null; email: string | null; profileImageUrl: string | null } })[]>;
   updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined>;
   deleteQuiz(id: string): Promise<boolean>;
   saveQuizResult(result: InsertQuizResult): Promise<QuizResult>;
@@ -172,6 +173,7 @@ export class DatabaseStorage implements IStorage {
       questions: quiz.questions as Question[],
       difficulty: quiz.difficulty || "medium",
       category: quiz.category || "Others/General",
+      generationMode: quiz.generationMode || "generate",
       isPublic: quiz.isPublic || 0,
     } as any).returning();
     return savedQuiz;
@@ -188,6 +190,27 @@ export class DatabaseStorage implements IStorage {
 
   async getQuizzesByUserId(userId: string): Promise<Quiz[]> {
     return await db.select().from(quizzes).where(eq(quizzes.userId, userId)).orderBy(desc(quizzes.createdAt));
+  }
+
+  async getQuizzesByUserIdLight(userId: string): Promise<(Omit<Quiz, "questions" | "sourceText" | "sourceImages"> & { questionCount: number })[]> {
+    const rows = await db.select({
+      id: quizzes.id,
+      userId: quizzes.userId,
+      folderId: quizzes.folderId,
+      title: quizzes.title,
+      sourceImageUrl: quizzes.sourceImageUrl,
+      difficulty: quizzes.difficulty,
+      category: quizzes.category,
+      generationMode: quizzes.generationMode,
+      isPublic: quizzes.isPublic,
+      createdAt: quizzes.createdAt,
+      questionCount: sql<number>`jsonb_array_length(${quizzes.questions})`,
+    })
+    .from(quizzes)
+    .where(eq(quizzes.userId, userId))
+    .orderBy(desc(quizzes.createdAt));
+    
+    return rows;
   }
 
   async getPublicQuizzes(): Promise<(Quiz & { author?: { username: string | null; email: string | null; profileImageUrl: string | null } })[]> {
@@ -221,6 +244,7 @@ export class DatabaseStorage implements IStorage {
     if (updates.category !== undefined) updateData.category = updates.category;
     if (updates.isPublic !== undefined) updateData.isPublic = updates.isPublic;
     if (updates.folderId !== undefined) updateData.folderId = updates.folderId;
+    if (updates.generationMode !== undefined) updateData.generationMode = updates.generationMode;
     
     const [updated] = await db.update(quizzes)
       .set(updateData)
@@ -516,11 +540,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Quiz Progress methods
-  async getQuizProgressByUserId(userId: string): Promise<(QuizProgress & { quiz: Quiz })[]> {
+  async getQuizProgressByUserId(userId: string): Promise<(QuizProgress & { quiz: any })[]> {
     const results = await db
       .select({
         progress: quizProgress,
-        quiz: quizzes,
+        quiz: {
+          id: quizzes.id,
+          userId: quizzes.userId,
+          title: quizzes.title,
+          difficulty: quizzes.difficulty,
+          category: quizzes.category,
+          generationMode: quizzes.generationMode,
+          sourceImageUrl: quizzes.sourceImageUrl,
+          createdAt: quizzes.createdAt,
+          questions: quizzes.questions,
+          questionCount: sql<number>`jsonb_array_length(${quizzes.questions})`,
+        },
       })
       .from(quizProgress)
       .innerJoin(quizzes, eq(quizProgress.quizId, quizzes.id))

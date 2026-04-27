@@ -185,54 +185,80 @@ export default function HistoryPage() {
     },
   });
 
-  const handleRetake = (quiz: Quiz) => {
+  const handleRetake = async (quiz: any) => {
     const hasSavedProgress = savedProgresses.some(p => p.quizId === quiz.id);
     if (hasSavedProgress) {
       loadSavedProgress(quiz.id);
-    } else {
+      setLocation("/quiz");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/quiz/${quiz.id}`);
+      if (!response.ok) throw new Error("Failed to fetch quiz details");
+      const fullQuiz = await response.json();
+
       setCurrentQuiz({
-        ...quiz,
-        createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
+        ...fullQuiz,
+        createdAt: typeof fullQuiz.createdAt === "string" ? fullQuiz.createdAt : fullQuiz.createdAt.toISOString(),
       } as any);
       setSourceMaterial({
-        type: quiz.sourceImageUrl ? "image" : null,
-        text: quiz.sourceText,
-        imageDataUrl: quiz.sourceImageUrl || null,
-        isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
-        documentImages: quiz.sourceImages || [],
+        type: fullQuiz.sourceImageUrl ? "image" : null,
+        text: fullQuiz.sourceText,
+        imageDataUrl: fullQuiz.sourceImageUrl || null,
+        isOfficeWithImages: (fullQuiz.sourceImages?.length || 0) > 0,
+        documentImages: fullQuiz.sourceImages || [],
       });
+      setLocation("/quiz");
+    } catch (err) {
+      console.error("Failed to load quiz details:", err);
     }
-    setLocation("/quiz");
   };
 
-  const handleStudy = (quiz: Quiz) => {
-    setCurrentQuiz({
-      ...quiz,
-      createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
-    } as any);
-    setSourceMaterial({
-      type: quiz.sourceImageUrl ? "image" : null,
-      text: quiz.sourceText,
-      imageDataUrl: quiz.sourceImageUrl || null,
-      isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
-      documentImages: quiz.sourceImages || [],
-    });
-    setLocation("/study");
+  const handleStudy = async (quiz: any) => {
+    try {
+      const response = await fetch(`/api/quiz/${quiz.id}`);
+      if (!response.ok) throw new Error("Failed to fetch quiz details");
+      const fullQuiz = await response.json();
+
+      setCurrentQuiz({
+        ...fullQuiz,
+        createdAt: typeof fullQuiz.createdAt === "string" ? fullQuiz.createdAt : fullQuiz.createdAt.toISOString(),
+      } as any);
+      setSourceMaterial({
+        type: fullQuiz.sourceImageUrl ? "image" : null,
+        text: fullQuiz.sourceText,
+        imageDataUrl: fullQuiz.sourceImageUrl || null,
+        isOfficeWithImages: (fullQuiz.sourceImages?.length || 0) > 0,
+        documentImages: fullQuiz.sourceImages || [],
+      });
+      setLocation("/study");
+    } catch (err) {
+      console.error("Failed to load quiz details:", err);
+    }
   };
 
-  const handleEdit = (quiz: Quiz) => {
-    setCurrentQuiz({
-      ...quiz,
-      createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
-    } as any);
-    setSourceMaterial({
-      type: quiz.sourceImageUrl ? "image" : null,
-      text: quiz.sourceText,
-      imageDataUrl: quiz.sourceImageUrl || null,
-      isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
-      documentImages: quiz.sourceImages || [],
-    });
-    setLocation("/edit-quiz");
+  const handleEdit = async (quiz: any) => {
+    try {
+      const response = await fetch(`/api/quiz/${quiz.id}`);
+      if (!response.ok) throw new Error("Failed to fetch quiz details");
+      const fullQuiz = await response.json();
+
+      setCurrentQuiz({
+        ...fullQuiz,
+        createdAt: typeof fullQuiz.createdAt === "string" ? fullQuiz.createdAt : fullQuiz.createdAt.toISOString(),
+      } as any);
+      setSourceMaterial({
+        type: fullQuiz.sourceImageUrl ? "image" : null,
+        text: fullQuiz.sourceText,
+        imageDataUrl: fullQuiz.sourceImageUrl || null,
+        isOfficeWithImages: (fullQuiz.sourceImages?.length || 0) > 0,
+        documentImages: fullQuiz.sourceImages || [],
+      });
+      setLocation("/edit-quiz");
+    } catch (err) {
+      console.error("Failed to load quiz details:", err);
+    }
   };
 
   const handleShare = (quizId: string) => {
@@ -486,7 +512,7 @@ export default function HistoryPage() {
                                     </div>
                                     <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                                     <div className="flex items-center gap-1">
-                                      {(quiz.questions as any[]).length} questions
+                                      {(quiz as any).questionCount || (quiz.questions as any[])?.length || 0} questions
                                     </div>
                                     <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                                     <div className={`capitalize ${getDifficultyColor(quiz.difficulty)}`}>

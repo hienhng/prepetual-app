@@ -936,7 +936,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     try {
       const userId = req.user.claims.sub;
       const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
-      const quizzes = await storage.getQuizzesByUserId(userId);
+      const quizzes = await storage.getQuizzesByUserIdLight(userId);
 
       // Storage already returns quizzes ordered by createdAt desc, but apply limit
       const limitedQuizzes = limit ? quizzes.slice(0, limit) : quizzes;

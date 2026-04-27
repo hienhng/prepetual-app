@@ -407,7 +407,7 @@ function QuizCard({
   const difficulty = (["easy", "medium", "hard"].includes(difficultyRaw) ? difficultyRaw : "medium") as "easy" | "medium" | "hard";
   const colors = difficultyColors[difficulty] || difficultyColors.medium;
   const CategoryIcon = categoryIcons[quiz.category || "Others/General"] || GraduationCap;
-  const questionCount = (quiz.questions as any[]).length;
+  const questionCount = (quiz as any).questionCount || (quiz.questions as any[])?.length || 0;
 
   return (
     <motion.div
@@ -425,7 +425,6 @@ function QuizCard({
           <div className={`w-12 h-12 rounded-xl ${colors.icon} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
             <CategoryIcon className="w-6 h-6 text-white" />
           </div>
-          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${colors.icon.replace('bg-gradient-to-br', 'bg')}`} />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -678,40 +677,60 @@ export default function Dashboard() {
     queryKey: ["/api/user/stats"],
   });
 
-  const handleTakeQuiz = (quiz: Quiz) => {
+  const handleTakeQuiz = async (quiz: any) => {
     // Check if there's saved progress for this quiz
     const hasSavedProgress = savedProgresses.some(p => p.quizId === quiz.id);
     if (hasSavedProgress) {
       loadSavedProgress(quiz.id);
-    } else {
+      setLocation("/quiz");
+      return;
+    }
+
+    // Fetch full quiz data since the list only has metadata
+    try {
+      const response = await fetch(`/api/quiz/${quiz.id}`);
+      if (!response.ok) throw new Error("Failed to fetch quiz details");
+      const fullQuiz = await response.json();
+
       setCurrentQuiz({
-        ...quiz,
-        createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
+        ...fullQuiz,
+        createdAt: typeof fullQuiz.createdAt === "string" ? fullQuiz.createdAt : fullQuiz.createdAt.toISOString(),
       } as any);
       setSourceMaterial({
-        type: quiz.sourceImageUrl ? "image" : null,
-        text: quiz.sourceText,
-        imageDataUrl: quiz.sourceImageUrl || null,
-        isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
-        documentImages: quiz.sourceImages || [],
+        type: fullQuiz.sourceImageUrl ? "image" : null,
+        text: fullQuiz.sourceText,
+        imageDataUrl: fullQuiz.sourceImageUrl || null,
+        isOfficeWithImages: (fullQuiz.sourceImages?.length || 0) > 0,
+        documentImages: fullQuiz.sourceImages || [],
       });
+      setLocation("/quiz");
+    } catch (err) {
+      console.error("Failed to load quiz details:", err);
     }
-    setLocation("/quiz");
   };
 
-  const handleStudyQuiz = (quiz: Quiz) => {
-    setCurrentQuiz({
-      ...quiz,
-      createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
-    } as any);
-    setSourceMaterial({
-      type: quiz.sourceImageUrl ? "image" : null,
-      text: quiz.sourceText,
-      imageDataUrl: quiz.sourceImageUrl || null,
-      isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
-      documentImages: quiz.sourceImages || [],
-    });
-    setLocation("/study");
+  const handleStudyQuiz = async (quiz: any) => {
+    // Fetch full quiz data since the list only has metadata
+    try {
+      const response = await fetch(`/api/quiz/${quiz.id}`);
+      if (!response.ok) throw new Error("Failed to fetch quiz details");
+      const fullQuiz = await response.json();
+
+      setCurrentQuiz({
+        ...fullQuiz,
+        createdAt: typeof fullQuiz.createdAt === "string" ? fullQuiz.createdAt : fullQuiz.createdAt.toISOString(),
+      } as any);
+      setSourceMaterial({
+        type: fullQuiz.sourceImageUrl ? "image" : null,
+        text: fullQuiz.sourceText,
+        imageDataUrl: fullQuiz.sourceImageUrl || null,
+        isOfficeWithImages: (fullQuiz.sourceImages?.length || 0) > 0,
+        documentImages: fullQuiz.sourceImages || [],
+      });
+      setLocation("/study");
+    } catch (err) {
+      console.error("Failed to load quiz details:", err);
+    }
   };
 
   const handleContinueQuiz = () => {
@@ -827,7 +846,7 @@ export default function Dashboard() {
   }
 
   const totalQuizzes = quizzes?.length || 0;
-  const totalQuestions = quizzes?.reduce((acc, q) => acc + (q.questions as any[]).length, 0) || 0;
+  const totalQuestions = quizzes?.reduce((acc, q) => acc + (q as any).questionCount, 0) || 0;
   const recentQuizzes = quizzes || [];
   const hasQuizzes = totalQuizzes > 0;
 
@@ -841,16 +860,16 @@ export default function Dashboard() {
 
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl min-h-[calc(100vh-8rem)] flex flex-col">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="space-y-8"
+        className={`space-y-8 flex-1 ${!hasQuizzes ? "flex flex-col items-center justify-center" : ""}`}
       >
         {/* Welcome Section */}
-        <motion.section variants={itemVariants}>
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <motion.section variants={itemVariants} className={!hasQuizzes ? "text-center w-full" : "w-full"}>
+          <div className={`flex flex-col gap-4 ${!hasQuizzes ? "items-center" : "md:flex-row md:items-end md:justify-between"}`}>
             <div>
               <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
                 {getGreeting()}, <span className="text-primary">{user?.username || 'Learner'}</span>
@@ -866,78 +885,81 @@ export default function Dashboard() {
         </motion.section>
 
         {/* Dynamic Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Main Content (Left Column) */}
-          <div className="lg:col-span-8 space-y-8">
-            {/* Continue Section */}
-            {latestSavedQuiz && (
+        {!hasQuizzes ? (
+          <motion.section variants={itemVariants} className="w-full max-w-2xl mx-auto">
+            <EmptyState onCreateQuiz={() => setLocation("/create")} />
+          </motion.section>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
+            {/* Main Content (Left Column) */}
+            <div className="lg:col-span-8 space-y-8">
+              {/* Continue Section */}
+              {latestSavedQuiz && (
+                <motion.section variants={itemVariants}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                      <Play className="w-5 h-5 text-primary fill-primary" />
+                      Continue Learning
+                    </h2>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="font-bold text-muted-foreground hover:text-primary"
+                      onClick={() => setLocation("/in-progress")}
+                    >
+                      View all in progress
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
+
+                  <div className="relative">
+                    {(() => {
+                      const item = latestSavedQuiz;
+                      if (!item) return null;
+                      const answerKeys = Object.keys(item.answers);
+                      const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
+                      const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
+                      const totalQuestions = item.quiz.questions?.length || 0;
+                      const checkedQuestionsCount = item.checkedQuestions?.length || 0;
+
+                      let wrongQuestionsCount = 0;
+                      if (item.quiz.questions) {
+                        const questions = item.quiz.questions as any[];
+                        wrongQuestionsCount = questions.filter(q => {
+                          const userAnswer = item.answers[q.id];
+                          return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
+                        }).length;
+                      }
+
+                      const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
+                      const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
+                      const hasRetryProgress = retryAnswerKeys.length > 0;
+                      const isRevising = (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
+
+                      const retryAnsweredCount = retryAnswerKeys.length;
+                      const retryTotalCount = wrongQuestionsCount;
+
+                      return (
+                        <ContinueQuizCard
+                          quiz={item.quiz}
+                          answeredCount={originalAnswerKeys.length}
+                          totalCount={item.quiz.questions?.length || 0}
+                          onContinue={() => handleContinueSavedQuiz(item.quizId)}
+                          onDiscard={() => handleAttemptDiscard(item)}
+                          isCurrent={false}
+                          savedAt={item.savedAt}
+                          isRevising={isRevising}
+                          retryAnsweredCount={retryAnsweredCount}
+                          retryTotalCount={retryTotalCount}
+                        />
+                      );
+                    })()}
+                  </div>
+                </motion.section>
+              )}
+
+              {/* Recent Quizzes */}
               <motion.section variants={itemVariants}>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                    <Play className="w-5 h-5 text-primary fill-primary" />
-                    Continue Learning
-                  </h2>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="font-bold text-muted-foreground hover:text-primary"
-                    onClick={() => setLocation("/in-progress")}
-                  >
-                    View all in progress
-                    <ArrowRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </div>
-
-                <div className="relative">
-                  {(() => {
-                    const item = latestSavedQuiz;
-                    const answerKeys = Object.keys(item.answers);
-                    const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
-                    const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
-                    const totalQuestions = item.quiz.questions?.length || 0;
-                    const checkedQuestionsCount = item.checkedQuestions?.length || 0;
-
-                    let wrongQuestionsCount = 0;
-                    if (item.quiz.questions) {
-                      const questions = item.quiz.questions as any[];
-                      wrongQuestionsCount = questions.filter(q => {
-                        const userAnswer = item.answers[q.id];
-                        return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
-                      }).length;
-                    }
-
-                    const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
-                    const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
-                    const hasRetryProgress = retryAnswerKeys.length > 0;
-                    const isRevising = (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
-
-                    const retryAnsweredCount = retryAnswerKeys.length;
-                    const retryTotalCount = wrongQuestionsCount;
-
-                    return (
-                      <ContinueQuizCard
-                        quiz={item.quiz}
-                        answeredCount={originalAnswerKeys.length}
-                        totalCount={item.quiz.questions?.length || 0}
-                        onContinue={() => handleContinueSavedQuiz(item.quizId)}
-                        onDiscard={() => handleAttemptDiscard(item)}
-                        isCurrent={false}
-                        savedAt={item.savedAt}
-                        isRevising={isRevising}
-                        retryAnsweredCount={retryAnsweredCount}
-                        retryTotalCount={retryTotalCount}
-                      />
-                    );
-                  })()}
-                </div>
-              </motion.section>
-            )}
-
-            {/* Recent Quizzes or Empty State */}
-            <motion.section variants={itemVariants}>
-              {!hasQuizzes ? (
-                <EmptyState onCreateQuiz={() => setLocation("/create")} />
-              ) : (
                 <div>
                   <div className="flex items-center justify-between gap-4 mb-5">
                     <div className="flex items-center gap-2">
@@ -967,14 +989,12 @@ export default function Dashboard() {
                     ))}
                   </div>
                 </div>
-              )}
-            </motion.section>
-          </div>
+              </motion.section>
+            </div>
 
-          {/* Sidebar (Right Column) */}
-          <div className="lg:col-span-4 space-y-8">
-            {/* Stats Sidebar Block */}
-            {hasQuizzes && (
+            {/* Sidebar (Right Column) */}
+            <div className="lg:col-span-4 space-y-8">
+              {/* Stats Sidebar Block */}
               <motion.section variants={itemVariants} className="space-y-4">
                 <div className="flex items-center gap-2 mb-1">
                   <ChartNoAxesColumn className="w-5 h-5 text-muted-foreground" />
@@ -1003,10 +1023,8 @@ export default function Dashboard() {
                   />
                 </div>
               </motion.section>
-            )}
 
-            {/* Quick Actions Sidebar Block */}
-            {hasQuizzes && (
+              {/* Quick Actions Sidebar Block */}
               <motion.section variants={itemVariants} className="space-y-4">
                 <div className="flex items-center gap-2 mb-1">
                   <Zap className="w-5 h-5 text-muted-foreground" />
@@ -1032,12 +1050,12 @@ export default function Dashboard() {
                   )}
                 </div>
               </motion.section>
-            )}
 
-            {/* Learning Tip Sidebar Block */}
-            {hasQuizzes && <LearningTipCard />}
+              {/* Learning Tip Sidebar Block */}
+              <LearningTipCard />
+            </div>
           </div>
-        </div>
+        )}
       </motion.div>
 
       <AlertDialog
