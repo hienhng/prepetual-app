@@ -1,20 +1,5 @@
-// FORCE POLYFILLS BEFORE ANY OTHER IMPORTS
-if (typeof global !== 'undefined') {
-  const mock = class {};
-  Object.defineProperty(global, 'DOMMatrix', { value: mock, writable: true });
-  Object.defineProperty(global, 'ImageData', { value: mock, writable: true });
-  Object.defineProperty(global, 'Path2D', { value: mock, writable: true });
-}
-
+import pdf from "pdf-parse";
 import { createWorker } from "tesseract.js";
-// Dynamic import for pdfjsLib to prevent initialization errors on Vercel
-let pdfjsLib: any = null;
-async function getPdfjsLib() {
-  if (!pdfjsLib) {
-    pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  }
-  return pdfjsLib;
-}
 import { parseOffice } from "officeparser";
 import JSZip from "jszip";
 
@@ -82,36 +67,8 @@ export function deleteJob(id: string) {
 }
 
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
-  const pdfjs = await getPdfjsLib();
-  const data = new Uint8Array(buffer);
-  const loadingTask = pdfjs.getDocument({ data });
-  const pdf = await loadingTask.promise;
-  
-  let fullText = "";
-  
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    
-    let lastY: number | null = null;
-    const pageTextParts: string[] = [];
-    
-    for (const item of content.items as any[]) {
-      if (item.str) {
-        if (lastY !== null && Math.abs(item.transform[5] - lastY) > 5) {
-          pageTextParts.push("\n");
-        } else if (pageTextParts.length > 0 && !pageTextParts[pageTextParts.length - 1].endsWith(" ")) {
-          pageTextParts.push(" ");
-        }
-        pageTextParts.push(item.str);
-        lastY = item.transform[5];
-      }
-    }
-    
-    fullText += pageTextParts.join("") + "\n\n";
-  }
-  
-  return fullText
+  const data = await pdf(buffer);
+  return data.text
     .replace(/\s+/g, " ")
     .replace(/\n\s*\n/g, "\n\n")
     .trim();

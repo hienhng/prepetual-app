@@ -1,4 +1,3 @@
-import "../server/polyfills.js";
 import { app, initServer } from "../server/index.js";
 
 let initialized = false;
