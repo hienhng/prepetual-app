@@ -9,7 +9,7 @@ Prepetual is a premium, AI-powered study platform designed to transform your lea
 ### AI Smart Generation
 Turn static content into active learning tools in seconds.
 - **Notes to Quiz**: Convert raw text or lecture notes into high-quality questions.
-- **YouTube Integration**: Paste a URL and let the AI analyze the transcript to generate relevant practice.
+- **YouTube Integration (Coming Soon)**: Soon you'll be able to paste a URL and let the AI analyze the transcript to generate relevant practice.
 - **Document Analysis**: Upload PDFs or Office documents. The AI "reads" the content (including images) to create context-aware questions.
 - **Handwriting Support**: Advanced OCR capabilities to handle scanned notes and images.
 - **Global Upload Tracking**: Real-time progress indicators for your uploads, so you're never left wondering.
