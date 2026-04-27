@@ -795,7 +795,7 @@ export default function Dashboard() {
     const p = latestProgress[0];
     const mergedAnswers: Record<string, string> = { ...p.answers };
     if (p.retryAnswers) {
-      Object.entries(p.retryAnswers).forEach(([key, value]) => {
+      Object.entries(p.retryAnswers as Record<string, string>).forEach(([key, value]) => {
         mergedAnswers[`retry-${key}`] = value;
       });
     }
