@@ -5,7 +5,14 @@ import { setupAuth, isAuthenticated } from "./auth.js";
 import { sendContactEmail, sendBugReportEmail } from "./email.js";
 import multer from "multer";
 import { createWorker } from "tesseract.js";
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
+// Dynamic import for pdfjsLib to prevent initialization errors on Vercel
+let pdfjsLib: any = null;
+async function getPdfjsLib() {
+  if (!pdfjsLib) {
+    pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  }
+  return pdfjsLib;
+}
 import { parseOffice } from "officeparser";
 import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, reviseQuizQuestions } from "./openai.js";
 import { generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
@@ -135,8 +142,9 @@ const upload = multer({
 
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
+    const pdfjs = await getPdfjsLib();
     const data = new Uint8Array(buffer);
-    const loadingTask = pdfjsLib.getDocument({ data });
+    const loadingTask = pdfjs.getDocument({ data });
     const pdf = await loadingTask.promise;
 
     let fullText = "";

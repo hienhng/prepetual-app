@@ -1,5 +1,12 @@
 import { createWorker } from "tesseract.js";
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
+// Dynamic import for pdfjsLib to prevent initialization errors on Vercel
+let pdfjsLib: any = null;
+async function getPdfjsLib() {
+  if (!pdfjsLib) {
+    pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  }
+  return pdfjsLib;
+}
 import { parseOffice } from "officeparser";
 import JSZip from "jszip";
 
@@ -67,8 +74,9 @@ export function deleteJob(id: string) {
 }
 
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
+  const pdfjs = await getPdfjsLib();
   const data = new Uint8Array(buffer);
-  const loadingTask = pdfjsLib.getDocument({ data });
+  const loadingTask = pdfjs.getDocument({ data });
   const pdf = await loadingTask.promise;
   
   let fullText = "";
