@@ -177,7 +177,9 @@ let tesseractWorker: Awaited<ReturnType<typeof createWorker>> | null = null;
 
 async function getOCRWorker() {
   if (!tesseractWorker) {
-    tesseractWorker = await createWorker("eng+vie");
+    tesseractWorker = await createWorker("eng+vie", 1, {
+      cachePath: "/tmp",
+    });
   }
   return tesseractWorker;
 }
