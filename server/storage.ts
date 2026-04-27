@@ -1,5 +1,5 @@
 import { eq, desc, and, gt, inArray, count, sql } from "drizzle-orm";
-import { db } from "./db";
+import { db } from "./db.js";
 import { 
   users, 
   quizzes, 
@@ -28,7 +28,7 @@ import {
   type VerificationToken,
   type BugReport,
   type InsertBugReport
-} from "@shared/schema";
+} from "../shared/schema.js";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;

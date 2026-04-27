@@ -1,16 +1,16 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./auth";
-import { sendContactEmail, sendBugReportEmail } from "./email";
+import { storage } from "./storage.js";
+import { setupAuth, isAuthenticated } from "./auth.js";
+import { sendContactEmail, sendBugReportEmail } from "./email.js";
 import multer from "multer";
 import { createWorker } from "tesseract.js";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { parseOffice } from "officeparser";
-import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, reviseQuizQuestions } from "./openai";
-import { generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "@shared/schema";
+import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, reviseQuizQuestions } from "./openai.js";
+import { generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
 import type { Question, DifficultyLevel } from "@shared/schema";
-import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs";
+import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs.js";
 import crypto from "crypto";
 import { fetchTranscript } from "youtube-transcript-plus";
 import TranscriptClient from "youtube-transcript-api";  // type: ignore

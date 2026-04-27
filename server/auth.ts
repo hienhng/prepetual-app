@@ -4,10 +4,10 @@ import connectPgSimple from "connect-pg-simple";
 import bcrypt from "bcryptjs";
 import cryptoRandomString from "crypto-random-string";
 import { OAuth2Client } from "google-auth-library";
-import { storage } from "./storage";
-import { sendVerificationEmail, sendPasswordResetEmail } from "./email";
-import { users, registerSchema, loginSchema } from "@shared/schema";
-import { db } from "./db";
+import { storage } from "./storage.js";
+import { sendVerificationEmail, sendPasswordResetEmail } from "./email.js";
+import { users, registerSchema, loginSchema } from "../shared/schema.js";
+import { db } from "./db.js";
 import { eq } from "drizzle-orm";
 
 const PgSession = connectPgSimple(session);

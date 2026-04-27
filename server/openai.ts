@@ -1,8 +1,8 @@
 import OpenAI from "openai";
 import pLimit from "p-limit";
 import pRetry from "p-retry";
-import type { Question, QuestionType, DifficultyLevel, QuizCategory } from "@shared/schema";
-import { QUIZ_CATEGORIES } from "@shared/schema";
+import type { Question, QuestionType, DifficultyLevel, QuizCategory } from "../shared/schema.js";
+import { QUIZ_CATEGORIES } from "../shared/schema.js";
 import { randomUUID } from "crypto";
 
 const openai = new OpenAI({
