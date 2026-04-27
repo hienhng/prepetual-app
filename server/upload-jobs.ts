@@ -1,6 +1,14 @@
 import pdf from "pdf-parse";
 import { createWorker } from "tesseract.js";
-import { parseOffice } from "officeparser";
+// Dynamic import for officeparser to prevent hidden pdfjs-dist dependency issues
+let parseOffice: any = null;
+async function getOfficeParser() {
+  if (!parseOffice) {
+    const mod = await import("officeparser");
+    parseOffice = mod.parseOffice || mod.default?.parseOffice || mod.default || mod;
+  }
+  return parseOffice;
+}
 import JSZip from "jszip";
 
 export interface UploadJob {
@@ -82,7 +90,8 @@ async function extractTextFromImage(buffer: Buffer): Promise<string> {
 
 async function extractTextFromOfficeDocument(buffer: Buffer): Promise<string> {
   try {
-    const result = await parseOffice(buffer);
+    const parser = await getOfficeParser();
+    const result = await parser(buffer);
     const text = typeof result === 'string' ? result : (result.toText ? result.toText() : String(result));
     console.log("Office parser text length:", text.length);
     console.log("Office parser text preview:", text.substring(0, 200));

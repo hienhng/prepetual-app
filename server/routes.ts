@@ -7,7 +7,15 @@ import { sendContactEmail, sendBugReportEmail } from "./email.js";
 import multer from "multer";
 import { createWorker } from "tesseract.js";
 import pdf from "pdf-parse";
-import { parseOffice } from "officeparser";
+// Dynamic import for officeparser to prevent hidden pdfjs-dist dependency issues
+let parseOffice: any = null;
+async function getOfficeParser() {
+  if (!parseOffice) {
+    const mod = await import("officeparser");
+    parseOffice = mod.parseOffice || mod.default?.parseOffice || mod.default || mod;
+  }
+  return parseOffice;
+}
 import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, reviseQuizQuestions } from "./openai.js";
 import { generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
 import type { Question, DifficultyLevel } from "@shared/schema";
@@ -175,7 +183,8 @@ async function extractTextFromImage(buffer: Buffer): Promise<string> {
 
 async function extractTextFromOfficeDocument(buffer: Buffer): Promise<string> {
   try {
-    const result = await parseOffice(buffer);
+    const parser = await getOfficeParser();
+    const result = await parser(buffer);
     const text = typeof result === 'string' ? result : String(result);
     return text.trim();
   } catch (error) {
