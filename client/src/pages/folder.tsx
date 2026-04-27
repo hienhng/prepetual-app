@@ -60,8 +60,7 @@ export default function FolderPage() {
 
   const { data: allQuizzes = [], isLoading: quizzesLoading } = useQuery<QuizWithAttempts[]>({
     queryKey: ["/api/quizzes"],
-    refetchOnMount: "always",
-    staleTime: 0,
+    staleTime: 30 * 1000,
   });
 
   const folderQuizzes = allQuizzes.filter(q => q.folderId === folderId);
@@ -173,24 +172,29 @@ export default function FolderPage() {
   });
 
   const addQuizzesToFolderMutation = useMutation({
-    mutationFn: async (quizIds: string[]) => {
-      const currentInFolder = folderQuizzes.map(q => q.id);
-      const toAdd = quizIds.filter(id => !currentInFolder.includes(id));
-      const toRemove = currentInFolder.filter(id => !quizIds.includes(id));
-      const promises = [
-        ...toAdd.map(id => apiRequest("PUT", `/api/quiz/${id}`, { folderId })),
-        ...toRemove.map(id => apiRequest("PUT", `/api/quiz/${id}`, { folderId: null })),
-      ];
-      await Promise.all(promises);
+    mutationFn: async ({ add, remove }: { add: string[]; remove: string[] }) => {
+      if (add.length === 0 && remove.length === 0) return;
+      // Single request — 2 DB queries server-side regardless of count
+      await apiRequest("PUT", "/api/quizzes/batch-folder", { folderId, add, remove });
     },
-    onSuccess: async () => {
+    onSuccess: (_, { add, remove }) => {
       setAddQuizzesOpen(false);
       setSelectedQuizIds(new Set());
-      // Await invalidation to ensure UI updates immediately
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] }),
-        queryClient.invalidateQueries({ queryKey: ["/api/folders"] })
-      ]);
+
+      // Optimistic update: immediately reflect folderId changes in cache (no network wait)
+      queryClient.setQueryData(["/api/quizzes"], (old: QuizWithAttempts[] | undefined) => {
+        if (!old) return old;
+        return old.map(quiz => {
+          if (add.includes(quiz.id)) return { ...quiz, folderId };
+          if (remove.includes(quiz.id)) return { ...quiz, folderId: null };
+          return quiz;
+        });
+      });
+
+      // Background refresh — don't await so toast fires immediately
+      queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
+
       toast({ title: "Quizzes updated" });
     },
     onError: () => {
@@ -683,7 +687,13 @@ export default function FolderPage() {
               Cancel
             </Button>
             <Button
-              onClick={() => addQuizzesToFolderMutation.mutate(Array.from(selectedQuizIds))}
+              onClick={() => {
+                const currentInFolder = folderQuizzes.map(q => q.id);
+                const selectedArray = Array.from(selectedQuizIds);
+                const add = selectedArray.filter(id => !currentInFolder.includes(id));
+                const remove = currentInFolder.filter(id => !selectedQuizIds.has(id));
+                addQuizzesToFolderMutation.mutate({ add, remove });
+              }}
               disabled={addQuizzesToFolderMutation.isPending}
               data-testid="button-save-add-quizzes"
             >

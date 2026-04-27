@@ -38,83 +38,51 @@ export function QuizGenerator() {
   const documentImages = sourceMaterial?.documentImages || [];
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
-  // Smooth progress animation with step messages
+  // Simulated progress for import mode only (no SSE).
+  // Generate mode gets real progress from SSE events.
   useEffect(() => {
-    if (isLoading) {
-      // Different settings for generate vs import mode
-      const isImportMode = mode === "import";
+    if (!isLoading || mode !== "import") return;
 
-      let totalDuration: number;
-      let steps: { threshold: number; step: string }[];
+    const steps = [
+      { threshold: 10, step: "starting" },
+      { threshold: 25, step: "scanning" },
+      { threshold: 45, step: "parsing" },
+      { threshold: 65, step: "identifying" },
+      { threshold: 80, step: "validating" },
+      { threshold: 90, step: "finalizing" },
+    ];
 
-      if (isImportMode) {
-        // Import mode - typically faster, simpler steps
-        totalDuration = 5000;
-        steps = [
-          { threshold: 5, step: "starting" },
-          { threshold: 15, step: "scanning" },
-          { threshold: 35, step: "parsing" },
-          { threshold: 55, step: "identifying" },
-          { threshold: 75, step: "validating" },
-          { threshold: 90, step: "finalizing" },
-        ];
-      } else {
-        // Generate mode - variable based on settings
-        const questionMultiplier = questionCount / 10;
-        const difficultyMultiplier = difficulty === "easy" ? 0.7 : difficulty === "medium" ? 1.0 : 1.4;
-        const totalMultiplier = Math.max(0.5, questionMultiplier * difficultyMultiplier);
-        totalDuration = 7000 * totalMultiplier;
-        steps = [
-          { threshold: 5, step: "starting" },
-          { threshold: 15, step: "reading" },
-          { threshold: 30, step: "analyzing" },
-          { threshold: 45, step: "preparing" },
-          { threshold: 60, step: "generating" },
-          { threshold: 75, step: "processing" },
-          { threshold: 85, step: "validating" },
-          { threshold: 90, step: "finalizing" },
-        ];
+    const totalDuration = 3000;
+    const maxProgress = 90;
+    const startTime = Date.now();
+    let currentStepIndex = 0;
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const t = Math.min(elapsed / totalDuration, 1);
+      const eased = t * (2 - t);
+      const progress = Math.min(eased * maxProgress, maxProgress);
+
+      setProcessingProgress(progress);
+
+      while (currentStepIndex < steps.length && progress >= steps[currentStepIndex].threshold) {
+        const step = steps[currentStepIndex].step;
+        setCurrentGenerationStep(step);
+        setLoadingMessage(getStepMessage(step, true));
+        currentStepIndex++;
       }
 
-      const updateInterval = 50;
-      const maxProgress = 96;
+      if (progress >= maxProgress) clearInterval(interval);
+    }, 50);
 
-      let startTime = Date.now();
-      let currentStepIndex = 0;
+    timeoutsRef.current.push(interval as unknown as NodeJS.Timeout);
 
-      // Clear any existing intervals
+    return () => {
+      clearInterval(interval);
       timeoutsRef.current.forEach(t => clearTimeout(t));
       timeoutsRef.current = [];
-
-      const interval = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const linearProgress = Math.min(elapsed / totalDuration, 1);
-        const easedProgress = linearProgress * (2 - linearProgress);
-        const progress = Math.min(easedProgress * maxProgress, maxProgress);
-
-        setProcessingProgress(progress);
-
-        while (currentStepIndex < steps.length && progress >= steps[currentStepIndex].threshold) {
-          const step = steps[currentStepIndex].step;
-          setCurrentGenerationStep(step);
-          setLoadingMessage(getStepMessage(step, isImportMode));
-          currentStepIndex++;
-        }
-
-        if (progress >= maxProgress) {
-          clearInterval(interval);
-        }
-      }, updateInterval);
-
-      timeoutsRef.current.push(interval as unknown as NodeJS.Timeout);
-
-      return () => {
-        clearInterval(interval);
-        timeoutsRef.current.forEach(t => clearTimeout(t));
-        timeoutsRef.current = [];
-      };
-    }
-  }, [isLoading, mode, questionCount, difficulty]);
+    };
+  }, [isLoading, mode]);
 
   const getStepMessage = (step: string, isImportMode: boolean = false): string => {
     if (isImportMode) {
@@ -181,6 +149,13 @@ export function QuizGenerator() {
         }
 
         const quiz = await response.json();
+
+        // Show completion
+        setProcessingProgress(100);
+        setCurrentGenerationStep("complete");
+        setLoadingMessage("Quiz imported successfully!");
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         setCurrentQuiz(quiz);
         clearJob();
         setExtractedText("");

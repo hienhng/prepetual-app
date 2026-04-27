@@ -667,7 +667,11 @@ export default function Dashboard() {
   });
 
   const { data: quizzes, isLoading } = useQuery<Quiz[]>({
-    queryKey: ["/api/quizzes"],
+    queryKey: ["/api/quizzes?limit=8"],
+  });
+
+  const { data: latestProgress } = useQuery<any[]>({
+    queryKey: ["/api/quiz-progress?limit=1"],
   });
 
   const { data: userStats } = useQuery<UserStats>({
@@ -784,73 +788,32 @@ export default function Dashboard() {
   const inProgressAnsweredCount = Object.keys(userAnswers).filter(k => !k.startsWith('retry-')).length;
   const inProgressTotalCount = currentQuiz?.questions?.length || 0;
 
-  // Show only saved progresses from the database in the carousel
-  const allSavedQuizzes = useMemo(() => {
-    const items: Array<{
-      type: 'saved';
-      quizId: string;
-      quiz: Quiz;
-      answers: Record<string, string>;
-      checkedQuestions: string[];
-      savedAt: string;
-    }> = [];
+  // Show only the latest saved progress in the dashboard to ease loading
+  const latestSavedQuiz = useMemo(() => {
+    if (!latestProgress || latestProgress.length === 0) return null;
 
-    // Only show saved progresses from the API (with savedAt timestamps)
-    savedProgresses.forEach(p => {
-      // Merge retryAnswers into answers with 'retry-' prefix for revision detection
-      const mergedAnswers: Record<string, string> = { ...p.answers };
-      if (p.retryAnswers) {
-        Object.entries(p.retryAnswers).forEach(([key, value]) => {
-          mergedAnswers[`retry-${key}`] = value;
-        });
-      }
-
-      items.push({
-        type: 'saved',
-        quizId: p.quizId,
-        quiz: p.quiz,
-        answers: mergedAnswers,
-        checkedQuestions: p.checkedQuestions || [],
-        savedAt: p.savedAt,
-      });
-    });
-
-    return items;
-  }, [savedProgresses]);
-
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const checkScroll = useCallback(() => {
-    if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
-      setActiveIndex(Math.round(scrollLeft / clientWidth));
-    }
-  }, []);
-
-  useEffect(() => {
-    checkScroll();
-    window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
-  }, [checkScroll, allSavedQuizzes]);
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = scrollContainerRef.current.clientWidth;
-      scrollContainerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
+    const p = latestProgress[0];
+    const mergedAnswers: Record<string, string> = { ...p.answers };
+    if (p.retryAnswers) {
+      Object.entries(p.retryAnswers).forEach(([key, value]) => {
+        mergedAnswers[`retry-${key}`] = value;
       });
     }
-  };
+
+    return {
+      type: 'saved' as const,
+      quizId: p.quizId,
+      quiz: p.quiz,
+      answers: mergedAnswers,
+      checkedQuestions: p.checkedQuestions || [],
+      savedAt: p.savedAt,
+    };
+  }, [latestProgress]);
 
 
-  const hasSavedQuizzes = allSavedQuizzes.length > 0;
+
+
+  const hasSavedQuizzes = !!latestSavedQuiz;
 
   if (isLoading) {
     return (
@@ -865,7 +828,7 @@ export default function Dashboard() {
 
   const totalQuizzes = quizzes?.length || 0;
   const totalQuestions = quizzes?.reduce((acc, q) => acc + (q.questions as any[]).length, 0) || 0;
-  const recentQuizzes = quizzes?.slice(0, 6) || [];
+  const recentQuizzes = quizzes || [];
   const hasQuizzes = totalQuizzes > 0;
 
   const getGreeting = () => {
@@ -907,96 +870,65 @@ export default function Dashboard() {
           {/* Main Content (Left Column) */}
           <div className="lg:col-span-8 space-y-8">
             {/* Continue Section */}
-            {hasSavedQuizzes && (
-              <motion.section variants={itemVariants} className="relative group/carousel">
+            {latestSavedQuiz && (
+              <motion.section variants={itemVariants}>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                     <Play className="w-5 h-5 text-primary fill-primary" />
                     Continue Learning
                   </h2>
-                  <div className="hidden md:flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className={`h-9 w-9 rounded-full transition-all duration-300 ${!canScrollLeft ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
-                      onClick={() => scroll('left')}
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className={`h-9 w-9 rounded-full transition-all duration-300 ${!canScrollRight ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
-                      onClick={() => scroll('right')}
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="font-bold text-muted-foreground hover:text-primary"
+                    onClick={() => setLocation("/in-progress")}
+                  >
+                    View all in progress
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
                 </div>
 
                 <div className="relative">
-                  <div
-                    ref={scrollContainerRef}
-                    onScroll={checkScroll}
-                    className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none scroll-smooth"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                  >
-                    {allSavedQuizzes.map((item, idx) => {
-                      const answerKeys = Object.keys(item.answers);
-                      const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
-                      const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
-                      const totalQuestions = item.quiz.questions?.length || 0;
-                      const checkedQuestionsCount = item.checkedQuestions?.length || 0;
+                  {(() => {
+                    const item = latestSavedQuiz;
+                    const answerKeys = Object.keys(item.answers);
+                    const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
+                    const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
+                    const totalQuestions = item.quiz.questions?.length || 0;
+                    const checkedQuestionsCount = item.checkedQuestions?.length || 0;
 
-                      let wrongQuestionsCount = 0;
-                      if (item.quiz.questions) {
-                        const questions = item.quiz.questions as any[];
-                        wrongQuestionsCount = questions.filter(q => {
-                          const userAnswer = item.answers[q.id];
-                          return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
-                        }).length;
-                      }
+                    let wrongQuestionsCount = 0;
+                    if (item.quiz.questions) {
+                      const questions = item.quiz.questions as any[];
+                      wrongQuestionsCount = questions.filter(q => {
+                        const userAnswer = item.answers[q.id];
+                        return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
+                      }).length;
+                    }
 
-                      const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
-                      const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
-                      const hasRetryProgress = retryAnswerKeys.length > 0;
-                      const isRevising = (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
+                    const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
+                    const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
+                    const hasRetryProgress = retryAnswerKeys.length > 0;
+                    const isRevising = (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
 
-                      const retryAnsweredCount = retryAnswerKeys.length;
-                      const retryTotalCount = wrongQuestionsCount;
+                    const retryAnsweredCount = retryAnswerKeys.length;
+                    const retryTotalCount = wrongQuestionsCount;
 
-                      return (
-                        <div
-                          key={item.quizId + idx}
-                          className="w-full flex-shrink-0 snap-center"
-                        >
-                          <ContinueQuizCard
-                            quiz={item.quiz}
-                            answeredCount={originalAnswerKeys.length}
-                            totalCount={item.quiz.questions?.length || 0}
-                            onContinue={() => handleContinueSavedQuiz(item.quizId)}
-                            onDiscard={() => handleAttemptDiscard(item)}
-                            isCurrent={false}
-                            savedAt={item.savedAt}
-                            isRevising={isRevising}
-                            retryAnsweredCount={retryAnsweredCount}
-                            retryTotalCount={retryTotalCount}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {allSavedQuizzes.length > 1 && (
-                    <div className="flex justify-center gap-1.5 mt-2">
-                      {allSavedQuizzes.map((_, i) => (
-                        <div
-                          key={i}
-                          className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${activeIndex === i ? 'bg-primary w-3' : 'bg-muted-foreground/30'}`}
-                        />
-                      ))}
-                    </div>
-                  )}
+                    return (
+                      <ContinueQuizCard
+                        quiz={item.quiz}
+                        answeredCount={originalAnswerKeys.length}
+                        totalCount={item.quiz.questions?.length || 0}
+                        onContinue={() => handleContinueSavedQuiz(item.quizId)}
+                        onDiscard={() => handleAttemptDiscard(item)}
+                        isCurrent={false}
+                        savedAt={item.savedAt}
+                        isRevising={isRevising}
+                        retryAnsweredCount={retryAnsweredCount}
+                        retryTotalCount={retryTotalCount}
+                      />
+                    );
+                  })()}
                 </div>
               </motion.section>
             )}

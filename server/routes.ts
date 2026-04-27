@@ -935,25 +935,28 @@ Format with bullet points for easy reading. Keep it under 500 words.`
   app.get("/api/quizzes", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
       const quizzes = await storage.getQuizzesByUserId(userId);
 
-      // Get attempt counts for each quiz
-      const quizzesWithAttempts = await Promise.all(
-        quizzes.map(async (q) => {
-          const results = await storage.getQuizResultsByQuizId(q.id);
-          return {
-            ...q,
-            createdAt: q.createdAt.toISOString(),
-            attemptCount: results.length,
-          };
-        })
-      );
+      // Storage already returns quizzes ordered by createdAt desc, but apply limit
+      const limitedQuizzes = limit ? quizzes.slice(0, limit) : quizzes;
+
+      // Single GROUP BY query — replaces N+1 per-quiz DB round-trips
+      const quizIds = limitedQuizzes.map(q => q.id);
+      const attemptCounts = await storage.getAttemptCountsByQuizIds(quizIds);
+
+      const quizzesWithAttempts = limitedQuizzes.map(q => ({
+        ...q,
+        createdAt: q.createdAt.toISOString(),
+        attemptCount: attemptCounts.get(q.id) ?? 0,
+      }));
 
       res.json(quizzesWithAttempts);
     } catch (error) {
       res.status(500).json({ message: "Failed to get quizzes" });
     }
   });
+
 
   app.get("/api/user/stats", isAuthenticated, async (req: any, res) => {
     try {
@@ -1078,6 +1081,26 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to update quiz" });
+    }
+  });
+
+  // Batch update folderId for multiple quizzes — replaces N individual PUT /api/quiz/:id calls
+  app.put("/api/quizzes/batch-folder", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { folderId, add = [], remove = [] } = req.body;
+
+      if (!folderId || typeof folderId !== "string") {
+        return res.status(400).json({ message: "folderId is required" });
+      }
+      if (!Array.isArray(add) || !Array.isArray(remove)) {
+        return res.status(400).json({ message: "add and remove must be arrays" });
+      }
+
+      await storage.batchUpdateQuizFolder(userId, add, remove, folderId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to batch update folder" });
     }
   });
 
@@ -1482,8 +1505,17 @@ Format with bullet points for easy reading. Keep it under 500 words.`
   app.get("/api/quiz-progress", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
       const progresses = await storage.getQuizProgressByUserId(userId);
-      res.json(progresses);
+
+      // Sort by savedAt descending (most recent first)
+      const sortedProgresses = [...progresses].sort((a, b) =>
+        new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime()
+      );
+
+      const limitedProgresses = limit ? sortedProgresses.slice(0, limit) : sortedProgresses;
+
+      res.json(limitedProgresses);
     } catch (error) {
       console.error("Failed to get quiz progress:", error);
       res.status(500).json({ message: "Failed to get saved progress" });

@@ -1,4 +1,4 @@
-import { eq, desc, and, gt, inArray } from "drizzle-orm";
+import { eq, desc, and, gt, inArray, count } from "drizzle-orm";
 import { db } from "./db";
 import { 
   users, 
@@ -51,6 +51,8 @@ export interface IStorage {
   saveQuizResult(result: InsertQuizResult): Promise<QuizResult>;
   getQuizResult(quizId: string): Promise<QuizResult | undefined>;
   getQuizResultsByQuizId(quizId: string): Promise<QuizResult[]>;
+  getAttemptCountsByQuizIds(quizIds: string[]): Promise<Map<string, number>>;
+  batchUpdateQuizFolder(userId: string, toAdd: string[], toRemove: string[], folderId: string): Promise<void>;
   getUserAverageAccuracy(userId: string): Promise<{ averageAccuracy: number; totalAttempts: number }>;
   getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string; quizId: string }[]>;
   // Comments
@@ -235,6 +237,31 @@ export class DatabaseStorage implements IStorage {
     return true;
   }
 
+  // Batch update folderId for multiple quizzes — 2 DB queries instead of N+M
+  async batchUpdateQuizFolder(
+    userId: string,
+    toAdd: string[],
+    toRemove: string[],
+    folderId: string
+  ): Promise<void> {
+    const ops: Promise<any>[] = [];
+    if (toAdd.length > 0) {
+      ops.push(
+        db.update(quizzes)
+          .set({ folderId })
+          .where(and(eq(quizzes.userId, userId), inArray(quizzes.id, toAdd)))
+      );
+    }
+    if (toRemove.length > 0) {
+      ops.push(
+        db.update(quizzes)
+          .set({ folderId: null } as any)
+          .where(and(eq(quizzes.userId, userId), inArray(quizzes.id, toRemove)))
+      );
+    }
+    await Promise.all(ops);
+  }
+
   async saveQuizResult(result: InsertQuizResult): Promise<QuizResult> {
     const [savedResult] = await db.insert(quizResults).values({
       quizId: result.quizId,
@@ -264,24 +291,35 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(quizResults.completedAt));
   }
 
-  async getUserAverageAccuracy(userId: string): Promise<{ averageAccuracy: number; totalAttempts: number }> {
-    const userQuizzes = await this.getQuizzesByUserId(userId);
-    if (userQuizzes.length === 0) {
-      return { averageAccuracy: 0, totalAttempts: 0 };
-    }
-
-    const quizIds = userQuizzes.map(q => q.id);
-    const allResults = await db.select()
+  // Single query to get attempt counts for multiple quizzes — replaces N+1 per-quiz queries
+  async getAttemptCountsByQuizIds(quizIds: string[]): Promise<Map<string, number>> {
+    if (quizIds.length === 0) return new Map();
+    const rows = await db
+      .select({ quizId: quizResults.quizId, cnt: count() })
       .from(quizResults)
-      .where(inArray(quizResults.quizId, quizIds));
+      .where(inArray(quizResults.quizId, quizIds))
+      .groupBy(quizResults.quizId);
+    return new Map(rows.map(r => [r.quizId, Number(r.cnt)]));
+  }
+
+  async getUserAverageAccuracy(userId: string): Promise<{ averageAccuracy: number; totalAttempts: number }> {
+    // Single JOIN query — avoids the previous redundant getQuizzesByUserId call
+    const allResults = await db
+      .select({
+        correctAnswers: quizResults.correctAnswers,
+        totalQuestions: quizResults.totalQuestions,
+      })
+      .from(quizResults)
+      .innerJoin(quizzes, eq(quizResults.quizId, quizzes.id))
+      .where(eq(quizzes.userId, userId));
 
     if (allResults.length === 0) {
       return { averageAccuracy: 0, totalAttempts: 0 };
     }
 
     const totalCorrect = allResults.reduce((sum, r) => sum + r.correctAnswers, 0);
-    const totalQuestions = allResults.reduce((sum, r) => sum + r.totalQuestions, 0);
-    const averageAccuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+    const totalQuestionsSum = allResults.reduce((sum, r) => sum + r.totalQuestions, 0);
+    const averageAccuracy = totalQuestionsSum > 0 ? Math.round((totalCorrect / totalQuestionsSum) * 100) : 0;
 
     return { averageAccuracy, totalAttempts: allResults.length };
   }
