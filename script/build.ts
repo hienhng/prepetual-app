@@ -28,6 +28,7 @@ const allowlist = [
   "uuid",
   "ws",
   "xlsx",
+  "@napi-rs/canvas",
   "zod",
   "zod-validation-error",
 ];
