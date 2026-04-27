@@ -5,15 +5,7 @@ import { setupAuth, isAuthenticated } from "./auth.js";
 import { sendContactEmail, sendBugReportEmail } from "./email.js";
 import multer from "multer";
 import { createWorker } from "tesseract.js";
-import * as pdfjsLib from "pdfjs-dist";
-
-// Polyfills for PDF.js in Node.js environment
-if (typeof global !== 'undefined' && !global.DOMMatrix) {
-  (global as any).DOMMatrix = class DOMMatrix {};
-}
-if (typeof global !== 'undefined' && !global.ImageData) {
-  (global as any).ImageData = class ImageData {};
-}
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import { parseOffice } from "officeparser";
 import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, reviseQuizQuestions } from "./openai.js";
 import { generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
