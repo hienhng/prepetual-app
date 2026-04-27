@@ -1,5 +1,14 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+
+// FORCE POLYFILLS BEFORE ANY OTHER IMPORTS
+if (typeof global !== 'undefined') {
+  const mock = class {};
+  Object.defineProperty(global, 'DOMMatrix', { value: mock, writable: true });
+  Object.defineProperty(global, 'ImageData', { value: mock, writable: true });
+  Object.defineProperty(global, 'Path2D', { value: mock, writable: true });
+}
+
 import { storage } from "./storage.js";
 import { setupAuth, isAuthenticated } from "./auth.js";
 import { sendContactEmail, sendBugReportEmail } from "./email.js";

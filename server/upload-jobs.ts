@@ -1,3 +1,11 @@
+// FORCE POLYFILLS BEFORE ANY OTHER IMPORTS
+if (typeof global !== 'undefined') {
+  const mock = class {};
+  Object.defineProperty(global, 'DOMMatrix', { value: mock, writable: true });
+  Object.defineProperty(global, 'ImageData', { value: mock, writable: true });
+  Object.defineProperty(global, 'Path2D', { value: mock, writable: true });
+}
+
 import { createWorker } from "tesseract.js";
 // Dynamic import for pdfjsLib to prevent initialization errors on Vercel
 let pdfjsLib: any = null;
