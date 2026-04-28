@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import { Router } from "express"; // Force reload: 2026-04-28 14:06
 import { createServer, type Server } from "http";
 
 import { storage } from "./storage.js";
@@ -33,6 +34,11 @@ import os from "os";
 const openaiClient = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+});
+
+const ollamaClient = new OpenAI({
+  baseURL: process.env.OLLAMA_BASE_URL || "http://localhost:11434/v1",
+  apiKey: "ollama",
 });
 
 const MAX_AUDIO_SIZE_MB = 20; // Max 20MB audio file
@@ -767,7 +773,7 @@ export async function registerRoutes(
       }
 
       const completion = await openaiClient.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
+        model: "meta-llama/llama-4-scout-17b-16e-instruct",
         messages: [
           {
             role: "system",
@@ -833,7 +839,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
               ? `\nA suggested answer was: "${question.correctAnswer}" — but do NOT treat this as the only correct answer. Use the study material to determine if the student's answer is valid.`
               : "";
             const response = await openaiClient.chat.completions.create({
-              model: "llama-3.3-70b-versatile",
+              model: "meta-llama/llama-4-scout-17b-16e-instruct",
               messages: [
                 {
                   role: "system",

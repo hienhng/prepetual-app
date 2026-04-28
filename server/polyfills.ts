@@ -17,7 +17,6 @@ function defineGlobal(name: string, value: any) {
   }
 }
 
-// Apply polyfills
 defineGlobal('DOMMatrix', mockClass);
 defineGlobal('ImageData', mockClass);
 defineGlobal('Path2D', mockClass);
@@ -27,10 +26,5 @@ defineGlobal('DOMException', class DOMException extends Error {
     this.name = name;
   }
 });
-defineGlobal('window', globalThis);
-defineGlobal('self', globalThis);
-defineGlobal('document', {
-  createElement: () => ({}),
-  getElementsByTagName: () => []
-});
+
 

@@ -1433,24 +1433,7 @@ export function QuizPlayer() {
                   </h2>
                 </div>
 
-                {currentQuestion.imageUrl && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="mb-6 rounded-2xl overflow-hidden border-2 border-border bg-muted/30 cursor-pointer relative group/img"
-                    onClick={() => setExpandedImageUrl(currentQuestion.imageUrl || null)}
-                  >
-                    <img 
-                      src={currentQuestion.imageUrl} 
-                      alt="Question reference"
-                      className="w-full max-h-72 sm:max-h-80 object-contain"
-                      data-testid="image-question-reference"
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-colors flex items-center justify-center">
-                      <ZoomIn className="h-8 w-8 text-white opacity-0 group-hover/img:opacity-100 transition-opacity drop-shadow-md" />
-                    </div>
-                  </motion.div>
-                )}
+                
 
                 {renderAnswerOptions()}
                 {renderFeedback()}
@@ -1459,88 +1442,7 @@ export function QuizPlayer() {
           </div>
         </div>
 
-        {showMaterialViewer && hasMaterialImages && !isMobile && (
-          <>
-            <div
-              onMouseDown={startDrag}
-              className="w-1.5 cursor-col-resize bg-border hover:bg-primary/50 transition-colors shrink-0 relative group"
-              data-testid="drag-handle-material"
-            >
-              <div className="absolute inset-y-0 -left-1 -right-1" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-8 rounded-full bg-muted-foreground/30 group-hover:bg-primary/60 transition-colors" />
-            </div>
-            <div
-              className="h-full flex flex-col bg-muted/30 overflow-hidden shrink-0"
-              style={{ width: `${materialPanelWidth}%` }}
-            >
-              <div className="flex items-center justify-between px-4 py-3 border-b bg-background/80 backdrop-blur-sm shrink-0">
-                <div className="flex items-center gap-2">
-                  <Image className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-muted-foreground">
-                    {allMaterialImages.length > 1 ? `${materialImageIndex + 1} / ${allMaterialImages.length}` : "Source Material"}
-                  </span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowMaterialViewer(false)}
-                  data-testid="button-close-material-panel"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
 
-              <div className="flex-1 overflow-auto">
-                <div className="flex flex-col h-full">
-                  <div className="flex-1 flex items-center justify-center p-4 relative">
-                    {allMaterialImages.length > 1 && (
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        className="absolute left-2 z-10 rounded-full shadow-md"
-                        onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
-                        data-testid="button-material-prev"
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                    )}
-                    <img
-                      src={allMaterialImages[materialImageIndex]}
-                      alt={`Study material ${materialImageIndex + 1}`}
-                      className="max-w-full max-h-[calc(100vh-12rem)] object-contain rounded-lg"
-                      data-testid="image-material-side"
-                    />
-                    {allMaterialImages.length > 1 && (
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        className="absolute right-2 z-10 rounded-full shadow-md"
-                        onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
-                        data-testid="button-material-next"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                  {allMaterialImages.length > 1 && (
-                    <div className="flex justify-center gap-2 py-3 border-t shrink-0">
-                      {allMaterialImages.map((_: string, idx: number) => (
-                        <button
-                          key={idx}
-                          onClick={() => setMaterialImageIndex(idx)}
-                          className={`w-2 h-2 rounded-full transition-colors ${
-                            idx === materialImageIndex ? 'bg-primary' : 'bg-muted-foreground/30'
-                          }`}
-                          data-testid={`button-material-dot-${idx}`}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </>
-        )}
       </div>
 
       {renderQuestionNav()}

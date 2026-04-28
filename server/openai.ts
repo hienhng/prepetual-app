@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import pLimit from "p-limit";
+import pLimit from "p-limit"; // Force reload: 2026-04-28 14:06
 import pRetry from "p-retry";
 import type { Question, QuestionType, DifficultyLevel, QuizCategory } from "../shared/schema.js";
 import { QUIZ_CATEGORIES } from "../shared/schema.js";
@@ -91,7 +91,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
             ]
           }],
           response_format: { type: "json_object" },
-          max_completion_tokens: 2000,
+          max_tokens: 2048,
         });
 
         const content = completion.choices[0]?.message?.content;
@@ -262,7 +262,7 @@ Respond with ONLY a JSON array. For each question:
     const verifyResponse = await pRetry(
       async () => {
         const result = await openai.chat.completions.create({
-          model: "llama-3.3-70b-versatile",
+          model: "meta-llama/llama-4-scout-17b-16e-instruct",
           messages: [{ role: "user", content: verificationPrompt }],
           temperature: 0,
           max_tokens: 4000,
@@ -305,7 +305,7 @@ interface QuizGenerationParams {
   documentImages?: string[];
   onProgress?: ProgressCallback;
   isImageOnly?: boolean;
-  model?: "default" | "mistral-ollama" | "llama3-ollama";
+  model?: "default" | "llama3-ollama" | "openai";
 }
 
 export async function generateQuizQuestions(
@@ -316,7 +316,7 @@ export async function generateQuizQuestions(
 
   // Automatically select model based on content
   // In production/Vercel, we prefer Gemini 1.5 Flash for text-only tasks
-  const selectedModel = hasImages ? "default" : "gemini";
+  const selectedModel = "openai";
 
   // Step 1: Reading material
   onProgress?.("reading", 10, "Reading your study material...");
@@ -623,29 +623,27 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
         let emptyRetries = 0;
         const maxEmptyRetries = 3;
 
-        const aiClient = selectedModel === "default" ? openai : (selectedModel === "gemini" ? gemini : ollama);
-        const aiModel = selectedModel === "default" 
-          ? (hasImages ? "meta-llama/llama-4-scout-17b-16e-instruct" : "llama-3.3-70b-versatile")
-          : (selectedModel === "gemini" ? "gemini-1.5-flash" : "mistral");
+        const aiClient = openai;
+        const aiModel = "meta-llama/llama-4-scout-17b-16e-instruct";
 
         while (!content && emptyRetries < maxEmptyRetries) {
           const completion = await aiClient.chat.completions.create({
             model: aiModel,
             messages,
-            response_format: selectedModel === "default" ? { type: "json_object" } : undefined, // Some models don't support json_object
-            max_completion_tokens: 8192,
+            response_format: { type: "json_object" },
+            max_tokens: 8192,
           });
 
           content = completion.choices[0]?.message?.content;
           
           // Basic JSON extraction if not using json_object mode
-          if (content && selectedModel !== "default") {
+          if (content) {
             const jsonMatch = content.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
               content = jsonMatch[0];
             }
           }
-
+          
           if (!content) {
             emptyRetries++;
             console.error(`Empty AI response for quiz generation (attempt ${emptyRetries}/${maxEmptyRetries}), retrying...`);
@@ -964,11 +962,14 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
           messages = [{ role: "user", content: prompt }];
         }
 
-        const completion = await openai.chat.completions.create({
-          model: hasImages ? "meta-llama/llama-4-scout-17b-16e-instruct" : "llama-3.3-70b-versatile",
+        const aiClient = openai;
+        const aiModel = "meta-llama/llama-4-scout-17b-16e-instruct";
+
+        const completion = await aiClient.chat.completions.create({
+          model: aiModel,
           messages,
           response_format: { type: "json_object" },
-          max_completion_tokens: 8192,
+          max_tokens: 8192,
         });
 
         const content = completion.choices[0]?.message?.content;
@@ -1243,7 +1244,7 @@ INSTRUCTIONS:
     const response = await pRetry(
       async () => {
         const completion = await openai.chat.completions.create({
-          model: "llama-3.3-70b-versatile",
+          model: "meta-llama/llama-4-scout-17b-16e-instruct",
           messages,
           max_tokens: 1000,
         });
@@ -1377,7 +1378,7 @@ Independently solve this and determine which option is actually correct. Show yo
             }
 
             const completion = await openai.chat.completions.create({
-              model: "llama-3.3-70b-versatile",
+              model: "meta-llama/llama-4-scout-17b-16e-instruct",
               messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt },
