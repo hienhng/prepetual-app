@@ -4,10 +4,12 @@ import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import {
-  TrendingUp, TrendingDown, Target, Trophy, Zap, Star, ChartLine,
-  Binary, Book, FlaskConical, Globe, Languages, GraduationCap,
-  CheckCircle2, XCircle, Clock, Loader2, ChevronDown, Sparkles
+  TrendingUp, TrendingDown, Star, ChartLine,
+  CheckCircle2, XCircle, Clock, Loader2, ChevronDown, Sparkles,
+  Calculator, BookText, Beaker, Globe2, Languages, GraduationCap, Shapes, RotateCw, History 
 } from "lucide-react";
+
+import { getCategoryIcon } from "@/lib/category-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBullseye, faChartSimple, faClipboardList } from "@fortawesome/free-solid-svg-icons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,14 +58,6 @@ interface UserStats {
   totalAttempts: number;
 }
 
-const categoryIcons: Record<string, any> = {
-  "Math": Binary,
-  "English": Book,
-  "Science": FlaskConical,
-  "Social Studies": Globe,
-  "Global Languages": Languages,
-  "Others/General": GraduationCap,
-};
 
 const categoryColors: Record<string, string> = {
   "Math": "hsl(221, 83%, 53%)",
@@ -101,15 +95,15 @@ const categoryGradients: Record<string, string> = {
   "Others/General": "bg-gradient-to-br from-slate-500 to-slate-600",
 };
 
-function getEncouragingMessage(accuracy: number): { title: string; message: string; icon: typeof Trophy } {
+function getEncouragingMessage(accuracy: number): { title: string; message: string} {
   if (accuracy >= 90) {
-    return { title: "Outstanding!", message: "You're mastering your material. Keep up the excellent work!", icon: Trophy };
+    return { title: "Outstanding!", message: "You're mastering your material. Keep up the excellent work!"};
   } else if (accuracy >= 75) {
-    return { title: "Great Progress!", message: "You're doing well! A little more practice will make you unstoppable.", icon: Star };
+    return { title: "Great Progress!", message: "You're doing well! A little more practice will make you unstoppable."};
   } else if (accuracy >= 60) {
-    return { title: "Keep Going!", message: "You're on the right track. Consistency is the key to success!", icon: Zap };
+    return { title: "Keep Going!", message: "You're on the right track. Consistency is the key to success!"};
   } else {
-    return { title: "Every Step Counts!", message: "Learning takes time. Each quiz brings you closer to mastery!", icon: Target };
+    return { title: "Every Step Counts!", message: "Learning takes time. Each quiz brings you closer to mastery!"};
   }
 }
 
@@ -233,185 +227,6 @@ const itemVariants = {
   },
 };
 
-function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isGeneratingReview, setIsGeneratingReview] = useState(false);
-  const [, setLocation] = useLocation();
-  const { setCurrentQuiz } = useQuiz();
-  const { toast } = useToast();
-
-  const Icon = categoryIcons[group.category] || GraduationCap;
-  const gradient = categoryGradients[group.category] || categoryGradients["Others/General"];
-  const hasMultipleAttempts = group.attempts.length > 1;
-  const singleAttempt = !hasMultipleAttempts ? group.attempts[0] : null;
-
-  const handleSmartReview = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsGeneratingReview(true);
-    try {
-      const response = await apiRequest("POST", `/api/quiz/${group.quizId}/smart-review`);
-      const reviewQuiz = await response.json();
-      setCurrentQuiz(reviewQuiz);
-      toast({
-        title: "Smart Review Generated",
-        description: "Focusing on your most frequent mistakes + similar challenges.",
-      });
-      setLocation("/quiz");
-    } catch (error) {
-      toast({
-        title: "Review Failed",
-        description: "Could not generate your review session. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGeneratingReview(false);
-    }
-  };
-
-  const headerContent = (
-    <>
-      <div className="flex items-center justify-center flex-shrink-0">
-        <div className={`w-9 h-9 rounded-lg ${gradient} flex items-center justify-center`}>
-          <Icon className="w-4 h-4 text-white" />
-        </div>
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="text-sm font-medium truncate text-foreground" data-testid={`text-quiz-title-${index}`}>{group.quizTitle}</p>
-          {group.attempts.length >= 5 && (
-            <Badge variant="secondary" className="h-5 px-1.5 py-0 text-[10px] bg-primary/10 text-primary border-primary/20 gap-1 animate-pulse">
-              <Sparkles className="w-2.5 h-2.5" />
-              Smart Review
-            </Badge>
-          )}
-        </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 flex-wrap">
-          <span>{group.category}</span>
-          <span className="text-muted-foreground/50">·</span>
-          {singleAttempt ? (
-            <>
-              <span>{format(parseISO(singleAttempt.date), "MMM d, yyyy")}</span>
-              <span className="text-muted-foreground/50">·</span>
-              <span>{singleAttempt.correctAnswers}/{singleAttempt.totalQuestions} correct</span>
-            </>
-          ) : (
-            <>
-              <span>{group.attempts.length} attempts</span>
-              <span className="text-muted-foreground/50">·</span>
-              <span>Best: {group.bestAccuracy}%</span>
-            </>
-          )}
-        </div>
-      </div>
-      <div className="flex items-center gap-3 flex-shrink-0" data-testid={`text-quiz-accuracy-${index}`}>
-        {group.attempts.length >= 5 && (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-8 px-2 text-xs gap-1.5 hover:bg-primary/10 hover:text-primary"
-            onClick={handleSmartReview}
-            disabled={isGeneratingReview}
-          >
-            {isGeneratingReview ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <Sparkles className="w-3.5 h-3.5" />
-            )}
-            Review
-          </Button>
-        )}
-        <div className="flex items-center gap-1.5">
-          <span className={`text-lg font-bold ${group.bestAccuracy >= 80 ? "text-emerald-500" :
-            group.bestAccuracy >= 60 ? "text-amber-500" : "text-rose-500"
-            }`}>
-            {group.bestAccuracy}%
-          </span>
-          {hasMultipleAttempts && (
-            <motion.div
-              animate={{ rotate: isOpen ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
-            </motion.div>
-          )}
-        </div>
-      </div>
-    </>
-  );
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-    >
-      <div className="rounded-lg bg-muted/40 transition-all duration-200 overflow-hidden" data-testid={`card-quiz-group-${index}`}>
-        {hasMultipleAttempts ? (
-          <button
-            type="button"
-            onClick={() => setIsOpen(!isOpen)}
-            className="w-full flex gap-3 p-3 items-center text-left cursor-pointer transition-colors rounded-lg"
-            data-testid={`button-toggle-attempts-${index}`}
-          >
-            {headerContent}
-          </button>
-        ) : (
-          <div className="flex gap-3 p-3 items-center" data-testid={`row-single-result-${index}`}>
-            {headerContent}
-          </div>
-        )}
-
-        <AnimatePresence initial={false}>
-          {isOpen && hasMultipleAttempts && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="overflow-hidden"
-            >
-              <div className="px-3 pb-3 space-y-1.5">
-                <div className="border-t border-border/40 pt-2 mb-1" />
-                {group.attempts.map((attempt, attemptIndex) => (
-                  <div
-                    key={attemptIndex}
-                    className="flex items-center gap-3 py-2 px-3 rounded-md bg-background/60"
-                    data-testid={`row-attempt-${index}-${attemptIndex}`}
-                  >
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-[10px] font-semibold text-muted-foreground flex-shrink-0">
-                      {group.attempts.length - attemptIndex}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                        <span>{format(parseISO(attempt.date), "MMM d, yyyy 'at' h:mm a")}</span>
-                        <span className="text-muted-foreground/50">·</span>
-                        <span>{attempt.correctAnswers}/{attempt.totalQuestions} correct</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <span className={`text-sm font-semibold ${attempt.accuracy >= 80 ? "text-emerald-500" :
-                        attempt.accuracy >= 60 ? "text-amber-500" : "text-rose-500"
-                        }`}>
-                        {attempt.accuracy}%
-                      </span>
-                      {attempt.accuracy >= 80 ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                      ) : attempt.accuracy >= 60 ? (
-                        <Target className="w-3.5 h-3.5 text-amber-500" />
-                      ) : (
-                        <XCircle className="w-3.5 h-3.5 text-rose-500" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
-  );
-}
 
 export default function ProgressPage() {
   const [, setLocation] = useLocation();
@@ -503,31 +318,6 @@ export default function ProgressPage() {
     { range: "0-39%", count: history.filter(h => h.accuracy < 40).length, color: "bg-rose-500" },
   ].filter(d => d.count > 0), [history]);
 
-  const groupedQuizzes = useMemo((): GroupedQuiz[] => {
-    const groups: Record<string, ResultHistoryItem[]> = {};
-    history.forEach(item => {
-      if (!groups[item.quizId]) {
-        groups[item.quizId] = [];
-      }
-      groups[item.quizId].push(item);
-    });
-
-    return Object.entries(groups)
-      .map(([quizId, attempts]) => {
-        const sorted = [...attempts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        const accuracies = sorted.map(a => a.accuracy);
-        return {
-          quizId,
-          quizTitle: sorted[0].quizTitle,
-          category: sorted[0].category,
-          attempts: sorted,
-          bestAccuracy: Math.max(...accuracies),
-          avgAccuracy: Math.round(accuracies.reduce((a, b) => a + b, 0) / accuracies.length),
-          lastAttemptDate: sorted[0].date,
-        };
-      })
-      .sort((a, b) => new Date(b.lastAttemptDate).getTime() - new Date(a.lastAttemptDate).getTime());
-  }, [history]);
 
   if (historyLoading) {
     return (
@@ -635,16 +425,8 @@ export default function ProgressPage() {
                     className="gap-1.5 rounded-none bg-transparent px-0 pb-2.5 pt-0 shadow-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground text-muted-foreground"
                     data-testid="tab-subjects"
                   >
-                    <Target className="h-3.5 w-3.5" />
+                    <Shapes className="h-3.5 w-3.5" />
                     Subjects
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="history"
-                    className="gap-1.5 rounded-none bg-transparent px-0 pb-2.5 pt-0 shadow-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground text-muted-foreground"
-                    data-testid="tab-history"
-                  >
-                    <Clock className="h-3.5 w-3.5" />
-                    All Results
                   </TabsTrigger>
                 </TabsList>
 
@@ -706,7 +488,7 @@ export default function ProgressPage() {
                         {categories.length > 1 && (
                           <div className="flex flex-wrap gap-3 mt-3 justify-center">
                             {categories.map(cat => {
-                              const Icon = categoryIcons[cat] || GraduationCap;
+                              const Icon = getCategoryIcon(cat);
                               return (
                                 <div key={cat} className="flex items-center gap-1.5 text-xs text-muted-foreground" data-testid={`legend-${cat.toLowerCase().replace(/\//g, '-')}`}>
                                   <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: categoryColors[cat] }} />
@@ -758,7 +540,7 @@ export default function ProgressPage() {
                   ) : (
                     <div className="grid gap-4 sm:grid-cols-2">
                       {categoryStats.map((stat, index) => {
-                        const Icon = categoryIcons[stat.category] || GraduationCap;
+                        const Icon = getCategoryIcon(stat.category);
                         const gradient = categoryGradients[stat.category] || categoryGradients["Others/General"];
                         return (
                           <motion.div
@@ -803,21 +585,6 @@ export default function ProgressPage() {
                   )}
                 </TabsContent>
 
-                <TabsContent value="history" className="mt-5 space-y-2">
-                  {groupedQuizzes.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                        <Clock className="h-6 w-6 text-muted-foreground" />
-                      </div>
-                      <h3 className="text-base font-semibold mb-1">No results yet</h3>
-                      <p className="text-sm text-muted-foreground">Your quiz results will appear here.</p>
-                    </div>
-                  ) : (
-                    groupedQuizzes.map((group, groupIndex) => (
-                      <QuizAttemptGroup key={group.quizId} group={group} index={groupIndex} />
-                    ))
-                  )}
-                </TabsContent>
               </Tabs>
             </motion.section>
           </>

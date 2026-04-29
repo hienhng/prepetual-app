@@ -378,7 +378,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     // Use explicit params if provided, otherwise get from helper
     const { currentIndex, retryAnswers, retryCheckedQuestions, timeTaken } = params ?? getPlayerProgress();
 
-    if (!currentQuiz || Object.keys(userAnswers).length === 0) {
+    if (!currentQuiz || Object.keys(userAnswers).length === 0 || currentQuiz.generationMode === 'review') {
       return;
     }
     
@@ -566,7 +566,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   };
 
   // Check if there are unsaved changes (new answers since last save)
-  const hasUnsavedChanges = Object.keys(state.userAnswers).length > state.lastSavedAnswersCount;
+  const hasUnsavedChanges = Object.keys(state.userAnswers).length > state.lastSavedAnswersCount && state.currentQuiz?.generationMode !== 'review';
 
   return (
     <QuizContext.Provider

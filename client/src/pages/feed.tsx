@@ -5,11 +5,10 @@ import { motion } from "framer-motion";
 import { 
   Search, Play, Loader2, Users, BookOpen, 
   Sparkles, Clock, Target, Zap, 
-  GraduationCap, Beaker, Calculator, Globe2, 
-  BookText, Languages, LayoutGrid,
   Lightbulb, TrendingUp, CheckCircle2, BadgeCheck,
-  Star, Compass
+  Star, Compass, LayoutGrid, GraduationCap, FileHeart, CirclePlus
 } from "lucide-react";
+import { getCategoryIcon, getCategoryGradient, getCategoryLabel, categoryConfig } from "@/lib/category-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "@/hooks/useAuth";
@@ -36,15 +35,6 @@ type PublicQuiz = Quiz & {
   } 
 };
 
-const categoryConfig: Record<string, { label: string; icon: typeof Sparkles; gradient: string }> = {
-  "all": { label: "All", icon: LayoutGrid, gradient: "from-slate-500 to-slate-600" },
-  "Math": { label: "Math", icon: Calculator, gradient: "from-blue-500 to-indigo-600" },
-  "English": { label: "English", icon: BookText, gradient: "from-amber-500 to-orange-600" },
-  "Science": { label: "Science", icon: Beaker, gradient: "from-emerald-500 to-teal-600" },
-  "Social Studies": { label: "Social Studies", icon: Globe2, gradient: "from-purple-500 to-violet-600" },
-  "Global Languages": { label: "Languages", icon: Languages, gradient: "from-pink-500 to-rose-600" },
-  "Others/General": { label: "General", icon: GraduationCap, gradient: "from-cyan-500 to-blue-600" },
-};
 
 const gradients = [
   "from-violet-500 to-purple-600",
@@ -118,14 +108,12 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
     }
   };
 
-  const getCategoryIcon = (category?: string | null) => {
-    const config = categoryConfig[category || "Others/General"];
-    return config?.icon || GraduationCap;
+  const getCategoryIconLocal = (category?: string | null) => {
+    return getCategoryIcon(category);
   };
 
-  const getCategoryGradient = (category?: string | null) => {
-    const config = categoryConfig[category || "Others/General"];
-    return config?.gradient || "from-slate-500 to-slate-600";
+  const getCategoryGradientLocal = (category?: string | null) => {
+    return getCategoryGradient(category);
   };
 
   const getRecommendationConfig = () => {
@@ -137,9 +125,9 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
   };
 
   const diffConfig = getDifficultyConfig(quiz.difficulty);
-  const categoryGradient = getCategoryGradient(quiz.category);
+  const categoryGradient = getCategoryGradientLocal(quiz.category);
   const questionCount = (quiz.questions as any[]).length;
-  const CategoryIcon = getCategoryIcon(quiz.category);
+  const CategoryIcon = getCategoryIconLocal(quiz.category);
   const isCurated = quiz.author?.email === "giahienhn@gmail.com";
   const recConfig = getRecommendationConfig();
 
@@ -186,7 +174,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                 </motion.div>
                 <div className="flex-1">
                   <span className="text-white/70 text-xs font-medium">
-                    {categoryConfig[quiz.category || "Others/General"]?.label || "General"}
+                    {getCategoryLabel(quiz.category)}
                   </span>
                 </div>
               </div>
@@ -235,7 +223,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md p-0 overflow-hidden">
-          <div className={`relative h-32 bg-gradient-to-br ${categoryGradient} p-5 flex items-end`}>
+          <div className={`relative h-32 bg-gradient-to-br ${getCategoryGradientLocal(quiz.category)} p-5 flex items-end`}>
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             <div className="absolute top-4 right-4 flex gap-2">
               {isCurated && (
@@ -251,7 +239,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
               </div>
               <div>
                 <span className="text-white/70 text-sm font-medium block mb-1">
-                  {categoryConfig[quiz.category || "Others/General"]?.label || "General"}
+                  {getCategoryLabel(quiz.category)}
                 </span>
                 <div className="flex items-center gap-2">
                   <Badge className="bg-white/20 text-white border-0 text-xs">
@@ -544,14 +532,14 @@ export default function Feed() {
             ) : (
               <>
                 <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                  <GraduationCap className="h-12 w-12 text-primary" />
+                  <FileHeart className="h-12 w-12 text-primary" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">No quizzes yet</h3>
                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                   Be the first to share your knowledge with the community!
                 </p>
                 <Button onClick={() => setLocation("/create")} className="gap-2" data-testid="button-create-quiz">
-                  <Sparkles className="h-4 w-4" />
+                  <CirclePlus className="h-4 w-4" />
                   Create a Quiz
                 </Button>
               </>

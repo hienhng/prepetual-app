@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Play, BookOpen, Share2, Trash2, FileText, Loader2, Edit2, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, FolderPlus, Folder, MoreVertical, Pencil, Sparkles, Search, X, Pin, PinOff } from "lucide-react";
+import { Play, BookOpen, Share2, Trash2, FileText, Loader2, Edit2, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, FolderPlus, Folder, MoreVertical, Pencil, Sparkles, Search, X, Pin, PinOff, BookText, Globe2 } from "lucide-react";
+import { getCategoryIcon } from "@/lib/category-icons";
 import { QUIZ_CATEGORIES } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -280,18 +281,6 @@ export default function HistoryPage() {
     }
   };
 
-  const getCategoryIcon = (category?: string | null) => {
-    const cls = "h-4 w-4";
-    switch (category) {
-      case "Math": return <Calculator className={cls} />;
-      case "English": return <Languages className={cls} />;
-      case "Science": return <FlaskConical className={cls} />;
-      case "Social Studies": return <Landmark className={cls} />;
-      case "Global Languages": return <Languages className={cls} />;
-      case "Others/General": return <LayoutGrid className={cls} />;
-      default: return <Sparkles className={cls} />;
-    }
-  };
 
   const openCreateFolder = () => {
     setEditingFolder(null);
@@ -330,6 +319,12 @@ export default function HistoryPage() {
       if (cat !== selectedCategory) return false;
     }
     return true;
+  });
+
+  const sortedFolders = [...folders].sort((a, b) => {
+    if (a.pinnedToSidebar && !b.pinnedToSidebar) return -1;
+    if (!a.pinnedToSidebar && b.pinnedToSidebar) return 1;
+    return 0;
   });
 
   const availableCategories = Array.from(new Set((quizzes || []).map(q => q.category || "Others/General"))).sort();
@@ -492,9 +487,12 @@ export default function HistoryPage() {
                           >
                             <CardContent className="p-3 sm:p-4">
                               <div className="flex items-center gap-4">
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${colorClass} transition-transform duration-300 group-hover:scale-105`}>
-                                  {getCategoryIcon(cat)}
-                                </div>
+                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${colorClass} transition-transform duration-300 group-hover:scale-105 text-current`}>
+                                    {(() => {
+                                      const Icon = getCategoryIcon(cat);
+                                      return <Icon className="h-4 w-4" />;
+                                    })()}
+                                  </div>
 
                                 <div className="min-w-0 flex-1">
                                   <h3 className="font-bold text-sm sm:text-base leading-tight truncate text-foreground group-hover:text-primary transition-colors" data-testid={`text-quiz-title-${quiz.id}`}>
@@ -660,7 +658,7 @@ export default function HistoryPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {folders.map((folder, index) => {
+                {sortedFolders.map((folder, index) => {
                   const count = getFolderQuizCount(folder.id);
                   return (
                     <motion.div
@@ -710,9 +708,9 @@ export default function HistoryPage() {
                                 <DropdownMenuContent align="end" className="w-48 shadow-xl border-border/50">
                                   <DropdownMenuItem onClick={() => togglePinMutation.mutate(folder.id)} data-testid={`button-toggle-pin-folder-${folder.id}`}>
                                     {folder.pinnedToSidebar ? (
-                                      <><PinOff className="h-3.5 w-3.5 mr-2" />Unpin from Sidebar</>
+                                      <><PinOff className="h-3.5 w-3.5 mr-2" />Unpin from Top</>
                                     ) : (
-                                      <><Pin className="h-3.5 w-3.5 mr-2" />Pin to Sidebar</>
+                                      <><Pin className="h-3.5 w-3.5 mr-2" />Pin to Top</>
                                     )}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => openEditFolder(folder)} data-testid={`button-rename-folder-${folder.id}`}>

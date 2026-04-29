@@ -3,7 +3,7 @@ import { Router } from "express"; // Force reload: 2026-04-28 14:06
 import { createServer, type Server } from "http";
 
 import { storage } from "./storage.js";
-import { setupAuth, isAuthenticated } from "./auth.js";
+import { setupAuth, isAuthenticated, populateUser } from "./auth.js";
 import { sendContactEmail, sendBugReportEmail } from "./email.js";
 import multer from "multer";
 import { createWorker } from "tesseract.js";
@@ -241,6 +241,7 @@ export async function registerRoutes(
 ): Promise<Server> {
   // Setup custom auth
   setupAuth(app);
+  app.use(populateUser);
 
   // Public config endpoint for frontend (Google Client ID is public, not sensitive)
   app.get("/api/config", (req, res) => {
@@ -935,7 +936,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
 
       // Single GROUP BY query — replaces N+1 per-quiz DB round-trips
       const quizIds = limitedQuizzes.map(q => q.id);
-      const attemptCounts = await storage.getAttemptCountsByQuizIds(quizIds);
+      const attemptCounts = await storage.getAttemptCountsByQuizIds(quizIds, userId);
 
       const quizzesWithAttempts = limitedQuizzes.map(q => ({
         ...q,
@@ -1457,6 +1458,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       const userResults = allResults.filter(r => r.userId === userId);
 
       if (userResults.length < 5) {
+        console.log(`[SMART REVIEW] Quiz ${id} only has ${userResults.length} attempts for user ${userId} (Global: ${allResults.length})`);
         return res.status(400).json({ message: "At least 5 attempts are required for a smart review session" });
       }
 

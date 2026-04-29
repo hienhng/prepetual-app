@@ -376,3 +376,10 @@ export const isAuthenticated: RequestHandler = (req, res, next) => {
   (req as any).user = { claims: { sub: req.session.userId } };
   next();
 };
+
+export const populateUser: RequestHandler = (req, res, next) => {
+  if (req.session.userId) {
+    (req as any).user = { claims: { sub: req.session.userId } };
+  }
+  next();
+};

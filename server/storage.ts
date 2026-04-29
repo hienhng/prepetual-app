@@ -52,7 +52,7 @@ export interface IStorage {
   saveQuizResult(result: InsertQuizResult): Promise<QuizResult>;
   getQuizResult(quizId: string): Promise<QuizResult | undefined>;
   getQuizResultsByQuizId(quizId: string): Promise<QuizResult[]>;
-  getAttemptCountsByQuizIds(quizIds: string[]): Promise<Map<string, number>>;
+  getAttemptCountsByQuizIds(quizIds: string[], userId?: string): Promise<Map<string, number>>;
   batchUpdateQuizFolder(userId: string, toAdd: string[], toRemove: string[], folderId: string): Promise<void>;
   getUserAverageAccuracy(userId: string): Promise<{ averageAccuracy: number; totalAttempts: number }>;
   getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string; quizId: string }[]>;
@@ -317,13 +317,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Single query to get attempt counts for multiple quizzes — replaces N+1 per-quiz queries
-  async getAttemptCountsByQuizIds(quizIds: string[]): Promise<Map<string, number>> {
+  async getAttemptCountsByQuizIds(quizIds: string[], userId?: string): Promise<Map<string, number>> {
     if (quizIds.length === 0) return new Map();
-    const rows = await db
+    
+    let query = db
       .select({ quizId: quizResults.quizId, cnt: count() })
       .from(quizResults)
-      .where(inArray(quizResults.quizId, quizIds))
-      .groupBy(quizResults.quizId);
+      .where(inArray(quizResults.quizId, quizIds));
+
+    if (userId) {
+      query = query.where(and(inArray(quizResults.quizId, quizIds), eq(quizResults.userId, userId)));
+    }
+
+    const rows = await query.groupBy(quizResults.quizId);
     return new Map(rows.map(r => [r.quizId, Number(r.cnt)]));
   }
 
@@ -336,7 +342,7 @@ export class DatabaseStorage implements IStorage {
       })
       .from(quizResults)
       .innerJoin(quizzes, eq(quizResults.quizId, quizzes.id))
-      .where(eq(quizzes.userId, userId));
+      .where(eq(quizResults.userId, userId));
 
     if (allResults.length === 0) {
       return { averageAccuracy: 0, totalAttempts: 0 };
@@ -350,31 +356,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string; quizId: string }[]> {
-    const userQuizzes = await this.getQuizzesByUserId(userId);
-    if (userQuizzes.length === 0) {
-      return [];
-    }
-
-    const quizIds = userQuizzes.map(q => q.id);
-    const quizMap = new Map(userQuizzes.map(q => [q.id, { title: q.title, category: q.category || "Others/General" }]));
-    
-    const allResults = await db.select()
+    const results = await db
+      .select({
+        result: quizResults,
+        quiz: quizzes
+      })
       .from(quizResults)
-      .where(inArray(quizResults.quizId, quizIds))
-      .orderBy(quizResults.completedAt);
+      .innerJoin(quizzes, eq(quizResults.quizId, quizzes.id))
+      .where(eq(quizResults.userId, userId))
+      .orderBy(desc(quizResults.completedAt));
 
-    return allResults.map(r => {
-      const quizInfo = quizMap.get(r.quizId);
-      return {
-        date: r.completedAt.toISOString(),
-        accuracy: r.totalQuestions > 0 ? Math.round((r.correctAnswers / r.totalQuestions) * 100) : 0,
-        quizTitle: quizInfo?.title || "Unknown Quiz",
-        correctAnswers: r.correctAnswers,
-        totalQuestions: r.totalQuestions,
-        category: quizInfo?.category || "Others/General",
-        quizId: r.quizId,
-      };
-    });
+    return results.map(r => ({
+      date: r.result.completedAt.toISOString(),
+      accuracy: r.result.totalQuestions > 0 ? Math.round((r.result.correctAnswers / r.result.totalQuestions) * 100) : 0,
+      quizTitle: r.quiz.title,
+      correctAnswers: r.result.correctAnswers,
+      totalQuestions: r.result.totalQuestions,
+      category: r.quiz.category || "Others/General",
+      quizId: r.result.quizId,
+    }));
   }
 
   // Comments

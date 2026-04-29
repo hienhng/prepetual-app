@@ -7,6 +7,7 @@ import {
   Binary, Book, FlaskConical, Globe, Languages, GraduationCap,
   Loader2, InboxIcon, ArrowRight,
 } from "lucide-react";
+import { getCategoryIcon } from "@/lib/category-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,14 +29,6 @@ import { useState } from "react";
 
 // ── Category & difficulty maps ────────────────────────────────────────────────
 
-const categoryIcons: Record<string, any> = {
-  "Math": Binary,
-  "English": Book,
-  "Science": FlaskConical,
-  "Social Studies": Globe,
-  "Global Languages": Languages,
-  "Others/General": GraduationCap,
-};
 
 const difficultyColors: Record<string, {
   border: string; from: string; via: string; text: string; icon: string; badge: string;
@@ -144,7 +137,7 @@ function InProgressCard({
 }) {
   const difficultyRaw = getDifficulty(item.quiz.difficulty);
   const colors = difficultyColors[difficultyRaw];
-  const CategoryIcon = categoryIcons[item.quiz.category || "Others/General"] || GraduationCap;
+  const CategoryIcon = getCategoryIcon(item.quiz.category);
 
   const displayAnswered = item.isRevising ? item.retryAnsweredCount : item.answeredCount;
   const displayTotal = item.isRevising ? item.retryTotalCount : item.totalCount;

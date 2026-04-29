@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, useParams } from "wouter";
 import { motion } from "framer-motion";
-import { Play, BookOpen, Share2, Trash2, Loader2, Edit2, Globe, GlobeLock, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, Sparkles, MoreVertical, Pencil, X, ArrowLeft, Plus, FolderOpen, Check, Pin, PinOff } from "lucide-react";
+import { Play, BookOpen, Share2, Trash2, Loader2, Edit2, Globe, GlobeLock, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, Sparkles, MoreVertical, Pencil, X, ArrowLeft, Plus, FolderOpen, Check, Pin, PinOff, BookText, Globe2 } from "lucide-react";
+import { getCategoryIcon } from "@/lib/category-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -297,18 +298,6 @@ export default function FolderPage() {
     }
   };
 
-  const getCategoryIcon = (category?: string | null) => {
-    const cls = "h-4 w-4";
-    switch (category) {
-      case "Math": return <Calculator className={cls} />;
-      case "English": return <Languages className={cls} />;
-      case "Science": return <FlaskConical className={cls} />;
-      case "Social Studies": return <Landmark className={cls} />;
-      case "Global Languages": return <Languages className={cls} />;
-      case "Others/General": return <LayoutGrid className={cls} />;
-      default: return <Sparkles className={cls} />;
-    }
-  };
 
   const openRenameDialog = () => {
     setFolderName(folder?.name || "");
@@ -419,9 +408,9 @@ export default function FolderPage() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => togglePinMutation.mutate()} data-testid="button-toggle-pin-folder">
                     {folder.pinnedToSidebar ? (
-                      <><PinOff className="h-3.5 w-3.5 mr-2" />Unpin from Sidebar</>
+                      <><PinOff className="h-3.5 w-3.5 mr-2" />Unpin from Top</>
                     ) : (
-                      <><Pin className="h-3.5 w-3.5 mr-2" />Pin to Sidebar</>
+                      <><Pin className="h-3.5 w-3.5 mr-2" />Pin to Top</>
                     )}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={openRenameDialog} data-testid="button-rename-folder">
@@ -495,8 +484,11 @@ export default function FolderPage() {
                   >
                     <CardContent className="p-3 sm:p-4">
                       <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${colorClass} transition-transform duration-300 group-hover:scale-105`}>
-                          {getCategoryIcon(cat)}
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${colorClass} transition-transform duration-300 group-hover:scale-105 text-current`}>
+                          {(() => {
+                            const Icon = getCategoryIcon(cat);
+                            return <Icon className="h-4 w-4" />;
+                          })()}
                         </div>
 
                         <div className="min-w-0 flex-1">
@@ -692,7 +684,10 @@ export default function FolderPage() {
                             cat === "Social Studies" ? "text-indigo-600 bg-indigo-500/10 border-indigo-200/50" :
                               "text-slate-600 bg-slate-500/10 border-slate-200/50"
                         }`}>
-                        {getCategoryIcon(cat)}
+                        {(() => {
+                          const Icon = getCategoryIcon(cat);
+                          return <Icon className="h-4 w-4" />;
+                        })()}
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-bold truncate text-foreground">{quiz.title}</p>

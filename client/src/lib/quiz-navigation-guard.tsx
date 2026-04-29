@@ -64,6 +64,8 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
     return (hasCompletedFirstAttempt && wrongCount > 0) || hasRetryProgress;
   }, [currentQuiz, location, userAnswers, checkedQuestions, playerRetryAnswers]);
 
+  const isReviewSession = currentQuiz?.generationMode === 'review';
+
   // Handle browser back button
   useEffect(() => {
     if (isQuizInProgress && !hasAddedHistoryEntry.current) {
@@ -91,7 +93,7 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
   }, [isQuizInProgress]);
 
   const navigateWithGuard = useCallback((path: string) => {
-    if (isQuizInProgress && path !== "/quiz" && path !== "/results") {
+    if (isQuizInProgress && path !== "/quiz" && path !== "/quiz-results") {
       setPendingPath(path);
       setShowExitDialog(true);
     } else {
@@ -100,7 +102,7 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
   }, [isQuizInProgress, setLocation]);
 
   const handleLinkClick = useCallback((e: MouseEvent, path: string, callback?: () => void) => {
-    if (isQuizInProgress && path !== "/quiz" && path !== "/results") {
+    if (isQuizInProgress && path !== "/quiz" && path !== "/quiz-results") {
       e.preventDefault();
       setPendingPath(path);
       setShowExitDialog(true);
@@ -112,6 +114,14 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
   const handleSaveAndExit = () => {
     // Pass explicit player progress to ensure revision state is saved correctly
     saveCurrentProgress(getPlayerProgress());
+    setShowExitDialog(false);
+    if (pendingPath) {
+      setLocation(pendingPath);
+      setPendingPath(null);
+    }
+  };
+
+  const handleDiscardReview = () => {
     setShowExitDialog(false);
     if (pendingPath) {
       setLocation(pendingPath);
@@ -139,30 +149,43 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
     <QuizNavigationGuardContext.Provider value={{ navigateWithGuard, isQuizInProgress, handleLinkClick }}>
       {children}
       <AlertDialog open={showExitDialog} onOpenChange={(open) => !open && handleCancel()}>
-        <AlertDialogContent data-testid={isInRevisionMode ? "dialog-revision-exit-warning" : "dialog-quiz-exit"}>
+        <AlertDialogContent data-testid={isReviewSession ? "dialog-review-exit" : isInRevisionMode ? "dialog-revision-exit-warning" : "dialog-quiz-exit"}>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              {isInRevisionMode ? "Save Revision Progress?" : "Leave Quiz?"}
+              {isReviewSession ? "Discard Review Session?" : isInRevisionMode ? "Save Revision Progress?" : "Leave Quiz?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {isInRevisionMode 
-                ? "You're currently revising incorrect answers. Your revision progress will be saved so you can continue later."
-                : "You have a quiz in progress. Would you like to save your progress for later?"
+              {isReviewSession 
+                ? "Your review session progress will not be saved. Are you sure you want to exit?"
+                : isInRevisionMode 
+                  ? "You're currently revising incorrect answers. Your revision progress will be saved so you can continue later."
+                  : "You have a quiz in progress. Would you like to save your progress for later?"
               }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel onClick={handleCancel} data-testid="button-cancel-nav-exit">
-              {isInRevisionMode ? "Keep Revising" : "Continue Quiz"}
+              {isReviewSession ? "Keep Reviewing" : isInRevisionMode ? "Keep Revising" : "Continue Quiz"}
             </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={isInRevisionMode ? handleExitRevision : handleSaveAndExit}
-              className="gap-2"
-              data-testid={isInRevisionMode ? "button-confirm-revision-exit" : "button-save-nav-exit"}
-            >
-              <Save className="h-4 w-4" />
-              Save & Exit
-            </AlertDialogAction>
+            
+            {isReviewSession ? (
+              <AlertDialogAction
+                onClick={handleDiscardReview}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                data-testid="button-discard-review"
+              >
+                Discard & Exit
+              </AlertDialogAction>
+            ) : (
+              <AlertDialogAction
+                onClick={isInRevisionMode ? handleExitRevision : handleSaveAndExit}
+                className="gap-2"
+                data-testid={isInRevisionMode ? "button-confirm-revision-exit" : "button-save-nav-exit"}
+              >
+                <Save className="h-4 w-4" />
+                Save & Exit
+              </AlertDialogAction>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -38,6 +38,7 @@ import { useQuiz } from "@/lib/quiz-context";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { type Question, type QuestionType, QUIZ_CATEGORIES, type QuizCategory } from "@shared/schema";
+import { getCategoryIcon } from "@/lib/category-icons";
 
 type ViewMode = "edit" | "preview";
 type QuestionFilter = "all" | "multiple_choice" | "true_false" | "short_answer";
@@ -430,9 +431,17 @@ export default function EditQuizPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {QUIZ_CATEGORIES.map((cat) => (
-                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                        ))}
+                        {QUIZ_CATEGORIES.map((cat) => {
+                          const Icon = getCategoryIcon(cat);
+                          return (
+                            <SelectItem key={cat} value={cat} data-testid={`select-item-${cat.toLowerCase().replace(/[^a-z]/g, "-")}`}>
+                              <div className="flex items-center gap-2">
+                                <Icon className="h-4 w-4" />
+                                {cat}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </CardContent>

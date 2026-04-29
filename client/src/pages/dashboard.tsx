@@ -9,6 +9,7 @@ import {
   Calculator, Languages, FlaskConical, Globe2, HelpCircle, BookText, Zap,
   Binary, Book, Globe
 } from "lucide-react";
+import { getCategoryIcon } from "@/lib/category-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFileLines,
@@ -36,15 +37,6 @@ import { useAuth } from "@/hooks/useAuth";
 import type { Quiz } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 
-// Category to Icon mapping
-const categoryIcons: Record<string, any> = {
-  "Math": Binary,
-  "English": Book,
-  "Science": FlaskConical,
-  "Social Studies": Globe,
-  "Global Languages": Languages,
-  "Others/General": GraduationCap,
-};
 
 // Difficulty to Color mapping
 const difficultyColors: Record<string, { border: string, from: string, via: string, text: string, icon: string, shadow: string, badge: string }> = {
@@ -406,7 +398,7 @@ function QuizCard({
   const difficultyRaw = quiz.difficulty?.toLowerCase() || "medium";
   const difficulty = (["easy", "medium", "hard"].includes(difficultyRaw) ? difficultyRaw : "medium") as "easy" | "medium" | "hard";
   const colors = difficultyColors[difficulty] || difficultyColors.medium;
-  const CategoryIcon = categoryIcons[quiz.category || "Others/General"] || GraduationCap;
+  const CategoryIcon = getCategoryIcon(quiz.category);
   const questionCount = (quiz as any).questionCount || (quiz.questions as any[])?.length || 0;
 
   return (
@@ -531,7 +523,7 @@ function ContinueQuizCard({
   const difficultyRaw = quiz.difficulty?.toLowerCase() || "medium";
   const difficulty = (["easy", "medium", "hard"].includes(difficultyRaw) ? difficultyRaw : "medium") as "easy" | "medium" | "hard";
   const colors = difficultyColors[difficulty] || difficultyColors.medium;
-  const CategoryIcon = categoryIcons[quiz.category || "Others/General"] || GraduationCap;
+  const CategoryIcon = getCategoryIcon(quiz.category);
 
   const timeLabel = formatDistanceToNow(new Date(savedAt || new Date()));
 

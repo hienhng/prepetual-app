@@ -59,6 +59,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { queryClient } from "@/lib/queryClient";
@@ -66,7 +67,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import logoImage from "@assets/image_1765894870887.png";
 import type { Folder } from "@shared/schema";
 
-const mainNavItems = [
+const primaryNavItems = [
   {
     title: "Dashboard",
     url: "/dashboard",
@@ -83,39 +84,25 @@ const mainNavItems = [
     icon: Folders,
   },
   {
+    title: "Discover",
+    url: "/feed",
+    icon: Compass,
+  },
+];
+
+const secondaryNavItems = [
+  {
     title: "Progress",
     url: "/progress",
     icon: ChartLine,
   },
   {
-    title: "Discover",
-    url: "/feed",
-    icon: Compass,
+    title: "Results",
+    url: "/results", // Dummy path or use #
+    icon: BookOpen, // Or FileText
   },
-  // {
-  //   title: "Blog",
-  //   url: "/blog",
-  //   icon: BookOpen,
-  // },
 ];
 
-const infoNavItems = [
-  {
-    title: "Help Center",
-    url: "/help",
-    icon: HelpCircle,
-  },
-  // {
-  //   title: "About",
-  //   url: "/about",
-  //   icon: Info,
-  // },
-  {
-    title: "Contact",
-    url: "/contact",
-    icon: Mail,
-  },
-];
 
 export function AppSidebar() {
   const [location] = useLocation();
@@ -128,11 +115,16 @@ export function AppSidebar() {
   const [renameValue, setRenameValue] = useState("");
   const renameInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: allFolders } = useQuery<Folder[]>({
+  const { data: allFolders = [] } = useQuery<Folder[]>({
     queryKey: ["/api/folders"],
     enabled: !!user,
   });
-  const pinnedFolders = allFolders?.filter(f => f.pinnedToSidebar) || [];
+
+  const sortedSidebarFolders = [...allFolders].sort((a, b) => {
+    if (a.pinnedToSidebar && !b.pinnedToSidebar) return -1;
+    if (!a.pinnedToSidebar && b.pinnedToSidebar) return 1;
+    return 0;
+  });
 
   useEffect(() => {
     if (renamingFolder && renameInputRef.current) {
@@ -245,7 +237,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainNavItems.map((item) => (
+              {primaryNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
@@ -263,15 +255,34 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {pinnedFolders.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>
-              
-              Pinned Folders
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {pinnedFolders.map((folder) => (
+        <SidebarGroup>
+          <SidebarGroupLabel>Analysis</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {secondaryNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location === item.url}
+                    tooltip={item.title}
+                  >
+                    <Link href={item.url} onClick={(e) => handleNavClick(e, item.url)} data-testid={`sidebar-link-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <item.icon className="w-4 h-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Folders</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {sortedSidebarFolders.length > 0 ? (
+                sortedSidebarFolders.map((folder) => (
                   <SidebarMenuItem key={folder.id} className="group/pinned relative">
                     <SidebarMenuButton
                       asChild
@@ -304,40 +315,34 @@ export function AppSidebar() {
                             Rename
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => togglePinMutation.mutate(folder.id)}>
-                            <PinOff className="h-3.5 w-3.5 mr-2" />
-                            Unpin from Sidebar
+                            {folder.pinnedToSidebar ? (
+                              <>
+                                <PinOff className="h-3.5 w-3.5 mr-2" />
+                                Unpin from Top
+                              </>
+                            ) : (
+                              <>
+                                <Pin className="h-3.5 w-3.5 mr-2" />
+                                Pin to Top
+                              </>
+                            )}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     )}
                   </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Information</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {infoNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={location === item.url}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url} onClick={(e) => handleNavClick(e, item.url)} data-testid={`sidebar-link-${item.title.toLowerCase()}`}>
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+                ))
+              ) : (
+                !isCollapsed && (
+                  <div className="px-4 py-2 text-xs text-muted-foreground italic">
+                    No folders created
+                  </div>
+                )
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
       </SidebarContent>
 
       <SidebarFooter className={`space-y-2 overflow-hidden ${isCollapsed ? 'p-1' : 'p-3'}`}>
@@ -360,17 +365,30 @@ export function AppSidebar() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-56">
-              <DropdownMenuItem className="text-muted-foreground" disabled>
-                <User className="h-4 w-4 mr-2" />
-                {user?.email || "User"}
-              </DropdownMenuItem>
+              
+              
               <DropdownMenuItem asChild>
                 <Link href="/settings" onClick={(e) => handleNavClick(e, "/settings")} data-testid="sidebar-settings">
                   <Settings className="h-4 w-4 mr-2" />
                   Settings
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout} data-testid="sidebar-logout">
+              <DropdownMenuItem asChild>
+                <Link href="/help" onClick={(e) => handleNavClick(e, "/help")} data-testid="sidebar-help">
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  Help Center
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/contact" onClick={(e) => handleNavClick(e, "/contact")} data-testid="sidebar-contact">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Contact Us
+                </Link>
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive" data-testid="sidebar-logout">
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign out
               </DropdownMenuItem>

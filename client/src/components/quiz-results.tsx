@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 export function QuizResults() {
   const [, setLocation] = useLocation();
   const { currentQuiz, quizResult, userAnswers, clearUserAnswers, revisedQuestionsCount, removeSavedProgress } = useQuiz();
+  const isReviewSession = currentQuiz?.generationMode === 'review';
   const { user } = useAuth();
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
@@ -176,7 +177,10 @@ export function QuizResults() {
                 <h2 className={`text-2xl font-bold ${getScoreColor()}`}>{getScoreMessage()}</h2>
               </div>
               <p className="text-muted-foreground">
-                You answered <span className="font-semibold text-foreground">{quizResult.correctAnswers}</span> out of <span className="font-semibold text-foreground">{quizResult.totalQuestions}</span> questions correctly
+                {isReviewSession 
+                  ? <>You fixed <span className="font-semibold text-foreground">{quizResult.correctAnswers}</span> out of <span className="font-semibold text-foreground">{quizResult.totalQuestions}</span> targeted questions</>
+                  : <>You answered <span className="font-semibold text-foreground">{quizResult.correctAnswers}</span> out of <span className="font-semibold text-foreground">{quizResult.totalQuestions}</span> questions correctly</>
+                }
               </p>
             </motion.div>
           </CardContent>
@@ -196,7 +200,7 @@ export function QuizResults() {
           <p className="text-2xl font-bold text-foreground" data-testid="text-correct-count">
             {quizResult.correctAnswers}
           </p>
-          <p className="text-sm text-muted-foreground">Correct</p>
+          <p className="text-sm text-muted-foreground">{isReviewSession ? "Fixed" : "Correct"}</p>
         </Card>
 
         <Card className="text-center p-4">
@@ -206,7 +210,7 @@ export function QuizResults() {
           <p className="text-2xl font-bold text-foreground" data-testid="text-incorrect-count">
             {quizResult.totalQuestions - quizResult.correctAnswers}
           </p>
-          <p className="text-sm text-muted-foreground">Incorrect</p>
+          <p className="text-sm text-muted-foreground">{isReviewSession ? "Needs Work" : "Incorrect"}</p>
         </Card>
 
         <Card className="text-center p-4">

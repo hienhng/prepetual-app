@@ -29,6 +29,7 @@ import Create from "@/pages/create";
 import Feed from "@/pages/feed";
 import Generate from "@/pages/generate";
 import Quiz from "@/pages/quiz";
+import QuizComplete from "@/pages/quiz-complete";
 import Results from "@/pages/results";
 import HistoryPage from "@/pages/history";
 import Study from "@/pages/study";
@@ -87,6 +88,7 @@ function AuthenticatedRouter() {
       <Route path="/generate" component={Generate} />
       <Route path="/quiz" component={Quiz} />
       <Route path="/results" component={Results} />
+      <Route path="/quiz-results" component={QuizComplete} />
       <Route path="/history" component={HistoryPage} />
       <Route path="/folder/:id" component={FolderPage} />
       <Route path="/study" component={Study} />
@@ -127,6 +129,7 @@ function PublicRouter() {
       {/* Guest-accessible quiz experience (from shared links) */}
       <Route path="/quiz" component={Quiz} />
       <Route path="/results" component={Results} />
+      <Route path="/quiz-results" component={QuizComplete} />
       <Route path="/revision-summary" component={RevisionSummary} />
       {/* Auth flow pages */}
       <Route path="/verify-email" component={VerifyEmailPage} />
@@ -222,7 +225,8 @@ function AuthenticatedHeader() {
       case "/history": return "Archive";
       case "/generate": return "Generate Quiz";
       case "/quiz": return "Quiz";
-      case "/results": return "Results";
+      case "/results": return "Results History";
+      case "/quiz-results": return "Quiz Complete";
       case "/study": return "Study Mode";
       case "/edit-quiz": return "Edit Quiz";
       case "/progress": return "Progress";
@@ -286,7 +290,7 @@ function AuthenticatedLayout() {
   const { user } = useAuth();
   const [location] = useLocation();
   const showFooter = location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
-  const hideSidebar = location === "/quiz" || location === "/results" || location === "/revision-summary";
+  const hideSidebar = location === "/quiz" || location === "/quiz-results" || location === "/revision-summary";
 
   const sidebarStyle = {
     "--sidebar-width": "16rem",

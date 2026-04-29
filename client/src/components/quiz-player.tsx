@@ -585,6 +585,38 @@ export function QuizPlayer() {
       }
       setRetryCorrectCount(retryCorrect);
       
+      if (currentQuiz.generationMode === 'review') {
+        const correctAnswers = allQuestions.filter(q => {
+          const answer = userAnswers[q.id];
+          if (!answer) return false;
+          if (q.type === "short_answer") {
+            return aiGradingResults[q.id]?.isCorrect;
+          }
+          return answer.toLowerCase().trim() === q.correctAnswer.toLowerCase().trim();
+        }).length;
+
+        const result = {
+          quizId: currentQuiz.id,
+          answers: userAnswers,
+          score: Math.round((correctAnswers / allQuestions.length) * 100),
+          totalQuestions: allQuestions.length,
+          correctAnswers: correctAnswers,
+          timeTaken: sessionTime,
+          completedAt: new Date(),
+          wrongQuestionIds: allQuestions.filter(q => {
+            const answer = userAnswers[q.id];
+            if (!answer) return true;
+            if (q.type === "short_answer") {
+              return !aiGradingResults[q.id]?.isCorrect;
+            }
+            return answer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
+          }).map(q => q.id),
+        };
+        setQuizResult(result as any);
+        setLocation("/quiz-results");
+        return;
+      }
+
       const response = await fetch("/api/submit-quiz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -602,7 +634,7 @@ export function QuizPlayer() {
       const result = await response.json();
       
       setQuizResult(result);
-      setLocation("/results");
+      setLocation("/quiz-results");
     } catch (error) {
       console.error("Error submitting quiz:", error);
     } finally {
