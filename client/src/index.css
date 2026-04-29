@@ -257,6 +257,10 @@ select:-webkit-autofill:active {
     0% { transform: translateY(-100%); }
     100% { transform: translateY(100%); }
   }
+  @keyframes scan-horizontal {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
   @keyframes pulse-soft {
     0%, 100% { opacity: 0.2; }
     50% { opacity: 0.4; }
@@ -266,6 +270,9 @@ select:-webkit-autofill:active {
   }
   .animate-scan {
     animation: scan 3s linear infinite;
+  }
+  .animate-scan-horizontal {
+    animation: scan-horizontal 3s linear infinite;
   }
   .animate-pulse-soft {
     animation: pulse-soft 2s ease-in-out infinite;

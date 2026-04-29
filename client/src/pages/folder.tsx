@@ -339,7 +339,7 @@ export default function FolderPage() {
   };
 
   const getTotalQuestions = () => {
-    return folderQuizzes.reduce((sum, q) => sum + ((q.questions as any[])?.length || 0), 0);
+    return folderQuizzes.reduce((sum, q) => sum + ((q as any).questionCount || (q.questions as any[])?.length || 0), 0);
   };
 
   if (isLoading) {
@@ -697,7 +697,7 @@ export default function FolderPage() {
                       <div className="min-w-0">
                         <p className="text-sm font-bold truncate text-foreground">{quiz.title}</p>
                         <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/60">
-                          {(quiz.questions as any[]).length} questions
+                          {(quiz as any).questionCount || (quiz.questions as any[])?.length || 0} questions
                         </p>
                       </div>
                     </div>

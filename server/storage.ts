@@ -294,7 +294,8 @@ export class DatabaseStorage implements IStorage {
       score: result.score,
       totalQuestions: result.totalQuestions,
       correctAnswers: result.correctAnswers,
-      wrongQuestionIds: (result.wrongQuestionIds || []) as string[]
+      wrongQuestionIds: (result.wrongQuestionIds || []) as string[],
+      timeTaken: result.timeTaken || 0,
     } as any).returning();
     return savedResult;
   }
@@ -585,6 +586,7 @@ export class DatabaseStorage implements IStorage {
         currentIndex: progress.currentIndex ?? 0,
         retryAnswers: (progress.retryAnswers as Record<string, string>) ?? {},
         retryCheckedQuestions: (progress.retryCheckedQuestions as string[]) || [],
+        timeTaken: progress.timeTaken || 0,
       } as any)
       .returning();
 

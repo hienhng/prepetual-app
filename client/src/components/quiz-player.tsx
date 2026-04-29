@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, FileText, ChevronLeft, ChevronRight, Image, Flag, AlertTriangle } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, FileText, ChevronLeft, ChevronRight, Image, Flag, AlertTriangle, Clock, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,6 +85,8 @@ export function QuizPlayer() {
     restoredRetryCheckedQuestions,
     clearRestoredState,
     syncPlayerState,
+    timeTaken,
+    quizResult,
   } = useQuiz();
   const { user } = useAuth();
   const sidebarContext = useSidebarOptional();
@@ -112,6 +114,17 @@ export function QuizPlayer() {
   const hasRestoredRef = useRef(false);
   const [expandedExplanations, setExpandedExplanations] = useState<Set<string>>(new Set());
   
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  };
+  const [sessionTime, setSessionTime] = useState(0);
+  const [showTimer, setShowTimer] = useState(true);
+  const isFinished = !!quizResult;
+  
   const isGuest = !user;
 
   if (!currentQuiz) {
@@ -120,7 +133,17 @@ export function QuizPlayer() {
   
   // Initialize from restored state on mount (from saved progress) - only for authenticated users
   useEffect(() => {
-    if (hasRestoredRef.current || !currentQuiz || isGuest) return;
+    if (hasRestoredRef.current || !currentQuiz || isGuest) {
+      if (quizResult && !hasRestoredRef.current) {
+        setQuizResult(null);
+      }
+      return;
+    }
+    
+    // Clear any stale results when starting/resuming a quiz session
+    if (quizResult) {
+      setQuizResult(null);
+    }
     
     // Derive wrongAnswerIds from userAnswers by comparing to correct answers
     // This handles both: 1) Legacy progress without retry state, 2) Fresh restore with explicit state
@@ -160,20 +183,34 @@ export function QuizPlayer() {
     }
     
     // Restore current index if available
-    if (restoredCurrentIndex !== null && restoredCurrentIndex > 0) {
-      setCurrentIndex(restoredCurrentIndex);
+    if (restoredCurrentIndex !== null || restoredRetryAnswers) {
+      setCurrentIndex(restoredCurrentIndex || 0);
+      setSessionTime(timeTaken || 0);
     }
     
     hasRestoredRef.current = true;
     clearRestoredState(currentQuiz.id);
-  }, [currentQuiz, userAnswers, checkedQuestions, restoredCurrentIndex, restoredRetryAnswers, restoredRetryCheckedQuestions, clearRestoredState, isGuest]);
+  }, [currentQuiz, userAnswers, checkedQuestions, restoredCurrentIndex, restoredRetryAnswers, restoredRetryCheckedQuestions, clearRestoredState, isGuest, timeTaken, quizResult, setQuizResult]);
 
   // Sync player state to context for save functionality (only for authenticated users)
   useEffect(() => {
     if (!isGuest) {
-      syncPlayerState(currentIndex, retryAnswers, Array.from(retryChecked));
+      syncPlayerState(currentIndex, retryAnswers, Array.from(retryChecked), sessionTime);
     }
-  }, [currentIndex, retryAnswers, retryChecked, syncPlayerState, isGuest]);
+  }, [currentIndex, retryAnswers, retryChecked, syncPlayerState, isGuest, sessionTime]);
+
+  // Timer logic
+  useEffect(() => {
+    if (isFinished || isSubmitting) return;
+    
+    const timer = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        setSessionTime(prev => prev + 1);
+      }
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [isFinished, isSubmitting]);
 
   // Cleanup: reset hasRestoredRef when quiz changes (to allow fresh restoration)
   useEffect(() => {
@@ -554,6 +591,7 @@ export function QuizPlayer() {
         body: JSON.stringify({
           quizId: currentQuiz.id,
           answers: userAnswers,
+          timeTaken: sessionTime,
         }),
       });
 
@@ -660,7 +698,48 @@ export function QuizPlayer() {
   };
 
   const renderFeedback = () => {
-    return null;
+    if (!isChecked) return null;
+    const feedback = feedbackMessages[currentQuestion.id];
+    if (!feedback) return null;
+
+    const isCorrect = isCorrectAnswer(selectedAnswer, currentQuestion);
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        className={`mt-6 p-4 rounded-2xl border-2 flex items-center gap-3 overflow-hidden relative ${
+          isCorrect 
+            ? "bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400 shadow-sm shadow-green-500/5" 
+            : "bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400 shadow-sm shadow-red-500/5"
+        }`}
+      >
+        <div className={`absolute inset-0 opacity-10 bg-gradient-to-r ${isCorrect ? "from-green-500/0 via-green-500 to-green-500/0" : "from-red-500/0 via-red-500 to-red-500/0"} animate-scan-horizontal`} style={{ animationDuration: '3s' }} />
+        
+        <div className={`p-2 rounded-xl ${isCorrect ? "bg-green-500/20" : "bg-red-500/20"}`}>
+          {isCorrect ? <Sparkles className="h-5 w-5" /> : <Lightbulb className="h-5 w-5" />}
+        </div>
+        
+        <div className="flex-1">
+          <p className="font-bold text-lg tracking-tight leading-none mb-0.5">{feedback.message}</p>
+          <p className="text-sm opacity-80 font-medium">
+            {isCorrect ? "You're doing great!" : "Don't worry, keep going!"}
+          </p>
+        </div>
+
+        {feedback.streakAtTime >= 2 && (
+          <motion.div
+            initial={{ scale: 0, rotate: -15 }}
+            animate={{ scale: 1, rotate: 0 }}
+            className="flex flex-col items-center justify-center px-3 py-1 bg-orange-500 rounded-xl text-white shadow-lg shadow-orange-500/20"
+          >
+            <span className="text-[10px] font-black uppercase tracking-wider leading-none">Streak</span>
+            <span className="text-xl font-black leading-none">{feedback.streakAtTime}</span>
+          </motion.div>
+        )}
+      </motion.div>
+    );
   };
 
   const toggleExplanation = (key: string) => {
@@ -701,7 +780,17 @@ export function QuizPlayer() {
                 <motion.button
                   whileHover={!isChecked ? { scale: 1.02 } : {}}
                   whileTap={!isChecked ? { scale: 0.98 } : {}}
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  animate={isChecked ? (
+                    isCorrectOpt 
+                      ? { scale: [1, 1.05, 1] } 
+                      : (isSelected ? { x: [-4, 4, -4, 4, 0] } : {})
+                  ) : {}}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 400, 
+                    damping: 15,
+                    mass: 0.4
+                  }}
                   onClick={() => handleSelectAnswer(option)}
                   disabled={isChecked}
                   data-testid={`option-${option.toLowerCase()}`}
@@ -710,9 +799,9 @@ export function QuizPlayer() {
                     ${hasExplanation ? "rounded-t-2xl" : "rounded-2xl"}
                     ${!isChecked ? "cursor-pointer" : "cursor-default"}
                     ${isChecked && isCorrectOpt 
-                      ? "bg-green-500/15 border-2 border-green-500 shadow-lg shadow-green-500/10" 
+                      ? "bg-green-500/15 border-2 border-green-500 shadow-xl shadow-green-500/20 ring-2 ring-green-500/20" 
                       : isChecked && isSelected && !isCorrectOpt
-                        ? "bg-red-500/15 border-2 border-red-500 shadow-lg shadow-red-500/10"
+                        ? "bg-red-500/15 border-2 border-red-500 shadow-lg shadow-red-500/15 ring-2 ring-red-500/10"
                         : isSelected
                           ? "bg-primary/10 border-2 border-primary shadow-lg shadow-primary/10"
                           : "bg-card border-2 border-border hover:border-primary/50 hover:bg-muted/50"
@@ -721,37 +810,38 @@ export function QuizPlayer() {
                   `}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-lg sm:text-xl font-semibold">{option}</span>
+                    <span className={`text-lg sm:text-xl font-bold transition-colors ${isChecked && isCorrectOpt ? "text-green-700 dark:text-green-400" : isChecked && isSelected && !isCorrectOpt ? "text-red-700 dark:text-red-400" : ""}`}>{option}</span>
                     <AnimatePresence>
                       {isChecked && isCorrectOpt && (
                         <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center"
+                          initial={{ scale: 0, rotate: -45 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/30"
                         >
-                          <Check className="h-5 w-5 text-white" />
+                          <Check className="h-6 w-6 text-white" strokeWidth={3} />
                         </motion.div>
                       )}
                       {isChecked && isSelected && !isCorrectOpt && (
                         <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center"
+                          initial={{ scale: 0, rotate: 45 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          className="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/30"
                         >
-                          <X className="h-5 w-5 text-white" />
+                          <X className="h-6 w-6 text-white" strokeWidth={3} />
                         </motion.div>
                       )}
                       {!isChecked && isSelected && (
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="w-8 h-8 rounded-full bg-primary flex items-center justify-center"
+                          className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30"
                         >
-                          <Check className="h-5 w-5 text-primary-foreground" />
+                          <Check className="h-6 w-6 text-primary-foreground" strokeWidth={3} />
                         </motion.div>
                       )}
                     </AnimatePresence>
                   </div>
+                  
                 </motion.button>
                 
                 {/* Explanation dropdown for True/False */}
@@ -835,14 +925,22 @@ export function QuizPlayer() {
       
       return (
         <div className="space-y-4">
-          <Input
-            value={isChecked ? (selectedAnswer || shortAnswerInput) : shortAnswerInput}
-            onChange={(e) => handleShortAnswerChange(e.target.value)}
-            placeholder="Type your answer here..."
-            className={`py-6 px-5 text-lg rounded-xl border-2 ${borderColor}`}
-            disabled={isChecked || isGrading}
-            data-testid="input-short-answer"
-          />
+          <motion.div
+            animate={isChecked ? (
+              isShortAnswerCorrect 
+                ? { scale: [1, 1.02, 1], transition: { duration: 0.4 } } 
+                : (isPartial ? { scale: [1, 1.01, 1] } : { x: [-4, 4, -4, 4, 0], transition: { duration: 0.4 } })
+            ) : {}}
+          >
+            <Input
+              value={isChecked ? (selectedAnswer || shortAnswerInput) : shortAnswerInput}
+              onChange={(e) => handleShortAnswerChange(e.target.value)}
+              placeholder="Type your answer here..."
+              className={`py-6 px-5 text-lg rounded-xl border-2 ${borderColor} transition-all duration-300 shadow-sm ${isChecked && isShortAnswerCorrect ? "shadow-green-500/20" : isChecked && !isShortAnswerCorrect ? "shadow-red-500/20" : ""}`}
+              disabled={isChecked || isGrading}
+              data-testid="input-short-answer"
+            />
+          </motion.div>
 
           {isGrading && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground px-1">
@@ -933,10 +1031,16 @@ export function QuizPlayer() {
               <motion.button
                 whileHover={!isChecked ? { scale: 1.03, x: 4 } : {}}
                 whileTap={!isChecked ? { scale: 0.98 } : {}}
+                animate={isChecked ? (
+                  isCorrectOpt 
+                    ? { scale: [1, 1.05, 1] } 
+                    : (isSelected ? { x: [-4, 4, -4, 4, 0] } : {})
+                ) : {}}
                 transition={{ 
                   type: "spring", 
                   stiffness: 400, 
-                  damping: 25,
+                  damping: 15,
+                  mass: 0.8,
                   layout: { duration: 0 } 
                 }}
                 onClick={() => handleSelectAnswer(option)}
@@ -947,9 +1051,9 @@ export function QuizPlayer() {
                   ${hasExplanation ? "rounded-t-xl rounded-b-none" : "rounded-xl"}
                   ${!isChecked ? "cursor-pointer" : "cursor-default"}
                   ${isChecked && isCorrectOpt 
-                    ? "bg-green-500/15 border-2 border-green-500 border-b-0" 
+                    ? "bg-green-500/15 border-2 border-green-500 border-b-0 shadow-lg shadow-green-500/10 ring-1 ring-green-500/20" 
                     : isChecked && isSelected && !isCorrectOpt
-                      ? "bg-red-500/15 border-2 border-red-500 border-b-0"
+                      ? "bg-red-500/15 border-2 border-red-500 border-b-0 shadow-md shadow-red-500/10"
                       : isSelected
                         ? "bg-primary/10 border-2 border-primary"
                         : "bg-card border-2 border-border hover:border-primary/50 hover:bg-muted/30"
@@ -958,49 +1062,52 @@ export function QuizPlayer() {
               >
                 <div className="flex items-center gap-4">
                   <div className={`
-                    w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0 transition-all
+                    w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0 transition-all duration-300
                     ${isChecked && isCorrectOpt
-                      ? "bg-green-500 text-white"
+                      ? "bg-green-500 text-white shadow-lg shadow-green-500/40 scale-110"
                       : isChecked && isSelected && !isCorrectOpt
-                        ? "bg-red-500 text-white"
+                        ? "bg-red-500 text-white shadow-lg shadow-red-500/40"
                         : isSelected
-                          ? "bg-primary text-primary-foreground"
+                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
                           : "bg-muted text-muted-foreground"
                     }
                   `}>
                     {optionLabels[index]}
                   </div>
-                  <span className="text-sm sm:text-base flex-1 font-medium">{option}</span>
+                  <span className={`text-sm sm:text-base flex-1 font-bold transition-colors ${isChecked && isCorrectOpt ? "text-green-700 dark:text-green-400" : isChecked && isSelected && !isCorrectOpt ? "text-red-700 dark:text-red-400" : "font-medium"}`}>
+                    {option}
+                  </span>
                   <AnimatePresence>
                     {isChecked && isCorrectOpt && (
                       <motion.div
                         initial={{ scale: 0, rotate: -180 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        className="w-7 h-7 rounded-full bg-green-500 flex items-center justify-center"
+                        className="w-8 h-8 rounded-xl bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/30"
                       >
-                        <Check className="h-4 w-4 text-white" />
+                        <Check className="h-5 w-5 text-white" strokeWidth={3} />
                       </motion.div>
                     )}
                     {isChecked && isSelected && !isCorrectOpt && (
                       <motion.div
                         initial={{ scale: 0, rotate: 180 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center"
+                        className="w-8 h-8 rounded-xl bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/30"
                       >
-                        <X className="h-4 w-4 text-white" />
+                        <X className="h-5 w-5 text-white" strokeWidth={3} />
                       </motion.div>
                     )}
                     {!isChecked && isSelected && (
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="w-7 h-7 rounded-full bg-primary flex items-center justify-center"
+                        className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30"
                       >
-                        <Check className="h-4 w-4 text-primary-foreground" />
+                        <Check className="h-5 w-5 text-primary-foreground" strokeWidth={3} />
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
+                
               </motion.button>
               
               {/* Explanation dropdown for this option */}
@@ -1307,16 +1414,38 @@ export function QuizPlayer() {
                     <BadgeCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
                     <span className="text-sm font-bold text-green-600 dark:text-green-400">{correctCount}</span>
                   </div>
+                  <div 
+                    className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-500/10 rounded-full group/timer relative cursor-pointer hover:bg-orange-500/20 transition-all duration-300" 
+                    onClick={() => setShowTimer(!showTimer)}
+                    title={showTimer ? "Hide timer" : "Show timer"}
+                  >
+                    <div className="relative w-4 h-4 flex items-center justify-center">
+                      <Clock className="absolute inset-0 h-4 w-4 text-orange-500 transition-opacity duration-300 group-hover/timer:opacity-0" />
+                      {showTimer ? (
+                        <EyeOff className="absolute inset-0 h-4 w-4 text-orange-500 opacity-0 transition-opacity duration-300 group-hover/timer:opacity-100" />
+                      ) : (
+                        <Eye className="absolute inset-0 h-4 w-4 text-orange-500 opacity-0 transition-opacity duration-300 group-hover/timer:opacity-100" />
+                      )}
+                    </div>
+                    {showTimer && (
+                      <span className="text-sm font-bold text-orange-600 dark:text-orange-400">
+                        {formatTime(sessionTime)}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               
-              <div className="relative">
-                <Progress value={progress} className="h-2.5 rounded-full" data-testid="progress-quiz" />
-                <motion.div
-                  className="absolute -top-1 h-4 w-4 bg-primary rounded-full border-2 border-background shadow-lg"
-                  style={{ left: `calc(${progress}% - 8px)` }}
-                  layoutId="progress-indicator"
-                />
+              <div className="relative h-2 w-full bg-muted/40 rounded-full overflow-hidden">
+                <motion.div 
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary/80 to-primary rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.8, ease: "circOut" }}
+                >
+                  {/* Leading edge glow */}
+                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-r from-transparent to-white/20 blur-sm" />
+                </motion.div>
               </div>
             </div>
 

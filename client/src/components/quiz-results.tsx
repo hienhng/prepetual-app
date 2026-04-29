@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ChevronDown, ChevronUp, RotateCcw, ArrowRight, LucideMessageCircleQuestion, Lock, UserPlus, Lightbulb } from "lucide-react";
+import { Check, X, ChevronDown, ChevronUp, RotateCcw, ArrowRight, LucideMessageCircleQuestion, Lock, UserPlus, Lightbulb, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,14 @@ export function QuizResults() {
   const { user } = useAuth();
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
+
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  };
 
   const isGuest = !user;
 
@@ -179,7 +187,7 @@ export function QuizResults() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="grid grid-cols-3 gap-4"
+        className="grid grid-cols-2 md:grid-cols-4 gap-4"
       >
         <Card className="text-center p-4">
           <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-2">
@@ -209,6 +217,16 @@ export function QuizResults() {
             {quizResult.totalQuestions}
           </p>
           <p className="text-sm text-muted-foreground">Total</p>
+        </Card>
+
+        <Card className="text-center p-4">
+          <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center mx-auto mb-2">
+            <Clock className="h-5 w-5 text-orange-500" />
+          </div>
+          <p className="text-2xl font-bold text-foreground">
+            {formatTime(quizResult.timeTaken || 0)}
+          </p>
+          <p className="text-sm text-muted-foreground">Time</p>
         </Card>
       </motion.div>
 

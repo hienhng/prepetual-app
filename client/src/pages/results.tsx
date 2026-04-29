@@ -19,7 +19,7 @@ export default function Results() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (!quizResultRef.current) {
-        setLocation(user ? "/dashboard" : "/");
+        setLocation(user ? "/dashboard" : "/", { replace: true });
       }
     }, 150);
 
@@ -28,7 +28,7 @@ export default function Results() {
 
   useEffect(() => {
     if (!quizResult && Date.now() - mountTimeRef.current > 200) {
-      setLocation(user ? "/dashboard" : "/");
+      setLocation(user ? "/dashboard" : "/", { replace: true });
     }
   }, [quizResult, setLocation, user]);
 

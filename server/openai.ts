@@ -1443,3 +1443,87 @@ Independently solve this and determine which option is actually correct. Show yo
   return revisedQuestions;
 }
 
+export async function generateReviewQuestions(params: {
+  questions: Question[];
+  count: number;
+  sourceText?: string;
+  difficulty?: DifficultyLevel;
+}): Promise<Question[]> {
+  const { questions, count, sourceText, difficulty = "medium" } = params;
+
+  if (count <= 0) return [];
+
+  const prompt = `You are an expert educator. Your goal is to generate ${count} NEW and UNIQUE quiz questions that are similar in theme and concept to the following reference questions, but are NOT duplicates.
+
+REFERENCE QUESTIONS:
+${questions.map((q, i) => `Ref Q${i + 1}: ${q.question} (Correct Answer: ${q.correctAnswer})`).join("\n")}
+
+${sourceText ? `SOURCE MATERIAL (for context):\n${sourceText.substring(0, 3000)}` : ""}
+
+REQUIREMENTS:
+1. Generate exactly ${count} new questions.
+2. The questions should test the same concepts or related areas as the reference questions.
+3. Match the difficulty level: ${difficulty.toUpperCase()}.
+4. Use primarily Multiple Choice format (4 options).
+5. Ensure factual accuracy based on the provided source material (if any).
+6. Detect the language of the reference questions and respond in the SAME language.
+
+OUTPUT FORMAT (JSON):
+{
+  "questions": [
+    {
+      "type": "multiple_choice",
+      "question": "The question text",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctAnswer": "The exact correct option text"
+    }
+  ]
+}
+
+Respond with ONLY valid JSON.`;
+
+  try {
+    const response = await pRetry(
+      async () => {
+        const aiClient = openai;
+        const aiModel = "meta-llama/llama-4-scout-17b-16e-instruct";
+
+        const completion = await aiClient.chat.completions.create({
+          model: aiModel,
+          messages: [{ role: "user", content: prompt }],
+          response_format: { type: "json_object" },
+          temperature: 0.4,
+          max_tokens: 4000,
+        });
+
+        let content = completion.choices[0]?.message?.content || "";
+        
+        // Basic JSON extraction if needed
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          content = jsonMatch[0];
+        }
+        
+        return content;
+      },
+      { 
+        retries: 2, 
+        minTimeout: 2000,
+        onFailedAttempt: (error: any) => {
+          console.log(`Review generation retry (attempt ${error.attemptNumber}): ${error.message || error}`);
+        }
+      }
+    );
+
+    const parsed = JSON.parse(response);
+    const newQuestions = (parsed.questions || []).map((q: any) => ({
+      ...q,
+      id: randomUUID(),
+    }));
+
+    return newQuestions.slice(0, count);
+  } catch (error) {
+    console.error("Error generating review questions:", error);
+    return [];
+  }
+}

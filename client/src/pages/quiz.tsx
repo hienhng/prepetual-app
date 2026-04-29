@@ -15,9 +15,15 @@ export default function Quiz() {
   const { navigateWithGuard } = useQuizNavigationGuard();
 
   useEffect(() => {
-    if (!currentQuiz) {
-      setLocation(user ? "/create" : "/");
-    }
+    // Only redirect if we're sure there's no quiz after a short delay
+    // to allow the context to initialize/restore from session storage
+    const timer = setTimeout(() => {
+      if (!currentQuiz) {
+        setLocation(user ? "/create" : "/", { replace: true });
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [currentQuiz, setLocation, user]);
 
   // Handle browser back button and beforeunload

@@ -17,7 +17,7 @@ async function getOfficeParser() {
   }
   return parseOffice;
 }
-import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, reviseQuizQuestions } from "./openai.js";
+import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, reviseQuizQuestions, generateReviewQuestions } from "./openai.js";
 import { generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs.js";
@@ -812,7 +812,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         });
       }
 
-      const { quizId, answers } = validation.data;
+      const { quizId, answers, timeTaken } = validation.data;
 
       const quiz = await storage.getQuiz(quizId);
       if (!quiz) {
@@ -894,6 +894,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         totalQuestions: questions.length,
         correctAnswers,
         wrongQuestionIds,
+        timeTaken: timeTaken || 0,
       });
 
       res.json({
@@ -1445,6 +1446,86 @@ Format with bullet points for easy reading. Keep it under 500 words.`
     }
   });
 
+  // Smart Review endpoint for quizzes with many attempts
+  app.post("/api/quiz/:id/smart-review", isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.claims.sub;
+
+      // 1. Get all results for this user and quiz
+      const allResults = await storage.getQuizResultsByQuizId(id);
+      const userResults = allResults.filter(r => r.userId === userId);
+
+      if (userResults.length < 5) {
+        return res.status(400).json({ message: "At least 5 attempts are required for a smart review session" });
+      }
+
+      // 2. Calculate error frequency
+      const errorCounts: Record<string, number> = {};
+      userResults.forEach(result => {
+        const wrongIds = result.wrongQuestionIds as string[] || [];
+        wrongIds.forEach(qId => {
+          errorCounts[qId] = (errorCounts[qId] || 0) + 1;
+        });
+      });
+
+      // 3. Get original quiz
+      const quiz = await storage.getQuiz(id);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+
+      const allQuestions = quiz.questions as Question[];
+      
+      // 4. Select top wrong questions (at most 5)
+      const sortedWrongIds = Object.entries(errorCounts)
+        .sort((a, b) => b[1] - a[1])
+        .map(e => e[0]);
+
+      let selectedQuestions = allQuestions.filter(q => sortedWrongIds.includes(q.id));
+      
+      // Sort selected questions by their error frequency
+      selectedQuestions.sort((a, b) => (errorCounts[b.id] || 0) - (errorCounts[a.id] || 0));
+
+      // Limit to 5 max
+      if (selectedQuestions.length > 5) {
+        selectedQuestions = selectedQuestions.slice(0, 5);
+      }
+
+      // 5. If < 5, generate more
+      if (selectedQuestions.length < 5) {
+        const needed = 5 - selectedQuestions.length;
+        console.log(`[SMART REVIEW] Need ${needed} more questions for quiz ${id}`);
+        
+        const extraQuestions = await generateReviewQuestions({
+          questions: selectedQuestions.length > 0 ? selectedQuestions : allQuestions.slice(0, 3),
+          count: needed,
+          sourceText: quiz.sourceText || undefined,
+          difficulty: quiz.difficulty as DifficultyLevel || "medium",
+        });
+
+        selectedQuestions = [...selectedQuestions, ...extraQuestions];
+      }
+
+      // 6. Return the "Review Quiz" object
+      // We keep the original ID so that submit-quiz (which checks the DB) still works
+      // but we mark it as a review session.
+      console.log(`[SMART REVIEW] Successfully prepared review for quiz ${id} with ${selectedQuestions.length} questions`);
+      res.json({
+        ...quiz,
+        title: `Review: ${quiz.title}`,
+        questions: selectedQuestions,
+        generationMode: "review",
+      });
+    } catch (error) {
+      console.error("Smart review error:", error);
+      res.status(500).json({ 
+        message: "Failed to generate smart review session",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
   // Votes endpoints
   app.get("/api/quiz/:id/votes", async (req: any, res) => {
     try {
@@ -1516,7 +1597,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
   app.post("/api/quiz-progress", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { quizId, answers, checkedQuestions, currentIndex, retryAnswers, retryCheckedQuestions } = req.body;
+      const { quizId, answers, checkedQuestions, currentIndex, retryAnswers, retryCheckedQuestions, timeTaken } = req.body;
 
       if (!quizId || !answers) {
         return res.status(400).json({ message: "quizId and answers are required" });
@@ -1530,6 +1611,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         currentIndex: currentIndex ?? 0,
         retryAnswers: retryAnswers ?? {},
         retryCheckedQuestions: retryCheckedQuestions ?? [],
+        timeTaken: timeTaken ?? 0,
       });
 
       res.json(saved);

@@ -23,9 +23,14 @@ export default function StudyPage() {
 
   const controls = useAnimationControls();
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 0, 200], [-12, 0, 12]);
-  const leftOpacity = useTransform(x, [-120, -40, 0], [1, 0.4, 0]);
-  const rightOpacity = useTransform(x, [0, 40, 120], [0, 0.4, 1]);
+  const rotate = useTransform(x, [-200, 0, 200], [-10, 0, 10]);
+  const leftOpacity = useTransform(x, [-120, -40, 0], [1, 0, 0]);
+  const rightOpacity = useTransform(x, [0, 40, 120], [0, 0, 1]);
+  const borderColor = useTransform(
+    x,
+    [-150, 0, 150],
+    ["rgba(234, 179, 8, 0.5)", "rgba(0, 0, 0, 0)", "rgba(34, 197, 94, 0.5)"]
+  );
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -47,13 +52,20 @@ export default function StudyPage() {
 
   if (!currentQuiz) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h2 className="text-xl font-semibold mb-2">No quiz selected</h2>
-        <p className="text-muted-foreground mb-4">Select a quiz from your history to study</p>
-        <Link href="/history">
-          <Button data-testid="button-go-history">Go to History</Button>
-        </Link>
+      <div className="container mx-auto px-4 py-24 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <BookOpen className="h-16 w-16 mx-auto text-muted-foreground/30 mb-6" />
+          <h2 className="text-2xl font-bold mb-3">No quiz selected</h2>
+          <p className="text-muted-foreground mb-8 max-w-xs mx-auto">Select a quiz from your history to start mastering it with flashcards.</p>
+          <Link href="/history">
+            <Button size="lg" className="rounded-xl px-8" data-testid="button-go-history">
+              Go to History
+            </Button>
+          </Link>
+        </motion.div>
       </div>
     );
   }
@@ -80,13 +92,12 @@ export default function StudyPage() {
 
   const flyOut = async (direction: number) => {
     setIsSwiping(true);
-    // Explicitly animate the motion value x so the overlays react
     await Promise.all([
-      animate(x, direction * 500, { type: "spring", stiffness: 200, damping: 35 }),
+      animate(x, direction * 600, { type: "spring", stiffness: 260, damping: 20 }),
       controls.start({
-        rotate: direction * 25,
+        rotate: direction * 20,
         opacity: 0,
-        transition: { type: "spring", stiffness: 200, damping: 35 }
+        transition: { duration: 0.3 }
       })
     ]);
   };
@@ -102,7 +113,7 @@ export default function StudyPage() {
     await controls.start({
       x: 0,
       rotate: 0,
-      transition: { type: "spring", stiffness: 200, damping: 26 }
+      transition: { type: "spring", stiffness: 300, damping: 25 }
     });
   };
 
@@ -150,8 +161,8 @@ export default function StudyPage() {
 
   const handleDragEnd = async (_: any, info: PanInfo) => {
     document.body.style.overflow = "auto";
-    const offsetThreshold = 80;
-    const velocityThreshold = 400;
+    const offsetThreshold = 100;
+    const velocityThreshold = 500;
     
     const swipedRight = info.offset.x > offsetThreshold || info.velocity.x > velocityThreshold;
     const swipedLeft = info.offset.x < -offsetThreshold || info.velocity.x < -velocityThreshold;
@@ -202,262 +213,258 @@ export default function StudyPage() {
 
   if (isCompleted) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-2xl min-h-[80vh] flex items-center justify-center">
+      <div className="container mx-auto px-4 py-8 max-w-2xl min-h-[90vh] flex flex-col items-center justify-center">
         <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full text-center"
         >
-          <Card className="overflow-hidden border-primary/10 shadow-2xl bg-gradient-to-b from-background to-muted/30">
-            <CardContent className="p-0">
-              <div className="relative h-32 bg-primary/10 flex items-center justify-center overflow-hidden">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                  className="relative z-10"
-                >
-                  <div className="p-4 bg-background rounded-full shadow-lg">
-                    <Check className="h-10 w-10 text-green-500" />
-                  </div>
-                </motion.div>
-                {/* Decorative circles */}
-                <div className="absolute top-0 left-0 w-32 h-32 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
-                <div className="absolute bottom-0 right-0 w-32 h-32 bg-primary/5 rounded-full translate-x-1/2 translate-y-1/2" />
-              </div>
+          <div className="mb-8">
+            <div className="h-24 w-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Check className="h-12 w-12 text-green-500" />
+            </div>
+            <h1 className="text-4xl font-black mb-2 tracking-tight">Study Session Complete!</h1>
+            <p className="text-muted-foreground text-lg">Amazing progress on "{currentQuiz.title}"</p>
+          </div>
 
-              <div className="p-8 text-center">
-                <h2 className="text-3xl font-black mb-2 tracking-tight">Well Done!</h2>
-                <p className="text-muted-foreground mb-8 text-lg">
-                  You've mastered <span className="font-bold text-foreground">{questions.length}</span> flashcards today.
-                </p>
+          <div className="grid grid-cols-2 gap-6 mb-10">
+            <Card className="bg-green-500/5 border-green-500/10 rounded-3xl p-8">
+              <p className="text-5xl font-black text-green-600 mb-2">{knownCards.size}</p>
+              <p className="text-sm font-bold uppercase tracking-widest text-green-600/60">Mastered</p>
+            </Card>
+            <Card className="bg-yellow-500/5 border-yellow-500/10 rounded-3xl p-8">
+              <p className="text-5xl font-black text-yellow-600 mb-2">{studyingCards.size}</p>
+              <p className="text-sm font-bold uppercase tracking-widest text-yellow-600/60">Still Learning</p>
+            </Card>
+          </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-10">
-                  <motion.div 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="p-6 rounded-2xl bg-green-500/5 border border-green-500/10"
-                  >
-                    <p className="text-4xl font-black text-green-600 mb-1">{knownCards.size}</p>
-                    <p className="text-xs font-bold uppercase tracking-widest text-green-600/70">Mastered</p>
-                  </motion.div>
-                  <motion.div 
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="p-6 rounded-2xl bg-yellow-500/5 border border-yellow-500/10"
-                  >
-                    <p className="text-4xl font-black text-yellow-600 mb-1">{studyingCards.size}</p>
-                    <p className="text-xs font-bold uppercase tracking-widest text-yellow-600/70">Learning</p>
-                  </motion.div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <Button 
-                    size="lg"
-                    variant="outline" 
-                    onClick={handleReset} 
-                    className="flex-1 font-bold h-12 rounded-xl border-2 hover:bg-muted/50 transition-all"
-                    data-testid="button-study-again"
-                  >
-                    <RotateCcw className="h-5 w-5 mr-2" />
-                    Study Again
-                  </Button>
-                  <Link href="/dashboard" className="flex-1">
-                    <Button 
-                      size="lg"
-                      className="w-full font-bold h-12 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                      data-testid="button-finish-study"
-                    >
-                      <Home className="h-5 w-5 mr-2" />
-                      Back Home
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col sm:flex-row gap-4 w-full">
+            <Button 
+              size="lg"
+              variant="outline" 
+              onClick={handleReset} 
+              className="flex-1 font-bold h-14 rounded-2xl border-2"
+              data-testid="button-study-again"
+            >
+              <RotateCcw className="h-5 w-5 mr-2" />
+              Retake Cards
+            </Button>
+            <Link href="/dashboard" className="flex-1">
+              <Button 
+                size="lg"
+                className="w-full font-bold h-14 rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                data-testid="button-finish-study"
+              >
+                <Home className="h-5 w-5 mr-2" />
+                Return to Dashboard
+              </Button>
+            </Link>
+          </div>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-6"
-      >
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-xl font-bold">{currentQuiz.title}</h1>
-            <p className="text-sm text-muted-foreground">Study Mode</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" onClick={handleReset} data-testid="button-reset">
-              <RotateCcw className="h-4 w-4 mr-1" />
-              Reset
-            </Button>
-            <Link href="/dashboard">
-              <Button size="sm" variant="outline" data-testid="button-back-history">
-                <Home className="h-4 w-4 mr-1" />
-                Back
-              </Button>
-            </Link>
-          </div>
+    <div className="container mx-auto px-4 py-8 max-w-2xl min-h-screen flex flex-col">
+      <div className="mb-8 flex items-center justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-black tracking-tight leading-none">{currentQuiz.title}</h1>
+          <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider flex items-center gap-2">
+            <BookOpen className="h-3 w-3" />
+            Flashcard Session
+          </p>
         </div>
+        <Link href="/dashboard">
+          <Button size="icon" variant="ghost" className="rounded-full h-10 w-10">
+            <Home className="h-5 w-5" />
+          </Button>
+        </Link>
+      </div>
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">
-              Card {currentIndex + 1} of {questions.length}
-            </span>
-            <div className="flex gap-4">
-              <span className="text-green-600">
-                <Check className="h-4 w-4 inline mr-1" />
-                {knownCards.size} known
-              </span>
-              <span className="text-yellow-600">
-                <RotateCcw className="h-4 w-4 inline mr-1" />
-                {studyingCards.size} learning
-              </span>
+      <div className="mb-10 space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
+            Progress: {currentIndex + 1} / {questions.length}
+          </span>
+          <div className="flex gap-4">
+            <div className="flex items-center gap-1.5">
+              <div className="h-2 w-2 rounded-full bg-green-500" />
+              <span className="text-xs font-bold text-muted-foreground">{knownCards.size}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="h-2 w-2 rounded-full bg-yellow-500" />
+              <span className="text-xs font-bold text-muted-foreground">{studyingCards.size}</span>
             </div>
           </div>
-          <Progress value={progress} className="h-2" />
         </div>
+        <div className="relative h-2.5 w-full bg-muted rounded-full overflow-hidden">
+          <motion.div 
+            className="absolute top-0 left-0 h-full bg-primary"
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.5, ease: "circOut" }}
+          />
+        </div>
+      </div>
 
-        <div className="relative h-[calc(100vh-160px)] min-h-[650px] max-h-[1100px] touch-none select-none">
-          <motion.div
-            key={currentIndex}
-            animate={controls}
-            drag="x"
-            dragElastic={0.25}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            style={{ x, rotate }}
-            className="absolute inset-0 cursor-grab active:cursor-grabbing"
-            data-testid="flashcard-container"
-          >
-            <div 
-              className="h-full perspective-1000 relative"
-              onClick={handleFlip}
+      <div className="relative flex-1 min-h-[500px] mb-8 group perspective-1000">
+        <motion.div
+          key={currentIndex}
+          animate={controls}
+          drag="x"
+          dragElastic={0.2}
+          dragConstraints={{ left: 0, right: 0 }}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          style={{ x, rotate }}
+          className="absolute inset-0 cursor-grab active:cursor-grabbing z-10"
+          data-testid="flashcard-container"
+        >
+          <div className="h-full relative select-none" onClick={handleFlip}>
+            {/* Subtle Badge Overlays */}
+            <motion.div 
+              style={{ opacity: rightOpacity }}
+              className="absolute top-6 right-6 z-30 px-6 py-3 bg-green-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-green-500/20 rotate-12 pointer-events-none"
             >
-              {/* Swipe Overlays - Moved outside flipping container so they stay visible when flipped */}
-              <motion.div 
-                style={{ opacity: rightOpacity }}
-                className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-green-500/90 text-white rounded-xl pointer-events-none"
-              >
-                <Check className="h-20 w-20 mb-4" />
-                <span className="text-3xl font-bold uppercase tracking-widest">Know</span>
-              </motion.div>
+              Mastered
+            </motion.div>
 
-              <motion.div 
-                style={{ opacity: leftOpacity }}
-                className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-yellow-500/90 text-white rounded-xl pointer-events-none"
-              >
-                <RotateCcw className="h-20 w-20 mb-4" />
-                <span className="text-3xl font-bold uppercase tracking-widest text-center px-4">Still Learning</span>
-              </motion.div>
+            <motion.div 
+              style={{ opacity: leftOpacity }}
+              className="absolute top-6 left-6 z-30 px-6 py-3 bg-yellow-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-yellow-500/20 -rotate-12 pointer-events-none"
+            >
+              Learning
+            </motion.div>
 
-              <motion.div
-                animate={{ rotateY: isFlipped ? 180 : 0 }}
-                transition={{ type: "spring", stiffness: 150, damping: 20 }}
-                style={{ transformStyle: "preserve-3d" }}
-                className="h-full relative"
-              >
-
-                <Card className="absolute inset-0 backface-hidden shadow-lg border-primary/10">
-                  <CardContent className="h-full flex flex-col p-0 overflow-hidden">
-                    <ScrollArea className="flex-1">
-                      <div className="p-6 sm:p-10 flex flex-col min-h-full">
-                        <div className="flex flex-col items-center mb-6">
-                          <span className="text-xs uppercase tracking-widest text-muted-foreground block font-bold opacity-70 mb-1">
-                            Question
-                          </span>
-                          <Badge variant="secondary" className="text-[10px] uppercase tracking-tighter font-bold px-2 py-0 h-5 bg-primary/10 text-primary border-primary/20">
-                            {getQuestionTypeLabel(currentQuestion.type)}
-                          </Badge>
-                        </div>
-                        <div className="flex-1 flex flex-col justify-center">
-                          <p className="text-xl sm:text-2xl font-bold mb-8 text-center leading-tight">{currentQuestion.question}</p>
-                          {currentQuestion.type === "multiple_choice" && currentQuestion.options && (
-                            <div className="w-full space-y-3 mt-4">
-                              {currentQuestion.options.map((opt, i) => (
-                                <div key={i} className="p-4 bg-muted/50 rounded-xl text-base border border-transparent hover:border-primary/20 transition-colors">
-                                  <span className="inline-block w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold mr-3 text-center leading-6">
-                                    {String.fromCharCode(65 + i)}
-                                  </span>
-                                  {opt}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+            <motion.div
+              animate={{ rotateY: isFlipped ? 180 : 0 }}
+              transition={{ type: "spring", stiffness: 120, damping: 18 }}
+              style={{ transformStyle: "preserve-3d" }}
+              className="h-full w-full relative"
+            >
+              {/* Front Side */}
+              <Card className="absolute inset-0 backface-hidden shadow-[0_20px_50px_rgba(0,0,0,0.08)] border-primary/5 rounded-[2rem] overflow-hidden bg-card">
+                <motion.div 
+                  style={{ border: `3px solid ${borderColor}` }}
+                  className="absolute inset-0 rounded-[2rem] pointer-events-none transition-colors"
+                />
+                <div className="h-full flex flex-col">
+                  <div className="p-8 pb-0 flex items-center justify-center">
+                    <Badge variant="secondary" className="bg-primary/5 text-primary border-none font-bold uppercase tracking-wider text-[10px] px-3">
+                      {getQuestionTypeLabel(currentQuestion.type)}
+                    </Badge>
+                  </div>
+                  <div className="flex-1 flex flex-col justify-center p-8 sm:p-12 text-center">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mb-4">Question</span>
+                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
+                      {currentQuestion.question}
+                    </h2>
+                    
+                    {currentQuestion.type === "multiple_choice" && currentQuestion.options && (
+                      <div className="mt-8 grid grid-cols-1 gap-2 opacity-60">
+                        {currentQuestion.options.slice(0, 4).map((opt, i) => (
+                          <div key={i} className="px-4 py-2 bg-muted/30 rounded-xl text-xs font-medium text-left truncate border border-border/50">
+                             <span className="mr-2 text-primary/50 font-black">{String.fromCharCode(65 + i)}</span> {opt}
+                          </div>
+                        ))}
                       </div>
-                    </ScrollArea>
-                    <div className="p-6 text-center border-t bg-muted/20">
-                      <p className="text-sm font-medium text-muted-foreground animate-pulse">
-                        Tap to reveal answer
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+                    )}
+                  </div>
+                  <div className="p-8 text-center bg-muted/30 border-t border-border/50">
+                    <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/50 flex items-center justify-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                      Tap to reveal answer
+                    </p>
+                  </div>
+                </div>
+              </Card>
 
-                <Card 
-                  className="absolute inset-0 backface-hidden shadow-lg border-primary/20"
-                  style={{ transform: "rotateY(180deg)" }}
-                >
-                  <CardContent className="h-full flex flex-col p-0 overflow-hidden">
-                    <ScrollArea className="flex-1">
-                      <div className="p-6 sm:p-10 flex flex-col min-h-full">
-                        <span className="text-xs uppercase tracking-widest text-primary mb-6 block text-center font-bold">
-                          Answer
-                        </span>
-                        <div className="flex-1 flex flex-col justify-center">
-                          <p className="text-2xl sm:text-3xl font-black text-primary mb-8 text-center leading-tight">
-                            {currentQuestion.correctAnswer}
-                          </p>
-                          {currentQuestion.explanation && (
-                            <div className="mt-8 p-6 bg-primary/5 rounded-2xl border border-primary/10 text-left">
-                              <p className="text-xs uppercase tracking-widest text-primary/70 mb-3 font-bold">
-                                Explanation
-                              </p>
-                              <p className="text-base text-foreground leading-relaxed">
-                                {currentQuestion.explanation}
-                              </p>
-                            </div>
-                          )}
-                        </div>
+              {/* Back Side */}
+              <Card 
+                className="absolute inset-0 backface-hidden shadow-[0_20px_50px_rgba(0,0,0,0.08)] border-primary/10 rounded-[2rem] overflow-hidden bg-card"
+                style={{ transform: "rotateY(180deg)" }}
+              >
+                <div className="h-full flex flex-col">
+                  <div className="p-8 pb-0 flex items-center justify-center">
+                    <Badge className="bg-green-500 text-white border-none font-bold uppercase tracking-wider text-[10px] px-3">
+                      Correct Answer
+                    </Badge>
+                  </div>
+                  <div className="flex-1 flex flex-col justify-center p-8 sm:p-12 text-center overflow-y-auto">
+                    <h2 className="text-3xl sm:text-4xl font-black text-primary tracking-tight leading-none mb-6">
+                      {currentQuestion.correctAnswer}
+                    </h2>
+                    {currentQuestion.explanation && (
+                      <div className="mt-4 p-5 bg-primary/5 rounded-2xl border border-primary/10 text-left">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-2 block">Explanation</span>
+                        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                          {currentQuestion.explanation}
+                        </p>
                       </div>
-                    </ScrollArea>
-                    <div className="p-6 text-center border-t bg-muted/20">
-                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        Left = Learning • Right = Got It
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
+                    )}
+                  </div>
+                  <div className="p-8 text-center bg-primary/5 border-t border-primary/10">
+                    <p className="text-xs font-black uppercase tracking-widest text-primary/50">
+                      Swipe left or right to grade
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          </div>
+        </motion.div>
 
-        <div className="flex justify-center pt-4">
+        {/* Action button background indicators */}
+        {/* <div className="absolute inset-0 flex justify-between items-center px-4 pointer-events-none opacity-20 group-hover:opacity-100 transition-opacity">
+          <div className="p-4 rounded-full bg-yellow-500/10 text-yellow-600">
+             <RotateCcw className="h-10 w-10" />
+          </div>
+          <div className="p-4 rounded-full bg-green-500/10 text-green-600">
+             <Check className="h-10 w-10" />
+          </div>
+        </div> */}
+      </div>
+
+      <div className="mt-auto pb-6 space-y-6">
+        <div className="flex items-center justify-center gap-4">
+          <Button 
+            size="lg" 
+            variant="outline" 
+            onClick={() => handleSwipeAction(-1, "learning")}
+            className="h-16 flex-1 rounded-2xl border-2 border-yellow-500/20 hover:bg-yellow-500/5 hover:border-yellow-500/40 text-yellow-600 font-bold gap-2 group transition-all"
+            disabled={isSwiping}
+          >
+            <RotateCcw className="h-5 w-5 group-hover:rotate-[-45deg] transition-transform" />
+            Learning
+          </Button>
+          
           <Button 
             size="icon" 
             variant="outline" 
             onClick={handleUndo} 
             disabled={history.length === 0 || isSwiping}
-            className="rounded-full h-12 w-12 shadow-md hover-elevate"
-            data-testid="button-undo"
+            className="rounded-full h-14 w-14 border-2 shrink-0 shadow-sm"
           >
             <Undo2 className="h-6 w-6" />
           </Button>
+
+          <Button 
+            size="lg" 
+            variant="outline" 
+            onClick={() => handleSwipeAction(1, "known")}
+            className="h-16 flex-1 rounded-2xl border-2 border-green-500/20 hover:bg-green-500/5 hover:border-green-500/40 text-green-600 font-bold gap-2 group transition-all"
+            disabled={isSwiping}
+          >
+            Mastered
+            <Check className="h-5 w-5 group-hover:scale-125 transition-transform" />
+          </Button>
         </div>
-      </motion.div>
+        
+        <p className="text-[10px] font-bold text-center text-muted-foreground/40 uppercase tracking-[0.3em]">
+          Swipe or use Arrow Keys to navigate
+        </p>
+      </div>
     </div>
   );
 }

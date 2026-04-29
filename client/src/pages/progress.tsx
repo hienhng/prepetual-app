@@ -6,7 +6,7 @@ import { format, parseISO } from "date-fns";
 import {
   TrendingUp, TrendingDown, Target, Trophy, Zap, Star, ChartLine,
   Binary, Book, FlaskConical, Globe, Languages, GraduationCap,
-  CheckCircle2, XCircle, Clock, Loader2, ChevronDown
+  CheckCircle2, XCircle, Clock, Loader2, ChevronDown, Sparkles
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBullseye, faChartSimple, faClipboardList } from "@fortawesome/free-solid-svg-icons";
@@ -14,6 +14,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuiz } from "@/lib/quiz-context";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import {
   ChartContainer,
   ChartTooltip,
@@ -232,10 +235,38 @@ const itemVariants = {
 
 function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isGeneratingReview, setIsGeneratingReview] = useState(false);
+  const [, setLocation] = useLocation();
+  const { setCurrentQuiz } = useQuiz();
+  const { toast } = useToast();
+
   const Icon = categoryIcons[group.category] || GraduationCap;
   const gradient = categoryGradients[group.category] || categoryGradients["Others/General"];
   const hasMultipleAttempts = group.attempts.length > 1;
   const singleAttempt = !hasMultipleAttempts ? group.attempts[0] : null;
+
+  const handleSmartReview = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsGeneratingReview(true);
+    try {
+      const response = await apiRequest("POST", `/api/quiz/${group.quizId}/smart-review`);
+      const reviewQuiz = await response.json();
+      setCurrentQuiz(reviewQuiz);
+      toast({
+        title: "Smart Review Generated",
+        description: "Focusing on your most frequent mistakes + similar challenges.",
+      });
+      setLocation("/quiz");
+    } catch (error) {
+      toast({
+        title: "Review Failed",
+        description: "Could not generate your review session. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingReview(false);
+    }
+  };
 
   const headerContent = (
     <>
@@ -245,7 +276,15 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
         </div>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate text-foreground" data-testid={`text-quiz-title-${index}`}>{group.quizTitle}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-medium truncate text-foreground" data-testid={`text-quiz-title-${index}`}>{group.quizTitle}</p>
+          {group.attempts.length >= 5 && (
+            <Badge variant="secondary" className="h-5 px-1.5 py-0 text-[10px] bg-primary/10 text-primary border-primary/20 gap-1 animate-pulse">
+              <Sparkles className="w-2.5 h-2.5" />
+              Smart Review
+            </Badge>
+          )}
+        </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 flex-wrap">
           <span>{group.category}</span>
           <span className="text-muted-foreground/50">·</span>
@@ -264,20 +303,38 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
           )}
         </div>
       </div>
-      <div className="flex items-center gap-2 flex-shrink-0" data-testid={`text-quiz-accuracy-${index}`}>
-        <span className={`text-lg font-bold ${group.bestAccuracy >= 80 ? "text-emerald-500" :
-          group.bestAccuracy >= 60 ? "text-amber-500" : "text-rose-500"
-          }`}>
-          {group.bestAccuracy}%
-        </span>
-        {hasMultipleAttempts && (
-          <motion.div
-            animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
+      <div className="flex items-center gap-3 flex-shrink-0" data-testid={`text-quiz-accuracy-${index}`}>
+        {group.attempts.length >= 5 && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 px-2 text-xs gap-1.5 hover:bg-primary/10 hover:text-primary"
+            onClick={handleSmartReview}
+            disabled={isGeneratingReview}
           >
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
-          </motion.div>
+            {isGeneratingReview ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="w-3.5 h-3.5" />
+            )}
+            Review
+          </Button>
         )}
+        <div className="flex items-center gap-1.5">
+          <span className={`text-lg font-bold ${group.bestAccuracy >= 80 ? "text-emerald-500" :
+            group.bestAccuracy >= 60 ? "text-amber-500" : "text-rose-500"
+            }`}>
+            {group.bestAccuracy}%
+          </span>
+          {hasMultipleAttempts && (
+            <motion.div
+              animate={{ rotate: isOpen ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            </motion.div>
+          )}
+        </div>
       </div>
     </>
   );

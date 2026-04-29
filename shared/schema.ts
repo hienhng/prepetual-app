@@ -112,7 +112,7 @@ export const quizzes = pgTable("quizzes", {
   questions: jsonb("questions").notNull().$type<Question[]>(),
   difficulty: text("difficulty").default("medium"),
   category: text("category").default("Others/General"),
-  generationMode: text("generation_mode").$type<"generate" | "import">(),
+  generationMode: text("generation_mode").$type<"generate" | "import" | "review">(),
   isPublic: integer("is_public").default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -135,6 +135,7 @@ export const quizResults = pgTable("quiz_results", {
   totalQuestions: integer("total_questions").notNull(),
   correctAnswers: integer("correct_answers").notNull(),
   wrongQuestionIds: jsonb("wrong_question_ids").$type<string[]>(),
+  timeTaken: integer("time_taken").default(0),
   completedAt: timestamp("completed_at").defaultNow().notNull(),
 });
 
@@ -190,6 +191,7 @@ export const quizProgress = pgTable("quiz_progress", {
   currentIndex: integer("current_index").default(0),
   retryAnswers: jsonb("retry_answers").$type<Record<string, string>>().default({}),
   retryCheckedQuestions: jsonb("retry_checked_questions").$type<string[]>().default([]),
+  timeTaken: integer("time_taken").default(0),
   savedAt: timestamp("saved_at").defaultNow().notNull(),
 });
 
@@ -264,6 +266,7 @@ export type GenerateQuizRequest = z.infer<typeof generateQuizRequestSchema>;
 export const submitQuizRequestSchema = z.object({
   quizId: z.string(),
   answers: z.record(z.string(), z.string()),
+  timeTaken: z.number().optional(),
 });
 
 export type SubmitQuizRequest = z.infer<typeof submitQuizRequestSchema>;

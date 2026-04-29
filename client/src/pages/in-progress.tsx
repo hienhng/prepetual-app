@@ -85,6 +85,7 @@ interface InProgressItem {
   totalCount: number;
   retryAnsweredCount: number;
   retryTotalCount: number;
+  timeTaken: number;
 }
 
 function buildInProgressItem(p: any): InProgressItem {
@@ -124,6 +125,7 @@ function buildInProgressItem(p: any): InProgressItem {
     totalCount,
     retryAnsweredCount: retryAnswerKeys.length,
     retryTotalCount: wrongCount,
+    timeTaken: p.timeTaken || 0,
   };
 }
 
@@ -149,6 +151,16 @@ function InProgressCard({
   const progress = displayTotal > 0 ? Math.round((displayAnswered / displayTotal) * 100) : 0;
   const remaining = displayTotal - displayAnswered;
   const timeLabel = formatDistanceToNow(new Date(item.savedAt));
+  const timeTakenLabel = item.timeTaken > 0 ? formatTimeTaken(item.timeTaken) : null;
+
+  function formatTimeTaken(seconds: number) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}h ${m}m ${s}s`;
+    if (m > 0) return `${m}m ${s}s`;
+    return `${s}s`;
+  }
 
   return (
     <motion.div
@@ -203,6 +215,12 @@ function InProgressCard({
                   <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
                     {item.quiz.category || "Others/General"}
                   </Badge>
+                  {timeTakenLabel && (
+                    <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-primary/20 bg-primary/5 text-primary">
+                      <Clock className="w-2.5 h-2.5 mr-1" />
+                      {timeTakenLabel} spent
+                    </Badge>
+                  )}
                   <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {timeLabel} ago
