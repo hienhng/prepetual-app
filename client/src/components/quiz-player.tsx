@@ -727,17 +727,6 @@ export function QuizPlayer() {
             {isCorrect ? "You're doing great!" : "Don't worry, keep going!"}
           </p>
         </div>
-
-        {feedback.streakAtTime >= 2 && (
-          <motion.div
-            initial={{ scale: 0, rotate: -15 }}
-            animate={{ scale: 1, rotate: 0 }}
-            className="flex flex-col items-center justify-center px-3 py-1 bg-orange-500 rounded-xl text-white shadow-lg shadow-orange-500/20"
-          >
-            <span className="text-[10px] font-black uppercase tracking-wider leading-none">Streak</span>
-            <span className="text-xl font-black leading-none">{feedback.streakAtTime}</span>
-          </motion.div>
-        )}
       </motion.div>
     );
   };
