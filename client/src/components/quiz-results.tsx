@@ -8,6 +8,7 @@ import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
 import { motion } from "framer-motion";
+import { MathText } from "@/components/formatted-text";
 
 export function QuizResults() {
   const [, setLocation] = useLocation();
@@ -281,7 +282,9 @@ export function QuizResults() {
                           {isCorrect ? "Correct" : "Incorrect"}
                         </Badge>
                       </div>
-                      <p className="text-sm font-medium truncate">{question.question}</p>
+                      <p className="text-sm font-medium truncate">
+                        <MathText content={question.question} />
+                      </p>
                     </div>
                     {isExpanded ? (
                       <ChevronUp className="h-5 w-5 text-muted-foreground flex-shrink-0" />
@@ -311,19 +314,23 @@ export function QuizResults() {
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Your Answer</p>
                           <p className={`text-sm font-medium ${isCorrect ? "text-success" : "text-destructive"}`}>
-                            {userAnswer || "No answer provided"}
+                            <MathText content={userAnswer || "No answer provided"} />
                           </p>
                         </div>
                         {!isCorrect && question.type !== "short_answer" && (
                           <div>
                             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Correct Answer</p>
-                            <p className="text-sm font-medium text-success">{question.correctAnswer}</p>
+                            <p className="text-sm font-medium text-success">
+                              <MathText content={question.correctAnswer} />
+                            </p>
                           </div>
                         )}
                         {question.explanation && !isGuest && (
                           <div>
                             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Explanation</p>
-                            <p className="text-sm text-muted-foreground">{question.explanation}</p>
+                            <p className="text-sm text-muted-foreground">
+                              <MathText content={question.explanation} />
+                            </p>
                           </div>
                         )}
                         {!isCorrect && userAnswer && question.wrongAnswerExplanations && !isGuest && (() => {
@@ -352,7 +359,9 @@ export function QuizResults() {
                                 <Lightbulb className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
                                 <div>
                                   <p className="text-xs text-amber-600 dark:text-amber-400 font-medium uppercase tracking-wide mb-1">Why This Was Wrong</p>
-                                  <p className="text-sm text-muted-foreground">{explanation}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    <MathText content={explanation} />
+                                  </p>
                                 </div>
                               </div>
                             </div>

@@ -538,6 +538,7 @@ export async function registerRoutes(
       const { text, questionCount, questionTypes, difficulty, documentImages, isImageOnly } = validation.data;
       const { sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
 
       // Classify images to separate text-only from illustrations
       // For image-only uploads, we still need images for the AI to analyze even if they're text-only
@@ -546,6 +547,12 @@ export async function registerRoutes(
       const imageOnlyFlag = isImageOnly || false;
       if (documentImages && documentImages.length > 0) {
         const classifications = await classifyImages(documentImages, sendProgress, imageOnlyFlag);
+        
+        // Log detailed classification results for debugging
+        classifications.forEach((c, i) => {
+          console.log(`[Image ${i}] Illustration: ${c.hasIllustrations} | Reason: ${c.reason || 'N/A'} | Desc: ${c.description || 'N/A'}`);
+        });
+
         const illustrationImages = classifications
           .filter(c => c.hasIllustrations)
           .map(c => c.url);
@@ -568,14 +575,21 @@ export async function registerRoutes(
           }
         }
 
-        // For image-only uploads: if all images are text-only, still pass them for AI analysis
-        // For mixed uploads: only embed illustration images in questions
-        if (isImageOnly && illustrationImages.length === 0) {
-          // All images are text-only but this is image-only mode - pass all for AI to read
-          imagesForQuestions = documentImages;
-          console.log(`Image-only mode: passing all ${documentImages.length} images for AI analysis`);
-        } else if (illustrationImages.length > 0) {
+        // Optimization: Only pass illustration images to the vision model for question generation.
+        // We drop text-only images if we've extracted their text successfully.
+        if (illustrationImages.length > 0) {
           imagesForQuestions = illustrationImages;
+          console.log(`Passing ${illustrationImages.length} illustration images for visual analysis`);
+        } else if (isImageOnly && textOnlyImages.length > 0) {
+          // In image-only mode, if we have text-only images, we check if OCR got enough content.
+          if (textForQuiz && textForQuiz.length > 100) {
+            console.log(`Successfully extracted ${textForQuiz.length} characters from text-only images. Dropping images from vision prompt.`);
+            imagesForQuestions = undefined;
+          } else {
+            // Fallback: If OCR failed or was sparse, pass the images so the vision model can read them.
+            imagesForQuestions = textOnlyImages;
+            console.log(`OCR results sparse or failed, passing ${textOnlyImages.length} text-only images to vision model as fallback.`);
+          }
         }
       }
 
@@ -587,6 +601,12 @@ export async function registerRoutes(
         documentImages: imagesForQuestions,
         onProgress: sendProgress,
         isImageOnly: isImageOnly || false,
+        userPreferences: user ? {
+          persona: user.persona,
+          subjectInclination: user.subjectInclination,
+          feedbackStyle: user.feedbackStyle,
+          aiPartnership: user.aiPartnership
+        } : undefined
       });
 
       sendProgress("saving", 98, "Saving your quiz...");
@@ -986,6 +1006,11 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         autoDeleteFiles: user.autoDeleteFiles || false,
         consecutiveCorrectConfetti: user.consecutiveCorrectConfetti !== false,
         skipRevisionQuestions: user.skipRevisionQuestions || false,
+        onboardingCompleted: user.onboardingCompleted || false,
+        persona: user.persona || "High School Student",
+        subjectInclination: user.subjectInclination || "Science & STEM",
+        feedbackStyle: user.feedbackStyle || "Encouraging & Patient",
+        aiPartnership: user.aiPartnership || "The Strategic Breakdown (Step-by-Step)",
       });
     } catch (error) {
       console.error("Settings fetch error:", error);
@@ -996,7 +1021,7 @@ Format with bullet points for easy reading. Keep it under 500 words.`
   app.patch("/api/user/settings", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { username, autoDeleteFiles, profileImageUrl, consecutiveCorrectConfetti, skipRevisionQuestions } = req.body;
+      const { username, autoDeleteFiles, profileImageUrl, consecutiveCorrectConfetti, skipRevisionQuestions, onboardingCompleted, persona, subjectInclination, feedbackStyle, aiPartnership } = req.body;
 
       const updates: any = {};
       if (username !== undefined) {
@@ -1009,6 +1034,11 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       if (profileImageUrl !== undefined) updates.profileImageUrl = profileImageUrl;
       if (consecutiveCorrectConfetti !== undefined) updates.consecutiveCorrectConfetti = consecutiveCorrectConfetti;
       if (skipRevisionQuestions !== undefined) updates.skipRevisionQuestions = skipRevisionQuestions;
+      if (onboardingCompleted !== undefined) updates.onboardingCompleted = onboardingCompleted;
+      if (persona !== undefined) updates.persona = persona;
+      if (subjectInclination !== undefined) updates.subjectInclination = subjectInclination;
+      if (feedbackStyle !== undefined) updates.feedbackStyle = feedbackStyle;
+      if (aiPartnership !== undefined) updates.aiPartnership = aiPartnership;
 
       const updatedUser = await storage.updateUser(userId, updates).catch(err => {
         if (err.message?.includes('unique constraint') || err.code === '23505') {
@@ -1026,6 +1056,11 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         autoDeleteFiles: updatedUser.autoDeleteFiles || false,
         consecutiveCorrectConfetti: updatedUser.consecutiveCorrectConfetti !== false,
         skipRevisionQuestions: updatedUser.skipRevisionQuestions || false,
+        onboardingCompleted: updatedUser.onboardingCompleted || false,
+        persona: updatedUser.persona || "High School Student",
+        subjectInclination: updatedUser.subjectInclination || "Science & STEM",
+        feedbackStyle: updatedUser.feedbackStyle || "Encouraging & Patient",
+        aiPartnership: updatedUser.aiPartnership || "The Strategic Breakdown (Step-by-Step)",
       });
     } catch (error) {
       console.error("Settings update error:", error);

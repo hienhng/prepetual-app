@@ -7,8 +7,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiRequest } from "@/lib/queryClient";
-import katex from "katex";
-import "katex/dist/katex.min.css";
+import { MathText } from "@/components/formatted-text";
+import { useAuth } from "@/hooks/useAuth";
 import type { Question } from "@shared/schema";
 
 interface ChatMessage {
@@ -32,73 +32,6 @@ const suggestions = [
   { text: "What's the key concept?", icon: BookOpen, bgColor: "bg-emerald-100 dark:bg-emerald-900/30", iconColor: "text-emerald-600 dark:text-emerald-400", borderColor: "border-emerald-200 dark:border-emerald-800" },
   { text: "Break it down simply", icon: Brain, bgColor: "bg-sky-100 dark:bg-sky-900/30", iconColor: "text-sky-600 dark:text-sky-400", borderColor: "border-sky-200 dark:border-sky-800" },
 ];
-
-function renderMathInText(text: string): string {
-  let result = text;
-  
-  result = result.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => {
-    try {
-      return katex.renderToString(math.trim(), { 
-        displayMode: true, 
-        throwOnError: false,
-        trust: true
-      });
-    } catch {
-      return `$$${math}$$`;
-    }
-  });
-  
-  result = result.replace(/\$([^\$\n]+?)\$/g, (_, math) => {
-    try {
-      return katex.renderToString(math.trim(), { 
-        displayMode: false, 
-        throwOnError: false,
-        trust: true
-      });
-    } catch {
-      return `$${math}$`;
-    }
-  });
-  
-  result = result.replace(/\\\[([\s\S]*?)\\\]/g, (_, math) => {
-    try {
-      return katex.renderToString(math.trim(), { 
-        displayMode: true, 
-        throwOnError: false,
-        trust: true
-      });
-    } catch {
-      return `\\[${math}\\]`;
-    }
-  });
-  
-  result = result.replace(/\\\(([\s\S]*?)\\\)/g, (_, math) => {
-    try {
-      return katex.renderToString(math.trim(), { 
-        displayMode: false, 
-        throwOnError: false,
-        trust: true
-      });
-    } catch {
-      return `\\(${math}\\)`;
-    }
-  });
-  
-  result = result.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  result = result.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-  
-  return result;
-}
-
-function MathText({ content, className }: { content: string; className?: string }) {
-  const html = renderMathInText(content);
-  return (
-    <span 
-      className={className}
-      dangerouslySetInnerHTML={{ __html: html }} 
-    />
-  );
-}
 
 type PenguinEmotion = "idle" | "thinking" | "happy";
 
@@ -424,6 +357,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -455,6 +389,7 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
         userMessage,
         chatHistory: messages,
         sourceMaterial,
+        userPreferences: user,
       });
 
       const data = await response.json();

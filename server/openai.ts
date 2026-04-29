@@ -36,6 +36,7 @@ export type ImageClassification = {
   url: string;
   hasIllustrations: boolean;
   description?: string;
+  reason?: string;
 };
 
 export async function classifyImages(
@@ -49,11 +50,21 @@ export async function classifyImages(
 
   onProgress?.("classifying", 15, "Analyzing image content types...");
 
-  const classificationPrompt = `Analyze each of the following images and classify them.
+  const classificationPrompt = `Analyze each of the following images and classify them into one of two categories.
 
-For EACH image, determine if it contains:
-- ILLUSTRATIONS: Charts, graphs, diagrams, drawings, photographs, figures, scientific illustrations, maps, flowcharts, or any visual/graphical content beyond just text
-- TEXT-ONLY: Pages that contain ONLY text content (typed or handwritten text, worksheets with just text questions, text documents, notes)
+CATEGORIES:
+1. ILLUSTRATIONS: Images containing ANY meaningful visual content where the graphical arrangement carries data or conceptual meaning. This includes: charts, graphs, diagrams, drawings, photographs, figures, maps, flowcharts, or infographics.
+2. TEXT-ONLY: Images that are primarily documents, worksheets, or notes.
+
+SPECIAL RULE FOR WORKSHEETS:
+Many worksheets contain "functional" visual elements that are NOT illustrations. You MUST classify an image as TEXT-ONLY (hasIllustrations: false) if it only contains text PLUS any of the following:
+- Input boxes, text fields, or blank lines for students to write in.
+- Checkboxes, radio buttons, or selection circles.
+- Decorative borders or simple dividing lines.
+- Basic bullet point shapes (circles, squares, etc.).
+- Page numbers or header/footer text.
+
+GOAL: We want to identify images where we can safely extract the text and discard the image. If the image doesn't have a chart, diagram, or illustration that a student needs to "see" to answer questions, mark hasIllustrations: false.
 
 OUTPUT FORMAT (JSON):
 {
@@ -61,13 +72,11 @@ OUTPUT FORMAT (JSON):
     {
       "index": 0,
       "hasIllustrations": true or false,
-      "description": "Brief description of what the image contains"
+      "reason": "Briefly explain why (e.g., 'Pure text worksheet with input boxes' or 'Contains a physics diagram of a lever')",
+      "description": "Brief description of the content"
     }
   ]
 }
-
-Be strict: If an image contains ANY diagrams, charts, graphs, figures, drawings, or visual elements (other than decorative borders), classify it as having illustrations.
-Only classify as text-only if the image is purely text content with no visual/graphical elements.
 
 Respond with ONLY valid JSON, no markdown or additional text.`;
 
@@ -135,6 +144,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
         url,
         hasIllustrations: classification?.hasIllustrations ?? defaultValue,
         description: classification?.description,
+        reason: classification?.reason,
       };
     });
 
@@ -306,12 +316,18 @@ interface QuizGenerationParams {
   onProgress?: ProgressCallback;
   isImageOnly?: boolean;
   model?: "default" | "llama3-ollama" | "openai";
+  userPreferences?: {
+    persona?: string | null;
+    subjectInclination?: string | null;
+    feedbackStyle?: string | null;
+    aiPartnership?: string | null;
+  };
 }
 
 export async function generateQuizQuestions(
   params: QuizGenerationParams,
 ): Promise<{ questions: Question[]; title: string; category: QuizCategory }> {
-  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress, isImageOnly = false } = params;
+  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress, isImageOnly = false, userPreferences } = params;
   const hasImages = documentImages.length > 0;
 
   // Automatically select model based on content
@@ -321,7 +337,7 @@ export async function generateQuizQuestions(
   // Step 1: Reading material
   onProgress?.("reading", 10, "Reading your study material...");
   const truncatedText =
-    text.length > 8000 ? text.substring(0, 8000) + "..." : text;
+    text.length > 15000 ? text.substring(0, 15000) + "..." : text;
 
   const questionTypeDescriptions = questionTypes
     .map((type) => {
@@ -345,7 +361,17 @@ export async function generateQuizQuestions(
 
   const categoryList = QUIZ_CATEGORIES.join(", ");
 
+  const personaInstruction = userPreferences?.persona ? `PERSONA (ACADEMIC LEVEL): You are interacting with a ${userPreferences.persona}. Adjust your complexity and vocabulary accordingly.` : "";
+  const domainInstruction = userPreferences?.subjectInclination ? `SUBJECT INCLINATION: The user prefers a focus on ${userPreferences.subjectInclination}.` : "";
+  const feedbackInstruction = userPreferences?.feedbackStyle ? `FEEDBACK STYLE: Adopt a ${userPreferences.feedbackStyle} tone for all explanations.` : "";
+  const partnershipInstruction = userPreferences?.aiPartnership ? `GUIDANCE METHOD: Use the ${userPreferences.aiPartnership} approach when structuring explanations.` : "";
+
   const prompt = `You are an expert educator and subject-matter specialist. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz and categorize it.
+
+${personaInstruction}
+${domainInstruction}
+${feedbackInstruction}
+${partnershipInstruction}
 
 CONTENT:
 ${truncatedText}
@@ -379,26 +405,14 @@ FACTUAL ACCURACY (HIGHEST PRIORITY):
 - NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
 - Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
 
-CRITICAL RULES:
-- NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
-- Do not contain any prefix like "A) ", "1. ", "a. ", etc. in the options or correct answer. Provide ONLY the answer text.
-- All options must be real, meaningful answers related to the question
-
-ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
-- The correct answer must NOT be noticeably longer or more detailed than wrong answers
-- ALL four options MUST have similar word counts (within 2-3 words of each other)
-- If the correct answer naturally requires more detail, ADD similar detail to wrong answers to match
-- If the correct answer is short (1-3 words), keep ALL options short (1-3 words)
-- If the correct answer is medium (4-8 words), make ALL options medium length
-- If the correct answer is long (9+ words), make ALL options similarly long
-- NEVER make the correct answer stand out by being the only "complete" or "detailed" option
-- Wrong answers should be equally plausible and well-formed, not obviously wrong or shorter
-- Randomize which position (1st, 2nd, 3rd, or 4th) contains the correct answer - do NOT always put it first or last
-
-QUESTION GENERATION FLOW (MANDATORY - follow this exact order for each question):
-- Step 1: Write the question text
-- Step 2: Generate the answer options
-- Step 3: DECIDE which option is the correct answer and set "correctAnswer" — this is your commitment.
+MATHEMATICAL CONTENT & LATEX (CRITICAL):
+- For ALL mathematical expressions, formulas, equations, variables (even single letters like x, y), or numeric notations with symbols, you MUST use LaTeX formatting.
+- ALWAYS wrap LaTeX in delimiters: $...$ for inline or $$...$$ for display mode.
+- DO NOT use unicode superscripts (like ², ³) or subscripts. ALWAYS use LaTeX (like $x^2$, $x_i$).
+- DO NOT use unicode symbols like √, π, ±, ∞. ALWAYS use LaTeX (like $\sqrt{}$, $\pi$, $\pm$, $\infty$).
+- DO NOT use ^ or _ without wrapping them in $...$ delimiters.
+- Ensure all LaTeX is syntactically correct for KaTeX.
+- This applies to questions, options, AND explanations.
 
 OUTPUT FORMAT (JSON):
 {
@@ -409,7 +423,8 @@ OUTPUT FORMAT (JSON):
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
       "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
-      "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)"
+      "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
+      "explanation": "Detailed explanation using LaTeX for formulas"
     }
   ]
 }
@@ -425,6 +440,11 @@ IMPORTANT: Carefully analyze ALL attached images. These may contain:
 - Screenshots or visual examples
 
 Generate questions that test understanding of BOTH the text content AND the visual content from the images.
+
+${personaInstruction}
+${domainInstruction}
+${feedbackInstruction}
+${partnershipInstruction}
 
 TEXT CONTENT:
 ${truncatedText}
@@ -452,34 +472,14 @@ REQUIREMENTS:
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
 
-FACTUAL ACCURACY (HIGHEST PRIORITY):
-- Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
-- If the source content contains a factual claim, use it as the basis for the correct answer
-- For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
-- For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
-- NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
-- Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
-
-CRITICAL RULES:
-- NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
-- Do not contain any prefix like "A) ", "1. ", "a. ", etc. in the options or correct answer. Provide ONLY the answer text.
-- All options must be real, meaningful answers related to the question
-
-ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
-- The correct answer must NOT be noticeably longer or more detailed than wrong answers
-- ALL four options MUST have similar word counts (within 2-3 words of each other)
-- If the correct answer naturally requires more detail, ADD similar detail to wrong answers to match
-- If the correct answer is short (1-3 words), keep ALL options short (1-3 words)
-- If the correct answer is medium (4-8 words), make ALL options medium length
-- If the correct answer is long (9+ words), make ALL options similarly long
-- NEVER make the correct answer stand out by being the only "complete" or "detailed" option
-- Wrong answers should be equally plausible and well-formed, not obviously wrong or shorter
-- Randomize which position (1st, 2nd, 3rd, or 4th) contains the correct answer - do NOT always put it first or last
-
-QUESTION GENERATION FLOW (MANDATORY - follow this exact order for each question):
-- Step 1: Write the question text
-- Step 2: Generate the answer options
-- Step 3: DECIDE which option is the correct answer and set "correctAnswer" — this is your commitment.
+MATHEMATICAL CONTENT & LATEX (CRITICAL):
+- For ALL mathematical expressions, formulas, equations, variables (even single letters like x, y), or numeric notations with symbols, you MUST use LaTeX formatting.
+- ALWAYS wrap LaTeX in delimiters: $...$ for inline or $$...$$ for display mode.
+- DO NOT use unicode superscripts (like ², ³) or subscripts. ALWAYS use LaTeX (like $x^2$, $x_i$).
+- DO NOT use unicode symbols like √, π, ±, ∞. ALWAYS use LaTeX (like $\sqrt{}$, $\pi$, $\pm$, $\infty$).
+- DO NOT use ^ or _ without wrapping them in $...$ delimiters.
+- Ensure all LaTeX is syntactically correct for KaTeX.
+- This applies to questions, options, AND explanations.
 
 OUTPUT FORMAT (JSON):
 {
@@ -491,6 +491,7 @@ OUTPUT FORMAT (JSON):
       "question": "The question text",
       "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
       "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
+      "explanation": "Detailed explanation using LaTeX for formulas",
       "imageIndex": 0
     }
   ]
@@ -511,6 +512,11 @@ Your task is to:
 1. Carefully analyze ALL visual content in the attached images
 2. Read and understand any text visible within the images
 3. Generate questions that test understanding of the material shown
+
+${personaInstruction}
+${domainInstruction}
+${feedbackInstruction}
+${partnershipInstruction}
 
 LANGUAGE HANDLING:
 - Detect the primary language visible in the images
@@ -543,26 +549,14 @@ FACTUAL ACCURACY (HIGHEST PRIORITY):
 - NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
 - Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
 
-CRITICAL RULES:
-- NEVER use placeholder text like "Option 1", "Option 2", "correctAnswer", "Wrong Option", etc. in actual options
-- Do not contain any prefix like "A) ", "1. ", "a. ", etc. in the options or correct answer. Provide ONLY the answer text.
-- All options must be real, meaningful answers related to the question
-
-ANSWER LENGTH BALANCING (EXTREMELY IMPORTANT - FOLLOW STRICTLY):
-- The correct answer must NOT be noticeably longer or more detailed than wrong answers
-- ALL four options MUST have similar word counts (within 2-3 words of each other)
-- If the correct answer naturally requires more detail, ADD similar detail to wrong answers to match
-- If the correct answer is short (1-3 words), keep ALL options short (1-3 words)
-- If the correct answer is medium (4-8 words), make ALL options medium length
-- If the correct answer is long (9+ words), make ALL options similarly long
-- NEVER make the correct answer stand out by being the only "complete" or "detailed" option
-- Wrong answers should be equally plausible and well-formed, not obviously wrong or shorter
-- Randomize which position (1st, 2nd, 3rd, or 4th) contains the correct answer - do NOT always put it first or last
-
-QUESTION GENERATION FLOW (MANDATORY - follow this exact order for each question):
-- Step 1: Write the question text
-- Step 2: Generate the answer options
-- Step 3: DECIDE which option is the correct answer and set "correctAnswer" — this is your commitment.
+MATHEMATICAL CONTENT & LATEX (CRITICAL):
+- For ALL mathematical expressions, formulas, equations, variables (even single letters like x, y), or numeric notations with symbols, you MUST use LaTeX formatting.
+- ALWAYS wrap LaTeX in delimiters: $...$ for inline or $$...$$ for display mode.
+- DO NOT use unicode superscripts (like ², ³) or subscripts. ALWAYS use LaTeX (like $x^2$, $x_i$).
+- DO NOT use unicode symbols like √, π, ±, ∞. ALWAYS use LaTeX (like $\sqrt{}$, $\pi$, $\pm$, $\infty$).
+- DO NOT use ^ or _ without wrapping them in $...$ delimiters.
+- Ensure all LaTeX is syntactically correct for KaTeX.
+- This applies to questions, options, AND explanations.
 
 OUTPUT FORMAT (JSON):
 {
@@ -574,6 +568,7 @@ OUTPUT FORMAT (JSON):
       "question": "The question text",
       "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
       "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
+      "explanation": "Detailed explanation using LaTeX for formulas",
       "imageIndex": 0
     }
   ]

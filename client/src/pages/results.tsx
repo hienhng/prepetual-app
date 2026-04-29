@@ -100,8 +100,8 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
           <p className="text-base font-bold truncate text-foreground">{group.quizTitle}</p>
           {group.attempts.length >= 5 && (
             <Badge variant="outline" className="h-5 px-1.5 py-0 text-primary bg-primary/5 border-primary/20">
-              <Sparkles className="w-2.5 h-2.5 mr-1" />
-              Smart Review Available
+              <History className="w-2.5 h-2.5 mr-1" />
+              Revision Available
             </Badge>
           )}
         </div>
@@ -137,7 +137,7 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
             ) : (
               <History className="w-3.5 h-3.5" />
             )}
-            Smart Review
+            Revise
           </Button>
         )}
         <div className="flex items-center gap-2">

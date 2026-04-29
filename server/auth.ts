@@ -326,6 +326,7 @@ export function setupAuth(app: Express): void {
         autoDeleteFiles: user.autoDeleteFiles || false,
         consecutiveCorrectConfetti: user.consecutiveCorrectConfetti !== false,
         skipRevisionQuestions: user.skipRevisionQuestions || false,
+        onboardingCompleted: user.onboardingCompleted || false,
       });
     } catch (error) {
       console.error("Get user error:", error);

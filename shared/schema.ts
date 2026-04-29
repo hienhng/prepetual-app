@@ -14,7 +14,6 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table with custom auth fields
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique().notNull(),
@@ -28,6 +27,11 @@ export const users = pgTable("users", {
   autoDeleteFiles: boolean("auto_delete_files").default(false),
   consecutiveCorrectConfetti: boolean("consecutive_correct_confetti").default(true),
   skipRevisionQuestions: boolean("skip_revision_questions").default(false),
+  onboardingCompleted: boolean("onboarding_completed").default(false),
+  persona: varchar("persona").default("High School Student"),
+  subjectInclination: varchar("subject_inclination").default("Science & STEM"),
+  feedbackStyle: varchar("feedback_style").default("Encouraging & Patient"),
+  aiPartnership: varchar("ai_partnership").default("The Strategic Breakdown (Step-by-Step)"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

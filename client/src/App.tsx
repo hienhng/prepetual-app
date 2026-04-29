@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { Switch, Route, useLocation, Link } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -23,6 +24,7 @@ import {
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { VerificationPrompt } from "@/components/verification-prompt";
+import OnboardingPage from "@/pages/onboarding";
 import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
 import Create from "@/pages/create";
@@ -56,8 +58,8 @@ import AuthPage from "@/pages/auth";
 import { Footer } from "@/components/footer";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  const { isAuthenticated, isLoading } = useAuth();
-  const [, setLocation] = useLocation();
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const [location, setLocation] = useLocation();
 
   if (isLoading) {
     return (
@@ -100,6 +102,7 @@ function AuthenticatedRouter() {
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:id" component={BlogPost} />
       <Route path="/in-progress" component={InProgressPage} />
+      <Route path="/onboarding" component={OnboardingPage} />
       <Route path="/terms" component={TermsOfService} />
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/about" component={About} />
@@ -147,6 +150,7 @@ function PublicRouter() {
       <Route path="/progress">{() => <ProtectedRoute component={ProgressPage} />}</Route>
       <Route path="/settings">{() => <ProtectedRoute component={Settings} />}</Route>
       <Route path="/in-progress">{() => <ProtectedRoute component={InProgressPage} />}</Route>
+      <Route path="/onboarding">{() => <ProtectedRoute component={OnboardingPage} />}</Route>
       <Route component={NotFound} />
     </Switch>
   );
@@ -288,9 +292,16 @@ function AuthenticatedHeader() {
 
 function AuthenticatedLayout() {
   const { user } = useAuth();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const showFooter = location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
-  const hideSidebar = location === "/quiz" || location === "/quiz-results" || location === "/revision-summary";
+  const hideSidebar = location === "/quiz" || location === "/quiz-results" || location === "/revision-summary" || location === "/onboarding";
+
+  // Redirect to onboarding if not completed
+  useEffect(() => {
+    if (user && !user.onboardingCompleted && location !== "/onboarding") {
+      setLocation("/onboarding");
+    }
+  }, [user, location, setLocation]);
 
   const sidebarStyle = {
     "--sidebar-width": "16rem",

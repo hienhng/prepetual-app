@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
 import confetti from "canvas-confetti";
 import { QuizChatbot, CutePenguin } from "@/components/quiz-chatbot";
+import { MathText } from "@/components/formatted-text";
 
 const encouragingMessages = {
   correct: [
@@ -401,6 +402,7 @@ export function QuizPlayer() {
               correctAnswer: questionSnapshot.correctAnswer,
               userAnswer: answerToCheck,
               sourceText: sourceMaterial?.text || (currentQuiz as any)?.sourceText || "",
+              userPreferences: user,
             }),
           });
 
@@ -484,6 +486,7 @@ export function QuizPlayer() {
           selectedAnswer: ansToCheck,
           isCorrect: isCorrectAnswer(ansToCheck, qSnap),
           sourceText: sourceMaterial?.text || (currentQuiz as any)?.sourceText || "",
+          userPreferences: user,
         }),
       });
 
@@ -831,7 +834,9 @@ export function QuizPlayer() {
                   `}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <span className={`text-lg sm:text-xl font-bold transition-colors ${isChecked && isCorrectOpt ? "text-green-700 dark:text-green-400" : isChecked && isSelected && !isCorrectOpt ? "text-red-700 dark:text-red-400" : ""}`}>{option}</span>
+                    <span className={`text-lg sm:text-xl font-bold transition-colors ${isChecked && isCorrectOpt ? "text-green-700 dark:text-green-400" : isChecked && isSelected && !isCorrectOpt ? "text-red-700 dark:text-red-400" : ""}`}>
+                      <MathText content={option} />
+                    </span>
                     <AnimatePresence>
                       {isChecked && isCorrectOpt && (
                         <motion.div
@@ -912,7 +917,7 @@ export function QuizPlayer() {
                         >
                           <div className="px-3 pb-3 pt-1">
                             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                              {isCorrectOpt ? currentExplanation : currentWrongExplanation}
+                              <MathText content={isCorrectOpt ? (currentExplanation || "") : (currentWrongExplanation || "")} />
                             </p>
                           </div>
                         </motion.div>
@@ -1013,7 +1018,7 @@ export function QuizPlayer() {
                   >
                     <div className="px-4 pb-4 pt-1">
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        {aiGrading.explanation}
+                        <MathText content={aiGrading.explanation} />
                       </p>
                     </div>
                   </motion.div>
@@ -1096,7 +1101,7 @@ export function QuizPlayer() {
                     {optionLabels[index]}
                   </div>
                   <span className={`text-sm sm:text-base flex-1 font-bold transition-colors ${isChecked && isCorrectOpt ? "text-green-700 dark:text-green-400" : isChecked && isSelected && !isCorrectOpt ? "text-red-700 dark:text-red-400" : "font-medium"}`}>
-                    {option}
+                    <MathText content={option} />
                   </span>
                   <AnimatePresence>
                     {isChecked && isCorrectOpt && (
@@ -1177,7 +1182,7 @@ export function QuizPlayer() {
                       >
                         <div className="px-4 pb-4 pt-1">
                           <p className="text-sm text-muted-foreground leading-relaxed">
-                            {isCorrectOpt ? currentExplanation : currentWrongExplanation}
+                            <MathText content={isCorrectOpt ? (currentExplanation || "") : (currentWrongExplanation || "")} />
                           </p>
                         </div>
                       </motion.div>
@@ -1579,7 +1584,7 @@ export function QuizPlayer() {
                   </div>
                   
                   <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-snug" data-testid="text-question">
-                    {currentQuestion.question}
+                    <MathText content={currentQuestion.question} />
                   </h2>
                 </div>
 
