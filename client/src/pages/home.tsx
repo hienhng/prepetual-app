@@ -863,7 +863,7 @@ function AIQuizzesText() {
             ref={(el) => {
               charRefs.current[i] = el;
             }}
-            className="inline-block bg-gradient-to-r from-primary via-yellow-300 to-primary bg-clip-text text-transparent bg-[length:200%_100%]"
+            className="inline-block bg-gradient-to-r from-primary via-yellow-300 to-primary bg-clip-text text-transparent bg-[length:200%_100%] custom-highlight"
             style={{ fontFamily: "'Zen Dots', cursive" }}
             initial={{ opacity: 0, y: 30, rotateX: -90 }}
             animate={{
@@ -2322,7 +2322,7 @@ function ParsingShowcase() {
                 delay: 0.05,
               }}
             >
-              Your context, <span className="text-primary italic">exactly</span> as it is.
+              Your context, <span className="text-primary italic custom-highlight">exactly</span> as it is.
             </motion.h2>
           </div>
           <motion.p

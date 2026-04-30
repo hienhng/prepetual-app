@@ -150,6 +150,11 @@ select:-webkit-autofill:active {
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
+.custom-highlight::selection {
+  background-color: #fbd22d;
+  color: white;
+}
+
 .dark {
   --button-outline: rgba(255,255,255, .10);
   --badge-outline: rgba(255,255,255, .05);
