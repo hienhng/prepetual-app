@@ -10,6 +10,7 @@ import { UploadProvider } from "@/lib/upload-context";
 import { AuthDialogProvider, useAuthDialog } from "@/lib/auth-context";
 import { GlobalUploadIndicator } from "@/components/global-upload-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { LogIn, LogOut, User, Menu, Settings as SettingsIcon } from "lucide-react";
 import logoImage from "@assets/image_1765894870887.png";
@@ -56,6 +57,7 @@ import InProgressPage from "@/pages/in-progress";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth";
 import { Footer } from "@/components/footer";
+import { LanguageProvider, useLanguage } from "@/lib/language-context";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -159,6 +161,7 @@ function PublicRouter() {
 function PublicHeader() {
   const { isLoading } = useAuth();
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
+  const { t } = useLanguage();
 
   return (
     <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[96%] max-w-6xl transition-all duration-300">
@@ -177,6 +180,7 @@ function PublicHeader() {
           </span>
         </Link>
         <div className="flex items-center gap-2 sm:gap-4">
+          <LanguageToggle />
           <ThemeToggle />
           {!isLoading && (
             <div className="flex items-center gap-2 sm:gap-4 border-l border-border/40 pl-3 sm:pl-6 ml-1 sm:ml-2">
@@ -187,7 +191,7 @@ function PublicHeader() {
                 className="rounded-full text-sm font-semibold hover:bg-foreground/5 transition-all duration-300"
                 data-testid="button-login"
               >
-                Log in
+                {t("publicHeader.login")}
               </Button>
               <Button
                 variant="default"
@@ -196,7 +200,7 @@ function PublicHeader() {
                 className="rounded-full text-sm font-bold shadow-[0_4px_12px_rgba(var(--primary),0.2)] px-8 bg-primary hover:bg-primary/90 text-primary-foreground border-none transition-all duration-300 hover:scale-[1.03] active:scale-95"
                 data-testid="button-signup"
               >
-                Sign up
+                {t("publicHeader.signup")}
               </Button>
             </div>
           )}
@@ -209,6 +213,7 @@ function PublicHeader() {
 function AuthenticatedHeader() {
   const { user } = useAuth();
   const [location] = useLocation();
+  const { t } = useLanguage();
 
   const getInitials = () => {
     if (user?.username) {
@@ -217,29 +222,29 @@ function AuthenticatedHeader() {
     if (user?.email) {
       return user.email[0].toUpperCase();
     }
-    return "U";
+    return t("common.user").charAt(0);
   };
 
   const getPageTitle = () => {
     switch (location) {
-      case "/": return "Home";
-      case "/create": return "Create Quiz";
-      case "/feed": return "Community Feed";
-      case "/dashboard": return "Dashboard";
-      case "/history": return "Archive";
-      case "/generate": return "Generate Quiz";
-      case "/quiz": return "Quiz";
-      case "/results": return "Results History";
-      case "/quiz-results": return "Quiz Complete";
-      case "/study": return "Study Mode";
-      case "/edit-quiz": return "Edit Quiz";
-      case "/progress": return "Progress";
-      case "/in-progress": return "In Progress";
-      case "/about": return "About";
-      case "/contact": return "Contact";
-      case "/terms": return "Terms of Service";
-      case "/privacy": return "Privacy Policy";
-      default: return "Prepetual";
+      case "/": return t("routeTitles.home");
+      case "/create": return t("routeTitles.create");
+      case "/feed": return t("routeTitles.feed");
+      case "/dashboard": return t("routeTitles.dashboard");
+      case "/history": return t("routeTitles.history");
+      case "/generate": return t("routeTitles.generate");
+      case "/quiz": return t("routeTitles.quiz");
+      case "/results": return t("routeTitles.results");
+      case "/quiz-results": return t("routeTitles.quizResults");
+      case "/study": return t("routeTitles.study");
+      case "/edit-quiz": return t("routeTitles.editQuiz");
+      case "/progress": return t("routeTitles.progress");
+      case "/in-progress": return t("routeTitles.inProgress");
+      case "/about": return t("routeTitles.about");
+      case "/contact": return t("routeTitles.contact");
+      case "/terms": return t("routeTitles.terms");
+      case "/privacy": return t("routeTitles.privacy");
+      default: return t("routeTitles.default");
     }
   };
 
@@ -250,6 +255,7 @@ function AuthenticatedHeader() {
         <h1 className="text-lg font-semibold">{getPageTitle()}</h1>
       </div>
       <div className="flex items-center gap-2">
+        <LanguageToggle />
         <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -268,7 +274,7 @@ function AuthenticatedHeader() {
             <DropdownMenuItem asChild>
               <Link href="/settings" data-testid="link-settings-mobile">
                 <SettingsIcon className="h-4 w-4 mr-2" />
-                Settings
+                {t("common.settings")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -280,7 +286,7 @@ function AuthenticatedHeader() {
               data-testid="button-logout-mobile"
             >
               <LogOut className="h-4 w-4 mr-2" />
-              Sign out
+              {t("common.signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -399,9 +405,11 @@ function AppWithAuth() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AppWithAuth />
-      </TooltipProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <AppWithAuth />
+        </TooltipProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

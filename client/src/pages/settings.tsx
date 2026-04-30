@@ -1,11 +1,22 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  User, Camera, Save, Moon, Sun, Monitor, Trash2, 
-  Loader2, Check, AlertCircle, ShieldCheck, ShieldX, Sparkles
+import {
+  User,
+  Camera,
+  Save,
+  Moon,
+  Sun,
+  Monitor,
+  Trash2,
+  Loader2,
+  AlertCircle,
+  ShieldCheck,
+  ShieldX,
+  Sparkles,
+  Languages,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useLanguage, type AppLanguage } from "@/lib/language-context";
 
 type ThemeOption = "light" | "dark" | "system";
 
@@ -28,20 +40,21 @@ function useTheme() {
   });
 
   useEffect(() => {
-    const applyTheme = (t: ThemeOption) => {
-      if (t === "system") {
+    const applyTheme = (value: ThemeOption) => {
+      if (value === "system") {
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
         document.documentElement.classList.toggle("dark", prefersDark);
       } else {
-        document.documentElement.classList.toggle("dark", t === "dark");
+        document.documentElement.classList.toggle("dark", value === "dark");
       }
     };
+
     applyTheme(theme);
   }, [theme]);
 
-  const setTheme = (newTheme: ThemeOption) => {
-    setThemeState(newTheme);
-    localStorage.setItem("theme", newTheme);
+  const setTheme = (nextTheme: ThemeOption) => {
+    setThemeState(nextTheme);
+    localStorage.setItem("theme", nextTheme);
     window.dispatchEvent(new Event("themechange"));
   };
 
@@ -52,8 +65,9 @@ export default function Settings() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [username, setUsername] = useState(user?.username || "");
   const [profileImage, setProfileImage] = useState<string | null>(user?.profileImageUrl || null);
   const [autoDeleteFiles, setAutoDeleteFiles] = useState(user?.autoDeleteFiles || false);
@@ -72,33 +86,33 @@ export default function Settings() {
     enabled: !!user,
   });
 
-  const hasUnsavedChanges = settings ? (
-    (username !== (settings.username || "")) ||
-    (autoDeleteFiles !== (settings.autoDeleteFiles || false)) ||
-    (confettiEnabled !== (settings.consecutiveCorrectConfetti !== false)) ||
-    (skipRevision !== (settings.skipRevisionQuestions || false))
-  ) : false;
+  const hasUnsavedChanges = settings
+    ? username !== (settings.username || "") ||
+      autoDeleteFiles !== (settings.autoDeleteFiles || false) ||
+      confettiEnabled !== (settings.consecutiveCorrectConfetti !== false) ||
+      skipRevision !== (settings.skipRevisionQuestions || false)
+    : false;
 
   useEffect(() => {
     if (!hasUnsavedChanges) return;
-    
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
     };
-    
+
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
   useEffect(() => {
-    if (settings) {
-      setUsername(settings.username || "");
-      setProfileImage(settings.profileImageUrl);
-      setAutoDeleteFiles(settings.autoDeleteFiles || false);
-      setConfettiEnabled(settings.consecutiveCorrectConfetti !== false);
-      setSkipRevision(settings.skipRevisionQuestions || false);
-    }
+    if (!settings) return;
+
+    setUsername(settings.username || "");
+    setProfileImage(settings.profileImageUrl);
+    setAutoDeleteFiles(settings.autoDeleteFiles || false);
+    setConfettiEnabled(settings.consecutiveCorrectConfetti !== false);
+    setSkipRevision(settings.skipRevisionQuestions || false);
   }, [settings]);
 
   const updateSettingsMutation = useMutation({
@@ -111,21 +125,17 @@ export default function Settings() {
       _silent?: boolean;
     }) => {
       const { _silent, ...payload } = data;
-      try {
-        const response = await apiRequest("PATCH", "/api/user/settings", payload);
-        const json = await response.json();
-        return { result: json, silent: _silent };
-      } catch (error: any) {
-        throw new Error(error.message || "Failed to save settings");
-      }
+      const response = await apiRequest("PATCH", "/api/user/settings", payload);
+      const json = await response.json();
+      return { result: json, silent: _silent };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/settings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       if (!data.silent) {
         toast({
-          title: "Settings saved",
-          description: "Your preferences have been updated.",
+          title: t("settings.saveSuccess"),
+          description: t("settings.saveSuccessDescription"),
           variant: "success" as any,
         });
       }
@@ -133,20 +143,20 @@ export default function Settings() {
     onError: (error: Error) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to save settings. Please try again.",
+        description: error.message || t("settings.saveError"),
         variant: "destructive",
       });
     },
   });
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
       toast({
-        title: "Invalid file type",
-        description: "Please upload an image file.",
+        title: t("settings.invalidFileType"),
+        description: t("settings.invalidFileTypeDescription"),
         variant: "destructive",
       });
       return;
@@ -154,8 +164,8 @@ export default function Settings() {
 
     if (file.size > 10 * 1024 * 1024) {
       toast({
-        title: "File too large",
-        description: "Please upload an image smaller than 10MB.",
+        title: t("settings.fileTooLarge"),
+        description: t("settings.fileTooLargeDescription"),
         variant: "destructive",
       });
       return;
@@ -165,28 +175,28 @@ export default function Settings() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      
+
       const response = await fetch("/api/user/upload-profile-image", {
         method: "POST",
         body: formData,
         credentials: "include",
       });
-      
-      if (!response.ok) throw new Error("Upload failed");
-      
+
+      if (!response.ok) throw new Error(t("settings.uploadFailed"));
+
       const data = await response.json();
       setProfileImage(data.imageUrl);
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      
+
       toast({
-        title: "Image uploaded",
-        description: "Your profile picture has been updated.",
+        title: t("settings.imageUploaded"),
+        description: t("settings.imageUploadedDescription"),
         variant: "success" as any,
       });
-    } catch (error) {
+    } catch {
       toast({
-        title: "Upload failed",
-        description: "Failed to upload image. Please try again.",
+        title: t("settings.uploadFailed"),
+        description: t("settings.uploadFailedDescription"),
         variant: "destructive",
       });
     } finally {
@@ -194,41 +204,21 @@ export default function Settings() {
     }
   };
 
-  const handleSaveAllPreferences = () => {
-    updateSettingsMutation.mutate({
-      username: username.trim() || undefined,
-      autoDeleteFiles,
-      consecutiveCorrectConfetti: confettiEnabled,
-      skipRevisionQuestions: skipRevision,
-    });
-  };
-
-  const handleThemeChange = (newTheme: ThemeOption) => {
-    setTheme(newTheme);
-  };
-
-  const handleAutoDeleteChange = (checked: boolean) => {
-    setAutoDeleteFiles(checked);
-  };
-
-  const handleConfettiChange = (checked: boolean) => {
-    setConfettiEnabled(checked);
-  };
-
-  const handleSkipRevisionChange = (checked: boolean) => {
-    setSkipRevision(checked);
-  };
-
   const getInitials = () => {
     const name = username || user?.username || "";
     if (name) return name[0].toUpperCase();
-    return user?.email?.[0]?.toUpperCase() || "U";
+    return user?.email?.[0]?.toUpperCase() || t("common.user").charAt(0);
   };
 
   const themeOptions: { value: ThemeOption; label: string; icon: typeof Sun }[] = [
-    { value: "light", label: "Light", icon: Sun },
-    { value: "dark", label: "Dark", icon: Moon },
-    { value: "system", label: "System", icon: Monitor },
+    { value: "light", label: t("settings.light"), icon: Sun },
+    { value: "dark", label: t("settings.dark"), icon: Moon },
+    { value: "system", label: t("settings.system"), icon: Monitor },
+  ];
+
+  const languageOptions: { value: AppLanguage; label: string }[] = [
+    { value: "en", label: t("common.english") },
+    { value: "vi", label: t("common.vietnamese") },
   ];
 
   if (isLoading) {
@@ -241,44 +231,34 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 max-w-xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
-        >
+      <div className="container mx-auto max-w-xl px-4 py-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
           <div className="mb-4">
-            <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-            <p className="text-sm text-muted-foreground">Manage your account preferences</p>
+            <h1 className="text-2xl font-bold text-foreground">{t("settings.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("settings.subtitle")}</p>
           </div>
 
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <User className="w-4 h-4" />
-                Profile
+                {t("settings.profile")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <Avatar className="w-14 h-14">
+                  <Avatar className="h-14 w-14">
                     <AvatarImage src={profileImage || undefined} />
-                    <AvatarFallback className="text-lg bg-primary/10 text-primary">
-                      {getInitials()}
-                    </AvatarFallback>
+                    <AvatarFallback className="bg-primary/10 text-lg text-primary">{getInitials()}</AvatarFallback>
                   </Avatar>
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploadingImage}
-                    className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-colors hover:bg-primary/90 disabled:opacity-50"
                     data-testid="button-upload-avatar"
                   >
-                    {uploadingImage ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                    ) : (
-                      <Camera className="w-3 h-3" />
-                    )}
+                    {uploadingImage ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
                   </button>
                   <input
                     ref={fileInputRef}
@@ -289,29 +269,31 @@ export default function Settings() {
                     data-testid="input-avatar-file"
                   />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{user?.email}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-foreground">{user?.email}</p>
                   {user?.emailVerified ? (
-                    <Badge variant="outline" className="mt-1 gap-1 text-xs text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/30">
-                      <ShieldCheck className="w-2.5 h-2.5" />
-                      Verified
+                    <Badge variant="outline" className="mt-1 gap-1 border-emerald-500/30 bg-emerald-50 text-xs text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400">
+                      <ShieldCheck className="h-2.5 w-2.5" />
+                      {t("common.verified")}
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className="mt-1 gap-1 text-xs text-amber-600 dark:text-amber-400 border-amber-500/30 bg-amber-50 dark:bg-amber-950/30">
-                      <ShieldX className="w-2.5 h-2.5" />
-                      Not Verified
+                    <Badge variant="outline" className="mt-1 gap-1 border-amber-500/30 bg-amber-50 text-xs text-amber-600 dark:bg-amber-950/30 dark:text-amber-400">
+                      <ShieldX className="h-2.5 w-2.5" />
+                      {t("common.notVerified")}
                     </Badge>
                   )}
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="username" className="text-sm">Username</Label>
+                <Label htmlFor="username" className="text-sm">
+                  {t("settings.username")}
+                </Label>
                 <Input
                   id="username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your username"
+                  onChange={(event) => setUsername(event.target.value)}
+                  placeholder={t("settings.usernamePlaceholder")}
                   className="h-9"
                   data-testid="input-username"
                 />
@@ -323,30 +305,59 @@ export default function Settings() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Sun className="w-4 h-4" />
-                Appearance
+                {t("settings.appearance")}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <div className="flex gap-2">
                 {themeOptions.map((option) => {
                   const Icon = option.icon;
                   const isActive = theme === option.value;
+
                   return (
                     <button
                       key={option.value}
-                      onClick={() => handleThemeChange(option.value)}
-                      className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md border transition-all ${
-                        isActive
-                          ? "border-primary bg-primary/5 text-primary"
-                          : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                      onClick={() => setTheme(option.value)}
+                      className={`flex flex-1 items-center justify-center gap-2 rounded-md border px-3 py-2 transition-all ${
+                        isActive ? "border-primary bg-primary/5 text-primary" : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
                       }`}
                       data-testid={`button-theme-${option.value}`}
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon className="h-4 w-4" />
                       <span className="text-sm font-medium">{option.label}</span>
                     </button>
                   );
                 })}
+              </div>
+
+              <Separator />
+
+              <div className="space-y-3">
+                <div>
+                  <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                    <Languages className="h-4 w-4" />
+                    {t("settings.language")}
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{t("settings.languageDescription")}</p>
+                </div>
+                <div className="flex gap-2">
+                  {languageOptions.map((option) => {
+                    const isActive = language === option.value;
+
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => setLanguage(option.value)}
+                        className={`flex flex-1 items-center justify-center rounded-md border px-3 py-2 text-sm font-medium transition-all ${
+                          isActive ? "border-primary bg-primary/5 text-primary" : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                        }`}
+                        data-testid={`button-language-${option.value}`}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -355,25 +366,18 @@ export default function Settings() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Sparkles className="w-4 h-4" />
-                Quiz Experience
+                {t("settings.quizExperience")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <Label htmlFor="confetti-toggle" className="text-sm font-medium">
-                    Consecutive correct confetti
+                    {t("settings.consecutiveConfetti")}
                   </Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Confetti after 3+ correct answers in a row
-                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{t("settings.consecutiveConfettiDescription")}</p>
                 </div>
-                <Switch
-                  id="confetti-toggle"
-                  checked={confettiEnabled}
-                  onCheckedChange={handleConfettiChange}
-                  data-testid="switch-confetti-toggle"
-                />
+                <Switch id="confetti-toggle" checked={confettiEnabled} onCheckedChange={setConfettiEnabled} data-testid="switch-confetti-toggle" />
               </div>
 
               <Separator />
@@ -381,18 +385,11 @@ export default function Settings() {
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <Label htmlFor="skip-revision-toggle" className="text-sm font-medium">
-                    Skip revision questions
+                    {t("settings.skipRevision")}
                   </Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Go straight to results
-                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{t("settings.skipRevisionDescription")}</p>
                 </div>
-                <Switch
-                  id="skip-revision-toggle"
-                  checked={skipRevision}
-                  onCheckedChange={handleSkipRevisionChange}
-                  data-testid="switch-skip-revision"
-                />
+                <Switch id="skip-revision-toggle" checked={skipRevision} onCheckedChange={setSkipRevision} data-testid="switch-skip-revision" />
               </div>
             </CardContent>
           </Card>
@@ -401,37 +398,28 @@ export default function Settings() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Trash2 className="w-4 h-4" />
-                Privacy
+                {t("settings.privacy")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <Label htmlFor="auto-delete" className="text-sm font-medium">
-                    Auto-delete uploaded files
+                    {t("settings.autoDelete")}
                   </Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Delete source files after quiz generation
-                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{t("settings.autoDeleteDescription")}</p>
                 </div>
-                <Switch
-                  id="auto-delete"
-                  checked={autoDeleteFiles}
-                  onCheckedChange={handleAutoDeleteChange}
-                  data-testid="switch-auto-delete"
-                />
+                <Switch id="auto-delete" checked={autoDeleteFiles} onCheckedChange={setAutoDeleteFiles} data-testid="switch-auto-delete" />
               </div>
-              
+
               {autoDeleteFiles && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  className="flex items-start gap-2 p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20"
+                  className="flex items-start gap-2 rounded-md border border-amber-500/20 bg-amber-500/10 p-2.5"
                 >
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-amber-600 dark:text-amber-400">
-                    Your uploads enhance your experience by making it more personalized.
-                  </p>
+                  <AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
+                  <p className="text-xs text-amber-600 dark:text-amber-400">{t("settings.autoDeleteWarning")}</p>
                 </motion.div>
               )}
             </CardContent>
@@ -447,25 +435,28 @@ export default function Settings() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2.5 rounded-full bg-background/95 backdrop-blur-sm border shadow-lg"
+            className="fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-full border bg-background/95 px-4 py-2.5 shadow-lg backdrop-blur-sm"
           >
             <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
-              <AlertCircle className="w-3.5 h-3.5" />
-              <span className="text-xs font-medium">Unsaved changes</span>
+              <AlertCircle className="h-3.5 w-3.5" />
+              <span className="text-xs font-medium">{t("settings.unsavedChanges")}</span>
             </div>
             <Button
               size="sm"
-              onClick={handleSaveAllPreferences}
+              onClick={() =>
+                updateSettingsMutation.mutate({
+                  username: username.trim() || undefined,
+                  autoDeleteFiles,
+                  consecutiveCorrectConfetti: confettiEnabled,
+                  skipRevisionQuestions: skipRevision,
+                })
+              }
               disabled={updateSettingsMutation.isPending}
-              className="gap-1.5 h-7 px-3"
+              className="h-7 gap-1.5 px-3"
               data-testid="button-save-all-preferences"
             >
-              {updateSettingsMutation.isPending ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Save className="w-3.5 h-3.5" />
-              )}
-              Save
+              {updateSettingsMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+              {t("common.save")}
             </Button>
           </motion.div>
         )}

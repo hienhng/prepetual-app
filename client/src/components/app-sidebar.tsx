@@ -64,6 +64,8 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { queryClient } from "@/lib/queryClient";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useLanguage } from "@/lib/language-context";
 import logoImage from "@assets/image_1765894870887.png";
 import type { Folder } from "@shared/schema";
 
@@ -110,6 +112,7 @@ export function AppSidebar() {
   const { setOpenMobile, state, toggleSidebar } = useSidebar();
   const { handleLinkClick } = useQuizNavigationGuard();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const isCollapsed = state === "collapsed";
   const [renamingFolder, setRenamingFolder] = useState<Folder | null>(null);
   const [renameValue, setRenameValue] = useState("");
@@ -140,7 +143,7 @@ export function AppSidebar() {
       queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to toggle pin", variant: "destructive" });
+      toast({ title: "Error", description: t("sidebar.failedTogglePin"), variant: "destructive" });
     },
   });
 
@@ -152,10 +155,10 @@ export function AppSidebar() {
       queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
       setRenamingFolder(null);
       setRenameValue("");
-      toast({ title: "Folder renamed" });
+      toast({ title: t("sidebar.folderRenamed") });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to rename folder", variant: "destructive" });
+      toast({ title: "Error", description: t("sidebar.failedRenameFolder"), variant: "destructive" });
     },
   });
 
@@ -176,7 +179,7 @@ export function AppSidebar() {
     if (user?.email) {
       return user.email[0].toUpperCase();
     }
-    return "U";
+    return t("common.user").charAt(0);
   };
 
   const handleLogout = async () => {
@@ -234,7 +237,7 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("sidebar.menu")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {primaryNavItems.map((item) => (
@@ -242,11 +245,11 @@ export function AppSidebar() {
                   <SidebarMenuButton 
                     asChild 
                     isActive={location === item.url}
-                    tooltip={item.title}
+                    tooltip={t(`sidebar.${item.title === "Dashboard" ? "dashboard" : item.title === "Create" ? "create" : item.title === "Your Quizzes" ? "yourQuizzes" : "discover"}`)}
                   >
                     <Link href={item.url} onClick={(e) => handleNavClick(e, item.url)} data-testid={`sidebar-link-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
                       <item.icon className="w-4 h-4" />
-                      <span>{item.title}</span>
+                      <span>{t(`sidebar.${item.title === "Dashboard" ? "dashboard" : item.title === "Create" ? "create" : item.title === "Your Quizzes" ? "yourQuizzes" : "discover"}`)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -256,7 +259,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Analysis</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("sidebar.analysis")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {secondaryNavItems.map((item) => (
@@ -264,11 +267,11 @@ export function AppSidebar() {
                   <SidebarMenuButton 
                     asChild 
                     isActive={location === item.url}
-                    tooltip={item.title}
+                    tooltip={t(item.title === "Progress" ? "sidebar.progress" : "sidebar.results")}
                   >
                     <Link href={item.url} onClick={(e) => handleNavClick(e, item.url)} data-testid={`sidebar-link-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
                       <item.icon className="w-4 h-4" />
-                      <span>{item.title}</span>
+                      <span>{t(item.title === "Progress" ? "sidebar.progress" : "sidebar.results")}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -278,7 +281,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Folders</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("sidebar.folders")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {sortedSidebarFolders.length > 0 ? (
@@ -312,18 +315,18 @@ export function AppSidebar() {
                         <DropdownMenuContent side="right" align="start">
                           <DropdownMenuItem onClick={() => openRenameDialog(folder)}>
                             <Pencil className="h-3.5 w-3.5 mr-2" />
-                            Rename
+                            {t("common.rename")}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => togglePinMutation.mutate(folder.id)}>
                             {folder.pinnedToSidebar ? (
                               <>
                                 <PinOff className="h-3.5 w-3.5 mr-2" />
-                                Unpin from Top
+                                {t("sidebar.unpinFromTop")}
                               </>
                             ) : (
                               <>
                                 <Pin className="h-3.5 w-3.5 mr-2" />
-                                Pin to Top
+                                {t("sidebar.pinToTop")}
                               </>
                             )}
                           </DropdownMenuItem>
@@ -335,7 +338,7 @@ export function AppSidebar() {
               ) : (
                 !isCollapsed && (
                   <div className="px-4 py-2 text-xs text-muted-foreground italic">
-                    No folders created
+                    {t("sidebar.noFolders")}
                   </div>
                 )
               )}
@@ -357,7 +360,7 @@ export function AppSidebar() {
                 {!isCollapsed && (
                   <div className="flex-1 text-left overflow-hidden">
                     <p className="text-sm font-medium truncate">
-                      {user?.username || 'User'}
+                      {user?.username || t("common.user")}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                   </div>
@@ -370,19 +373,19 @@ export function AppSidebar() {
               <DropdownMenuItem asChild>
                 <Link href="/settings" onClick={(e) => handleNavClick(e, "/settings")} data-testid="sidebar-settings">
                   <Settings className="h-4 w-4 mr-2" />
-                  Settings
+                  {t("sidebar.settings")}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/help" onClick={(e) => handleNavClick(e, "/help")} data-testid="sidebar-help">
                   <HelpCircle className="h-4 w-4 mr-2" />
-                  Help Center
+                  {t("sidebar.helpCenter")}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/contact" onClick={(e) => handleNavClick(e, "/contact")} data-testid="sidebar-contact">
                   <Mail className="h-4 w-4 mr-2" />
-                  Contact Us
+                  {t("sidebar.contactUs")}
                 </Link>
               </DropdownMenuItem>
               
@@ -390,12 +393,13 @@ export function AppSidebar() {
               
               <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive" data-testid="sidebar-logout">
                 <LogOut className="h-4 w-4 mr-2" />
-                Sign out
+                {t("sidebar.signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           
-          <div className={`${isCollapsed ? 'flex' : 'hidden md:block'}`}>
+          <div className={`${isCollapsed ? 'flex' : 'hidden md:flex'} items-center gap-1`}>
+            
             <ThemeToggle />
           </div>
         </div>
@@ -403,23 +407,23 @@ export function AppSidebar() {
       <Dialog open={!!renamingFolder} onOpenChange={(open) => { if (!open) { setRenamingFolder(null); setRenameValue(""); } }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rename Folder</DialogTitle>
-            <DialogDescription>Enter a new name for this folder.</DialogDescription>
+            <DialogTitle>{t("sidebar.renameFolder")}</DialogTitle>
+            <DialogDescription>{t("sidebar.renameFolderDescription")}</DialogDescription>
           </DialogHeader>
           <form onSubmit={(e) => { e.preventDefault(); handleRenameSubmit(); }}>
             <Input
               ref={renameInputRef}
               value={renameValue}
               onChange={(e) => setRenameValue(e.target.value)}
-              placeholder="Folder name"
+              placeholder={t("sidebar.folderName")}
               data-testid="input-rename-folder"
             />
             <DialogFooter className="mt-4">
               <Button type="button" variant="outline" onClick={() => { setRenamingFolder(null); setRenameValue(""); }}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button type="submit" disabled={!renameValue.trim() || renameFolderMutation.isPending} data-testid="button-rename-folder-submit">
-                {renameFolderMutation.isPending ? "Renaming..." : "Rename"}
+                {renameFolderMutation.isPending ? t("common.renaming") : t("common.rename")}
               </Button>
             </DialogFooter>
           </form>
