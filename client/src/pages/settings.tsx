@@ -452,7 +452,7 @@ export default function Settings() {
                 })
               }
               disabled={updateSettingsMutation.isPending}
-              className="h-7 gap-1.5 px-3"
+              className="h-7 gap-1.5 px-3 rounded-full"
               data-testid="button-save-all-preferences"
             >
               {updateSettingsMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}

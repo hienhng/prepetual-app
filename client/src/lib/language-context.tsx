@@ -24,7 +24,7 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       loading: "Loading...",
     },
     publicHeader: {
-      login: "Log in",
+      login: "Sign in",
       signup: "Sign up",
     },
     footer: {
@@ -257,7 +257,7 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
     },
     progress: {
       title: "Tiến độ của bạn",
-      noAttempts: "Hãy làm vài bài quiz để bắt đầu theo dõi tiến độ.",
+      noAttempts: "Hãy làm một vài bài quiz để bắt đầu theo dõi tiến độ.",
       reviewQuizzes: "Xem lại quiz",
       createQuiz: "Tạo quiz",
       attempts: "lượt làm",

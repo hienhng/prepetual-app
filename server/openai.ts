@@ -316,13 +316,20 @@ interface QuizGenerationParams {
   onProgress?: ProgressCallback;
   isImageOnly?: boolean;
   model?: "default" | "llama3-ollama" | "openai";
-
+  persona?: string;
+  subjectInclination?: string;
+  feedbackStyle?: string;
+  userPreferences?: {
+    persona?: string;
+    subjectInclination?: string;
+    feedbackStyle?: string;
+  };
 }
 
 export async function generateQuizQuestions(
   params: QuizGenerationParams,
 ): Promise<{ questions: Question[]; title: string; category: QuizCategory }> {
-  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress, isImageOnly = false } = params;
+  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress, isImageOnly = false, userPreferences } = params;
   const hasImages = documentImages.length > 0;
 
   // Automatically select model based on content
@@ -346,7 +353,11 @@ export async function generateQuizQuestions(
       }
     })
     .join(", ");
+  
 
+  const persona = userPreferences?.persona || "General";
+  const subjectInclination = userPreferences?.subjectInclination || "General";
+  const feedbackStyle = userPreferences?.feedbackStyle || "General";
   const difficultyDescriptions: Record<DifficultyLevel, string> = {
     easy: "simple recall and basic understanding questions that test fundamental concepts",
     medium:
@@ -355,7 +366,7 @@ export async function generateQuizQuestions(
   };
 
   const categoryList = QUIZ_CATEGORIES.join(", ");
-
+  
   const prompt = `You are an expert educator and subject-matter specialist. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz and categorize it.
 
 CONTENT:
@@ -381,6 +392,7 @@ REQUIREMENTS:
    - Social Studies: history, geography, civics, economics, etc.
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
+
 
 FACTUAL ACCURACY (HIGHEST PRIORITY):
 - Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge

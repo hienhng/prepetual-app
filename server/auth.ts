@@ -126,7 +126,7 @@ export function setupAuth(app: Express): void {
 
       if (!user.passwordHash) {
         return res.status(401).json({
-          message: "This account uses Google sign-in. Please use Google to log in.",
+          message: "This account uses Google sign-in. Please use Google to sign in.",
         });
       }
 

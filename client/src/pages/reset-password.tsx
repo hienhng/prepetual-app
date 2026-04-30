@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
       setIsComplete(true);
       toast({
         title: "Password reset!",
-        description: "You can now log in with your new password.",
+        description: "You can now sign in with your new password.",
       });
     },
     onError: (error: Error) => {

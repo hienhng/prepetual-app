@@ -471,7 +471,7 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
             alt="Prepetual Logo" 
             className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover mx-auto mb-2 sm:mb-3"
           />
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground font-brand">prepetual</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground custom-highlight">prepetual</h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Create an account to get started
           </p>

@@ -68,17 +68,16 @@ export default function OnboardingPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(0);
-  
+  const [isFinished, setIsFinished] = useState(false);
   const [preferences, setPreferences] = useState({
-    persona: "High School Student",
-    subjectInclination: "Science & STEM",
-    feedbackStyle: "Encouraging & Patient",
-    aiPartnership: "The Strategic Breakdown (Step-by-Step)"
+    persona: "",
+    subjectInclination: "",
+    feedbackStyle: "",
+    aiPartnership: ""
   });
 
   // If they somehow get here after completing it, redirect
   useEffect(() => {
-    console.log("User state:", user);
     if (user?.onboardingCompleted) {
       setLocation("/dashboard");
     }
@@ -122,6 +121,10 @@ export default function OnboardingPage() {
 
   const handleSkip = () => {
     updateSettingsMutation.mutate({
+      persona: "General",
+      subjectInclination: "General",
+      feedbackStyle: "General",
+      aiPartnership: "General",
       onboardingCompleted: true
     });
   };
@@ -239,6 +242,7 @@ return (
               <Button
                 onClick={handleNext} 
                 className="rounded-full px-6"
+                disabled={!preferences[currentKey]}
               >
                 {currentStep === STEPS.length - 1 ? "Complete" : "Next"}
               </Button>

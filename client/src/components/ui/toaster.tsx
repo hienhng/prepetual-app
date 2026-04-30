@@ -40,7 +40,7 @@ export function Toaster() {
       {toasts.map(function ({ id, title, description, action, variant, ...props }) {
         return (
           <Toast key={id} variant={variant} {...props}>
-            <div className="flex items-center gap-2.5 pr-2 overflow-hidden">
+            <div className="flex items-center gap-2.5 w-full">
               {getIcon(variant || undefined)}
               <div className="flex items-center gap-1.5 whitespace-nowrap overflow-hidden">
                 {title && <ToastTitle className="text-[13px]">{title}</ToastTitle>}

@@ -175,7 +175,7 @@ function PublicHeader() {
             />
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </div>
-          <span className="pb-0.5 text-2xl font-brand font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent hidden sm:inline tracking-tight">
+          <span className="pb-0.5 text-2xl font-brand font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text hidden sm:inline tracking-tight custom-highlight">
             prepetual
           </span>
         </Link>

@@ -842,27 +842,27 @@ export function QuizPlayer() {
                         <motion.div
                           initial={{ scale: 0, rotate: -45 }}
                           animate={{ scale: 1, rotate: 0 }}
-                          className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/30"
+                          className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/30"
                         >
-                          <Check className="h-6 w-6 text-white" strokeWidth={3} />
+                          <Check className="h-5 w-5 text-white" strokeWidth={3} />
                         </motion.div>
                       )}
                       {isChecked && isSelected && !isCorrectOpt && (
                         <motion.div
                           initial={{ scale: 0, rotate: 45 }}
                           animate={{ scale: 1, rotate: 0 }}
-                          className="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/30"
+                          className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/30"
                         >
-                          <X className="h-6 w-6 text-white" strokeWidth={3} />
+                          <X className="h-5 w-5 text-white" strokeWidth={3} />
                         </motion.div>
                       )}
                       {!isChecked && isSelected && (
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30"
+                          className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30"
                         >
-                          <Check className="h-6 w-6 text-primary-foreground" strokeWidth={3} />
+                          <Check className="h-5 w-5 text-primary-foreground" strokeWidth={3} />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -1108,7 +1108,7 @@ export function QuizPlayer() {
                       <motion.div
                         initial={{ scale: 0, rotate: -180 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        className="w-8 h-8 rounded-xl bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/30"
+                        className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/30"
                       >
                         <Check className="h-5 w-5 text-white" strokeWidth={3} />
                       </motion.div>
@@ -1117,7 +1117,7 @@ export function QuizPlayer() {
                       <motion.div
                         initial={{ scale: 0, rotate: 180 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        className="w-8 h-8 rounded-xl bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/30"
+                        className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/30"
                       >
                         <X className="h-5 w-5 text-white" strokeWidth={3} />
                       </motion.div>
@@ -1126,7 +1126,7 @@ export function QuizPlayer() {
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30"
+                        className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30"
                       >
                         <Check className="h-5 w-5 text-primary-foreground" strokeWidth={3} />
                       </motion.div>

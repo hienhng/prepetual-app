@@ -3136,7 +3136,7 @@ export default function Home() {
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
             >
               Master your materials. <br className="hidden md:block" />
-              <span className="text-primary"><em>Elevate</em></span> your performance.
+              <span className="text-primary custom-highlight"><em>Elevate</em></span> your performance.
             </motion.h2>
 
             <motion.p
