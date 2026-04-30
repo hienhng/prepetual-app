@@ -601,12 +601,6 @@ export async function registerRoutes(
         documentImages: imagesForQuestions,
         onProgress: sendProgress,
         isImageOnly: isImageOnly || false,
-        userPreferences: user ? {
-          persona: user.persona,
-          subjectInclination: user.subjectInclination,
-          feedbackStyle: user.feedbackStyle,
-          aiPartnership: user.aiPartnership
-        } : undefined
       });
 
       sendProgress("saving", 98, "Saving your quiz...");
@@ -1812,10 +1806,9 @@ Always return JSON:
     }
   });
 
-  // Quiz AI Chat Assistant
   app.post("/api/quiz-chat", async (req, res) => {
     try {
-      const { quizTitle, questions, currentQuestionIndex, userMessage, chatHistory, sourceMaterial } = req.body;
+      const { quizTitle, questions, currentQuestionIndex, userMessage, chatHistory, sourceMaterial, userPreferences } = req.body;
 
       if (!quizTitle || !questions || currentQuestionIndex === undefined || !userMessage) {
         return res.status(400).json({ message: "Missing required fields" });
@@ -1828,6 +1821,7 @@ Always return JSON:
         userMessage,
         chatHistory: chatHistory || [],
         sourceMaterial,
+        userPreferences,
       });
 
       res.json({ response });

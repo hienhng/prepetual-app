@@ -316,18 +316,13 @@ interface QuizGenerationParams {
   onProgress?: ProgressCallback;
   isImageOnly?: boolean;
   model?: "default" | "llama3-ollama" | "openai";
-  userPreferences?: {
-    persona?: string | null;
-    subjectInclination?: string | null;
-    feedbackStyle?: string | null;
-    aiPartnership?: string | null;
-  };
+
 }
 
 export async function generateQuizQuestions(
   params: QuizGenerationParams,
 ): Promise<{ questions: Question[]; title: string; category: QuizCategory }> {
-  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress, isImageOnly = false, userPreferences } = params;
+  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress, isImageOnly = false } = params;
   const hasImages = documentImages.length > 0;
 
   // Automatically select model based on content
@@ -361,17 +356,7 @@ export async function generateQuizQuestions(
 
   const categoryList = QUIZ_CATEGORIES.join(", ");
 
-  const personaInstruction = userPreferences?.persona ? `PERSONA (ACADEMIC LEVEL): You are interacting with a ${userPreferences.persona}. Adjust your complexity and vocabulary accordingly.` : "";
-  const domainInstruction = userPreferences?.subjectInclination ? `SUBJECT INCLINATION: The user prefers a focus on ${userPreferences.subjectInclination}.` : "";
-  const feedbackInstruction = userPreferences?.feedbackStyle ? `FEEDBACK STYLE: Adopt a ${userPreferences.feedbackStyle} tone for all explanations.` : "";
-  const partnershipInstruction = userPreferences?.aiPartnership ? `GUIDANCE METHOD: Use the ${userPreferences.aiPartnership} approach when structuring explanations.` : "";
-
   const prompt = `You are an expert educator and subject-matter specialist. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz and categorize it.
-
-${personaInstruction}
-${domainInstruction}
-${feedbackInstruction}
-${partnershipInstruction}
 
 CONTENT:
 ${truncatedText}
@@ -441,10 +426,8 @@ IMPORTANT: Carefully analyze ALL attached images. These may contain:
 
 Generate questions that test understanding of BOTH the text content AND the visual content from the images.
 
-${personaInstruction}
-${domainInstruction}
-${feedbackInstruction}
-${partnershipInstruction}
+
+
 
 TEXT CONTENT:
 ${truncatedText}
@@ -513,10 +496,7 @@ Your task is to:
 2. Read and understand any text visible within the images
 3. Generate questions that test understanding of the material shown
 
-${personaInstruction}
-${domainInstruction}
-${feedbackInstruction}
-${partnershipInstruction}
+
 
 LANGUAGE HANDLING:
 - Detect the primary language visible in the images
@@ -1170,10 +1150,16 @@ export interface QuizChatParams {
   userMessage: string;
   chatHistory: Array<{ role: "user" | "assistant"; content: string }>;
   sourceMaterial?: string;
+  userPreferences?: {
+    persona?: string | null;
+    subjectInclination?: string | null;
+    feedbackStyle?: string | null;
+    aiPartnership?: string | null;
+  };
 }
 
 export async function quizChatResponse(params: QuizChatParams): Promise<string> {
-  const { quizTitle, questions, currentQuestionIndex, userMessage, chatHistory, sourceMaterial } = params;
+  const { quizTitle, questions, currentQuestionIndex, userMessage, chatHistory, sourceMaterial, userPreferences } = params;
 
   const safeIndex = Math.max(0, Math.min(currentQuestionIndex, questions.length - 1));
   const currentQuestion = questions[safeIndex];
@@ -1205,6 +1191,12 @@ QUIZ CONTEXT:
 Quiz: "${quizTitle}"
 Total questions: ${questions.length}
 Current question: #${currentQuestionIndex + 1}
+
+USER PREFERENCES:
+${userPreferences?.persona ? `- Persona/Academic Level: ${userPreferences.persona}` : ""}
+${userPreferences?.subjectInclination ? `- Subject Inclination: ${userPreferences.subjectInclination}` : ""}
+${userPreferences?.feedbackStyle ? `- Feedback Style: ${userPreferences.feedbackStyle}` : ""}
+${userPreferences?.aiPartnership ? `- Guidance Method: ${userPreferences.aiPartnership}` : ""}
 
 CURRENT QUESTION:
 Type: ${currentQuestion.type}

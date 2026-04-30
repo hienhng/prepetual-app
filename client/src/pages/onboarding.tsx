@@ -16,7 +16,7 @@ const STEPS = [
   {
     id: "persona",
     title: "Tell us about yourself",
-    description: "What is your current academic level? This helps us tailor the vocabulary and complexity.",
+    description: "What is your current academic level?",
     icon: GraduationCap,
     options: [
       { value: "Middle School Student", label: "Middle School Student", hint: "Simplifies complex concepts using relatable analogies." },
@@ -32,7 +32,9 @@ const STEPS = [
     icon: BookOpen,
     options: [
       { value: "Science & STEM", label: "Science & STEM", hint: "Activates technical engine for formulas and logical proofs." },
-      { value: "Social Studies & Languages", label: "Social Studies & Languages", hint: "Activates narrative engine for thematic analysis." }
+      { value: "Social Studies & Languages", label: "Social Studies & Languages", hint: "Activates narrative engine for thematic analysis." },
+      { value: "Business & Economics", label: "Business & Economics", hint: "Focuses on market logic, case studies, and quantitative data." },
+      { value: "Creative Arts & Design", label: "Creative Arts & Design", hint: "Emphasizes visual theory, history, and expressive critique." }
     ]
   },
   {
@@ -43,7 +45,8 @@ const STEPS = [
     options: [
       { value: "Encouraging & Patient", label: "Encouraging & Patient", hint: "Uses positive reinforcement and a supportive tutor voice." },
       { value: "Direct & Concise", label: "Direct & Concise", hint: "Minimalist no-nonsense feedback focused on speed." },
-      { value: "Professional & Academic", label: "Professional & Academic", hint: "Formal tone suitable for high-level study." }
+      { value: "Professional & Academic", label: "Professional & Academic", hint: "Formal tone suitable for high-level study." },
+      { value: "Creative & Witty", label: "Creative & Witty", hint: "Engaging and clever responses to keep learning fun." }
     ]
   },
   {
@@ -54,7 +57,8 @@ const STEPS = [
     options: [
       { value: "The Socratic Guide (Hints First)", label: "The Socratic Guide", hint: "Never gives the answer immediately; provides clues." },
       { value: "The Strategic Breakdown (Step-by-Step)", label: "The Strategic Breakdown", hint: "Deconstructs problems into smaller, manageable chunks." },
-      { value: "The Solution Architect (Direct Explanation)", label: "The Solution Architect", hint: "Provides the full solution immediately, then explains." }
+      { value: "The Solution Architect (Direct Explanation)", label: "The Solution Architect", hint: "Provides the full solution immediately, then explains." },
+      { value: "The Critical Reviewer (Feedback)", label: "The Critical Reviewer", hint: "Analyze your existing work and suggests improvements." }
     ]
   }
 ];
@@ -103,6 +107,12 @@ export default function OnboardingPage() {
     }
   };
 
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(s => s - 1);
+    }
+  };
+
   const handleComplete = () => {
     updateSettingsMutation.mutate({
       ...preferences,
@@ -116,137 +126,123 @@ export default function OnboardingPage() {
     });
   };
 
-  const step = STEPS[currentStep];
-  const StepIcon = step.icon;
-  const currentKey = step.id as keyof typeof preferences;
+// 1. Ensure your variants match the property names used in the motion.div
+const variants = {
+  enter: { opacity: 0, x: 20 },
+  center: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -20 }
+};
 
-  return (
+const step = STEPS[currentStep];
+const StepIcon = step.icon;
+const currentKey = step.id as keyof typeof preferences;
+
+return (
     <div className="p-4">
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden px-4">
-        {/* Premium Background Effects */}
-        <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] mix-blend-screen" />
-          <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-[150px] mix-blend-screen" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(var(--background),1)_100%)] opacity-40" />
+      {/* Background Effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[150px]" />
+      </div>
+
+      <div className="w-full max-w-md mx-auto relative z-10">
+        {/* Static Progress Bar (Top) */}
+        <div className="h-1 w-full bg-muted/20 mb-8 rounded-full">
+          <motion.div 
+            className="h-full bg-primary rounded-full"
+            initial={false}
+            animate={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
         </div>
 
-        <div className="w-full max-w-2xl relative z-10">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div 
-            className="bg-card/80 backdrop-blur-xl border shadow-2xl rounded-3xl overflow-hidden"
-            initial={{ opacity: 0, y: 40, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.6, type: "spring", bounce: 0.2 }}
+            key={currentStep} // This triggers the animation when currentStep changes
+            variants={variants} 
+            initial="enter"   // Matches your variants object
+            animate="center"  // Matches your variants object
+            exit="exit"      // Matches your variants object
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 }
+            }}
           >
-            {/* Progress Bar */}
-            <div className="h-1.5 w-full bg-muted/50">
-              <motion.div 
-                className="h-full bg-gradient-to-r from-primary/80 to-primary"
-                initial={{ width: `${(currentStep / STEPS.length) * 100}%` }}
-                animate={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-              />
+            {/* 2. Move the Header INSIDE the motion.div so it fades too */}
+            <div className="flex flex-col items-center text-center mb-8">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                <StepIcon className="w-7 h-7" />
+              </div>
+              
+              <h2 className="text-[11px] font-bold tracking-[0.25em] uppercase text-primary/60 mb-2">
+                Step {currentStep + 1} of {STEPS.length}
+              </h2>
+              <h1 className="text-2xl font-bold text-foreground mb-3">
+                {step.title}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {step.description}
+              </p>
             </div>
 
-            <div className="p-8 sm:p-12">
-              <div className="flex flex-col items-center text-center mb-10">
-                <motion.div
-                  key={`icon-${currentStep}`}
-                  initial={{ scale: 0, rotate: -45 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", duration: 0.6, bounce: 0.4 }}
-                  className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 text-primary shadow-inner"
-                >
-                  <StepIcon className="w-8 h-8" />
-                </motion.div>
-                <h2 className="text-sm font-bold tracking-widest uppercase text-primary/80 mb-3">
-                  Step {currentStep + 1} of {STEPS.length}
-                </h2>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight mb-4">
-                  {step.title}
-                </h1>
-                <p className="text-base sm:text-lg text-muted-foreground max-w-lg">
-                  {step.description}
-                </p>
-              </div>
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentStep}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="w-full"
-                >
-                  <RadioGroup 
-                    value={preferences[currentKey]} 
-                    onValueChange={(val) => setPreferences(p => ({ ...p, [currentKey]: val }))}
-                    className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                  >
-                    {step.options.map((opt, i) => {
-                      const isSelected = preferences[currentKey] === opt.value;
-                      return (
-                        <div key={i} className="relative">
-                          <RadioGroupItem
-                            value={opt.value}
-                            id={`${step.id}-${i}`}
-                            className="peer sr-only"
-                          />
-                          <Label
-                            htmlFor={`${step.id}-${i}`}
-                            className={`flex flex-col cursor-pointer rounded-2xl border-2 p-5 h-full transition-all duration-200 ${
-                              isSelected 
-                                ? "border-primary bg-primary/5 shadow-[0_0_0_1px_rgba(var(--primary),0.2)]" 
-                                : "border-muted/60 bg-card hover:bg-muted/30 hover:border-muted"
-                            }`}
-                          >
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="font-bold text-lg leading-tight">{opt.label}</span>
-                              {isSelected && (
-                                <motion.div 
-                                  initial={{ scale: 0 }}
-                                  animate={{ scale: 1 }}
-                                  className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 ml-3"
-                                >
-                                  <Check className="w-3 h-3" />
-                                </motion.div>
-                              )}
-                            </div>
-                            <span className="font-medium text-sm text-muted-foreground leading-relaxed mt-auto">{opt.hint}</span>
-                          </Label>
-                        </div>
-                      );
-                    })}
-                  </RadioGroup>
-                </motion.div>
-              </AnimatePresence>
-
-              <div className="flex items-center justify-between mt-12 pt-8 border-t border-border/50">
-                <Button 
-                  variant="ghost" 
-                  className="text-muted-foreground hover:text-foreground px-6" 
-                  onClick={handleSkip} 
-                  disabled={updateSettingsMutation.isPending}
-                >
-                  Skip survey
-                </Button>
-                <Button 
-                  size="lg"
-                  onClick={handleNext} 
-                  disabled={updateSettingsMutation.isPending} 
-                  className="min-w-[140px] h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/20"
-                >
-                  {updateSettingsMutation.isPending ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : currentStep === STEPS.length - 1 ? (
-                    "Complete Setup"
-                  ) : (
-                    <>Continue <ArrowRight className="w-5 h-5 ml-2" /></>
-                  )}
-                </Button>
-              </div>
-            </div>
+            <RadioGroup 
+              value={preferences[currentKey]} 
+              onValueChange={(val) => setPreferences(p => ({ ...p, [currentKey]: val }))}
+              className="grid grid-cols-1 gap-3"
+            >
+              {step.options.map((opt, i) => {
+                const isSelected = preferences[currentKey] === opt.value;
+                return (
+                  <div key={i}>
+                    <RadioGroupItem value={opt.value} id={`opt-${i}`} className="sr-only" />
+                    <Label
+                      htmlFor={`opt-${i}`}
+                      className={`flex items-center justify-between cursor-pointer rounded-xl p-4 transition-all ${
+                        isSelected 
+                          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25" 
+                          : "bg-muted/20 hover:bg-muted/40 text-foreground"
+                      }`}
+                    >
+                      <div>
+                        <p className="font-bold text-sm">{opt.label}</p>
+                        <p className={`text-xs ${isSelected ? "text-primary-foreground" : "text-muted-foreground"}`}>
+                          {opt.hint}
+                        </p>
+                      </div>
+                      {isSelected && <Check className="w-4 h-4" />}
+                    </Label>
+                  </div>
+                );
+              })}
+            </RadioGroup>
           </motion.div>
+        </AnimatePresence>
+
+        {/* Static Footer (Stays put while content fades) */}
+        <div className="flex items-center justify-between mt-10">
+          <Button 
+            variant="ghost" 
+            className="text-muted-foreground" 
+            onClick={handleSkip}
+          >
+            Skip
+          </Button>
+          <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                onClick={handleBack} 
+                className="rounded-full px-6"
+                disabled={currentStep === 0}
+              >
+                Back
+              </Button>
+              <Button
+                onClick={handleNext} 
+                className="rounded-full px-6"
+              >
+                {currentStep === STEPS.length - 1 ? "Complete" : "Next"}
+              </Button>
+          </div>
         </div>
       </div>
     </div>

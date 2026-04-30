@@ -26,12 +26,20 @@ interface QuizChatbotProps {
   onClose: () => void;
 }
 
+interface UserPreferences {
+  persona: string;
+  subjectInclination: string;
+  feedbackStyle: string;
+  aiPartnership: string;
+}
+
 const suggestions = [
   { text: "Explain this concept", icon: Lightbulb, bgColor: "bg-amber-100 dark:bg-amber-900/30", iconColor: "text-amber-600 dark:text-amber-400", borderColor: "border-amber-200 dark:border-amber-800" },
   { text: "Give me a hint", icon: HelpCircle, bgColor: "bg-violet-100 dark:bg-violet-900/30", iconColor: "text-violet-600 dark:text-violet-400", borderColor: "border-violet-200 dark:border-violet-800" },
   { text: "What's the key concept?", icon: BookOpen, bgColor: "bg-emerald-100 dark:bg-emerald-900/30", iconColor: "text-emerald-600 dark:text-emerald-400", borderColor: "border-emerald-200 dark:border-emerald-800" },
   { text: "Break it down simply", icon: Brain, bgColor: "bg-sky-100 dark:bg-sky-900/30", iconColor: "text-sky-600 dark:text-sky-400", borderColor: "border-sky-200 dark:border-sky-800" },
 ];
+
 
 type PenguinEmotion = "idle" | "thinking" | "happy";
 

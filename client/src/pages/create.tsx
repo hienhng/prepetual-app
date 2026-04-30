@@ -464,12 +464,6 @@ export default function Create() {
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </motion.div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-muted/50 rounded-full border border-border/50">
-                  <Sparkles className="w-3.5 h-3.5 text-primary" />
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                    Pip is ready to help you study
-                  </p>
-                </div>
               </div>
             </motion.div>
           )}
