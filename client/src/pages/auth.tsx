@@ -582,13 +582,13 @@ export default function AuthPage() {
         
         <div className="relative z-10 flex flex-col w-full p-8 xl:p-12">
           {/* Logo and Brand */}
-          <div className="flex items-center gap-3 mb-8">
+          <div className="flex items-center gap-3 mb-8 rounded-3xl">
             <img 
               src={logoImage} 
               alt="Prepetual Logo" 
-              className="w-12 h-12 rounded-xl object-cover shadow-lg"
+              className="w-12 h-12 rounded-2xl object-cover shadow-lg"
             />
-            <h1 className="pb-1 text-3xl font-bold font-brand text-white">prepetual</h1>
+            <h1 className="pb-2 text-3xl font-bold font-brand text-white">prepetual</h1>
           </div>
 
           {/* Feature Slider */}
@@ -616,9 +616,9 @@ export default function AuthPage() {
             <img 
               src={logoImage} 
               alt="Prepetual Logo" 
-              className="w-12 h-12 rounded-xl object-cover"
+              className="w-10 h-10 rounded-2xl object-cover"
             />
-            <span className="pb-1 text-2xl font-bold font-brand">prepetual</span>
+            <span className="pb-2 text-2xl font-bold font-brand">prepetual</span>
           </div>
 
           {/* Form Header */}
