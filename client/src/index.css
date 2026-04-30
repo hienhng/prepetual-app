@@ -236,7 +236,7 @@ select:-webkit-autofill:active {
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border; 
   }
 
   body {
@@ -324,9 +324,7 @@ select:-webkit-autofill:active {
   /* .no-default-hover-elevate/no-default-active-elevate is an escape hatch so consumers of
    * buttons/badges can remove the automatic brightness adjustment on interactions
    * and program their own. */
-  .no-default-hover-elevate {}
-
-  .no-default-active-elevate {}
+  
 
 
   /**

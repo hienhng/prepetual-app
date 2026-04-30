@@ -316,20 +316,19 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(quizResults.completedAt));
   }
 
-  // Single query to get attempt counts for multiple quizzes — replaces N+1 per-quiz queries
   async getAttemptCountsByQuizIds(quizIds: string[], userId?: string): Promise<Map<string, number>> {
     if (quizIds.length === 0) return new Map();
     
-    let query = db
+    const condition = userId 
+      ? and(inArray(quizResults.quizId, quizIds), eq(quizResults.userId, userId))
+      : inArray(quizResults.quizId, quizIds);
+
+    const rows = await db
       .select({ quizId: quizResults.quizId, cnt: count() })
       .from(quizResults)
-      .where(inArray(quizResults.quizId, quizIds));
+      .where(condition)
+      .groupBy(quizResults.quizId);
 
-    if (userId) {
-      query = query.where(and(inArray(quizResults.quizId, quizIds), eq(quizResults.userId, userId)));
-    }
-
-    const rows = await query.groupBy(quizResults.quizId);
     return new Map(rows.map(r => [r.quizId, Number(r.cnt)]));
   }
 
