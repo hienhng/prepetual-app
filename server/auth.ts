@@ -52,7 +52,7 @@ export function setupAuth(app: Express): void {
       
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
-        return res.status(400).json({ message: "Email already registered" });
+        return res.status(400).json({ message: "Error registrating" });
       }
 
       // Default username from email prefix

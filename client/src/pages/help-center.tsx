@@ -14,7 +14,6 @@ export default function HelpCenter() {
         sections: [
           { title: "Giới thiệu", description: "Tìm hiểu thêm về Prepetual và sứ mệnh của chúng tôi.", href: "/about", icon: Info, color: "text-blue-500", bg: "bg-blue-500/10" },
           { title: "Câu hỏi thường gặp", description: "Những câu hỏi phổ biến và câu trả lời khi sử dụng ứng dụng.", href: "/faq", icon: HelpCircle, color: "text-purple-500", bg: "bg-purple-500/10" },
-          { title: "Liên hệ", description: "Liên hệ với chúng tôi để được hỗ trợ hoặc góp ý.", href: "/contact", icon: Mail, color: "text-green-500", bg: "bg-green-500/10" },
           { title: "Điều khoản dịch vụ", description: "Đọc các quy tắc và hướng dẫn khi sử dụng nền tảng.", href: "/terms", icon: FileText, color: "text-orange-500", bg: "bg-orange-500/10" },
           { title: "Chính sách riêng tư", description: "Cách chúng tôi xử lý và bảo vệ dữ liệu của bạn.", href: "/privacy", icon: Shield, color: "text-red-500", bg: "bg-red-500/10" },
         ],
@@ -28,7 +27,6 @@ export default function HelpCenter() {
         sections: [
           { title: "About", description: "Learn more about Prepetual and our mission.", href: "/about", icon: Info, color: "text-blue-500", bg: "bg-blue-500/10" },
           { title: "FAQ", description: "Common questions and answers about using the app.", href: "/faq", icon: HelpCircle, color: "text-purple-500", bg: "bg-purple-500/10" },
-          { title: "Contact", description: "Get in touch with us for support or feedback.", href: "/contact", icon: Mail, color: "text-green-500", bg: "bg-green-500/10" },
           { title: "Terms of Service", description: "Read our rules and guidelines for using the platform.", href: "/terms", icon: FileText, color: "text-orange-500", bg: "bg-orange-500/10" },
           { title: "Privacy Policy", description: "How we handle and protect your data.", href: "/privacy", icon: Shield, color: "text-red-500", bg: "bg-red-500/10" },
         ],

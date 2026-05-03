@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, HelpCircle, BookOpen, Lock, FileText, Brain, Share2, BarChart3, Globe, Edit3, MessageCircle } from "lucide-react";
+import { ArrowLeft, HelpCircle, History, BookOpen, Lock, FileText, Brain, Share2, Moon, FunctionSquare, Lightbulb, ShieldCheck, FolderTree, Printer, BarChart3, Globe, Edit3, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,6 +31,48 @@ export default function FAQ() {
           { id: "item-7", question: "Hệ thống hỗ trợ những ngôn ngữ nào?", answer: "AI của chúng tôi tự động nhận diện ngôn ngữ của tài liệu nguồn và tạo câu hỏi bằng chính ngôn ngữ đó. Chúng tôi hỗ trợ nhiều ngôn ngữ để mang lại trải nghiệm học tập toàn cầu.", icon: Globe },
           { id: "item-8", question: "Tôi có thể chỉnh sửa câu hỏi trong quiz không?", answer: "Có. Bạn có thể sửa bất kỳ câu hỏi nào do AI tạo ra, thêm câu hỏi của riêng mình hoặc xóa câu hỏi trước khi bắt đầu làm quiz hoặc chia sẻ.", icon: Edit3 },
           { id: "item-9", question: "Pip AI Assistant có thể giúp tôi như thế nào?", answer: "Pip là người bạn đồng hành học tập cá nhân của bạn trong mọi bài quiz. Pip có thể giải thích khái niệm khó, đưa gợi ý và hỗ trợ công thức toán học. Pip sẽ dẫn dắt bạn đến đáp án thay vì đưa đáp án trực tiếp.", icon: MessageCircle },
+          { 
+            id: "item-10", 
+            question: "Prepetual có hỗ trợ các công thức Toán học và Hóa học không?", 
+            answer: "Có. Hệ thống tích hợp LaTeX để hiển thị chính xác các công thức phức tạp. Khi bạn tải lên tài liệu chứa ký hiệu khoa học, AI sẽ xử lý và hiển thị chúng một cách trực quan nhất.", 
+            icon: FunctionSquare 
+          },
+          { 
+            id: "item-11", 
+            question: "Làm thế nào để Pip giúp tôi giải quyết các câu hỏi hóc búa?", 
+            answer: "Pip không chỉ đưa ra đáp án; Pip phân tích bước giải và gợi ý phương pháp tư duy. Bạn có thể yêu cầu Pip giải thích sâu hơn về một khái niệm cụ thể ngay trong giao diện làm bài.", 
+            icon: Lightbulb 
+          },
+          { 
+            id: "item-12", 
+            question: "Dữ liệu và tài liệu tôi tải lên có được bảo mật không?", 
+            answer: "Hoàn toàn bảo mật. Tài liệu học tập của bạn được mã hóa và chỉ sử dụng để phục vụ mục đích tạo quiz cá nhân. Chúng tôi không chia sẻ nội dung của bạn với bên thứ ba.", 
+            icon: ShieldCheck 
+          },
+          { 
+            id: "item-13", 
+            question: "Tôi có thể tổ chức các quiz theo thư mục không?", 
+            answer: "Tính năng Folders cho phép bạn lưu trữ và phân loại quiz theo môn học hoặc chủ đề. Bạn có thể dễ dàng tìm kiếm và xem lại các bộ đề cũ để ôn tập định kỳ.", 
+            icon: FolderTree 
+          },
+          { 
+            id: "item-14", 
+            question: "Lịch sử làm bài (History) giúp ích gì cho việc học?", 
+            answer: "Hệ thống lưu lại điểm số và thời gian làm bài của từng lần thử. Biểu đồ tiến độ giúp bạn nhận ra sự cải thiện rõ rệt hoặc những phần kiến thức vẫn còn hổng để tập trung hơn.", 
+            icon: History 
+          },
+          { 
+            id: "item-15", 
+            question: "Giao diện Dark Mode có sẵn trên Prepetual không?", 
+            answer: "Đúng vậy. Prepetual được tối ưu hóa với giao diện tối (Dark Mode) tối giản và hiện đại, giúp bạn tập trung học tập trong thời gian dài mà không gây mỏi mắt.", 
+            icon: Moon 
+          },
+          { 
+            id: "item-16", 
+            question: "Tôi có thể xuất (export) quiz ra file PDF để in không?", 
+            answer: "Có. Sau khi tạo và chỉnh sửa quiz xong, bạn có thể chọn xuất bản in. File PDF sẽ bao gồm đầy đủ câu hỏi và tùy chọn đính kèm bảng đáp án ở cuối trang.", 
+            icon: Printer 
+          },
         ],
       }
     : {
@@ -49,6 +91,48 @@ export default function FAQ() {
           { id: "item-7", question: "Global support - Which languages are supported?", answer: "Our AI auto-detects the language of your source material and generates questions in that same language. We support numerous languages worldwide for a truly global learning experience.", icon: Globe },
           { id: "item-8", question: "Editing quizzes - Can I change the questions?", answer: "Yes! You can modify any AI-generated question, add your own, or remove questions before you start taking the quiz or sharing it.", icon: Edit3 },
           { id: "item-9", question: "Pip AI Assistant - How can it help me?", answer: "Pip is your personal study companion available during any quiz. Pip can explain complex concepts, provide hints, and even render mathematical formulas. Pip's goal is to help you learn, so it will guide you toward the answer without simply giving it away.", icon: MessageCircle },
+          { 
+            id: "item-10", 
+            question: "Does Prepetual support Math and Chemistry formulas?", 
+            answer: "Yes. The system integrates LaTeX to accurately render complex formulas. When you upload documents containing scientific notations, the AI processes and displays them intuitively.", 
+            icon: FunctionSquare 
+          },
+          { 
+            id: "item-11", 
+            question: "How does Pip help me solve difficult questions?", 
+            answer: "Pip doesn't just give answers; it breaks down the steps and suggests thinking methods. You can ask Pip to explain a specific concept in depth right within the quiz interface.", 
+            icon: Lightbulb 
+          },
+          { 
+            id: "item-12", 
+            question: "Is my uploaded data and documentation secure?", 
+            answer: "Completely. Your study materials are encrypted and used solely for generating your personal quizzes. We do not share your content with third parties.", 
+            icon: ShieldCheck 
+          },
+          { 
+            id: "item-13", 
+            question: "Can I organize my quizzes into folders?", 
+            answer: "The Folders feature allows you to save and categorize quizzes by subject or topic. You can easily search and revisit old sets for periodic review.", 
+            icon: FolderTree 
+          },
+          { 
+            id: "item-14", 
+            question: "How does the History feature assist my learning?", 
+            answer: "The system tracks your scores and completion time for every attempt. Progress charts help you identify clear improvements or knowledge gaps that need more focus.", 
+            icon: History 
+          },
+          { 
+            id: "item-15", 
+            question: "Is Dark Mode available on Prepetual?", 
+            answer: "Absolutely. Prepetual is optimized with a minimalist, high-end Dark Mode UI, designed to reduce eye strain and keep you focused during long study sessions.", 
+            icon: Moon 
+          },
+          { 
+            id: "item-16", 
+            question: "Can I export my quiz to a PDF file for printing?", 
+            answer: "Yes. Once you've created and edited your quiz, you can select the export option. The PDF will include all questions and an optional answer key at the end.", 
+            icon: Printer 
+          },
         ],
       };
 
