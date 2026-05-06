@@ -3,7 +3,7 @@ import type { User } from "@shared/schema";
 import { getQueryFn } from "@/lib/queryClient";
 
 export function useAuth() {
-  const { data: user, isLoading } = useQuery<User | null>({
+  const { data: user, isLoading, refetch } = useQuery<User | null>({
     queryKey: ["/api/auth/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     retry: false,
@@ -13,5 +13,6 @@ export function useAuth() {
     user,
     isLoading,
     isAuthenticated: !!user,
+    refetch,
   };
 }

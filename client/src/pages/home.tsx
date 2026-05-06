@@ -62,6 +62,7 @@ import {
   animate,
 } from "framer-motion";
 import { Footer } from "@/components/footer";
+import { useLanguage } from "@/lib/language-context";
 
 function cn(...classes: (string | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -652,20 +653,21 @@ function HandwrittenPaper() {
 }
 
 function PrepetualQuizPlayer() {
+  const { t } = useLanguage();
   const q = {
     num: 1,
     total: 3,
-    q: "What is the primary function of mitochondria in a cell?",
+    q: t("home.demo.mitochondriaQ"),
     options: [
-      { label: "A", text: "Energy production", correct: true, selected: true },
+      { label: "A", text: t("home.demo.energyProduction"), correct: true, selected: true },
       {
         label: "B",
-        text: "Protein synthesis",
+        text: t("home.demo.proteinSynthesis"),
         correct: false,
         selected: false,
       },
-      { label: "C", text: "Cell division", correct: false, selected: false },
-      { label: "D", text: "Waste removal", correct: false, selected: false },
+      { label: "C", text: t("home.demo.cellDivision"), correct: false, selected: false },
+      { label: "D", text: t("home.demo.wasteRemoval"), correct: false, selected: false },
     ],
   };
 
@@ -689,10 +691,10 @@ function PrepetualQuizPlayer() {
         </div>
         <div className="flex items-center justify-between mt-1.5">
           <span className="text-[9px] text-muted-foreground font-medium">
-            Question {q.num} of {q.total}
+            {t("results.questionCount", { current: q.num, total: q.total })}
           </span>
           <span className="text-[9px] text-muted-foreground/70">
-            Multiple Choice
+            {t("home.howItWorks.steps.generate.mcq")}
           </span>
         </div>
       </div>
@@ -746,12 +748,11 @@ function PrepetualQuizPlayer() {
           <div className="flex items-center gap-1.5 mb-1">
             <Lightbulb className="w-3 h-3 text-green-600 dark:text-green-400" />
             <span className="text-[9px] font-semibold text-green-700 dark:text-green-400">
-              Correct!
+              {t("home.demo.correct")}
             </span>
           </div>
           <p className="text-[8.5px] text-green-700/70 dark:text-green-400/70 leading-relaxed">
-            Mitochondria are known as the powerhouse of the cell, producing ATP
-            through cellular respiration.
+            {t("home.demo.mitochondriaExp")}
           </p>
         </motion.div>
       </div>
@@ -950,6 +951,8 @@ function BeforeAfterSlider() {
   const hasInteracted = useRef(false);
   const [showHint, setShowHint] = useState(false);
 
+  const { t } = useLanguage();
+
   useEffect(() => {
     const hintTimer = setTimeout(() => {
       if (!hasInteracted.current) setShowHint(true);
@@ -1116,7 +1119,7 @@ function BeforeAfterSlider() {
                 <MousePointer2 className="w-5 h-5 text-gray-600" />
               </motion.div>
               <span className="text-[11px] font-medium text-white bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full tracking-wide">
-                Click & hold to reveal
+                {t("home.demo.revealHint")}
               </span>
             </motion.div>
           )}
@@ -1135,6 +1138,7 @@ function BeforeAfterSlider() {
 }
 
 function HowItWorksGallery() {
+  const { t } = useLanguage();
   const [activeStep, setActiveStep] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
@@ -1143,9 +1147,9 @@ function HowItWorksGallery() {
     {
       id: 0,
       icon: Upload,
-      title: "Step 1: Upload",
-      label: "Upload",
-      desc: "Drop your study materials — PDFs, images, Word docs, or PowerPoint files. We handle the rest.",
+      title: t("home.howItWorks.steps.upload.title"),
+      label: t("home.howItWorks.steps.upload.label"),
+      desc: t("home.howItWorks.steps.upload.desc"),
       gradient: "from-amber-400 to-yellow-500",
       glowColor: "rgba(251, 191, 36, 0.25)",
       bg: "bg-amber-400/5",
@@ -1166,8 +1170,8 @@ function HowItWorksGallery() {
               <Upload className="w-10 h-10 text-amber-500" />
             </motion.div>
             <div className="text-center space-y-1 z-10">
-              <p className="text-sm font-bold text-foreground">Click to upload</p>
-              <p className="text-xs text-muted-foreground">or drag & drop files</p>
+              <p className="text-sm font-bold text-foreground">{t("home.howItWorks.steps.upload.clickToUpload")}</p>
+              <p className="text-xs text-muted-foreground">{t("home.howItWorks.steps.upload.orDragDrop")}</p>
             </div>
           </motion.div>
           <div className="flex flex-wrap justify-center gap-2">
@@ -1189,9 +1193,9 @@ function HowItWorksGallery() {
     {
       id: 1,
       icon: Eye,
-      title: "Step 2: Extract",
-      label: "Extract",
-      desc: "Our AI reads and understands your content with high precision — text, diagrams, and tables included.",
+      title: t("home.howItWorks.steps.extract.title"),
+      label: t("home.howItWorks.steps.extract.label"),
+      desc: t("home.howItWorks.steps.extract.desc"),
       gradient: "from-cyan-400 to-blue-500",
       glowColor: "rgba(34, 211, 238, 0.2)",
       bg: "bg-cyan-400/5",
@@ -1200,14 +1204,14 @@ function HowItWorksGallery() {
         <div className="w-full max-w-sm mx-auto space-y-6">
           <div className="space-y-4">
             {[
-              { w: "100%", label: "Parsing document...", delay: 0 },
-              { w: "85%", label: "Extracting key concepts...", delay: 0.3 },
-              { w: "65%", label: "Identifying relationships...", delay: 0.6 },
+              { w: "100%", label: t("home.howItWorks.steps.extract.parsing"), delay: 0 },
+              { w: "85%", label: t("home.howItWorks.steps.extract.extracting"), delay: 0.3 },
+              { w: "65%", label: t("home.howItWorks.steps.extract.identifying"), delay: 0.6 },
             ].map((item, i) => (
               <div key={i} className="space-y-2">
                 <div className="flex items-center justify-between px-1">
                   <span className="text-xs font-semibold text-cyan-600 dark:text-cyan-400">{item.label}</span>
-                  <span className="text-[10px] text-muted-foreground">{item.w} complete</span>
+                  <span className="text-[10px] text-muted-foreground">{item.w} {t("home.howItWorks.steps.extract.complete")}</span>
                 </div>
                 <div className="h-2.5 bg-cyan-400/10 rounded-full overflow-hidden border border-cyan-400/10">
                   <motion.div
@@ -1229,8 +1233,8 @@ function HowItWorksGallery() {
               <Sparkles className="w-6 h-6 text-cyan-500" />
             </div>
             <div>
-              <p className="text-sm font-bold text-foreground">Advanced Extraction</p>
-              <p className="text-[11px] text-muted-foreground">Omission-free high-fidelity parsing</p>
+              <p className="text-sm font-bold text-foreground">{t("home.howItWorks.steps.extract.advanced")}</p>
+              <p className="text-[11px] text-muted-foreground">{t("home.howItWorks.steps.extract.fidelity")}</p>
             </div>
           </motion.div>
         </div>
@@ -1239,9 +1243,9 @@ function HowItWorksGallery() {
     {
       id: 2,
       icon: Brain,
-      title: "Step 3: Generate",
-      label: "Generate",
-      desc: "Smart AI creates diverse, personalized quiz questions from your material — instantly.",
+      title: t("home.howItWorks.steps.generate.title"),
+      label: t("home.howItWorks.steps.generate.label"),
+      desc: t("home.howItWorks.steps.generate.desc"),
       gradient: "from-violet-400 to-purple-500",
       glowColor: "rgba(167, 139, 250, 0.2)",
       bg: "bg-violet-400/5",
@@ -1249,9 +1253,9 @@ function HowItWorksGallery() {
       content: (
         <div className="w-full max-w-sm mx-auto space-y-4">
           {[
-            { type: "Multiple Choice", q: "What is the primary function of mitochondria?", color: "violet" },
-            { type: "True / False", q: "DNA replication occurs in the G1 phase.", color: "purple" },
-            { type: "Short Answer", q: "Define the term 'Osmosis' in your own words.", color: "indigo" },
+            { type: t("home.howItWorks.steps.generate.mcq"), q: t("home.howItWorks.steps.generate.q1"), color: "violet" },
+            { type: t("home.howItWorks.steps.generate.tf"), q: t("home.howItWorks.steps.generate.q2"), color: "purple" },
+            { type: t("home.howItWorks.steps.generate.short"), q: t("home.howItWorks.steps.generate.q3"), color: "indigo" },
           ].map((item, i) => (
             <motion.div
               key={i}
@@ -1271,7 +1275,7 @@ function HowItWorksGallery() {
           ))}
           <div className="flex items-center justify-center gap-3 py-2 text-violet-500/60 animate-pulse">
             <Brain className="w-4 h-4" />
-            <span className="text-[11px] font-bold tracking-widest uppercase">AI Architecting...</span>
+            <span className="text-[11px] font-bold tracking-widest uppercase">{t("home.howItWorks.steps.generate.architecting")}</span>
           </div>
         </div>
       ),
@@ -1279,9 +1283,9 @@ function HowItWorksGallery() {
     {
       id: 3,
       icon: Trophy,
-      title: "Step 4: Learn",
-      label: "Learn",
-      desc: "Master every topic with interactive quizzes, flashcards, and spaced repetition.",
+      title: t("home.howItWorks.steps.learn.title"),
+      label: t("home.howItWorks.steps.learn.label"),
+      desc: t("home.howItWorks.steps.learn.desc"),
       gradient: "from-emerald-400 to-green-500",
       glowColor: "rgba(52, 211, 153, 0.2)",
       bg: "bg-emerald-400/5",
@@ -1301,7 +1305,7 @@ function HowItWorksGallery() {
                 </div>
                 <div>
                   <p className="text-xl font-bold text-foreground">85%</p>
-                  <p className="text-xs text-muted-foreground">Expert Proficiency</p>
+                  <p className="text-xs text-muted-foreground">{t("home.howItWorks.steps.learn.expert")}</p>
                 </div>
               </div>
               <div className="flex gap-1">
@@ -1312,8 +1316,8 @@ function HowItWorksGallery() {
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs font-semibold px-1">
-                <p>Mastery Progress</p>
-                <p className="text-emerald-500">Fast tracking</p>
+                <p>{t("home.howItWorks.steps.learn.mastery")}</p>
+                <p className="text-emerald-500">{t("home.howItWorks.steps.learn.fastTracking")}</p>
               </div>
               <div className="h-3 bg-emerald-500/10 rounded-full overflow-hidden border border-emerald-500/10">
                 <motion.div
@@ -1327,10 +1331,10 @@ function HowItWorksGallery() {
           </motion.div>
           <div className="grid grid-cols-2 gap-3">
             <Button className="rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-12">
-              <Play className="w-4 h-4 mr-2" /> Start Quiz
+              <Play className="w-4 h-4 mr-2" /> {t("home.howItWorks.steps.learn.startQuiz")}
             </Button>
             <Button variant="outline" className="rounded-2xl border-emerald-500/20 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 h-12" onClick={() => window.location.href = '#study'}>
-              <BookOpen className="w-4 h-4 mr-2" /> Study
+              <BookOpen className="w-4 h-4 mr-2" /> {t("home.howItWorks.steps.learn.study")}
             </Button>
           </div>
         </div>
@@ -1934,37 +1938,38 @@ function FeatureIllustration({
 }
 
 function FeatureShowcase() {
+  const { t } = useLanguage();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const features = [
     {
       icon: Upload,
-      title: "Multi-Format Upload",
-      description: "PDFs, images, Word, Excel supported.",
+      title: t("home.features.multiFormat.title"),
+      description: t("home.features.multiFormat.desc"),
       color: "blue",
       details:
         "Upload any document format and our intelligent parser extracts the text content. For images and scanned documents, our OCR (Optical Character Recognition) technology accurately reads text from photos of textbooks, handwritten notes, and more.",
     },
     {
       icon: Brain,
-      title: "AI Quiz Generation",
-      description: "AI creates meaningful questions.",
+      title: t("home.features.aiGen.title"),
+      description: t("home.features.aiGen.desc"),
       color: "purple",
       details:
         "Our AI analyzes your content to generate diverse question types: multiple choice, true/false, and short answer. Questions are designed to test comprehension, not just memorization, with adjustable difficulty levels.",
     },
     {
       icon: BookOpen,
-      title: "Study Mode",
-      description: "Flashcards with progress tracking.",
+      title: t("home.features.studyMode.title"),
+      description: t("home.features.studyMode.desc"),
       color: "orange",
       details:
         "Flip through questions as flashcards. Mark each card as 'known' or 'still learning' to track your progress. Cards you're still learning will appear more frequently until you master them.",
     },
     {
       icon: RotateCcw,
-      title: "Spaced Repetition",
-      description: "Retry missed questions until mastered.",
+      title: t("home.features.spaced.title"),
+      description: t("home.features.spaced.desc"),
       color: "rose",
       details:
         "Questions you answer incorrectly automatically appear in retry rounds. This spaced repetition approach ensures you keep practicing difficult concepts until they stick, maximizing long-term retention.",
@@ -1979,16 +1984,16 @@ function FeatureShowcase() {
     },
     {
       icon: MessageCircle,
-      title: "Pip AI Assistant",
-      description: "Your personal study companion.",
+      title: t("home.features.pip.title"),
+      description: t("home.features.pip.desc"),
       color: "cyan",
       details:
         "Meet Pip, your friendly arctic study buddy! Pip understands your quiz context and helps explain difficult concepts, provides hints when you're stuck, and supports math formulas. Pip guides you to the answer without giving it away.",
     },
     {
       icon: Target,
-      title: "Progress Tracking",
-      description: "Monitor your exam readiness.",
+      title: t("home.features.progress.title"),
+      description: t("home.features.progress.desc"),
       color: "indigo",
       details:
         "Track your accuracy and quiz history all in one dashboard. See which topics need more practice and watch your scores improve over time as you prepare for your exams.",
@@ -2221,7 +2226,7 @@ function FeatureShowcase() {
                             data-testid="button-feature-back"
                           >
                             <ArrowLeft className="w-4 h-4" />
-                            Back to all features
+                            {t("home.features.backToAll")}
                           </Button>
                         </motion.div>
                       </div>
@@ -2258,6 +2263,7 @@ function FeatureShowcase() {
 }
 
 function ParsingShowcase() {
+  const { t } = useLanguage();
   const originalQuestions = [
     { num: "1", question: "What is the powerhouse of the cell?", options: ["A) Nucleus", "B) Mitochondria", "C) Ribosome", "D) Golgi apparatus"] },
     { num: "2", question: "DNA replication occurs during which phase?", options: ["A) G1 phase", "B) S phase", "C) G2 phase", "D) M phase"] },
@@ -2308,7 +2314,7 @@ function ParsingShowcase() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            Import your own questions
+            {t("home.parsing.badge")}
           </motion.p>
           <div className="overflow-hidden">
             <motion.h2
@@ -2322,7 +2328,19 @@ function ParsingShowcase() {
                 delay: 0.05,
               }}
             >
-              Your context, <span className="text-primary italic custom-highlight">exactly</span> as it is.
+              {t("home.parsing.title").split(", ").map((part, i) => (
+                <React.Fragment key={i}>
+                  {i === 0 ? part + ", " : ""}
+                  {i === 1 && (
+                    <>
+                      <span className="text-primary italic custom-highlight">
+                        {t("common.exactly")}
+                      </span>
+                      {part.replace(t("common.exactly"), "")}
+                    </>
+                  )}
+                </React.Fragment>
+              ))}
             </motion.h2>
           </div>
           <motion.p
@@ -2336,7 +2354,7 @@ function ParsingShowcase() {
               delay: 0.15,
             }}
           >
-            Upload any exam or worksheet. We intelligently extract every question, word-for-word.
+            {t("home.parsing.subtitle")}
           </motion.p>
         </div>
 
@@ -2348,7 +2366,7 @@ function ParsingShowcase() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
           >
             <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-2 mb-4">
-              <FileText className="w-3 h-3" /> Original Document
+              <FileText className="w-3 h-3" /> {t("home.parsing.original")}
             </div>
             <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-xl">
               <CardContent className="p-8 space-y-6 relative overflow-hidden text-pretty">
@@ -2364,7 +2382,7 @@ function ParsingShowcase() {
                   {phase === "converting" && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-background/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
                       <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                      <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Converting...</span>
+                      <span className="text-[10px] font-bold text-primary tracking-widest uppercase">{t("home.parsing.converting")}</span>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -2380,7 +2398,7 @@ function ParsingShowcase() {
           >
             <div className="flex items-center justify-between mb-4 mr-2">
               <div className="flex items-center gap-2 text-[10px] font-bold text-primary uppercase tracking-widest">
-                <Zap className="w-3 h-3" /> Interactive Quiz
+                <Zap className="w-3 h-3" /> {t("home.parsing.interactive")}
               </div>
               {phase === "result" && (
                 <motion.div
@@ -2388,7 +2406,7 @@ function ParsingShowcase() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="px-2 py-0.5 bg-primary/10 border border-primary/20 rounded-full text-[9px] font-bold text-primary uppercase"
                 >
-                  Ready
+                  {t("home.parsing.ready")}
                 </motion.div>
               )}
             </div>
@@ -2462,10 +2480,11 @@ function AnimatedCounter({
 }
 
 function StatsSection() {
+  const { t } = useLanguage();
   const stats = [
-    { value: "100%", label: "Free Forever", icon: Star },
-    { value: "5+", label: "File Formats", icon: FileText },
-    { value: "∞", label: "Unlimited Quizzes", icon: Layers },
+    { value: "100%", label: t("home.stats.freeForever"), icon: Star },
+    { value: "5+", label: t("home.stats.fileFormats"), icon: FileText },
+    { value: "∞", label: t("home.stats.unlimitedQuizzes"), icon: Layers },
   ];
 
   return (
@@ -2521,6 +2540,7 @@ function StatsSection() {
 }
 
 export default function Home() {
+  const { t } = useLanguage();
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText } = useQuiz();
   const { isAuthenticated, isLoading } = useAuth();
@@ -2570,7 +2590,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <section ref={heroRef} className="relative pb-8 md:pb-16 overflow-hidden">
+      <section ref={heroRef} className="relative min-h-[100dvh] pb-8 md:pb-16 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
             className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/8 blur-[120px]"
@@ -2600,9 +2620,9 @@ export default function Home() {
               `,
               backgroundSize: "80px 80px",
               maskImage:
-                "linear-gradient(to bottom, transparent 0%, black 35%, black 100%)",
+                "linear-gradient(to bottom, transparent 0%, black 20%, black 100%)",
               WebkitMaskImage:
-                "linear-gradient(to bottom, transparent 0%, black 35%, black 100%)",
+                "linear-gradient(to bottom, transparent 0%, black 20%, black 100%)",
             }}
           />
         </div>
@@ -2679,9 +2699,9 @@ export default function Home() {
                 style={{ fontSize: "clamp(2.5rem, 6vw, 6rem)" }}
               >
                 <span className="overflow-hidden inline-flex justify-center flex-wrap w-full">
-                  {["Make", "your", "materials"].map((word, i) => (
+                  {t("home.hero.makeYourMaterials").split(" ").map((word, i) => (
                     <motion.span
-                      key={word}
+                      key={i}
                       className="inline-block"
                       initial={{ y: "110%", opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
@@ -2709,9 +2729,12 @@ export default function Home() {
                   ease: [0.16, 1, 0.3, 1],
                 }}
               >
-                Let every definition respond to you.
-                <br />
-                Stay connected to what you learn.
+                {t("home.hero.subtitle").split(". ").map((line, i) => (
+                  <React.Fragment key={i}>
+                    {line}{i === 0 ? "." : ""}
+                    {i === 0 && <br />}
+                  </React.Fragment>
+                ))}
               </motion.p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-5 relative">
@@ -2747,9 +2770,9 @@ export default function Home() {
                     >
                       <span className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
                       <span className="relative z-10 flex items-center gap-2.5">
-                        Get Started
+                        {t("home.hero.getStarted")}
                         <span className="font-light">
-                          —it's free
+                          {t("home.hero.itsFree")}
                         </span>
                         <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
                       </span>
@@ -2786,16 +2809,16 @@ export default function Home() {
                     data-testid="button-hero-learn-more"
                   >
                     <ArrowDown className="h-4 w-4 group-hover:translate-y-1 transition-transform" />
-                    How It Works
+                    {t("home.hero.howItWorks")}
                   </Button>
                 </motion.div>
               </div>
 
               <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
                 {[
-                  { icon: CheckCircle2, text: "Free forever" },
-                  { icon: CheckCircle2, text: "No credit card" },
-                  { icon: CheckCircle2, text: "PDF, Word, Images" },
+                  { icon: CheckCircle2, text: t("home.hero.freeForever") },
+                  { icon: CheckCircle2, text: t("home.hero.noCreditCard") },
+                  { icon: CheckCircle2, text: t("home.hero.fileFormats") },
                 ].map((item, i) => (
                   <motion.div
                     key={item.text}
@@ -2857,7 +2880,7 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
-            Simple Process
+            {t("home.howItWorks.badge")}
           </motion.p>
           <div className="overflow-hidden">
             <motion.h2
@@ -2871,7 +2894,7 @@ export default function Home() {
                 delay: 0.05,
               }}
             >
-              How It Works
+              {t("home.howItWorks.title")}
             </motion.h2>
           </div>
           <motion.p
@@ -2885,7 +2908,7 @@ export default function Home() {
               delay: 0.15,
             }}
           >
-            From notes to quizzes in just a few clicks
+            {t("home.howItWorks.subtitle")}
           </motion.p>
         </div>
         
@@ -2904,7 +2927,7 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
-              Everything You Need
+              {t("home.features.badge")}
             </motion.p>
             <motion.h2
               className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight"
@@ -2913,7 +2936,7 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
             >
-              Power your potential with AI
+              {t("home.features.title")}
             </motion.h2>
             <motion.p
               className="text-muted-foreground text-lg"
@@ -2922,7 +2945,7 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
             >
-              From raw notes to interactive study sessions in seconds.
+              {t("home.features.subtitle")}
             </motion.p>
           </div>
 
@@ -2939,9 +2962,9 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/10 pointer-events-none group-hover:opacity-100 transition-opacity" />
                 <CardContent className="p-8 relative h-full flex flex-col">
                   <div className="mb-6">
-                    <Badge className="mb-3 bg-primary/20 text-primary border-primary/20 hover:bg-primary/30 transition-colors">Start Here</Badge>
-                    <h3 className="text-2xl font-bold mb-2">Create Your First Quiz</h3>
-                    <p className="text-muted-foreground text-sm">Drop your notes or a textbook page to begin.</p>
+                    <Badge className="mb-3 bg-primary/20 text-primary border-primary/20 hover:bg-primary/30 transition-colors">{t("home.features.startHere")}</Badge>
+                    <h3 className="text-2xl font-bold mb-2">{t("home.features.createFirstQuiz")}</h3>
+                    <p className="text-muted-foreground text-sm">{t("home.features.dropNotes")}</p>
                   </div>
                   <div className="flex-1">
                     <FileUpload onTextExtracted={handleTextExtracted} />
@@ -2958,7 +2981,7 @@ export default function Home() {
                         className="w-full gap-2 h-12 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full transition-all hover:scale-[1.02]"
                         data-testid="button-continue-generate"
                       >
-                        Continue to Generate
+                        {t("home.features.continueToGenerate")}
                         <ArrowRight className="h-5 w-5" />
                       </Button>
                     </motion.div>
@@ -2982,9 +3005,9 @@ export default function Home() {
                     <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 mb-4">
                       <Brain className="w-5 h-5 text-purple-500" />
                     </div>
-                    <h3 className="text-xl font-bold mb-2">AI Quiz Generation</h3>
+                    <h3 className="text-xl font-bold mb-2">{t("home.features.aiGen.title")}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Our AI analyzes your content to generate diverse question types that test comprehension.
+                      {t("home.features.aiGen.desc")}
                     </p>
                   </div>
                   <div className="w-full md:w-32 h-32 flex-shrink-0 order-1 md:order-2">
@@ -3007,9 +3030,9 @@ export default function Home() {
                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 mb-3">
                     <Upload className="w-5 h-5 text-blue-500" />
                   </div>
-                  <h3 className="text-sm font-bold mb-1">Multi-Format Support</h3>
+                  <h3 className="text-sm font-bold mb-1">{t("home.features.multiFormat.title")}</h3>
                   <p className="text-xs text-muted-foreground line-clamp-2">
-                    PDFs, textbook photos, docs, and images.
+                    {t("home.features.multiFormat.desc")}
                   </p>
                 </CardContent>
               </Card>
@@ -3028,9 +3051,9 @@ export default function Home() {
                   <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 mb-3">
                     <Target className="w-5 h-5 text-indigo-500" />
                   </div>
-                  <h3 className="text-sm font-bold mb-1">Progress Tracking</h3>
+                  <h3 className="text-sm font-bold mb-1">{t("home.features.progress.title")}</h3>
                   <p className="text-xs text-muted-foreground line-clamp-2">
-                    Visual insights into your learning journey.
+                    {t("home.features.progress.desc")}
                   </p>
                 </CardContent>
               </Card>
@@ -3050,9 +3073,9 @@ export default function Home() {
                   <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 mb-3">
                     <BookOpen className="w-5 h-5 text-orange-500" />
                   </div>
-                  <h3 className="text-sm font-bold mb-1">Smart Study Mode</h3>
+                  <h3 className="text-sm font-bold mb-1">{t("home.features.studyMode.title")}</h3>
                   <p className="text-xs text-muted-foreground">
-                    Interactive flashcards that adapt to you.
+                    {t("home.features.studyMode.desc")}
                   </p>
                 </CardContent>
               </Card>
@@ -3072,9 +3095,9 @@ export default function Home() {
                     <span className="text-3xl group-hover:scale-125 transition-transform duration-500">🐧</span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-bold mb-1">Meet Pip, Your AI Buddy</h3>
+                    <h3 className="text-lg font-bold mb-1">{t("home.features.pip.title")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Pip provides hints and explains concepts when you're stuck on a question.
+                      {t("home.features.pip.desc")}
                     </p>
                   </div>
                 </CardContent>
@@ -3094,9 +3117,9 @@ export default function Home() {
                   <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 mb-3">
                     <RotateCcw className="w-5 h-5 text-rose-500" />
                   </div>
-                  <h3 className="text-sm font-bold mb-1">Spaced Repetition</h3>
+                  <h3 className="text-sm font-bold mb-1">{t("home.features.spaced.title")}</h3>
                   <p className="text-xs text-muted-foreground">
-                    Retry missed questions until you master them.
+                    {t("home.features.spaced.desc")}
                   </p>
                 </CardContent>
               </Card>
@@ -3125,7 +3148,7 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             >
-              Start your journey today
+              {t("home.cta.badge")}
             </motion.p>
             <motion.h2
               className="font-bold tracking-tight text-foreground leading-[1.05] mb-8"
@@ -3135,8 +3158,8 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
             >
-              Master your materials. <br className="hidden md:block" />
-              <span className="text-primary custom-highlight"><em>Elevate</em></span> your performance.
+              {t("home.cta.title1")} <br className="hidden md:block" />
+              <span className="text-primary custom-highlight"><em>{t("home.cta.title2").split(" ")[0]}</em></span> {t("home.cta.title2").split(" ").slice(1).join(" ")}
             </motion.h2>
 
             <motion.p
@@ -3146,7 +3169,7 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
             >
-              Join thousands of students who have transformed how they study with AI-powered personalized practice.
+              {t("home.cta.desc")}
             </motion.p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
@@ -3165,7 +3188,7 @@ export default function Home() {
                   className="gap-2 px-10 h-14 w-full sm:w-auto text-base font-bold shadow-[0_20px_40px_-15px_rgba(var(--primary),0.3)] bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-all duration-300"
                   data-testid="button-cta-get-started-final"
                 >
-                  Get Started Free
+                  {t("home.cta.getStartedFree")}
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </motion.div>
@@ -3186,7 +3209,7 @@ export default function Home() {
                     className="gap-2 px-10 h-14 w-full sm:w-auto text-base font-medium text-muted-foreground hover:text-foreground rounded-full border border-border/50 hover:border-foreground/20 hover:bg-foreground/5 transition-all duration-300"
                     data-testid="button-learn-more-final"
                   >
-                    Learn More
+                    {t("home.cta.learnMore")}
                   </Button>
                 </motion.div>
               </Link>

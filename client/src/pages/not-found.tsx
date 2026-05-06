@@ -2,8 +2,10 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Ghost, Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/language-context";
 
 export default function NotFound() {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
       {/* Background blobs for visual interest */}
@@ -34,9 +36,9 @@ export default function NotFound() {
 
         <div className="space-y-4">
           <h1 className="text-6xl font-black tracking-tighter text-primary">404</h1>
-          <h2 className="text-2xl font-bold tracking-tight">Oops! Looks like you're lost.</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t('notFound.title')}</h2>
           <p className="text-muted-foreground text-lg leading-relaxed">
-            The quiz you're looking for might have been moved, deleted, or never existed in the first place.
+            {t('notFound.description')}
           </p>
         </div>
 
@@ -44,18 +46,18 @@ export default function NotFound() {
           <Button asChild size="lg" className="h-12 px-8 font-semibold">
             <Link href="/">
               <Home className="mr-2 h-5 w-5" />
-              Back to Home
+              {t('common.backToHome')}
             </Link>
           </Button>
           <Button variant="ghost" size="lg" className="h-12 px-8 font-semibold" onClick={() => window.history.back()}>
             <ArrowLeft className="mr-2 h-5 w-5" />
-            Go Back
+            {t('common.goBack')}
           </Button>
         </div>
       </motion.div>
 
       <footer className="absolute bottom-8 left-0 right-0 text-center text-sm text-muted-foreground font-medium">
-        Prepetual QuizAI &copy; {new Date().getFullYear()}
+        {t('common.footer')} &copy; {new Date().getFullYear()}
       </footer>
     </div>
   );

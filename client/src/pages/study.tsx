@@ -9,10 +9,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import confetti from "canvas-confetti";
 import { Badge } from "@/components/ui/badge";
 import { useQuiz } from "@/lib/quiz-context";
+import { useLanguage } from "@/lib/language-context";
 import type { Question } from "@shared/schema";
 
 export default function StudyPage() {
   const { currentQuiz } = useQuiz();
+  const { t } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [knownCards, setKnownCards] = useState<Set<number>>(new Set());
@@ -58,11 +60,11 @@ export default function StudyPage() {
           animate={{ opacity: 1, scale: 1 }}
         >
           <BookOpen className="h-16 w-16 mx-auto text-muted-foreground/30 mb-6" />
-          <h2 className="text-2xl font-bold mb-3">No quiz selected</h2>
-          <p className="text-muted-foreground mb-8 max-w-xs mx-auto">Select a quiz from your history to start mastering it with flashcards.</p>
+          <h2 className="text-2xl font-bold mb-3">{t('study.noQuizSelected')}</h2>
+          <p className="text-muted-foreground mb-8 max-w-xs mx-auto">{t('study.noQuizSelectedDesc')}</p>
           <Link href="/history">
             <Button size="lg" className="rounded-xl px-8" data-testid="button-go-history">
-              Go to History
+              {t('study.goToHistory')}
             </Button>
           </Link>
         </motion.div>
@@ -72,9 +74,9 @@ export default function StudyPage() {
 
   const getQuestionTypeLabel = (type: string) => {
     switch (type) {
-      case "multiple_choice": return "Multiple Choice";
-      case "true_false": return "True / False";
-      case "short_answer": return "Short Answer";
+      case "multiple_choice": return t('quizGenerator.multipleChoice');
+      case "true_false": return t('quizGenerator.trueFalse');
+      case "short_answer": return t('quizGenerator.shortAnswer');
       default: return type.replace("_", " ");
     }
   };
@@ -223,18 +225,18 @@ export default function StudyPage() {
             <div className="h-24 w-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="h-12 w-12 text-green-500" />
             </div>
-            <h1 className="text-4xl font-black mb-2 tracking-tight">Study Session Complete!</h1>
-            <p className="text-muted-foreground text-lg">Amazing progress on "{currentQuiz.title}"</p>
+            <h1 className="text-4xl font-black mb-2 tracking-tight">{t('study.sessionComplete')}</h1>
+            <p className="text-muted-foreground text-lg">{t('study.sessionCompleteDesc', { title: currentQuiz.title })}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-6 mb-10">
             <Card className="bg-green-500/5 border-green-500/10 rounded-3xl p-8">
               <p className="text-5xl font-black text-green-600 mb-2">{knownCards.size}</p>
-              <p className="text-sm font-bold uppercase tracking-widest text-green-600/60">Mastered</p>
+              <p className="text-sm font-bold uppercase tracking-widest text-green-600/60">{t('study.mastered')}</p>
             </Card>
             <Card className="bg-yellow-500/5 border-yellow-500/10 rounded-3xl p-8">
               <p className="text-5xl font-black text-yellow-600 mb-2">{studyingCards.size}</p>
-              <p className="text-sm font-bold uppercase tracking-widest text-yellow-600/60">Still Learning</p>
+              <p className="text-sm font-bold uppercase tracking-widest text-yellow-600/60">{t('study.learning')}</p>
             </Card>
           </div>
 
@@ -247,7 +249,7 @@ export default function StudyPage() {
               data-testid="button-study-again"
             >
               <RotateCcw className="h-5 w-5 mr-2" />
-              Retake Cards
+              {t('study.retakeCards')}
             </Button>
             <Link href="/dashboard" className="flex-1">
               <Button 
@@ -256,7 +258,7 @@ export default function StudyPage() {
                 data-testid="button-finish-study"
               >
                 <Home className="h-5 w-5 mr-2" />
-                Return to Dashboard
+                {t('common.backToDashboard')}
               </Button>
             </Link>
           </div>
@@ -272,7 +274,7 @@ export default function StudyPage() {
           <h1 className="text-2xl font-black tracking-tight leading-none">{currentQuiz.title}</h1>
           <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider flex items-center gap-2">
             <BookOpen className="h-3 w-3" />
-            Flashcard Session
+            {t('study.flashcardSession')}
           </p>
         </div>
         <Link href="/dashboard">
@@ -285,7 +287,7 @@ export default function StudyPage() {
       <div className="mb-10 space-y-4">
         <div className="flex items-center justify-between px-1">
           <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
-            Progress: {currentIndex + 1} / {questions.length}
+            {t('study.progress', { current: currentIndex + 1, total: questions.length })}
           </span>
           <div className="flex gap-4">
             <div className="flex items-center gap-1.5">
@@ -327,14 +329,14 @@ export default function StudyPage() {
               style={{ opacity: rightOpacity }}
               className="absolute top-6 right-6 z-30 px-6 py-3 bg-green-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-green-500/20 rotate-12 pointer-events-none"
             >
-              Mastered
+              {t('study.mastered')}
             </motion.div>
 
             <motion.div 
               style={{ opacity: leftOpacity }}
               className="absolute top-6 left-6 z-30 px-6 py-3 bg-yellow-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-yellow-500/20 -rotate-12 pointer-events-none"
             >
-              Learning
+              {t('study.learning')}
             </motion.div>
 
             <motion.div
@@ -356,7 +358,7 @@ export default function StudyPage() {
                     </Badge>
                   </div>
                   <div className="flex-1 flex flex-col justify-center p-8 sm:p-12 text-center">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mb-4">Question</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mb-4">{t('study.question')}</span>
                     <h2 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
                       {currentQuestion.question}
                     </h2>
@@ -374,7 +376,7 @@ export default function StudyPage() {
                   <div className="p-8 text-center bg-muted/30 border-t border-border/50">
                     <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/50 flex items-center justify-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                      Tap to reveal answer
+                      {t('study.tapToReveal')}
                     </p>
                   </div>
                 </div>
@@ -388,7 +390,7 @@ export default function StudyPage() {
                 <div className="h-full flex flex-col">
                   <div className="p-8 pb-0 flex items-center justify-center">
                     <Badge className="bg-green-500 text-white border-none font-bold uppercase tracking-wider text-[10px] px-3">
-                      Correct Answer
+                      {t('study.correctAnswer')}
                     </Badge>
                   </div>
                   <div className="flex-1 flex flex-col justify-center p-8 sm:p-12 text-center overflow-y-auto">
@@ -397,7 +399,7 @@ export default function StudyPage() {
                     </h2>
                     {currentQuestion.explanation && (
                       <div className="mt-4 p-5 bg-primary/5 rounded-2xl border border-primary/10 text-left">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-2 block">Explanation</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-2 block">{t('study.explanation')}</span>
                         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                           {currentQuestion.explanation}
                         </p>
@@ -406,7 +408,7 @@ export default function StudyPage() {
                   </div>
                   <div className="p-8 text-center bg-primary/5 border-t border-primary/10">
                     <p className="text-xs font-black uppercase tracking-widest text-primary/50">
-                      Swipe left or right to grade
+                      {t('study.swipeToGrade')}
                     </p>
                   </div>
                 </div>
@@ -414,16 +416,6 @@ export default function StudyPage() {
             </motion.div>
           </div>
         </motion.div>
-
-        {/* Action button background indicators */}
-        {/* <div className="absolute inset-0 flex justify-between items-center px-4 pointer-events-none opacity-20 group-hover:opacity-100 transition-opacity">
-          <div className="p-4 rounded-full bg-yellow-500/10 text-yellow-600">
-             <RotateCcw className="h-10 w-10" />
-          </div>
-          <div className="p-4 rounded-full bg-green-500/10 text-green-600">
-             <Check className="h-10 w-10" />
-          </div>
-        </div> */}
       </div>
 
       <div className="mt-auto pb-6 space-y-6">
@@ -436,7 +428,7 @@ export default function StudyPage() {
             disabled={isSwiping}
           >
             <RotateCcw className="h-5 w-5 group-hover:rotate-[-45deg] transition-transform" />
-            Learning
+            {t('study.learning')}
           </Button>
           
           <Button 
@@ -456,13 +448,13 @@ export default function StudyPage() {
             className="h-16 flex-1 rounded-2xl border-2 border-green-500/20 hover:bg-green-500/5 hover:border-green-500/40 text-green-600 font-bold gap-2 group transition-all"
             disabled={isSwiping}
           >
-            Mastered
+            {t('study.mastered')}
             <Check className="h-5 w-5 group-hover:scale-125 transition-transform" />
           </Button>
         </div>
         
         <p className="text-[10px] font-bold text-center text-muted-foreground/40 uppercase tracking-[0.3em]">
-          Swipe or use Arrow Keys to navigate
+          {t('study.navigationTip')}
         </p>
       </div>
     </div>

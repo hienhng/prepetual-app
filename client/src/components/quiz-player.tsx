@@ -12,59 +12,61 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useSidebarOptional } from "@/components/ui/sidebar";
+import { useLanguage } from "@/lib/language-context";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
 import confetti from "canvas-confetti";
 import { QuizChatbot, CutePenguin } from "@/components/quiz-chatbot";
 import { MathText } from "@/components/formatted-text";
 
-const encouragingMessages = {
+const getEncouragingMessages = (t: any) => ({
   correct: [
-    "Excellent work!",
-    "You nailed it!",
-    "Brilliant!",
-    "Keep it up!",
-    "Perfect!",
-    "Outstanding!",
-    "You're on fire!",
-    "Impressive!",
+    t('quizPlayer.messages.correct.0'),
+    t('quizPlayer.messages.correct.1'),
+    t('quizPlayer.messages.correct.2'),
+    t('quizPlayer.messages.correct.3'),
+    t('quizPlayer.messages.correct.4'),
+    t('quizPlayer.messages.correct.5'),
+    t('quizPlayer.messages.correct.6'),
+    t('quizPlayer.messages.correct.7'),
   ],
   retryCorrect: [
-    "Look at that improvement!",
-    "You learned from the last one! Amazing!",
-    "Second time's the charm! Great job!",
-    "You've mastered this now!",
-    "Growth mindset in action!",
-    "Persistence pays off! Well done!",
-    "You didn't give up and it shows!",
-    "That's how you learn! Fantastic!",
+    t('quizPlayer.messages.retryCorrect.0'),
+    t('quizPlayer.messages.retryCorrect.1'),
+    t('quizPlayer.messages.retryCorrect.2'),
+    t('quizPlayer.messages.retryCorrect.3'),
+    t('quizPlayer.messages.retryCorrect.4'),
+    t('quizPlayer.messages.retryCorrect.5'),
+    t('quizPlayer.messages.retryCorrect.6'),
+    t('quizPlayer.messages.retryCorrect.7'),
   ],
   incorrect: [
-    "Don't worry, keep learning!",
-    "You'll get the next one!",
-    "Learning in progress!",
-    "Every mistake is a lesson!",
-    "Stay curious!",
+    t('quizPlayer.messages.incorrect.0'),
+    t('quizPlayer.messages.incorrect.1'),
+    t('quizPlayer.messages.incorrect.2'),
+    t('quizPlayer.messages.incorrect.3'),
+    t('quizPlayer.messages.incorrect.4'),
   ],
   streak: [
-    "2 in a row!",
-    "3 in a row! Nice!",
-    "4 in a row! Amazing!",
-    "5+ streak! Unstoppable!",
+    t('quizPlayer.messages.streak.0'),
+    t('quizPlayer.messages.streak.1'),
+    t('quizPlayer.messages.streak.2'),
+    t('quizPlayer.messages.streak.3'),
   ],
-};
+});
 
-const getRandomMessage = (type: "correct" | "incorrect" | "retryCorrect") => {
-  const messages = encouragingMessages[type];
+const getRandomMessage = (type: "correct" | "incorrect" | "retryCorrect", t: any) => {
+  const messages = getEncouragingMessages(t)[type];
   return messages[Math.floor(Math.random() * messages.length)];
 };
 
-const getStreakMessage = (streak: number) => {
+const getStreakMessage = (streak: number, t: any) => {
+  const messages = getEncouragingMessages(t).streak;
   if (streak < 2) return null;
-  if (streak === 2) return encouragingMessages.streak[0];
-  if (streak === 3) return encouragingMessages.streak[1];
-  if (streak === 4) return encouragingMessages.streak[2];
-  return encouragingMessages.streak[3];
+  if (streak === 2) return messages[0];
+  if (streak === 3) return messages[1];
+  if (streak === 4) return messages[2];
+  return messages[3];
 };
 
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -89,6 +91,7 @@ export function QuizPlayer() {
     timeTaken,
     quizResult,
   } = useQuiz();
+  const { t } = useLanguage();
   const { user } = useAuth();
   const sidebarContext = useSidebarOptional();
   const sidebarState = sidebarContext?.state ?? "expanded";
@@ -298,20 +301,20 @@ export function QuizPlayer() {
 
     if (correct) {
       newStreak = correctStreak + 1;
-      setCorrectStreak(newStreak);
+       setCorrectStreak(newStreak);
 
       if (qSnap.isRetry) {
-        message = getRandomMessage("retryCorrect");
+        message = getRandomMessage("retryCorrect", t);
       } else {
-        message = getStreakMessage(newStreak) || getRandomMessage("correct");
+        message = getStreakMessage(newStreak, t) || getRandomMessage("correct", t);
       }
 
       if (newStreak >= 3 && user?.consecutiveCorrectConfetti === true) {
         triggerConfetti();
       }
-    } else {
+     } else {
       setCorrectStreak(0);
-      message = getRandomMessage("incorrect");
+      message = getRandomMessage("incorrect", t);
     }
 
     setFeedbackMessages(prev => ({
@@ -432,9 +435,9 @@ export function QuizPlayer() {
             [gradeKey]: {
               isCorrect: fallbackCorrect,
               isPartial: false,
-              explanation: fallbackCorrect
-                ? "Your answer matches the expected answer."
-                : `The expected answer is: ${questionSnapshot.correctAnswer}`,
+               explanation: fallbackCorrect
+                ? t('quizPlayer.shortAnswerFallbackCorrect')
+                : t('quizPlayer.shortAnswerFallbackIncorrect', { expected: questionSnapshot.correctAnswer }),
             },
           }));
 
@@ -631,7 +634,7 @@ export function QuizPlayer() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit quiz");
+        throw new Error(t('quizPlayer.submitFailed'));
       }
 
       const result = await response.json();
@@ -665,16 +668,16 @@ export function QuizPlayer() {
       if (!response.ok) throw new Error("Failed to submit report");
 
       toast({
-        title: "Report submitted",
-        description: "Thank you for your feedback! We'll look into this question.",
+        title: t('quizPlayer.reportSubmitted'),
+        description: t('quizPlayer.reportSubmittedDesc'),
       });
       setShowReportDialog(false);
       setReportDetails("");
     } catch (error) {
       console.error("Error submitting bug report:", error);
       toast({
-        title: "Error",
-        description: "Failed to submit report. Please try again later.",
+        title: t('common.error'),
+        description: t('quizPlayer.reportFailed'),
         variant: "destructive",
       });
     } finally {
@@ -685,11 +688,11 @@ export function QuizPlayer() {
   const getQuestionTypeBadge = (type: Question["type"]) => {
     switch (type) {
       case "multiple_choice":
-        return <Badge variant="secondary" className="text-xs">Multiple Choice</Badge>;
+        return <Badge variant="secondary" className="text-xs">{t('quizGenerator.multipleChoice')}</Badge>;
       case "true_false":
-        return <Badge className="bg-quiz-purple text-white text-xs">True/False</Badge>;
+        return <Badge className="bg-quiz-purple text-white text-xs">{t('quizGenerator.trueFalse')}</Badge>;
       case "short_answer":
-        return <Badge className="bg-quiz-orange text-white text-xs">Short Answer</Badge>;
+        return <Badge className="bg-quiz-orange text-white text-xs">{t('quizGenerator.shortAnswer')}</Badge>;
       default:
         return null;
     }
@@ -759,7 +762,7 @@ export function QuizPlayer() {
         <div className="flex-1">
           <p className="font-bold text-lg tracking-tight leading-none mb-0.5">{feedback.message}</p>
           <p className="text-sm opacity-80 font-medium">
-            {isCorrect ? "You're doing great!" : "Don't worry, keep going!"}
+            {isCorrect ? t('quizPlayer.doingGreat') : t('quizPlayer.keepGoing')}
           </p>
         </div>
       </motion.div>
@@ -835,7 +838,7 @@ export function QuizPlayer() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className={`text-lg sm:text-xl font-bold transition-colors ${isChecked && isCorrectOpt ? "text-green-700 dark:text-green-400" : isChecked && isSelected && !isCorrectOpt ? "text-red-700 dark:text-red-400" : ""}`}>
-                      <MathText content={option} />
+                      <MathText content={t(`quizGenerator.${option.toLowerCase()}`)} />
                     </span>
                     <AnimatePresence>
                       {isChecked && isCorrectOpt && (
@@ -893,8 +896,8 @@ export function QuizPlayer() {
                         ) : (
                           <AlertCircle className="h-3.5 w-3.5" />
                         )}
-                        <span className="hidden sm:inline">View Explanation</span>
-                        <span className="sm:hidden">Explain</span>
+                        <span className="hidden sm:inline">{t('quizPlayer.viewExplanation')}</span>
+                        <span className="sm:hidden">{t('quizPlayer.explain')}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {isLoadingExplanation && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
@@ -961,7 +964,7 @@ export function QuizPlayer() {
             <Input
               value={isChecked ? (selectedAnswer || shortAnswerInput) : shortAnswerInput}
               onChange={(e) => handleShortAnswerChange(e.target.value)}
-              placeholder="Type your answer here..."
+              placeholder={t('quizPlayer.shortAnswerPlaceholder')}
               className={`py-6 px-5 text-lg rounded-xl border-2 ${borderColor} transition-all duration-300 shadow-sm ${isChecked && isShortAnswerCorrect ? "shadow-green-500/20" : isChecked && !isShortAnswerCorrect ? "shadow-red-500/20" : ""}`}
               disabled={isChecked || isGrading}
               data-testid="input-short-answer"
@@ -971,7 +974,7 @@ export function QuizPlayer() {
           {isGrading && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground px-1">
               <Loader2 className="h-4 w-4 animate-spin" />
-              <span>AI is grading your answer...</span>
+              <span>{t('quizPlayer.gradingInProgress')}</span>
             </div>
           )}
           
@@ -997,7 +1000,7 @@ export function QuizPlayer() {
                     <X className="h-4 w-4" />
                   )}
                   <span>
-                    {isShortAnswerCorrect ? "Correct" : isPartial ? "Partially Correct" : "Incorrect"} — AI Assessment
+                    {isShortAnswerCorrect ? t('common.correct') : isPartial ? t('quizPlayer.partiallyCorrect') : t('common.incorrect')} — {t('quizPlayer.aiAssessment')}
                   </span>
                 </div>
                 {isExpanded ? (
@@ -1159,7 +1162,7 @@ export function QuizPlayer() {
                       ) : (
                         <AlertCircle className="h-4 w-4" />
                       )}
-                      <span>View Explanation</span>
+                      <span>{t('quizPlayer.viewExplanation')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         {isLoadingExplanation && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -1208,7 +1211,7 @@ export function QuizPlayer() {
             className="fixed inset-x-0 bottom-20 sm:bottom-24 z-40 px-4"
           >
             <Card className="mx-auto max-w-lg p-4 shadow-xl border-2">
-              <p className="text-sm font-medium text-muted-foreground mb-3">Jump to question</p>
+              <p className="text-sm font-medium text-muted-foreground mb-3">{t('quizPlayer.jumpToQuestion')}</p>
               <div className="flex flex-wrap gap-2">
                 {originalQuestions.map((q, i) => {
                   const isAnswered = checkedQuestions.has(q.id);
@@ -1337,7 +1340,7 @@ export function QuizPlayer() {
                 <div className="flex items-center justify-between mb-4 shrink-0">
                   <div className="flex items-center gap-2">
                     {hasMaterialImages ? <Image className="h-5 w-5 text-muted-foreground" /> : <FileText className="h-5 w-5 text-muted-foreground" />}
-                    <h3 className="font-semibold text-lg">Study Material</h3>
+                    <h3 className="font-semibold text-lg">{t('quizPlayer.studyMaterial')}</h3>
                   </div>
                   <Button
                     variant="ghost"
@@ -1397,7 +1400,7 @@ export function QuizPlayer() {
                   {isRetryQuestion && (
                     <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400 text-xs font-semibold">
                       <RotateCcw className="h-3 w-3 mr-1" />
-                      Retry
+                      {t('common.retry')}
                     </Badge>
                   )}
                   <button
@@ -1420,7 +1423,7 @@ export function QuizPlayer() {
                       data-testid="button-view-material"
                     >
                       {hasMaterialImages ? <FileImage className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
-                      <span className="hidden sm:inline">Material</span>
+                      <span className="hidden sm:inline">{t('quizPlayer.material')}</span>
                     </Button>
                   )}
                   <ThemeToggle />
@@ -1443,7 +1446,7 @@ export function QuizPlayer() {
                   <div 
                     className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-500/10 rounded-full group/timer relative cursor-pointer hover:bg-orange-500/20 transition-all duration-300" 
                     onClick={() => setShowTimer(!showTimer)}
-                    title={showTimer ? "Hide timer" : "Show timer"}
+                    title={showTimer ? t('quizPlayer.hideTimer') : t('quizPlayer.showTimer')}
                   >
                     <div className="relative w-4 h-4 flex items-center justify-center">
                       <Clock className="absolute inset-0 h-4 w-4 text-orange-500 transition-opacity duration-300 group-hover/timer:opacity-0" />
@@ -1489,11 +1492,11 @@ export function QuizPlayer() {
                     {isRetryQuestion ? (
                       <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400">
                         <RotateCcw className="h-3 w-3 mr-1" />
-                        Give it another try
+                        {t('quizPlayer.giveItAnotherTry')}
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="font-semibold">
-                        Question {displayQuestionNum}
+                        {t('quizPlayer.questionNumber', { number: displayQuestionNum })}
                       </Badge>
                     )}
                     {getQuestionTypeBadge(currentQuestion.type)}
@@ -1507,22 +1510,22 @@ export function QuizPlayer() {
                           data-testid="button-report-problem"
                         >
                           <Flag className="h-3.5 w-3.5" />
-                          <span className="text-xs font-medium">Something is wrong?</span>
+                          <span className="text-xs font-medium">{t('quizPlayer.somethingWrong')}</span>
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-md">
                         <DialogHeader>
                           <DialogTitle className="flex items-center gap-2">
                             <AlertTriangle className="h-5 w-5 text-orange-500" />
-                            Report a problem
+                            {t('quizPlayer.reportProblem')}
                           </DialogTitle>
                           <DialogDescription>
-                            Is there something wrong with this question or its answer? Let us know and we'll fix it.
+                            {t('quizPlayer.reportProblemDesc')}
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
                           <div className="space-y-2">
-                            <label className="text-sm font-medium">What is the issue?</label>
+                            <label className="text-sm font-medium">{t('quizPlayer.whatIsIssue')}</label>
                             <div className="grid grid-cols-1 gap-2">
                               {[
                                 "Correct answer is wrong",
@@ -1540,15 +1543,15 @@ export function QuizPlayer() {
                                       : "border-transparent bg-muted/50 hover:bg-muted"
                                   }`}
                                 >
-                                  {reason}
+                                  {t(`quizPlayer.reportReasons.${reason.toLowerCase().replace(/ /g, '_')}`)}
                                 </button>
                               ))}
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <label className="text-sm font-medium">Details (optional)</label>
+                            <label className="text-sm font-medium">{t('quizPlayer.detailsOptional')}</label>
                             <Textarea 
-                              placeholder="Describe what's wrong..." 
+                              placeholder={t('quizPlayer.describeProblem')} 
                               value={reportDetails}
                               onChange={(e) => setReportDetails(e.target.value)}
                               className="min-h-[100px] rounded-xl"
@@ -1562,7 +1565,7 @@ export function QuizPlayer() {
                             disabled={isSubmittingReport}
                             className="rounded-xl"
                           >
-                            Cancel
+                            {t('common.cancel')}
                           </Button>
                           <Button 
                             onClick={handleReportBug}
@@ -1572,10 +1575,10 @@ export function QuizPlayer() {
                             {isSubmittingReport ? (
                               <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Submitting...
+                                {t('quizPlayer.submitting')}
                               </>
                             ) : (
-                              "Submit Report"
+                              t('quizPlayer.submitReport')
                             )}
                           </Button>
                         </DialogFooter>
@@ -1619,7 +1622,7 @@ export function QuizPlayer() {
               data-testid="button-previous"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline ml-2">Back</span>
+              <span className="hidden sm:inline ml-2">{t('common.back')}</span>
             </Button>
 
             <div className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center">
@@ -1632,7 +1635,7 @@ export function QuizPlayer() {
                 <div className="flex items-center justify-center">
                   <CutePenguin size={22} className="sm:w-6 sm:h-6" />
                 </div>
-                <span className="hidden sm:inline">Ask Pip</span>
+                <span className="hidden sm:inline">{t('quizPlayer.askPip')}</span>
               </Button>
               
               {!isChecked ? (
@@ -1647,7 +1650,7 @@ export function QuizPlayer() {
                   ) : (
                     <CheckCheck className="h-4 w-4 sm:h-5 sm:w-5" />
                   )}
-                  {isGrading ? "Grading..." : "Check"}
+                  {isGrading ? t('quizPlayer.gradingInProgressShort') : t('common.check')}
                 </Button>
               ) : isLastQuestion ? (
                 <Button
@@ -1659,7 +1662,7 @@ export function QuizPlayer() {
                   {isSubmitting ? (
                     <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
                   ) : (
-                    <>Results</>
+                    <>{t('quizPlayer.results')}</>
                   )}
                 </Button>
               ) : (
@@ -1668,7 +1671,7 @@ export function QuizPlayer() {
                   className="gap-1 sm:gap-2 rounded-lg sm:rounded-xl flex-1 max-w-[140px] sm:max-w-none sm:min-w-[160px] font-semibold h-9 sm:h-11 text-sm sm:text-base px-3 sm:px-4"
                   data-testid="button-next"
                 >
-                  Continue
+                  {t('common.continue')}
                   <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               )}
@@ -1682,7 +1685,7 @@ export function QuizPlayer() {
               className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-11 sm:w-auto sm:px-4 shrink-0"
               data-testid="button-skip"
             >
-              <span className="hidden sm:inline mr-2">Next</span>
+              <span className="hidden sm:inline mr-2">{t('common.next')}</span>
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
@@ -1745,7 +1748,9 @@ export function QuizPlayer() {
               <div className="flex items-center gap-3">
                 {hasMaterialImages ? <Image className="h-5 w-5 text-white/80" /> : <FileText className="h-5 w-5 text-white/80" />}
                 <span className="text-white font-medium">
-                  {hasMaterialImages && allMaterialImages.length > 1 ? `Images (${materialImageIndex + 1}/${allMaterialImages.length})` : "Study Material"}
+                  {hasMaterialImages && allMaterialImages.length > 1 
+                    ? t('quizPlayer.imagesCount', { current: materialImageIndex + 1, total: allMaterialImages.length }) 
+                    : t('quizPlayer.studyMaterial')}
                 </span>
               </div>
               <Button

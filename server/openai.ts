@@ -362,7 +362,7 @@ export async function generateQuizQuestions(
     easy: "simple recall and basic understanding questions that test fundamental concepts",
     medium:
       "moderate complexity questions requiring comprehension and application",
-    hard: "challenging questions requiring analysis, synthesis, and deep understanding with tricky distractors",
+    hard: "challenging questions requiring analysis, synthesis, multi-step reasoning, cross-concept integration and deep understanding with tricky distractors",
   };
 
   const categoryList = QUIZ_CATEGORIES.join(", ");

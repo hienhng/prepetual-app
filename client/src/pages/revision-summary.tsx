@@ -3,6 +3,7 @@ import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { useLanguage } from "@/lib/language-context";
 import { Button } from "@/components/ui/button";
 import { Brain, Check, ArrowRight, Sparkles } from "lucide-react";
 
@@ -53,6 +54,7 @@ export default function RevisionSummary() {
   const [, setLocation] = useLocation();
   const { quizResult, revisedQuestionsCount, retryCorrectCount } = useQuiz();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [weeklyRevisionCount, setWeeklyRevisionCount] = useState(0);
   const hasTrackedRevisions = useRef(false);
 
@@ -106,10 +108,10 @@ export default function RevisionSummary() {
         >
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
             <Sparkles className="h-8 w-8 inline-block mr-2 text-yellow-500" />
-            Great Practice!
+            {t('revisionSummary.greatPractice')}
           </h1>
           <p className="text-muted-foreground text-lg mb-8">
-            You're building stronger memories
+            {t('revisionSummary.buildingMemories')}
           </p>
         </motion.div>
 
@@ -127,10 +129,10 @@ export default function RevisionSummary() {
               <span className="text-4xl font-bold text-foreground">{totalCorrectWithRetries}</span>
             </div>
             <p className="text-muted-foreground">
-              questions mastered
+              {t('revisionSummary.questionsMastered')}
               {retryCorrectCount > 0 && (
                 <span className="block text-sm mt-1">
-                  (including {retryCorrectCount} on your 2nd try)
+                  {t('revisionSummary.retryCount', { count: retryCorrectCount })}
                 </span>
               )}
             </p>
@@ -141,7 +143,7 @@ export default function RevisionSummary() {
               {weeklyRevisionCount}
             </p>
             <p className="text-muted-foreground">
-              questions revised this week
+              {t('revisionSummary.weeklyRevisedCount')}
             </p>
           </div>
         </motion.div>
@@ -152,7 +154,7 @@ export default function RevisionSummary() {
           transition={{ delay: 0.5 }}
         >
           <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-            Reviewing mistakes right away helps lock information into your long-term memory. Keep it up!
+            {t('revisionSummary.mistakesLockDesc')}
           </p>
           <Button 
             size="lg" 
@@ -160,7 +162,7 @@ export default function RevisionSummary() {
             className="gap-2 px-8"
             data-testid="button-continue-revision"
           >
-            Continue
+            {t('common.continue')}
             <ArrowRight className="h-4 w-4" />
           </Button>
         </motion.div>

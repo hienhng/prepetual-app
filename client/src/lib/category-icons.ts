@@ -25,3 +25,14 @@ export const getCategoryGradient = (category?: string | null) => {
 export const getCategoryLabel = (category?: string | null) => {
   return categoryConfig[category || "Others/General"]?.label || "General";
 };
+
+export const getCategoryTranslationKey = (category?: string | null) => {
+  switch (category) {
+    case "Math": return "common.categories.math";
+    case "English": return "common.categories.english";
+    case "Science": return "common.categories.science";
+    case "Social Studies": return "common.categories.socialStudies";
+    case "Global Languages": return "common.categories.globalLanguages";
+    default: return "common.categories.general";
+  }
+};

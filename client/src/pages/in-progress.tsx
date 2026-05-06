@@ -7,7 +7,7 @@ import {
   Binary, Book, FlaskConical, Globe, Languages, GraduationCap,
   Loader2, InboxIcon, ArrowRight,
 } from "lucide-react";
-import { getCategoryIcon } from "@/lib/category-icons";
+import { getCategoryIcon, getCategoryTranslationKey } from "@/lib/category-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useQuiz } from "@/lib/quiz-context";
+import { useLanguage } from "@/lib/language-context";
 import type { Quiz } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
@@ -135,6 +136,7 @@ function InProgressCard({
   onDiscard: () => void;
   index: number;
 }) {
+  const { t } = useLanguage();
   const difficultyRaw = getDifficulty(item.quiz.difficulty);
   const colors = difficultyColors[difficultyRaw];
   const CategoryIcon = getCategoryIcon(item.quiz.category);
@@ -198,25 +200,25 @@ function InProgressCard({
                         animate={{ opacity: [1, 0.4, 1] }}
                         transition={{ duration: 1.5, repeat: Infinity }}
                       />
-                      Revising
+                      {t('inProgress.revising')}
                     </Badge>
                   ) : (
                     <Badge variant="outline" className={`text-[10px] px-2 py-0.5 capitalize font-bold ${colors.badge}`}>
-                      {difficultyRaw}
+                      {t(`quizGenerator.${difficultyRaw}`)}
                     </Badge>
                   )}
                   <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
-                    {item.quiz.category || "Others/General"}
+                    {t(getCategoryTranslationKey(item.quiz.category))}
                   </Badge>
                   {timeTakenLabel && (
                     <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-primary/20 bg-primary/5 text-primary">
                       <Clock className="w-2.5 h-2.5 mr-1" />
-                      {timeTakenLabel} spent
+                      {t('inProgress.timeSpent', { time: timeTakenLabel })}
                     </Badge>
                   )}
                   <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    {timeLabel} ago
+                    {t('inProgress.ago', { time: timeLabel })}
                   </span>
                 </div>
               </div>
@@ -231,7 +233,9 @@ function InProgressCard({
                   transition={{ duration: 1.5, repeat: Infinity }}
                 />
                 <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
-                  {remaining} question{remaining !== 1 ? "s" : ""} left to review
+                  {remaining === 1 
+                    ? t('inProgress.questionLeftToReview', { count: remaining }) 
+                    : t('inProgress.questionsLeftToReview', { count: remaining })}
                 </span>
               </div>
             ) : (
@@ -239,7 +243,7 @@ function InProgressCard({
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground font-medium flex items-center gap-1.5">
                     <Target className="w-3.5 h-3.5" />
-                    {displayAnswered} of {displayTotal} answered
+                    {t('inProgress.answeredOfTotal', { answered: displayAnswered, total: displayTotal })}
                   </span>
                   <span className={`font-bold ${colors.text}`}>{progress}%</span>
                 </div>
@@ -258,7 +262,7 @@ function InProgressCard({
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <BookOpen className="w-3.5 h-3.5" />
-                {item.totalCount} questions total
+                {t('history.questions', { count: item.totalCount })}
               </span>
             </div>
 
@@ -273,7 +277,7 @@ function InProgressCard({
                   }`}
               >
                 <Play className="w-4 h-4 fill-current" />
-                {item.isRevising ? "Continue Review" : "Continue Quiz"}
+                {item.isRevising ? t('inProgress.continueReview') : t('inProgress.continueQuiz')}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button
@@ -298,6 +302,7 @@ function InProgressCard({
 export default function InProgressPage() {
   const [, setLocation] = useLocation();
   const { savedProgresses, loadSavedProgress, removeSavedProgress } = useQuiz();
+  const { t } = useLanguage();
   const [discardTarget, setDiscardTarget] = useState<InProgressItem | null>(null);
 
   // Fetch ALL progress (no limit)
@@ -336,7 +341,7 @@ export default function InProgressPage() {
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Back to Dashboard
+          {t('common.backToDashboard')}
         </button>
 
         <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -345,14 +350,14 @@ export default function InProgressPage() {
               <div className="p-2.5 rounded-2xl bg-primary/10 border border-primary/20">
                 <RotateCcw className="w-6 h-6 text-primary" />
               </div>
-              <h1 className="text-3xl font-black tracking-tight text-foreground">In Progress</h1>
+              <h1 className="text-3xl font-black tracking-tight text-foreground">{t('inProgress.title')}</h1>
             </div>
             <p className="text-muted-foreground ml-[3.25rem]">
               {isLoading
-                ? "Loading your saved sessions…"
+                ? t('inProgress.loadingSessions')
                 : items.length > 0
-                  ? `${items.length} quiz session${items.length !== 1 ? "s" : ""} waiting to be completed`
-                  : "All caught up — no sessions in progress"}
+                  ? t('inProgress.sessionsWaiting', { count: items.length })
+                  : t('inProgress.allCaughtUpDesc')}
             </p>
           </div>
 
@@ -361,7 +366,7 @@ export default function InProgressPage() {
               variant="secondary"
               className="h-8 px-4 text-sm font-bold rounded-full self-center"
             >
-              {items.length} session{items.length !== 1 ? "s" : ""}
+              {t('inProgress.sessionsCount', { count: items.length })}
             </Badge>
           )}
         </div>
@@ -371,7 +376,7 @@ export default function InProgressPage() {
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Loading your progress…</p>
+          <p className="text-sm text-muted-foreground">{t('inProgress.loadingSessions')}</p>
         </div>
       )}
 
@@ -395,16 +400,16 @@ export default function InProgressPage() {
               <span className="text-white text-xs font-bold">✓</span>
             </motion.div>
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">All caught up!</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-2">{t('inProgress.allCaughtUp')}</h2>
           <p className="text-muted-foreground max-w-sm mb-8">
-            You don't have any quizzes in progress. Start a quiz and save your progress to pick up right where you left off.
+            {t('inProgress.noQuizzesInProgress')}
           </p>
           <Button
             onClick={() => setLocation("/history")}
             className="gap-2 px-6 h-11 rounded-2xl font-bold shadow-lg shadow-primary/20"
           >
             <BookOpen className="w-5 h-5" />
-            Browse your quizzes
+            {t('inProgress.browseQuizzes')}
           </Button>
         </motion.div>
       )}
@@ -431,21 +436,21 @@ export default function InProgressPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Discard progress?</AlertDialogTitle>
+            <AlertDialogTitle>{t('inProgress.discardProgress')}</AlertDialogTitle>
             <AlertDialogDescription>
               {discardTarget?.isRevising
-                ? `This will permanently delete all your progress for "${discardTarget?.quiz.title}", including your original answers and revision progress.`
-                : `This will discard your saved progress for "${discardTarget?.quiz.title}". You can retake it from scratch.`}
+                ? t('inProgress.discardRevisionDesc', { title: discardTarget?.quiz.title || "" })
+                : t('inProgress.discardProgressDesc', { title: discardTarget?.quiz.title || "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogCancel>{t('inProgress.keepIt')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDiscard}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              Discard
+              {t('inProgress.discard')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

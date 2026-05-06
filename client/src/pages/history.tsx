@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Play, BookOpen, Share2, Trash2, FileText, Loader2, Edit2, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, FolderPlus, Folder, MoreVertical, Pencil, Sparkles, Search, X, Pin, PinOff, BookText, Globe2 } from "lucide-react";
-import { getCategoryIcon } from "@/lib/category-icons";
+import { getCategoryIcon, getCategoryTranslationKey } from "@/lib/category-icons";
 import { QUIZ_CATEGORIES } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,7 @@ import {
 import { useQuiz } from "@/lib/quiz-context";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useLanguage } from "@/lib/language-context";
 import type { Quiz, Folder as FolderType } from "@shared/schema";
 
 type QuizWithAttempts = Quiz & { attemptCount?: number };
@@ -53,6 +54,7 @@ export default function HistoryPage() {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial, savedProgresses, loadSavedProgress } = useQuiz();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [quizToDelete, setQuizToDelete] = useState<QuizWithAttempts | null>(null);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [folderName, setFolderName] = useState("");
@@ -97,12 +99,12 @@ export default function HistoryPage() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] }),
         queryClient.invalidateQueries({ queryKey: ["/api/folders"] })
-      ]);
+       ]);
       setQuizToDelete(null);
-      toast({ title: "Quiz deleted", description: "The quiz has been removed from your history.", variant: "success" as any });
+      toast({ title: t('history.quizDeleted'), description: t('history.quizDeletedDesc'), variant: "success" as any });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to delete quiz", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedToDelete'), variant: "destructive" });
     },
   });
 
@@ -117,14 +119,14 @@ export default function HistoryPage() {
         queryClient.invalidateQueries({ queryKey: ["/api/folders"] })
       ]);
       toast({
-        title: isPublic ? "Quiz shared" : "Quiz hidden",
+        title: isPublic ? t('history.quizShared') : t('history.quizHidden'),
         description: isPublic
-          ? "Your quiz is now visible in the community feed."
-          : "Your quiz is now private."
+          ? t('history.quizSharedDesc')
+          : t('history.quizHiddenDesc')
       });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to update quiz visibility", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedToUpdateVisibility'), variant: "destructive" });
     },
   });
 
@@ -136,10 +138,10 @@ export default function HistoryPage() {
       await queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
       setFolderDialogOpen(false);
       setFolderName("");
-      toast({ title: "Folder created" });
+      toast({ title: t('history.folderCreated') });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to create folder", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedToCreateFolder'), variant: "destructive" });
     },
   });
 
@@ -152,10 +154,10 @@ export default function HistoryPage() {
       setFolderDialogOpen(false);
       setFolderName("");
       setEditingFolder(null);
-      toast({ title: "Folder renamed" });
+      toast({ title: t('history.folderRenamed') });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to rename folder", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedToRenameFolder'), variant: "destructive" });
     },
   });
 
@@ -167,10 +169,10 @@ export default function HistoryPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
       queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
       setFolderToDelete(null);
-      toast({ title: "Folder deleted" });
+      toast({ title: t('history.folderDeleted') });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to delete folder", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedToDeleteFolder'), variant: "destructive" });
     },
   });
 
@@ -182,7 +184,7 @@ export default function HistoryPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to toggle pin", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedToTogglePin'), variant: "destructive" });
     },
   });
 
@@ -265,12 +267,12 @@ export default function HistoryPage() {
   const handleShare = (quizId: string) => {
     const url = `${window.location.origin}/share/${quizId}`;
     navigator.clipboard.writeText(url);
-    toast({ title: "Link copied!", description: "Share this link with others to let them take the quiz." });
+    toast({ title: t('history.linkCopied'), description: t('history.linkCopiedDesc') });
   };
 
   const formatDate = (date: Date | string) => {
     const d = typeof date === "string" ? new Date(date) : date;
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return d.toLocaleDateString(t('common.locale'), { month: "short", day: "numeric" });
   };
 
   const getDifficultyColor = (difficulty?: string | null) => {
@@ -315,7 +317,7 @@ export default function HistoryPage() {
       if (!titleMatch) return false;
     }
     if (selectedCategory) {
-      const cat = quiz.category || "Others/General";
+      const cat = quiz.category || t('quizGenerator.general');
       if (cat !== selectedCategory) return false;
     }
     return true;
@@ -327,12 +329,13 @@ export default function HistoryPage() {
     return 0;
   });
 
-  const availableCategories = Array.from(new Set((quizzes || []).map(q => q.category || "Others/General"))).sort();
+  const availableCategories = Array.from(new Set((quizzes || []).map(q => q.category || t('quizGenerator.general')))).sort();
 
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">{t('common.loading')}</span>
       </div>
     );
   }
@@ -347,11 +350,11 @@ export default function HistoryPage() {
       >
         <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" data-testid="text-page-title">Your Quizzes</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" data-testid="text-page-title">{t('history.title')}</h1>
             <p className="text-sm text-muted-foreground mt-1">
               {quizzes && quizzes.length > 0
-                ? `${quizzes.length} ${quizzes.length === 1 ? "quiz" : "quizzes"} saved`
-                : "Your saved quizzes will appear here"}
+                ? t(quizzes.length === 1 ? 'history.savedQuiz' : 'history.savedQuizzes', { count: quizzes.length })
+                : t('history.noQuizzesSaved')}
             </p>
           </div>
           <Button
@@ -360,7 +363,7 @@ export default function HistoryPage() {
             onClick={() => setLocation("/create")}
           >
             <CirclePlus className="h-4 w-4 mr-1.5" />
-            New Quiz
+            {t('history.createQuiz')}
           </Button>
         </div>
 
@@ -372,7 +375,7 @@ export default function HistoryPage() {
               data-testid="tab-quizzes"
             >
               <FileText className="h-3.5 w-3.5" />
-              Quizzes
+              {t('history.quizzes')}
             </TabsTrigger>
             <TabsTrigger
               value="folders"
@@ -380,7 +383,7 @@ export default function HistoryPage() {
               data-testid="tab-folders"
             >
               <Folder className="h-3.5 w-3.5" />
-              Folders
+              {t('history.folders')}
               {folders.length > 0 && (
                 <Badge variant="secondary" className="ml-0.5 text-[10px] px-1.5 py-0">{folders.length}</Badge>
               )}
@@ -393,15 +396,15 @@ export default function HistoryPage() {
                 <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                   <FileText className="h-6 w-6 text-muted-foreground" />
                 </div>
-                <h3 className="text-base font-semibold mb-1">No quizzes yet</h3>
+                <h3 className="text-base font-semibold mb-1">{t('history.noQuizzesYet')}</h3>
                 <p className="text-sm text-muted-foreground mb-5">
-                  Create your first quiz to get started
+                  {t('history.createFirstQuizDesc')}
                 </p>
                 <Button
                   data-testid="button-create-first-quiz"
                   onClick={() => setLocation("/create")}
                 >
-                  Create Quiz
+                  {t('history.createQuiz')}
                 </Button>
               </div>
             ) : (
@@ -412,7 +415,7 @@ export default function HistoryPage() {
                     <Input
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search your library..."
+                      placeholder={t('history.searchLibrary')}
                       className="pl-9 pr-9 h-11 bg-muted/30 border-border/50 focus:bg-background transition-all"
                       data-testid="input-search-quizzes"
                     />
@@ -432,10 +435,10 @@ export default function HistoryPage() {
                       onValueChange={(val) => setSelectedCategory(val === "all" ? null : val)}
                     >
                       <SelectTrigger className="w-full sm:w-[180px] h-11 bg-muted/30 border-border/50" data-testid="filter-categories">
-                        <SelectValue placeholder="All Subjects" />
+                        <SelectValue placeholder={t('history.allSubjects')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all" data-testid="filter-all">All Subjects</SelectItem>
+                        <SelectItem value="all" data-testid="filter-all">{t('history.allSubjects')}</SelectItem>
                         {availableCategories.map(cat => (
                           <SelectItem key={cat} value={cat} data-testid={`filter-${cat.toLowerCase().replace(/[^a-z]/g, "-")}`}>
                             <span className="flex items-center gap-2">
@@ -451,27 +454,29 @@ export default function HistoryPage() {
                 {filteredQuizzes.length === 0 ? (
                   <div className="py-20 text-center border border-dashed border-border/50 rounded-2xl bg-muted/10">
                     <p className="text-sm text-muted-foreground">
-                      No matching quizzes found in your library.
+                      {t('history.noMatchingQuizzes')}
                     </p>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="mt-1"
+                       className="mt-1"
                       onClick={() => { setSearchQuery(""); setSelectedCategory(null); }}
                       data-testid="button-clear-filters"
                     >
-                      Clear all filters
+                      {t('history.clearAllFilters')}
                     </Button>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2">
                     {filteredQuizzes.map((quiz, index) => {
-                      const cat = quiz.category || "Others/General";
+                      const catKey = getCategoryTranslationKey(quiz.category);
+                      const catLabel = t(catKey);
+                      const catOrig = quiz.category || "General";
                       const colorClass =
-                        cat === "Math" ? "text-blue-600 bg-blue-500/10 border-blue-200/50" :
-                          cat === "Science" ? "text-emerald-600 bg-emerald-500/10 border-emerald-200/50" :
-                            cat === "English" || cat === "Global Languages" ? "text-violet-600 bg-violet-500/10 border-violet-200/50" :
-                              cat === "Social Studies" ? "text-indigo-600 bg-indigo-500/10 border-indigo-200/50" :
+                        catOrig === "Math" ? "text-blue-600 bg-blue-500/10 border-blue-200/50" :
+                          catOrig === "Science" ? "text-emerald-600 bg-emerald-500/10 border-emerald-200/50" :
+                            catOrig === "English" || catOrig === "Global Languages" ? "text-violet-600 bg-violet-500/10 border-violet-200/50" :
+                              catOrig === "Social Studies" ? "text-indigo-600 bg-indigo-500/10 border-indigo-200/50" :
                                 "text-slate-600 bg-slate-500/10 border-slate-200/50";
 
                       return (
@@ -489,7 +494,7 @@ export default function HistoryPage() {
                               <div className="flex items-center gap-4">
                                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${colorClass} transition-transform duration-300 group-hover:scale-105 text-current`}>
                                     {(() => {
-                                      const Icon = getCategoryIcon(cat);
+                                      const Icon = getCategoryIcon(catOrig);
                                       return <Icon className="h-4 w-4" />;
                                     })()}
                                   </div>
@@ -506,15 +511,14 @@ export default function HistoryPage() {
                                     </div>
                                     <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                                     <div className="font-semibold text-primary/80">
-                                      {quiz.category || "Others/General"}
+                                      {catLabel}
                                     </div>
-                                    <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                                     <div className="flex items-center gap-1">
-                                      {(quiz as any).questionCount || (quiz.questions as any[])?.length || 0} questions
+                                      {t('history.questions', { count: (quiz as any).questionCount || (quiz.questions as any[])?.length || 0 })}
                                     </div>
                                     <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                                     <div className={`capitalize ${getDifficultyColor(quiz.difficulty)}`}>
-                                      {quiz.difficulty || "medium"}
+                                      {t(`quizGenerator.${quiz.difficulty || "medium"}`)}
                                     </div>
                                     {quiz.folderId && folders.find(f => f.id === quiz.folderId) && (
                                       <>
@@ -531,21 +535,21 @@ export default function HistoryPage() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="h-8 px-3 text-xs font-bold hover:bg-primary/10 hover:text-primary rounded-lg"
+                                     className="h-8 px-3 text-xs font-bold hover:bg-primary/10 hover:text-primary rounded-lg"
                                     onClick={() => handleStudy(quiz)}
                                     data-testid={`button-study-${quiz.id}`}
                                   >
                                     <BookOpen className="h-3.5 w-3.5 mr-1.5" />
-                                    Review
+                                    {t('history.review')}
                                   </Button>
                                   <Button
                                     size="sm"
-                                    className="h-8 px-4 text-xs font-bold rounded-lg shadow-none"
+                                     className="h-8 px-4 text-xs font-bold rounded-lg shadow-none"
                                     onClick={() => handleRetake(quiz)}
                                     data-testid={`button-retake-${quiz.id}`}
                                   >
                                     <Play className="h-3.5 w-3.5 mr-1.5 fill-current" />
-                                    Take
+                                    {t('history.take')}
                                   </Button>
                                 </div>
 
@@ -575,7 +579,7 @@ export default function HistoryPage() {
                                     <DropdownMenuContent align="end" className="w-48 shadow-xl border-border/50">
                                       <DropdownMenuItem onClick={() => handleEdit(quiz)} data-testid={`button-edit-${quiz.id}`}>
                                         <Edit2 className="h-3.5 w-3.5 mr-2" />
-                                        Edit Quiz
+                                        {t('history.editQuiz')}
                                       </DropdownMenuItem>
                                       <DropdownMenuItem
                                         onClick={() => togglePublicMutation.mutate({
@@ -585,14 +589,14 @@ export default function HistoryPage() {
                                         data-testid={`button-toggle-public-${quiz.id}`}
                                       >
                                         {quiz.isPublic === 1 ? (
-                                          <><GlobeLock className="h-3.5 w-3.5 mr-2" />Draft Mode</>
+                                          <><GlobeLock className="h-3.5 w-3.5 mr-2" />{t('history.draftMode')}</>
                                         ) : (
-                                          <><Globe className="h-3.5 w-3.5 mr-2" />Publish to Library</>
+                                          <><Globe className="h-3.5 w-3.5 mr-2" />{t('history.publishToLibrary')}</>
                                         )}
                                       </DropdownMenuItem>
-                                      <DropdownMenuItem onClick={() => handleShare(quiz.id)} data-testid={`button-share-${quiz.id}`}>
+                                       <DropdownMenuItem onClick={() => handleShare(quiz.id)} data-testid={`button-share-${quiz.id}`}>
                                         <Share2 className="h-3.5 w-3.5 mr-2" />
-                                        Copy Share Link
+                                        {t('history.copyShareLink')}
                                       </DropdownMenuItem>
                                       <DropdownMenuSeparator />
                                       <DropdownMenuItem
@@ -601,7 +605,7 @@ export default function HistoryPage() {
                                         data-testid={`button-delete-${quiz.id}`}
                                       >
                                         <Trash2 className="h-3.5 w-3.5 mr-2" />
-                                        Permanently Delete
+                                        {t('history.permanentlyDelete')}
                                       </DropdownMenuItem>
                                     </DropdownMenuContent>
                                   </DropdownMenu>
@@ -621,9 +625,9 @@ export default function HistoryPage() {
           <TabsContent value="folders" className="mt-5 space-y-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-muted/20 p-4 rounded-2xl border border-border/50">
               <div className="text-center sm:text-left">
-                <h3 className="text-sm font-bold text-foreground">Collection Manager</h3>
+                <h3 className="text-sm font-bold text-foreground">{t('history.collectionManager')}</h3>
                 <p className="text-xs text-muted-foreground">
-                  Organize your personal practice library into subjects.
+                  {t('history.collectionManagerDesc')}
                 </p>
               </div>
               <Button
@@ -633,7 +637,7 @@ export default function HistoryPage() {
                 data-testid="button-create-folder"
               >
                 <FolderPlus className="h-3.5 w-3.5 mr-1.5" />
-                Create Folder
+                {t('history.createFolder')}
               </Button>
             </div>
 
@@ -642,9 +646,9 @@ export default function HistoryPage() {
                 <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
                   <Folder className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <h3 className="text-sm font-bold mb-1">Stay organized</h3>
+                <h3 className="text-sm font-bold mb-1">{t('history.stayOrganized')}</h3>
                 <p className="text-xs text-muted-foreground mb-5 px-4">
-                  Group your quizzes by class, exam, or topic for faster access.
+                  {t('history.stayOrganizedDesc')}
                 </p>
                 <Button
                   variant="outline"
@@ -653,7 +657,7 @@ export default function HistoryPage() {
                   onClick={openCreateFolder}
                   data-testid="button-create-first-folder"
                 >
-                  Create Folder
+                  {t('history.createFolder')}
                 </Button>
               </div>
             ) : (
@@ -688,7 +692,7 @@ export default function HistoryPage() {
                                   )}
                                 </div>
                                 <p className="text-[11px] font-medium text-muted-foreground/70">
-                                  {count} {count === 1 ? "quiz" : "quizzes"}
+                                  {count} {count === 1 ? t('history.quiz') : t('history.quizzes')}
                                 </p>
                               </div>
                             </div>
@@ -708,14 +712,14 @@ export default function HistoryPage() {
                                 <DropdownMenuContent align="end" className="w-48 shadow-xl border-border/50">
                                   <DropdownMenuItem onClick={() => togglePinMutation.mutate(folder.id)} data-testid={`button-toggle-pin-folder-${folder.id}`}>
                                     {folder.pinnedToSidebar ? (
-                                      <><PinOff className="h-3.5 w-3.5 mr-2" />Unpin from Top</>
+                                      <><PinOff className="h-3.5 w-3.5 mr-2" />{t('history.unpinFromTop')}</>
                                     ) : (
-                                      <><Pin className="h-3.5 w-3.5 mr-2" />Pin to Top</>
+                                      <><Pin className="h-3.5 w-3.5 mr-2" />{t('history.pinToTop')}</>
                                     )}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => openEditFolder(folder)} data-testid={`button-rename-folder-${folder.id}`}>
                                     <Pencil className="h-3.5 w-3.5 mr-2" />
-                                    Rename Folder
+                                    {t('history.renameFolder')}
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem
@@ -724,7 +728,7 @@ export default function HistoryPage() {
                                     data-testid={`button-delete-folder-${folder.id}`}
                                   >
                                     <Trash2 className="h-3.5 w-3.5 mr-2" />
-                                    Delete Collection
+                                    {t('history.deleteCollection')}
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
@@ -744,16 +748,16 @@ export default function HistoryPage() {
       <Dialog open={folderDialogOpen} onOpenChange={setFolderDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingFolder ? "Rename Folder" : "Create Folder"}</DialogTitle>
+            <DialogTitle>{editingFolder ? t('history.renameFolder') : t('history.createFolder')}</DialogTitle>
             <DialogDescription>
-              {editingFolder ? "Enter a new name for this folder." : "Give your folder a name to organize your quizzes."}
+              {editingFolder ? t('history.enterNewFolderName') : t('history.giveFolderName')}
             </DialogDescription>
           </DialogHeader>
           <Input
             ref={folderInputRef}
             value={folderName}
             onChange={(e) => setFolderName(e.target.value)}
-            placeholder="Folder name"
+            placeholder={t('history.folderName')}
             data-testid="input-folder-name"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleFolderSubmit();
@@ -761,7 +765,7 @@ export default function HistoryPage() {
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setFolderDialogOpen(false)} data-testid="button-cancel-folder">
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleFolderSubmit}
@@ -771,7 +775,7 @@ export default function HistoryPage() {
               {(createFolderMutation.isPending || updateFolderMutation.isPending) && (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               )}
-              {editingFolder ? "Rename" : "Create"}
+              {editingFolder ? t('history.rename') : t('history.create')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -780,13 +784,13 @@ export default function HistoryPage() {
       <AlertDialog open={!!quizToDelete} onOpenChange={(open) => !open && setQuizToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Quiz</AlertDialogTitle>
+            <AlertDialogTitle>{t('history.deleteQuiz')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{quizToDelete?.title}"? This action cannot be undone.
+              {t('history.deleteQuizConfirm', { title: quizToDelete?.title || "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogCancel data-testid="button-cancel-delete">{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => quizToDelete && deleteMutation.mutate(quizToDelete.id)}
               disabled={deleteMutation.isPending}
@@ -798,7 +802,7 @@ export default function HistoryPage() {
               ) : (
                 <Trash2 className="h-4 w-4 mr-2" />
               )}
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -807,13 +811,13 @@ export default function HistoryPage() {
       <AlertDialog open={!!folderToDelete} onOpenChange={(open) => !open && setFolderToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Folder</AlertDialogTitle>
+            <AlertDialogTitle>{t('history.deleteFolder')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{folderToDelete?.name}"? Quizzes inside won't be deleted, they'll just become unfiled.
+              {t('history.deleteFolderConfirm', { name: folderToDelete?.name || "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete-folder">Cancel</AlertDialogCancel>
+            <AlertDialogCancel data-testid="button-cancel-delete-folder">{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => folderToDelete && deleteFolderMutation.mutate(folderToDelete.id)}
               disabled={deleteFolderMutation.isPending}
@@ -825,7 +829,7 @@ export default function HistoryPage() {
               ) : (
                 <Trash2 className="h-4 w-4 mr-2" />
               )}
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

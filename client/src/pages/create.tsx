@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { FileUpload } from "@/components/file-upload";
 import { useQuiz } from "@/lib/quiz-context";
 import { useUpload } from "@/lib/upload-context";
+import { useLanguage } from "@/lib/language-context";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,6 +63,7 @@ type ActiveModal = "upload" | "manual" | "youtube" | null;
 export default function Create() {
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial, isLoading } = useQuiz();
+  const { t } = useLanguage();
   const { activeJobs, clearJobs } = useUpload();
   const [isReady, setIsReady] = useState(false);
   const redirectedRef = useRef(false);
@@ -124,7 +126,7 @@ export default function Create() {
 
   const handleYoutubeSubmit = async () => {
     if (!youtubeUrl.trim()) {
-      setYoutubeError("Please enter a YouTube URL");
+      setYoutubeError(t('create.youtubeLink')); // Enter a link
       return;
     }
 
@@ -142,7 +144,7 @@ export default function Create() {
       try {
         data = await response.json();
       } catch {
-        setYoutubeError("Server error. Please try again.");
+        setYoutubeError(t('results.reviewFailed'));
         return;
       }
 
@@ -162,7 +164,7 @@ export default function Create() {
         documentImages: [],
       });
     } catch (error) {
-      setYoutubeError("Network error. Please try again.");
+      setYoutubeError(t('results.reviewFailed'));
     } finally {
       setIsLoadingYoutube(false);
     }
@@ -193,44 +195,44 @@ export default function Create() {
   };
 
   const getSourceLabel = () => {
-    if (sourceInputType === "youtube") return "YouTube video";
-    if (sourceInputType === "manual") return "pasted text";
-    return sourceMaterial?.type === "image" ? "image" : "document";
+    if (sourceInputType === "youtube") return t('create.youtubeVideo');
+    if (sourceInputType === "manual") return t('create.pastedText');
+    return sourceMaterial?.type === "image" ? t('create.image') : t('create.document');
   };
 
   const inputOptions = [
     {
       id: "upload",
-      title: "Upload Documents",
-      description: "Upload your PDFs, class notes, or textbook photos",
+      title: t('create.uploadDocs'),
+      description: t('create.uploadDocsDesc'),
       icon: FileUp,
       gradient: "from-blue-600 to-indigo-700",
       bgLight: "bg-blue-50/50 dark:bg-blue-950/20",
       iconBg: "bg-blue-600",
       badgeClass: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-      formats: ["PDF / DOCX", "Photo of notes"],
+      formats: [t('create.formats.docs'), t('create.formats.photos')],
     },
     {
       id: "manual",
-      title: "Paste Study Notes",
-      description: "Copy and paste your digital notes or summaries",
+      title: t('create.pasteNotes'),
+      description: t('create.pasteNotesDesc'),
       icon: Type,
       gradient: "from-violet-600 to-purple-700",
       bgLight: "bg-violet-50/50 dark:bg-violet-950/20",
       iconBg: "bg-violet-600",
       badgeClass: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
-      formats: ["Handwritten notes", "Typed summaries"],
+      formats: [t('create.formats.handwritten'), t('create.formats.summaries')],
     },
     {
       id: "youtube",
-      title: "Learn from YouTube",
-      description: "Turn any educational video into a practice test",
+      title: t('create.learnYoutube'),
+      description: t('create.learnYoutubeDesc'),
       icon: Youtube,
       gradient: "from-red-600 to-rose-700",
       bgLight: "bg-red-50/50 dark:bg-red-950/20",
       iconBg: "bg-red-600",
       badgeClass: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
-      formats: ["Video lectures", "Short explainers"],
+      formats: [t('create.formats.lectures'), t('create.formats.explainers')],
     },
   ];
 
@@ -266,10 +268,10 @@ export default function Create() {
               </div>
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
-              Create a <span className="text-primary">Practice Quiz</span>
+              {t('create.title')}
             </h1>
             <p className="text-muted-foreground text-lg font-medium max-w-md mx-auto">
-              How would you like to add your learning material today?
+              {t('create.subtitle')}
             </p>
           </motion.div>
 
@@ -350,11 +352,11 @@ export default function Create() {
                           <CheckCircle2 className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-xl font-black text-foreground tracking-tight">Study Material Ready</h3>
+                          <h3 className="text-xl font-black text-foreground tracking-tight">{t('create.materialReady')}</h3>
                           <p className="text-muted-foreground font-medium">
                             {sourceMaterial.isImageOnly
-                              ? `${sourceMaterial.documentImages?.length || 0} pages added and ready for Pip to review`
-                              : `${getWordCount(extractedText || "")} words added from your ${getSourceLabel()}`
+                              ? t('create.pagesAdded', { count: sourceMaterial.documentImages?.length || 0 })
+                              : t('create.wordsAdded', { count: getWordCount(extractedText || ""), source: getSourceLabel() })
                             }
                           </p>
                         </div>
@@ -372,15 +374,15 @@ export default function Create() {
                         </AlertDialogTrigger>
                         <AlertDialogContent className="rounded-2xl border-border/50 backdrop-blur-xl">
                           <AlertDialogHeader>
-                            <AlertDialogTitle className="text-2xl font-black tracking-tight">Remove study material?</AlertDialogTitle>
+                            <AlertDialogTitle className="text-2xl font-black tracking-tight">{t('create.removeMaterial')}</AlertDialogTitle>
                             <AlertDialogDescription className="text-base font-medium">
-                              This will clear your current notes. You'll need to re-upload or re-paste to continue.
+                              {t('create.removeMaterialDesc')}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter className="gap-2">
-                            <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
+                            <AlertDialogCancel className="rounded-xl font-bold">{t('common.cancel')}</AlertDialogCancel>
                             <AlertDialogAction onClick={handleClearText} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl font-bold">
-                              Confirm Removal
+                              {t('create.confirmRemoval')}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -392,7 +394,7 @@ export default function Create() {
                         <div className="flex items-center gap-2 mb-3">
                           <Image className="w-4 h-4 text-emerald-500" />
                           <p className="text-sm font-bold text-foreground">
-                            {sourceMaterial.documentImages.length} Visual Assets Found
+                            {t('create.visualAssetsFound')}
                           </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -422,7 +424,7 @@ export default function Create() {
                       <div className="p-4 rounded-2xl bg-background/50 border border-border/50 backdrop-blur-sm shadow-inner overflow-hidden">
                         <div className="flex items-center gap-2 mb-2 opacity-60">
                           <FileText className="w-4 h-4" />
-                          <p className="text-xs font-bold uppercase tracking-wider">Preview</p>
+                          <p className="text-xs font-bold uppercase tracking-wider">{t('create.preview')}</p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed font-medium italic line-clamp-3">
                           "{getPreviewText(extractedText || "", 250)}"
@@ -433,13 +435,13 @@ export default function Create() {
                     <div className="flex items-center gap-2" data-testid="badges-source-info">
                       <Badge variant="secondary" className="gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-black tracking-wide uppercase text-[10px] px-3 py-1" data-testid="badge-source-type">
                         {sourceInputType === "youtube" ? (
-                          <><Youtube className="w-3.5 h-3.5" />Video Lecture</>
+                          <><Youtube className="w-3.5 h-3.5" />{t('create.youtubeVideo')}</>
                         ) : sourceInputType === "manual" ? (
-                          <><Type className="w-3.5 h-3.5" />Student Notes</>
+                          <><Type className="w-3.5 h-3.5" />{t('create.pastedText')}</>
                         ) : sourceMaterial?.type === "image" ? (
-                          <><Image className="w-3.5 h-3.5" />Study Photos</>
+                          <><Image className="w-3.5 h-3.5" />{t('create.image')}</>
                         ) : (
-                          <><FileText className="w-3.5 h-3.5" />Study Document</>
+                          <><FileText className="w-3.5 h-3.5" />{t('create.document')}</>
                         )}
                       </Badge>
                     </div>
@@ -460,7 +462,7 @@ export default function Create() {
                     data-testid="button-continue-generate"
                   >
                     <Wand2 className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-                    Generate Questions
+                    {t('create.generateQuestions')}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </motion.div>
@@ -477,7 +479,7 @@ export default function Create() {
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
                     <FileUp className="w-8 h-8 text-white" />
                   </div>
-                  Add Study Materials
+                  {t('create.addStudyMaterials')}
                 </DialogTitle>
               </DialogHeader>
             </div>
@@ -490,7 +492,7 @@ export default function Create() {
                   <Badge variant="outline" className="text-[10px] font-bold">IMAGES</Badge>
                 </div>
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                  File size up to 10MB
+                  {t('create.fileSizeLimit')}
                 </p>
               </div>
             </div>
@@ -505,7 +507,7 @@ export default function Create() {
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
                     <Type className="w-8 h-8 text-white" />
                   </div>
-                  Paste Study Notes
+                  {t('create.pasteNotes')}
                 </DialogTitle>
               </DialogHeader>
             </div>
@@ -513,7 +515,7 @@ export default function Create() {
               <div className="relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/20 to-purple-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500" />
                 <Textarea
-                  placeholder="Paste your study material here... (AI thrives on detail, give it at least 50 characters)"
+                  placeholder={t('create.pastePlaceholder')}
                   value={manualText}
                   onChange={(e) => setManualText(e.target.value)}
                   className="relative min-h-[300px] resize-none text-lg font-medium bg-background/50 border-border/50 rounded-xl focus:ring-violet-500/20 focus:border-violet-500/50"
@@ -525,7 +527,7 @@ export default function Create() {
                 <div className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-xl border border-border/50">
                   <FileText className="w-4 h-4 text-violet-500" />
                   <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
-                    {getWordCount(manualText)} Words
+                    {t('create.wordsCount', { count: getWordCount(manualText) })}
                   </span>
                 </div>
                 <Button
@@ -536,7 +538,7 @@ export default function Create() {
                   data-testid="button-submit-manual-text"
                 >
                   <CheckCircle2 className="h-5 w-5" />
-                  Ready to Quiz
+                  {t('create.readyToQuiz')}
                 </Button>
               </div>
 
@@ -548,7 +550,7 @@ export default function Create() {
                   data-testid="text-manual-validation"
                 >
                   <AlertCircle className="h-4 w-4" />
-                  Deeper content results in better quizzes. Please provide at least 50 characters.
+                  {t('create.validationError')}
                 </motion.p>
               )}
             </div>
@@ -568,13 +570,13 @@ export default function Create() {
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
                     <Youtube className="w-8 h-8 text-white" />
                   </div>
-                  Study with YouTube
+                  {t('create.learnYoutube')}
                 </DialogTitle>
               </DialogHeader>
             </div>
             <div className="p-8 pt-4 space-y-8">
               <p className="text-lg font-medium text-muted-foreground leading-relaxed">
-                Drop a YouTube link below and we'll extract its core knowledge for your quiz.
+                {t('create.youtubeLink')}
               </p>
 
               <div className="space-y-4">
@@ -582,7 +584,7 @@ export default function Create() {
                   <div className="absolute -inset-1 bg-gradient-to-r from-red-500/20 to-rose-500/20 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition duration-500" />
                   <Link className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
                   <Input
-                    placeholder="https://www.youtube.com/watch?v=..."
+                    placeholder={t('create.youtubePlaceholder')}
                     value={youtubeUrl}
                     onChange={(e) => {
                       setYoutubeUrl(e.target.value);
@@ -603,12 +605,12 @@ export default function Create() {
                   {isLoadingYoutube ? (
                     <>
                       <Loader2 className="h-6 w-6 animate-spin" />
-                      Learning from video...
+                      {t('create.learningFromVideo')}
                     </>
                   ) : (
                     <>
                       <Sparkles className="h-6 w-6" />
-                      Prepare Quiz
+                      {t('create.prepareQuiz')}
                     </>
                   )}
                 </Button>
@@ -630,7 +632,7 @@ export default function Create() {
 
               <div className="pt-6 border-t border-border/50 flex items-center justify-between">
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                  Compatibility: Watch or Short links
+                  {t('create.compatibility')}
                 </p>
                 <div className="flex gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-500/40" />

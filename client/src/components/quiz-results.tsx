@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
 import { motion } from "framer-motion";
 import { MathText } from "@/components/formatted-text";
 
@@ -15,6 +16,7 @@ export function QuizResults() {
   const { currentQuiz, quizResult, userAnswers, clearUserAnswers, revisedQuestionsCount, removeSavedProgress } = useQuiz();
   const isReviewSession = currentQuiz?.generationMode === 'review';
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
 
@@ -47,11 +49,11 @@ export function QuizResults() {
   };
 
   const getScoreMessage = () => {
-    if (percentage >= 90) return "give yourself a pat on the back!";
-    if (percentage >= 80) return "you are ready to ace this!";
-    if (percentage >= 70) return "you're on the right track!";
-    if (percentage >= 60) return "great effort, keep practicing!";
-    return "efforts matter more than results!";
+    if (percentage >= 90) return t('quizResults.scoreMessages.90');
+    if (percentage >= 80) return t('quizResults.scoreMessages.80');
+    if (percentage >= 70) return t('quizResults.scoreMessages.70');
+    if (percentage >= 60) return t('quizResults.scoreMessages.60');
+    return t('quizResults.scoreMessages.default');
   };
 
   const toggleQuestion = (questionId: string) => {
@@ -179,8 +181,8 @@ export function QuizResults() {
               </div>
               <p className="text-muted-foreground">
                 {isReviewSession 
-                  ? <>You fixed <span className="font-semibold text-foreground">{quizResult.correctAnswers}</span> out of <span className="font-semibold text-foreground">{quizResult.totalQuestions}</span> targeted questions</>
-                  : <>You answered <span className="font-semibold text-foreground">{quizResult.correctAnswers}</span> out of <span className="font-semibold text-foreground">{quizResult.totalQuestions}</span> questions correctly</>
+                  ? t('quizResults.reviewSessionSummary', { correct: quizResult.correctAnswers, total: quizResult.totalQuestions })
+                  : t('quizResults.quizSessionSummary', { correct: quizResult.correctAnswers, total: quizResult.totalQuestions })
                 }
               </p>
             </motion.div>
@@ -201,7 +203,7 @@ export function QuizResults() {
           <p className="text-2xl font-bold text-foreground" data-testid="text-correct-count">
             {quizResult.correctAnswers}
           </p>
-          <p className="text-sm text-muted-foreground">{isReviewSession ? "Fixed" : "Correct"}</p>
+          <p className="text-sm text-muted-foreground">{isReviewSession ? t('quizResults.fixed') : t('common.correct')}</p>
         </Card>
 
         <Card className="text-center p-4">
@@ -211,7 +213,7 @@ export function QuizResults() {
           <p className="text-2xl font-bold text-foreground" data-testid="text-incorrect-count">
             {quizResult.totalQuestions - quizResult.correctAnswers}
           </p>
-          <p className="text-sm text-muted-foreground">{isReviewSession ? "Needs Work" : "Incorrect"}</p>
+          <p className="text-sm text-muted-foreground">{isReviewSession ? t('quizResults.needsWork') : t('common.incorrect')}</p>
         </Card>
 
         <Card className="text-center p-4">
@@ -221,7 +223,7 @@ export function QuizResults() {
           <p className="text-2xl font-bold text-foreground" data-testid="text-total-count">
             {quizResult.totalQuestions}
           </p>
-          <p className="text-sm text-muted-foreground">Total</p>
+          <p className="text-sm text-muted-foreground">{t('common.total')}</p>
         </Card>
 
         <Card className="text-center p-4">
@@ -231,7 +233,7 @@ export function QuizResults() {
           <p className="text-2xl font-bold text-foreground">
             {formatTime(quizResult.timeTaken || 0)}
           </p>
-          <p className="text-sm text-muted-foreground">Time</p>
+          <p className="text-sm text-muted-foreground">{t('common.time')}</p>
         </Card>
       </motion.div>
 
@@ -242,7 +244,7 @@ export function QuizResults() {
       >
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Review Answers</CardTitle>
+            <CardTitle className="text-lg">{t('quizResults.reviewAnswers')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {currentQuiz.questions.map((question, index) => {
@@ -277,9 +279,9 @@ export function QuizResults() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className="text-xs">Q{index + 1}</Badge>
+                        <Badge variant="outline" className="text-xs">{t('quizPlayer.questionNumber', { number: index + 1 })}</Badge>
                         <Badge variant={isCorrect ? "secondary" : "destructive"} className="text-xs">
-                          {isCorrect ? "Correct" : "Incorrect"}
+                          {isCorrect ? t('common.correct') : t('common.incorrect')}
                         </Badge>
                       </div>
                       <p className="text-sm font-medium truncate">
@@ -312,14 +314,14 @@ export function QuizResults() {
                           </div>
                         )}
                         <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Your Answer</p>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t('quizResults.yourAnswer')}</p>
                           <p className={`text-sm font-medium ${isCorrect ? "text-success" : "text-destructive"}`}>
-                            <MathText content={userAnswer || "No answer provided"} />
+                            <MathText content={userAnswer || t('quizResults.noAnswerProvided')} />
                           </p>
                         </div>
                         {!isCorrect && question.type !== "short_answer" && (
                           <div>
-                            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Correct Answer</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t('quizResults.correctAnswer')}</p>
                             <p className="text-sm font-medium text-success">
                               <MathText content={question.correctAnswer} />
                             </p>
@@ -327,7 +329,7 @@ export function QuizResults() {
                         )}
                         {question.explanation && !isGuest && (
                           <div>
-                            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Explanation</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t('quizPlayer.explanation')}</p>
                             <p className="text-sm text-muted-foreground">
                               <MathText content={question.explanation} />
                             </p>
@@ -358,7 +360,7 @@ export function QuizResults() {
                               <div className="flex items-start gap-2">
                                 <Lightbulb className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
                                 <div>
-                                  <p className="text-xs text-amber-600 dark:text-amber-400 font-medium uppercase tracking-wide mb-1">Why This Was Wrong</p>
+                                  <p className="text-xs text-amber-600 dark:text-amber-400 font-medium uppercase tracking-wide mb-1">{t('quizResults.whyThisWasWrong')}</p>
                                   <p className="text-sm text-muted-foreground">
                                     <MathText content={explanation} />
                                   </p>
@@ -370,7 +372,7 @@ export function QuizResults() {
                         {question.explanation && isGuest && (
                           <div className="flex items-center gap-2 text-muted-foreground">
                             <Lock className="h-3 w-3" />
-                            <p className="text-xs italic">Sign up to see explanations</p>
+                            <p className="text-xs italic">{t('quizResults.signUpToSeeExplanations')}</p>
                           </div>
                         )}
                       </div>
@@ -391,20 +393,20 @@ export function QuizResults() {
         >
           <Card className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 border-primary/20">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
                 <UserPlus className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Unlock Full Features</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('quizResults.unlockFullFeatures')}</h3>
               <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
-                Sign up for free to see detailed explanations, revise your incorrect answers, track your progress, save quizzes, and create your own study materials!
+                {t('quizResults.unlockFullFeaturesDesc')}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button className="gap-2" onClick={openSignUpDialog} data-testid="button-guest-signup">
                   <UserPlus className="h-4 w-4" />
-                  Create Free Account
+                  {t('publicHeader.signup')}
                 </Button>
                 <Button variant="outline" onClick={openLoginDialog} data-testid="button-guest-login">
-                  Already have an account? Sign in
+                  {t('quizResults.alreadyHaveAccount')}
                 </Button>
               </div>
             </CardContent>
@@ -425,7 +427,7 @@ export function QuizResults() {
           data-testid="button-retake"
         >
           <RotateCcw className="h-4 w-4" />
-          Retake Quiz
+          {t('quizResults.retakeQuiz')}
         </Button>
         <Button
           onClick={handleContinue}
@@ -433,7 +435,7 @@ export function QuizResults() {
           data-testid="button-continue"
         >
           <ArrowRight className="h-4 w-4" />
-          Continue
+          {t('common.continue')}
         </Button>
       </motion.div>
     </div>

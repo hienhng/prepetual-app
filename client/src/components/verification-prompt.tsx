@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import {
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Mail, Loader2, CheckCircle2 } from "lucide-react";
 
 interface VerificationPromptProps {
@@ -18,13 +19,27 @@ interface VerificationPromptProps {
 }
 
 export function VerificationPrompt({ email, open }: VerificationPromptProps) {
+  const { refetch } = useAuth();
   const { toast } = useToast();
+  const [isChecking, setIsChecking] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
-  // Apply blur to body when dialog is open
-  if (open) {
-    document.body.style.pointerEvents = 'auto';
-  }
+  // Auto refresh when window is focused
+  useEffect(() => {
+    const handleFocus = () => {
+      if (open) {
+        refetch();
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [open, refetch]);
+
+  const handleCheckStatus = async () => {
+    setIsChecking(true);
+    await refetch();
+    setIsChecking(false);
+  };
 
   const resendMutation = useMutation({
     mutationFn: async () => {
@@ -79,16 +94,29 @@ export function VerificationPrompt({ email, open }: VerificationPromptProps) {
               <p className="text-sm text-green-600 dark:text-green-400">Email sent successfully</p>
             </div>
           )}
-          <Button
-            onClick={() => resendMutation.mutate()}
-            disabled={resendMutation.isPending}
-            variant="outline"
-            className="w-full"
-            data-testid="button-resend-verification"
-          >
-            {resendMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Resend Verification Email
-          </Button>
+          
+          <div className="flex flex-col gap-2">
+            <Button
+              onClick={handleCheckStatus}
+              disabled={isChecking}
+              className="w-full"
+              data-testid="button-check-verification-status"
+            >
+              {isChecking && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              I've verified my email
+            </Button>
+            
+            <Button
+              onClick={() => resendMutation.mutate()}
+              disabled={resendMutation.isPending}
+              variant="outline"
+              className="w-full"
+              data-testid="button-resend-verification"
+            >
+              {resendMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Resend Verification Email
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

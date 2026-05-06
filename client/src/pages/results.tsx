@@ -8,7 +8,7 @@ import {
   History, Star, Search, X, Filter
 } from "lucide-react";
 
-import { getCategoryIcon } from "@/lib/category-icons";
+import { getCategoryIcon, getCategoryTranslationKey } from "@/lib/category-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { useQuiz } from "@/lib/quiz-context";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/lib/language-context";
 import { apiRequest } from "@/lib/queryClient";
 
 interface ResultHistoryItem {
@@ -59,6 +60,7 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
   const [, setLocation] = useLocation();
   const { setCurrentQuiz } = useQuiz();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const Icon = getCategoryIcon(group.category);
   const gradient = categoryGradients[group.category] || categoryGradients["Others/General"];
@@ -73,14 +75,14 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
       const reviewQuiz = await response.json();
       setCurrentQuiz(reviewQuiz);
       toast({
-        title: "Smart Review Generated",
-        description: "Focusing on your most frequent mistakes + similar challenges.",
+        title: t('results.smartReviewGenerated'),
+        description: t('results.smartReviewGeneratedDesc'),
       });
       setLocation("/quiz");
     } catch (error) {
       toast({
-        title: "Review Failed",
-        description: "Could not generate your review session. Please try again.",
+        title: t('results.reviewFailed'),
+        description: t('results.reviewFailedDesc'),
         variant: "destructive",
       });
     } finally {
@@ -101,24 +103,24 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
           {group.attempts.length >= 5 && (
             <Badge variant="outline" className="h-5 px-1.5 py-0 text-primary bg-primary/5 border-primary/20">
               <History className="w-2.5 h-2.5 mr-1" />
-              Revision Available
+              {t('results.revisionAvailable')}
             </Badge>
           )}
         </div>
         <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground/70 mt-0.5 flex-wrap">
-          <span className="text-primary/70">{group.category}</span>
+          <span className="text-primary/70">{t(getCategoryTranslationKey(group.category))}</span>
           <span className="w-1 h-1 rounded-full bg-muted-foreground/20" />
           {singleAttempt ? (
             <>
-              <span>{format(parseISO(singleAttempt.date), "MMM d, yyyy")}</span>
+              <span>{format(parseISO(singleAttempt.date), "MMM d, yyyy", { locale: t('common.locale') === 'vi-VN' ? undefined : undefined })}</span>
               <span className="w-1 h-1 rounded-full bg-muted-foreground/20" />
-              <span>{singleAttempt.correctAnswers}/{singleAttempt.totalQuestions} correct</span>
+              <span>{t('results.correctCount', { correct: singleAttempt.correctAnswers, total: singleAttempt.totalQuestions })}</span>
             </>
           ) : (
             <>
-              <span>{group.attempts.length} attempts</span>
+              <span>{t('results.attemptsCount', { count: group.attempts.length })}</span>
               <span className="w-1 h-1 rounded-full bg-muted-foreground/20" />
-              <span>Best: {group.bestAccuracy}%</span>
+              <span>{t('results.best', { score: group.bestAccuracy })}</span>
             </>
           )}
         </div>
@@ -137,7 +139,7 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
             ) : (
               <History className="w-3.5 h-3.5" />
             )}
-            Revise
+            {t('results.revise')}
           </Button>
         )}
         <div className="flex items-center gap-2">
@@ -147,7 +149,7 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
               }`}>
               {group.bestAccuracy}%
             </span>
-            <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/50 leading-none">Best</p>
+            <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/50 leading-none">{t('results.bestLabel')}</p>
           </div>
           {hasMultipleAttempts && (
             <motion.div
@@ -206,9 +208,9 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground/80 flex-wrap">
-                        <span>{format(parseISO(attempt.date), "MMM d, yyyy 'at' h:mm a")}</span>
+                        <span>{format(parseISO(attempt.date), "MMM d, yyyy 'at' h:mm a", { locale: t('common.locale') === 'vi-VN' ? undefined : undefined })}</span>
                         <span className="w-1 h-1 rounded-full bg-muted-foreground/20" />
-                        <span>{attempt.correctAnswers}/{attempt.totalQuestions} correct</span>
+                        <span>{t('results.correctCount', { correct: attempt.correctAnswers, total: attempt.totalQuestions })}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
@@ -249,6 +251,7 @@ const containerVariants = {
 export default function ResultsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   const { data: history = [], isLoading } = useQuery<ResultHistoryItem[]>({
     queryKey: ["/api/user/result-history"],
@@ -296,6 +299,7 @@ export default function ResultsPage() {
     return (
       <div className="flex items-center justify-center py-32">
         <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+        <span className="ml-2 text-muted-foreground">{t('common.loading')}</span>
       </div>
     );
   }
@@ -311,12 +315,12 @@ export default function ResultsPage() {
         <section>
           <div className="flex items-end justify-between gap-4 flex-wrap mb-2">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">Results History</h1>
-              <p className="text-muted-foreground mt-1">Review all your past quiz attempts and track your progress.</p>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('results.title')}</h1>
+              <p className="text-muted-foreground mt-1">{t('results.subtitle')}</p>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium bg-muted/30 px-3 py-1.5 rounded-full border border-border/40">
               <History className="w-4 h-4" />
-              {history.length} Total Attempts
+              {t('results.totalAttempts', { count: history.length })}
             </div>
           </div>
         </section>
@@ -327,10 +331,10 @@ export default function ResultsPage() {
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                 <Clock className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-bold mb-2">No results yet</h3>
-              <p className="text-muted-foreground mb-8 max-w-sm mx-auto">Take your first quiz to see your performance results and detailed history here.</p>
+              <h3 className="text-xl font-bold mb-2">{t('results.noResultsYet')}</h3>
+              <p className="text-muted-foreground mb-8 max-w-sm mx-auto">{t('results.noResultsYetDesc')}</p>
               <Button size="lg" className="font-bold rounded-full px-8 shadow-lg shadow-primary/20" onClick={() => window.location.href = "/create"}>
-                Create a Quiz
+                {t('results.createQuiz')}
               </Button>
             </CardContent>
           </Card>
@@ -342,7 +346,7 @@ export default function ResultsPage() {
                 <Input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search quizzes by title..."
+                  placeholder={t('results.searchPlaceholder')}
                   className="pl-11 h-12 bg-muted/20 border-border/50 focus:bg-background transition-all rounded-xl"
                 />
                 {searchQuery && (
@@ -362,13 +366,13 @@ export default function ResultsPage() {
                   <SelectTrigger className="w-full sm:w-[200px] h-12 bg-muted/20 border-border/50 rounded-xl">
                     <div className="flex items-center gap-2">
                       <Filter className="w-4 h-4 text-muted-foreground" />
-                      <SelectValue placeholder="All Subjects" />
+                      <SelectValue placeholder={t('history.allSubjects')} />
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Subjects</SelectItem>
+                    <SelectItem value="all">{t('history.allSubjects')}</SelectItem>
                     {availableCategories.map(cat => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      <SelectItem key={cat} value={cat}>{t(getCategoryTranslationKey(cat))}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -378,9 +382,9 @@ export default function ResultsPage() {
             <div className="grid gap-2">
               {filteredQuizzes.length === 0 ? (
                 <div className="py-20 text-center bg-muted/10 rounded-2xl border border-dashed border-border">
-                  <p className="text-muted-foreground font-medium">No results found matching your filters.</p>
+                  <p className="text-muted-foreground font-medium">{t('results.noResultsMatching')}</p>
                   <Button variant="link" onClick={() => { setSearchQuery(""); setSelectedCategory(null); }}>
-                    Clear all filters
+                    {t('history.clearFilters')}
                   </Button>
                 </div>
               ) : (

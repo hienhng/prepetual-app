@@ -78,7 +78,7 @@ export default function OnboardingPage() {
 
   // If they somehow get here after completing it, redirect
   useEffect(() => {
-    if (user?.onboardingCompleted) {
+    if (user && user.onboardingCompleted) {
       setLocation("/dashboard");
     }
   }, [user, setLocation]);
@@ -97,6 +97,11 @@ export default function OnboardingPage() {
       setLocation("/dashboard");
     }
   });
+
+  // Prevent survey access if email is not verified
+  if (user && !user.emailVerified) {
+    return null;
+  }
 
   const handleNext = () => {
     if (currentStep < STEPS.length - 1) {

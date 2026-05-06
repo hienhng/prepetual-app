@@ -9,7 +9,7 @@ import {
   Calculator, Languages, FlaskConical, Globe2, HelpCircle, BookText, Zap,
   Binary, Book, Globe
 } from "lucide-react";
-import { getCategoryIcon } from "@/lib/category-icons";
+import { getCategoryIcon, getCategoryTranslationKey } from "@/lib/category-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFileLines,
@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/lib/language-context";
 import type { Quiz } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 
@@ -74,25 +75,7 @@ interface UserStats {
   totalAttempts: number;
 }
 
-const learningTips = [
-  "Spaced repetition helps you remember better. Try reviewing your quizzes at increasing intervals for maximum retention.",
-  "Teaching others what you've learned is one of the best ways to reinforce your own understanding.",
-  "Taking breaks between study sessions helps your brain consolidate information more effectively.",
-  "Active recall (testing yourself) is more effective than passive review. Keep taking those quizzes!",
-  "Getting enough sleep is crucial for memory consolidation. Your brain processes what you learned while you rest.",
-  "Mix up different topics in your study sessions. Interleaving subjects can improve long-term retention.",
-  "Write down key concepts by hand. The physical act of writing helps cement information in memory.",
-  "Create mental associations or stories to connect new information with what you already know.",
-  "Study in short, focused bursts of 25-30 minutes, then take a 5-minute break. This is called the Pomodoro Technique.",
-  "Challenge yourself with harder questions. Struggling a bit helps you learn more deeply.",
-  "Review material right before sleep. Your brain will continue processing it overnight.",
-  "Explain concepts in your own words. If you can't simplify it, you don't understand it well enough yet.",
-  "Stay hydrated and maintain good nutrition. Your brain needs proper fuel to learn effectively.",
-  "Test yourself before you think you're ready. Making mistakes early helps identify gaps in your knowledge.",
-  "Connect new concepts to real-world examples. Practical applications make abstract ideas stick better.",
-  "When doing multiple-choice questions, don't just find the right answer. Explain to yourself why the other three options are wrong. This triples your learning from a single question.",
-  "Upload your material and take a quiz before you start intensive studying. This 'pre-test' highlights exactly which parts of the PDF you already know and which parts need your full attention.",
-];
+// Learning tips are now handled via useLanguage in the component
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -298,6 +281,7 @@ function QuickActionCard({
 }
 
 function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
+  const { t } = useLanguage();
   return (
     <Card className="overflow-hidden border-border/50 bg-gradient-to-b from-card to-card/50">
       <CardContent className="py-12 px-8 relative overflow-hidden">
@@ -342,10 +326,10 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
           </motion.div>
 
           <h3 className="text-2xl font-black text-foreground mb-3 tracking-tight">
-            Level Up Your Learning
+            {t('dashboard.createFirstQuiz')}
           </h3>
           <p className="text-muted-foreground mb-8 leading-relaxed text-base font-medium">
-            Turn your study notes into powerful AI-driven quizzes in seconds.
+            {t('dashboard.continueWhereLeftOff')}
           </p>
 
           <Button
@@ -355,7 +339,7 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
             className="h-12 px-8 text-base font-bold rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-1 active:translate-y-0"
           >
             <Plus className="w-5 h-5 mr-2 stroke-[3]" />
-            Get Started Now
+            {t('history.createQuiz')}
           </Button>
 
           <div className="mt-8 flex items-center justify-center gap-6 text-xs font-medium text-muted-foreground/60">
@@ -363,19 +347,19 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
               <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center border border-border/50">
                 <FileText className="w-6 h-6" />
               </div>
-              <span>PDFs</span>
+              <span>{t('home.hero.fileFormats').split(',')[0]}</span>
             </div>
             <div className="flex flex-col items-center gap-2">
               <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center border border-border/50">
                 <Brain className="w-6 h-6" />
               </div>
-              <span>AI Analysis</span>
+              <span>{t('home.features.aiGen.title')}</span>
             </div>
             <div className="flex flex-col items-center gap-2">
               <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center border border-border/50">
                 <Target className="w-6 h-6" />
               </div>
-              <span>Master Topic</span>
+              <span>{t('home.cta.title1').split(' ')[0]} {t('about.subjects.Math.title')}</span>
             </div>
           </div>
         </motion.div>
@@ -395,6 +379,7 @@ function QuizCard({
   onStudy: () => void;
   index: number;
 }) {
+  const { t } = useLanguage();
   const difficultyRaw = quiz.difficulty?.toLowerCase() || "medium";
   const difficulty = (["easy", "medium", "hard"].includes(difficultyRaw) ? difficultyRaw : "medium") as "easy" | "medium" | "hard";
   const colors = difficultyColors[difficulty] || difficultyColors.medium;
@@ -426,17 +411,17 @@ function QuizCard({
           <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
             <span className="flex items-center gap-1 font-medium bg-muted px-2 py-0.5 rounded-md">
               <HelpCircle className="w-3 h-3" />
-              {questionCount} questions
+              {t('history.questions', { count: questionCount })}
             </span>
             <Badge variant="outline" className={`h-5 text-[10px] capitalize px-2 font-bold ${colors.badge}`}>
-              {difficulty}
+              {t(`quizGenerator.${difficulty}`)}
             </Badge>
             <span className="flex items-center gap-1 font-medium bg-muted px-2 py-0.5 rounded-md">
-              {quiz.category || "Others/General"}
+              {t(getCategoryTranslationKey(quiz.category))}
             </span>
             <span className="hidden sm:inline-flex items-center gap-1 opacity-70">
               <Clock className="w-3 h-3" />
-              {formatDistanceToNow(new Date(quiz.createdAt))} ago
+              {t('inProgress.ago', { time: formatDistanceToNow(new Date(quiz.createdAt)) })}
             </span>
           </div>
         </div>
@@ -458,7 +443,7 @@ function QuizCard({
             data-testid={`button-take-${quiz.id}`}
           >
             <Play className="w-4 h-4 mr-2 fill-current" />
-            <span className="hidden sm:inline">Start</span>
+            <span className="hidden sm:inline">{t('feed.play')}</span>
           </Button>
         </div>
       </div>
@@ -467,9 +452,11 @@ function QuizCard({
 }
 
 function LearningTipCard() {
+  const { t, tArray } = useLanguage();
+  const tips = tArray('learningTips');
   const randomTip = useMemo(() => {
-    return learningTips[Math.floor(Math.random() * learningTips.length)];
-  }, []);
+    return tips[Math.floor(Math.random() * tips.length)];
+  }, [tips]);
 
   return (
     <motion.section variants={itemVariants}>
@@ -480,7 +467,7 @@ function LearningTipCard() {
               <Lightbulb className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-medium text-foreground mb-1">Learning Tip</h3>
+              <h3 className="font-medium text-foreground mb-1">{t('dashboard.learningTip')}</h3>
               <p className="text-sm text-muted-foreground">
                 {randomTip}
               </p>
@@ -515,6 +502,7 @@ function ContinueQuizCard({
   retryAnsweredCount?: number;
   retryTotalCount?: number;
 }) {
+  const { t } = useLanguage();
   const displayAnswered = isRevising ? retryAnsweredCount : answeredCount;
   const displayTotal = isRevising ? retryTotalCount : totalCount;
   const progress = Math.round((displayAnswered / displayTotal) * 100) || 0;
@@ -556,16 +544,16 @@ function ContinueQuizCard({
                             animate={{ opacity: [1, 0.4, 1] }}
                             transition={{ duration: 1.5, repeat: Infinity }}
                           />
-                          Revising
+                          {t('inProgress.revising')}
                         </Badge>
                       ) : (
                         <Badge variant="outline" className={`text-[10px] px-2 py-0.5 uppercase tracking-wider font-bold ${colors.badge}`}>
-                          {difficulty}
+                          {t(`quizGenerator.${difficulty}`)}
                         </Badge>
                       )}
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        {timeLabel} ago
+                        {t('inProgress.ago', { time: timeLabel })}
                       </span>
                     </div>
                   </div>
@@ -590,8 +578,10 @@ function ContinueQuizCard({
                   animate={{ scale: [1, 1.3, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 />
-                <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
-                  {remaining} question{remaining !== 1 ? 's' : ''} left to review
+                  <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
+                  {remaining === 1 
+                    ? t('inProgress.questionLeftToReview', { count: remaining }) 
+                    : t('inProgress.questionsLeftToReview', { count: remaining })}
                 </span>
               </div>
             ) : (
@@ -599,7 +589,7 @@ function ContinueQuizCard({
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground font-medium flex items-center gap-1.5">
                     <Target className="w-3.5 h-3.5" />
-                    {displayAnswered} of {displayTotal} completed
+                    {t('inProgress.answeredOfTotal', { answered: displayAnswered, total: displayTotal })}
                   </span>
                   <span className={`font-bold ${colors.text}`}>{progress}%</span>
                 </div>
@@ -624,7 +614,7 @@ function ContinueQuizCard({
               data-testid="button-continue-quiz"
             >
               <Play className="w-4 h-4 fill-current" />
-              <span className="font-semibold">{isRevising ? 'Continue Review' : 'Continue Quiz'}</span>
+              <span className="font-semibold">{isRevising ? t('inProgress.continueReview') : t('inProgress.continueQuiz')}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
@@ -651,6 +641,7 @@ export default function Dashboard() {
     clearRestoredState,
   } = useQuiz();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [revisionExitWarning, setRevisionExitWarning] = useState<{ open: boolean; quizId: string | null; type: 'saved' | null }>({
     open: false,
     quizId: null,
@@ -831,7 +822,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-center py-32">
         <div className="text-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-          <p className="text-sm text-muted-foreground">Loading your dashboard...</p>
+          <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -844,9 +835,9 @@ export default function Dashboard() {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
+    if (hour < 12) return t('dashboard.welcomeBack'); // Adjusting slightly as dictionary has welcomeBack
+    if (hour < 17) return t('dashboard.welcomeBack'); 
+    return t('dashboard.welcomeBack');
   };
 
 
@@ -864,12 +855,12 @@ export default function Dashboard() {
           <div className={`flex flex-col gap-4 ${!hasQuizzes ? "items-center" : "md:flex-row md:items-end md:justify-between"}`}>
             <div>
               <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
-                {getGreeting()}, <span className="text-primary">{user?.username || 'Learner'}</span>
+                {getGreeting()}, <span className="text-primary">{user?.username || t('common.user')}</span>
               </h1>
               <p className="text-muted-foreground">
                 {hasQuizzes
-                  ? "Continue where you left off or create something new."
-                  : "Let's create your first quiz and start learning."
+                  ? t('dashboard.continueWhereLeftOff')
+                  : t('dashboard.createFirstQuiz')
                 }
               </p>
             </div>
@@ -891,7 +882,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                       <Play className="w-5 h-5 text-primary fill-primary" />
-                      Continue Learning
+                      {t('dashboard.continueLearning')}
                     </h2>
                     <Button
                       variant="ghost"
@@ -899,7 +890,7 @@ export default function Dashboard() {
                       className="font-bold text-muted-foreground hover:text-primary"
                       onClick={() => setLocation("/in-progress")}
                     >
-                      View all in progress
+                      {t('dashboard.viewAllInProgress')}
                       <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
@@ -956,7 +947,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between gap-4 mb-5">
                     <div className="flex items-center gap-2">
                       <Clock className="w-5 h-5 text-muted-foreground" />
-                      <h2 className="text-xl font-bold text-foreground">Recent Quizzes</h2>
+                      <h2 className="text-xl font-bold text-foreground">{t('dashboard.recentQuizzes')}</h2>
                     </div>
                     <Button
                       variant="ghost"
@@ -964,7 +955,7 @@ export default function Dashboard() {
                       onClick={() => setLocation("/history")}
                       className="font-bold"
                     >
-                      View all
+                      {t('dashboard.viewAll')}
                       <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
@@ -990,23 +981,23 @@ export default function Dashboard() {
               <motion.section variants={itemVariants} className="space-y-4">
                 <div className="flex items-center gap-2 mb-1">
                   <ChartNoAxesColumn className="w-5 h-5 text-muted-foreground" />
-                  <h2 className="text-xl font-bold text-foreground">Your Stats</h2>
+                  <h2 className="text-xl font-bold text-foreground">{t('dashboard.yourStats')}</h2>
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                   <StatCard
-                    label="CREATED"
+                    label={t('dashboard.created')}
                     value={totalQuizzes}
                     icon={() => <FontAwesomeIcon icon={faFileLines} className="h-6 w-6" />}
                     color="blue"
                   />
                   <StatCard
-                    label="QUESTIONS"
+                    label={t('dashboard.questions')}
                     value={totalQuestions}
                     icon={() => <FontAwesomeIcon icon={faMessage} className="h-6 w-6" />}
                     color="violet"
                   />
                   <StatCard
-                    label="ACCURACY"
+                    label={t('dashboard.accuracy')}
                     value={userStats?.totalAttempts ? `${userStats.averageAccuracy}%` : "-"}
                     icon={() => <FontAwesomeIcon icon={faChartSimple} className="h-6 w-6" />}
                     color="emerald"
@@ -1020,12 +1011,12 @@ export default function Dashboard() {
               <motion.section variants={itemVariants} className="space-y-4">
                 <div className="flex items-center gap-2 mb-1">
                   <Zap className="w-5 h-5 text-muted-foreground" />
-                  <h2 className="text-xl font-bold text-foreground">Quick Actions</h2>
+                  <h2 className="text-xl font-bold text-foreground">{t('dashboard.quickActions')}</h2>
                 </div>
                 <div className="flex flex-col gap-4">
                   <QuickActionCard
-                    title="Create New Quiz"
-                    description="AI-powered generation"
+                    title={t('dashboard.createNewQuiz')}
+                    description={t('dashboard.aiPoweredGeneration')}
                     icon={Plus}
                     onClick={() => setLocation("/create")}
                     variant="primary"
@@ -1033,7 +1024,7 @@ export default function Dashboard() {
                   />
                   {recentQuizzes[0] && (
                     <QuickActionCard
-                      title="Continue Study"
+                      title={t('dashboard.continueStudy')}
                       description={recentQuizzes[0].title}
                       icon={BookOpen}
                       onClick={() => handleStudyQuiz(recentQuizzes[0])}
@@ -1056,21 +1047,21 @@ export default function Dashboard() {
       >
         <AlertDialogContent data-testid="dialog-revision-exit-warning">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Quiz Progress?</AlertDialogTitle>
+            <AlertDialogTitle>{t('dashboard.deleteQuizProgress')}</AlertDialogTitle>
             <AlertDialogDescription>
-              You're currently revising this quiz. Deleting will remove all your progress including your original answers and revision progress.
+              {t('dashboard.revisingWarning')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel data-testid="button-cancel-revision-exit">
-              Keep Revising
+              {t('dashboard.keepRevising')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmRevisionExit}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               data-testid="button-confirm-revision-exit"
             >
-              Delete All Progress
+              {t('dashboard.deleteAllProgress')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

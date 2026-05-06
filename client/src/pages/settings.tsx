@@ -142,7 +142,7 @@ export default function Settings() {
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
+        title: t('common.error'),
         description: error.message || t("settings.saveError"),
         variant: "destructive",
       });

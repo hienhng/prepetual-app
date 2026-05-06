@@ -8,7 +8,7 @@ import {
   Lightbulb, TrendingUp, CheckCircle2, BadgeCheck,
   Star, Compass, LayoutGrid, GraduationCap, FileHeart, CirclePlus
 } from "lucide-react";
-import { getCategoryIcon, getCategoryGradient, getCategoryLabel, categoryConfig } from "@/lib/category-icons";
+import { getCategoryIcon, getCategoryGradient, getCategoryLabel, getCategoryTranslationKey, categoryConfig } from "@/lib/category-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useQuiz } from "@/lib/quiz-context";
+import { useLanguage } from "@/lib/language-context";
 import type { Quiz } from "@shared/schema";
 import { QUIZ_CATEGORIES } from "@shared/schema";
 
@@ -63,6 +64,7 @@ type QuizCardProps = {
 function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial } = useQuiz();
+  const { t } = useLanguage();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -91,8 +93,8 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
   };
 
   const getAuthorName = (author?: PublicQuiz["author"]) => {
-    if (!author) return "Anonymous";
-    return author.username || "Anonymous";
+    if (!author) return t('common.user');
+    return author.username || t('common.user');
   };
 
   const getAuthorInitials = (author?: PublicQuiz["author"]) => {
@@ -102,9 +104,9 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
 
   const getDifficultyConfig = (difficulty?: string | null) => {
     switch (difficulty) {
-      case "easy": return { label: "Easy", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10", dot: "bg-emerald-500" };
-      case "hard": return { label: "Hard", color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-500/10", dot: "bg-rose-500" };
-      default: return { label: "Medium", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10", dot: "bg-amber-500" };
+      case "easy": return { label: t('quizGenerator.easy'), color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10", dot: "bg-emerald-500" };
+      case "hard": return { label: t('quizGenerator.hard'), color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-500/10", dot: "bg-rose-500" };
+      default: return { label: t('quizGenerator.medium'), color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10", dot: "bg-amber-500" };
     }
   };
 
@@ -118,8 +120,8 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
 
   const getRecommendationConfig = () => {
     switch (recommendationLabel) {
-      case "needs_improvement": return { label: "Practice More", icon: TrendingUp, bg: "bg-rose-500/10", color: "text-rose-600 dark:text-rose-400", border: "border-rose-500/20" };
-      case "matches_interests": return { label: "For You", icon: CheckCircle2, bg: "bg-blue-500/10", color: "text-blue-600 dark:text-blue-400", border: "border-blue-500/20" };
+      case "needs_improvement": return { label: t('feed.practiceMore'), icon: TrendingUp, bg: "bg-rose-500/10", color: "text-rose-600 dark:text-rose-400", border: "border-rose-500/20" };
+      case "matches_interests": return { label: t('feed.forYou'), icon: CheckCircle2, bg: "bg-blue-500/10", color: "text-blue-600 dark:text-blue-400", border: "border-blue-500/20" };
       default: return null;
     }
   };
@@ -154,7 +156,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                 {isCurated && (
                   <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm text-[10px] gap-1">
                     <Star className="h-2.5 w-2.5 fill-current" />
-                    Curated
+                    {t('feed.curated')}
                   </Badge>
                 )}
                 {recConfig && (
@@ -174,7 +176,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                 </motion.div>
                 <div className="flex-1">
                   <span className="text-white/70 text-xs font-medium">
-                    {getCategoryLabel(quiz.category)}
+                    {t(getCategoryTranslationKey(quiz.category))}
                   </span>
                 </div>
               </div>
@@ -190,7 +192,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                   <Badge variant="outline" className={`text-[10px] px-2 py-0.5 ${diffConfig.bg} ${diffConfig.color} border-0`}>
                     {diffConfig.label}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">{questionCount} questions</span>
+                  <span className="text-xs text-muted-foreground">{t('history.questions', { count: questionCount })}</span>
                 </div>
                 
                 <div className="flex items-center justify-between">
@@ -211,7 +213,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                     animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -8 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <span>Play</span>
+                    <span>{t('feed.play')}</span>
                     <Play className="h-3 w-3 fill-primary" />
                   </motion.div>
                 </div>
@@ -229,7 +231,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
               {isCurated && (
                 <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm text-xs gap-1 mt-[20px] mb-[20px]">
                   <Star className="h-3 w-3 fill-current" />
-                  Curated
+                  {t('feed.curated')}
                 </Badge>
               )}
             </div>
@@ -239,11 +241,11 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
               </div>
               <div>
                 <span className="text-white/70 text-sm font-medium block mb-1">
-                  {getCategoryLabel(quiz.category)}
+                    {t(getCategoryTranslationKey(quiz.category))}
                 </span>
                 <div className="flex items-center gap-2">
                   <Badge className="bg-white/20 text-white border-0 text-xs">
-                    {questionCount} Qs
+                    {t('history.questions', { count: questionCount })}
                   </Badge>
                   <Badge className={`${diffConfig.bg} ${diffConfig.color} border-0 text-xs`}>
                     {diffConfig.label}
@@ -274,7 +276,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                     <BadgeCheck className="h-4 w-4 text-green-500 fill-green-500/30" />
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">Quiz Creator</p>
+                <p className="text-xs text-muted-foreground">{t('feed.quizCreator')}</p>
               </div>
             </div>
 
@@ -287,7 +289,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                   data-testid={`button-study-${quiz.id}`}
                 >
                   <BookOpen className="h-4 w-4" />
-                  <span className="font-medium">Study</span>
+                  <span className="font-medium">{t('feed.study')}</span>
                 </Button>
               </motion.div>
 
@@ -298,7 +300,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                   data-testid={`button-play-${quiz.id}`}
                 >
                   <Play className="h-4 w-4" />
-                  <span className="font-medium">Take Quiz</span>
+                  <span className="font-medium">{t('feed.takeQuiz')}</span>
                 </Button>
               </motion.div>
             </div>
@@ -326,6 +328,7 @@ export default function Feed() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const { data: quizzes, isLoading } = useQuery<PublicQuiz[]>({
     queryKey: ["/api/public-quizzes"],
@@ -374,7 +377,7 @@ export default function Feed() {
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Discovering quizzes...</p>
+          <p className="text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -388,9 +391,9 @@ export default function Feed() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-10"
         >
-          <h1 className="text-3xl font-bold text-foreground mb-2">Discover</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">{t('feed.discover')}</h1>
           <p className="text-muted-foreground">
-            Explore quizzes shared by the <span className="font-brand">prepetual</span> community
+            {t('feed.exploreCommunity')}
           </p>
         </motion.div>
 
@@ -403,7 +406,7 @@ export default function Feed() {
           <div className="relative max-w-xl">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Search quizzes..."
+              placeholder={t('feed.searchQuizzes')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-12 h-12 text-base bg-muted/50 border-0 rounded-xl focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all"
@@ -442,7 +445,7 @@ export default function Feed() {
                   data-testid={`button-category-${categoryId}`}
                 >
                   <Icon className="h-4 w-4" />
-                  {config.label}
+                  {categoryId === "all" ? t('history.allSubjects') : t(getCategoryTranslationKey(categoryId))}
                   {count > 0 && (
                     <span className={`text-xs ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                       {count}
@@ -463,15 +466,15 @@ export default function Feed() {
           >
             <div className="flex items-center gap-2">
               <Target className="h-4 w-4" />
-              <span><strong className="text-foreground">{stats.totalQuizzes}</strong> quizzes</span>
+              <span><strong className="text-foreground">{stats.totalQuizzes}</strong> {t('feed.totalQuizzes')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4" />
-              <span><strong className="text-foreground">{stats.totalQuestions}</strong> questions</span>
+              <span><strong className="text-foreground">{stats.totalQuestions}</strong> {t('feed.totalQuestions')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              <span><strong className="text-foreground">{stats.totalContributors}</strong> creators</span>
+              <span><strong className="text-foreground">{stats.totalContributors}</strong> {t('feed.totalCreators')}</span>
             </div>
           </motion.div>
         )}
@@ -488,8 +491,8 @@ export default function Feed() {
                 <Lightbulb className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h2 className="text-lg font-bold">Recommended for You</h2>
-                <p className="text-sm text-muted-foreground">Based on your learning history</p>
+                <h2 className="text-lg font-bold">{t('feed.recommendedForYou')}</h2>
+                <p className="text-sm text-muted-foreground">{t('feed.basedOnHistory')}</p>
               </div>
             </div>
             
@@ -519,14 +522,14 @@ export default function Feed() {
                 <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
                   <Search className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-xl font-bold mb-2">No quizzes found</h3>
+                <h3 className="text-xl font-bold mb-2">{t('feed.noQuizzesFound')}</h3>
                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                   {selectedCategory !== "all" 
-                    ? `No quizzes in ${categoryConfig[selectedCategory]?.label || selectedCategory}`
-                    : "Try a different search term"}
+                    ? t('history.noMatchingQuizzes')
+                    : t('feed.tryDifferentSearch')}
                 </p>
                 <Button variant="outline" onClick={() => { setSearchQuery(""); setSelectedCategory("all"); }}>
-                  Clear Filters
+                  {t('feed.clearFilters')}
                 </Button>
               </>
             ) : (
@@ -534,13 +537,13 @@ export default function Feed() {
                 <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
                   <FileHeart className="h-12 w-12 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold mb-2">No quizzes yet</h3>
+                <h3 className="text-xl font-bold mb-2">{t('feed.noQuizzesYet')}</h3>
                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-                  Be the first to share your knowledge with the community!
+                  {t('feed.beFirstToShare')}
                 </p>
                 <Button onClick={() => setLocation("/create")} className="gap-2" data-testid="button-create-quiz">
                   <CirclePlus className="h-4 w-4" />
-                  Create a Quiz
+                  {t('history.createQuiz')}
                 </Button>
               </>
             )}
@@ -558,8 +561,8 @@ export default function Feed() {
                     <FontAwesomeIcon icon={faFire} className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold">Featured</h2>
-                    <p className="text-sm text-muted-foreground">Popular quizzes from the community</p>
+                    <h2 className="text-lg font-bold">{t('feed.featured')}</h2>
+                    <p className="text-sm text-muted-foreground">{t('feed.popularQuizzes')}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -588,12 +591,12 @@ export default function Feed() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold">
-                    {filteredQuizzes.length >= 4 ? "All Quizzes" : "Recent Quizzes"}
+                    {filteredQuizzes.length >= 4 ? t('feed.allQuizzes') : t('feed.recentQuizzes')}
                   </h2>
                   <p className="text-sm text-muted-foreground">
                     {filteredQuizzes.length >= 4 
-                      ? `${filteredQuizzes.length - 4} more quizzes to explore`
-                      : `${filteredQuizzes.length} quizzes available`
+                      ? t('feed.moreQuizzesToExplore', { count: filteredQuizzes.length - 4 })
+                      : t('feed.quizzesAvailable', { count: filteredQuizzes.length })
                     }
                   </p>
                 </div>

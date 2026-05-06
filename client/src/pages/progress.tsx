@@ -62,18 +62,11 @@ const categoryGradients: Record<string, string> = {
   "Others/General": "bg-gradient-to-br from-slate-500 to-slate-600",
 };
 
-function getEncouragingMessage(accuracy: number, language: "en" | "vi"): string {
-  if (language === "vi") {
-    if (accuracy >= 90) return "Bạn đang nắm rất chắc kiến thức. Hãy tiếp tục duy trì phong độ này.";
-    if (accuracy >= 75) return "Bạn đang tiến bộ tốt. Chỉ cần luyện tập thêm một chút nữa.";
-    if (accuracy >= 60) return "Bạn đang đi đúng hướng. Sự đều đặn sẽ tạo nên khác biệt.";
-    return "Việc học cần thời gian. Mỗi bài quiz đều giúp bạn tiến gần hơn đến mục tiêu.";
-  }
-
-  if (accuracy >= 90) return "You're mastering your material. Keep up the excellent work!";
-  if (accuracy >= 75) return "You're doing well! A little more practice will make you unstoppable.";
-  if (accuracy >= 60) return "You're on the right track. Consistency is the key to success!";
-  return "Learning takes time. Each quiz brings you closer to mastery!";
+function getEncouragingMessage(accuracy: number, t: any): string {
+  if (accuracy >= 90) return t('progress.encouragementExcellent');
+  if (accuracy >= 75) return t('progress.encouragementGood');
+  if (accuracy >= 60) return t('progress.encouragementFair');
+  return t('progress.encouragementPractice');
 }
 
 function getTrend(history: ResultHistoryItem[]): { trend: "up" | "down" | "neutral"; change: number } {
@@ -209,7 +202,7 @@ export default function ProgressPage() {
 
   const averageAccuracy = userStats?.averageAccuracy ?? 0;
   const totalAttempts = userStats?.totalAttempts ?? 0;
-  const encouragement = getEncouragingMessage(averageAccuracy, language);
+  const encouragement = getEncouragingMessage(averageAccuracy, t);
   const trend = getTrend(history);
 
   const categories = useMemo(() => {
@@ -536,12 +529,12 @@ export default function ProgressPage() {
                                       {stat.category}
                                     </h3>
                                     <p className="mt-0.5 text-xs text-muted-foreground">
-                                      {stat.count} {stat.count === 1 ? t("progress.quizTakenCount") : t("progress.quizzesTakenCount")}
+                                      {t("progress.quizzesTakenCount", { count: stat.count })}
                                     </p>
                                   </div>
                                   <Badge variant="outline" className="rounded-full text-[11px]">
                                     <Clock3 className="mr-1 h-3 w-3" />
-                                    {t("progress.active")}
+                                    {t("common.active")}
                                   </Badge>
                                 </div>
 

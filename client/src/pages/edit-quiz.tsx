@@ -39,6 +39,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { type Question, type QuestionType, QUIZ_CATEGORIES, type QuizCategory } from "@shared/schema";
 import { getCategoryIcon } from "@/lib/category-icons";
+import { useLanguage } from "@/lib/language-context";
 
 type ViewMode = "edit" | "preview";
 type QuestionFilter = "all" | "multiple_choice" | "true_false" | "short_answer";
@@ -47,6 +48,7 @@ export default function EditQuizPage() {
   const [, setLocation] = useLocation();
   const { currentQuiz, setCurrentQuiz } = useQuiz();
   const { toast } = useToast();
+  const { t } = useLanguage();
   
   const [title, setTitle] = useState(currentQuiz?.title || "");
   const [questions, setQuestions] = useState<Question[]>(
@@ -99,12 +101,12 @@ export default function EditQuizPage() {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <Edit2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h2 className="text-xl font-semibold mb-2">No quiz to edit</h2>
+        <h2 className="text-xl font-semibold mb-2">{t('editQuiz.noQuizToEdit')}</h2>
         <p className="text-muted-foreground mb-4">
-          Generate a quiz first to edit it
+          {t('editQuiz.noQuizToEditDesc')}
         </p>
         <Link href="/generate">
-          <Button data-testid="button-go-generate">Create Quiz</Button>
+          <Button data-testid="button-go-generate">{t('editQuiz.createQuiz')}</Button>
         </Link>
       </div>
     );
@@ -159,7 +161,7 @@ export default function EditQuizPage() {
     };
     setQuestions([...questions, newQuestion]);
     setExpandedIndex(questions.length);
-    toast({ title: "Question added", description: `New ${type.replace("_", " ")} question added` });
+    toast({ title: t('editQuiz.questionAdded'), description: t('editQuiz.questionAddedDesc', { type: type.replace("_", " ") }) });
   };
 
   const duplicateQuestion = (index: number) => {
@@ -173,7 +175,7 @@ export default function EditQuizPage() {
     updated.splice(index + 1, 0, duplicate);
     setQuestions(updated);
     setExpandedIndex(index + 1);
-    toast({ title: "Question duplicated" });
+    toast({ title: t('editQuiz.questionDuplicated') });
   };
 
   const moveQuestion = (index: number, direction: "up" | "down") => {
@@ -189,7 +191,7 @@ export default function EditQuizPage() {
 
   const removeQuestion = (index: number) => {
     if (questions.length <= 1) {
-      toast({ title: "Cannot remove", description: "Quiz must have at least one question", variant: "destructive" });
+      toast({ title: t('editQuiz.cannotRemove'), description: t('editQuiz.atLeastOneQuestion'), variant: "destructive" });
       return;
     }
     const updated = [...questions];
@@ -202,7 +204,7 @@ export default function EditQuizPage() {
       return newSet;
     });
     setExpandedIndex(null);
-    toast({ title: "Question removed" });
+    toast({ title: t('editQuiz.questionRemoved') });
   };
 
   const toggleSelectQuestion = (questionId: string) => {
@@ -227,7 +229,7 @@ export default function EditQuizPage() {
 
   const deleteSelected = () => {
     if (selectedQuestions.size === questions.length) {
-      toast({ title: "Cannot delete all", description: "Quiz must have at least one question", variant: "destructive" });
+      toast({ title: t('editQuiz.cannotDeleteAll'), description: t('editQuiz.atLeastOneQuestion'), variant: "destructive" });
       return;
     }
     const updated = questions.filter(q => !selectedQuestions.has(q.id));
@@ -235,13 +237,13 @@ export default function EditQuizPage() {
     setSelectedQuestions(new Set());
     setExpandedIndex(null);
     setShowDeleteDialog(false);
-    toast({ title: "Questions deleted", description: `${selectedQuestions.size} question(s) removed` });
+    toast({ title: t('editQuiz.questionsDeleted'), description: t('editQuiz.questionsDeletedDesc', { count: selectedQuestions.size }) });
   };
 
   const shuffleQuestions = () => {
     const shuffled = [...questions].sort(() => Math.random() - 0.5);
     setQuestions(shuffled);
-    toast({ title: "Questions shuffled" });
+    toast({ title: t('editQuiz.questionsShuffled') });
   };
 
   const expandAll = () => {
@@ -254,12 +256,12 @@ export default function EditQuizPage() {
 
   const handleImageUpload = (questionIndex: number, file: File) => {
     if (!file.type.startsWith('image/')) {
-      toast({ title: "Invalid file", description: "Please upload an image file", variant: "destructive" });
+      toast({ title: t('settings.invalidFileType'), description: t('settings.invalidFileTypeDescription'), variant: "destructive" });
       return;
     }
     
     if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "File too large", description: "Image must be under 5MB", variant: "destructive" });
+      toast({ title: t('settings.fileTooLarge'), description: t('settings.fileTooLargeDescription'), variant: "destructive" });
       return;
     }
 
@@ -267,14 +269,14 @@ export default function EditQuizPage() {
     reader.onload = (e) => {
       const imageUrl = e.target?.result as string;
       handleQuestionChange(questionIndex, "imageUrl", imageUrl);
-      toast({ title: "Image added" });
+      toast({ title: t('editQuiz.imageAdded') });
     };
     reader.readAsDataURL(file);
   };
 
   const removeQuestionImage = (questionIndex: number) => {
     handleQuestionChange(questionIndex, "imageUrl", undefined);
-    toast({ title: "Image removed" });
+    toast({ title: t('editQuiz.imageRemoved') });
   };
 
   const handleSave = async (): Promise<boolean> => {
@@ -288,10 +290,10 @@ export default function EditQuizPage() {
       const updatedQuiz = await response.json();
       setCurrentQuiz(updatedQuiz);
       queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
-      toast({ title: "Quiz saved", description: "Your changes have been saved" });
+      toast({ title: t('editQuiz.quizSaved'), description: t('editQuiz.quizSavedDesc') });
       return true;
     } catch (error) {
-      toast({ title: "Error", description: "Failed to save quiz", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('editQuiz.saveFailed'), variant: "destructive" });
       return false;
     } finally {
       setIsSaving(false);
@@ -318,9 +320,9 @@ export default function EditQuizPage() {
       setQuestions(updatedQuiz.questions);
       setCurrentQuiz(updatedQuiz);
       queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
-      toast({ title: "Question revised", description: `Q${questionIndex + 1} has been revised by AI` });
+      toast({ title: t('editQuiz.questionRevised'), description: t('editQuiz.questionRevisedDesc', { number: questionIndex + 1 }) });
     } catch (error) {
-      toast({ title: "Revise failed", description: "Something went wrong. Please try again.", variant: "destructive" });
+      toast({ title: t('editQuiz.reviseFailed'), description: t('common.errorDesc'), variant: "destructive" });
     } finally {
       setIsRevising(null);
     }
@@ -368,10 +370,10 @@ export default function EditQuizPage() {
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <Edit2 className="h-6 w-6" />
-              Edit Quiz
+              {t('editQuiz.title')}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Customize your quiz before taking it
+              {t('editQuiz.subtitle')}
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -382,16 +384,16 @@ export default function EditQuizPage() {
               data-testid="button-toggle-view"
             >
               {viewMode === "edit" ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
-              {viewMode === "edit" ? "Preview" : "Edit"}
+              {viewMode === "edit" ? t('common.preview') : t('common.edit')}
             </Button>
             <Link href="/history">
               <Button variant="outline" size="sm" data-testid="button-cancel-edit">
                 <X className="h-4 w-4 mr-1" />
-                Cancel
+                {t('common.cancel')}
               </Button>
             </Link>
             <Button size="sm" onClick={handleStartQuiz} data-testid="button-start-edited">
-              Start Quiz
+              {t('editQuiz.startQuiz')}
             </Button>
           </div>
         </div>
@@ -408,13 +410,13 @@ export default function EditQuizPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card className="md:col-span-2">
                   <CardHeader className="py-2.5">
-                    <CardTitle className="text-sm font-medium">Quiz Title</CardTitle>
+                    <CardTitle className="text-sm font-medium">{t('editQuiz.quizTitle')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Input
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      placeholder="Enter quiz title"
+                      placeholder={t('editQuiz.enterQuizTitle')}
                       className="text-lg font-medium"
                       data-testid="input-quiz-title"
                     />
@@ -423,7 +425,7 @@ export default function EditQuizPage() {
 
                 <Card>
                   <CardHeader className="py-2.5">
-                    <CardTitle className="text-sm font-medium">Category</CardTitle>
+                    <CardTitle className="text-sm font-medium">{t('common.category')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Select value={category} onValueChange={(v: QuizCategory) => setCategory(v)}>
@@ -451,7 +453,7 @@ export default function EditQuizPage() {
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="outline" className="gap-1">
                   <ListChecks className="h-3 w-3" />
-                  {questions.length} total
+                  {t('editQuiz.totalQuestionsCount', { count: questions.length })}
                 </Badge>
                 {questionStats.multiple_choice > 0 && (
                   <Badge variant="default" className="gap-1">MC: {questionStats.multiple_choice}</Badge>
@@ -468,7 +470,7 @@ export default function EditQuizPage() {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search questions..."
+                    placeholder={t('editQuiz.searchQuestions')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-9"
@@ -481,10 +483,10 @@ export default function EditQuizPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
-                    <SelectItem value="true_false">True/False</SelectItem>
-                    <SelectItem value="short_answer">Short Answer</SelectItem>
+                    <SelectItem value="all">{t('editQuiz.allTypes')}</SelectItem>
+                    <SelectItem value="multiple_choice">{t('quizGenerator.multipleChoice')}</SelectItem>
+                    <SelectItem value="true_false">{t('quizGenerator.trueFalse')}</SelectItem>
+                    <SelectItem value="short_answer">{t('quizGenerator.shortAnswer')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -502,7 +504,7 @@ export default function EditQuizPage() {
                     ) : (
                       <Square className="h-4 w-4 mr-1" />
                     )}
-                    {selectedQuestions.size > 0 ? `${selectedQuestions.size} selected` : "Select all"}
+                    {selectedQuestions.size > 0 ? t('editQuiz.selectedCount', { count: selectedQuestions.size }) : t('editQuiz.selectAll')}
                   </Button>
                   
                   {selectedQuestions.size > 0 && (
@@ -513,7 +515,7 @@ export default function EditQuizPage() {
                       data-testid="button-delete-selected"
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
-                      Delete
+                      {t('common.delete')}
                     </Button>
                   )}
                 </div>
@@ -521,36 +523,36 @@ export default function EditQuizPage() {
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm" onClick={expandAll} data-testid="button-expand-all">
                     <ChevronDown className="h-4 w-4 mr-1" />
-                    Expand All
+                    {t('editQuiz.expandAll')}
                   </Button>
                   <Button variant="ghost" size="sm" onClick={collapseAll} data-testid="button-collapse-all">
                     <ChevronUp className="h-4 w-4 mr-1" />
-                    Collapse
+                    {t('editQuiz.collapse')}
                   </Button>
                   <Button variant="ghost" size="sm" onClick={shuffleQuestions} data-testid="button-shuffle">
                     <Shuffle className="h-4 w-4 mr-1" />
-                    Shuffle
+                    {t('editQuiz.shuffle')}
                   </Button>
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm" data-testid="button-add-question">
                         <Plus className="h-4 w-4 mr-1" />
-                        Add
+                        {t('common.add')}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => addQuestion("multiple_choice")}>
                         <ListChecks className="h-4 w-4 mr-2" />
-                        Multiple Choice
+                        {t('quizGenerator.multipleChoice')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => addQuestion("true_false")}>
                         <ToggleLeft className="h-4 w-4 mr-2" />
-                        True/False
+                        {t('quizGenerator.trueFalse')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => addQuestion("short_answer")}>
                         <FileText className="h-4 w-4 mr-2" />
-                        Short Answer
+                        {t('quizGenerator.shortAnswer')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -561,8 +563,8 @@ export default function EditQuizPage() {
                 {filteredQuestions.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     {searchQuery || typeFilter !== "all" 
-                      ? "No questions match your search" 
-                      : "No questions yet. Add one above!"}
+                      ? t('editQuiz.noQuestionsMatch') 
+                      : t('editQuiz.noQuestionsYet')}
                   </div>
                 ) : (
                   filteredQuestions.map((question) => {
@@ -591,7 +593,7 @@ export default function EditQuizPage() {
                                 {getTypeLabel(question.type)}
                               </Badge>
                               <span className="text-sm text-muted-foreground shrink-0">
-                                {isRevising === index ? <Loader2 className="h-3.5 w-3.5 animate-spin inline" /> : `Q${index + 1}`}
+                                {isRevising === index ? <Loader2 className="h-3.5 w-3.5 animate-spin inline" /> : t('quizPlayer.questionNumberShort', { number: index + 1 })}
                               </span>
                               {question.imageUrl && (
                                 <ImageIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
@@ -635,11 +637,11 @@ export default function EditQuizPage() {
                                     ) : (
                                       <Sparkles className="h-4 w-4 mr-2" />
                                     )}
-                                    AI Revise
+                                    {t('editQuiz.aiRevise')}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => duplicateQuestion(index)}>
                                     <Copy className="h-4 w-4 mr-2" />
-                                    Duplicate
+                                    {t('common.duplicate')}
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem 
@@ -647,7 +649,7 @@ export default function EditQuizPage() {
                                     className="text-destructive"
                                   >
                                     <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete
+                                    {t('common.delete')}
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
@@ -678,7 +680,7 @@ export default function EditQuizPage() {
                               <CardContent className="space-y-4 pt-0 px-4 pb-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   <div className="space-y-2">
-                                    <Label className="text-xs text-muted-foreground">Question Type</Label>
+                                    <Label className="text-xs text-muted-foreground">{t('editQuiz.questionType')}</Label>
                                     <Select
                                       value={question.type}
                                       onValueChange={(value: QuestionType) => {
@@ -698,29 +700,29 @@ export default function EditQuizPage() {
                                         <SelectValue />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
-                                        <SelectItem value="true_false">True/False</SelectItem>
-                                        <SelectItem value="short_answer">Short Answer</SelectItem>
+                                        <SelectItem value="multiple_choice">{t('quizGenerator.multipleChoice')}</SelectItem>
+                                        <SelectItem value="true_false">{t('quizGenerator.trueFalse')}</SelectItem>
+                                        <SelectItem value="short_answer">{t('quizGenerator.shortAnswer')}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
                                   
                                   {question.type !== "multiple_choice" && (
                                     <div className="space-y-2">
-                                      <Label className="text-xs text-muted-foreground">Correct Answer</Label>
+                                      <Label className="text-xs text-muted-foreground">{t('quizResults.correctAnswer')}</Label>
                                       <div 
                                         className="px-3 py-2 rounded-md border bg-green-500/10 border-green-500/30 text-sm"
                                         data-testid={`text-answer-${index}`}
                                       >
                                         {question.correctAnswer}
-                                        <span className="ml-2 text-xs text-green-600 dark:text-green-400">(cannot be edited)</span>
+                                        <span className="ml-2 text-xs text-green-600 dark:text-green-400">({t('editQuiz.cannotBeEdited')})</span>
                                       </div>
                                     </div>
                                   )}
                                 </div>
 
                                 <div className="space-y-2">
-                                  <Label className="text-xs text-muted-foreground">Question Text</Label>
+                                  <Label className="text-xs text-muted-foreground">{t('editQuiz.questionText')}</Label>
                                   <Textarea
                                     value={question.question}
                                     onChange={(e) => handleQuestionChange(index, "question", e.target.value)}
@@ -730,7 +732,7 @@ export default function EditQuizPage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                  <Label className="text-xs text-muted-foreground">Question Image (optional)</Label>
+                                  <Label className="text-xs text-muted-foreground">{t('editQuiz.questionImageOptional')}</Label>
                                   {question.imageUrl ? (
                                     <div className="relative group">
                                       <img 
@@ -755,7 +757,7 @@ export default function EditQuizPage() {
                                     >
                                       <div className="flex flex-col items-center justify-center">
                                         <ImagePlus className="h-6 w-6 text-muted-foreground mb-1" />
-                                        <span className="text-xs text-muted-foreground">Click to add image</span>
+                                        <span className="text-xs text-muted-foreground">{t('editQuiz.clickToAddImage')}</span>
                                       </div>
                                       <input 
                                         type="file" 
@@ -774,7 +776,7 @@ export default function EditQuizPage() {
 
                                 {question.type === "multiple_choice" && (
                                   <div className="space-y-2">
-                                    <Label className="text-xs text-muted-foreground">Answer Options (use arrows to reorder)</Label>
+                                    <Label className="text-xs text-muted-foreground">{t('editQuiz.answerOptionsReorder')}</Label>
                                     <div className="space-y-2">
                                       {question.options?.map((option, optIndex) => (
                                         <div key={optIndex} className="flex gap-2 items-center group">
@@ -795,7 +797,7 @@ export default function EditQuizPage() {
                                           >
                                             {option}
                                             {option === question.correctAnswer && (
-                                              <span className="ml-2 text-xs text-green-600 dark:text-green-400">(correct)</span>
+                                              <span className="ml-2 text-xs text-green-600 dark:text-green-400">({t('common.correct')})</span>
                                             )}
                                           </div>
                                           <div className="flex gap-1">
@@ -839,11 +841,11 @@ export default function EditQuizPage() {
                                 )}
 
                                 <div className="space-y-2">
-                                  <Label className="text-xs text-muted-foreground">Explanation (shown after answering)</Label>
+                                  <Label className="text-xs text-muted-foreground">{t('quizPlayer.explanation')} ({t('editQuiz.shownAfterAnswering')})</Label>
                                   <Textarea
                                     value={question.explanation || ""}
                                     onChange={(e) => handleQuestionChange(index, "explanation", e.target.value)}
-                                    placeholder="Explain why this is the correct answer..."
+                                    placeholder={t('editQuiz.explanationPlaceholder')}
                                     className="min-h-[60px]"
                                     data-testid={`input-explanation-${index}`}
                                   />
@@ -861,10 +863,10 @@ export default function EditQuizPage() {
               <div className="flex justify-between gap-2 pt-4 border-t">
                 <Button variant="outline" onClick={handleSave} disabled={isSaving} data-testid="button-save-quiz">
                   <Save className="h-4 w-4 mr-1" />
-                  {isSaving ? "Saving..." : "Save Changes"}
+                  {isSaving ? t('common.saving') : t('common.saveChanges')}
                 </Button>
                 <Button onClick={handleStartQuiz} data-testid="button-start-quiz">
-                  Start Quiz
+                  {t('editQuiz.startQuiz')}
                 </Button>
               </div>
             </motion.div>
@@ -878,16 +880,16 @@ export default function EditQuizPage() {
             >
               <Card className="overflow-hidden">
                 <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-6">
-                  <h2 className="text-xl font-bold">{title || "Untitled Quiz"}</h2>
+                  <h2 className="text-xl font-bold">{title || t('editQuiz.untitledQuiz')}</h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {questions.length} questions
+                    {t('editQuiz.totalQuestionsCount', { count: questions.length })}
                   </p>
                 </div>
                 
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-6">
                     <span className="text-sm text-muted-foreground">
-                      Question {previewIndex + 1} of {questions.length}
+                      {t('quizPlayer.questionOf', { current: previewIndex + 1, total: questions.length })}
                     </span>
                     <div className="flex gap-2">
                       <Button
@@ -950,7 +952,7 @@ export default function EditQuizPage() {
                               >
                                 {option}
                                 {option === questions[previewIndex].correctAnswer && (
-                                  <Badge variant="outline" className="ml-2 text-green-600">Correct</Badge>
+                                  <Badge variant="outline" className="ml-2 text-green-600">{t('common.correct')}</Badge>
                                 )}
                               </div>
                             ))}
@@ -970,7 +972,7 @@ export default function EditQuizPage() {
                               >
                                 {option}
                                 {option === questions[previewIndex].correctAnswer && (
-                                  <Badge variant="outline" className="ml-2 text-green-600">Correct</Badge>
+                                  <Badge variant="outline" className="ml-2 text-green-600">{t('common.correct')}</Badge>
                                 )}
                               </div>
                             ))}
@@ -979,14 +981,14 @@ export default function EditQuizPage() {
                         
                         {questions[previewIndex].type === "short_answer" && (
                           <div className="ml-8 p-3 rounded-lg border border-green-500 bg-green-500/10">
-                            <span className="text-sm text-muted-foreground">Answer: </span>
+                            <span className="text-sm text-muted-foreground">{t('quizResults.correctAnswer')}: </span>
                             {questions[previewIndex].correctAnswer}
                           </div>
                         )}
                         
                         {questions[previewIndex].explanation && (
                           <div className="ml-8 p-3 rounded-lg bg-muted/50">
-                            <span className="text-sm font-medium">Explanation: </span>
+                            <span className="text-sm font-medium">{t('quizPlayer.explanation')}: </span>
                             <span className="text-sm text-muted-foreground">
                               {questions[previewIndex].explanation}
                             </span>
@@ -1021,15 +1023,15 @@ export default function EditQuizPage() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {selectedQuestions.size} question(s)?</AlertDialogTitle>
+            <AlertDialogTitle>{t('editQuiz.deleteCountQuestions', { count: selectedQuestions.size })}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. The selected questions will be permanently removed from this quiz.
+              {t('editQuiz.deleteSelectedDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={deleteSelected} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1040,11 +1042,11 @@ export default function EditQuizPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5" />
-              Which answer is correct?
+              {t('editQuiz.whichAnswerIsCorrect')}
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div>
-                <p className="mb-3">Select the correct answer, and AI will generate a matching explanation.</p>
+                <p className="mb-3">{t('editQuiz.aiReviseDesc')}</p>
                 {reviseDialogIndex !== null && (
                   <div className="text-left">
                     <p className="text-sm font-medium text-foreground mb-3">{questions[reviseDialogIndex]?.question}</p>
@@ -1052,7 +1054,7 @@ export default function EditQuizPage() {
                       <Input
                         value={reviseSelectedAnswer}
                         onChange={(e) => setReviseSelectedAnswer(e.target.value)}
-                        placeholder="Type the correct answer..."
+                        placeholder={t('editQuiz.typeCorrectAnswer')}
                         data-testid="input-revise-answer"
                       />
                     ) : (
@@ -1083,14 +1085,14 @@ export default function EditQuizPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmAiRevise}
               disabled={!reviseSelectedAnswer}
               data-testid="button-confirm-revise"
             >
               <Sparkles className="h-4 w-4 mr-1" />
-              Revise with AI
+              {t('editQuiz.reviseWithAi')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

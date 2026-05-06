@@ -7,11 +7,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useQuizNavigationGuard } from "@/lib/quiz-navigation-guard";
+import { useLanguage } from "@/lib/language-context";
 
 export default function Quiz() {
   const [, setLocation] = useLocation();
   const { currentQuiz, userAnswers } = useQuiz();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { navigateWithGuard } = useQuizNavigationGuard();
 
   useEffect(() => {
@@ -64,7 +66,7 @@ export default function Quiz() {
             data-testid="button-back-generate"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back
+            {t('quiz.back')}
           </Button>
           
           <div className="flex items-center gap-2 text-muted-foreground">
