@@ -30,7 +30,7 @@ export function setupAuth(app: Express): void {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production" && process.env.VERCEL === "1",
       maxAge: 30 * 24 * 60 * 60 * 1000,
       sameSite: "lax",
     },
@@ -85,11 +85,12 @@ export function setupAuth(app: Express): void {
         emailVerified: false,
       });
 
-      // Create verification token and send email
-      const token = cryptoRandomString({ length: 64, type: "url-safe" });
+      // Create 6-digit verification code and send email
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-      await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
-      await sendVerificationEmail(email, token, username);
+      await storage.deleteUserVerificationTokens(user.id, "email_verification");
+      await storage.createVerificationToken(user.id, code, "email_verification", expiresAt);
+      await sendVerificationEmail(email, code, username);
 
       req.session.userId = user.id;
 
@@ -162,20 +163,29 @@ export function setupAuth(app: Express): void {
     });
   });
 
-  app.get("/api/auth/verify-email", async (req, res) => {
+  app.post("/api/auth/verify-email", async (req, res) => {
     try {
-      const { token } = req.query;
-      if (!token || typeof token !== "string") {
-        return res.status(400).json({ message: "Invalid token" });
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Authentication required" });
       }
 
-      const verificationToken = await storage.getVerificationToken(token);
-      if (!verificationToken || verificationToken.type !== "email_verification") {
-        return res.status(400).json({ message: "Invalid or expired token" });
+      const { code } = req.body;
+      if (!code || typeof code !== "string") {
+        return res.status(400).json({ message: "Invalid code" });
       }
 
-      await storage.verifyUserEmail(verificationToken.userId);
-      await storage.deleteVerificationToken(token);
+      const verificationToken = await storage.getVerificationTokenByUserId(
+        req.session.userId,
+        code,
+        "email_verification"
+      );
+
+      if (!verificationToken) {
+        return res.status(400).json({ message: "Invalid or expired code" });
+      }
+
+      await storage.verifyUserEmail(req.session.userId);
+      await storage.deleteUserVerificationTokens(req.session.userId, "email_verification");
 
       res.json({ message: "Email verified successfully" });
     } catch (error) {
@@ -193,12 +203,16 @@ export function setupAuth(app: Express): void {
 
       const user = await storage.getUserByEmail(email);
       if (user && user.passwordHash) {
-        const token = cryptoRandomString({ length: 64, type: "url-safe" });
-        const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+        const token = cryptoRandomString({ length: 48, type: "url-safe" });
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+        await storage.deleteUserVerificationTokens(user.id, "password_reset");
         await storage.createVerificationToken(user.id, token, "password_reset", expiresAt);
 
+        const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get("host")}`;
+        const resetLink = `${baseUrl}/reset-password?token=${token}`;
+
         try {
-          await sendPasswordResetEmail(email, token, user.username || undefined);
+          await sendPasswordResetEmail(email, resetLink, user.username || undefined);
         } catch (emailError) {
           console.error("Failed to send password reset email:", emailError);
         }
@@ -351,11 +365,12 @@ export function setupAuth(app: Express): void {
       }
 
       try {
-        const token = cryptoRandomString({ length: 64, type: "url-safe" });
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-        await storage.createVerificationToken(user.id, token, "email_verification", expiresAt);
-        await sendVerificationEmail(email, token, user.username || undefined);
-        res.json({ message: "Verification email sent successfully" });
+        await storage.deleteUserVerificationTokens(user.id, "email_verification");
+        await storage.createVerificationToken(user.id, code, "email_verification", expiresAt);
+        await sendVerificationEmail(email, code, user.username || undefined);
+        res.json({ message: "Verification code sent successfully" });
       } catch (emailError: any) {
         console.error("Failed to send verification email:", emailError);
         res.status(500).json({ 

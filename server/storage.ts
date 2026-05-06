@@ -39,7 +39,9 @@ export interface IStorage {
   updateUser(id: string, updates: Partial<UpsertUser>): Promise<User | undefined>;
   createVerificationToken(userId: string, token: string, type: string, expiresAt: Date): Promise<VerificationToken>;
   getVerificationToken(token: string): Promise<VerificationToken | undefined>;
+  getVerificationTokenByUserId(userId: string, token: string, type: string): Promise<VerificationToken | undefined>;
   deleteVerificationToken(token: string): Promise<void>;
+  deleteUserVerificationTokens(userId: string, type: string): Promise<void>;
   verifyUserEmail(userId: string): Promise<void>;
   saveQuiz(quiz: InsertQuiz & { id?: string }): Promise<Quiz>;
   getQuiz(id: string): Promise<Quiz | undefined>;
@@ -152,8 +154,28 @@ export class DatabaseStorage implements IStorage {
     return found;
   }
 
+  async getVerificationTokenByUserId(userId: string, token: string, type: string): Promise<VerificationToken | undefined> {
+    const [found] = await db
+      .select()
+      .from(verificationTokens)
+      .where(and(
+        eq(verificationTokens.userId, userId),
+        eq(verificationTokens.token, token),
+        eq(verificationTokens.type, type),
+        gt(verificationTokens.expiresAt, new Date())
+      ));
+    return found;
+  }
+
   async deleteVerificationToken(token: string): Promise<void> {
     await db.delete(verificationTokens).where(eq(verificationTokens.token, token));
+  }
+
+  async deleteUserVerificationTokens(userId: string, type: string): Promise<void> {
+    await db.delete(verificationTokens).where(and(
+      eq(verificationTokens.userId, userId),
+      eq(verificationTokens.type, type)
+    ));
   }
 
   async verifyUserEmail(userId: string): Promise<void> {

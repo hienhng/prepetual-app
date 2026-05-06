@@ -363,6 +363,10 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
             </div>
           </div>
         </motion.div>
+        
+        <div className="mt-12 max-w-md mx-auto">
+          <LearningTipCard />
+        </div>
       </CardContent>
     </Card>
   );

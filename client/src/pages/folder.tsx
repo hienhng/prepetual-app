@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, useParams } from "wouter";
 import { motion } from "framer-motion";
 import { Play, BookOpen, Share2, Trash2, Loader2, Edit2, Globe, GlobeLock, Circle, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, Sparkles, MoreVertical, Pencil, X, ArrowLeft, Plus, FolderOpen, Check, Pin, PinOff, BookText, Globe2 } from "lucide-react";
-import { getCategoryIcon } from "@/lib/category-icons";
+import { getCategoryIcon, getCategoryTranslationKey } from "@/lib/category-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,7 @@ import {
 import { useQuiz } from "@/lib/quiz-context";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useLanguage } from "@/lib/language-context";
 import type { Quiz, Folder as FolderType } from "@shared/schema";
 
 type QuizWithAttempts = Quiz & { attemptCount?: number };
@@ -45,6 +46,7 @@ export default function FolderPage() {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial, savedProgresses, loadSavedProgress } = useQuiz();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [quizToDelete, setQuizToDelete] = useState<QuizWithAttempts | null>(null);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [folderName, setFolderName] = useState("");
@@ -80,10 +82,10 @@ export default function FolderPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
       setQuizToDelete(null);
-      toast({ title: "Quiz deleted", description: "The quiz has been removed.", variant: "success" as any });
+      toast({ title: t('history.quizDeleted'), description: t('history.quizDeletedDesc'), variant: "success" as any });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to delete quiz", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedDeleteQuiz'), variant: "destructive" });
     },
   });
 
@@ -98,14 +100,14 @@ export default function FolderPage() {
         queryClient.invalidateQueries({ queryKey: ["/api/folders"] })
       ]);
       toast({
-        title: isPublic ? "Quiz shared" : "Quiz hidden",
+        title: isPublic ? t('history.quizShared') : t('history.quizHidden'),
         description: isPublic
-          ? "Your quiz is now visible in the community feed."
-          : "Your quiz is now private."
+          ? t('history.quizSharedDesc')
+          : t('history.quizHiddenDesc')
       });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to update quiz visibility", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedUpdateVisibility'), variant: "destructive" });
     },
   });
 
@@ -118,10 +120,10 @@ export default function FolderPage() {
         queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] }),
         queryClient.invalidateQueries({ queryKey: ["/api/folders"] })
       ]);
-      toast({ title: "Quiz removed from folder" });
+      toast({ title: t('history.quizRemovedFromFolder') });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to remove quiz", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedToRemoveQuiz'), variant: "destructive" });
     },
   });
 
@@ -134,10 +136,10 @@ export default function FolderPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
       setRenameDialogOpen(false);
       setFolderName("");
-      toast({ title: "Folder renamed" });
+      toast({ title: t('history.folderRenamed') });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to rename folder", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedRenameFolder'), variant: "destructive" });
     },
   });
 
@@ -150,11 +152,11 @@ export default function FolderPage() {
         queryClient.invalidateQueries({ queryKey: ["/api/folders"] }),
         queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] })
       ]);
-      toast({ title: "Folder deleted" });
+      toast({ title: t('history.folderDeleted') });
       setLocation("/history");
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to delete folder", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedDeleteFolder'), variant: "destructive" });
     },
   });
 
@@ -165,24 +167,22 @@ export default function FolderPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
       queryClient.invalidateQueries({ queryKey: ["/api/folders", folderId] });
-      toast({ title: folder?.pinnedToSidebar ? "Unpinned from sidebar" : "Pinned to sidebar" });
+      toast({ title: folder?.pinnedToSidebar ? t('history.unpinFromTop') : t('history.pinToTop') });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to toggle pin", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedToTogglePin'), variant: "destructive" });
     },
   });
 
   const addQuizzesToFolderMutation = useMutation({
     mutationFn: async ({ add, remove }: { add: string[]; remove: string[] }) => {
       if (add.length === 0 && remove.length === 0) return;
-      // Single request — 2 DB queries server-side regardless of count
       await apiRequest("PUT", "/api/quizzes/batch-folder", { folderId, add, remove });
     },
     onSuccess: (_, { add, remove }) => {
       setAddQuizzesOpen(false);
       setSelectedQuizIds(new Set());
 
-      // Optimistic update: immediately reflect folderId changes in cache (no network wait)
       queryClient.setQueryData(["/api/quizzes"], (old: QuizWithAttempts[] | undefined) => {
         if (!old) return old;
         return old.map(quiz => {
@@ -192,14 +192,13 @@ export default function FolderPage() {
         });
       });
 
-      // Background refresh — don't await so toast fires immediately
       queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
       queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
 
-      toast({ title: "Quizzes updated" });
+      toast({ title: t('history.quizzesUpdated') });
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to update quizzes", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedUpdateQuizzes'), variant: "destructive" });
     },
   });
 
@@ -282,12 +281,12 @@ export default function FolderPage() {
   const handleShare = (quizId: string) => {
     const url = `${window.location.origin}/share/${quizId}`;
     navigator.clipboard.writeText(url);
-    toast({ title: "Link copied!", description: "Share this link with others to let them take the quiz." });
+    toast({ title: t('history.linkCopied'), description: t('history.linkCopiedDesc') });
   };
 
   const formatDate = (date: Date | string) => {
     const d = typeof date === "string" ? new Date(date) : date;
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return d.toLocaleDateString(t('common.locale'), { month: "short", day: "numeric" });
   };
 
   const getDifficultyColor = (difficulty?: string | null) => {
@@ -335,6 +334,7 @@ export default function FolderPage() {
     return (
       <div className="container mx-auto px-4 py-16 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">{t('common.loading')}</span>
       </div>
     );
   }
@@ -345,11 +345,11 @@ export default function FolderPage() {
         <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
           <FolderOpen className="h-6 w-6 text-muted-foreground" />
         </div>
-        <h2 className="text-lg font-semibold mb-2">Folder not found</h2>
-        <p className="text-sm text-muted-foreground mb-5">This folder may have been deleted.</p>
+        <h2 className="text-lg font-semibold mb-2">{t('history.folderNotFound')}</h2>
+        <p className="text-sm text-muted-foreground mb-5">{t('history.folderNotFoundDesc')}</p>
         <Button onClick={() => setLocation("/history")} data-testid="button-back-to-archive">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Archive
+          {t('history.backToArchive')}
         </Button>
       </div>
     );
@@ -374,7 +374,7 @@ export default function FolderPage() {
             data-testid="button-back-to-archive"
           >
             <ArrowLeft className="h-4 w-4 mr-1.5" />
-            Archive
+            {t('history.archive')}
           </Button>
 
           <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -383,9 +383,12 @@ export default function FolderPage() {
                 {folder.name}
               </h1>
               <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
-                <span>{folderQuizzes.length} {folderQuizzes.length === 1 ? "quiz" : "quizzes"}</span>
+                <span>
+                  {folderQuizzes.length}{" "}
+                  {t(folderQuizzes.length === 1 ? 'history.quiz' : 'history.quizzes')}
+                </span>
                 <span className="text-border">|</span>
-                <span>{totalQuestions} questions</span>
+                <span>{t('history.questionsCount', { count: totalQuestions })}</span>
               </div>
             </div>
 
@@ -397,7 +400,7 @@ export default function FolderPage() {
                 data-testid="button-add-quizzes"
               >
                 <Plus className="h-3.5 w-3.5 mr-1.5" />
-                Add Quizzes
+                {t('history.addQuizzes')}
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -408,14 +411,14 @@ export default function FolderPage() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => togglePinMutation.mutate()} data-testid="button-toggle-pin-folder">
                     {folder.pinnedToSidebar ? (
-                      <><PinOff className="h-3.5 w-3.5 mr-2" />Unpin from Top</>
+                      <><PinOff className="h-3.5 w-3.5 mr-2" />{t('history.unpinFromTop')}</>
                     ) : (
-                      <><Pin className="h-3.5 w-3.5 mr-2" />Pin to Top</>
+                      <><Pin className="h-3.5 w-3.5 mr-2" />{t('history.pinToTop')}</>
                     )}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={openRenameDialog} data-testid="button-rename-folder">
                     <Pencil className="h-3.5 w-3.5 mr-2" />
-                    Rename
+                    {t('history.rename')}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -424,7 +427,7 @@ export default function FolderPage() {
                     data-testid="button-delete-folder"
                   >
                     <Trash2 className="h-3.5 w-3.5 mr-2" />
-                    Delete
+                    {t('common.delete')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -437,9 +440,9 @@ export default function FolderPage() {
             <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
               <FolderOpen className="h-5 w-5 text-muted-foreground" />
             </div>
-            <h3 className="text-sm font-semibold mb-1">No quizzes yet</h3>
+            <h3 className="text-sm font-semibold mb-1">{t('history.noQuizzesYet')}</h3>
             <p className="text-xs text-muted-foreground mb-5 max-w-xs mx-auto">
-              Add existing quizzes or create new ones to organize here
+              {t('history.noQuizzesInFolderDesc')}
             </p>
             <div className="flex items-center justify-center gap-2 flex-wrap">
               <Button
@@ -448,7 +451,7 @@ export default function FolderPage() {
                 data-testid="button-add-first-quizzes"
               >
                 <Plus className="h-3.5 w-3.5 mr-1.5" />
-                Add Quizzes
+                {t('history.addQuizzes')}
               </Button>
               <Button
                 size="sm"
@@ -456,19 +459,21 @@ export default function FolderPage() {
                 onClick={() => setLocation("/create")}
                 data-testid="button-create-new-quiz"
               >
-                Create New
+                {t('common.createNew')}
               </Button>
             </div>
           </div>
         ) : (
           <div className="space-y-2">
             {folderQuizzes.map((quiz, index) => {
-              const cat = quiz.category || "Others/General";
+              const catKey = getCategoryTranslationKey(quiz.category);
+              const catLabel = t(catKey);
+              const catOrig = quiz.category || "General";
               const colorClass =
-                cat === "Math" ? "text-blue-600 bg-blue-500/10 border-blue-200/50" :
-                  cat === "Science" ? "text-emerald-600 bg-emerald-500/10 border-emerald-200/50" :
-                    cat === "English" || cat === "Global Languages" ? "text-violet-600 bg-violet-500/10 border-violet-200/50" :
-                      cat === "Social Studies" ? "text-indigo-600 bg-indigo-500/10 border-indigo-200/50" :
+                catOrig === "Math" ? "text-blue-600 bg-blue-500/10 border-blue-200/50" :
+                  catOrig === "Science" ? "text-emerald-600 bg-emerald-500/10 border-emerald-200/50" :
+                    catOrig === "English" || catOrig === "Global Languages" ? "text-violet-600 bg-violet-500/10 border-violet-200/50" :
+                      catOrig === "Social Studies" ? "text-indigo-600 bg-indigo-500/10 border-indigo-200/50" :
                         "text-slate-600 bg-slate-500/10 border-slate-200/50";
 
               return (
@@ -486,7 +491,7 @@ export default function FolderPage() {
                       <div className="flex items-center gap-4">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${colorClass} transition-transform duration-300 group-hover:scale-105 text-current`}>
                           {(() => {
-                            const Icon = getCategoryIcon(cat);
+                            const Icon = getCategoryIcon(catOrig);
                             return <Icon className="h-4 w-4" />;
                           })()}
                         </div>
@@ -502,16 +507,16 @@ export default function FolderPage() {
                             </div>
                             <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                             <div className="flex items-center gap-1">
-                              {(quiz as any).questionCount || (quiz.questions as any[])?.length || 0} questions
+                              {t('history.questions', { count: (quiz as any).questionCount || (quiz.questions as any[])?.length || 0 })}
                             </div>
                             <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                             <div className={`capitalize ${getDifficultyColor(quiz.difficulty)}`}>
-                              {quiz.difficulty || "medium"}
+                              {t(`quizGenerator.${quiz.difficulty || "medium"}`)}
                             </div>
                             {quiz.isPublic === 1 && (
                               <>
                                 <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-                                <div className="text-green-600 dark:text-green-400 font-bold">Public</div>
+                                <div className="text-green-600 dark:text-green-400 font-bold">{t('common.public')}</div>
                               </>
                             )}
                           </div>
@@ -526,7 +531,7 @@ export default function FolderPage() {
                             data-testid={`button-study-${quiz.id}`}
                           >
                             <BookOpen className="h-3.5 w-3.5 mr-1.5" />
-                            Review
+                            {t('history.review')}
                           </Button>
                           <Button
                             size="sm"
@@ -535,7 +540,7 @@ export default function FolderPage() {
                             data-testid={`button-retake-${quiz.id}`}
                           >
                             <Play className="h-3.5 w-3.5 mr-1.5 fill-current" />
-                            Take
+                            {t('history.take')}
                           </Button>
                         </div>
 
@@ -565,7 +570,7 @@ export default function FolderPage() {
                             <DropdownMenuContent align="end" className="w-48 shadow-xl border-border/50">
                               <DropdownMenuItem onClick={() => handleEdit(quiz)} data-testid={`button-edit-${quiz.id}`}>
                                 <Edit2 className="h-3.5 w-3.5 mr-2" />
-                                Edit Quiz
+                                {t('history.editQuiz')}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => togglePublicMutation.mutate({
@@ -575,14 +580,14 @@ export default function FolderPage() {
                                 data-testid={`button-toggle-public-${quiz.id}`}
                               >
                                 {quiz.isPublic === 1 ? (
-                                  <><GlobeLock className="h-3.5 w-3.5 mr-2" />Draft Mode</>
+                                  <><GlobeLock className="h-3.5 w-3.5 mr-2" />{t('history.draftMode')}</>
                                 ) : (
-                                  <><Globe className="h-3.5 w-3.5 mr-2" />Publish to Library</>
+                                  <><Globe className="h-3.5 w-3.5 mr-2" />{t('history.publishToLibrary')}</>
                                 )}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleShare(quiz.id)} data-testid={`button-share-${quiz.id}`}>
                                 <Share2 className="h-3.5 w-3.5 mr-2" />
-                                Copy Share Link
+                                {t('history.copyShareLink')}
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
@@ -590,7 +595,7 @@ export default function FolderPage() {
                                 data-testid={`button-remove-from-folder-${quiz.id}`}
                               >
                                 <X className="h-3.5 w-3.5 mr-2" />
-                                Remove from Folder
+                                {t('history.removeFromFolder')}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive focus:bg-destructive/10"
@@ -598,7 +603,7 @@ export default function FolderPage() {
                                 data-testid={`button-delete-${quiz.id}`}
                               >
                                 <Trash2 className="h-3.5 w-3.5 mr-2" />
-                                Permanently Delete
+                                {t('history.permanentlyDelete')}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -616,16 +621,16 @@ export default function FolderPage() {
       <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rename Folder</DialogTitle>
+            <DialogTitle>{t('history.renameFolder')}</DialogTitle>
             <DialogDescription>
-              Enter a new name for this folder.
+              {t('history.enterNewFolderName')}
             </DialogDescription>
           </DialogHeader>
           <Input
             ref={renameInputRef}
             value={folderName}
             onChange={(e) => setFolderName(e.target.value)}
-            placeholder="Folder name"
+            placeholder={t('history.folderName')}
             data-testid="input-rename-folder"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleRenameSubmit();
@@ -633,7 +638,7 @@ export default function FolderPage() {
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setRenameDialogOpen(false)} data-testid="button-cancel-rename">
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleRenameSubmit}
@@ -641,7 +646,7 @@ export default function FolderPage() {
               data-testid="button-confirm-rename"
             >
               {renameFolderMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              Rename
+              {t('history.rename')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -650,16 +655,18 @@ export default function FolderPage() {
       <Dialog open={addQuizzesOpen} onOpenChange={(open) => { if (!open) { setAddQuizzesOpen(false); setSelectedQuizIds(new Set()); } }}>
         <DialogContent className="max-h-[80vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle>Add Quizzes to Folder</DialogTitle>
+            <DialogTitle>{t('history.addQuizzesToFolder')}</DialogTitle>
             <DialogDescription>
-              Select quizzes to include in "{folder?.name}"
+              {t('history.selectQuizzesForFolder', { name: folder?.name || "" })}
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto space-y-1 py-1 -mx-1 px-1">
             {allQuizzes.length > 0 ? (
               allQuizzes.map(quiz => {
                 const isSelected = selectedQuizIds.has(quiz.id);
-                const cat = quiz.category || "Others/General";
+                const catKey = getCategoryTranslationKey(quiz.category);
+                const catLabel = t(catKey);
+                const catOrig = quiz.category || "General";
                 return (
                   <div
                     key={quiz.id}
@@ -678,21 +685,21 @@ export default function FolderPage() {
                     </div>
 
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${cat === "Math" ? "text-blue-600 bg-blue-500/10 border-blue-200/50" :
-                        cat === "Science" ? "text-emerald-600 bg-emerald-500/10 border-emerald-200/50" :
-                          cat === "English" || cat === "Global Languages" ? "text-violet-600 bg-violet-500/10 border-violet-200/50" :
-                            cat === "Social Studies" ? "text-indigo-600 bg-indigo-500/10 border-indigo-200/50" :
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${catOrig === "Math" ? "text-blue-600 bg-blue-500/10 border-blue-200/50" :
+                        catOrig === "Science" ? "text-emerald-600 bg-emerald-500/10 border-emerald-200/50" :
+                          catOrig === "English" || catOrig === "Global Languages" ? "text-violet-600 bg-violet-500/10 border-violet-200/50" :
+                            catOrig === "Social Studies" ? "text-indigo-600 bg-indigo-500/10 border-indigo-200/50" :
                               "text-slate-600 bg-slate-500/10 border-slate-200/50"
                         }`}>
                         {(() => {
-                          const Icon = getCategoryIcon(cat);
+                          const Icon = getCategoryIcon(catOrig);
                           return <Icon className="h-4 w-4" />;
                         })()}
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-bold truncate text-foreground">{quiz.title}</p>
                         <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/60">
-                          {(quiz as any).questionCount || (quiz.questions as any[])?.length || 0} questions
+                          {t('history.questions', { count: (quiz as any).questionCount || (quiz.questions as any[])?.length || 0 })}
                         </p>
                       </div>
                     </div>
@@ -700,12 +707,12 @@ export default function FolderPage() {
                 );
               })
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-6">No quizzes available</p>
+              <p className="text-sm text-muted-foreground text-center py-6">{t('history.noQuizzesYet')}</p>
             )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setAddQuizzesOpen(false); setSelectedQuizIds(new Set()); }} data-testid="button-cancel-add-quizzes">
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={() => {
@@ -719,7 +726,7 @@ export default function FolderPage() {
               data-testid="button-save-add-quizzes"
             >
               {addQuizzesToFolderMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              Save
+              {t('history.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -728,13 +735,13 @@ export default function FolderPage() {
       <AlertDialog open={!!quizToDelete} onOpenChange={(open) => !open && setQuizToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Quiz</AlertDialogTitle>
+            <AlertDialogTitle>{t('history.deleteQuiz')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{quizToDelete?.title}"? This action cannot be undone.
+              {t('history.deleteQuizConfirm', { title: quizToDelete?.title || "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogCancel data-testid="button-cancel-delete">{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => quizToDelete && deleteMutation.mutate(quizToDelete.id)}
               disabled={deleteMutation.isPending}
@@ -746,7 +753,7 @@ export default function FolderPage() {
               ) : (
                 <Trash2 className="h-4 w-4 mr-2" />
               )}
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -755,13 +762,13 @@ export default function FolderPage() {
       <AlertDialog open={deleteFolderConfirm} onOpenChange={setDeleteFolderConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Folder</AlertDialogTitle>
+            <AlertDialogTitle>{t('history.deleteCollection')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{folder?.name}"? Quizzes inside won't be deleted, they'll just become unfiled.
+              {t('history.deleteFolderConfirm', { name: folder?.name || "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete-folder">Cancel</AlertDialogCancel>
+            <AlertDialogCancel data-testid="button-cancel-delete-folder">{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteFolderMutation.mutate()}
               disabled={deleteFolderMutation.isPending}
@@ -773,7 +780,7 @@ export default function FolderPage() {
               ) : (
                 <Trash2 className="h-4 w-4 mr-2" />
               )}
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1210,6 +1210,8 @@ ${userPreferences?.subjectInclination ? `- Subject Inclination: ${userPreference
 ${userPreferences?.feedbackStyle ? `- Feedback Style: ${userPreferences.feedbackStyle}` : ""}
 ${userPreferences?.aiPartnership ? `- Guidance Method: ${userPreferences.aiPartnership}` : ""}
 
+Responses should 
+
 CURRENT QUESTION:
 Type: ${currentQuestion.type}
 Question: ${currentQuestion.question}
@@ -1221,7 +1223,7 @@ ${questions.map((q, i) => `Q${i + 1}: ${q.question}`).join("\n")}
 ${sourceMaterial ? `SOURCE MATERIAL (original study content):\n${sourceMaterial.substring(0, 4000)}${sourceMaterial.length > 4000 ? "..." : ""}` : ""}
 
 INSTRUCTIONS:
-- Help the student understand concepts WITHOUT giving away answers directly
+- Help the user understand concepts WITHOUT giving away answers directly
 - If asked for the answer, guide them with hints instead - be a good tutor, not an answer machine!
 - Explain concepts from the source material when relevant
 - Be encouraging and supportive - you're their study buddy!

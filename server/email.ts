@@ -21,8 +21,15 @@ function getTransporter() {
         console.log("\x1b[36m%s\x1b[0m", "--- DEV EMAIL SENT ---");
         console.log("To:", options.to);
         console.log("Subject:", options.subject);
-        // Extract the link from the HTML if possible for ease of use
-        const linkMatch = options.html.match(/href="([^"]+)"/);
+        
+        // Find 6-digit code in the subject or body
+        const codeMatch = options.subject.match(/\d{6}/) || options.html.match(/>(\d{6})</);
+        if (codeMatch) {
+          console.log("\x1b[32m%s\x1b[0m", "Verification Code:", codeMatch[0]);
+        }
+
+        // Keep link logging but make it more specific to avoid matching font links
+        const linkMatch = options.html.match(/href="([^"]+(?:verify|reset|confirm)[^"]+)"/);
         if (linkMatch) {
           console.log("\x1b[32m%s\x1b[0m", "Action Link:", linkMatch[1]);
         }
@@ -48,19 +55,15 @@ export async function sendVerificationEmail(
   token: string,
   username?: string
 ): Promise<void> {
-  const baseUrl = process.env.NODE_ENV === "production"
-    ? "https://prepetual.app"
-    : "http://localhost:5000";
-
-  const verificationUrl = `${baseUrl}/verify-email?token=${token}`;
   const name = username || "there";
+  const codeArray = token.split("");
 
   console.log("[Email] Sending verification email to:", to);
   const transporter = getTransporter();
   await transporter.sendMail({
     from: `"Prepetual" <${process.env.GMAIL_USER}>`,
     to,
-    subject: "Verify your email address - Prepetual",
+    subject: `${token} is your verification code - Prepetual`,
     html: `
       <!DOCTYPE html>
       <html>
@@ -68,45 +71,59 @@ export async function sendVerificationEmail(
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Funnel+Display:wght@800&display=swap" rel="stylesheet">
+        <style>
+          @media only screen and (max-width: 600px) {
+            .container { padding: 20px !important; }
+            .content { padding: 30px 20px !important; }
+          }
+        </style>
       </head>
-      <body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <table role="presentation" style="width: 100%; border-collapse: collapse;">
           <tr>
-            <td style="padding: 40px 20px;">
-              <table role="presentation" style="max-width: 480px; margin: 0 auto; background-color: #f5f5f5; border-radius: 16px; overflow: hidden; border: 1px solid #e5e5e5;">
-                <!-- Header -->
+            <td style="padding: 40px 10px;" class="container">
+              <table role="presentation" style="max-width: 520px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;">
+                <!-- Header with Logo -->
                 <tr>
-                  <td style="background-color: #FACC15; padding: 28px 40px; text-align: center;">
-                    <h1 style="margin: 0; color: #171717; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; font-family: 'Funnel Display', sans-serif; font-weight: 800;">prepetual</h1>
+                  <td style="background-color: #FACC15; padding: 40px 40px; text-align: center;">
+                    <div style="display: inline-block; background-color: #ffffff; padding: 12px; border-radius: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                      <img src="https://prepetual.app/favicon.png" alt="Prepetual Logo" style="width: 32px; height: 32px; display: block;">
+                    </div>
+                    <h1 style="margin: 0; color: #171717; font-size: 28px; font-weight: 800; letter-spacing: -1px; font-family: 'Funnel Display', sans-serif;">prepetual</h1>
                   </td>
                 </tr>
                 <!-- Content -->
                 <tr>
-                  <td style="padding: 40px;">
-                    <h2 style="margin: 0 0 16px 0; color: #171717; font-size: 20px; font-weight: 600; font-family: 'Funnel Display', sans-serif; font-weight: 800;">Welcome aboard, ${name}!</h2>
-                    <p style="margin: 0 0 28px 0; color: #525252; font-size: 15px; line-height: 1.7; font-family: 'Funnel Display', sans-serif; font-weight: 800;">
-                      You're just one step away from unlocking the power of AI-generated quizzes. Verify your email to get started.
+                  <td style="padding: 48px 40px;" class="content">
+                    <h2 style="margin: 0 0 16px 0; color: #0f172a; font-size: 22px; font-weight: 700; font-family: 'Funnel Display', sans-serif;">Welcome aboard, ${name}!</h2>
+                    <p style="margin: 0 0 32px 0; color: #475569; font-size: 16px; line-height: 1.6;">
+                      You're just one step away from unlocking the power of AI-generated quizzes. Use the verification code below to get started.
                     </p>
-                    <!-- Button -->
-                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                      <tr>
-                        <td style="text-align: center; padding: 8px 0 32px 0;">
-                          <a href="${verificationUrl}" style="display: inline-block; background-color: #FACC15; color: #171717; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; font-family: 'Funnel Display', sans-serif; font-weight: 800; border: 1px solid #E5B800;">
-                            Verify My Email
-                          </a>
-                        </td>
-                      </tr>
-                    </table>
-                    <p style="margin: 0 0 8px 0; color: #737373; font-size: 13px; font-family: 'Funnel Display', sans-serif; font-weight: 800;">Or copy this link:</p>
-                    <p style="margin: 0 0 24px 0; padding: 12px; background-color: #e5e5e5; border-radius: 8px; word-break: break-all; color: #525252; font-size: 12px; font-family: monospace;">${verificationUrl}</p>
-                    <p style="margin: 0; color: #737373; font-size: 13px; font-family: 'Funnel Display', sans-serif; font-weight: 800;">This link expires in 24 hours.</p>
+                    
+                    <!-- Code Display -->
+                    <div style="margin: 40px 0; text-align: center;">
+                      <div style="display: inline-block; padding: 20px 32px; background-color: #f8fafc; border: 2px dashed #FACC15; border-radius: 20px;">
+                        <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 36px; font-weight: 800; letter-spacing: 10px; color: #0f172a;">${token}</span>
+                      </div>
+                      <p style="margin: 16px 0 0 0; color: #94a3b8; font-size: 13px; font-weight: 500;">Verification Code</p>
+                    </div>
+
+                    <div style="margin-top: 40px; padding: 20px; background-color: #fffbeb; border-radius: 16px; border: 1px solid #fef3c7;">
+                       <p style="margin: 0; color: #92400e; font-size: 14px; font-weight: 500; text-align: center;">
+                         This code will expire in 24 hours.
+                       </p>
+                    </div>
                   </td>
                 </tr>
                 <!-- Footer -->
                 <tr>
-                  <td style="padding: 24px 40px; background-color: #ebebeb; border-top: 1px solid #e0e0e0;">
-                    <p style="margin: 0; color: #737373; font-size: 12px; text-align: center; font-family: 'Funnel Display', sans-serif; font-weight: 800;">
-                      Didn't sign up for Prepetual? You can safely ignore this email.
+                  <td style="padding: 32px 40px; background-color: #f1f5f9; border-top: 1px solid #e2e8f0;">
+                    <div style="text-align: center; margin-bottom: 16px;">
+                      <span style="color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Follow your progress</span>
+                    </div>
+                    <p style="margin: 0; color: #94a3b8; font-size: 12px; text-align: center; line-height: 1.5;">
+                      Didn't sign up for Prepetual? You can safely ignore this email.<br>
+                      &copy; ${new Date().getFullYear()} Prepetual. All rights reserved.
                     </p>
                   </td>
                 </tr>
@@ -123,21 +140,16 @@ export async function sendVerificationEmail(
 
 export async function sendPasswordResetEmail(
   to: string,
-  token: string,
+  resetLink: string,
   username?: string
 ): Promise<void> {
-  const baseUrl = process.env.NODE_ENV === "production"
-    ? "https://prepetual.app"
-    : "http://localhost:5000";
-
-  const resetUrl = `${baseUrl}/reset-password?token=${token}`;
   const name = username || "there";
 
   const transporter = getTransporter();
   await transporter.sendMail({
     from: `"Prepetual" <${process.env.GMAIL_USER}>`,
     to,
-    subject: "Reset your password - Prepetual",
+    subject: `Reset your Prepetual password`,
     html: `
       <!DOCTYPE html>
       <html>
@@ -145,48 +157,63 @@ export async function sendPasswordResetEmail(
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Funnel+Display:wght@800&display=swap" rel="stylesheet">
+        <style>
+          @media only screen and (max-width: 600px) {
+            .container { padding: 20px !important; }
+            .content { padding: 30px 20px !important; }
+          }
+        </style>
       </head>
-      <body style="margin: 0; padding: 0; background-color: #fafafa; font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <table role="presentation" style="width: 100%; border-collapse: collapse;">
           <tr>
-            <td style="padding: 40px 20px;">
-              <table role="presentation" style="max-width: 480px; margin: 0 auto; background-color: #f5f5f5; border-radius: 16px; overflow: hidden; border: 1px solid #e5e5e5;">
-                <!-- Header -->
+            <td style="padding: 40px 10px;" class="container">
+              <table role="presentation" style="max-width: 520px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;">
+                <!-- Header with Logo -->
                 <tr>
-                  <td style="background-color: #FACC15; padding: 28px 40px; text-align: center;">
-                    <h1 style="margin: 0; color: #171717; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; font-family: 'Funnel Display', sans-serif; font-weight: 800;">prepetual</h1>
+                  <td style="background-color: #FACC15; padding: 40px 40px; text-align: center;">
+                    <div style="display: inline-block; background-color: #ffffff; padding: 12px; border-radius: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                      <img src="https://prepetual.app/favicon.png" alt="Prepetual Logo" style="width: 32px; height: 32px; display: block;">
+                    </div>
+                    <h1 style="margin: 0; color: #171717; font-size: 28px; font-weight: 800; letter-spacing: -1px; font-family: 'Funnel Display', sans-serif;">prepetual</h1>
                   </td>
                 </tr>
                 <!-- Content -->
                 <tr>
-                  <td style="padding: 40px;">
-                    <h2 style="margin: 0 0 16px 0; color: #171717; font-size: 20px; font-weight: 600; font-family: 'Funnel Display', sans-serif; font-weight: 800;">Reset your password</h2>
-                    <p style="margin: 0 0 8px 0; color: #525252; font-size: 15px; line-height: 1.7; font-family: 'Funnel Display', sans-serif; font-weight: 800;">
-                      Hi ${name},
+                  <td style="padding: 48px 40px;" class="content">
+                    <h2 style="margin: 0 0 16px 0; color: #0f172a; font-size: 22px; font-weight: 700; font-family: 'Funnel Display', sans-serif;">Reset your password</h2>
+                    <p style="margin: 0 0 8px 0; color: #475569; font-size: 16px; line-height: 1.6; font-weight: 500;">Hi ${name},</p>
+                    <p style="margin: 0 0 40px 0; color: #475569; font-size: 16px; line-height: 1.6;">
+                      We received a request to reset your password. Click the button below to choose a new one.
                     </p>
-                    <p style="margin: 0 0 28px 0; color: #525252; font-size: 15px; line-height: 1.7; font-family: 'Funnel Display', sans-serif; font-weight: 800;">
-                      We received a request to reset your password. Click the button below to create a new one.
+
+                    <!-- CTA Button -->
+                    <div style="text-align: center; margin: 0 0 40px 0;">
+                      <a href="${resetLink}" target="_blank" style="display: inline-block; background-color: #FACC15; color: #171717; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; text-decoration: none; padding: 16px 40px; border-radius: 14px; letter-spacing: -0.2px;">
+                        Reset My Password
+                      </a>
+                    </div>
+
+                    <p style="margin: 0 0 16px 0; color: #94a3b8; font-size: 13px; text-align: center;">
+                      Or copy and paste this link into your browser:
                     </p>
-                    <!-- Button -->
-                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                      <tr>
-                        <td style="text-align: center; padding: 8px 0 32px 0;">
-                          <a href="${resetUrl}" style="display: inline-block; background-color: #FACC15; color: #171717; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; font-family: 'Funnel Display', sans-serif; font-weight: 800; border: 1px solid #E5B800;">
-                            Reset Password
-                          </a>
-                        </td>
-                      </tr>
-                    </table>
-                    <p style="margin: 0 0 8px 0; color: #737373; font-size: 13px; font-family: 'Funnel Display', sans-serif; font-weight: 800;">Or copy this link:</p>
-                    <p style="margin: 0 0 24px 0; padding: 12px; background-color: #e5e5e5; border-radius: 8px; word-break: break-all; color: #525252; font-size: 12px; font-family: monospace;">${resetUrl}</p>
-                    <p style="margin: 0; color: #737373; font-size: 13px; font-family: 'Funnel Display', sans-serif; font-weight: 800;">This link expires in 1 hour.</p>
+                    <p style="margin: 0; font-size: 12px; color: #64748b; text-align: center; word-break: break-all; background-color: #f8fafc; padding: 12px 16px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                      ${resetLink}
+                    </p>
+
+                    <div style="margin-top: 40px; padding: 20px; background-color: #fff1f2; border-radius: 16px; border: 1px solid #ffe4e6;">
+                       <p style="margin: 0; color: #be123c; font-size: 14px; font-weight: 500; text-align: center;">
+                         This link will expire in 1 hour.
+                       </p>
+                    </div>
                   </td>
                 </tr>
                 <!-- Footer -->
                 <tr>
-                  <td style="padding: 24px 40px; background-color: #ebebeb; border-top: 1px solid #e0e0e0;">
-                    <p style="margin: 0; color: #737373; font-size: 12px; text-align: center; font-family: 'Funnel Display', sans-serif; font-weight: 800;">
-                      Didn't request a password reset? You can safely ignore this email.
+                  <td style="padding: 32px 40px; background-color: #f1f5f9; border-top: 1px solid #e2e8f0;">
+                    <p style="margin: 0; color: #94a3b8; font-size: 12px; text-align: center; line-height: 1.5;">
+                      Didn't request a password reset? You can safely ignore this email.<br>
+                      &copy; ${new Date().getFullYear()} Prepetual. All rights reserved.
                     </p>
                   </td>
                 </tr>
@@ -235,13 +262,28 @@ export async function sendContactEmail(data: {
       to: data.email,
       subject: "We received your message - Prepetual",
       html: `
-        <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
-          <h2 style="color: #FACC15;">Message Received!</h2>
-          <p>Hi ${data.name},</p>
-          <p>Thanks for reaching out to Prepetual. We've received your message about "<strong>${data.subject}</strong>" and will get back to you at this email address as soon as possible.</p>
-          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #777;">This is an automated confirmation. No need to reply to this email.</p>
-        </div>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Funnel+Display:wght@800&display=swap" rel="stylesheet">
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: 'DM Sans', sans-serif;">
+          <div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 24px rgba(0,0,0,0.04);">
+            <div style="background-color: #FACC15; padding: 32px; text-align: center;">
+              <h2 style="margin: 0; color: #171717; font-family: 'Funnel Display', sans-serif; font-size: 24px;">Message Received!</h2>
+            </div>
+            <div style="padding: 40px;">
+              <p style="margin: 0 0 16px 0; font-size: 16px; color: #0f172a; font-weight: 700;">Hi ${data.name},</p>
+              <p style="margin: 0 0 24px 0; font-size: 15px; color: #475569; line-height: 1.6;">
+                Thanks for reaching out to Prepetual. We've received your message about "<strong>${data.subject}</strong>" and will get back to you as soon as possible.
+              </p>
+              <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 32px 0;" />
+              <p style="margin: 0; font-size: 12px; color: #94a3b8; text-align: center;">This is an automated confirmation. No need to reply to this email.</p>
+            </div>
+          </div>
+        </body>
+        </html>
       `,
     });
   } catch (err) {

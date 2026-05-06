@@ -49,8 +49,8 @@ export type User = typeof users.$inferSelect;
 export const verificationTokens = pgTable("verification_tokens", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  token: varchar("token").notNull().unique(),
-  type: varchar("type").notNull(),
+  token: varchar("token", { length: 64 }).notNull(),
+  type: varchar("type", { length: 50 }).notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
