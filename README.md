@@ -1,140 +1,97 @@
 # Prepetual
 
-Prepetual is a premium, AI-powered study platform designed to transform your learning materials into interactive, mastery-based quizzes. Whether you have handwritten notes, complex PDFs, or lengthy YouTube lectures, Prepetual turns them into a personalized learning path.
+Prepetual is an AI-powered study platform that turns your learning materials (text, PDFs, Office docs, images, and YouTube videos) into interactive quizzes, then helps you review what you missed.
 
----
+## Features
 
-## Core Features
+- **Quiz generation from content**: Paste text or upload files to generate multiple-choice / true-false / short-answer questions.
+- **YouTube to quiz**: Paste a YouTube URL and generate questions from the video transcript (when captions are available).
+- **Document parsing + OCR**: Extracts text from PDFs and Office files; runs OCR for scanned/handwritten images (English + Vietnamese).
+- **Async uploads with progress**: Background upload jobs with polling for status + progress.
+- **Streaming generation**: Server-Sent Events (SSE) endpoint for generation progress updates.
+- **Import existing quizzes (exam scanner)**: Upload an existing worksheet/exam and let AI structure it into a quiz.
+- **Summaries**: Summarize long study material into key points.
+- **Auth + sessions**: Passport-based auth (Google OAuth + local), session storage backed by Postgres.
 
-### AI Smart Generation
+## Requirements
 
-Turn static content into active learning tools in seconds.
+- **Node.js**: v20+
+- **PostgreSQL**: v14+ (local or hosted)
+- **npm**: comes with Node
+- **Native deps (may be required)**: some packages (notably `@napi-rs/canvas`) may require platform build tools if your install fails.
 
-- **Notes to Quiz**: Convert raw text or lecture notes into high-quality questions.
-- **YouTube Integration (Coming Soon)**: Soon you'll be able to paste a URL and let the AI analyze the transcript to generate relevant practice.
-- **Document Analysis**: Upload PDFs or Office documents. The AI "reads" the content (including images) to create context-aware questions.
-- **Handwriting Support**: Advanced OCR capabilities to handle scanned notes and images.
-- **Global Upload Tracking**: Real-time progress indicators for your uploads, so you're never left wondering.
+## Dependencies (high level)
 
-### AI Smart Import (Exam Scanner)
+- **Frontend**: React 18, Vite, Tailwind CSS, Framer Motion, Radix UI
+- **Backend**: Node.js, Express, WebSocket (`ws`)
+- **DB / ORM**: Postgres (`pg`), Drizzle ORM + drizzle-kit
+- **AI**: `openai` SDK (supports OpenAI-compatible base URLs)
+- **File processing**: `multer`, `pdfjs-dist`, `pdf-parse`, `officeparser`, `tesseract.js`
+- **Auth / sessions**: `passport`, `passport-local`, `express-session`, `connect-pg-simple`
+- **Email**: `nodemailer`
 
-Already have a test paper but no answer key?
+## Run locally
 
-- **Scanner Mode**: Upload an existing exam or worksheet.
-- **Auto-Solve**: The AI identifies the questions, understands the context, and finds/verifies the correct answers for you.
-- **Digitization**: Turns your physical papers into interactive digital quizzes.
+1. **Install dependencies**
 
-### Interactive Study Experience & Community
+   ```bash
+   npm install
+   ```
 
-Designed to keep you engaged and motivated.
+2. **Configure environment**
 
-- **Community Feed**: Discover and take quizzes created by other learners in the community.
-- **Study Mode**: A dedicated, distraction-free environment for deep-focus sessions.
-- **Instant Feedback**: Get immediate results with encouraging messages and "streak" tracking.
-- **AI Explanations**: Don't just see the answer; understand the _why_ with on-demand AI explanations for every option.
-- **Confetti & Rewards**: Celebrate mastery with visual rewards for perfect streaks.
-- **AI Tutor (Chatbot)**: Stuck on a question? Chat with the integrated study assistant for deep-dives into any topic.
-- **Spaced Repetition (Smart Review)**: Achive 100% mastery by re-attempting questions you missed in previous sessions, powered by a smart retry engine.
-- **Navigation Guard**: Smart protection prevents you from accidentally losing quiz progress when navigating away.
+   Create `.env` from the example:
 
-### Library & Folders
+   ```bash
+   cp .env.example .env
+   ```
 
-Keep your study life organized.
+   PowerShell:
 
-- **Custom Folders**: Categorize quizzes by subject, semester, or project.
-- **In-Progress Tracking**: Pick up exactly where you left off with session persistence.
-- **Performance History**: Review your past results to identify weak spots.
-- **Revision Summaries**: Get high-level insights after your weekly revision sessions.
+   ```powershell
+   Copy-Item .env.example .env
+   ```
 
----
+3. **Set up the database**
 
-## How it Works (Workflows)
+   - Ensure Postgres is running and `DATABASE_URL` in `.env` points to it.
+   - Push the Drizzle schema:
 
-### 1. The Creation Workflow
+   ```bash
+   npm run db:push
+   ```
 
-1.  **Upload**: Select your source (PDF, YouTube Link, Image, or Text).
-2.  **Configure**: Choose question count (3-20), difficulty (Easy, Medium, Hard), and types (Multiple Choice, True/False, Short Answer).
-3.  **Process**: Watch the AI analyze your material in real-time with our streaming generation engine.
-4.  **Save**: Organize it into a folder and you're ready to study.
+4. **Start dev server**
 
-### 2. The Learning Workflow
+   ```bash
+   npm run dev
+   ```
 
-1.  **Practice**: Answer questions one-by-one with a sleek, minimalist interface.
-2.  **Understand**: If you get one wrong, use the "AI Explanation" button to get a detailed breakdown.
-3.  **Chat**: Use the Sidebar Chatbot to ask follow-up questions about the material.
-4.  **Review**: At the end, see your "Study Insights" and decide if you need to retake or move to the next topic.
-5.  **Share**: Generate a public link to share your quiz with classmates or friends (even if they don't have an account).
+   Then open `http://localhost:5000` (default port). You can override with `PORT` in `.env`.
 
----
+## Environment variables
 
-## Tech Stack
+See `.env.example` for the full list. Common ones:
 
-- **Frontend**: `React 18`, `Vite`, `Tailwind CSS`, `Framer Motion` (Animations), `Lucide Icons`.
-- **Backend**: `Node.js`, `Express`.
-- **Database**: `PostgreSQL` with `Drizzle ORM`.
-- **AI Engine**: `OpenAI GPT-4o` (Text & Vision).
-- **Auth**: `Passport.js` with `Google OAuth 2.0` and `Local Strategy`.
-- **Email**: `Nodemailer`.
+| Variable | Required | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | Yes | Postgres connection string |
+| `SESSION_SECRET` | Yes | Secret used to sign session cookies |
+| `AI_INTEGRATIONS_OPENAI_API_KEY` | Yes | API key for your OpenAI (or compatible) provider |
+| `AI_INTEGRATIONS_OPENAI_BASE_URL` | No | Override base URL (defaults to OpenAI) |
+| `GOOGLE_CLIENT_ID` | No | Google OAuth client ID (needed for Google login) |
+| `GMAIL_USER` | No | Sender account for email features |
+| `GMAIL_APP_PASSWORD` | No | App password for `GMAIL_USER` |
+| `YOUTUBE_TRANSCRIPT_API_KEY` | No | Enables the most reliable transcript fetch method (uses an external transcript API) |
 
----
+## Useful scripts
 
-## Getting Started
+- `npm run dev`: Start the Express server in dev mode (also serves Vite via middleware)
+- `npm run db:push`: Push Drizzle schema to the database
+- `npm run check`: Typecheck
+- `npm run build`: Build client + server into `dist/`
+- `npm run start`: Run the production bundle from `dist/`
 
-### Prerequisites
+## License
 
-- [Node.js](https://nodejs.org/) (v20 or higher)
-- [PostgreSQL](https://www.postgresql.org/) (Local or Cloud instance like Neon/Supabase)
-
-### Installation
-
-1.  **Clone the repository**:
-
-    ```bash
-    git clone https://github.com/hienhng/prepetual-app.git
-    cd prepetual-app
-    ```
-
-2.  **Install dependencies**:
-
-    ```bash
-    npm install
-    ```
-
-3.  **Environment Setup**:
-    Create a `.env` file in the root directory (refer to `.env.example`).
-
-    ```bash
-    cp .env.example .env
-    ```
-
-4.  **Database Setup**:
-
-    ```bash
-    npm run db:push
-    ```
-
-5.  **Start Development Server**:
-    ```bash
-    npm run dev
-    ```
-
----
-
-## 📜 Environment Variables
-
-To run this project, you will need to add the following to your `.env` file:
-
-| Variable                         | Description                             |
-| :------------------------------- | :-------------------------------------- |
-| `DATABASE_URL`                   | Your PostgreSQL connection string       |
-| `SESSION_SECRET`                 | Secret key for session encryption       |
-| `AI_INTEGRATIONS_OPENAI_API_KEY` | Your OpenAI API key                     |
-| `GOOGLE_CLIENT_ID`               | Google OAuth Client ID                  |
-| `GMAIL_USER`                     | Gmail address for sending notifications |
-| `GMAIL_APP_PASSWORD`             | App-specific password for Gmail         |
-
----
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
+MIT. See `LICENSE`.
