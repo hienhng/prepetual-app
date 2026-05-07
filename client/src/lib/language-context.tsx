@@ -661,6 +661,14 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       reviewFailed: "Review Failed",
       reviewFailedDesc: "Could not generate your review session. Please try again.",
     },
+    revisionSummary: {
+      greatPractice: "Great Practice!",
+      buildingMemories: "You're building stronger memories with every revision.",
+      questionsMastered: "questions mastered in this session",
+      retryCount: "including {count} you got right on retry",
+      weeklyRevisedCount: "questions revised this week",
+      mistakesLockDesc: "Mistakes are how memories get locked in. Keep revisiting and watch them disappear.",
+    },
     generate: {
       goBack: "Go Back",
       materialProcessed: "Material Processed & Ready",
@@ -1451,6 +1459,14 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       smartReviewDesc: "Tập trung vào các lỗi sai thường xuyên nhất và các thử thách tương tự.",
       reviewFailed: "Tạo ôn tập thất bại",
       reviewFailedDesc: "Không thể tạo phiên ôn tập. Vui lòng thử lại.",
+    },
+    revisionSummary: {
+      greatPractice: "Luyện tập tuyệt vời!",
+      buildingMemories: "Bạn đang củng cố trí nhớ mạnh mẽ hơn với mỗi lần ôn tập.",
+      questionsMastered: "câu đã nắm vững trong phiên này",
+      retryCount: "trong đó có {count} câu bạn đã làm đúng khi thử lại",
+      weeklyRevisedCount: "câu đã ôn tập trong tuần này",
+      mistakesLockDesc: "Sai lầm là cách trí nhớ được khắc sâu. Hãy tiếp tục ôn luyện và bạn sẽ thấy chúng biến mất.",
     },
     generate: {
       goBack: "Quay lại",

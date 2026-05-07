@@ -76,7 +76,7 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
       setCurrentQuiz(reviewQuiz);
       toast({
         title: t('results.smartReviewGenerated'),
-        description: t('results.smartReviewGeneratedDesc'),
+        description: t('results.smartReviewDesc'),
       });
       setLocation("/quiz");
     } catch (error) {
@@ -332,7 +332,7 @@ export default function ResultsPage() {
                 <Clock className="h-8 w-8 text-muted-foreground" />
               </div>
               <h3 className="text-xl font-bold mb-2">{t('results.noResultsYet')}</h3>
-              <p className="text-muted-foreground mb-8 max-w-sm mx-auto">{t('results.noResultsYetDesc')}</p>
+              <p className="text-muted-foreground mb-8 max-w-sm mx-auto">{t('results.noResultsDesc')}</p>
               <Button size="lg" className="font-bold rounded-full px-8 shadow-lg shadow-primary/20" onClick={() => window.location.href = "/create"}>
                 {t('results.createQuiz')}
               </Button>
