@@ -80,8 +80,8 @@ See `.env.example` for the full list. Common ones:
 | `AI_INTEGRATIONS_OPENAI_API_KEY` | Yes | API key for your OpenAI (or compatible) provider |
 | `AI_INTEGRATIONS_OPENAI_BASE_URL` | No | Override base URL (defaults to OpenAI) |
 | `GOOGLE_CLIENT_ID` | No | Google OAuth client ID (needed for Google login) |
-| `GMAIL_USER` | No | Sender account for email features |
-| `GMAIL_APP_PASSWORD` | No | App password for `GMAIL_USER` |
+| `GMAIL_USER` | Yes | Sender account for email features |
+| `GMAIL_APP_PASSWORD` | Yes | App password for `GMAIL_USER` |
 | `YOUTUBE_TRANSCRIPT_API_KEY` | No | Enables the most reliable transcript fetch method (uses an external transcript API) |
 
 ## Useful scripts
