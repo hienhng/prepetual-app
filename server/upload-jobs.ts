@@ -1,5 +1,4 @@
-import pdf from "pdf-parse";
-import { createWorker } from "tesseract.js";
+import { ocrImageBuffer } from "./ocr.js";
 // Dynamic import for officeparser to prevent hidden pdfjs-dist dependency issues
 let parseOffice: any = null;
 async function getOfficeParser() {
@@ -10,6 +9,7 @@ async function getOfficeParser() {
   return parseOffice;
 }
 import JSZip from "jszip";
+import { extractTextFromPDFWithOCR, renderPdfPagesAsDataUrls } from "./pdf-extract.js";
 
 export interface UploadJob {
   id: string;
@@ -27,15 +27,6 @@ export interface UploadJob {
 
 const jobs = new Map<string, UploadJob>();
 const jobBuffers = new Map<string, Buffer>();
-
-let tesseractWorker: Awaited<ReturnType<typeof createWorker>> | null = null;
-
-async function getOCRWorker() {
-  if (!tesseractWorker) {
-    tesseractWorker = await createWorker("eng+vie");
-  }
-  return tesseractWorker;
-}
 
 export function createJob(id: string, fileType: string): UploadJob {
   const job: UploadJob = {
@@ -74,18 +65,8 @@ export function deleteJob(id: string) {
   jobBuffers.delete(id);
 }
 
-async function extractTextFromPDF(buffer: Buffer): Promise<string> {
-  const data = await pdf(buffer);
-  return data.text
-    .replace(/\s+/g, " ")
-    .replace(/\n\s*\n/g, "\n\n")
-    .trim();
-}
-
 async function extractTextFromImage(buffer: Buffer): Promise<string> {
-  const worker = await getOCRWorker();
-  const { data: { text } } = await worker.recognize(buffer);
-  return text.trim();
+  return await ocrImageBuffer(buffer, { languages: "eng+vie" });
 }
 
 async function extractTextFromOfficeDocument(buffer: Buffer): Promise<string> {
@@ -198,7 +179,13 @@ export async function processJob(id: string) {
     
     if (fileType === "application/pdf") {
       updateJob(id, { progress: 20, message: "Extracting text from PDF..." });
-      extractedText = await extractTextFromPDF(buffer);
+      const result = await extractTextFromPDFWithOCR(buffer, {
+        sparseTextThresholdChars: 60,
+        maxPages: 10,
+        renderScale: 1.4,
+        maxRenderPixels: 2_500_000,
+      });
+      extractedText = result.text;
     } else if (fileType.startsWith("image/")) {
       isImageFile = true;
       updateJob(id, { progress: 20, message: "Processing image for visual analysis..." });
@@ -239,9 +226,35 @@ export async function processJob(id: string) {
       });
     } else {
       if (!extractedText || extractedText.length < 50) {
+        // Optional PDF vision fallback: if text is still too sparse after OCR, attach a few rendered pages
+        // for downstream vision/question generation without changing client shape.
+        if (fileType === "application/pdf") {
+          updateJob(id, { progress: 90, message: "Preparing PDF pages for visual analysis..." });
+          const pageImages = await renderPdfPagesAsDataUrls(buffer, {
+            maxPages: 3,
+            renderScale: 1.2,
+            maxRenderPixels: 2_000_000,
+            format: "jpeg",
+            jpegQuality: 70,
+          });
+
+          if (pageImages.length > 0) {
+            updateJob(id, {
+              status: "completed",
+              progress: 100,
+              message: "Document ready for visual analysis!",
+              text: extractedText || "",
+              isOfficeWithImages: true,
+              documentImages: pageImages,
+            });
+            cleanupBuffer(id);
+            return;
+          }
+        }
+
         throw new Error("Not enough text could be extracted from this document. Please try a different file with more readable content.");
       }
-      
+
       updateJob(id, {
         status: "completed",
         progress: 100,

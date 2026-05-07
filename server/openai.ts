@@ -177,6 +177,41 @@ function stripOptionPrefix(s: string): string {
   return s.replace(/^[A-Da-d]\)\s*/, "").trim();
 }
 
+function maybeFixShiftedDigitSymbols(s: string): string {
+  // Some OCR / model outputs occasionally turn digits into their "shift-number row" symbols:
+  // 1->!, 2->@", 3->#, 4->$, 5->%, 6->^, 7->&, 8->*, 9->(, 0->)
+  // This is especially common when options are supposed to be numeric.
+  const trimmed = String(s ?? "").trim();
+  if (!trimmed) return trimmed;
+
+  // Only attempt a fix when the string looks like mostly punctuation (not natural language).
+  // Avoid altering legitimate math or text.
+  const hasLetter = /[A-Za-z\u00C0-\u024F\u1E00-\u1EFF]/.test(trimmed);
+  const hasDigit = /\d/.test(trimmed);
+  const hasShiftDigits = /[!@"#$%^&*()]/.test(trimmed);
+  if (hasLetter || hasDigit || !hasShiftDigits) return trimmed;
+
+  const nonWhitespace = trimmed.replace(/\s+/g, "");
+  const onlyPunctLike = /^[!@"#$%^&*()=+\-*/\\.,:;]+$/.test(nonWhitespace);
+  if (!onlyPunctLike || nonWhitespace.length > 16) return trimmed;
+
+  const map: Record<string, string> = {
+    "!": "1",
+    "@": "2",
+    "\"": "2",
+    "#": "3",
+    "$": "4",
+    "%": "5",
+    "^": "6",
+    "&": "7",
+    "*": "8",
+    "(": "9",
+    ")": "0",
+  };
+
+  return trimmed.replace(/[!@"#$%^&*()]/g, (ch) => map[ch] ?? ch);
+}
+
 function valuesMatch(a: string, b: string): boolean {
   const cleanA = stripOptionPrefix(a);
   const cleanB = stripOptionPrefix(b);
@@ -378,14 +413,15 @@ LANGUAGE HANDLING:
 - If the content is in Vietnamese, write everything in Vietnamese
 - If the content is in English, write everything in English
 
-REQUIREMENTS:
+  REQUIREMENTS:
 1. Generate exactly ${questionCount} questions
 2. ONLY use these question types: ${questionTypeDescriptions}
 3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
 4. Distribute question types roughly evenly among the selected types
 5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
-6. For multiple choice, always provide exactly 4 options
-7. CATEGORY: Assign exactly ONE category from: ${categoryList}
+ 6. For multiple choice, always provide exactly 4 options
+ 7. Options must be meaningful and readable text or numbers (not placeholder symbols). If an option is numeric, use digits 0-9 (e.g., "12", "3.5", "$\\frac{1}{2}$"), NEVER use shifted symbols like ! @ # $ % ^ & * ( ) to represent digits.
+ 8. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
    - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
    - Science: biology, chemistry, physics, earth science, etc.
@@ -411,7 +447,7 @@ MATHEMATICAL CONTENT & LATEX (CRITICAL):
 - Ensure all LaTeX is syntactically correct for KaTeX.
 - This applies to questions, options, AND explanations.
 
-OUTPUT FORMAT (JSON):
+  OUTPUT FORMAT (JSON):
 {
   "title": "A short descriptive title for the quiz",
   "category": "One of: ${categoryList}",
@@ -450,23 +486,24 @@ LANGUAGE HANDLING:
 - If the content is in Vietnamese, write everything in Vietnamese
 - If the content is in English, write everything in English
 
-REQUIREMENTS:
-1. Generate exactly ${questionCount} questions
-2. ONLY use these question types: ${questionTypeDescriptions}
-3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
-4. Distribute question types roughly evenly among the selected types
-5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
-6. For multiple choice, always provide exactly 4 options labeled A, B, C, D
-7. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
-8. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
-9. CATEGORY: Assign exactly ONE category from: ${categoryList}
+ REQUIREMENTS:
+ 1. Generate EXACTLY ${questionCount} questions. Do NOT generate less or more.
+ 2. ONLY use these question types: ${questionTypeDescriptions}
+ 3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
+ 4. Distribute question types roughly evenly among the selected types
+ 5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
+ 6. For multiple choice, always provide exactly 4 options labeled A, B, C, D
+ 7. Options must be meaningful and readable text or numbers (not placeholder symbols). If an option is numeric, use digits 0-9 (e.g., "12", "3.5", "$\\frac{1}{2}$"), NEVER use shifted symbols like ! @ # $ % ^ & * ( ) to represent digits.
+ 8. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
+ 9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
+ 10. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
    - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
    - Science: biology, chemistry, physics, earth science, etc.
    - Social Studies: history, geography, civics, economics, etc.
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
-
+ 11. If the material is already a quiz set, do not solely repeat the questions given in the material, but generate questions based on it as if there was no quiz set in the material.
 MATHEMATICAL CONTENT & LATEX (CRITICAL):
 - For ALL mathematical expressions, formulas, equations, variables (even single letters like x, y), or numeric notations with symbols, you MUST use LaTeX formatting.
 - ALWAYS wrap LaTeX in delimiters: $...$ for inline or $$...$$ for display mode.
@@ -516,16 +553,17 @@ LANGUAGE HANDLING:
 - If the content is in Vietnamese, write everything in Vietnamese
 - If the content is in English, write everything in English
 
-REQUIREMENTS:
-1. Generate exactly ${questionCount} questions
-2. ONLY use these question types: ${questionTypeDescriptions}
-3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
-4. Distribute question types roughly evenly among the selected types
-5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
-6. For multiple choice, always provide exactly 4 options
-7. ALL questions should be based on the visual content
-8. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
-9. CATEGORY: Assign exactly ONE category from: ${categoryList}
+ REQUIREMENTS:
+ 1. Generate exactly ${questionCount} questions
+ 2. ONLY use these question types: ${questionTypeDescriptions}
+ 3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
+ 4. Distribute question types roughly evenly among the selected types
+ 5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
+ 6. For multiple choice, always provide exactly 4 options
+ 7. Options must be meaningful and readable text or numbers (not placeholder symbols). If an option is numeric, use digits 0-9 (e.g., "12", "3.5", "$\\frac{1}{2}$"), NEVER use shifted symbols like ! @ # $ % ^ & * ( ) to represent digits.
+ 8. ALL questions should be based on the visual content
+ 9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
+ 10. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
    - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
    - Science: biology, chemistry, physics, earth science, etc.
@@ -672,11 +710,13 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
       throw new Error("Invalid AI response: missing questions array");
     }
 
-    // Enforce question count limit - AI sometimes generates extra questions
-    let rawQuestions = parsed.questions;
+    // Don't slice to `questionCount` up-front.
+    // The AI sometimes returns extra questions and some early ones can be malformed or wrong-type.
+    // If we slice first, we can accidentally throw away valid extras and end up returning fewer
+    // questions than the user requested.
+    const rawQuestions = parsed.questions;
     if (rawQuestions.length > questionCount) {
-      console.log(`AI generated ${rawQuestions.length} questions, trimming to requested ${questionCount}`);
-      rawQuestions = rawQuestions.slice(0, questionCount);
+      console.log(`AI generated ${rawQuestions.length} questions, requested ${questionCount} (will take the first ${questionCount} valid ones)`);
     } else if (rawQuestions.length < questionCount) {
       console.warn(`AI generated only ${rawQuestions.length} questions, requested ${questionCount}`);
     }
@@ -700,26 +740,25 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
       }
     }
 
+    const fallbackSelectedType: QuestionType = (questionTypes[0] || "multiple_choice") as QuestionType;
+
     for (const q of rawQuestions) {
+      if (questions.length >= questionCount) break;
       if (!q.type || !q.question || !q.correctAnswer) {
         console.warn("Skipping malformed question:", q);
         continue;
       }
 
       if (!["multiple_choice", "true_false", "short_answer"].includes(q.type)) {
-        console.warn("Skipping question with invalid type:", q.type);
-        continue;
+        console.warn("Question has invalid type, coercing to a selected type:", q.type);
+        q.type = fallbackSelectedType as any;
       }
 
       if (!questionTypes.includes(q.type as QuestionType)) {
         console.warn(`AI generated ${q.type} but user only selected [${questionTypes.join(", ")}], converting...`);
-        if (questionTypes.length === 1) {
-          q.type = questionTypes[0];
-          if (q.type === "short_answer") {
-            q.options = undefined;
-          }
-        } else {
-          continue;
+        q.type = fallbackSelectedType;
+        if (q.type === "short_answer") {
+          q.options = undefined;
         }
       }
 
@@ -729,6 +768,11 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
           : undefined;
 
       let correctAnswer = String(q.correctAnswer).trim();
+
+      if (options) {
+        options = options.map(maybeFixShiftedDigitSymbols);
+      }
+      correctAnswer = maybeFixShiftedDigitSymbols(correctAnswer);
 
       // Programmatically shuffle options to ensure maximum randomness
       if (q.type === "multiple_choice" && options && options.length > 0) {

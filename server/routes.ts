@@ -6,8 +6,7 @@ import { storage } from "./storage.js";
 import { setupAuth, isAuthenticated, populateUser } from "./auth.js";
 import { sendContactEmail, sendBugReportEmail } from "./email.js";
 import multer from "multer";
-import { createWorker } from "tesseract.js";
-import pdf from "pdf-parse";
+import { ocrImageBuffer, terminateOCRWorker } from "./ocr.js";
 // Dynamic import for officeparser to prevent hidden pdfjs-dist dependency issues
 let parseOffice: any = null;
 async function getOfficeParser() {
@@ -21,6 +20,7 @@ import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyIm
 import { generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs.js";
+import { extractTextFromPDFWithOCR } from "./pdf-extract.js";
 import crypto from "crypto";
 import { fetchTranscript } from "youtube-transcript-plus";
 import TranscriptClient from "youtube-transcript-api";  // type: ignore
@@ -149,40 +149,20 @@ const upload = multer({
 });
 
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
-  try {
-    const data = await pdf(buffer);
-    return data.text
-      .replace(/\s+/g, " ")
-      .replace(/\n\s*\n/g, "\n\n")
-      .trim();
-  } catch (error) {
-    console.error("PDF extraction error:", error);
-    throw new Error("Failed to extract text from PDF");
-  }
-}
-
-let tesseractWorker: Awaited<ReturnType<typeof createWorker>> | null = null;
-
-async function getOCRWorker() {
-  if (!tesseractWorker) {
-    tesseractWorker = await createWorker("eng+vie", 1, {
-      cachePath: "/tmp",
-    });
-  }
-  return tesseractWorker;
+  const result = await extractTextFromPDFWithOCR(buffer, {
+    sparseTextThresholdChars: 60,
+    maxPages: 10,
+    renderScale: 1.4,
+    maxRenderPixels: 2_500_000,
+  });
+  return result.text;
 }
 
 async function extractTextFromImage(buffer: Buffer): Promise<string> {
   try {
-    const worker = await getOCRWorker();
-    const { data: { text } } = await worker.recognize(buffer);
-    return text.trim();
+    return await ocrImageBuffer(buffer, { languages: "eng+vie", cachePath: "/tmp" });
   } catch (error) {
     console.error("OCR error:", error);
-    if (tesseractWorker) {
-      try { await tesseractWorker.terminate(); } catch { }
-      tesseractWorker = null;
-    }
     throw new Error("Failed to extract text from image");
   }
 }
@@ -239,6 +219,9 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  process.on("SIGTERM", () => { void terminateOCRWorker(); });
+  process.on("SIGINT", () => { void terminateOCRWorker(); });
+
   // Setup custom auth
   setupAuth(app);
   app.use(populateUser);
@@ -1690,6 +1673,8 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         return res.status(400).json({ message: "Missing required fields" });
       }
 
+      const requestId = crypto.randomUUID();
+
       const sourceContext = sourceText
         ? `\n\nOriginal study material the question was generated from:\n---\n${sourceText.slice(0, 3000)}\n---`
         : "";
@@ -1698,7 +1683,52 @@ Format with bullet points for easy reading. Keep it under 500 words.`
         ? `\nA suggested answer was: "${correctAnswer}" — but do NOT treat this as the only correct answer. Use the study material and your knowledge to determine if the student's answer is valid.`
         : "";
 
-      const response = await openaiClient.chat.completions.create({
+      const stripCodeFences = (s: string) => {
+        const trimmed = (s ?? "").trim();
+        if (!trimmed) return "";
+        return trimmed.replace(/^```[a-zA-Z0-9_-]*\s*/m, "").replace(/```$/m, "").trim();
+      };
+
+      const parseJsonObject = (raw: string) => {
+        const cleaned = stripCodeFences(raw);
+        if (!cleaned) throw new Error("Empty AI grading response");
+
+        try {
+          return JSON.parse(cleaned);
+        } catch {
+          const first = cleaned.indexOf("{");
+          const last = cleaned.lastIndexOf("}");
+          if (first === -1 || last === -1 || last <= first) {
+            throw new Error("AI grading response was not valid JSON");
+          }
+          return JSON.parse(cleaned.slice(first, last + 1));
+        }
+      };
+
+      const isTransientAIError = (err: any) => {
+        const msg = (err?.message || String(err)).toLowerCase();
+        const status = err?.status ?? err?.response?.status;
+        return (
+          status === 429 ||
+          status === 500 ||
+          status === 502 ||
+          status === 503 ||
+          status === 504 ||
+          msg.includes("rate limit") ||
+          msg.includes("quota") ||
+          msg.includes("timeout") ||
+          msg.includes("etimedout") ||
+          msg.includes("econnreset") ||
+          msg.includes("socket hang up")
+        );
+      };
+
+      const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+      const response = await (async () => {
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            return await openaiClient.chat.completions.create({
         model: "llama-3.3-70b-versatile",
         messages: [
           {
@@ -1731,16 +1761,70 @@ If the question and study material are in a non-English language, respond with t
         ],
         temperature: 0.1,
         max_tokens: 300,
-      });
+        response_format: { type: "json_object" },
+            });
+          } catch (err: any) {
+            const msg = (err?.message || String(err)).toLowerCase();
+            const status = err?.status ?? err?.response?.status;
+
+            // Some OpenAI-compatible providers don't support `response_format`.
+            if (status === 400 && msg.includes("response_format")) {
+              return await openaiClient.chat.completions.create({
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                  {
+                    role: "system",
+                    content: `You are a strict but fair exam grader. You grade short answer responses by evaluating the student's answer against the question and the original study material.${sourceContext}
+
+Your job is to determine whether the student's answer is correct based on the study material and the question â€” NOT by comparing to a fixed predetermined answer. The correct answer should come from your understanding of the material.${referenceHint}
+
+Rules:
+- Determine correctness based on the study material and question context
+- Accept answers that demonstrate correct understanding even if worded differently
+- Accept reasonable synonyms, abbreviations, or alternate phrasings
+- Accept minor spelling mistakes if the intent is clearly correct
+- Be strict about factual accuracy â€” wrong facts = incorrect
+- Partial credit: if the answer is partially correct but missing key details, mark as "partial"
+
+Respond in JSON format:
+{
+  "isCorrect": true | false,
+  "isPartial": false,
+  "explanation": "Brief explanation of why the answer is correct/incorrect/partial. For correct answers, affirm what makes it right. For incorrect answers, explain what the correct answer should be based on the material and why theirs was wrong."
+}
+
+If the question and study material are in a non-English language, respond with the explanation in that same language.`
+                  },
+                  {
+                    role: "user",
+                    content: `Question: ${question}\nStudent's Answer: ${userAnswer}`
+                  }
+                ],
+                temperature: 0.1,
+                max_tokens: 300,
+              });
+            }
+
+            console.error(`[grade-short-answer:${requestId}] AI call failed (attempt ${attempt}):`, err);
+            if (!isTransientAIError(err) || attempt === 3) throw err;
+            await sleep(400 * attempt);
+          }
+        }
+
+        throw new Error("AI grading failed after retries");
+      })();
 
       const content = response.choices[0]?.message?.content || "";
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-
-      if (!jsonMatch) {
-        return res.status(500).json({ message: "Failed to parse AI grading response" });
+      let result: any;
+      try {
+        result = parseJsonObject(content);
+      } catch (parseError: any) {
+        console.error(`[grade-short-answer:${requestId}] Failed to parse AI JSON:`, {
+          error: parseError?.message || parseError,
+          contentPreview: String(content).slice(0, 500),
+        });
+        return res.status(502).json({ message: "Failed to parse AI grading response" });
       }
-
-      const result = JSON.parse(jsonMatch[0]);
       res.json({
         isCorrect: result.isCorrect === true,
         isPartial: result.isPartial === true,
