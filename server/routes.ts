@@ -1826,9 +1826,9 @@ If the question and study material are in a non-English language, respond with t
         return res.status(502).json({ message: "Failed to parse AI grading response" });
       }
       res.json({
-        isCorrect: result.isCorrect === true,
-        isPartial: result.isPartial === true,
-        explanation: result.explanation || "",
+        isCorrect: result?.isCorrect === true,
+        isPartial: result?.isPartial === true,
+        explanation: typeof result?.explanation === "string" ? result.explanation : "",
       });
     } catch (error: any) {
       console.error("AI grading error:", error);

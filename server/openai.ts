@@ -724,129 +724,235 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     const title = parsed.title?.trim() || "Untitled Quiz";
     const rawCategory = parsed.category?.trim() || "Others/General";
     const category: QuizCategory = QUIZ_CATEGORIES.find(c => c.toLowerCase() === rawCategory.toLowerCase()) || "Others/General";
-    const questions: Question[] = [];
+    const normalizeQuestionKey = (value: unknown) =>
+      String(value ?? "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ");
+
+    const buildQuestionsFromRaw = async (
+      inputRawQuestions: any[],
+      limit: number,
+      seenKeys: Set<string>,
+      logPrefix: string,
+    ): Promise<Question[]> => {
+      if (!Array.isArray(inputRawQuestions) || inputRawQuestions.length === 0) return [];
+
+      const built: Question[] = [];
+
+      const mcQuestions = inputRawQuestions.filter((q: any) =>
+        q?.type === "multiple_choice" && q?.explanation && q?.correctAnswer && Array.isArray(q?.options),
+      );
+      if (mcQuestions.length > 0) {
+        await aiVerifyAnswers(mcQuestions, logPrefix);
+        for (const q of mcQuestions) {
+          const fixedAnswer = verifyAnswerMatchesExplanation(
+            String(q.explanation),
+            String(q.correctAnswer),
+            q.options.map((o: any) => String(o)),
+          );
+          if (fixedAnswer && fixedAnswer !== q.correctAnswer) {
+            console.warn(`[REGEX VERIFY] Correcting answer: "${q.correctAnswer}" -> "${fixedAnswer}" for: "${String(q.question).substring(0, 60)}..."`);
+            q.correctAnswer = fixedAnswer;
+          }
+        }
+      }
+
+      const fallbackSelectedType: QuestionType = (questionTypes[0] || "multiple_choice") as QuestionType;
+
+      for (const q of inputRawQuestions) {
+        if (built.length >= limit) break;
+        if (!q?.type || !q?.question || !q?.correctAnswer) {
+          console.warn("Skipping malformed question:", q);
+          continue;
+        }
+
+        const key = normalizeQuestionKey(q.question);
+        if (!key || seenKeys.has(key)) continue;
+
+        if (!["multiple_choice", "true_false", "short_answer"].includes(q.type)) {
+          console.warn("Question has invalid type, coercing to a selected type:", q.type);
+          q.type = fallbackSelectedType as any;
+        }
+
+        if (!questionTypes.includes(q.type as QuestionType)) {
+          console.warn(`AI generated ${q.type} but user only selected [${questionTypes.join(", ")}], converting...`);
+          q.type = fallbackSelectedType;
+          if (q.type === "short_answer") {
+            q.options = undefined;
+          }
+        }
+
+        let options =
+          q.type === "multiple_choice" && Array.isArray(q.options)
+            ? q.options.map((o: any) => String(o).trim())
+            : undefined;
+
+        let correctAnswer = String(q.correctAnswer).trim();
+
+        if (options) {
+          options = options.map(maybeFixShiftedDigitSymbols);
+        }
+        correctAnswer = maybeFixShiftedDigitSymbols(correctAnswer);
+
+        // Programmatically shuffle options to ensure maximum randomness
+        if (q.type === "multiple_choice" && options && options.length > 0) {
+          // Find the index of the current correct answer
+          // Note: AI usually returns "A) Text" or just "Text"
+          const currentCorrectAns = correctAnswer;
+          const currentOptions = options;
+          const correctIndex = currentOptions.findIndex(
+            (o: string) =>
+              o === currentCorrectAns ||
+              o.split(") ")[1] === currentCorrectAns ||
+              currentCorrectAns.includes(o),
+          );
+
+          if (correctIndex !== -1) {
+            const correctText = currentOptions[correctIndex].replace(/^[A-D]\) /, "");
+            const plainOptions = currentOptions.map((o: string) => o.replace(/^[A-D]\) /, ""));
+
+            // Shuffle
+            for (let i = plainOptions.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [plainOptions[i], plainOptions[j]] = [plainOptions[j], plainOptions[i]];
+            }
+
+            options = plainOptions;
+            const newCorrectIndex = plainOptions.findIndex((t: string) => t === correctText);
+            if (newCorrectIndex >= 0) {
+              correctAnswer = options[newCorrectIndex];
+            }
+          }
+        }
+
+        // Process wrong answer explanations if present
+        let wrongAnswerExplanations: Record<string, string> | undefined;
+        if (q.type === "multiple_choice" && q.wrongAnswerExplanations && typeof q.wrongAnswerExplanations === "object") {
+          wrongAnswerExplanations = {};
+          for (const [key2, value] of Object.entries(q.wrongAnswerExplanations)) {
+            if (typeof value === "string") {
+              wrongAnswerExplanations[String(key2).trim()] = String(value).trim();
+            }
+          }
+        }
+
+        // Map imageIndex to actual image URL if present
+        let imageUrl: string | undefined;
+        if (typeof q.imageIndex === "number" && q.imageIndex >= 0 && q.imageIndex < documentImages.length) {
+          imageUrl = documentImages[q.imageIndex];
+        }
+
+        built.push({
+          id: randomUUID(),
+          type: q.type as QuestionType,
+          question: String(q.question).trim(),
+          options,
+          correctAnswer,
+          explanation: q.explanation ? String(q.explanation).trim() : undefined,
+          wrongAnswerExplanations,
+          imageUrl,
+        });
+        seenKeys.add(key);
+      }
+
+      return built;
+    };
 
     onProgress?.("verifying", 85, "Verifying answer accuracy...");
-    const mcQuestions = rawQuestions.filter((q: any) =>
-      q.type === "multiple_choice" && q.explanation && q.correctAnswer && Array.isArray(q.options)
-    );
-    await aiVerifyAnswers(mcQuestions, "[AI VERIFY]");
+    const seenQuestionKeys = new Set<string>();
+    const questions = await buildQuestionsFromRaw(rawQuestions, questionCount, seenQuestionKeys, "[AI VERIFY]");
 
-    for (const q of mcQuestions) {
-      const fixedAnswer = verifyAnswerMatchesExplanation(String(q.explanation), String(q.correctAnswer), q.options.map((o: any) => String(o)));
-      if (fixedAnswer && fixedAnswer !== q.correctAnswer) {
-        console.warn(`[REGEX VERIFY] Correcting answer: "${q.correctAnswer}" -> "${fixedAnswer}" for: "${String(q.question).substring(0, 60)}..."`);
-        q.correctAnswer = fixedAnswer;
-      }
+    if (questions.length < questionCount) {
+      const missing = questionCount - questions.length;
+      console.warn(`Only built ${questions.length}/${questionCount} valid questions. Attempting to generate ${missing} more...`);
+      onProgress?.("refining", 88, "Generating additional questions to match your requested count...");
+
+      const existingQuestionsList = questions
+        .map((q) => `- ${q.question}`)
+        .slice(0, 20)
+        .join("\n");
+
+      const topUpPrompt = `You are an expert educator. Generate ${missing} additional ${difficulty.toUpperCase()} quiz questions based on the CONTENT below.
+
+IMPORTANT:
+- Do NOT repeat any of the existing questions listed.
+- Use ONLY these question types: ${questionTypeDescriptions}
+- Use the SAME language as the CONTENT.
+- Follow the same formatting rules as before (4 options for multiple choice, LaTeX formatting for math, etc.).
+- Return ONLY valid JSON (no markdown).
+
+CONTENT:
+${truncatedText}
+
+EXISTING QUESTIONS (do not repeat):
+${existingQuestionsList}
+
+OUTPUT FORMAT (JSON):
+{
+  "questions": [
+    {
+      "type": "multiple_choice" | "true_false" | "short_answer",
+      "question": "The question text",
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "correctAnswer": "The exact correct option text",
+      "explanation": "Detailed explanation"
     }
+  ]
+}`;
 
-    const fallbackSelectedType: QuestionType = (questionTypes[0] || "multiple_choice") as QuestionType;
+      const topUpResponse = await pRetry(
+        async () => {
+          let messages: any[];
+          if (hasImages) {
+            const imageContent = documentImages.slice(0, 6).map((imageUrl) => ({
+              type: "image_url" as const,
+              image_url: { url: imageUrl, detail: "high" as const },
+            }));
 
-    for (const q of rawQuestions) {
-      if (questions.length >= questionCount) break;
-      if (!q.type || !q.question || !q.correctAnswer) {
-        console.warn("Skipping malformed question:", q);
-        continue;
-      }
-
-      if (!["multiple_choice", "true_false", "short_answer"].includes(q.type)) {
-        console.warn("Question has invalid type, coercing to a selected type:", q.type);
-        q.type = fallbackSelectedType as any;
-      }
-
-      if (!questionTypes.includes(q.type as QuestionType)) {
-        console.warn(`AI generated ${q.type} but user only selected [${questionTypes.join(", ")}], converting...`);
-        q.type = fallbackSelectedType;
-        if (q.type === "short_answer") {
-          q.options = undefined;
-        }
-      }
-
-      let options =
-        q.type === "multiple_choice" && Array.isArray(q.options)
-          ? q.options.map((o: any) => String(o).trim())
-          : undefined;
-
-      let correctAnswer = String(q.correctAnswer).trim();
-
-      if (options) {
-        options = options.map(maybeFixShiftedDigitSymbols);
-      }
-      correctAnswer = maybeFixShiftedDigitSymbols(correctAnswer);
-
-      // Programmatically shuffle options to ensure maximum randomness
-      if (q.type === "multiple_choice" && options && options.length > 0) {
-        // Find the index of the current correct answer
-        // Note: AI usually returns "A) Text" or just "Text"
-        const currentCorrectAns = correctAnswer;
-        const currentOptions = options;
-        const correctIndex = currentOptions.findIndex(
-          (o: string) =>
-            o === currentCorrectAns ||
-            o.split(") ")[1] === currentCorrectAns ||
-            currentCorrectAns.includes(o),
-        );
-
-        if (correctIndex !== -1) {
-          const correctText = currentOptions[correctIndex].replace(
-            /^[A-D]\) /,
-            "",
-          );
-          const plainOptions = currentOptions.map((o: string) =>
-            o.replace(/^[A-D]\) /, ""),
-          );
-
-          // Shuffle
-          for (let i = plainOptions.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [plainOptions[i], plainOptions[j]] = [
-              plainOptions[j],
-              plainOptions[i],
-            ];
+            messages = [{
+              role: "user",
+              content: [{ type: "text", text: topUpPrompt }, ...imageContent],
+            }];
+          } else {
+            messages = [{ role: "user", content: topUpPrompt }];
           }
 
-          // Re-label and find new correct
-          options = plainOptions;
-          const newCorrectIndex = plainOptions.findIndex(
-            (t: string) => t === correctText,
-          );
-          correctAnswer = options[newCorrectIndex];
-        }
-      }
+          const completion = await openai.chat.completions.create({
+            model: "meta-llama/llama-4-scout-17b-16e-instruct",
+            messages,
+            response_format: { type: "json_object" },
+            max_tokens: 4096,
+          });
 
-      // Process wrong answer explanations if present
-      let wrongAnswerExplanations: Record<string, string> | undefined;
-      if (q.type === "multiple_choice" && q.wrongAnswerExplanations && typeof q.wrongAnswerExplanations === "object") {
-        wrongAnswerExplanations = {};
-        for (const [key, value] of Object.entries(q.wrongAnswerExplanations)) {
-          if (typeof value === "string") {
-            wrongAnswerExplanations[String(key).trim()] = String(value).trim();
-          }
-        }
-      }
+          const content = completion.choices[0]?.message?.content;
+          if (!content) throw new Error("No response from AI (top-up)");
+          const jsonMatch = content.match(/\{[\s\S]*\}/);
+          return jsonMatch ? jsonMatch[0] : content;
+        },
+        {
+          retries: 2,
+          minTimeout: 2000,
+          maxTimeout: 20000,
+          factor: 2,
+          onFailedAttempt: (error: any) => {
+            if (!isRateLimitError(error)) throw error;
+          },
+        },
+      );
 
-      // Map imageIndex to actual image URL if present
-      let imageUrl: string | undefined;
-      if (typeof q.imageIndex === "number" && q.imageIndex >= 0 && q.imageIndex < documentImages.length) {
-        imageUrl = documentImages[q.imageIndex];
-      }
-
-      const question: Question = {
-        id: randomUUID(),
-        type: q.type as QuestionType,
-        question: String(q.question).trim(),
-        options,
-        correctAnswer,
-        explanation: q.explanation ? String(q.explanation).trim() : undefined,
-        wrongAnswerExplanations,
-        imageUrl,
-      };
-
-      questions.push(question);
+      const topUpParsed = JSON.parse(topUpResponse);
+      const topUpRaw = Array.isArray(topUpParsed?.questions) ? topUpParsed.questions : [];
+      const extra = await buildQuestionsFromRaw(topUpRaw, missing, seenQuestionKeys, "[AI VERIFY TOPUP]");
+      questions.push(...extra);
     }
 
     if (questions.length === 0) {
       throw new Error("AI failed to generate valid questions");
+    }
+
+    if (questions.length !== questionCount) {
+      throw new Error(`Question generation count mismatch: requested ${questionCount}, generated ${questions.length}. Please try again.`);
     }
 
     // Step 6: Finalizing
