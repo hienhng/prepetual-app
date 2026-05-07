@@ -39,10 +39,13 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       retry: "Retry",
       correct: "Correct",
       incorrect: "Incorrect",
+      total: "Total",
+      time: "Time",
       check: "Check",
       continue: "Continue",
       back: "Back",
       next: "Next",
+      backToDashboard: "Back"
     },
     publicHeader: {
       login: "Sign in",
@@ -611,7 +614,7 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       discardProgressDesc: "This will discard your saved progress for \"{title}\". You can retake it from scratch.",
       keepIt: "Keep it",
       discard: "Discard",
-      spent: "{time} spent",
+      timeSpent: "{time} spent",
       ago: "{time} ago",
     },
     study: {
@@ -660,6 +663,35 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       smartReviewDesc: "Focusing on your most frequent mistakes + similar challenges.",
       reviewFailed: "Review Failed",
       reviewFailedDesc: "Could not generate your review session. Please try again.",
+    },
+    quizResults: {
+      scoreMessages: {
+        90: "Excellent work — you're mastering this.",
+        80: "Great job — you're very close.",
+        70: "Nice progress — keep practicing.",
+        60: "Good start — review and try again.",
+        default: "Keep going — practice makes progress.",
+      },
+      quizSessionSummary: "{correct}/{total} correct",
+      reviewSessionSummary: "{correct}/{total} fixed in review",
+      fixed: "Fixed",
+      needsWork: "Needs work",
+      reviewAnswers: "Review answers",
+      yourAnswer: "Your answer",
+      noAnswerProvided: "No answer provided",
+      correctAnswer: "Correct answer",
+      whyThisWasWrong: "Why this was wrong",
+      signUpToSeeExplanations: "Sign in to see detailed explanations.",
+      unlockFullFeatures: "Unlock full features",
+      unlockFullFeaturesDesc: "Create an account to save results, track progress, and get smarter reviews.",
+      alreadyHaveAccount: "Already have an account?",
+      retakeQuiz: "Retake quiz",
+    },
+    quizComplete: {
+      quizComplete: "Quiz Complete!",
+      quizCompleteDesc: "Great work — here are your results.",
+      reviewSessionComplete: "Review Session Complete!",
+      reviewSessionCompleteDesc: "Nice review — here are your results.",
     },
     revisionSummary: {
       greatPractice: "Great Practice!",
@@ -834,6 +866,8 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       retry: "Thử lại",
       correct: "Chính xác",
       incorrect: "Chưa chính xác",
+      total: "Tổng",
+      time: "Thời gian",
       check: "Kiểm tra",
       continue: "Tiếp tục",
       back: "Quay lại",
@@ -1460,6 +1494,35 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       reviewFailed: "Tạo ôn tập thất bại",
       reviewFailedDesc: "Không thể tạo phiên ôn tập. Vui lòng thử lại.",
     },
+    quizResults: {
+      scoreMessages: {
+        90: "Xuất sắc — bạn đang rất vững.",
+        80: "Rất tốt — chỉ còn một chút nữa!",
+        70: "Tiến bộ tốt — hãy tiếp tục luyện tập.",
+        60: "Khởi đầu ổn — xem lại và thử lại nhé.",
+        default: "Cố lên — luyện tập sẽ giúp bạn tiến bộ.",
+      },
+      quizSessionSummary: "{correct}/{total} đúng",
+      reviewSessionSummary: "Sửa đúng {correct}/{total} trong phiên ôn",
+      fixed: "Đã sửa",
+      needsWork: "Cần ôn thêm",
+      reviewAnswers: "Xem lại câu trả lời",
+      yourAnswer: "Câu trả lời của bạn",
+      noAnswerProvided: "Chưa trả lời",
+      correctAnswer: "Đáp án đúng",
+      whyThisWasWrong: "Vì sao sai",
+      signUpToSeeExplanations: "Đăng nhập để xem giải thích chi tiết.",
+      unlockFullFeatures: "Mở khoá tính năng",
+      unlockFullFeaturesDesc: "Tạo tài khoản để lưu kết quả, theo dõi tiến độ và ôn tập thông minh hơn.",
+      alreadyHaveAccount: "Đã có tài khoản?",
+      retakeQuiz: "Làm lại quiz",
+    },
+    quizComplete: {
+      quizComplete: "Hoàn thành quiz!",
+      quizCompleteDesc: "Làm tốt lắm — đây là kết quả của bạn.",
+      reviewSessionComplete: "Hoàn thành phiên ôn!",
+      reviewSessionCompleteDesc: "Rất tốt — đây là kết quả của bạn.",
+    },
     revisionSummary: {
       greatPractice: "Luyện tập tuyệt vời!",
       buildingMemories: "Bạn đang củng cố trí nhớ mạnh mẽ hơn với mỗi lần ôn tập.",
@@ -1643,12 +1706,23 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
       if (typeof translated !== "string") return String(translated);
 
-      if (!params) return translated;
+      if (!params) {
+        if (translated.includes("{") && typeof window !== "undefined") {
+          console.warn(`[i18n] Missing params for key "${key}":`, translated);
+        }
+        return translated.replace(/\{[a-zA-Z0-9_]+\}/g, "").replace(/\s{2,}/g, " ").trim();
+      }
 
-      return Object.entries(params).reduce(
+      const interpolated = Object.entries(params).reduce(
         (result, [paramKey, paramValue]) => result.replaceAll(`{${paramKey}}`, String(paramValue)),
         translated,
       );
+
+      if (interpolated.includes("{") && typeof window !== "undefined") {
+        console.warn(`[i18n] Unresolved placeholders for key "${key}":`, { translated, params, interpolated });
+      }
+
+      return interpolated.replace(/\{[a-zA-Z0-9_]+\}/g, "").replace(/\s{2,}/g, " ").trim();
     };
 
     const tArray = (key: string): string[] => {

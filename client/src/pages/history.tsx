@@ -104,7 +104,7 @@ export default function HistoryPage() {
       toast({ title: t('history.quizDeleted'), description: t('history.quizDeletedDesc'), variant: "success" as any });
     },
     onError: () => {
-      toast({ title: t('common.error'), description: t('history.failedToDelete'), variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedDeleteQuiz'), variant: "destructive" });
     },
   });
 
@@ -126,7 +126,7 @@ export default function HistoryPage() {
       });
     },
     onError: () => {
-      toast({ title: t('common.error'), description: t('history.failedToUpdateVisibility'), variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedUpdateVisibility'), variant: "destructive" });
     },
   });
 
@@ -141,7 +141,7 @@ export default function HistoryPage() {
       toast({ title: t('history.folderCreated') });
     },
     onError: () => {
-      toast({ title: t('common.error'), description: t('history.failedToCreateFolder'), variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedCreateFolder'), variant: "destructive" });
     },
   });
 
@@ -157,7 +157,7 @@ export default function HistoryPage() {
       toast({ title: t('history.folderRenamed') });
     },
     onError: () => {
-      toast({ title: t('common.error'), description: t('history.failedToRenameFolder'), variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedRenameFolder'), variant: "destructive" });
     },
   });
 
@@ -172,7 +172,7 @@ export default function HistoryPage() {
       toast({ title: t('history.folderDeleted') });
     },
     onError: () => {
-      toast({ title: t('common.error'), description: t('history.failedToDeleteFolder'), variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedDeleteFolder'), variant: "destructive" });
     },
   });
 
@@ -184,7 +184,7 @@ export default function HistoryPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/folders"] });
     },
     onError: () => {
-      toast({ title: t('common.error'), description: t('history.failedToTogglePin'), variant: "destructive" });
+      toast({ title: t('common.error'), description: t('history.failedTogglePin'), variant: "destructive" });
     },
   });
 
@@ -398,7 +398,7 @@ export default function HistoryPage() {
                 </div>
                 <h3 className="text-base font-semibold mb-1">{t('history.noQuizzesYet')}</h3>
                 <p className="text-sm text-muted-foreground mb-5">
-                  {t('history.createFirstQuizDesc')}
+                  {t('history.createFirstQuiz')}
                 </p>
                 <Button
                   data-testid="button-create-first-quiz"
@@ -463,7 +463,7 @@ export default function HistoryPage() {
                       onClick={() => { setSearchQuery(""); setSelectedCategory(null); }}
                       data-testid="button-clear-filters"
                     >
-                      {t('history.clearAllFilters')}
+                      {t('history.clearFilters')}
                     </Button>
                   </div>
                 ) : (
@@ -627,7 +627,7 @@ export default function HistoryPage() {
               <div className="text-center sm:text-left">
                 <h3 className="text-sm font-bold text-foreground">{t('history.collectionManager')}</h3>
                 <p className="text-xs text-muted-foreground">
-                  {t('history.collectionManagerDesc')}
+                  {t('history.organizeDesc')}
                 </p>
               </div>
               <Button
@@ -648,7 +648,7 @@ export default function HistoryPage() {
                 </div>
                 <h3 className="text-sm font-bold mb-1">{t('history.stayOrganized')}</h3>
                 <p className="text-xs text-muted-foreground mb-5 px-4">
-                  {t('history.stayOrganizedDesc')}
+                  {t('history.groupQuizzesDesc')}
                 </p>
                 <Button
                   variant="outline"
@@ -808,14 +808,14 @@ export default function HistoryPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={!!folderToDelete} onOpenChange={(open) => !open && setFolderToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('history.deleteFolder')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('history.deleteFolderConfirm', { name: folderToDelete?.name || "" })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+        <AlertDialog open={!!folderToDelete} onOpenChange={(open) => !open && setFolderToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('history.deleteCollection')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t('history.deleteFolderConfirm', { name: folderToDelete?.name || "" })}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel data-testid="button-cancel-delete-folder">{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
