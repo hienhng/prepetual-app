@@ -1253,6 +1253,7 @@ export function QuizPlayer() {
   const allOriginalChecked = checkedQuestions.size === originalQuestionCount;
   const [expandedImageUrl, setExpandedImageUrl] = useState<string | null>(null);
   const [showMaterialViewer, setShowMaterialViewer] = useState(false);
+  const [materialViewMode, setMaterialViewMode] = useState<"images" | "text">("images");
   const [materialImageIndex, setMaterialImageIndex] = useState(0);
   const [materialPanelWidth, setMaterialPanelWidth] = useState(45);
   const isDraggingRef = useRef(false);
@@ -1292,8 +1293,8 @@ export function QuizPlayer() {
     e.preventDefault();
   };
 
-  const materialImages = sourceMaterial?.documentImages || (currentQuiz as any)?.sourceImages || [];
-  const singleSourceImage = sourceMaterial?.imageDataUrl || (currentQuiz as any)?.sourceImageUrl;
+  const materialImages = (sourceMaterial?.documentImages as string[]) || ((currentQuiz as any)?.sourceImages as string[]) || [];
+  const singleSourceImage = (sourceMaterial?.imageDataUrl as string | undefined) || ((currentQuiz as any)?.sourceImageUrl as string | undefined);
   const allMaterialImages = singleSourceImage ? [singleSourceImage, ...materialImages] : materialImages;
   const hasMaterialImages = allMaterialImages.length > 0;
 
@@ -1301,6 +1302,14 @@ export function QuizPlayer() {
   const materialText = rawText === "[Images uploaded - AI will analyze visually]" ? "" : rawText;
   const hasMaterialText = Boolean(materialText.trim());
   const hasMaterialContent = hasMaterialImages || hasMaterialText;
+
+  useEffect(() => {
+    if (hasMaterialImages) {
+      setMaterialViewMode('images');
+    } else if (hasMaterialText) {
+      setMaterialViewMode('text');
+    }
+  }, [hasMaterialImages, hasMaterialText]);
 
   const retryQuestionsInList = allQuestions.filter(q => q.isRetry);
   const allRetryChecked = retryQuestionsInList.every(q => retryChecked.has(q.id));
@@ -1330,63 +1339,113 @@ export function QuizPlayer() {
               animate={{ width: `${materialPanelWidth}%`, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="border-r border-border shrink-0 bg-muted/20 relative"
+              className="border-r border-border shrink-0 bg-background/95 backdrop-blur-md relative"
             >
               <div 
                 className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-primary/50 transition-colors z-[100]"
                 onMouseDown={startDrag}
               />
-              <div className="h-full flex flex-col pt-4 pb-8 px-4 overflow-y-auto w-full absolute inset-0">
-                <div className="flex items-center justify-between mb-4 shrink-0">
-                  <div className="flex items-center gap-2">
-                    {hasMaterialImages ? <Image className="h-5 w-5 text-muted-foreground" /> : <FileText className="h-5 w-5 text-muted-foreground" />}
-                    <h3 className="font-semibold text-lg">{t('quizPlayer.studyMaterial')}</h3>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-full"
-                    onClick={() => setShowMaterialViewer(false)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                {hasMaterialText && !hasMaterialImages ? (
-                   <div className="w-full text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap select-text p-4 bg-card rounded-lg shadow-sm border border-border">
-                     {materialText}
-                   </div>
-                ) : (
-                  <div className="flex-1 flex flex-col items-center min-h-0">
-                    <img
-                      src={allMaterialImages[materialImageIndex]}
-                      alt="Study material"
-                      className="max-w-full rounded-lg border border-border/50 shadow-sm min-h-0 object-contain cursor-zoom-in"
-                      onClick={() => setExpandedImageUrl(allMaterialImages[materialImageIndex])}
-                    />
-                    {allMaterialImages.length > 1 && (
-                      <div className="w-full mt-4 flex items-center justify-between shrink-0 bg-background/50 p-2 rounded-xl backdrop-blur-sm border border-border/50">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
-                        >
-                          <ChevronLeft className="h-5 w-5" />
-                        </Button>
-                        <span className="text-xs font-semibold px-3 py-1 bg-muted rounded-full">
-                          {materialImageIndex + 1} / {allMaterialImages.length}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
-                        >
-                          <ChevronRight className="h-5 w-5" />
-                        </Button>
+              <div className="h-full flex flex-col overflow-hidden absolute inset-0">
+                <div className="border-b border-border/70 px-4 py-4 bg-background/95 shrink-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      {hasMaterialImages ? <Image className="h-5 w-5 text-muted-foreground" /> : <FileText className="h-5 w-5 text-muted-foreground" />}
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{t('quizPlayer.studyMaterial')}</p>
+                        <p className="text-xs text-muted-foreground leading-snug">
+                          {hasMaterialImages && hasMaterialText
+                            ? t('quizPlayer.studyMaterial')
+                            : hasMaterialImages
+                              ? t('quizPlayer.imagesCount', { current: materialImageIndex + 1, total: allMaterialImages.length })
+                              : t('quizPlayer.material')
+                          }
+                        </p>
                       </div>
-                    )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 rounded-full"
+                      onClick={() => setShowMaterialViewer(false)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
-                )}
+
+                  {hasMaterialImages && hasMaterialText && (
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setMaterialViewMode('images')}
+                        className={`rounded-full px-3 py-2 text-sm font-semibold transition ${materialViewMode === 'images' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                      >
+                        {t('quizPlayer.viewImages')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMaterialViewMode('text')}
+                        className={`rounded-full px-3 py-2 text-sm font-semibold transition ${materialViewMode === 'text' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                      >
+                        {t('quizPlayer.viewText')}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {materialViewMode === 'text' && hasMaterialText ? (
+                    <div className="rounded-3xl border border-border/70 bg-card p-4 text-sm leading-7 text-muted-foreground whitespace-pre-wrap shadow-sm">
+                      {materialText}
+                    </div>
+                  ) : hasMaterialImages ? (
+                    <div className="space-y-4">
+                      <div className="relative overflow-hidden rounded-[26px] border border-border/70 bg-card shadow-sm">
+                        <img
+                          src={allMaterialImages[materialImageIndex]}
+                          alt={`Study material ${materialImageIndex + 1}`}
+                          className="w-full min-h-[260px] max-h-[55vh] object-contain bg-zinc-950"
+                          onClick={() => setExpandedImageUrl(allMaterialImages[materialImageIndex])}
+                        />
+                        <div className="absolute left-4 top-4 rounded-full bg-background/90 px-3 py-1 border border-border text-[11px] font-semibold text-muted-foreground shadow-sm">
+                          {t('quizPlayer.imagesCount', { current: materialImageIndex + 1, total: allMaterialImages.length })}
+                        </div>
+                        <div className="absolute right-4 top-4 flex items-center gap-2">
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            className="h-9 w-9 rounded-full bg-background/70 border border-border/70"
+                            onClick={() => setExpandedImageUrl(allMaterialImages[materialImageIndex])}
+                          >
+                            <ZoomIn className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {allMaterialImages.length > 1 && (
+                        <div className="grid grid-cols-4 gap-2">
+                          {allMaterialImages.map((imageUrl: string, idx: number) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setMaterialImageIndex(idx)}
+                              className={`overflow-hidden rounded-2xl border transition ${idx === materialImageIndex ? 'border-primary ring-2 ring-primary/30' : 'border-border/70 hover:border-primary'}`}
+                            >
+                              <img
+                                src={imageUrl}
+                                alt={`Thumbnail ${idx + 1}`}
+                                className="h-20 w-full object-cover"
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="rounded-3xl border border-border/70 bg-card p-6 text-sm leading-7 text-muted-foreground shadow-sm">
+                      {t('quizPlayer.material')}
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}
