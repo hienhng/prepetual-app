@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Prepetual</string>
+    <string name="title_activity_main">Prepetual</string>
+    <string name="package_name">com.giahienhn.prepetualapp</string>
+    <string name="custom_url_scheme">com.giahienhn.prepetualapp</string>
+</resources>
