@@ -30,7 +30,7 @@ export default function FAQ() {
           { id: "item-6", question: "Mức độ khó được xác định như thế nào?", answer: "Mức độ khó điều chỉnh độ phức tạp của câu hỏi và chiều sâu hiểu biết cần có. 'Easy' tập trung vào kiến thức cốt lõi, còn 'Hard' thử thách bạn với câu hỏi khái niệm và phân tích.", icon: BarChart3 },
           { id: "item-7", question: "Hệ thống hỗ trợ những ngôn ngữ nào?", answer: "AI của chúng tôi tự động nhận diện ngôn ngữ của tài liệu nguồn và tạo câu hỏi bằng chính ngôn ngữ đó. Chúng tôi hỗ trợ nhiều ngôn ngữ để mang lại trải nghiệm học tập toàn cầu.", icon: Globe },
           { id: "item-8", question: "Tôi có thể chỉnh sửa câu hỏi trong quiz không?", answer: "Có. Bạn có thể sửa bất kỳ câu hỏi nào do AI tạo ra, thêm câu hỏi của riêng mình hoặc xóa câu hỏi trước khi bắt đầu làm quiz hoặc chia sẻ.", icon: Edit3 },
-          { id: "item-9", question: "Prepal AI Assistant có thể giúp tôi như thế nào?", answer: "Prepal AI là người bạn đồng hành học tập cá nhân của bạn trong mọi bài quiz. Prepal AI có thể giải thích khái niệm khó, đưa gợi ý và hỗ trợ công thức toán học. Prepal AI sẽ dẫn dắt bạn đến đáp án thay vì đưa đáp án trực tiếp.", icon: MessageCircle },
+          { id: "item-9", question: "Prepal AI Assistant có thể giúp tôi như thế nào?", answer: "Pip là người bạn đồng hành học tập cá nhân của bạn trong mọi bài quiz. Pip có thể giải thích khái niệm khó, đưa gợi ý và hỗ trợ công thức toán học. Pip sẽ dẫn dắt bạn đến đáp án thay vì đưa đáp án trực tiếp.", icon: MessageCircle },
           { 
             id: "item-10", 
             question: "Prepetual có hỗ trợ các công thức Toán học và Hóa học không?", 
@@ -39,8 +39,8 @@ export default function FAQ() {
           },
           { 
             id: "item-11", 
-            question: "Làm thế nào để Prepal AI giúp tôi giải quyết các câu hỏi hóc búa?", 
-            answer: "Prepal AI không chỉ đưa ra đáp án; Prepal AI phân tích bước giải và gợi ý phương pháp tư duy. Bạn có thể yêu cầu Prepal AI giải thích sâu hơn về một khái niệm cụ thể ngay trong giao diện làm bài.", 
+            question: "Làm thế nào để Pip giúp tôi giải quyết các câu hỏi hóc búa?", 
+            answer: "Pip không chỉ đưa ra đáp án; Pip phân tích bước giải và gợi ý phương pháp tư duy. Bạn có thể yêu cầu Pip giải thích sâu hơn về một khái niệm cụ thể ngay trong giao diện làm bài.", 
             icon: Lightbulb 
           },
           { 
@@ -90,7 +90,7 @@ export default function FAQ() {
           { id: "item-6", question: "Difficulty levels - What makes a quiz \"easy\" vs \"hard\"?", answer: "Difficulty levels adjust the complexity of questions and the depth of understanding required. 'Easy' focuses on core facts, while 'Hard' challenges you with conceptual and analytical questions.", icon: BarChart3 },
           { id: "item-7", question: "Global support - Which languages are supported?", answer: "Our AI auto-detects the language of your source material and generates questions in that same language. We support numerous languages worldwide for a truly global learning experience.", icon: Globe },
           { id: "item-8", question: "Editing quizzes - Can I change the questions?", answer: "Yes! You can modify any AI-generated question, add your own, or remove questions before you start taking the quiz or sharing it.", icon: Edit3 },
-          { id: "item-9", question: "Prepal AI Assistant - How can it help me?", answer: "Prepal AI is your personal study companion available during any quiz. Prepal AI can explain complex concepts, provide hints, and even render mathematical formulas. Prepal AI's goal is to help you learn, so it will guide you toward the answer without simply giving it away.", icon: MessageCircle },
+          { id: "item-9", question: "Prepal AI Assistant - How can it help me?", answer: "Prepal AI is your personal study companion available during any quiz. Pip can explain complex concepts, provide hints, and even render mathematical formulas. Pip's goal is to help you learn, so it will guide you toward the answer without simply giving it away.", icon: MessageCircle },
           { 
             id: "item-10", 
             question: "Does Prepetual support Math and Chemistry formulas?", 
@@ -99,8 +99,8 @@ export default function FAQ() {
           },
           { 
             id: "item-11", 
-            question: "How does Prepal AI help me solve difficult questions?", 
-            answer: "Prepal AI doesn't just give answers; it breaks down the steps and suggests thinking methods. You can ask Prepal AI to explain a specific concept in depth right within the quiz interface.", 
+            question: "How does Pip help me solve difficult questions?", 
+            answer: "Pip doesn't just give answers; it breaks down the steps and suggests thinking methods. You can ask Pip to explain a specific concept in depth right within the quiz interface.", 
             icon: Lightbulb 
           },
           { 
