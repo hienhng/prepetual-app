@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useEffect, useRef, useState } from "react";
 import brandLogo from "@assets/favicon_prepetual_1768124938772.png";
 import { useLanguage } from "@/lib/language-context";
+import AskPipIcon from "@/components/ui/ask-pip-icon";
 
 function useMousePosition() {
   const x = useMotionValue(0);
@@ -638,7 +639,7 @@ export default function About() {
         </section>
 
 
-        {/* ===== MEET PIP (conversation demo) ===== */}
+        {/* ===== MEET PREPAL (conversation demo) ===== */}
         <section className="py-40 md:py-56">
           <div className="container mx-auto px-6 sm:px-8 max-w-5xl">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-20 lg:gap-16 items-start">
@@ -692,7 +693,7 @@ export default function About() {
                     <div className="flex items-end gap-3 flex-row-reverse">
                       <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
                         <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 4, repeat: Infinity }}>
-                          <Sparkles className="w-4 h-4 text-primary" />
+                          <AskPipIcon size={16} />
                         </motion.div>
                       </div>
                       <div className="p-4 rounded-2xl rounded-br-md bg-primary/5 border border-primary/15 max-w-[85%]">
@@ -711,7 +712,7 @@ export default function About() {
 
                     <div className="flex items-end gap-3 flex-row-reverse">
                       <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-                        <Sparkles className="w-4 h-4 text-primary" />
+                        <AskPipIcon size={16} />
                       </div>
                       <motion.div
                         className="p-4 rounded-2xl rounded-br-md bg-primary/5 border border-primary/15 max-w-[85%]"

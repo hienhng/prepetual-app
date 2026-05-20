@@ -40,33 +40,36 @@ import { formatDistanceToNow } from "date-fns";
 
 
 // Difficulty to Color mapping
-const difficultyColors: Record<string, { border: string, from: string, via: string, text: string, icon: string, shadow: string, badge: string }> = {
+const difficultyColors: Record<string, { border: string, from: string, via: string, text: string, icon: string, shadow: string, badge: string, btn: string }> = {
   "easy": {
     border: "border-emerald-500/30",
     from: "from-emerald-500/10",
     via: "via-emerald-500/5",
     text: "text-emerald-600 dark:text-emerald-400",
-    icon: "bg-gradient-to-br from-emerald-500 to-emerald-600",
+    icon: "bg-emerald-500",
     shadow: "shadow-emerald-500/5",
     badge: "bg-emerald-500/10 text-emerald-600 border-emerald-200 dark:border-emerald-900",
+    btn: "bg-emerald-500 hover:bg-emerald-600 text-white",
   },
   "medium": {
     border: "border-amber-500/30",
     from: "from-amber-500/10",
     via: "via-amber-500/5",
     text: "text-amber-600 dark:text-amber-400",
-    icon: "bg-gradient-to-br from-amber-500 to-amber-600",
+    icon: "bg-amber-500",
     shadow: "shadow-amber-500/5",
     badge: "bg-amber-500/10 text-amber-600 border-amber-200 dark:border-amber-900",
+    btn: "bg-amber-500 hover:bg-amber-600 text-white",
   },
   "hard": {
     border: "border-rose-500/30",
     from: "from-rose-500/10",
     via: "via-rose-500/5",
     text: "text-rose-600 dark:text-rose-400",
-    icon: "bg-gradient-to-br from-rose-500 to-rose-600",
+    icon: "bg-rose-500",
     shadow: "shadow-rose-500/5",
     badge: "bg-rose-500/10 text-rose-600 border-rose-200 dark:border-rose-900",
+    btn: "bg-rose-500 hover:bg-rose-600 text-white",
   }
 };
 
@@ -531,7 +534,7 @@ function ContinueQuizCard({
             {/* Header row */}
             <div className="flex items-start gap-3">
               {/* Icon */}
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 ${isRevising ? 'bg-gradient-to-br from-violet-500 to-purple-600' : colors.icon}`}>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 ${isRevising ? 'bg-violet-500' : colors.icon}`}>
                 <CategoryIcon className="w-6 h-6 text-white" />
               </div>
 
@@ -599,7 +602,7 @@ function ContinueQuizCard({
                 </div>
                 <div className="relative h-2.5 bg-muted/30 dark:bg-muted/20 rounded-full overflow-hidden">
                   <motion.div
-                    className={`absolute inset-y-0 left-0 rounded-full ${colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')}`}
+                    className={`absolute inset-y-0 left-0 rounded-full ${colors.icon}`}
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
@@ -611,10 +614,9 @@ function ContinueQuizCard({
             {/* Action button */}
             <Button
               onClick={onContinue}
-              className={`w-full gap-2 h-10 shadow-md transition-all duration-300 ${isRevising
-                ? 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700'
-                : colors.icon.replace('bg-gradient-to-br', 'bg-gradient-to-r')
-                } hover:brightness-110 text-white border-0`}
+              className={`w-full gap-2 h-10 shadow-md transition-all duration-300 ${
+                isRevising ? 'bg-violet-500 hover:bg-violet-600 text-white' : colors.btn
+              } border-0`}
               data-testid="button-continue-quiz"
             >
               <Play className="w-4 h-4 fill-current" />

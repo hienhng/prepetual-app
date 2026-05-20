@@ -32,31 +32,34 @@ import { useState } from "react";
 
 
 const difficultyColors: Record<string, {
-  border: string; from: string; via: string; text: string; icon: string; badge: string;
+  border: string; from: string; via: string; text: string; icon: string; badge: string; btn: string;
 }> = {
   easy: {
     border: "border-emerald-500/30",
     from: "from-emerald-500/10",
     via: "via-emerald-500/5",
     text: "text-emerald-600 dark:text-emerald-400",
-    icon: "bg-gradient-to-br from-emerald-500 to-emerald-600",
+    icon: "bg-emerald-500",
     badge: "bg-emerald-500/10 text-emerald-600 border-emerald-200 dark:border-emerald-900",
+    btn: "bg-emerald-500 hover:bg-emerald-600 text-white",
   },
   medium: {
     border: "border-amber-500/30",
     from: "from-amber-500/10",
     via: "via-amber-500/5",
     text: "text-amber-600 dark:text-amber-400",
-    icon: "bg-gradient-to-br from-amber-500 to-amber-600",
+    icon: "bg-amber-500",
     badge: "bg-amber-500/10 text-amber-600 border-amber-200 dark:border-amber-900",
+    btn: "bg-amber-500 hover:bg-amber-600 text-white",
   },
   hard: {
     border: "border-rose-500/30",
     from: "from-rose-500/10",
     via: "via-rose-500/5",
     text: "text-rose-600 dark:text-rose-400",
-    icon: "bg-gradient-to-br from-rose-500 to-rose-600",
+    icon: "bg-rose-500",
     badge: "bg-rose-500/10 text-rose-600 border-rose-200 dark:border-rose-900",
+    btn: "bg-rose-500 hover:bg-rose-600 text-white",
   },
 };
 
@@ -174,8 +177,8 @@ function InProgressCard({
       >
         {/* Shimmer accent */}
         <div className={`absolute inset-x-0 top-0 h-0.5 rounded-t-xl ${item.isRevising
-          ? "bg-gradient-to-r from-violet-500 via-purple-400 to-violet-500"
-          : `bg-gradient-to-r ${colors.icon.replace("bg-gradient-to-br", "")}`
+          ? "bg-violet-500"
+          : colors.icon
         }`} />
 
         <CardContent className="p-5">
@@ -184,7 +187,7 @@ function InProgressCard({
             {/* Header */}
             <div className="flex items-start gap-3">
               <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-md flex-shrink-0
-                ${item.isRevising ? "bg-gradient-to-br from-violet-500 to-purple-600" : colors.icon}`}>
+                ${item.isRevising ? "bg-violet-500" : colors.icon}`}>
                 <CategoryIcon className="w-5 h-5 text-white" />
               </div>
 
@@ -249,7 +252,7 @@ function InProgressCard({
                 </div>
                 <div className="relative h-2 bg-muted/40 rounded-full overflow-hidden">
                   <motion.div
-                    className={`absolute inset-y-0 left-0 rounded-full ${colors.icon.replace("bg-gradient-to-br", "bg-gradient-to-r")}`}
+                    className={`absolute inset-y-0 left-0 rounded-full ${colors.icon}`}
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.9, ease: "easeOut" }}
@@ -270,11 +273,9 @@ function InProgressCard({
             <div className="flex items-center gap-2 pt-1">
               <Button
                 onClick={onContinue}
-                className={`flex-1 gap-2 h-10 shadow-sm border-0 text-white font-semibold transition-all hover:brightness-110
-                  ${item.isRevising
-                    ? "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
-                    : colors.icon.replace("bg-gradient-to-br", "bg-gradient-to-r")
-                  }`}
+                className={`flex-1 gap-2 h-10 shadow-sm border-0 text-white font-semibold transition-all hover:brightness-110 ${
+                  item.isRevising ? "bg-violet-500 hover:bg-violet-600" : colors.btn
+                }`}
               >
                 <Play className="w-4 h-4 fill-current" />
                 {item.isRevising ? t('inProgress.continueReview') : t('inProgress.continueQuiz')}

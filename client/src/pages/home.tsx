@@ -63,6 +63,7 @@ import {
 } from "framer-motion";
 import { Footer } from "@/components/footer";
 import { useLanguage } from "@/lib/language-context";
+import AskPipIcon from "@/components/ui/ask-pip-icon";
 
 function cn(...classes: (string | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -1817,7 +1818,7 @@ function FeatureIllustration({
     );
   }
 
-  if (feature === "Pip AI Assistant") {
+  if (feature === "Prepal AI Assistant") {
     return (
       <div className="w-full h-full flex items-center justify-center p-2 pointer-events-none">
         <div className="w-full max-w-[260px] transform scale-[0.8]">
@@ -1857,8 +1858,8 @@ function FeatureIllustration({
                 size="sm"
                 className={`w-full mt-2 ${c.bg} hover:${c.bg}/90 text-white text-[9px] h-7 border-0`}
               >
-                <MessageCircle className="w-3 h-3 mr-1" />
-                Ask Pip
+                <AskPipIcon className="w-3 h-3 mr-1" />
+                  Ask Prepal
               </Button>
             </CardContent>
           </Card>
@@ -1988,7 +1989,7 @@ function FeatureShowcase() {
       description: t("home.features.pip.desc"),
       color: "cyan",
       details:
-        "Meet Pip, your friendly arctic study buddy! Pip understands your quiz context and helps explain difficult concepts, provides hints when you're stuck, and supports math formulas. Pip guides you to the answer without giving it away.",
+        "Meet Prepal, your friendly arctic study buddy! Prepal understands your quiz context and helps explain difficult concepts, provides hints when you're stuck, and supports math formulas. Prepal guides you to the answer without giving it away.",
     },
     {
       icon: Target,
@@ -3081,7 +3082,7 @@ export default function Home() {
               </Card>
             </motion.div>
 
-            {/* Box 6: Pip Assistant (Wide) */}
+            {/* Box 6: Prepal Assistant (Wide) */}
             <motion.div
               className="md:col-span-2 md:row-span-1 flex"
               initial={{ opacity: 0, y: 20 }}
@@ -3092,7 +3093,7 @@ export default function Home() {
               <Card className="w-full group cursor-pointer transition-all duration-500 border-cyan-500/20 bg-card hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-1 relative overflow-hidden">
                 <CardContent className="p-5 h-full flex items-center gap-5">
                   <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shrink-0">
-                    <span className="text-3xl group-hover:scale-125 transition-transform duration-500">🐧</span>
+                    <AskPipIcon size={32} className="group-hover:scale-110 transition-transform duration-500" />
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-bold mb-1">{t("home.features.pip.title")}</h3>
