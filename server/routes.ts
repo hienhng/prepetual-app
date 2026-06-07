@@ -778,7 +778,11 @@ export async function registerRoutes(
             content: `You are a helpful study assistant. Summarize the given study material into clear, concise key points. 
 Keep the summary focused on the main concepts and important details that would be useful for exam preparation.
 If the text is in a language other than English, keep the summary in that same language.
-Format with bullet points for easy reading. Keep it under 500 words.`
+Format with bullet points for easy reading. Keep it under 500 words.
+
+IMPORTANT NOTE:
+  If the material is a quiz itself, do NOT directly give the answers to the questions, your role is to simply explain the
+  concepts and explain them`
           },
           {
             role: "user",
@@ -1265,6 +1269,28 @@ Format with bullet points for easy reading. Keep it under 500 words.`
       })));
     } catch (error) {
       res.status(500).json({ message: "Failed to get quiz results" });
+    }
+  });
+
+  app.get("/api/result/:resultId", isAuthenticated, async (req: any, res) => {
+    try {
+      const result = await storage.getQuizResultById(req.params.resultId);
+      if (!result) {
+        return res.status(404).json({ message: "Result not found" });
+      }
+      const quiz = await storage.getQuiz(result.quizId);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      res.json({
+        result: {
+          ...result,
+          completedAt: result.completedAt.toISOString(),
+        },
+        quiz,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get result details" });
     }
   });
 

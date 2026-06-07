@@ -2874,15 +2874,23 @@ export default function Home() {
         </div>
 
         <div className="text-center mb-16">
-          <motion.p
-            className="text-sm font-semibold text-primary uppercase tracking-[0.2em] mb-3"
-            initial={{ opacity: 0, letterSpacing: "0em" }}
-            whileInView={{ opacity: 1, letterSpacing: "0.2em" }}
+          <motion.div
+            className="flex justify-center mb-3"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
-            {t("home.howItWorks.badge")}
-          </motion.p>
+            <motion.p
+              className="text-xs sm:text-sm font-semibold text-primary uppercase tracking-[0.12em] sm:tracking-[0.2em] px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/5 border border-primary/10 inline-block whitespace-nowrap"
+              initial={{ letterSpacing: "0em" }}
+              whileInView={{ letterSpacing: "0.12em" }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {t("home.howItWorks.badge")}
+            </motion.p>
+          </motion.div>
           <div className="overflow-hidden">
             <motion.h2
               className="text-3xl md:text-5xl font-bold text-foreground mb-4 tracking-tight"

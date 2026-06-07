@@ -422,7 +422,7 @@ export default function FolderPage() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
+                    className="text-destructive focus:text-destructive shadow-destructive/20"
                     onClick={() => setDeleteFolderConfirm(true)}
                     data-testid="button-delete-folder"
                   >
@@ -745,7 +745,7 @@ export default function FolderPage() {
             <AlertDialogAction
               onClick={() => quizToDelete && deleteMutation.mutate(quizToDelete.id)}
               disabled={deleteMutation.isPending}
-              className="bg-destructive border-destructive text-destructive-foreground"
+              className="bg-destructive border-destructive text-destructive-foreground shadow-destructive/20"
               data-testid="button-confirm-delete"
             >
               {deleteMutation.isPending ? (
@@ -772,7 +772,7 @@ export default function FolderPage() {
             <AlertDialogAction
               onClick={() => deleteFolderMutation.mutate()}
               disabled={deleteFolderMutation.isPending}
-              className="bg-destructive border-destructive text-destructive-foreground"
+              className="bg-destructive border-destructive text-destructive-foreground shadow-destructive/20"
               data-testid="button-confirm-delete-folder"
             >
               {deleteFolderMutation.isPending ? (

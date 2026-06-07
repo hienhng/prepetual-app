@@ -281,7 +281,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
+              <div>
                 <Button
                   variant="outline"
                   className="w-full h-12 gap-2 hover:bg-blue-500/5 hover:border-blue-500/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
@@ -291,9 +291,9 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                   <BookOpen className="h-4 w-4" />
                   <span className="font-medium">{t('feed.study')}</span>
                 </Button>
-              </motion.div>
+              </div>
 
-              <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
+              <div>
                 <Button
                   className="w-full h-12 gap-2"
                   onClick={handleTakeQuiz}
@@ -302,7 +302,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                   <Play className="h-4 w-4" />
                   <span className="font-medium">{t('feed.takeQuiz')}</span>
                 </Button>
-              </motion.div>
+              </div>
             </div>
           </div>
         </DialogContent>

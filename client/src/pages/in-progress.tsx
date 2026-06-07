@@ -143,6 +143,28 @@ function InProgressCard({
   const difficultyRaw = getDifficulty(item.quiz.difficulty);
   const colors = difficultyColors[difficultyRaw];
   const CategoryIcon = getCategoryIcon(item.quiz.category);
+  const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+  const lightShadowMap: Record<string, string> = {
+    easy: '#10B981',
+    medium: '#F59E0B',
+    hard: '#F43F5E',
+  };
+  const darkShadowMap: Record<string, string> = {
+    easy: '#047857',
+    medium: '#B45309',
+    hard: '#BE123C',
+  };
+  const hexToRgba = (hex: string, alpha: number) => {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  const shadowColor = isDark
+    ? hexToRgba(darkShadowMap[difficultyRaw], 0.9)
+    : hexToRgba(lightShadowMap[difficultyRaw], 0.96);
 
   const displayAnswered = item.isRevising ? item.retryAnsweredCount : item.answeredCount;
   const displayTotal = item.isRevising ? item.retryTotalCount : item.totalCount;
@@ -165,15 +187,15 @@ function InProgressCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.06 }}
-      whileHover={{ y: -3 }}
       className="group"
     >
       <Card
-        className={`relative overflow-hidden border transition-all duration-300 hover:shadow-xl
-          ${item.isRevising
-            ? "border-violet-500/30 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-transparent hover:border-violet-500/50 hover:shadow-violet-500/10"
-            : `${colors.border} bg-gradient-to-br ${colors.from} ${colors.via} to-transparent hover:shadow-primary/10`
-          }`}
+        style={{ ['--primary-3d-shadow' as any]: shadowColor }}
+        className={`relative overflow-hidden border transition-all duration-300 shadow-sm active:shadow-none no-default-active-elevate
+            ${item.isRevising
+              ? "border-violet-500/30 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-transparent"
+              : `${colors.border} bg-gradient-to-br ${colors.from} ${colors.via} to-transparent`
+            }`}
       >
         {/* Shimmer accent */}
         <div className={`absolute inset-x-0 top-0 h-0.5 rounded-t-xl ${item.isRevising
@@ -210,19 +232,19 @@ function InProgressCard({
                       {t(`quizGenerator.${difficultyRaw}`)}
                     </Badge>
                   )}
-                  <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
-                    {t(getCategoryTranslationKey(item.quiz.category))}
-                  </Badge>
+                
                   {timeTakenLabel && (
                     <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-primary/20 bg-primary/5 text-primary">
                       <Clock className="w-2.5 h-2.5 mr-1" />
                       {t('inProgress.timeSpent', { time: timeTakenLabel })}
                     </Badge>
                   )}
+                </div>
+                <div className ="mt-2">
                   <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {t('inProgress.ago', { time: timeLabel })}
-                  </span>
+                      <Clock className="w-3 h-3" />
+                      {t('inProgress.ago', { time: timeLabel })}
+                    </span>
                 </div>
               </div>
             </div>
@@ -273,7 +295,7 @@ function InProgressCard({
             <div className="flex items-center gap-2 pt-1">
               <Button
                 onClick={onContinue}
-                className={`flex-1 gap-2 h-10 shadow-sm border-0 text-white font-semibold transition-all hover:brightness-110 ${
+                className={`flex-1 gap-2 h-10 border-${colors.border} text-white font-semibold transition-all hover:brightness-110 ${
                   item.isRevising ? "bg-violet-500 hover:bg-violet-600" : colors.btn
                 }`}
               >

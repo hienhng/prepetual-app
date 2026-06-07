@@ -158,38 +158,40 @@ function StatCard({
       bg: "bg-blue-50/50 dark:bg-blue-500/5",
       border: "border-blue-100 dark:border-blue-500/10",
       iconBg: "bg-blue-500/10 dark:bg-blue-500/20",
-      iconText: "text-blue-600 dark:text-blue-400"
+      iconText: "text-blue-600 dark:text-blue-400",
+      shadow: "shadow-[0_4px_0_0_var(--stat-blue-shadow)]"
     },
     violet: {
       bg: "bg-violet-50/50 dark:bg-violet-500/5",
       border: "border-violet-100 dark:border-violet-500/10",
       iconBg: "bg-violet-500/10 dark:bg-violet-500/20",
-      iconText: "text-violet-600 dark:text-violet-400"
+      iconText: "text-violet-600 dark:text-violet-400",
+      shadow: "shadow-[0_4px_0_0_var(--stat-violet-shadow)]"
     },
     emerald: {
       bg: "bg-emerald-50/50 dark:bg-emerald-500/5",
       border: "border-emerald-100 dark:border-emerald-500/10",
       iconBg: "bg-emerald-500/10 dark:bg-emerald-500/20",
-      iconText: "text-emerald-600 dark:text-emerald-400"
+      iconText: "text-emerald-600 dark:text-emerald-400",
+      shadow: "shadow-[0_4px_0_0_var(--stat-emerald-shadow)]"
     },
     muted: {
       bg: "bg-muted/30",
       border: "border-border",
       iconBg: "bg-muted",
-      iconText: "text-muted-foreground"
+      iconText: "text-muted-foreground",
+      shadow: "shadow-[0_4px_0_0_var(--stat-muted-shadow)]"
     }
   };
 
   const scheme = isActive ? colorSchemes[color] : colorSchemes.muted;
 
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+    <div
       onClick={onClick}
       className={`relative h-full ${onClick ? "cursor-pointer" : ""}`}
     >
-      <Card className={`h-full border ${scheme.border} ${scheme.bg} shadow-sm overflow-hidden group transition-all duration-300`}>
+      <Card className={`h-full border ${scheme.border} ${scheme.bg} ${scheme.shadow} overflow-hidden group transition-all duration-75 ${onClick ? "active:translate-y-[4px] active:shadow-none" : ""}`}>
         <CardContent className="p-5 h-full flex items-center gap-4">
           <div className={`p-3 rounded-2xl ${scheme.iconBg} ${scheme.iconText} transition-transform duration-300 group-hover:scale-110 flex-shrink-0`}>
             <Icon className="w-6 h-6" />
@@ -204,7 +206,7 @@ function StatCard({
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
@@ -391,6 +393,18 @@ function QuizCard({
   const difficulty = (["easy", "medium", "hard"].includes(difficultyRaw) ? difficultyRaw : "medium") as "easy" | "medium" | "hard";
   const colors = difficultyColors[difficulty] || difficultyColors.medium;
   const CategoryIcon = getCategoryIcon(quiz.category);
+  const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+  const lightShadowMap: Record<string, string> = {
+    easy: '#10B981',
+    medium: '#F59E0B',
+    hard: '#F43F5E',
+  };
+  const darkShadowMap: Record<string, string> = {
+    easy: '#047857',
+    medium: '#B45309',
+    hard: '#BE123C',
+  };
+  const shadowColor = isDark ? darkShadowMap[difficulty] : lightShadowMap[difficulty];
   const questionCount = (quiz as any).questionCount || (quiz.questions as any[])?.length || 0;
 
   return (
@@ -522,13 +536,29 @@ function ContinueQuizCard({
 
   const timeLabel = formatDistanceToNow(new Date(savedAt || new Date()));
 
+  const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+  const lightShadowMap: Record<string, string> = {
+    easy: '#10B981',
+    medium: '#F59E0B',
+    hard: '#F43F5E',
+  };
+  const darkShadowMap: Record<string, string> = {
+    easy: '#047857',
+    medium: '#B45309',
+    hard: '#BE123C',
+  };
+  const shadowColor = isDark ? darkShadowMap[difficulty] : lightShadowMap[difficulty];
+
   return (
     <motion.div
       whileHover={{ y: 0 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="relative group"
     >
-      <Card className={`overflow-hidden border ${isRevising ? 'border-violet-500/40' : colors.border} transition-all duration-300 bg-gradient-to-br ${isRevising ? 'from-violet-500/5 via-purple-500/5' : `${colors.from} ${colors.via}`} to-transparent`}>
+      <Card
+        style={{ ['--primary-3d-shadow' as any]: shadowColor }}
+        className={`overflow-hidden border ${isRevising ? 'border-violet-500/40' : colors.border} transition-all duration-300 bg-gradient-to-br ${isRevising ? 'from-violet-500/5 via-purple-500/5' : `${colors.from} ${colors.via}`} to-transparent shadow-[0_4px_0_0_var(--primary-3d-shadow)] active:translate-y-[4px] active:shadow-none` }
+      >
         <CardContent className="p-4 sm:p-5">
           <div className="flex flex-col gap-4">
             {/* Header row */}

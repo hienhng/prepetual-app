@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, FileText, ChevronLeft, ChevronRight, Image, Flag, AlertTriangle, Clock, Eye, EyeOff } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, FileText, ChevronLeft, ChevronRight, Image, Flag, AlertTriangle, Clock, Eye, EyeOff, MessageCircleQuestion } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useSidebarOptional } from "@/components/ui/sidebar";
 import { useLanguage } from "@/lib/language-context";
+import { apiRequest } from "@/lib/queryClient";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
 import confetti from "canvas-confetti";
@@ -111,6 +112,9 @@ export function QuizPlayer() {
   const [reportReason, setReportReason] = useState<string>("Correct answer is wrong");
   const [reportDetails, setReportDetails] = useState("");
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  const [materialSummary, setMaterialSummary] = useState<string>("");
+  const [isSummarizingMaterial, setIsSummarizingMaterial] = useState(false);
+  const [materialSummaryError, setMaterialSummaryError] = useState<string | null>(null);
   const { toast } = useToast();
   
   const wrongAnswerIds = useRef<Set<string>>(new Set());
@@ -806,8 +810,6 @@ export function QuizPlayer() {
             return (
               <div key={option} className="flex flex-col">
                 <motion.button
-                  whileHover={!isChecked ? { scale: 1.02 } : {}}
-                  whileTap={!isChecked ? { scale: 0.98 } : {}}
                   animate={isChecked ? (
                     isCorrectOpt 
                       ? { scale: [1, 1.05, 1] } 
@@ -826,13 +828,14 @@ export function QuizPlayer() {
                     relative p-5 sm:p-8 text-left
                     ${hasExplanation ? "rounded-t-2xl" : "rounded-2xl"}
                     ${!isChecked ? "cursor-pointer" : "cursor-default"}
+                    shadow-[0_4px_0_0_rgba(15,23,42,0.08)] transition-all duration-200
                     ${isChecked && isCorrectOpt 
                       ? "bg-green-500/15 border-2 border-green-500 shadow-xl shadow-green-500/20 ring-2 ring-green-500/20" 
                       : isChecked && isSelected && !isCorrectOpt
                         ? "bg-red-500/15 border-2 border-red-500 shadow-lg shadow-red-500/15 ring-2 ring-red-500/10"
                         : isSelected
                           ? "bg-primary/10 border-2 border-primary shadow-lg shadow-primary/10"
-                          : "bg-card border-2 border-border hover:border-primary/50 hover:bg-muted/50"
+                          : "bg-card border-2 border-border"
                     }
                     ${hasExplanation ? "border-b-0" : ""}
                   `}
@@ -1059,8 +1062,6 @@ export function QuizPlayer() {
           return (
             <div key={index} className="space-y-0">
               <motion.button
-                whileHover={!isChecked ? { scale: 1.03, x: 4 } : {}}
-                whileTap={!isChecked ? { scale: 0.98 } : {}}
                 animate={isChecked ? (
                   isCorrectOpt 
                     ? { scale: [1, 1.05, 1] } 
@@ -1080,13 +1081,14 @@ export function QuizPlayer() {
                   w-full relative p-4 sm:p-5 text-left
                   ${hasExplanation ? "rounded-t-xl rounded-b-none" : "rounded-xl"}
                   ${!isChecked ? "cursor-pointer" : "cursor-default"}
+                  shadow-[0_4px_0_0_rgba(15,23,42,0.08)] transition-all duration-200
                   ${isChecked && isCorrectOpt 
                     ? "bg-green-500/15 border-2 border-green-500 border-b-0 shadow-lg shadow-green-500/10 ring-1 ring-green-500/20" 
                     : isChecked && isSelected && !isCorrectOpt
                       ? "bg-red-500/15 border-2 border-red-500 border-b-0 shadow-md shadow-red-500/10"
                       : isSelected
                         ? "bg-primary/10 border-2 border-primary"
-                        : "bg-card border-2 border-border hover:border-primary/50 hover:bg-muted/30"
+                        : "bg-card border-2 border-border"
                   }
                 `}
               >
@@ -1254,7 +1256,7 @@ export function QuizPlayer() {
   const allOriginalChecked = checkedQuestions.size === originalQuestionCount;
   const [expandedImageUrl, setExpandedImageUrl] = useState<string | null>(null);
   const [showMaterialViewer, setShowMaterialViewer] = useState(false);
-  const [materialViewMode, setMaterialViewMode] = useState<"images" | "text">("images");
+  const [materialViewMode, setMaterialViewMode] = useState<"images" | "text" | "summary">("images");
   const [materialImageIndex, setMaterialImageIndex] = useState(0);
   const [materialPanelWidth, setMaterialPanelWidth] = useState(45);
   const isDraggingRef = useRef(false);
@@ -1311,6 +1313,59 @@ export function QuizPlayer() {
       setMaterialViewMode('text');
     }
   }, [hasMaterialImages, hasMaterialText]);
+
+  useEffect(() => {
+    setMaterialSummary("");
+    setMaterialSummaryError(null);
+    if (hasMaterialText && !hasMaterialImages) {
+      setMaterialViewMode('text');
+    }
+  }, [materialText, hasMaterialImages, hasMaterialText]);
+
+  useEffect(() => {
+    if (!currentQuiz?.id) return;
+    const stored = sessionStorage.getItem(`material_summary_${currentQuiz.id}`);
+    if (stored) {
+      setMaterialSummary(stored);
+    }
+  }, [currentQuiz?.id]);
+
+  useEffect(() => {
+    if (!currentQuiz?.id) return;
+    const key = `material_summary_${currentQuiz.id}`;
+    try {
+      if (materialSummary) {
+        sessionStorage.setItem(key, materialSummary);
+      } else {
+        sessionStorage.removeItem(key);
+      }
+    } catch {
+      // ignore storage failures
+    }
+  }, [currentQuiz?.id, materialSummary]);
+
+  const summarizeMaterial = async () => {
+    if (!materialText.trim()) {
+      setMaterialSummaryError("No study material text is available to summarize.");
+      setMaterialSummary("");
+      return;
+    }
+
+    setMaterialSummaryError(null);
+    setIsSummarizingMaterial(true);
+
+    try {
+      const response = await apiRequest("POST", "/api/summarize-text", { text: materialText });
+      const data = await response.json();
+      setMaterialSummary(data.summary || "");
+      setMaterialViewMode('summary');
+    } catch (error: any) {
+      setMaterialSummary("");
+      setMaterialSummaryError(error?.message || "Failed to summarize material. Please try again.");
+    } finally {
+      setIsSummarizingMaterial(false);
+    }
+  };
 
   const retryQuestionsInList = allQuestions.filter(q => q.isRetry);
   const allRetryChecked = retryQuestionsInList.every(q => retryChecked.has(q.id));
@@ -1391,12 +1446,63 @@ export function QuizPlayer() {
                       </button>
                     </div>
                   )}
+                  {hasMaterialText && materialSummary && (
+                    <div className="mt-4">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="rounded-full"
+                        onClick={() => setMaterialViewMode(materialViewMode === 'summary' ? 'text' : 'summary')}
+                      >
+                        {materialViewMode === 'summary' ? 'View original' : 'View summary'}
+                      </Button>
+                    </div>
+                  )}
+                  {hasMaterialText && !materialSummary && (
+                    <div className="mt-4">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="rounded-full"
+                        onClick={summarizeMaterial}
+                        disabled={isSummarizingMaterial}
+                      >
+                        {isSummarizingMaterial ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <BookCheck className="mr-2 h-4 w-4" />
+                        )}
+                        Summarize material
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {materialViewMode === 'text' && hasMaterialText ? (
-                    <div className="rounded-3xl border border-border/70 bg-card p-4 text-sm leading-7 text-muted-foreground whitespace-pre-wrap shadow-sm">
-                      {materialText}
+                    <>
+                      <div className="rounded-3xl border border-border/70 bg-card p-4 text-sm leading-7 text-muted-foreground whitespace-pre-wrap shadow-sm">
+                        {materialText}
+                      </div>
+                      {materialSummaryError && (
+                        <div className="rounded-3xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 shadow-sm">
+                          {materialSummaryError}
+                        </div>
+                      )}
+                    </>
+                  ) : materialViewMode === 'summary' && materialSummary ? (
+                    <div className="space-y-4">
+                      <div className="rounded-3xl border border-border/70 bg-background p-4 text-sm leading-7 text-foreground whitespace-pre-wrap shadow-sm">
+                        <p className="mb-3 text-sm font-semibold text-foreground">Study summary</p>
+                        {materialSummary}
+                      </div>
+                      {materialSummaryError && (
+                        <div className="rounded-3xl border border-red-300 bg-red-50 p-4 text-sm text-red-700 shadow-sm">
+                          {materialSummaryError}
+                        </div>
+                      )}
                     </div>
                   ) : hasMaterialImages ? (
                     <div className="space-y-4">
@@ -1566,10 +1672,10 @@ export function QuizPlayer() {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="h-7 px-2 text-muted-foreground hover:text-destructive gap-1 rounded-full"
+                          className="h-7 px-2 text-muted-foreground hover:text-destructive/80 gap-1 rounded-full"
                           data-testid="button-report-problem"
                         >
-                          <Flag className="h-3.5 w-3.5" />
+                          <MessageCircleQuestion className="h-3.5 w-3.5" />
                           <span className="text-xs font-medium">{t('quizPlayer.somethingWrong')}</span>
                         </Button>
                       </DialogTrigger>
@@ -1689,7 +1795,7 @@ export function QuizPlayer() {
               <Button
                 variant="outline"
                 onClick={() => setShowChatbot(true)}
-                className="rounded-full h-9 sm:h-11 px-3 sm:px-4 shrink-0 bg-background/50 backdrop-blur-sm border-2 hover:bg-primary/5 gap-2 font-semibold shadow-sm transition-all hover:shadow-md group"
+                className="rounded-full h-9 sm:h-11 px-3 sm:px-4 shrink-0 bg-primary/20 backdrop-blur-sm border-primary hover:bg-primary/15 gap-2 font-semibold transition-all group shadow-primary/70"
                 data-testid="button-ask-pip"
               >
                 <AskPipIcon size={22} className="sm:w-6 sm:h-6" />

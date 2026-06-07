@@ -381,7 +381,7 @@ export default function Create() {
                           </AlertDialogHeader>
                           <AlertDialogFooter className="gap-2">
                             <AlertDialogCancel className="rounded-xl font-bold">{t('common.cancel')}</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleClearText} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl font-bold">
+                            <AlertDialogAction onClick={handleClearText} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl font-bold border-[0_4px_0_0_#fcaca5] shadow-[0_4px_0_0_#e85d5d]">
                               {t('create.confirmRemoval')}
                             </AlertDialogAction>
                           </AlertDialogFooter>

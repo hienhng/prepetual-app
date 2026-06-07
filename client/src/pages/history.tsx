@@ -632,7 +632,7 @@ export default function HistoryPage() {
               </div>
               <Button
                 size="sm"
-                className="font-bold rounded-lg shadow-none"
+                className="font-bold rounded-lg shadow-primary/60"
                 onClick={openCreateFolder}
                 data-testid="button-create-folder"
               >
@@ -794,7 +794,7 @@ export default function HistoryPage() {
             <AlertDialogAction
               onClick={() => quizToDelete && deleteMutation.mutate(quizToDelete.id)}
               disabled={deleteMutation.isPending}
-              className="bg-destructive border-destructive text-destructive-foreground"
+              className="bg-destructive border-none text-destructive-foreground shadow-destructive/20"
               data-testid="button-confirm-delete"
             >
               {deleteMutation.isPending ? (

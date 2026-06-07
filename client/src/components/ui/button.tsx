@@ -11,14 +11,12 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground border border-primary-border",
+          "bg-primary text-primary-foreground border border-primary-border shadow-[0_4px_0_0_var(--primary-3d-shadow)] active:translate-y-[4px] active:shadow-none disabled:translate-y-0 disabled:shadow-none transition-all duration-75 no-default-active-elevate",
         destructive:
-          "bg-destructive text-destructive-foreground border border-destructive-border",
+          "bg-destructive text-destructive-foreground border border-destructive-border shadow-[0_4px_0_0_var(--destructive-3d-shadow)] active:translate-y-[4px] active:shadow-none disabled:translate-y-0 disabled:shadow-none transition-all duration-75 no-default-active-elevate",
         outline:
-          // Shows the background color of whatever card / sidebar / accent background it is inside of.
-          // Inherits the current text color.
-          " border [border-color:var(--button-outline)]  shadow-xs active:shadow-none ",
-        secondary: "border bg-secondary text-secondary-foreground border border-secondary-border ",
+          "border [border-color:var(--button-outline)] shadow-[0_4px_0_0_var(--outline-3d-shadow)] active:translate-y-[4px] active:shadow-none disabled:translate-y-0 disabled:shadow-none transition-all duration-75 no-default-active-elevate",
+        secondary: "border bg-secondary text-secondary-foreground border border-secondary-border shadow-[0_4px_0_0_var(--secondary-3d-shadow)] active:translate-y-[4px] active:shadow-none disabled:translate-y-0 disabled:shadow-none transition-all duration-75 no-default-active-elevate",
         // Add a transparent border so that when someone toggles a border on later, it doesn't shift layout/size.
         ghost: "border border-transparent",
         link: "text-primary underline-offset-4 hover:underline",
