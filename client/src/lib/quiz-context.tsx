@@ -40,6 +40,21 @@ export interface SavedQuizProgress {
   savedAt: string;
 }
 
+const deriveSourceMaterialFromQuiz = (quiz: Quiz | null): SourceMaterial => {
+  if (!quiz) {
+    return { type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] };
+  }
+
+  return {
+    type: quiz.sourceImageUrl || (quiz.sourceImages?.length || 0) > 0 ? "image" : null,
+    text: quiz.sourceText || null,
+    imageDataUrl: quiz.sourceImageUrl || null,
+    isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
+    documentImages: quiz.sourceImages || [],
+    isImageOnly: !quiz.sourceText && !!(quiz.sourceImageUrl || (quiz.sourceImages?.length || 0) > 0),
+  };
+};
+
 interface QuizState {
   extractedText: string | null;
   sourceMaterial: SourceMaterial;
@@ -150,6 +165,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     let currentQuiz = null;
     let userAnswers = {};
     let checkedQuestions = new Set<string>();
+    let restoredSourceMaterial = savedMaterial ? JSON.parse(savedMaterial) : null;
     
     if (savedQuizProgress) {
       try {
@@ -157,6 +173,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         currentQuiz = progress.quiz || null;
         userAnswers = progress.answers || {};
         checkedQuestions = new Set(progress.checkedQuestions || []);
+        if (currentQuiz) {
+          restoredSourceMaterial = deriveSourceMaterialFromQuiz(currentQuiz);
+        }
       } catch (e) {
         sessionStorage.removeItem("quiz_progress");
       }
@@ -164,7 +183,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     
     return {
       extractedText: savedText || null,
-      sourceMaterial: savedMaterial ? JSON.parse(savedMaterial) : { type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] },
+      sourceMaterial: restoredSourceMaterial || { type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] },
       currentQuiz,
       quizResult: null,
       userAnswers,
@@ -447,6 +466,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       return {
         ...prev,
         currentQuiz: progress.quiz,
+        sourceMaterial: deriveSourceMaterialFromQuiz(progress.quiz),
         userAnswers: progress.answers,
         checkedQuestions: loadedCheckedQuestions,
         lastSavedAnswersCount: answersCount,

@@ -2874,15 +2874,23 @@ export default function Home() {
         </div>
 
         <div className="text-center mb-16">
-          <motion.p
-            className="text-sm font-semibold text-primary uppercase tracking-[0.2em] mb-3"
-            initial={{ opacity: 0, letterSpacing: "0em" }}
-            whileInView={{ opacity: 1, letterSpacing: "0.2em" }}
+          <motion.div
+            className="flex justify-center mb-3"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
-            {t("home.howItWorks.badge")}
-          </motion.p>
+            <motion.p
+              className="text-xs sm:text-sm font-semibold text-primary uppercase tracking-[0.12em] sm:tracking-[0.2em] px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/5 border border-primary/10 inline-block whitespace-nowrap"
+              initial={{ letterSpacing: "0em" }}
+              whileInView={{ letterSpacing: "0.12em" }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {t("home.howItWorks.badge")}
+            </motion.p>
+          </motion.div>
           <div className="overflow-hidden">
             <motion.h2
               className="text-3xl md:text-5xl font-bold text-foreground mb-4 tracking-tight"
@@ -3175,8 +3183,6 @@ export default function Home() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
               <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -3186,7 +3192,7 @@ export default function Home() {
                 <Button
                   size="lg"
                   onClick={handleGetStarted}
-                  className="gap-2 px-10 h-14 w-full sm:w-auto text-base font-bold shadow-[0_20px_40px_-15px_rgba(var(--primary),0.3)] bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-all duration-300"
+                  className="gap-2 px-10 h-14 w-full sm:w-auto text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-all duration-300"
                   data-testid="button-cta-get-started-final"
                 >
                   {t("home.cta.getStartedFree")}
@@ -3207,7 +3213,7 @@ export default function Home() {
                   <Button
                     size="lg"
                     variant="ghost"
-                    className="gap-2 px-10 h-14 w-full sm:w-auto text-base font-medium text-muted-foreground hover:text-foreground rounded-full border border-border/50 hover:border-foreground/20 hover:bg-foreground/5 transition-all duration-300"
+                    className="gap-2 px-10 h-14 w-full sm:w-auto text-base font-medium shadow-none text-muted-foreground hover:text-foreground rounded-full border border-border/50 hover:border-foreground/20 hover:bg-foreground/5 transition-all duration-300"
                     data-testid="button-learn-more-final"
                   >
                     {t("home.cta.learnMore")}

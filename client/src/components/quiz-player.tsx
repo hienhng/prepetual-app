@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, FileText, ChevronLeft, ChevronRight, Image, Flag, AlertTriangle, Clock, Eye, EyeOff } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, FileText, ChevronLeft, ChevronRight, Image, Flag, AlertTriangle, Clock, Eye, EyeOff, MessageCircleQuestion } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useSidebarOptional } from "@/components/ui/sidebar";
 import { useLanguage } from "@/lib/language-context";
+import { apiRequest } from "@/lib/queryClient";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Question } from "@shared/schema";
 import confetti from "canvas-confetti";
@@ -71,6 +72,7 @@ const getStreakMessage = (streak: number, t: any) => {
 };
 
 import { ThemeToggle } from "@/components/theme-toggle";
+import { MaterialPane } from "@/components/material-pane";
 
 export function QuizPlayer() {
   const [, setLocation] = useLocation();
@@ -111,6 +113,8 @@ export function QuizPlayer() {
   const [reportReason, setReportReason] = useState<string>("Correct answer is wrong");
   const [reportDetails, setReportDetails] = useState("");
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  const [showMaterialViewer, setShowMaterialViewer] = useState(false);
+  const [materialPanelWidth, setMaterialPanelWidth] = useState(45);
   const { toast } = useToast();
   
   const wrongAnswerIds = useRef<Set<string>>(new Set());
@@ -118,6 +122,7 @@ export function QuizPlayer() {
   const [retryChecked, setRetryChecked] = useState<Set<string>>(new Set());
   const hasRestoredRef = useRef(false);
   const [expandedExplanations, setExpandedExplanations] = useState<Set<string>>(new Set());
+  const [pressedKey, setPressedKey] = useState<string | null>(null);
   
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
@@ -806,8 +811,6 @@ export function QuizPlayer() {
             return (
               <div key={option} className="flex flex-col">
                 <motion.button
-                  whileHover={!isChecked ? { scale: 1.02 } : {}}
-                  whileTap={!isChecked ? { scale: 0.98 } : {}}
                   animate={isChecked ? (
                     isCorrectOpt 
                       ? { scale: [1, 1.05, 1] } 
@@ -820,19 +823,38 @@ export function QuizPlayer() {
                     mass: 0.4
                   }}
                   onClick={() => handleSelectAnswer(option)}
+                  onPointerDown={() => setPressedKey(explanationKey)}
+                  onPointerUp={() => setPressedKey(null)}
+                  onPointerLeave={() => setPressedKey(null)}
+                  onPointerCancel={() => setPressedKey(null)}
                   disabled={isChecked}
                   data-testid={`option-${option.toLowerCase()}`}
+                  style={{ 
+                    transform: pressedKey === explanationKey ? 'translateY(4px)' : undefined,
+                    boxShadow: isChecked
+                    ? 'none' : 
+                    pressedKey === explanationKey 
+                      ? '0 0px 0px 0px rgba(15,23,42,0)'
+                      : isSelected
+                        ? (typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
+                        ? '0 4px 0 0 rgba(250, 204, 21, 0.6)'
+                        : '0 4px 0 0 rgba(250, 204, 21, 0.8)')
+                      : (typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
+                        ? '0 4px 0 0 rgba(255,255,255,0.08)'
+                        : '0 4px 0 0 rgba(142, 158, 196, 0.08)')
+                  }}
                   className={`
                     relative p-5 sm:p-8 text-left
                     ${hasExplanation ? "rounded-t-2xl" : "rounded-2xl"}
                     ${!isChecked ? "cursor-pointer" : "cursor-default"}
+                    transition-[transform,box-shadow] duration-75
                     ${isChecked && isCorrectOpt 
-                      ? "bg-green-500/15 border-2 border-green-500 shadow-xl shadow-green-500/20 ring-2 ring-green-500/20" 
+                      ? "bg-green-500/15 border-2 border-green-500 shadow-none ring-2 ring-green-500/20" 
                       : isChecked && isSelected && !isCorrectOpt
-                        ? "bg-red-500/15 border-2 border-red-500 shadow-lg shadow-red-500/15 ring-2 ring-red-500/10"
+                        ? "bg-red-500/15 border-2 border-red-500 shadow-md shadow-red-500/10"
                         : isSelected
-                          ? "bg-primary/10 border-2 border-primary shadow-lg shadow-primary/10"
-                          : "bg-card border-2 border-border hover:border-primary/50 hover:bg-muted/50"
+                          ? "bg-primary/10 border-2 border-primary shadow-lg shadow-primary/80"
+                          : "bg-card border-2 border-border"
                     }
                     ${hasExplanation ? "border-b-0" : ""}
                   `}
@@ -966,7 +988,7 @@ export function QuizPlayer() {
               value={isChecked ? (selectedAnswer || shortAnswerInput) : shortAnswerInput}
               onChange={(e) => handleShortAnswerChange(e.target.value)}
               placeholder={t('quizPlayer.shortAnswerPlaceholder')}
-              className={`py-6 px-5 text-lg rounded-xl border-2 ${borderColor} transition-all duration-300 shadow-sm ${isChecked && isShortAnswerCorrect ? "shadow-green-500/20" : isChecked && !isShortAnswerCorrect ? "shadow-red-500/20" : ""}`}
+              className={`py-6 px-5 text-lg rounded-xl border-2 ${borderColor} transition-all duration-300 shadow-primary ${isChecked && isShortAnswerCorrect ? "shadow-green-500/20" : isChecked && !isShortAnswerCorrect ? "shadow-red-500/20" : ""}`}
               disabled={isChecked || isGrading}
               data-testid="input-short-answer"
             />
@@ -1059,8 +1081,6 @@ export function QuizPlayer() {
           return (
             <div key={index} className="space-y-0">
               <motion.button
-                whileHover={!isChecked ? { scale: 1.03, x: 4 } : {}}
-                whileTap={!isChecked ? { scale: 0.98 } : {}}
                 animate={isChecked ? (
                   isCorrectOpt 
                     ? { scale: [1, 1.05, 1] } 
@@ -1074,19 +1094,38 @@ export function QuizPlayer() {
                   layout: { duration: 0 } 
                 }}
                 onClick={() => handleSelectAnswer(option)}
+                onPointerDown={() => setPressedKey(explanationKey)}
+                onPointerUp={() => setPressedKey(null)}
+                onPointerLeave={() => setPressedKey(null)}
+                onPointerCancel={() => setPressedKey(null)}
                 disabled={isChecked}
                 data-testid={`option-${index}`}
+                style={{ 
+                  transform: pressedKey === explanationKey ? 'translateY(4px)' : undefined,
+                  boxShadow: isChecked
+                  ? 'none'
+                  : pressedKey === explanationKey 
+                    ? '0 0px 0px 0px rgba(86, 110, 166, 0)'
+                    : isSelected
+                      ? (typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
+                        ? '0 4px 0 0 rgba(250, 204, 21, 0.6)'
+                        : '0 4px 0 0 rgba(250, 204, 21, 0.8)')
+                      : (typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
+                        ? '0 4px 0 0 rgba(255,255,255,0.08)'
+                        : '0 4px 0 0 rgba(142, 158, 196, 0.08)')
+                }}
                 className={`
-                  w-full relative p-4 sm:p-5 text-left
+                  w-full relative p-4 sm:p-5 text-left 
                   ${hasExplanation ? "rounded-t-xl rounded-b-none" : "rounded-xl"}
                   ${!isChecked ? "cursor-pointer" : "cursor-default"}
+                  transition-[transform,box-shadow] duration-75
                   ${isChecked && isCorrectOpt 
-                    ? "bg-green-500/15 border-2 border-green-500 border-b-0 shadow-lg shadow-green-500/10 ring-1 ring-green-500/20" 
+                    ? "bg-green-500/15 border-2 border-green-500 border-b-0 shadow-none ring-1 ring-green-500/20" 
                     : isChecked && isSelected && !isCorrectOpt
                       ? "bg-red-500/15 border-2 border-red-500 border-b-0 shadow-md shadow-red-500/10"
                       : isSelected
                         ? "bg-primary/10 border-2 border-primary"
-                        : "bg-card border-2 border-border hover:border-primary/50 hover:bg-muted/30"
+                        : "bg-card border-2 border-border"
                   }
                 `}
               >
@@ -1252,47 +1291,6 @@ export function QuizPlayer() {
   };
 
   const allOriginalChecked = checkedQuestions.size === originalQuestionCount;
-  const [expandedImageUrl, setExpandedImageUrl] = useState<string | null>(null);
-  const [showMaterialViewer, setShowMaterialViewer] = useState(false);
-  const [materialViewMode, setMaterialViewMode] = useState<"images" | "text">("images");
-  const [materialImageIndex, setMaterialImageIndex] = useState(0);
-  const [materialPanelWidth, setMaterialPanelWidth] = useState(45);
-  const isDraggingRef = useRef(false);
-  const dragStartXRef = useRef(0);
-  const dragStartWidthRef = useRef(45);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDraggingRef.current) return;
-      const containerWidth = window.innerWidth;
-      const deltaX = e.clientX - dragStartXRef.current;
-      const deltaPercent = (deltaX / containerWidth) * 100;
-      const newWidth = Math.min(70, Math.max(20, dragStartWidthRef.current - deltaPercent));
-      setMaterialPanelWidth(newWidth);
-    };
-    const handleMouseUp = () => {
-      if (isDraggingRef.current) {
-        isDraggingRef.current = false;
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
-      }
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, []);
-
-  const startDrag = (e: React.MouseEvent) => {
-    isDraggingRef.current = true;
-    dragStartXRef.current = e.clientX;
-    dragStartWidthRef.current = materialPanelWidth;
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-    e.preventDefault();
-  };
 
   const materialImages = (sourceMaterial?.documentImages as string[]) || ((currentQuiz as any)?.sourceImages as string[]) || [];
   const singleSourceImage = (sourceMaterial?.imageDataUrl as string | undefined) || ((currentQuiz as any)?.sourceImageUrl as string | undefined);
@@ -1303,14 +1301,6 @@ export function QuizPlayer() {
   const materialText = rawText === "[Images uploaded - AI will analyze visually]" ? "" : rawText;
   const hasMaterialText = Boolean(materialText.trim());
   const hasMaterialContent = hasMaterialImages || hasMaterialText;
-
-  useEffect(() => {
-    if (hasMaterialImages) {
-      setMaterialViewMode('images');
-    } else if (hasMaterialText) {
-      setMaterialViewMode('text');
-    }
-  }, [hasMaterialImages, hasMaterialText]);
 
   const retryQuestionsInList = allQuestions.filter(q => q.isRetry);
   const allRetryChecked = retryQuestionsInList.every(q => retryChecked.has(q.id));
@@ -1333,124 +1323,16 @@ export function QuizPlayer() {
   return (
     <>
       <div className="flex w-full min-h-[calc(100vh-4rem)] overflow-x-hidden relative">
-        <AnimatePresence>
-          {showMaterialViewer && !isMobile && hasMaterialContent && (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: `${materialPanelWidth}%`, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="border-r border-border shrink-0 bg-background/95 backdrop-blur-md relative"
-            >
-              <div 
-                className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-primary/50 transition-colors z-[100]"
-                onMouseDown={startDrag}
-              />
-              <div className="h-full flex flex-col overflow-hidden absolute inset-0">
-                <div className="border-b border-border/70 px-4 py-4 bg-background/95 shrink-0">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      {hasMaterialImages ? <Image className="h-5 w-5 text-muted-foreground" /> : <FileText className="h-5 w-5 text-muted-foreground" />}
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">{t('quizPlayer.studyMaterial')}</p>
-                        <p className="text-xs text-muted-foreground leading-snug">
-                          {hasMaterialImages && hasMaterialText
-                            ? t('quizPlayer.studyMaterial')
-                            : hasMaterialImages
-                              ? t('quizPlayer.imagesCount', { current: materialImageIndex + 1, total: allMaterialImages.length })
-                              : t('quizPlayer.material')
-                          }
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 rounded-full"
-                      onClick={() => setShowMaterialViewer(false)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {hasMaterialImages && hasMaterialText && (
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setMaterialViewMode('images')}
-                        className={`rounded-full px-3 py-2 text-sm font-semibold transition ${materialViewMode === 'images' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-                      >
-                        {t('quizPlayer.viewImages')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setMaterialViewMode('text')}
-                        className={`rounded-full px-3 py-2 text-sm font-semibold transition ${materialViewMode === 'text' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-                      >
-                        {t('quizPlayer.viewText')}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {materialViewMode === 'text' && hasMaterialText ? (
-                    <div className="rounded-3xl border border-border/70 bg-card p-4 text-sm leading-7 text-muted-foreground whitespace-pre-wrap shadow-sm">
-                      {materialText}
-                    </div>
-                  ) : hasMaterialImages ? (
-                    <div className="space-y-4">
-                      <div className="relative overflow-hidden rounded-[26px] border border-border/70 bg-card shadow-sm">
-                        <img
-                          src={allMaterialImages[materialImageIndex]}
-                          alt={`Study material ${materialImageIndex + 1}`}
-                          className="w-full min-h-[260px] max-h-[55vh] object-contain bg-zinc-950"
-                          onClick={() => setExpandedImageUrl(allMaterialImages[materialImageIndex])}
-                        />
-                        <div className="absolute left-4 top-4 rounded-full bg-background/90 px-3 py-1 border border-border text-[11px] font-semibold text-muted-foreground shadow-sm">
-                          {t('quizPlayer.imagesCount', { current: materialImageIndex + 1, total: allMaterialImages.length })}
-                        </div>
-                        <div className="absolute right-4 top-4 flex items-center gap-2">
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="h-9 w-9 rounded-full bg-background/70 border border-border/70"
-                            onClick={() => setExpandedImageUrl(allMaterialImages[materialImageIndex])}
-                          >
-                            <ZoomIn className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      {allMaterialImages.length > 1 && (
-                        <div className="grid grid-cols-4 gap-2">
-                          {allMaterialImages.map((imageUrl: string, idx: number) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => setMaterialImageIndex(idx)}
-                              className={`overflow-hidden rounded-2xl border transition ${idx === materialImageIndex ? 'border-primary ring-2 ring-primary/30' : 'border-border/70 hover:border-primary'}`}
-                            >
-                              <img
-                                src={imageUrl}
-                                alt={`Thumbnail ${idx + 1}`}
-                                className="h-20 w-full object-cover"
-                              />
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="rounded-3xl border border-border/70 bg-card p-6 text-sm leading-7 text-muted-foreground shadow-sm">
-                      {t('quizPlayer.material')}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <MaterialPane
+          materialImages={allMaterialImages}
+          materialText={materialText}
+          isOpen={showMaterialViewer}
+          onClose={() => setShowMaterialViewer(false)}
+          isMobile={isMobile}
+          panelWidth={materialPanelWidth}
+          onPanelWidthChange={setMaterialPanelWidth}
+          quizId={currentQuiz?.id}
+        />
 
         <div className="flex-1 min-w-0">
           <div className="w-full mx-auto pb-32 sm:pb-28 max-w-3xl px-4">
@@ -1475,10 +1357,7 @@ export function QuizPlayer() {
                     <Button
                       variant={showMaterialViewer ? "secondary" : "outline"}
                       size="sm"
-                      onClick={() => {
-                        setMaterialImageIndex(0);
-                        setShowMaterialViewer(!showMaterialViewer);
-                      }}
+                      onClick={() => setShowMaterialViewer(!showMaterialViewer)}
                       className="gap-1.5 rounded-full h-8"
                       data-testid="button-view-material"
                     >
@@ -1566,10 +1445,10 @@ export function QuizPlayer() {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="h-7 px-2 text-muted-foreground hover:text-destructive gap-1 rounded-full"
+                          className="h-7 px-2 text-muted-foreground hover:text-destructive/80 gap-1 rounded-full"
                           data-testid="button-report-problem"
                         >
-                          <Flag className="h-3.5 w-3.5" />
+                          <MessageCircleQuestion className="h-3.5 w-3.5" />
                           <span className="text-xs font-medium">{t('quizPlayer.somethingWrong')}</span>
                         </Button>
                       </DialogTrigger>
@@ -1689,7 +1568,7 @@ export function QuizPlayer() {
               <Button
                 variant="outline"
                 onClick={() => setShowChatbot(true)}
-                className="rounded-full h-9 sm:h-11 px-3 sm:px-4 shrink-0 bg-background/50 backdrop-blur-sm border-2 hover:bg-primary/5 gap-2 font-semibold shadow-sm transition-all hover:shadow-md group"
+                className="rounded-full h-9 sm:h-11 px-3 sm:px-4 shrink-0 bg-primary/20 backdrop-blur-sm border-primary hover:bg-primary/15 gap-2 font-semibold transition-all group shadow-primary/70"
                 data-testid="button-ask-pip"
               >
                 <AskPipIcon size={22} className="sm:w-6 sm:h-6" />
@@ -1758,126 +1637,6 @@ export function QuizPlayer() {
         isOpen={showChatbot}
         onClose={() => setShowChatbot(false)}
       />
-
-      <AnimatePresence>
-        {expandedImageUrl && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 sm:p-8 cursor-zoom-out"
-            onClick={() => setExpandedImageUrl(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative max-w-full max-h-full flex items-center justify-center"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={expandedImageUrl}
-                alt="Expanded view"
-                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl ring-1 ring-white/10"
-              />
-              <Button
-                variant="secondary"
-                size="icon"
-                className="absolute -top-4 -right-4 rounded-full shadow-lg border-2 border-background h-10 w-10 z-10"
-                onClick={() => setExpandedImageUrl(null)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showMaterialViewer && isMobile && hasMaterialContent && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/90 flex flex-col"
-            onClick={() => setShowMaterialViewer(false)}
-          >
-            <div className="flex items-center justify-between p-4 border-b border-white/10 shrink-0">
-              <div className="flex items-center gap-3">
-                {hasMaterialImages ? <Image className="h-5 w-5 text-white/80" /> : <FileText className="h-5 w-5 text-white/80" />}
-                <span className="text-white font-medium">
-                  {hasMaterialImages && allMaterialImages.length > 1 
-                    ? t('quizPlayer.imagesCount', { current: materialImageIndex + 1, total: allMaterialImages.length }) 
-                    : t('quizPlayer.studyMaterial')}
-                </span>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white"
-                onClick={() => setShowMaterialViewer(false)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-            
-            <div 
-              className="flex-1 flex flex-col p-4 relative overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {hasMaterialText && !hasMaterialImages ? (
-                <div className="w-full text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap select-text p-4 bg-zinc-900 rounded-lg shadow-sm border border-white/10">
-                  {materialText}
-                </div>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center relative">
-                  {allMaterialImages.length > 1 && (
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="absolute left-0 z-10 rounded-full shadow-lg"
-                      onClick={() => setMaterialImageIndex(prev => prev > 0 ? prev - 1 : allMaterialImages.length - 1)}
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </Button>
-                  )}
-                  <img
-                    src={allMaterialImages[materialImageIndex]}
-                    alt={`Study material ${materialImageIndex + 1}`}
-                    className="max-w-full max-h-[85vh] object-contain rounded-lg"
-                  />
-                  {allMaterialImages.length > 1 && (
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="absolute right-0 z-10 rounded-full shadow-lg"
-                      onClick={() => setMaterialImageIndex(prev => prev < allMaterialImages.length - 1 ? prev + 1 : 0)}
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
-            {hasMaterialImages && allMaterialImages.length > 1 && (
-              <div className="flex justify-center gap-2 p-4 border-t border-white/10 shrink-0">
-                {allMaterialImages.map((_: string, idx: number) => (
-                  <button
-                    key={idx}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setMaterialImageIndex(idx);
-                    }}
-                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                      idx === materialImageIndex ? 'bg-white' : 'bg-white/30'
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 }

@@ -8,6 +8,7 @@
 html, body {
   overflow-x: hidden !important;
   max-width: 100vw;
+  font-size: 14.5px;
 }
 
 /* Hide all default scrollbars across the web permanently */
@@ -85,14 +86,22 @@ select:-webkit-autofill:active {
   --popover-border: 240 5% 86%;
   --primary: 48 96% 53%;
   --primary-foreground: 0 0% 10%;
+  --primary-3d-shadow: hsl(45 96% 38%);
   --secondary: 240 8% 88%;
   --secondary-foreground: 240 6% 10%;
+  --secondary-3d-shadow: hsl(240 8% 78%);
+  --outline-3d-shadow: hsl(240 6% 80%);
   --muted: 240 10% 86%;
   --muted-foreground: 240 4% 40%;
   --accent: 240 12% 90%;
   --accent-foreground: 240 6% 10%;
   --destructive: 0 84% 52%;
   --destructive-foreground: 0 0% 98%;
+  --destructive-3d-shadow: hsl(0 84% 38%);
+  --stat-blue-shadow: hsl(217 80% 74%);
+  --stat-violet-shadow: hsl(271 70% 72%);
+  --stat-emerald-shadow: hsl(145 55% 64%);
+  --stat-muted-shadow: hsl(240 6% 76%);
   --input: 240 6% 75%;
   --ring: 48 96% 53%;
   --chart-1: 48 96% 53%;
@@ -180,14 +189,22 @@ select:-webkit-autofill:active {
   --popover-border: 240 4% 18%;
   --primary: 48 96% 58%;
   --primary-foreground: 0 0% 10%;
+  --primary-3d-shadow: hsl(45 96% 30%);
   --secondary: 240 6% 18%;
   --secondary-foreground: 240 5% 90%;
+  --secondary-3d-shadow: hsl(240 6% 12%);
+  --outline-3d-shadow: hsl(240 4% 11%);
   --muted: 240 6% 20%;
   --muted-foreground: 240 5% 65%;
   --accent: 240 6% 16%;
   --accent-foreground: 240 5% 90%;
   --destructive: 0 72% 48%;
   --destructive-foreground: 0 0% 98%;
+  --destructive-3d-shadow: hsl(0 72% 30%);
+  --stat-blue-shadow: hsl(217 80% 18%);
+  --stat-violet-shadow: hsl(271 70% 16%);
+  --stat-emerald-shadow: hsl(145 55% 16%);
+  --stat-muted-shadow: hsl(240 4% 10%);
   --input: 240 6% 28%;
   --ring: 48 96% 58%;
   --chart-1: 48 96% 65%;

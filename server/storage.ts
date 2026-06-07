@@ -54,10 +54,11 @@ export interface IStorage {
   saveQuizResult(result: InsertQuizResult): Promise<QuizResult>;
   getQuizResult(quizId: string): Promise<QuizResult | undefined>;
   getQuizResultsByQuizId(quizId: string): Promise<QuizResult[]>;
+  getQuizResultById(resultId: string): Promise<QuizResult | undefined>;
   getAttemptCountsByQuizIds(quizIds: string[], userId?: string): Promise<Map<string, number>>;
   batchUpdateQuizFolder(userId: string, toAdd: string[], toRemove: string[], folderId: string): Promise<void>;
   getUserAverageAccuracy(userId: string): Promise<{ averageAccuracy: number; totalAttempts: number }>;
-  getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string; quizId: string }[]>;
+  getUserResultHistory(userId: string): Promise<{ id: string; date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string; quizId: string }[]>;
   // Comments
   addComment(comment: InsertComment): Promise<QuizComment>;
   getCommentsByQuizId(quizId: string): Promise<(QuizComment & { author: { username: string | null; profileImageUrl: string | null } })[]>;
@@ -338,6 +339,14 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(quizResults.completedAt));
   }
 
+  async getQuizResultById(resultId: string): Promise<QuizResult | undefined> {
+    const [result] = await db.select()
+      .from(quizResults)
+      .where(eq(quizResults.id, resultId))
+      .limit(1);
+    return result;
+  }
+
   async getAttemptCountsByQuizIds(quizIds: string[], userId?: string): Promise<Map<string, number>> {
     if (quizIds.length === 0) return new Map();
     
@@ -376,7 +385,7 @@ export class DatabaseStorage implements IStorage {
     return { averageAccuracy, totalAttempts: allResults.length };
   }
 
-  async getUserResultHistory(userId: string): Promise<{ date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string; quizId: string }[]> {
+  async getUserResultHistory(userId: string): Promise<{ id: string; date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string; quizId: string }[]> {
     const results = await db
       .select({
         result: quizResults,
@@ -388,6 +397,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(quizResults.completedAt));
 
     return results.map(r => ({
+      id: r.result.id,
       date: r.result.completedAt.toISOString(),
       accuracy: r.result.totalQuestions > 0 ? Math.round((r.result.correctAnswers / r.result.totalQuestions) * 100) : 0,
       quizTitle: r.quiz.title,

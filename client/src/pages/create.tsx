@@ -381,7 +381,7 @@ export default function Create() {
                           </AlertDialogHeader>
                           <AlertDialogFooter className="gap-2">
                             <AlertDialogCancel className="rounded-xl font-bold">{t('common.cancel')}</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleClearText} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl font-bold">
+                            <AlertDialogAction onClick={handleClearText} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl font-bold border-[0_4px_0_0_#fcaca5] shadow-[0_4px_0_0_#e85d5d]">
                               {t('create.confirmRemoval')}
                             </AlertDialogAction>
                           </AlertDialogFooter>
@@ -458,7 +458,7 @@ export default function Create() {
                   <Button
                     size="xl"
                     onClick={handleContinueToGenerate}
-                    className="w-full sm:min-w-[280px] h-16 gap-3 rounded-2xl font-black text-xl shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all group"
+                    className="w-full sm:min-w-[280px] h-16 gap-3 rounded-2xl font-black text-xl shadow-primary/60 transition-all group"
                     data-testid="button-continue-generate"
                   >
                     <Wand2 className="w-6 h-6 group-hover:rotate-12 transition-transform" />
@@ -534,7 +534,7 @@ export default function Create() {
                   size="lg"
                   onClick={handleManualTextSubmit}
                   disabled={manualText.trim().length < 50}
-                  className="w-full sm:w-auto gap-3 border-violet-700 rounded-xl font-black shadow-xl shadow-violet-500/10 hover:shadow-violet-500/20 transition-all bg-gradient-to-r from-violet-600 to-purple-600"
+                  className="w-full sm:w-auto gap-3 border-violet-700 rounded-xl font-black shadow-violet-500/70 transition-all bg-gradient-to-r from-violet-600 to-purple-600"
                   data-testid="button-submit-manual-text"
                 >
                   <CheckCircle2 className="h-5 w-5" />
@@ -599,7 +599,7 @@ export default function Create() {
                   size="lg"
                   onClick={() => handleYoutubeSubmit()}
                   disabled={isLoadingYoutube || !youtubeUrl.trim()}
-                  className="w-full h-14 gap-3 rounded-xl font-black text-lg shadow-xl shadow-red-500/10 hover:shadow-red-500/20 transition-all bg-gradient-to-r from-red-600 to-rose-600"
+                  className="w-full h-14 gap-3 border-red-800 border-2 rounded-xl font-black text-lg shadow-red-500/70 transition-all bg-gradient-to-r from-red-600 to-rose-600"
                   data-testid="button-fetch-youtube"
                 >
                   {isLoadingYoutube ? (

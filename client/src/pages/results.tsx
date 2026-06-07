@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import {
   CheckCircle2, XCircle, Clock, Loader2, ChevronDown, Sparkles,
-  History, Star, Search, X, Filter
+  History, Star, Search, X, Filter, Eye
 } from "lucide-react";
 
 import { getCategoryIcon, getCategoryTranslationKey } from "@/lib/category-icons";
@@ -33,6 +33,7 @@ interface ResultHistoryItem {
   totalQuestions: number;
   category: string;
   quizId: string;
+  id: string;
 }
 
 interface GroupedQuiz {
@@ -58,7 +59,7 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
   const [isOpen, setIsOpen] = useState(false);
   const [isGeneratingReview, setIsGeneratingReview] = useState(false);
   const [, setLocation] = useLocation();
-  const { setCurrentQuiz } = useQuiz();
+  const { setCurrentQuiz, setQuizResult, setUserAnswer, clearUserAnswers } = useQuiz();
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -87,6 +88,34 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
       });
     } finally {
       setIsGeneratingReview(false);
+    }
+  };
+
+  const handleViewDetails = async (resultId: string) => {
+    // load detailed result and quiz into context then navigate to quiz-results
+    try {
+      const resp = await apiRequest("GET", `/api/result/${resultId}`);
+      const data = await resp.json();
+      if (data && data.quiz && data.result) {
+        setCurrentQuiz(data.quiz);
+        // clear any existing answers then populate with stored answers
+        clearUserAnswers();
+        const answers: Record<string, string> = data.result.answers || {};
+        Object.entries(answers).forEach(([qId, ans]) => {
+          try {
+            setUserAnswer(qId, ans as string);
+          } catch {
+            // ignore per-question failures
+          }
+        });
+        setQuizResult({
+          ...data.result,
+          completedAt: data.result.completedAt,
+        });
+        setLocation("/quiz-results");
+      }
+    } catch (e) {
+      toast({ title: t('results.viewFailed'), description: t('results.viewFailedDesc'), variant: 'destructive' });
     }
   };
 
@@ -140,6 +169,20 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
               <History className="w-3.5 h-3.5" />
             )}
             {t('results.revise')}
+          </Button>
+        )}
+        {singleAttempt && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 px-3 text-xs font-bold gap-1.5 hover:bg-primary/10 hover:text-primary rounded-lg hidden sm:flex"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetails(singleAttempt.id);
+            }}
+          >
+            <Eye className="w-3.5 h-3.5" />
+            {t('results.viewDetails')}
           </Button>
         )}
         <div className="flex items-center gap-2">
@@ -226,6 +269,17 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
                       ) : (
                         <XCircle className="w-4 h-4 text-rose-500" />
                       )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 hover:bg-primary/10 hover:text-primary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewDetails(attempt.id);
+                        }}
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -251,6 +305,7 @@ const containerVariants = {
 export default function ResultsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
   const { t } = useLanguage();
 
   const { data: history = [], isLoading } = useQuery<ResultHistoryItem[]>({
@@ -389,7 +444,11 @@ export default function ResultsPage() {
                 </div>
               ) : (
                 filteredQuizzes.map((group, index) => (
-                  <QuizAttemptGroup key={group.quizId} group={group} index={index} />
+                  <QuizAttemptGroup 
+                    key={group.quizId} 
+                    group={group} 
+                    index={index}
+                  />
                 ))
               )}
             </div>

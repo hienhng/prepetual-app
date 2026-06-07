@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { VerificationPrompt } from "@/components/verification-prompt";
 import OnboardingPage from "@/pages/onboarding";
@@ -171,7 +171,7 @@ function PublicHeader() {
             <img
               src={logoImage}
               alt="Prepetual Logo"
-              className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 transition-transform duration-500 group-hover:rotate-[360deg]"
+              className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 transition-transform duration-500"
             />
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </div>
@@ -250,7 +250,6 @@ function AuthenticatedHeader() {
 
   return (
     <header className="sticky top-0 z-40 flex md:hidden h-14 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
-      <SidebarTrigger data-testid="button-sidebar-toggle" />
       <div className="flex-1">
         <h1 className="text-lg font-semibold">{getPageTitle()}</h1>
       </div>
@@ -334,7 +333,7 @@ function AuthenticatedLayout() {
       <SidebarProvider style={sidebarStyle}>
         <div className="flex min-h-screen w-full">
           <AppSidebar />
-          <SidebarInset className="flex flex-col flex-1">
+          <SidebarInset className="flex flex-col flex-1 pb-20 md:pb-0">
             <AuthenticatedHeader />
             <main className="flex-1">
               <AuthenticatedRouter />

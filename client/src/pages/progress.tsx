@@ -109,50 +109,57 @@ function StatCard({
       border: "border-blue-100 dark:border-blue-500/10",
       iconBg: "bg-blue-500/10 dark:bg-blue-500/20",
       iconText: "text-blue-600 dark:text-blue-400",
+      shadow: "shadow-[0_4px_0_0_var(--stat-blue-shadow)]"
     },
     violet: {
       bg: "bg-violet-50/50 dark:bg-violet-500/5",
       border: "border-violet-100 dark:border-violet-500/10",
       iconBg: "bg-violet-500/10 dark:bg-violet-500/20",
       iconText: "text-violet-600 dark:text-violet-400",
+      shadow: "shadow-[0_4px_0_0_var(--stat-violet-shadow)]"
     },
     emerald: {
       bg: "bg-emerald-50/50 dark:bg-emerald-500/5",
       border: "border-emerald-100 dark:border-emerald-500/10",
       iconBg: "bg-emerald-500/10 dark:bg-emerald-500/20",
       iconText: "text-emerald-600 dark:text-emerald-400",
+      shadow: "shadow-[0_4px_0_0_var(--stat-emerald-shadow)]"
     },
     teal: {
       bg: "bg-teal-50/50 dark:bg-teal-500/5",
       border: "border-teal-100 dark:border-teal-500/10",
       iconBg: "bg-teal-500/10 dark:bg-teal-500/20",
       iconText: "text-teal-600 dark:text-teal-400",
+      shadow: "shadow-[0_4px_0_0_var(--stat-teal-shadow)]"
     },
     rose: {
       bg: "bg-rose-50/50 dark:bg-rose-500/5",
       border: "border-rose-100 dark:border-rose-500/10",
       iconBg: "bg-rose-500/10 dark:bg-rose-500/20",
       iconText: "text-rose-600 dark:text-rose-400",
+      shadow: "shadow-[0_4px_0_0_#fca5a5]"
     },
     slate: {
       bg: "bg-slate-50/50 dark:bg-slate-500/5",
       border: "border-slate-100 dark:border-slate-500/10",
       iconBg: "bg-slate-500/10 dark:bg-slate-500/20",
       iconText: "text-slate-600 dark:text-slate-400",
+      shadow: "shadow-[0_4px_0_0_var(--stat-slate-shadow)]"
     },
     muted: {
       bg: "bg-muted/30",
       border: "border-border",
       iconBg: "bg-muted",
       iconText: "text-muted-foreground",
+      shadow: "shadow-[0_4px_0_0_var(--stat-muted-shadow)]"
     },
   };
 
   const scheme = isActive ? colorSchemes[color] : colorSchemes.muted;
 
   return (
-    <motion.div whileHover={{ y: -2 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} className="relative h-full">
-      <Card className={`h-full overflow-hidden border ${scheme.border} ${scheme.bg} shadow-sm transition-all duration-300 group`} data-testid={testId}>
+    <div className="relative h-full">
+      <Card className={`h-full overflow-hidden border ${scheme.border} ${scheme.bg} ${scheme.shadow} transition-all duration-75 group`} data-testid={testId}>
         <CardContent className="flex h-full items-center gap-4 p-5 text-left">
           <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl ${scheme.iconBg} ${scheme.iconText} transition-transform duration-300 group-hover:scale-110`}>
             <Icon className="h-6 w-6" />
@@ -163,7 +170,7 @@ function StatCard({
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
@@ -321,7 +328,7 @@ export default function ProgressPage() {
                   <Badge variant="secondary" className="h-9 rounded-full px-4 text-sm font-semibold">
                     {totalAttempts} {totalAttempts === 1 ? t("progress.attempt") : t("progress.attempts")}
                   </Badge>
-                  <Button variant="outline" className="h-9 rounded-full" onClick={() => setLocation(totalAttempts > 0 ? "/history" : "/create")}>
+                  <Button variant="outline" className="h-9 rounded-full" onClick={() => setLocation(totalAttempts > 0 ? "/results" : "/create")}>
                     {totalAttempts > 0 ? t("progress.reviewQuizzes") : t("progress.createQuiz")}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { SiGithub } from "react-icons/si";
 import { useLanguage } from "@/lib/language-context";
@@ -25,7 +26,7 @@ export default function Contact() {
         message: "Nội dung",
         namePlaceholder: "Nguyễn Văn A",
         emailPlaceholder: "ban@example.com",
-        subjectPlaceholder: "Chúng tôi có thể hỗ trợ gì?",
+        subjectPlaceholder: "Chọn chủ đề...",
         messagePlaceholder: "Hãy cho chúng tôi biết chi tiết hơn về yêu cầu của bạn...",
         submit: "Gửi tin nhắn",
         office: "Văn phòng",
@@ -34,6 +35,12 @@ export default function Contact() {
         successTitle: "Đã gửi tin nhắn!",
         successDescription: "Chúng tôi sẽ phản hồi bạn qua giahienhn@gmail.com sớm nhất có thể.",
         errorDescription: "Không thể gửi tin nhắn. Vui lòng thử lại sau.",
+        subjectOptions: [
+          { value: "bug-report", label: "Báo lỗi" },
+          { value: "suggestion", label: "Góp ý" },
+          { value: "account-login", label: "Hỗ trợ tài khoản & đăng nhập" },
+          { value: "general-inquiry", label: "Câu hỏi chung" },
+        ],
         methods: [
           { title: "Gửi email", description: "Gửi cho chúng tôi một tin nhắn chi tiết.", value: "giahienhn@gmail.com", href: "mailto:giahienhn@gmail.com", icon: Mail, color: "text-blue-500", bg: "bg-blue-500/10" },
           { title: "Cộng đồng", description: "Tham gia cuộc trò chuyện.", value: "@prepetual_ai", href: "#", icon: MessageSquare, color: "text-purple-500", bg: "bg-purple-500/10" },
@@ -49,9 +56,9 @@ export default function Contact() {
         email: "Email Address",
         subject: "Subject",
         message: "Message",
-        namePlaceholder: "John Doe",
-        emailPlaceholder: "john@example.com",
-        subjectPlaceholder: "How can we help?",
+        namePlaceholder: "Enter your name",
+        emailPlaceholder: "Enter your email",
+        subjectPlaceholder: "Select a subject...",
         messagePlaceholder: "Tell us more about your inquiry...",
         submit: "Send Message",
         office: "Office",
@@ -60,6 +67,12 @@ export default function Contact() {
         successTitle: "Message sent!",
         successDescription: "We'll get back to you at giahienhn@gmail.com as soon as possible.",
         errorDescription: "Failed to send message. Please try again later.",
+        subjectOptions: [
+          { value: "bug-report", label: "Bug Report" },
+          { value: "suggestion", label: "Suggestion" },
+          { value: "account-login", label: "Account & Login Support" },
+          { value: "general-inquiry", label: "General Inquiry" },
+        ],
         methods: [
           { title: "Email Us", description: "Send us a detailed message.", value: "giahienhn@gmail.com", href: "mailto:giahienhn@gmail.com", icon: Mail, color: "text-blue-500", bg: "bg-blue-500/10" },
           { title: "Community", description: "Join the conversation.", value: "@prepetual_ai", href: "#", icon: MessageSquare, color: "text-purple-500", bg: "bg-purple-500/10" },
@@ -130,13 +143,24 @@ export default function Contact() {
                     </div>
                     <div className="space-y-2">
                       <label className="ml-1 text-sm font-bold text-muted-foreground">{ui.subject}</label>
-                      <Input name="subject" placeholder={ui.subjectPlaceholder} className="h-12 rounded-xl border-primary/10 bg-background/50 focus:ring-primary/20" required data-testid="input-contact-subject" />
+                      <Select name="subject" required>
+                        <SelectTrigger className="h-12 rounded-xl border-primary/10 bg-background/50 focus:ring-primary/20" data-testid="select-contact-subject">
+                          <SelectValue placeholder={ui.subjectPlaceholder} />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          {ui.subjectOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value} className="rounded-lg">
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <label className="ml-1 text-sm font-bold text-muted-foreground">{ui.message}</label>
                       <Textarea name="message" placeholder={ui.messagePlaceholder} className="min-h-[150px] rounded-2xl border-primary/10 bg-background/50 p-4 focus:ring-primary/20" required data-testid="textarea-contact-message" />
                     </div>
-                    <Button type="submit" className="h-14 w-full rounded-xl px-10 text-lg font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] sm:w-auto" data-testid="button-contact-submit">
+                    <Button type="submit" className="h-14 w-full rounded-xl px-10 text-lg font-bold shadow-primary/70 transition-all sm:w-auto" data-testid="button-contact-submit">
                       <SendHorizonal className="mr-2 h-5 w-5" />
                       {ui.submit}
                     </Button>

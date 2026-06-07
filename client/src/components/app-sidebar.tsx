@@ -41,7 +41,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -109,7 +108,7 @@ const secondaryNavItems = [
 export function AppSidebar() {
   const [location] = useLocation();
   const { user } = useAuth();
-  const { setOpenMobile, state, toggleSidebar } = useSidebar();
+  const { state, toggleSidebar, isMobile } = useSidebar();
   const { handleLinkClick } = useQuizNavigationGuard();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -189,8 +188,119 @@ export function AppSidebar() {
   };
 
   const handleNavClick = (e: React.MouseEvent, path: string) => {
-    handleLinkClick(e, path, () => setOpenMobile(false));
+    handleLinkClick(e, path);
   };
+
+  const mobileNavItems = [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Your Quizzes",
+      url: "/history",
+      icon: Folders,
+    },
+    {
+      title: "Create",
+      url: "/create",
+      icon: Plus,
+      center: true,
+    },
+    {
+      title: "Discover",
+      url: "/feed",
+      icon: Compass,
+    },
+    {
+      title: "Progress",
+      url: "/progress",
+      icon: ChartLine,
+    },
+  ];
+
+  if (isMobile) {
+    return (
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2.5rem)] max-w-[420px] z-50 md:hidden transition-all duration-500 animate-in slide-in-from-bottom-10 fade-in zoom-in-95">
+        {/* Background Nav Bar */}
+        <div 
+          className="absolute inset-0 w-full h-[72px] rounded-[2rem] bg-background/80 backdrop-blur-2xl border border-border/50 shadow-[0_8px_32px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+        />
+
+        {/* Nav Items Container */}
+        <div className="relative w-full h-[72px] flex items-center justify-between px-2">
+          {mobileNavItems.map((item) => {
+            const Icon = item.icon;
+            const active = location === item.url;
+            const isCenter = item.center;
+
+            if (isCenter) {
+              return (
+                <div key={item.title} className="relative flex-1 flex items-center justify-center h-full">
+                  <Link
+                    href={item.url}
+                    onClick={(e) => handleNavClick(e, item.url)}
+                    aria-label={t(
+                      `sidebar.${
+                        item.title === "Dashboard"
+                          ? "dashboard"
+                          : item.title === "Create"
+                          ? "create"
+                          : item.title === "Your Quizzes"
+                          ? "yourQuizzes"
+                          : item.title === "Discover"
+                          ? "discover"
+                          : "progress"
+                      }`
+                    )}
+                    data-testid={`mobile-nav-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
+                    className="relative flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md shadow-primary/40 transition-transform duration-300 hover:scale-105 active:scale-95 z-10"
+                  >
+                    {active && (
+                      <span className="absolute inset-0 rounded-full border-4 border-primary animate-ping [animation-iteration-count:1] [animation-duration:0.6s] opacity-0" />
+                    )}
+                    <Icon 
+                      key={active ? 'active' : 'inactive'} 
+                      className={`h-6 w-6 relative z-10 ${active ? "animate-in zoom-in-50 duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]" : ""}`} 
+                    />
+                  </Link>
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                key={item.title}
+                href={item.url}
+                onClick={(e) => handleNavClick(e, item.url)}
+                aria-label={t(
+                  `sidebar.${
+                    item.title === "Dashboard"
+                      ? "dashboard"
+                      : item.title === "Create"
+                      ? "create"
+                      : item.title === "Your Quizzes"
+                      ? "yourQuizzes"
+                      : item.title === "Discover"
+                      ? "discover"
+                      : "progress"
+                  }`
+                )}
+                data-testid={`mobile-nav-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
+                className="group relative flex flex-col items-center justify-center flex-1 h-full rounded-[1.5rem] text-muted-foreground hover:text-foreground transition-all duration-300 ease-out active:scale-95"
+              >
+                <Icon className={`transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] h-6 w-6 ${active ? "-translate-y-2 text-primary" : "group-hover:-translate-y-1 group-hover:text-foreground"}`} />
+                {active && (
+                  <span className="absolute bottom-3 w-1.5 h-1.5 rounded-full bg-primary animate-in zoom-in-50 slide-in-from-bottom-2 duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]" />
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Sidebar collapsible="icon">

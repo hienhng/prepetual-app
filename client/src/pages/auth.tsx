@@ -57,39 +57,29 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 function UploadMockup() {
   return (
-    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
-      <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50 relative overflow-hidden">
+    <div className="bg-card rounded-3xl border border-border/70 shadow-sm p-5 w-full max-w-sm">
+      <div className="flex items-start gap-4 mb-4">
+        <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shadow-lg flex-shrink-0">
+          <Upload className="w-6 h-6 text-primary" />
+        </div>
+        <div className="flex-1">
+          <h3 className="font-bold text-lg text-foreground mb-0.5">Upload Material</h3>
+          <p className="text-sm text-muted-foreground font-medium">Support PDF, images, Word docs</p>
+        </div>
+      </div>
+      <div className="border-2 border-dashed border-border/50 rounded-2xl p-6 text-center bg-muted/30 relative overflow-hidden">
         <motion.div 
-          className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center"
-          animate={{ y: [0, -8, 0] }}
+          className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center"
+          animate={{ y: [0, -4, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
-          <Upload className="w-8 h-8 text-white" />
+          <Upload className="w-6 h-6 text-primary" />
         </motion.div>
-        <p className="text-gray-800 font-semibold mb-2">Drop your files here</p>
-        <p className="text-gray-500 text-sm mb-4">PDF, Word, PowerPoint, Images</p>
-        <div className="flex flex-wrap gap-2 justify-center">
-          <motion.div 
-            className="flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs font-medium"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 0 }}
-          >
-            <FileText className="w-3 h-3" /> PDF
-          </motion.div>
-          <motion.div 
-            className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full text-xs font-medium"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
-          >
-            <FileText className="w-3 h-3" /> DOCX
-          </motion.div>
-          <motion.div 
-            className="flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1.5 rounded-full text-xs font-medium"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
-          >
-            <Image className="w-3 h-3" /> PNG
-          </motion.div>
+        <p className="text-sm font-semibold text-foreground mb-1">Drag & drop here</p>
+        <div className="flex flex-wrap gap-1.5 justify-center mt-3">
+          {["PDF", "PNG", "DOCX"].map((fmt) => (
+            <span key={fmt} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full font-medium">{fmt}</span>
+          ))}
         </div>
       </div>
     </div>
@@ -98,45 +88,37 @@ function UploadMockup() {
 
 function AIGenerationMockup() {
   return (
-    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
-      <div className="flex items-center gap-3 mb-4">
-        <motion.div 
-          className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center"
-          animate={{ rotate: [0, 5, -5, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <Sparkles className="w-5 h-5 text-white" />
-        </motion.div>
-        <div>
-          <p className="text-gray-800 font-semibold">AI is generating...</p>
-          <p className="text-gray-500 text-sm">10 questions from your content</p>
+    <div className="bg-card rounded-3xl border border-border/70 shadow-sm p-5 w-full max-w-sm">
+      <div className="flex items-start gap-4 mb-5">
+        <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center shadow-lg flex-shrink-0">
+          <Sparkles className="w-6 h-6 text-purple-500" />
+        </div>
+        <div className="flex-1">
+          <h3 className="font-bold text-lg text-foreground mb-0.5">AI Generation</h3>
+          <p className="text-sm text-muted-foreground font-medium">Smart quiz creation in seconds</p>
         </div>
       </div>
-      <div className="space-y-3">
-        <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
-          <motion.div 
-            className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
-            animate={{ width: ["20%", "80%", "60%", "90%", "70%", "20%"] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          />
-        </div>
-        <motion.div 
-          className="bg-gray-100 rounded-lg p-3 border border-gray-200"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <div className="h-3 bg-gray-300 rounded w-3/4 mb-2" />
-          <div className="h-3 bg-gray-200 rounded w-1/2" />
-        </motion.div>
-        <div className="grid grid-cols-2 gap-2">
-          {[0, 1, 2, 3].map((i) => (
+      <div className="space-y-4">
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-semibold text-muted-foreground">Generating questions...</span>
+            <motion.span 
+              className="text-xs font-bold text-purple-600"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >65%</motion.span>
+          </div>
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
             <motion.div 
-              key={i}
-              className="h-10 bg-gray-100 rounded-lg border border-gray-200"
-              animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+              className="h-full bg-purple-500 rounded-full"
+              animate={{ width: ["20%", "65%", "40%", "65%"] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             />
-          ))}
+          </div>
+        </div>
+        <div className="bg-muted/40 rounded-2xl p-3 space-y-1.5">
+          <motion.div className="h-2.5 bg-muted rounded w-3/4" animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.2, repeat: Infinity }} />
+          <motion.div className="h-2.5 bg-muted rounded w-1/2" animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.2, repeat: Infinity, delay: 0.1 }} />
         </div>
       </div>
     </div>
@@ -144,44 +126,48 @@ function AIGenerationMockup() {
 }
 
 function QuestionTypesMockup() {
-  const options = ["London", "Paris", "Berlin", "Madrid"];
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const options = ["Paris", "London", "Berlin", "Madrid"];
+  const [selectedIndex, setSelectedIndex] = useState(1);
   
   useEffect(() => {
     const interval = setInterval(() => {
-      setSelectedIndex((prev) => (prev + 1) % 4);
-    }, 1500);
+      setSelectedIndex((prev) => (prev + 1) % options.length);
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
   
   return (
-    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-gray-500">Question 3 of 10</span>
-        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Medium</span>
+    <div className="bg-card rounded-3xl border border-border/70 shadow-sm p-5 w-full max-w-sm">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground mb-0.5">Question 2 of 10</p>
+          <h3 className="font-bold text-foreground">What is the capital of France?</h3>
+        </div>
+        <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2.5 py-1 rounded-full font-bold">Medium</span>
       </div>
-      <p className="text-gray-800 font-medium mb-4">What is the capital of France?</p>
       <div className="space-y-2">
         {options.map((option, i) => (
           <motion.div 
             key={option}
-            className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
               selectedIndex === i 
-                ? (i === 1 ? "bg-emerald-50 border-2 border-emerald-500" : "bg-primary/10 border-2 border-primary")
-                : "bg-gray-50 border border-gray-200"
+                ? "bg-primary/20 border-2 border-primary" 
+                : "bg-muted hover:bg-muted/80 border border-border/50"
             }`}
-            animate={selectedIndex === i ? { scale: [1, 1.02, 1] } : {}}
-            transition={{ duration: 0.3 }}
+            animate={selectedIndex === i ? { scale: 1.02 } : { scale: 1 }}
           >
-            {selectedIndex === i ? (
-              <CheckCircle2 className={`w-4 h-4 ${i === 1 ? "text-emerald-600" : "text-primary"}`} />
-            ) : (
-              <Circle className="w-4 h-4 text-gray-400" />
-            )}
-            <span className={`text-sm ${
-              selectedIndex === i 
-                ? (i === 1 ? "text-emerald-700 font-medium" : "text-primary font-medium")
-                : "text-gray-700"
+            <motion.div
+              animate={selectedIndex === i ? { scale: [1, 1.2, 1] } : {}}
+              transition={{ duration: 0.4 }}
+            >
+              {selectedIndex === i ? (
+                <CheckCircle2 className="w-4 h-4 text-primary" />
+              ) : (
+                <Circle className="w-4 h-4 text-muted-foreground/40" />
+              )}
+            </motion.div>
+            <span className={`text-sm font-medium transition-colors ${
+              selectedIndex === i ? "text-primary" : "text-foreground/70"
             }`}>{option}</span>
           </motion.div>
         ))}
@@ -192,45 +178,32 @@ function QuestionTypesMockup() {
 
 function ProgressMockup() {
   const baseHeights = [40, 55, 45, 70, 65, 80, 85];
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   
   return (
-    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <p className="text-gray-800 font-semibold">Your Progress</p>
-          <p className="text-gray-500 text-sm">Last 7 days</p>
+    <div className="bg-card rounded-3xl border border-border/70 shadow-sm p-5 w-full max-w-sm">
+      <div className="flex items-start gap-4 mb-5">
+        <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center shadow-lg flex-shrink-0">
+          <Trophy className="w-6 h-6 text-green-600" />
         </div>
-        <div className="text-right">
-          <motion.p 
-            className="text-2xl font-bold text-emerald-600"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            85%
-          </motion.p>
-          <p className="text-emerald-500 text-xs font-medium">+12% this week</p>
+        <div className="flex-1">
+          <h3 className="font-bold text-lg text-foreground mb-0.5">Your Progress</h3>
+          <p className="text-sm text-muted-foreground font-medium">Last 7 days</p>
         </div>
       </div>
-      <div className="flex items-end gap-1.5 h-24 bg-gray-50 rounded-lg p-3">
+      <div className="flex items-end justify-between gap-1 h-28 bg-muted/30 rounded-2xl p-3 mb-3">
         {baseHeights.map((height, i) => (
-          <div key={i} className="flex-1 bg-gray-200 rounded-t-sm overflow-hidden h-full flex items-end">
+          <div key={i} className="flex-1 bg-muted rounded-t overflow-hidden h-full flex items-end justify-center">
             <motion.div 
-              className="w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-sm"
-              initial={{ height: 0 }}
+              className="w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t"
               animate={{ height: [`${height * 0.7}%`, `${height}%`, `${height * 0.85}%`, `${height}%`] }}
               transition={{ duration: 3, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
             />
           </div>
         ))}
       </div>
-      <div className="flex justify-between mt-2 text-xs text-gray-500 font-medium">
-        <span>Mon</span>
-        <span>Tue</span>
-        <span>Wed</span>
-        <span>Thu</span>
-        <span>Fri</span>
-        <span>Sat</span>
-        <span>Sun</span>
+      <div className="flex justify-between text-xs text-muted-foreground font-medium">
+        {days.map((day) => (<span key={day}>{day}</span>))}
       </div>
     </div>
   );
@@ -243,61 +216,52 @@ function ShareMockup() {
     const interval = setInterval(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    }, 3000);
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
   
   return (
-    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
-      <div className="flex items-center gap-3 mb-4">
-        <motion.div 
-          className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center"
-          animate={{ rotate: [0, 10, -10, 0] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <Share2 className="w-5 h-5 text-white" />
-        </motion.div>
+    <div className="bg-card rounded-3xl border border-border/70 shadow-sm p-5 w-full max-w-sm">
+      <div className="flex items-start gap-4 mb-5">
+        <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center shadow-lg flex-shrink-0">
+          <Share2 className="w-6 h-6 text-blue-600" />
+        </div>
         <div className="flex-1">
-          <p className="text-gray-800 font-semibold">Share Quiz</p>
-          <p className="text-gray-500 text-sm">Biology Chapter 5</p>
+          <h3 className="font-bold text-lg text-foreground mb-0.5">Share & Collaborate</h3>
+          <p className="text-sm text-muted-foreground font-medium">Quiz: Biology Chapter 5</p>
         </div>
       </div>
-      <div className="bg-gray-100 border border-gray-200 rounded-lg p-3 flex items-center gap-2 mb-4">
-        <span className="text-gray-600 text-sm truncate flex-1 font-mono">prepetual.app/share/abc123</span>
-        <motion.div
-          animate={copied ? { scale: [1, 1.1, 1] } : {}}
-          transition={{ duration: 0.3 }}
-        >
-          <Button size="sm" className={`text-xs h-7 ${copied ? "bg-emerald-500 hover:bg-emerald-500" : "bg-primary hover:bg-primary/90"} text-white`}>
+      <div className="bg-muted/50 border border-border/50 rounded-2xl p-3 flex items-center gap-2 mb-5">
+        <span className="text-foreground/60 text-xs truncate flex-1 font-mono">prep.io/share/bio5</span>
+        <motion.div animate={copied ? { scale: [1, 1.15, 1] } : {}} transition={{ duration: 0.3 }}>
+          <Button size="sm" className={`text-xs h-7 px-2.5 ${
+            copied ? "bg-green-600 hover:bg-green-600" : "bg-primary hover:bg-primary/90"
+          } text-white font-medium`}>
             {copied ? "Copied!" : "Copy"}
           </Button>
         </motion.div>
       </div>
       <div className="flex items-center gap-3">
-        <div className="flex -space-x-2">
+        <div className="flex -space-x-1.5">
           {[
-            { color: "from-pink-500 to-rose-500", letter: "A", delay: 0 },
-            { color: "from-blue-500 to-indigo-500", letter: "B", delay: 0.1 },
-            { color: "from-green-500 to-emerald-500", letter: "C", delay: 0.2 },
-          ].map((avatar, i) => (
+            { bg: "bg-pink-500", letter: "A", delay: 0 },
+            { bg: "bg-blue-500", letter: "B", delay: 0.1 },
+            { bg: "bg-purple-500", letter: "C", delay: 0.2 },
+          ].map((avatar) => (
             <motion.div 
               key={avatar.letter}
-              className={`w-8 h-8 rounded-full bg-gradient-to-br ${avatar.color} border-2 border-white flex items-center justify-center text-xs text-white font-medium shadow-sm`}
-              animate={{ y: [0, -3, 0] }}
+              className={`w-7 h-7 rounded-full ${avatar.bg} border border-card flex items-center justify-center text-xs text-white font-bold shadow-md`}
+              animate={{ y: [0, -2, 0] }}
               transition={{ duration: 1.5, repeat: Infinity, delay: avatar.delay }}
             >
               {avatar.letter}
             </motion.div>
           ))}
-          <motion.div 
-            className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs text-gray-600 font-medium shadow-sm"
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            +5
-          </motion.div>
+          <div className="w-7 h-7 rounded-full bg-muted border border-card flex items-center justify-center text-xs text-muted-foreground font-bold">
+            +8
+          </div>
         </div>
-        <span className="text-gray-500 text-sm">shared with 8 friends</span>
+        <span className="text-xs text-muted-foreground font-medium">with 11 friends</span>
       </div>
     </div>
   );
@@ -339,7 +303,7 @@ const slides = [
 function FeatureSlider() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  
+
   useEffect(() => {
     if (!isAutoPlaying) return;
     
@@ -349,28 +313,28 @@ function FeatureSlider() {
     
     return () => clearInterval(timer);
   }, [isAutoPlaying]);
-  
+
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
-  
+
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
-  
+
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
-  
+
   const CurrentMockup = slides[currentSlide].mockup;
   const CurrentIcon = slides[currentSlide].icon;
-  
+
   return (
     <div className="flex flex-col h-full">
       {/* Slide Content */}
@@ -626,11 +590,17 @@ export default function AuthPage() {
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
               {mode === "login" ? "Welcome back" : "Create your account"}
             </h2>
-            <p className="text-muted-foreground">
-              {mode === "login" 
-                ? "Sign in to continue your learning journey" 
-                : "Start creating quizzes in seconds"}
-            </p>
+            <div className="text-center mt-6 text-sm text-muted-foreground">
+              {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
+              <button
+                type="button"
+                onClick={switchMode}
+                className="text-primary hover:underline font-medium"
+                data-testid={mode === "login" ? "link-switch-to-signup" : "link-switch-to-login"}
+              >
+                {mode === "login" ? "Sign up" : "Sign in"}
+              </button>
+            </div>
           </div>
 
           {/* Google Sign In */}
@@ -816,18 +786,7 @@ export default function AuthPage() {
             </Form>
           )}
 
-          {/* Switch Mode */}
-          <div className="text-center mt-6 text-sm text-muted-foreground">
-            {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
-            <button
-              type="button"
-              onClick={switchMode}
-              className="text-primary hover:underline font-medium"
-              data-testid={mode === "login" ? "link-switch-to-signup" : "link-switch-to-login"}
-            >
-              {mode === "login" ? "Sign up" : "Sign in"}
-            </button>
-          </div>
+          
 
           {/* Terms */}
           <p className="text-xs text-center text-muted-foreground mt-6">
