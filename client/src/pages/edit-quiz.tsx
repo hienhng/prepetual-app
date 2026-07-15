@@ -6,8 +6,12 @@ import {
   Copy, ArrowUp, ArrowDown, Eye, EyeOff, CheckSquare, Square,
   Search, Filter, MoreHorizontal, GripVertical, Shuffle,
   ChevronLeft, ChevronRight, FileText, ListChecks, ToggleLeft,
-  ImagePlus, Image as ImageIcon, Sparkles, Loader2
+  ImagePlus, Image as ImageIcon, Sparkles, Loader2, Download
 } from "lucide-react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -111,7 +115,185 @@ export default function EditQuizPage() {
       </div>
     );
   }
+  const [isExporting, setIsExporting] = useState(false);
 
+  const handleExportPdf = async () => {
+    setIsExporting(true);
+    toast({
+      title: t('common.loading') || "Processing",
+      description: "Generating high-quality PDF document...",
+    });
+
+    try {
+      // Create off-screen container for rendering
+      const printContainer = document.createElement("div");
+      printContainer.style.position = "absolute";
+      printContainer.style.left = "-9999px";
+      printContainer.style.top = "-9999px";
+      printContainer.style.width = "750px"; // standard readable width
+      printContainer.style.background = "#ffffff";
+      printContainer.style.color = "#1e293b";
+      printContainer.style.fontFamily = "'Inter', system-ui, -apple-system, sans-serif";
+      printContainer.style.padding = "40px";
+      printContainer.style.boxSizing = "border-box";
+
+      // Header block
+      const header = document.createElement("div");
+      header.style.borderBottom = "2px solid #e2e8f0";
+      header.style.paddingBottom = "20px";
+      header.style.marginBottom = "30px";
+
+      const titleEl = document.createElement("h1");
+      titleEl.innerText = title || "Quiz";
+      titleEl.style.fontSize = "28px";
+      titleEl.style.fontWeight = "800";
+      titleEl.style.color = "#0f172a";
+      titleEl.style.margin = "0 0 10px 0";
+      titleEl.style.lineHeight = "1.2";
+
+      const metaEl = document.createElement("div");
+      metaEl.innerText = `Category: ${category}   |   Questions: ${questions.length}`;
+      metaEl.style.fontSize = "12px";
+      metaEl.style.color = "#64748b";
+      metaEl.style.fontWeight = "500";
+      metaEl.style.textTransform = "uppercase";
+      metaEl.style.letterSpacing = "0.05em";
+
+      header.appendChild(titleEl);
+      header.appendChild(metaEl);
+      printContainer.appendChild(header);
+
+      // Questions List
+      const listContainer = document.createElement("div");
+      listContainer.style.display = "flex";
+      listContainer.style.flexDirection = "column";
+      listContainer.style.gap = "28px";
+
+      // Simple renderer helper matching formatted-text.tsx to support LaTeX formulas inside PDF exports
+      const renderMathInString = (text: string): string => {
+        if (!text) return "";
+        let result = text;
+        
+        // Match display mode $$...$$
+        result = result.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => {
+          try {
+            return katex.renderToString(math.trim(), { displayMode: true, throwOnError: false });
+          } catch {
+            return `$$${math}$$`;
+          }
+        });
+        
+        // Match inline $...$
+        result = result.replace(/\$([^\$\n]+?)\$/g, (_, math) => {
+          try {
+            return katex.renderToString(math.trim(), { displayMode: false, throwOnError: false });
+          } catch {
+            return `$${math}$`;
+          }
+        });
+        
+        return result;
+      };
+
+      questions.forEach((q, index) => {
+        const item = document.createElement("div");
+        item.style.breakInside = "avoid";
+        item.style.padding = "16px";
+        item.style.borderRadius = "12px";
+        item.style.background = "#f8fafc";
+        item.style.border = "1px solid #f1f5f9";
+
+        const qText = document.createElement("div");
+        qText.innerHTML = `${index + 1}. ${renderMathInString(q.question)}`;
+        qText.style.fontWeight = "700";
+        qText.style.fontSize = "15px";
+        qText.style.color = "#0f172a";
+        qText.style.marginBottom = "12px";
+        qText.style.lineHeight = "1.5";
+        item.appendChild(qText);
+
+        if (q.options && q.options.length > 0) {
+          const optsGrid = document.createElement("div");
+          optsGrid.style.display = "flex";
+          optsGrid.style.flexDirection = "column";
+          optsGrid.style.gap = "8px";
+          optsGrid.style.paddingLeft = "12px";
+
+          q.options.forEach((opt) => {
+            const optEl = document.createElement("div");
+            optEl.innerHTML = renderMathInString(opt);
+            optEl.style.fontSize = "13px";
+            optEl.style.color = "#334155";
+            optEl.style.padding = "6px 12px";
+            optEl.style.background = "#ffffff";
+            optEl.style.border = "1px solid #e2e8f0";
+            optEl.style.borderRadius = "6px";
+            optEl.style.fontWeight = "400";
+            optsGrid.appendChild(optEl);
+          });
+          item.appendChild(optsGrid);
+        }
+
+        listContainer.appendChild(item);
+      });
+
+      printContainer.appendChild(listContainer);
+      document.body.appendChild(printContainer);
+
+      // Render with html2canvas
+      const canvas = await html2canvas(printContainer, {
+        scale: 2, // High resolution
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+      });
+
+      // Remove print element from DOM
+      document.body.removeChild(printContainer);
+
+      const imgWidth = 210; // A4 size width in mm
+      const pageHeight = 295; // A4 size height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      const doc = new jsPDF("p", "mm", "a4");
+      let position = 0;
+
+      const imgData = canvas.toDataURL("image/png");
+
+      doc.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        doc.addPage();
+        doc.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const sanitizedFilename = (title || "quiz")
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "_")
+        .substring(0, 50);
+
+      doc.save(`${sanitizedFilename}.pdf`);
+
+      toast({
+        title: "Export Success",
+        description: "Your quiz has been successfully exported to PDF.",
+        variant: "success" as any,
+      });
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      toast({
+        title: t('common.error'),
+        description: "Failed to generate PDF.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
   const handleQuestionChange = (index: number, field: keyof Question, value: any) => {
     const updated = [...questions];
     updated[index] = { ...updated[index], [field]: value };
@@ -392,6 +574,10 @@ export default function EditQuizPage() {
                 {t('common.cancel')}
               </Button>
             </Link>
+            <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={isExporting} data-testid="button-export-pdf">
+              {isExporting ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Download className="h-4 w-4 mr-1" />}
+              {t('editQuiz.exportPdf')}
+            </Button>
             <Button size="sm" onClick={handleStartQuiz} data-testid="button-start-edited">
               {t('editQuiz.startQuiz')}
             </Button>

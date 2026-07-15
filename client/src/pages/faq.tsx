@@ -73,7 +73,7 @@ export default function FAQ() {
               id: "item-4",
               question: "Study Mode hoạt động như thế nào?",
               answer:
-                "Study Mode dùng cơ chế dạng flashcard. 'Known' nghĩa là bạn đã nắm vững, còn 'Learning' đánh dấu để xem lại thêm. AI dùng các tín hiệu này để giúp bạn tập trung vào điểm yếu.",
+                "Study Mode chuyển đổi tài liệu của bạn thành các bài giảng học tập tương tác. Nó chia nhỏ chủ đề thành từng slide rõ ràng, cung cấp tóm tắt bài học và tạo các câu hỏi ôn tập để củng cố kiến thức.",
               icon: Brain,
             },
             {
@@ -200,7 +200,7 @@ export default function FAQ() {
               id: "item-4",
               question: "Study Mode - How does it work?",
               answer:
-                "Study Mode uses a flashcard-style system. 'Known' indicates you've mastered the concept, while 'Learning' marks it for further review. The AI uses these signals to help you focus on your weak areas.",
+                "Study Mode structures your material into interactive study lectures. It breaks down topics into clear slides, compiles takeaways, and generates custom revision study prompts to strengthen understanding.",
               icon: Brain,
             },
             {
@@ -298,23 +298,12 @@ export default function FAQ() {
         <div className="absolute bottom-0 left-0 h-[500px] w-[500px] -translate-x-1/2 translate-y-1/2 rounded-full bg-primary/5 blur-3xl" />
       </div>
 
-      <div className="relative z-10 container mx-auto max-w-4xl px-4 py-12">
+      <div className="relative z-10 container mx-auto max-w-4xl px-4 py-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Link href="/">
-            <Button
-              variant="ghost"
-              className="group mb-8"
-              data-testid="button-back-home"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-              {ui.back}
-            </Button>
-          </Link>
-
           <div className="mb-16 text-center">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}

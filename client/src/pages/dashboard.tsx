@@ -4,7 +4,7 @@ import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import {
   Plus, BookOpen, Play, Target,
-  Clock, FileText, Loader2, Sparkles, ArrowRight,
+  Clock, FileText, Sparkles, ArrowRight,
   Brain, GraduationCap, Lightbulb, ChartNoAxesColumn, ChevronLeft, ChevronRight, X,
   Calculator, Languages, FlaskConical, Globe2, HelpCircle, BookText, Zap,
   Binary, Book, Globe
@@ -22,6 +22,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -320,14 +321,6 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
               <div className="absolute inset-2 bg-gradient-to-br from-primary/10 to-transparent rounded-full" />
               <Brain className="w-12 h-12 text-primary drop-shadow-sm group-hover:scale-110 transition-transform duration-500" />
             </div>
-
-            <motion.div
-              className="absolute -top-2 -right-2 p-1.5 bg-card rounded-xl shadow-lg border border-border/50"
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 4, repeat: Infinity }}
-            >
-              <Sparkles className="w-4 h-4 text-primary" />
-            </motion.div>
           </motion.div>
 
           <h3 className="text-2xl font-black text-foreground mb-3 tracking-tight">
@@ -341,32 +334,11 @@ function EmptyState({ onCreateQuiz }: { onCreateQuiz: () => void }) {
             size="lg"
             onClick={onCreateQuiz}
             data-testid="button-create-first"
-            className="h-12 px-8 text-base font-bold rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-1 active:translate-y-0"
+            className="h-12 px-8 text-base font-bold rounded-2xl shadow-primary/80 transition-all"
           >
             <Plus className="w-5 h-5 mr-2 stroke-[3]" />
             {t('history.createQuiz')}
           </Button>
-
-          <div className="mt-8 flex items-center justify-center gap-6 text-xs font-medium text-muted-foreground/60">
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center border border-border/50">
-                <FileText className="w-6 h-6" />
-              </div>
-              <span>{t('home.hero.fileFormats').split(',')[0]}</span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center border border-border/50">
-                <Brain className="w-6 h-6" />
-              </div>
-              <span>{t('home.features.aiGen.title')}</span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center border border-border/50">
-                <Target className="w-6 h-6" />
-              </div>
-              <span>{t('home.cta.title1').split(' ')[0]} {t('about.subjects.Math.title')}</span>
-            </div>
-          </div>
         </motion.div>
         
         <div className="mt-12 max-w-md mx-auto">
@@ -684,11 +656,11 @@ export default function Dashboard() {
     type: null
   });
 
-  const { data: quizzes, isLoading } = useQuery<Quiz[]>({
+  const { data: quizzes, isLoading: isLoadingQuizzes } = useQuery<Quiz[]>({
     queryKey: ["/api/quizzes?limit=8"],
   });
 
-  const { data: latestProgress } = useQuery<any[]>({
+  const { data: latestProgress, isLoading: isLoadingProgress } = useQuery<any[]>({
     queryKey: ["/api/quiz-progress?limit=1"],
   });
 
@@ -852,13 +824,96 @@ export default function Dashboard() {
 
 
   const hasSavedQuizzes = !!latestSavedQuiz;
+  const shouldShowPageSkeleton = isLoadingQuizzes && !quizzes;
 
-  if (isLoading) {
+  if (shouldShowPageSkeleton) {
     return (
-      <div className="flex items-center justify-center py-32">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-          <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="space-y-8">
+          {/* Welcome header skeleton */}
+          <div className="space-y-3">
+            <Skeleton className="h-10 w-72" />
+            <Skeleton className="h-5 w-56" />
+          </div>
+
+          {/* Main grid skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left column — quiz list */}
+            <div className="lg:col-span-8 space-y-8">
+              {/* Continue learning section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-44" />
+                  <Skeleton className="h-8 w-28 rounded-lg" />
+                </div>
+                <Skeleton className="h-36 w-full rounded-2xl" />
+              </div>
+
+              {/* Recent quizzes section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-40" />
+                  <Skeleton className="h-8 w-20 rounded-lg" />
+                </div>
+                <div className="space-y-3">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-4 p-4 rounded-2xl border border-border/50 bg-card/40"
+                    >
+                      <Skeleton className="w-12 h-12 rounded-xl flex-shrink-0" />
+                      <div className="flex-1 space-y-2 min-w-0">
+                        <Skeleton className="h-4 w-3/4" />
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="h-3.5 w-16 rounded-md" />
+                          <Skeleton className="h-3.5 w-14 rounded-md" />
+                          <Skeleton className="h-3.5 w-20 rounded-md" />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Skeleton className="h-10 w-10 rounded-xl hidden sm:block" />
+                        <Skeleton className="h-10 w-20 rounded-xl" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right sidebar */}
+            <div className="lg:col-span-4 space-y-8">
+              {/* Stats block */}
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-32" />
+                <div className="grid grid-cols-1 gap-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-4 p-5 rounded-xl border border-border/50 bg-card/40"
+                    >
+                      <Skeleton className="w-12 h-12 rounded-2xl flex-shrink-0" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-3 w-20" />
+                        <Skeleton className="h-7 w-12" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quick actions block */}
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-36" />
+                <div className="flex flex-col gap-4">
+                  <Skeleton className="h-20 w-full rounded-xl" />
+                  <Skeleton className="h-20 w-full rounded-xl" />
+                </div>
+              </div>
+
+              {/* Learning tip block */}
+              <Skeleton className="h-24 w-full rounded-xl" />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -913,7 +968,7 @@ export default function Dashboard() {
             {/* Main Content (Left Column) */}
             <div className="lg:col-span-8 space-y-8">
               {/* Continue Section */}
-              {latestSavedQuiz && (
+              {(isLoadingProgress || latestSavedQuiz) && (
                 <motion.section variants={itemVariants}>
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
@@ -932,9 +987,33 @@ export default function Dashboard() {
                   </div>
 
                   <div className="relative">
-                    {(() => {
+                    {isLoadingProgress ? (
+                      <Card className="overflow-hidden border border-border/50 bg-card/40">
+                        <CardContent className="p-4 sm:p-5">
+                          <div className="space-y-4">
+                            <div className="flex items-start gap-3">
+                              <Skeleton className="h-12 w-12 rounded-xl flex-shrink-0" />
+                              <div className="flex-1 min-w-0 space-y-2">
+                                <Skeleton className="h-4 w-3/4" />
+                                <div className="flex items-center gap-2">
+                                  <Skeleton className="h-5 w-16 rounded-full" />
+                                  <Skeleton className="h-5 w-20 rounded-full" />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <Skeleton className="h-3 w-28" />
+                                <Skeleton className="h-3 w-10" />
+                              </div>
+                              <Skeleton className="h-2.5 w-full rounded-full" />
+                            </div>
+                            <Skeleton className="h-10 w-full rounded-xl" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ) : latestSavedQuiz ? (() => {
                       const item = latestSavedQuiz;
-                      if (!item) return null;
                       const answerKeys = Object.keys(item.answers);
                       const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
                       const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
@@ -972,7 +1051,7 @@ export default function Dashboard() {
                           retryTotalCount={retryTotalCount}
                         />
                       );
-                    })()}
+                    })() : null}
                   </div>
                 </motion.section>
               )}

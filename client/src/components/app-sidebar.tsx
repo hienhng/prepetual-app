@@ -80,7 +80,7 @@ const primaryNavItems = [
     icon: Plus,
   },
   {
-    title: "Your Quizzes",
+    title: "My Library",
     url: "/history",
     icon: Folders,
   },
@@ -198,7 +198,7 @@ export function AppSidebar() {
       icon: LayoutDashboard,
     },
     {
-      title: "Your Quizzes",
+      title: "My Library",
       url: "/history",
       icon: Folders,
     },
@@ -247,7 +247,7 @@ export function AppSidebar() {
                           ? "dashboard"
                           : item.title === "Create"
                           ? "create"
-                          : item.title === "Your Quizzes"
+                          : item.title === "My Library"
                           ? "yourQuizzes"
                           : item.title === "Discover"
                           ? "discover"
@@ -280,7 +280,7 @@ export function AppSidebar() {
                       ? "dashboard"
                       : item.title === "Create"
                       ? "create"
-                      : item.title === "Your Quizzes"
+                      : item.title === "My Library"
                       ? "yourQuizzes"
                       : item.title === "Discover"
                       ? "discover"
@@ -355,11 +355,11 @@ export function AppSidebar() {
                   <SidebarMenuButton 
                     asChild 
                     isActive={location === item.url}
-                    tooltip={t(`sidebar.${item.title === "Dashboard" ? "dashboard" : item.title === "Create" ? "create" : item.title === "Your Quizzes" ? "yourQuizzes" : "discover"}`)}
+                    tooltip={t(`sidebar.${item.title === "Dashboard" ? "dashboard" : item.title === "Create" ? "create" : item.title === "My Library" ? "yourQuizzes" : "discover"}`)}
                   >
                     <Link href={item.url} onClick={(e) => handleNavClick(e, item.url)} data-testid={`sidebar-link-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
                       <item.icon className="w-4 h-4" />
-                      <span>{t(`sidebar.${item.title === "Dashboard" ? "dashboard" : item.title === "Create" ? "create" : item.title === "Your Quizzes" ? "yourQuizzes" : "discover"}`)}</span>
+                      <span>{t(`sidebar.${item.title === "Dashboard" ? "dashboard" : item.title === "Create" ? "create" : item.title === "My Library" ? "yourQuizzes" : "discover"}`)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

@@ -112,7 +112,7 @@ export default function Contact() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <div className="mb-16 flex flex-col items-center text-center">
             <Link href="/">
-              <Button variant="ghost" size="sm" className="mb-8 rounded-full hover:bg-primary/10" data-testid="button-back-home">
+              <Button variant="ghost" size="sm" className="mb-8 rounded-full hover:bg-primary/10 pt-10" data-testid="button-back-home">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {ui.back}
               </Button>

@@ -25,7 +25,7 @@ const QuizNavigationGuardContext = createContext<QuizNavigationGuardContextType 
 export function QuizNavigationGuardProvider({ children }: { children: ReactNode }) {
   const [, setLocation] = useLocation();
   const [location] = useLocation();
-  const { currentQuiz, hasUnsavedChanges, saveCurrentProgress, getPlayerProgress, userAnswers, checkedQuestions, playerRetryAnswers } = useQuiz();
+  const { currentQuiz, hasUnsavedChanges, saveCurrentProgress, getPlayerProgress, userAnswers, checkedQuestions, playerRetryAnswers, resetQuiz } = useQuiz();
   const { user } = useAuth();
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
@@ -33,13 +33,15 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
   
   // Guests cannot save progress, so skip the guard entirely
   const isGuest = !user;
+  const canPersistProgress = !!user && !!currentQuiz && currentQuiz.userId === user.id && currentQuiz.generationMode !== "review";
+  const isQuizRoute = location === "/quiz";
 
   // Show dialog if user is on quiz page with an active quiz that has any answers (only for authenticated users)
-  const isQuizInProgress = !isGuest && location === "/quiz" && !!currentQuiz && Object.keys(userAnswers).length > 0;
+  const isQuizInProgress = !isGuest && isQuizRoute && !!currentQuiz && Object.keys(userAnswers).length > 0;
   
   // Check if user is in revision mode (completed first attempt with wrong answers)
   const isInRevisionMode = useMemo(() => {
-    if (!currentQuiz || location !== "/quiz") return false;
+    if (!currentQuiz || !isQuizRoute) return false;
     
     const questions = currentQuiz.questions || [];
     const totalQuestions = questions.length;
@@ -121,7 +123,8 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
     }
   };
 
-  const handleDiscardReview = () => {
+  const handleDiscardExit = () => {
+    resetQuiz();
     setShowExitDialog(false);
     if (pendingPath) {
       setLocation(pendingPath);
@@ -152,12 +155,14 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
         <AlertDialogContent data-testid={isReviewSession ? "dialog-review-exit" : isInRevisionMode ? "dialog-revision-exit-warning" : "dialog-quiz-exit"}>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              {isReviewSession ? "Discard Review Session?" : isInRevisionMode ? "Save Revision Progress?" : "Leave Quiz?"}
+              {isReviewSession ? "Discard Review Session?" : !canPersistProgress ? "Leave Quiz?" : isInRevisionMode ? "Save Revision Progress?" : "Leave Quiz?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {isReviewSession 
                 ? "Your review session progress will not be saved. Are you sure you want to exit?"
-                : isInRevisionMode 
+                : !canPersistProgress
+                  ? "This quiz does not save progress. Are you sure you want to leave?"
+                  : isInRevisionMode 
                   ? "You're currently revising incorrect answers. Your revision progress will be saved so you can continue later."
                   : "You have a quiz in progress. Would you like to save your progress for later?"
               }
@@ -165,14 +170,14 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel onClick={handleCancel} data-testid="button-cancel-nav-exit">
-              {isReviewSession ? "Keep Reviewing" : isInRevisionMode ? "Keep Revising" : "Continue Quiz"}
+              {isReviewSession || !canPersistProgress ? "Continue Quiz" : isInRevisionMode ? "Keep Revising" : "Continue Quiz"}
             </AlertDialogCancel>
             
-            {isReviewSession ? (
+            {isReviewSession || !canPersistProgress ? (
               <AlertDialogAction
-                onClick={handleDiscardReview}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                data-testid="button-discard-review"
+                onClick={handleDiscardExit}
+                className="bg-destructive text-destructive-foreground border-destructive/10 shadow-destructive/70 hover:bg-destructive/90"
+                data-testid={isReviewSession ? "button-discard-review" : "button-discard-public-quiz"}
               >
                 Discard & Exit
               </AlertDialogAction>

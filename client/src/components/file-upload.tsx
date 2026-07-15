@@ -196,7 +196,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
               {loadingMessage}
             </h3>
             <p className="text-muted-foreground font-medium mb-6">
-              Synthesizing {processingJobs.length} of {activeJobs.length} assets
+              Processing {processingJobs.length} of {activeJobs.length} files
             </p>
 
             <div className="w-full max-w-xs space-y-3">

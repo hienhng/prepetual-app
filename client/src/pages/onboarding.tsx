@@ -208,7 +208,7 @@ return (
                       className={`flex items-center justify-between cursor-pointer rounded-xl p-4 transition-all ${
                         isSelected 
                           ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25" 
-                          : "bg-muted/20 hover:bg-muted/40 text-foreground"
+                          : "bg-muted/20 hover:bg-muted/40 text-foreground/60"
                       }`}
                     >
                       <div>

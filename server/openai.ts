@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import pLimit from "p-limit"; // Force reload: 2026-04-28 14:06
 import pRetry from "p-retry";
-import type { Question, QuestionType, DifficultyLevel, QuizCategory } from "../shared/schema.js";
+import type { Question, QuestionType, DifficultyLevel, QuizCategory, GeneratedLecture, LectureSlide, LectureTopic, LectureStep } from "../shared/schema.js";
 import { QUIZ_CATEGORIES } from "../shared/schema.js";
 import { randomUUID } from "crypto";
 
@@ -871,7 +871,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     if (questions.length < questionCount) {
       const missing = questionCount - questions.length;
       console.warn(`Only built ${questions.length}/${questionCount} valid questions. Attempting to generate ${missing} more...`);
-      onProgress?.("refining", 88, "Generating additional questions to match your requested count...");
+      onProgress?.("refining", 88, "Refining your questions...");
 
       const existingQuestionsList = questions
         .map((q) => `- ${q.question}`)
@@ -1597,6 +1597,281 @@ Independently solve this and determine which option is actually correct. Show yo
   );
 
   return revisedQuestions;
+}
+
+export async function generateLectureFromMaterial(params: {
+  sourceText?: string;
+  imageUrls?: string[];
+  topicCount?: number;
+  title?: string;
+  difficulty?: string;
+}): Promise<GeneratedLecture | null> {
+  const { sourceText = "", imageUrls = [], topicCount = 4, title, difficulty = "medium" } = params;
+  const cleanedSource = (sourceText ?? "").replace(/\s+/g, " ").trim();
+  const imageContent = imageUrls.slice(0, 4).map((url) => ({
+    type: "image_url" as const,
+    image_url: { url, detail: "low" as const },
+  }));
+
+  if (!cleanedSource && imageContent.length === 0) {
+    return null;
+  }
+
+  const clampedTopicCount = Math.max(2, Math.min(5, topicCount));
+
+  const prompt = `You are an expert educator creating an in-depth, engaging lecture from study material.
+
+TASK: Generate a lecture titled "${title || "Study Lecture"}" broken into ${clampedTopicCount} topics, based on the material below.
+
+IMPORTANT — STRICT DIFFICULTY ALIGNMENT:
+- Target Difficulty Level: "${difficulty.toUpperCase()}". You MUST align the complexity, depth, and explanatory rigor of this lecture strictly to this difficulty level.
+  - EASY: Focus on clean definitions, basic core concepts, fundamental formulas, and direct, straightforward applications.
+  - MEDIUM: Cover standard analytical steps, core concepts, essential formulas/equations, and intermediate applications/variations.
+  - HARD: Dive deep into advanced conceptual nuances, edge cases, multi-step problem solving, mathematical derivations, and higher-order reasoning.
+
+IMPORTANT — PREPARE, DO NOT SPOIL:
+- The lecture's purpose is to prepare the student to solve the main quiz. It MUST NOT spoil, copy, reference, or use the actual questions from the quiz/material.
+- Teach the underlying general concepts, definitions, and reasoning that those questions are testing.
+- Do NOT copy or lightly reword questions from the material into lecture slide titles or body text.
+- Do NOT structure slides as "Question 1: ... Answer: ...". This is a lecture, not an answer key.
+- Instead, identify what knowledge each question/section is probing, and explain that knowledge directly: the concept, why it works that way, how to reason through it, and what a student needs to understand to answer questions like it.
+- If the material includes multiple-choice options, do not present them as "the correct answer is X" — teach the general reasoning that would let a student derive the answer themselves.
+- The ONLY place new questions should appear is in "revisionQuiz", and those must be freshly written by you, testing the same concepts in different phrasing — never copied or paraphrased from the source material.
+
+REQUIREMENTS:
+- "intro": a welcome slide that frames what this lecture covers, why it matters, and what the student should be able to do by the end
+- "topics": an array of exactly ${clampedTopicCount} topics, ordered from foundational to advanced. Each topic has:
+  - "title": short, clear topic name (a concept name, never a restated question)
+  - "slides": 4-8 slides per topic (favor more slides over cramming), each with:
+    - "title": slide heading (a concept or idea, not a question)
+    - "subtitle": one-line context (can be empty string)
+    - "body": array of 6-8 paragraphs (NOT single-line bullet fragments, NOT question-answer pairs). Each paragraph should be 2-4 full sentences that actually explain the idea — the reasoning behind it, how it works, or why it matters. Write like you're teaching, not summarizing or quizzing.
+      - Where relevant, weave in a concrete worked example inside a paragraph rather than a standalone fragment
+      - Where relevant, include one paragraph flagging a common mistake or misconception, framed naturally (e.g. "A common mistake here is...")
+- "summary": a wrap-up slide with 2-3 short paragraphs recapping the throughline across all topics, not just a list of terms
+- "revisionQuiz": a slide with 4-6 NEW study questions, written by you, that test whether the student understood the reasoning — these must be original and must not duplicate or closely paraphrase any question found in the material
+
+STYLE:
+- Write in clear, conversational, student-friendly language — like a good tutor explaining things out loud, not a dense textbook and not a shorthand flashcard.
+- Favor short paragraphs over single-line bullets. Each body entry should feel like a mini-explanation, not a keyword.
+- Still keep it tight: no rambling, no repeating the same point across paragraphs.
+- Go deep enough that a student could understand the topic from these slides alone, without needing the original material.
+- Make sure to use LaTex format wherever needed.
+
+Return valid JSON only, no markdown, no preamble, in exactly this structure:
+{
+  "title": "string",
+  "intro": { "title": "string", "subtitle": "string", "body": ["paragraph", "paragraph", ...] },
+  "topics": [
+    {
+      "title": "string",
+      "slides": [
+        { "title": "string", "subtitle": "string", "body": ["paragraph", "paragraph", ...] }
+      ]
+    }
+  ],
+  "summary": { "title": "string", "subtitle": "string", "body": ["paragraph", "paragraph", ...] },
+  "revisionQuiz": { "title": "string", "subtitle": "string", "body": ["question", "question", ...] }
+}
+
+Material:
+${cleanedSource.slice(0, 12000)}
+
+If the images contain diagrams, charts, formulas, or visual explanations, use their content to shape the lecture and explain what they show.`;
+
+  try {
+    const response = await pRetry(
+      async () => {
+        const completion = await openai.chat.completions.create({
+          model: "meta-llama/llama-4-scout-17b-16e-instruct",
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "text", text: prompt },
+                ...imageContent,
+              ],
+            },
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.7,
+          max_tokens: 5000,
+        });
+
+        const content = completion.choices[0]?.message?.content || "";
+        if (!content) throw new Error("No response from AI");
+        return content;
+      },
+      {
+        retries: 2,
+        minTimeout: 2500,
+        maxTimeout: 10000,
+        onFailedAttempt: (error: any) => {
+          console.log(`Lecture generation retry (attempt ${error.attemptNumber}): ${error.message || error}`);
+        },
+      }
+    );
+
+    let parsed: any;
+    try {
+      parsed = JSON.parse(response);
+    } catch (parseErr) {
+      console.error("Lecture generation: failed to parse JSON from model response.", parseErr, "\nRaw response:", response.slice(0, 500));
+      return null;
+    }
+
+    const lecturePayload = parsed.lecture ?? parsed;
+
+    if (!Array.isArray(lecturePayload.topics) || lecturePayload.topics.length === 0) {
+      console.error("Lecture generation: response JSON parsed but had no usable 'topics' array.", lecturePayload);
+      return null;
+    }
+
+    const topics: LectureTopic[] = lecturePayload.topics
+      .slice(0, clampedTopicCount)
+      .map((topic: any, index: number) => ({
+        id: topic.id || `topic-${index + 1}`,
+        title: String(topic.title || `Topic ${index + 1}`),
+        slides: (topic.slides || [])
+          .slice(0, 6)
+          .map((slide: any, slideIndex: number) => ({
+            title: String(slide.title || `Slide ${slideIndex + 1}`),
+            subtitle: String(slide.subtitle || ""),
+            body: Array.isArray(slide.body)
+              ? slide.body.map((line: unknown) => String(line))
+              : [String(slide.body || "")],
+          })),
+      }))
+      .filter((topic: LectureTopic) => topic.slides.length > 0);
+
+    if (topics.length === 0) {
+      console.error("Lecture generation: all topics were filtered out (no slides).");
+      return null;
+    }
+
+    const intro: LectureSlide = {
+      title: String(lecturePayload.intro?.title || "Welcome & Study Goals"),
+      subtitle: String(lecturePayload.intro?.subtitle || title || "Study lecture"),
+      body: Array.isArray(lecturePayload.intro?.body)
+        ? lecturePayload.intro.body.map((line: unknown) => String(line))
+        : [String(lecturePayload.intro?.body || "This lecture is built from the uploaded material.")],
+    };
+
+    const summary: LectureSlide = {
+      title: String(lecturePayload.summary?.title || "Lecture Wrap-up"),
+      subtitle: String(lecturePayload.summary?.subtitle || "Key ideas to revisit"),
+      body: Array.isArray(lecturePayload.summary?.body)
+        ? lecturePayload.summary.body.map((line: unknown) => String(line))
+        : [String(lecturePayload.summary?.body || "Review the main ideas from the lecture.")],
+    };
+
+    const revisionQuiz: LectureSlide = {
+      title: String(lecturePayload.revisionQuiz?.title || "Revision Study Prompts"),
+      subtitle: String(lecturePayload.revisionQuiz?.subtitle || "Use the material"),
+      body: Array.isArray(lecturePayload.revisionQuiz?.body)
+        ? lecturePayload.revisionQuiz.body.map((line: unknown) => String(line))
+        : [String(lecturePayload.revisionQuiz?.body || "Review the main ideas from the lecture.")],
+    };
+
+    const sequence: LectureStep[] = [
+      { ...intro, kind: "intro" as const },
+      ...topics.flatMap((topic, topicIndex) =>
+        topic.slides.map((slide) => ({ ...slide, kind: "topic" as const, topicIndex }))
+      ),
+      { ...summary, kind: "summary" as const },
+      { ...revisionQuiz, kind: "quiz" as const },
+    ];
+
+    const topicStartIndices: number[] = [];
+    let currentIndex = 1;
+    topics.forEach((topic) => {
+      topicStartIndices.push(currentIndex);
+      currentIndex += topic.slides.length;
+    });
+
+    return {
+      title: String(lecturePayload.title || title || "Study Lecture"),
+      intro,
+      topics,
+      summary,
+      revisionQuiz,
+      sequence,
+      topicStartIndices,
+    };
+  } catch (error) {
+    console.error("Error generating lecture from material:", error);
+    return null;
+  }
+}
+
+export async function generateLectureTopicTitles(params: {
+  sourceText?: string;
+  topicCount?: number;
+}): Promise<string[]> {
+  const { sourceText, topicCount = 4 } = params;
+  const cleanedSource = (sourceText ?? "").replace(/\s+/g, " ").trim();
+
+  if (!cleanedSource) {
+    return [];
+  }
+
+  const prompt = `You are an expert educator. Based on the study material below, generate ${topicCount} concise, meaningful lecture topic titles that describe the main concepts in a helpful study order.
+
+Requirements:
+- Each title should be 2 to 6 words.
+- Use the same language as the source material.
+- Make them instructional and specific, not generic.
+- Do not use numbering or bullet points.
+- Return ONLY valid JSON in this structure: {"titles": ["title 1", "title 2", ...]}
+
+Material:
+${cleanedSource.slice(0, 8000)}`;
+
+  try {
+    const response = await pRetry(
+      async () => {
+        const completion = await openai.chat.completions.create({
+          model: "meta-llama/llama-4-scout-17b-16e-instruct",
+          messages: [{ role: "user", content: prompt }],
+          response_format: { type: "json_object" },
+          temperature: 0.6,
+          max_tokens: 1200,
+        });
+
+        const content = completion.choices[0]?.message?.content || "";
+        if (!content) throw new Error("No response from AI");
+        return content;
+      },
+      {
+        retries: 2,
+        minTimeout: 2000,
+        maxTimeout: 7000,
+        onFailedAttempt: (error: any) => {
+          console.log(`Lecture topic title generation retry (attempt ${error.attemptNumber}): ${error.message || error}`);
+        },
+      }
+    );
+
+    const parsed = JSON.parse(response);
+    const titles = (parsed.titles || [])
+      .map((title: unknown) => String(title).trim())
+      .filter((title: string) => title.length > 0)
+      .slice(0, topicCount);
+
+    if (titles.length > 0) {
+      return titles;
+    }
+  } catch (error) {
+    console.error("Error generating lecture topic titles:", error);
+  }
+
+  return cleanedSource
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.replace(/\s+/g, " ").trim())
+    .filter((sentence) => sentence.length > 16)
+    .slice(0, topicCount)
+    .map((sentence) => sentence.split(" ").slice(0, 4).join(" ").trim())
+    .filter((sentence) => sentence.length > 0);
 }
 
 export async function generateReviewQuestions(params: {

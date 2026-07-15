@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Loader2, User, Search, Copy, Share2, Clock, X,  HelpCircle, Lightbulb, BookOpen, RefreshCw, MessageCircleQuestion, LayoutGrid, ChevronDown } from "lucide-react";
+import { Send, Loader2, Search, Copy, Clock, X, HelpCircle, Lightbulb, BookOpen, RefreshCw, MessageCircleQuestion, LayoutGrid, ChevronDown, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -71,14 +71,6 @@ function MessageActions({ content, messageId }: { content: string; messageId: st
         title="Copy"
       >
         <Copy className={`w-3 h-3 ${copied ? "text-green-500 hover:text-green-600" : ""}`} />
-      </motion.button>
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="w-6 h-6 rounded-full flex items-center justify-center bg-slate-50 dark:bg-slate-800 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 border border-slate-200/30 dark:border-slate-700/30 text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-200 transition-colors"
-        title="Share"
-      >
-        <Share2 className="w-3 h-3" />
       </motion.button>
     </motion.div>
   );
@@ -189,6 +181,11 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [showCues, setShowCues] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  // word-by-word generation animation
+  const [animatingId, setAnimatingId] = useState<string | null>(null);
+  const [revealedText, setRevealedText] = useState("");
+  const animationRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -217,6 +214,13 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen, showSearch]);
+
+  // Cleanup animation timer on unmount
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) clearTimeout(animationRef.current);
+    };
+  }, []);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -247,13 +251,31 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
 
       const data = await response.json();
       const assistantId = `msg-${Date.now()}`;
-      
+      const fullText: string = data.response;
+
       setMessages((prev) => [...prev, { 
         role: "assistant", 
-        content: data.response, 
+        content: fullText, 
         timestamp: Date.now(),
         id: assistantId
       }]);
+
+      // Kick off word-by-word animation
+      setAnimatingId(assistantId);
+      const words = fullText.split(" ");
+      let wordIndex = 0;
+      setRevealedText("");
+
+      const revealNext = () => {
+        wordIndex++;
+        setRevealedText(words.slice(0, wordIndex).join(" "));
+        if (wordIndex < words.length) {
+          animationRef.current = setTimeout(revealNext, 28);
+        } else {
+          setAnimatingId(null);
+        }
+      };
+      animationRef.current = setTimeout(revealNext, 28);
     } catch (error: any) {
       setMessages((prev) => [
         ...prev,
@@ -286,12 +308,22 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
 
   return (
     <motion.div 
-      initial={{ opacity: 0, scale: 0.85, y: 40, rotateX: 10 }}
-      animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
-      exit={{ opacity: 0, scale: 0.85, y: 40, rotateX: -10 }}
+      layout
+      layoutId="quiz-chatbot"
+      initial={{ opacity: 0, scale: 0.85, y: 40 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.85, y: 40 }}
       transition={{ type: "spring", stiffness: 400, damping: 25, mass: 1 }}
-      style={{ perspective: "1000px" }}
-      className="fixed bottom-24 right-4 w-96 h-[600px] rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden"
+      style={{
+        position: "fixed",
+        bottom: isExpanded ? "5vh" : "6rem",
+        right: isExpanded ? "5vw" : "1rem",
+        width: isExpanded ? "90vw" : "24rem",
+        height: isExpanded ? "88vh" : "600px",
+        maxWidth: isExpanded ? "1200px" : undefined,
+        zIndex: 50,
+      }}
+      className="rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden"
     >
       {/* Header */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
@@ -312,6 +344,15 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
               title="Search messages"
             >
               <Search className="w-4 h-4" />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsExpanded((v) => !v)}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors"
+              title={isExpanded ? "Collapse" : "Expand"}
+            >
+              {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -400,7 +441,18 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
                     }`}
                   >
                     <div className="whitespace-pre-wrap leading-relaxed [&_.katex-display]:my-1 [&_.katex]:text-[0.9em]">
-                      <MathText content={message.content} />
+                      {message.role === "assistant" && animatingId === message.id ? (
+                        <span>
+                          {revealedText}
+                          <motion.span
+                            className="inline-block w-0.5 h-[1em] bg-current align-middle ml-0.5 rounded-full opacity-80"
+                            animate={{ opacity: [1, 0] }}
+                            transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+                          />
+                        </span>
+                      ) : (
+                        <MathText content={message.content} />
+                      )}
                     </div>
                     <div className="flex items-center justify-between gap-2 mt-1.5">
                       <span className="text-xs opacity-60 flex items-center gap-1">

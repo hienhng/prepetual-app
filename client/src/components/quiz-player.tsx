@@ -73,6 +73,7 @@ const getStreakMessage = (streak: number, t: any) => {
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MaterialPane } from "@/components/material-pane";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function QuizPlayer() {
   const [, setLocation] = useLocation();
@@ -89,6 +90,8 @@ export function QuizPlayer() {
     restoredCurrentIndex,
     restoredRetryAnswers,
     restoredRetryCheckedQuestions,
+    restoredShortAnswerGradingResults,
+    setShortAnswerGradingResult,
     clearRestoredState,
     syncPlayerState,
     timeTaken,
@@ -98,7 +101,7 @@ export function QuizPlayer() {
   const { user } = useAuth();
   const sidebarContext = useSidebarOptional();
   const sidebarState = sidebarContext?.state ?? "expanded";
-  const isMobile = sidebarContext?.isMobile ?? false;
+  const isMobile = useIsMobile() || (sidebarContext?.isMobile ?? false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shortAnswerInput, setShortAnswerInput] = useState("");
@@ -202,12 +205,22 @@ export function QuizPlayer() {
     clearRestoredState(currentQuiz.id);
   }, [currentQuiz, userAnswers, checkedQuestions, restoredCurrentIndex, restoredRetryAnswers, restoredRetryCheckedQuestions, clearRestoredState, isGuest, timeTaken, quizResult, setQuizResult]);
 
+  useEffect(() => {
+    if (!currentQuiz) return;
+
+    if (restoredShortAnswerGradingResults && Object.keys(restoredShortAnswerGradingResults).length > 0) {
+      setAiGradingResults(restoredShortAnswerGradingResults);
+    } else {
+      setAiGradingResults({});
+    }
+  }, [currentQuiz?.id, restoredShortAnswerGradingResults, setAiGradingResults]);
+
   // Sync player state to context for save functionality (only for authenticated users)
   useEffect(() => {
     if (!isGuest) {
-      syncPlayerState(currentIndex, retryAnswers, Array.from(retryChecked), sessionTime);
+      syncPlayerState(currentIndex, retryAnswers, Array.from(retryChecked), aiGradingResults, sessionTime);
     }
-  }, [currentIndex, retryAnswers, retryChecked, syncPlayerState, isGuest, sessionTime]);
+  }, [currentIndex, retryAnswers, retryChecked, aiGradingResults, syncPlayerState, isGuest, sessionTime]);
 
   // Timer logic
   useEffect(() => {
@@ -296,9 +309,20 @@ export function QuizPlayer() {
     }
   };
 
+  const commitShortAnswer = (value: string) => {
+    if (isChecked) return;
+
+    if (currentQuestion.isRetry) {
+      setRetryAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
+    } else {
+      setUserAnswer(currentQuestion.originalId, value);
+    }
+  };
+
   const handleShortAnswerChange = (value: string) => {
     if (isChecked) return;
     setShortAnswerInput(value);
+    commitShortAnswer(value);
   };
 
   const applyCheckResult = (correct: boolean, answerToCheck: string | undefined, qSnap: typeof currentQuestion) => {
@@ -390,11 +414,7 @@ export function QuizPlayer() {
 
     if (questionSnapshot.type === "short_answer" && shortAnswerInput.trim()) {
       answerToCheck = shortAnswerInput.trim();
-      if (questionSnapshot.isRetry) {
-        setRetryAnswers(prev => ({ ...prev, [questionSnapshot.id]: answerToCheck! }));
-      } else {
-        setUserAnswer(questionSnapshot.originalId, answerToCheck);
-      }
+      commitShortAnswer(answerToCheck);
     }
 
     if (answerToCheck || (questionSnapshot.type === "short_answer" && shortAnswerInput.trim())) {
@@ -419,15 +439,24 @@ export function QuizPlayer() {
 
           const grading = await res.json();
           const gradeKey = questionSnapshot.isRetry ? questionSnapshot.id : questionSnapshot.originalId;
-
-          setAiGradingResults(prev => ({
-            ...prev,
+          const nextGradingResults = {
+            ...aiGradingResults,
             [gradeKey]: {
               isCorrect: grading.isCorrect,
               isPartial: grading.isPartial,
               explanation: grading.explanation,
             },
-          }));
+          };
+
+          setAiGradingResults(nextGradingResults);
+          setShortAnswerGradingResult(gradeKey, nextGradingResults[gradeKey]);
+          syncPlayerState(
+            currentIndex,
+            questionSnapshot.isRetry ? { ...retryAnswers, [questionSnapshot.id]: answerToCheck! } : retryAnswers,
+            Array.from(retryChecked),
+            nextGradingResults,
+            sessionTime
+          );
 
           applyCheckResult(grading.isCorrect, answerToCheck, questionSnapshot);
         } catch {
@@ -435,17 +464,26 @@ export function QuizPlayer() {
           const normalizedCorrect = questionSnapshot.correctAnswer.toLowerCase().trim();
           const fallbackCorrect = normalizedUser === normalizedCorrect;
           const gradeKey = questionSnapshot.isRetry ? questionSnapshot.id : questionSnapshot.originalId;
-
-          setAiGradingResults(prev => ({
-            ...prev,
+          const nextGradingResults = {
+            ...aiGradingResults,
             [gradeKey]: {
               isCorrect: fallbackCorrect,
               isPartial: false,
-               explanation: fallbackCorrect
+              explanation: fallbackCorrect
                 ? t('quizPlayer.shortAnswerFallbackCorrect')
                 : t('quizPlayer.shortAnswerFallbackIncorrect', { expected: questionSnapshot.correctAnswer }),
             },
-          }));
+          };
+
+          setAiGradingResults(nextGradingResults);
+          setShortAnswerGradingResult(gradeKey, nextGradingResults[gradeKey]);
+          syncPlayerState(
+            currentIndex,
+            questionSnapshot.isRetry ? { ...retryAnswers, [questionSnapshot.id]: answerToCheck! } : retryAnswers,
+            Array.from(retryChecked),
+            nextGradingResults,
+            sessionTime
+          );
 
           applyCheckResult(fallbackCorrect, answerToCheck, questionSnapshot);
         } finally {
@@ -762,7 +800,7 @@ export function QuizPlayer() {
         <div className={`absolute inset-0 opacity-10 bg-gradient-to-r ${isCorrect ? "from-green-500/0 via-green-500 to-green-500/0" : "from-red-500/0 via-red-500 to-red-500/0"} animate-scan-horizontal`} style={{ animationDuration: '3s' }} />
         
         <div className={`p-2 rounded-xl ${isCorrect ? "bg-green-500/20" : "bg-red-500/20"}`}>
-          {isCorrect ? <Sparkles className="h-5 w-5" /> : <Lightbulb className="h-5 w-5" />}
+          {isCorrect ? <Star className="h-5 w-5" /> : <Lightbulb className="h-5 w-5" />}
         </div>
         
         <div className="flex-1">
@@ -1292,12 +1330,12 @@ export function QuizPlayer() {
 
   const allOriginalChecked = checkedQuestions.size === originalQuestionCount;
 
-  const materialImages = (sourceMaterial?.documentImages as string[]) || ((currentQuiz as any)?.sourceImages as string[]) || [];
-  const singleSourceImage = (sourceMaterial?.imageDataUrl as string | undefined) || ((currentQuiz as any)?.sourceImageUrl as string | undefined);
+  const materialImages = ((currentQuiz as any)?.sourceImages as string[]) || (sourceMaterial?.documentImages as string[]) || [];
+  const singleSourceImage = ((currentQuiz as any)?.sourceImageUrl as string | undefined) || (sourceMaterial?.imageDataUrl as string | undefined);
   const allMaterialImages = singleSourceImage ? [singleSourceImage, ...materialImages] : materialImages;
   const hasMaterialImages = allMaterialImages.length > 0;
 
-  const rawText = sourceMaterial?.text || (currentQuiz as any)?.sourceText || "";
+  const rawText = (currentQuiz as any)?.sourceText || sourceMaterial?.text || "";
   const materialText = rawText === "[Images uploaded - AI will analyze visually]" ? "" : rawText;
   const hasMaterialText = Boolean(materialText.trim());
   const hasMaterialContent = hasMaterialImages || hasMaterialText;
@@ -1353,8 +1391,7 @@ export function QuizPlayer() {
                     <span className="text-sm font-semibold">{displayQuestionNum}/{originalQuestionCount}</span>
                     <ChevronUp className={`h-4 w-4 transition-transform ${showQuestionNav ? "rotate-180" : ""}`} />
                   </button>
-                  {hasMaterialContent && (
-                    <Button
+                  <Button
                       variant={showMaterialViewer ? "secondary" : "outline"}
                       size="sm"
                       onClick={() => setShowMaterialViewer(!showMaterialViewer)}
@@ -1364,7 +1401,6 @@ export function QuizPlayer() {
                       {hasMaterialImages ? <FileImage className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
                       <span className="hidden sm:inline">{t('quizPlayer.material')}</span>
                     </Button>
-                  )}
                   <ThemeToggle />
                 </div>
                 <div className="flex items-center gap-3">

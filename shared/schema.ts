@@ -87,6 +87,33 @@ export const questionSchema = z.object({
 
 export type Question = z.infer<typeof questionSchema>;
 
+export interface LectureSlide {
+  title: string;
+  subtitle?: string;
+  body: string[];
+}
+
+export interface LectureTopic {
+  id: string;
+  title: string;
+  slides: LectureSlide[];
+}
+
+export interface LectureStep extends LectureSlide {
+  kind: "intro" | "topic" | "summary" | "quiz";
+  topicIndex?: number;
+}
+
+export interface GeneratedLecture {
+  title: string;
+  intro: LectureSlide;
+  topics: LectureTopic[];
+  summary: LectureSlide;
+  revisionQuiz: LectureSlide;
+  sequence: LectureStep[];
+  topicStartIndices: number[];
+}
+
 // Folders table for organizing quizzes
 export const folders = pgTable("folders", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -114,6 +141,7 @@ export const quizzes = pgTable("quizzes", {
   sourceImageUrl: text("source_image_url"),
   sourceImages: jsonb("source_images").$type<string[]>(),
   questions: jsonb("questions").notNull().$type<Question[]>(),
+  lecture: jsonb("lecture").$type<GeneratedLecture | null>(),
   difficulty: text("difficulty").default("medium"),
   category: text("category").default("Others/General"),
   generationMode: text("generation_mode").$type<"generate" | "import" | "review">(),
@@ -150,6 +178,13 @@ export const insertQuizResultSchema = createInsertSchema(quizResults).omit({
 
 export type InsertQuizResult = z.infer<typeof insertQuizResultSchema>;
 export type QuizResult = typeof quizResults.$inferSelect;
+
+export interface ShortAnswerGradingResult {
+  isCorrect: boolean;
+  isPartial: boolean;
+  explanation: string;
+  wrongExplanation?: string;
+}
 
 // Quiz comments table
 export const quizComments = pgTable("quiz_comments", {
@@ -195,6 +230,7 @@ export const quizProgress = pgTable("quiz_progress", {
   currentIndex: integer("current_index").default(0),
   retryAnswers: jsonb("retry_answers").$type<Record<string, string>>().default({}),
   retryCheckedQuestions: jsonb("retry_checked_questions").$type<string[]>().default([]),
+  shortAnswerGradingResults: jsonb("short_answer_grading_results").$type<Record<string, ShortAnswerGradingResult>>().default({}),
   timeTaken: integer("time_taken").default(0),
   savedAt: timestamp("saved_at").defaultNow().notNull(),
 });

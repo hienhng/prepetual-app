@@ -75,9 +75,23 @@ function renderMathInText(text: string): string {
     }
   });
   
-  // Basic markdown-like formatting for bold/italic if not handled by KaTeX
+  // Markdown headings — must run before \n→<br> so the whole line is captured
+  result = result.replace(/^### (.+)$/gm, '<h3 style="font-size:0.95em;font-weight:700;margin:0.75em 0 0.25em">$1</h3>');
+  result = result.replace(/^## (.+)$/gm,  '<h2 style="font-size:1.05em;font-weight:700;margin:0.85em 0 0.3em">$1</h2>');
+  result = result.replace(/^# (.+)$/gm,   '<h1 style="font-size:1.15em;font-weight:700;margin:1em 0 0.4em">$1</h1>');
+
+  // Horizontal rule
+  result = result.replace(/^---$/gm, '<hr style="border:none;border-top:1px solid currentColor;opacity:0.2;margin:0.75em 0">');
+
+  // Basic markdown-like formatting for bold/italic
   result = result.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   result = result.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+  // Inline code
+  result = result.replace(/`([^`]+)`/g, '<code style="font-family:monospace;font-size:0.875em;background:rgba(128,128,128,0.15);padding:0.1em 0.35em;border-radius:4px">$1</code>');
+
+  // Preserve line breaks — convert \n to <br> so multi-line AI responses aren't collapsed
+  result = result.replace(/\n/g, '<br>');
   
   return result;
 }

@@ -353,12 +353,6 @@ export default function Create() {
                         </div>
                         <div>
                           <h3 className="text-xl font-black text-foreground tracking-tight">{t('create.materialReady')}</h3>
-                          <p className="text-muted-foreground font-medium">
-                            {sourceMaterial.isImageOnly
-                              ? t('create.pagesAdded', { count: sourceMaterial.documentImages?.length || 0 })
-                              : t('create.wordsAdded', { count: getWordCount(extractedText || ""), source: getSourceLabel() })
-                            }
-                          </p>
                         </div>
                       </div>
                       <AlertDialog>
@@ -458,12 +452,12 @@ export default function Create() {
                   <Button
                     size="xl"
                     onClick={handleContinueToGenerate}
-                    className="w-full sm:min-w-[280px] h-16 gap-3 rounded-2xl font-black text-xl shadow-primary/60 transition-all group"
+                    className="w-full sm:min-w-[280px] h-16 gap-3 rounded-2xl font-black text-xl shadow-primary/120 transition-all group"
                     data-testid="button-continue-generate"
                   >
-                    <Wand2 className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                    
                     {t('create.generateQuestions')}
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-5 h-5" />
                   </Button>
                 </motion.div>
               </div>

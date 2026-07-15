@@ -16,7 +16,7 @@ async function getOfficeParser() {
   }
   return parseOffice;
 }
-import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, reviseQuizQuestions, generateReviewQuestions } from "./openai.js";
+import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
 import { generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs.js";
@@ -776,13 +776,20 @@ export async function registerRoutes(
           {
             role: "system",
             content: `You are a helpful study assistant. Summarize the given study material into clear, concise key points. 
-Keep the summary focused on the main concepts and important details that would be useful for exam preparation.
+Keep the summary focused on the main concepts, definitions, formulas, and important details that a learner should remember for exam preparation.
 If the text is in a language other than English, keep the summary in that same language.
-Format with bullet points for easy reading. Keep it under 500 words.
+Format with bullet points for easy reading.
+
+MATHEMATICAL CONTENT & LATEX (CRITICAL):
+- For ALL mathematical expressions, formulas, equations, variables (even single letters like x, y), or numeric notations with symbols, you MUST use LaTeX formatting.
+- ALWAYS wrap LaTeX in delimiters: $...$ for inline or $$...$$ for display mode.
+- DO NOT use unicode superscripts (like ², ³) or subscripts. ALWAYS use LaTeX (like $x^2$, $x_i$).
+- DO NOT use unicode symbols like √, π, ±, ∞. ALWAYS use LaTeX (like $\sqrt{}$, $\pi$, $\pm$, $\infty$).
+- DO NOT use ^ or _ without wrapping them in $...$ delimiters.
+- Ensure all LaTeX is syntactically correct for KaTeX.
 
 IMPORTANT NOTE:
-  If the material is a quiz itself, do NOT directly give the answers to the questions, your role is to simply explain the
-  concepts and explain them`
+  If the material is a sheet of problems or a quiz, do NOT provide the full solutions or direct answers to the problems. Your role is STRICTLY to extract and explain the underlying concepts, formulas, and definitions needed to solve them, without solving the problems themselves.`
           },
           {
             role: "user",
@@ -1068,16 +1075,89 @@ IMPORTANT NOTE:
     }
   });
 
+  app.post("/api/quiz/:id/generate-lecture", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const quiz = await storage.getQuiz(id);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+
+      const topicCount = Number(req.body?.topicCount) || 4;
+
+      // If there is no extracted sourceText but there are uploaded images, try to OCR them
+      let effectiveSourceText = quiz.sourceText || "";
+      const imageUrls = [quiz.sourceImageUrl, ...(quiz.sourceImages || [])].filter(Boolean) as string[];
+      if ((!effectiveSourceText || effectiveSourceText.trim().length === 0) && imageUrls.length > 0) {
+        try {
+          const extractedParts: string[] = [];
+          for (const url of imageUrls) {
+            if (!url) continue;
+            // If image is a data URL (base64), use helper available in this file
+            if (typeof url === "string" && url.startsWith("data:")) {
+              const text = await extractTextFromBase64Image(url);
+              if (text) extractedParts.push(text);
+            } else {
+              // Try fetching remote image and OCRing the buffer
+              try {
+                const fetched = await fetch(url);
+                if (fetched && fetched.ok) {
+                  const arrayBuffer = await fetched.arrayBuffer();
+                  const buf = Buffer.from(arrayBuffer);
+                  const text = await extractTextFromImage(buf);
+                  if (text) extractedParts.push(text);
+                }
+              } catch (e) {
+                // ignore per-image failures but continue
+                console.warn("Failed to fetch/ocr image:", e);
+              }
+            }
+          }
+
+          if (extractedParts.length > 0) {
+            effectiveSourceText = extractedParts.join("\n\n");
+            console.log(`[LECTURE OCR] Extracted text from ${extractedParts.length} images, totalChars=${effectiveSourceText.length}`);
+            // Also log a short preview for debugging (avoid logging huge content)
+            console.log("[LECTURE OCR PREVIEW]", effectiveSourceText.substring(0, 400).replace(/\n/g, ' '));
+          } else {
+            console.log("[LECTURE OCR] No text extracted from images");
+          }
+        } catch (e) {
+          console.warn("OCR fallback failed:", e);
+        }
+      }
+
+      console.log(`[LECTURE GEN] Calling generateLectureFromMaterial for quiz ${id} - imageUrls=${imageUrls.length}, hasSourceText=${!!(quiz.sourceText && quiz.sourceText.trim())}`);
+      const lecture = await generateLectureFromMaterial({
+        sourceText: effectiveSourceText || quiz.sourceText,
+        imageUrls: imageUrls,
+        topicCount: Math.max(2, Math.min(5, topicCount)),
+        title: quiz.title,
+        difficulty: quiz.difficulty || "medium",
+      });
+      console.log(`[LECTURE GEN] AI lecture generation returned ${lecture ? 'OK' : 'NULL'} for quiz ${id}`);
+
+      if (!lecture) {
+        return res.status(500).json({ message: "Failed to generate lecture from material" });
+      }
+
+      res.json({ lecture });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate lecture from material" });
+    }
+  });
+
   app.put("/api/quiz/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const { title, questions, isPublic, category, folderId } = req.body;
+      const { title, questions, isPublic, category, folderId, lecture } = req.body;
       const updates: any = {};
       if (title !== undefined) updates.title = title;
       if (questions !== undefined) updates.questions = questions;
       if (category !== undefined) updates.category = category;
       if (isPublic !== undefined) updates.isPublic = isPublic ? 1 : 0;
       if (folderId !== undefined) updates.folderId = folderId;
+      if (lecture !== undefined) updates.lecture = lecture;
 
       const quiz = await storage.updateQuiz(id, updates);
       if (!quiz) {
@@ -1637,7 +1717,7 @@ IMPORTANT NOTE:
   app.post("/api/quiz-progress", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { quizId, answers, checkedQuestions, currentIndex, retryAnswers, retryCheckedQuestions, timeTaken } = req.body;
+      const { quizId, answers, checkedQuestions, currentIndex, retryAnswers, retryCheckedQuestions, shortAnswerGradingResults, timeTaken } = req.body;
 
       if (!quizId || !answers) {
         return res.status(400).json({ message: "quizId and answers are required" });
@@ -1651,6 +1731,7 @@ IMPORTANT NOTE:
         currentIndex: currentIndex ?? 0,
         retryAnswers: retryAnswers ?? {},
         retryCheckedQuestions: retryCheckedQuestions ?? [],
+        shortAnswerGradingResults: shortAnswerGradingResults ?? {},
         timeTaken: timeTaken ?? 0,
       });
 
@@ -1811,11 +1892,12 @@ Rules:
 - Accept minor spelling mistakes if the intent is clearly correct
 - Be strict about factual accuracy â€” wrong facts = incorrect
 - Partial credit: if the answer is partially correct but missing key details, mark as "partial"
+- The explanation should be said in the perspective of a tutor talking to the student. Use the pronoun "you" and "your" to talk to the user. The explanation should be 2-3 sentences long.
 
 Respond in JSON format:
 {
   "isCorrect": true | false,
-  "isPartial": false,
+  "isPartial": true | false,
   "explanation": "Brief explanation of why the answer is correct/incorrect/partial. For correct answers, affirm what makes it right. For incorrect answers, explain what the correct answer should be based on the material and why theirs was wrong."
 }
 
@@ -1885,6 +1967,8 @@ The student answered a multiple choice or true/false question.
 Your job is to provide short, concise explanations formatted in JSON.
 1. "explanation": Explain clearly why the correct answer is right. For math/science, briefly show the calculation.
 2. "wrongExplanation": Explain specifically why their selected answer is incorrect (if applicable) or the common misconception it represents. If they answered correctly, you can leave this empty or explain why options are generally tricky.
+
+The explanation should be said in the perspective of a tutor talking to the student. Use the pronoun "you" and "your" to talk to the user. The explanation should be 2-3 sentences long.
 
 If the question and study material are in a non-English language, respond with the explanations in that same language.
 Always return JSON:

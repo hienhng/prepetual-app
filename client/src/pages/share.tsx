@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
-import { Loader2, Play, Sparkles, Clock, FileText } from "lucide-react";
+import { Play, Sparkles, Clock, FileText } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,8 +45,28 @@ export default function SharePage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-16 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="container mx-auto px-4 py-8 max-w-xl">
+        <div className="space-y-6">
+          {/* Logo + heading */}
+          <div className="text-center space-y-3">
+            <Skeleton className="w-16 h-16 rounded-full mx-auto" />
+            <Skeleton className="h-8 w-36 mx-auto" />
+            <Skeleton className="h-5 w-52 mx-auto" />
+          </div>
+
+          {/* Quiz card */}
+          <div className="rounded-xl border border-border/50 bg-card/40 p-6 space-y-4">
+            <Skeleton className="h-6 w-3/4 mx-auto" />
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <Skeleton className="h-5 w-24 rounded-full" />
+              <Skeleton className="h-5 w-20 rounded-full" />
+              <Skeleton className="h-5 w-16 rounded-full" />
+            </div>
+            <Skeleton className="h-14 w-full rounded-lg" />
+          </div>
+
+          <Skeleton className="h-4 w-48 mx-auto" />
+        </div>
       </div>
     );
   }

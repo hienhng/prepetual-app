@@ -17,6 +17,7 @@ import {
   Languages,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,7 +32,7 @@ import { useLanguage, type AppLanguage } from "@/lib/language-context";
 
 type ThemeOption = "light" | "dark" | "system";
 
-function useTheme() {
+export function useTheme() {
   const [theme, setThemeState] = useState<ThemeOption>(() => {
     if (typeof window !== "undefined") {
       return (localStorage.getItem("theme") as ThemeOption) || "system";
@@ -223,8 +224,53 @@ export default function Settings() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto max-w-xl px-4 py-6">
+          <div className="space-y-4">
+            {/* Page title */}
+            <div className="mb-4 space-y-2">
+              <Skeleton className="h-8 w-32" />
+              <Skeleton className="h-4 w-56" />
+            </div>
+
+            {/* Profile card */}
+            <div className="rounded-xl border border-border/50 bg-card/40 p-6 space-y-4">
+              <Skeleton className="h-5 w-20 mb-2" />
+              <div className="flex items-center gap-4">
+                <Skeleton className="w-14 h-14 rounded-full flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-10 w-full rounded-lg" />
+                </div>
+              </div>
+              <Skeleton className="h-10 w-full rounded-lg" />
+              <Skeleton className="h-10 w-full rounded-lg" />
+              <Skeleton className="h-10 w-32 rounded-lg" />
+            </div>
+
+            {/* Appearance card */}
+            <div className="rounded-xl border border-border/50 bg-card/40 p-6 space-y-4">
+              <Skeleton className="h-5 w-28 mb-2" />
+              <div className="flex gap-3">
+                <Skeleton className="h-10 flex-1 rounded-lg" />
+                <Skeleton className="h-10 flex-1 rounded-lg" />
+                <Skeleton className="h-10 flex-1 rounded-lg" />
+              </div>
+            </div>
+
+            {/* Language card */}
+            <div className="rounded-xl border border-border/50 bg-card/40 p-6 space-y-4">
+              <Skeleton className="h-5 w-24 mb-2" />
+              <Skeleton className="h-10 w-full rounded-lg" />
+            </div>
+
+            {/* Danger zone card */}
+            <div className="rounded-xl border border-destructive/30 bg-card/40 p-6 space-y-3">
+              <Skeleton className="h-5 w-28" />
+              <Skeleton className="h-4 w-64" />
+              <Skeleton className="h-10 w-36 rounded-lg" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

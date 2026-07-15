@@ -289,7 +289,8 @@ export async function seedPublicQuizzes() {
       await storage.saveQuiz({
         ...seed,
         userId: user.id,
-      });
+        lecture: seed.lecture || undefined,
+      } as any);
     }
 
     console.log(`Seeded ${missingSeeds.length} curated public quizzes for ${CURATED_USER_EMAIL}`);

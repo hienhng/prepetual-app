@@ -12,7 +12,7 @@ import { GlobalUploadIndicator } from "@/components/global-upload-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useAuth } from "@/hooks/useAuth";
-import { LogIn, LogOut, User, Menu, Settings as SettingsIcon } from "lucide-react";
+import { LogIn, LogOut, User, Menu, Settings as SettingsIcon, HelpCircle, Mail } from "lucide-react";
 import logoImage from "@assets/image_1765894870887.png";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,6 +20,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -171,11 +172,11 @@ function PublicHeader() {
             <img
               src={logoImage}
               alt="Prepetual Logo"
-              className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 transition-transform duration-500"
+              className="w-9 h-9 rounded-full object-cover  transition-transform duration-500"
             />
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </div>
-          <span className="pb-0.5 text-2xl font-brand font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text hidden sm:inline tracking-tight custom-highlight">
+          <span className="pb-1 text-2xl font-brand font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text hidden sm:inline tracking-tight custom-highlight">
             prepetual
           </span>
         </Link>
@@ -188,7 +189,7 @@ function PublicHeader() {
                 variant="ghost"
                 size="sm"
                 onClick={openLoginDialog}
-                className="rounded-full text-sm font-semibold hover:bg-foreground/5 transition-all duration-300"
+                className="rounded-full text-sm font-semibold hover:bg-foreground/5 hover:text-primary transition-all duration-100 px-8 py-2"
                 data-testid="button-login"
               >
                 {t("publicHeader.login")}
@@ -266,16 +267,27 @@ function AuthenticatedHeader() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem className="text-muted-foreground" disabled>
-              <User className="h-4 w-4 mr-2" />
-              {user?.email || "User"}
-            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/settings" data-testid="link-settings-mobile">
                 <SettingsIcon className="h-4 w-4 mr-2" />
                 {t("common.settings")}
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/help" data-testid="sidebar-help">
+                <HelpCircle className="h-4 w-4 mr-2" />
+                {t("sidebar.helpCenter")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/contact" data-testid="sidebar-contact">
+                <Mail className="h-4 w-4 mr-2" />
+                {t("sidebar.contactUs")}
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
             <DropdownMenuItem
               onClick={async () => {
                 await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
@@ -299,7 +311,7 @@ function AuthenticatedLayout() {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
   const showFooter = location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
-  const hideSidebar = location === "/quiz" || location === "/quiz-results" || location === "/revision-summary" || location === "/onboarding";
+  const hideSidebar = location === "/quiz" || location === "/quiz-results" || location === "/revision-summary" || location === "/onboarding" || location === "/study";
 
   // Redirect to onboarding if not completed
   useEffect(() => {

@@ -828,7 +828,8 @@ function AIQuizzesChar({ char, index }: { char: string; index: number }) {
 }
 
 function AIQuizzesText() {
-  const chars = "talk back".split("");
+  const { t } = useLanguage();
+  const chars = t('home.hero.talkBack').split("");
   const charRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const waveRunning = useRef(false);
 
@@ -1261,9 +1262,13 @@ function HowItWorksGallery() {
             <motion.div
               key={i}
               className="p-4 rounded-2xl bg-violet-400/5 border border-violet-400/15 group/q relative overflow-hidden"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.15 }}
+              initial={{ opacity: 0, y: 20, filter: "blur(16px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ 
+                opacity: { duration: 0.4, delay: i * 0.15 },
+                y: { duration: 0.4, delay: i * 0.15 },
+                filter: { duration: 1.5, delay: 0.8 + i * 0.2 }
+              }}
             >
               <div className="absolute top-0 right-0 p-2 opacity-50">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
@@ -1331,10 +1336,10 @@ function HowItWorksGallery() {
             </div>
           </motion.div>
           <div className="grid grid-cols-2 gap-3">
-            <Button className="rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-12">
+            <Button className="rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-12 shadow-emerald-800 border-emerald-200">
               <Play className="w-4 h-4 mr-2" /> {t("home.howItWorks.steps.learn.startQuiz")}
             </Button>
-            <Button variant="outline" className="rounded-2xl border-emerald-500/20 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 h-12" onClick={() => window.location.href = '#study'}>
+            <Button variant="outline" className="rounded-2xl border-emerald-500/20 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 h-12">
               <BookOpen className="w-4 h-4 mr-2" /> {t("home.howItWorks.steps.learn.study")}
             </Button>
           </div>
@@ -1499,14 +1504,14 @@ function HowItWorksGallery() {
                 }}
                 className={cn(
                   "h-1.5 transition-all duration-700 rounded-full",
-                  activeStep === i ? "w-12 bg-primary" : "w-2 bg-white/20 hover:bg-white/40"
+                  activeStep === i ? "w-12 bg-primary" : "w-2 bg-foreground/20 hover:bg-foreground/40"
                 )}
               />
             ))}
           </div>
           <button
             onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-            className="text-white/40 hover:text-white transition-colors"
+            className="text-foreground/40 hover:text-foreground transition-colors"
           >
             {isAutoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </button>
@@ -1965,7 +1970,7 @@ function FeatureShowcase() {
       description: t("home.features.studyMode.desc"),
       color: "orange",
       details:
-        "Flip through questions as flashcards. Mark each card as 'known' or 'still learning' to track your progress. Cards you're still learning will appear more frequently until you master them.",
+        "Read or generate custom study lectures structured from your material. Study topics slide-by-slide, view concise summaries, and take quick custom revision quizzes to solidify understanding.",
     },
     {
       icon: RotateCcw,
@@ -2411,7 +2416,7 @@ function ParsingShowcase() {
                 </motion.div>
               )}
             </div>
-            <Card className={`transition-all duration-700 ${phase === "result" ? "border-primary/30 shadow-2xl shadow-primary/5" : "opacity-30 grayscale border-border/40"}`}>
+            <Card className={`transition-all duration-700 ${phase === "result" ? "border-primary/30 shadow-2xl shadow-primary/5" : "opacity-30 grayscale blur-sm border-border/40"}`}>
               <CardContent className="p-8 space-y-6 text-pretty">
                 {convertedQuestions.map((q, i) => {
                   const active = phase === "result" && i === activeQuestion;
@@ -3143,9 +3148,6 @@ export default function Home() {
             animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
           />
-          <div className="absolute inset-x-0 flex items-center justify-center opacity-[0.025] select-none whitespace-nowrap overflow-hidden">
-            <span className="text-[25vw] font-black tracking-tighter uppercase leading-none transform translate-y-1/2">PREPETUAL</span>
-          </div>
         </div>
 
         <div className="container relative mx-auto px-4 sm:px-6">

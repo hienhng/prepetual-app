@@ -7,6 +7,7 @@ import {
   CheckCircle2, XCircle, Clock, Loader2, ChevronDown, Sparkles,
   History, Star, Search, X, Filter, Eye
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { getCategoryIcon, getCategoryTranslationKey } from "@/lib/category-icons";
 import { Card, CardContent } from "@/components/ui/card";
@@ -305,7 +306,7 @@ const containerVariants = {
 export default function ResultsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
+  const[, setLocation] = useLocation();
   const { t } = useLanguage();
 
   const { data: history = [], isLoading } = useQuery<ResultHistoryItem[]>({
@@ -352,9 +353,45 @@ export default function ResultsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-32">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-        <span className="ml-2 text-muted-foreground">{t('common.loading')}</span>
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <div className="space-y-8">
+          {/* Title + stats pill row */}
+          <section>
+            <div className="flex items-end justify-between gap-4 flex-wrap mb-2">
+              <div className="space-y-2">
+                <Skeleton className="h-9 w-52" />
+                <Skeleton className="h-5 w-64" />
+              </div>
+              <Skeleton className="h-8 w-36 rounded-full" />
+            </div>
+
+            {/* Search + filter */}
+            <div className="flex flex-col sm:flex-row gap-3 mt-4">
+              <Skeleton className="h-11 flex-1 rounded-lg" />
+              <Skeleton className="h-11 w-full sm:w-44 rounded-lg" />
+            </div>
+          </section>
+
+          {/* Result cards */}
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="rounded-2xl border border-border/50 bg-card/40 p-5 space-y-4">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="w-12 h-12 rounded-xl flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-5 w-2/3" />
+                    <div className="flex gap-2">
+                      <Skeleton className="h-4 w-16 rounded-full" />
+                      <Skeleton className="h-4 w-14 rounded-full" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-8 w-20 rounded-lg flex-shrink-0" />
+                </div>
+                <Skeleton className="h-2 w-full rounded-full" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -388,7 +425,7 @@ export default function ResultsPage() {
               </div>
               <h3 className="text-xl font-bold mb-2">{t('results.noResultsYet')}</h3>
               <p className="text-muted-foreground mb-8 max-w-sm mx-auto">{t('results.noResultsDesc')}</p>
-              <Button size="lg" className="font-bold rounded-full px-8 shadow-lg shadow-primary/20" onClick={() => window.location.href = "/create"}>
+              <Button size="lg" className="font-bold rounded-full px-8 shadow-lg shadow-primary/20" onClick={() => setLocation("/create")}>
                 {t('results.createQuiz')}
               </Button>
             </CardContent>

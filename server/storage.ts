@@ -25,6 +25,7 @@ import {
   type InsertFolder,
   type Folder,
   type Question,
+  type GeneratedLecture,
   type VerificationToken,
   type BugReport,
   type InsertBugReport
@@ -194,6 +195,7 @@ export class DatabaseStorage implements IStorage {
       sourceImageUrl: quiz.sourceImageUrl,
       sourceImages: (quiz.sourceImages as string[]) || null,
       questions: quiz.questions as Question[],
+      lecture: (quiz.lecture as GeneratedLecture | null) || null,
       difficulty: quiz.difficulty || "medium",
       category: quiz.category || "Others/General",
       generationMode: quiz.generationMode || "generate",
@@ -263,6 +265,7 @@ export class DatabaseStorage implements IStorage {
     if (updates.sourceText !== undefined) updateData.sourceText = updates.sourceText;
     if (updates.sourceImageUrl !== undefined) updateData.sourceImageUrl = updates.sourceImageUrl;
     if (updates.questions !== undefined) updateData.questions = updates.questions as Question[];
+    if (updates.lecture !== undefined) updateData.lecture = updates.lecture as GeneratedLecture | null;
     if (updates.difficulty !== undefined) updateData.difficulty = updates.difficulty;
     if (updates.category !== undefined) updateData.category = updates.category;
     if (updates.isPublic !== undefined) updateData.isPublic = updates.isPublic;
@@ -584,6 +587,8 @@ export class DatabaseStorage implements IStorage {
           category: quizzes.category,
           generationMode: quizzes.generationMode,
           sourceImageUrl: quizzes.sourceImageUrl,
+          sourceImages: quizzes.sourceImages,
+          sourceText: quizzes.sourceText,
           createdAt: quizzes.createdAt,
           questions: quizzes.questions,
           questionCount: sql<number>`jsonb_array_length(${quizzes.questions})`,
@@ -617,6 +622,7 @@ export class DatabaseStorage implements IStorage {
         currentIndex: progress.currentIndex ?? 0,
         retryAnswers: (progress.retryAnswers as Record<string, string>) ?? {},
         retryCheckedQuestions: (progress.retryCheckedQuestions as string[]) || [],
+        shortAnswerGradingResults: (progress.shortAnswerGradingResults as Record<string, any>) ?? {},
         timeTaken: progress.timeTaken || 0,
       } as any)
       .returning();

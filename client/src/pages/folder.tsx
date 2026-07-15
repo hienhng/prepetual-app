@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, useParams } from "wouter";
 import { motion } from "framer-motion";
-import { Play, BookOpen, Share2, Trash2, Loader2, Edit2, Globe, GlobeLock, Circle, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, Sparkles, MoreVertical, Pencil, X, ArrowLeft, Plus, FolderOpen, Check, Pin, PinOff, BookText, Globe2 } from "lucide-react";
+import { Play, BookOpen, Share2, Trash2, Edit2, Globe, GlobeLock, Circle, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, Sparkles, MoreVertical, Pencil, X, ArrowLeft, Plus, FolderOpen, Check, Pin, PinOff, BookText, Globe2, Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getCategoryIcon, getCategoryTranslationKey } from "@/lib/category-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -332,9 +333,43 @@ export default function FolderPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-16 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-muted-foreground">{t('common.loading')}</span>
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-4xl">
+        <div className="space-y-5">
+          {/* Back button + title row */}
+          <div className="space-y-4">
+            <Skeleton className="h-8 w-24 rounded-lg" />
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-2">
+                <Skeleton className="h-7 w-52" />
+                <Skeleton className="h-4 w-36" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-8 w-28 rounded-lg" />
+                <Skeleton className="h-8 w-8 rounded-lg" />
+              </div>
+            </div>
+          </div>
+
+          {/* Quiz list */}
+          <div className="space-y-2">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-center gap-4 p-3 sm:p-4 rounded-xl border border-border/40 bg-card/40">
+                <Skeleton className="w-10 h-10 rounded-xl flex-shrink-0" />
+                <div className="flex-1 space-y-2 min-w-0">
+                  <Skeleton className="h-4 w-3/4" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-3.5 w-16 rounded-md" />
+                    <Skeleton className="h-3.5 w-14 rounded-md" />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Skeleton className="h-8 w-8 rounded-lg hidden sm:block" />
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -347,7 +382,7 @@ export default function FolderPage() {
         </div>
         <h2 className="text-lg font-semibold mb-2">{t('history.folderNotFound')}</h2>
         <p className="text-sm text-muted-foreground mb-5">{t('history.folderNotFoundDesc')}</p>
-        <Button onClick={() => setLocation("/history")} data-testid="button-back-to-archive">
+        <Button onClick={() => window.history.back()} data-testid="button-back-to-archive">
           <ArrowLeft className="h-4 w-4 mr-2" />
           {t('history.backToArchive')}
         </Button>
@@ -369,7 +404,7 @@ export default function FolderPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setLocation("/history")}
+            onClick={() => window.history.back()}
             className="-ml-2 text-muted-foreground"
             data-testid="button-back-to-archive"
           >

@@ -3,18 +3,20 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { 
-  Search, Play, Loader2, Users, BookOpen, 
+  Search, Play, Users, BookOpen, 
   Sparkles, Clock, Target, Zap, 
   Lightbulb, TrendingUp, CheckCircle2, BadgeCheck,
-  Star, Compass, LayoutGrid, GraduationCap, FileHeart, CirclePlus
+  Star, Compass, LayoutGrid, GraduationCap, FileHeart, CirclePlus, Share2
 } from "lucide-react";
 import { getCategoryIcon, getCategoryGradient, getCategoryLabel, getCategoryTranslationKey, categoryConfig } from "@/lib/category-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import {
@@ -65,8 +67,15 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
   const [, setLocation] = useLocation();
   const { setCurrentQuiz, setSourceMaterial } = useQuiz();
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+  const handleShare = (quizId: string) => {
+    const url = `${window.location.origin}/share/${quizId}`;
+    navigator.clipboard.writeText(url);
+    toast({ title: t('history.linkCopied'), description: t('history.linkCopiedDesc') });
+  };
 
   const setupQuiz = () => {
     setCurrentQuiz({
@@ -129,6 +138,10 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
   const diffConfig = getDifficultyConfig(quiz.difficulty);
   const categoryGradient = getCategoryGradientLocal(quiz.category);
   const questionCount = (quiz.questions as any[]).length;
+  const topicCount = quiz.lecture?.topics?.length || 0;
+  const readMinutes = Math.max(1, Math.ceil(((quiz.lecture?.topics || []).reduce((acc, topic) => {
+    return acc + (topic.sections || []).reduce((sectionAcc, section) => sectionAcc + (section.content || "").split(/\s+/).filter(Boolean).length, 0);
+  }, 0) || 0) / 220));
   const CategoryIcon = getCategoryIconLocal(quiz.category);
   const isCurated = quiz.author?.email === "giahienhn@gmail.com";
   const recConfig = getRecommendationConfig();
@@ -186,13 +199,18 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
               <h3 className="font-semibold text-foreground leading-snug line-clamp-2 mb-3 group-hover:text-primary transition-colors">
                 {quiz.title}
               </h3>
+              
 
               <div className="mt-auto space-y-3">
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className={`text-[10px] px-2 py-0.5 ${diffConfig.bg} ${diffConfig.color} border-0`}>
                     {diffConfig.label}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">{t('history.questions', { count: questionCount })}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {topicCount > 0
+                      ? `${topicCount} topics | ${readMinutes} min read`
+                      : t('history.questions', { count: questionCount })}
+                  </span>
                 </div>
                 
                 <div className="flex items-center justify-between">
@@ -207,15 +225,17 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                       {getAuthorName(quiz.author)}
                     </span>
                   </div>
-                  <motion.div 
-                    className="flex items-center gap-1 text-xs text-primary font-medium"
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -8 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <span>{t('feed.play')}</span>
-                    <Play className="h-3 w-3 fill-primary" />
-                  </motion.div>
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <motion.div 
+                      className="flex items-center gap-1 text-xs text-primary font-medium pointer-events-none"
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -8 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <span>{t('feed.play')}</span>
+                      <Play className="h-3 w-3 fill-primary" />
+                    </motion.div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -257,9 +277,23 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
 
           <div className="p-5 space-y-4">
             <DialogHeader className="text-left">
-              <DialogTitle className="text-lg font-bold leading-snug">
-                {quiz.title}
-              </DialogTitle>
+              <div className="flex items-start justify-between gap-4">
+                <DialogTitle className="text-lg font-bold leading-snug flex-1">
+                  {quiz.title}
+                </DialogTitle>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare(quiz.id);
+                  }}
+                  data-testid={`button-share-dialog-${quiz.id}`}
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </div>
             </DialogHeader>
 
             <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
@@ -280,8 +314,8 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
+            <div className="flex gap-3">
+              <div className="flex-1">
                 <Button
                   variant="outline"
                   className="w-full h-12 gap-2 hover:bg-blue-500/5 hover:border-blue-500/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
@@ -293,7 +327,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                 </Button>
               </div>
 
-              <div>
+              <div className="flex-1">
                 <Button
                   className="w-full h-12 gap-2"
                   onClick={handleTakeQuiz}
@@ -303,6 +337,8 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                   <span className="font-medium">{t('feed.takeQuiz')}</span>
                 </Button>
               </div>
+
+              
             </div>
           </div>
         </DialogContent>
@@ -374,10 +410,50 @@ export default function Feed() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">{t('common.loading')}</p>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-6 py-8 max-w-7xl">
+          {/* Header */}
+          <div className="space-y-2 mb-10">
+            <Skeleton className="h-9 w-48" />
+            <Skeleton className="h-5 w-72" />
+          </div>
+
+          {/* Search bar */}
+          <Skeleton className="h-12 w-full max-w-xl rounded-xl mb-8" />
+
+          {/* Category pills */}
+          <div className="flex flex-wrap gap-2 mb-10">
+            {[...Array(8)].map((_, i) => (
+              <Skeleton key={i} className="h-9 w-24 rounded-full" />
+            ))}
+          </div>
+
+          {/* Stats row */}
+          <div className="flex items-center gap-8 mb-10">
+            <Skeleton className="h-5 w-28" />
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-5 w-24" />
+          </div>
+
+          {/* Quiz card grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="rounded-2xl border border-border/50 bg-card/40 overflow-hidden">
+                <Skeleton className="h-32 w-full rounded-none" />
+                <div className="p-4 space-y-3">
+                  <Skeleton className="h-5 w-3/4" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-4 w-16 rounded-full" />
+                    <Skeleton className="h-4 w-14 rounded-full" />
+                  </div>
+                  <div className="flex items-center justify-between pt-1">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-8 w-20 rounded-lg" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );

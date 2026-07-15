@@ -4,6 +4,7 @@ import { FileText, Image, X, ZoomIn, ChevronLeft, ChevronRight, Loader2, BookChe
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/language-context';
 import { apiRequest } from '@/lib/queryClient';
+import { MathText } from '@/components/formatted-text';
 
 interface MaterialPaneProps {
   materialImages: string[];
@@ -85,8 +86,8 @@ const MaterialContent: React.FC<{
   if (viewMode === 'text' && hasText) {
     return (
       <div className="space-y-4">
-        <div className="rounded-3xl border border-border/70 bg-card p-4 text-sm leading-7 text-muted-foreground whitespace-pre-wrap shadow-sm">
-          {materialText}
+        <div className="rounded-3xl border border-border/70 bg-card p-4 text-sm leading-7 text-muted-foreground shadow-sm mb-11">
+          <MathText content={materialText} />
         </div>
         {error && (
           <div className="rounded-3xl border border-red-300 bg-red-50 dark:bg-red-950 p-4 text-sm text-red-700 dark:text-red-300 shadow-sm">
@@ -99,10 +100,10 @@ const MaterialContent: React.FC<{
 
   if (viewMode === 'summary' && summary) {
     return (
-      <div className="space-y-4">
-        <div className="rounded-3xl border border-border/70 bg-background p-4 text-sm leading-7 text-foreground whitespace-pre-wrap shadow-sm">
+      <div className="space-y-4 pb-11">
+        <div className="rounded-3xl border border-border/70 bg-background p-4 text-sm leading-7 text-foreground shadow-sm">
           <p className="mb-3 text-sm font-semibold text-foreground">Study summary</p>
-          {summary}
+          <MathText content={summary} />
         </div>
         {error && (
           <div className="rounded-3xl border border-red-300 bg-red-50 dark:bg-red-950 p-4 text-sm text-red-700 dark:text-red-300 shadow-sm">
@@ -126,14 +127,6 @@ const MaterialContent: React.FC<{
           <div className="absolute left-4 top-4 rounded-full bg-background/90 px-3 py-1 border border-border text-[11px] font-semibold text-muted-foreground shadow-sm">
             {imageIndex + 1} / {materialImages.length}
           </div>
-          <Button
-            variant="secondary"
-            size="icon"
-            className="absolute right-4 top-4 h-9 w-9 rounded-full bg-background/70 border border-border/70"
-            onClick={() => onImageExpand(materialImages[imageIndex])}
-          >
-            <ZoomIn className="h-4 w-4" />
-          </Button>
         </div>
 
         {materialImages.length > 1 && (
@@ -171,99 +164,179 @@ const MobileView: React.FC<{
   materialImages: string[];
   materialText: string;
   state: MaterialState;
+  onViewModeChange: (mode: ViewMode) => void;
   onImageSelect: (index: number) => void;
   onImageExpand: (url: string) => void;
-}> = ({ isOpen, onClose, materialImages, materialText, state, onImageSelect, onImageExpand }) => {
+  onSummarize: () => void;
+}> = ({
+  isOpen,
+  onClose,
+  materialImages,
+  materialText,
+  state,
+  onViewModeChange,
+  onImageSelect,
+  onImageExpand,
+  onSummarize,
+}) => {
   const { t } = useLanguage();
   const hasImages = materialImages.length > 0;
   const hasText = Boolean(materialText.trim());
 
   return (
     <AnimatePresence>
-      {isOpen && (hasImages || hasText) && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-black/90 flex flex-col"
-          onClick={onClose}
-        >
-          <div className="flex items-center justify-between p-4 border-b border-white/10 shrink-0">
-            <div className="flex items-center gap-3">
-              {hasImages ? (
-                <Image className="h-5 w-5 text-white/80" />
-              ) : (
-                <FileText className="h-5 w-5 text-white/80" />
-              )}
-              <span className="text-white font-medium">
-                {hasImages && materialImages.length > 1
-                  ? t('quizPlayer.imagesCount', { current: state.imageIndex + 1, total: materialImages.length })
-                  : t('quizPlayer.studyMaterial')}
-              </span>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white hover:bg-white/10"
-              onClick={onClose}
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[99] bg-black/60 backdrop-blur-sm"
+            onClick={onClose}
+          />
 
-          <div className="flex-1 flex flex-col p-4 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            {hasText && !hasImages ? (
-              <div className="w-full text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap select-text p-4 bg-zinc-900 rounded-lg shadow-sm border border-white/10">
-                {materialText}
-              </div>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center relative">
-                {materialImages.length > 1 && (
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="absolute left-0 z-10 rounded-full shadow-lg"
-                    onClick={() => onImageSelect(state.imageIndex > 0 ? state.imageIndex - 1 : materialImages.length - 1)}
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </Button>
+          {/* Bottom Sheet */}
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 20, stiffness: 150 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0.1, bottom: 1 }}
+            onDragEnd={(e, info) => {
+              if (info.velocity.y > 20 || info.offset.y > 120) {
+                onClose();
+              }
+            }}
+            className="fixed bottom-0 left-0 right-0 z-[100] bg-background/95 backdrop-blur-md rounded-t-3xl shadow-2xl flex flex-col border-t border-border/60"
+            style={{ maxHeight: '85vh' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Drag Handle */}
+            <div className="flex justify-center pt-3 pb-1 shrink-0">
+              <div className="w-10 h-1 rounded-full bg-border" />
+            </div>
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3 border-b border-border/60 shrink-0">
+              <div className="flex items-center gap-2">
+                {state.viewMode === 'images' ? (
+                  <Image className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <FileText className="h-4 w-4 text-muted-foreground" />
                 )}
-                <img
-                  src={materialImages[state.imageIndex]}
-                  alt={`Study material ${state.imageIndex + 1}`}
-                  className="max-w-full max-h-[85vh] object-contain rounded-lg"
-                />
-                {materialImages.length > 1 && (
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="absolute right-0 z-10 rounded-full shadow-lg"
-                    onClick={() => onImageSelect(state.imageIndex < materialImages.length - 1 ? state.imageIndex + 1 : 0)}
+                <span className="text-sm font-semibold text-foreground">
+                  {state.viewMode === 'images' && materialImages.length > 1
+                    ? t('quizPlayer.imagesCount', { current: state.imageIndex + 1, total: materialImages.length })
+                    : t('quizPlayer.studyMaterial')}
+                </span>
+              </div>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={onClose}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Tabs / Segmented controls for switching modes */}
+            {hasImages && hasText && (
+              <div className="px-5 py-2.5 bg-muted/20 border-b border-border/40 shrink-0">
+                <div className="grid grid-cols-2 gap-2 bg-muted/40 p-1 rounded-full border border-border/50">
+                  <button
+                    type="button"
+                    onClick={() => onViewModeChange('images')}
+                    className={`rounded-full py-1.5 text-xs font-bold transition-all duration-200 ${
+                      state.viewMode === 'images'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
                   >
-                    <ChevronRight className="h-5 w-5" />
+                    {t('quizPlayer.viewImages')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onViewModeChange('text')}
+                    className={`rounded-full py-1.5 text-xs font-bold transition-all duration-200 ${
+                      state.viewMode === 'text' || state.viewMode === 'summary'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {t('quizPlayer.viewText')}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Summarize CTA section — always shown when text material exists */}
+            {hasText && (state.viewMode === 'text' || state.viewMode === 'summary' || !hasImages) && (
+              <div className="px-5 py-2.5 border-b border-border/40 shrink-0 flex items-center justify-between gap-3 bg-muted/10">
+                <div className="flex items-center gap-1.5">
+                  <BookCheck className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {state.viewMode === 'summary' ? 'Showing AI summary' : 'Extracted text'}
+                  </span>
+                </div>
+
+                {state.summary ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="rounded-full text-xs h-8 px-4 shrink-0"
+                    onClick={() => onViewModeChange(state.viewMode === 'summary' ? 'text' : 'summary')}
+                  >
+                    {state.viewMode === 'summary' ? 'View original' : 'View summary'}
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="rounded-full text-xs h-8 px-4 shrink-0"
+                    onClick={onSummarize}
+                    disabled={state.isSummarizing}
+                  >
+                    {state.isSummarizing ? (
+                      <>
+                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                        <span>Summarizing...</span>
+                      </>
+                    ) : (
+                      <span>Summarize</span>
+                    )}
                   </Button>
                 )}
               </div>
             )}
-          </div>
 
-          {hasImages && materialImages.length > 1 && (
-            <div className="flex justify-center gap-2 p-4 border-t border-white/10 shrink-0">
-              {materialImages.map((_: string, idx: number) => (
-                <button
-                  key={idx}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onImageSelect(idx);
-                  }}
-                  className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                    idx === state.imageIndex ? 'bg-white' : 'bg-white/30'
-                  }`}
-                />
-              ))}
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <MaterialContent
+                viewMode={state.viewMode}
+                materialText={materialText}
+                materialImages={materialImages}
+                imageIndex={state.imageIndex}
+                summary={state.summary}
+                error={state.error}
+                onImageSelect={onImageSelect}
+                onImageExpand={onImageExpand}
+              />
             </div>
-          )}
-        </motion.div>
+
+            {/* Safe area spacer */}
+            <div className="h-safe-area-inset-bottom shrink-0 pb-4" />
+            {state.summary ? (
+              <div className="flex items-center justify-center gap-2 py-2 border-t border-border/40 bg-muted/10">
+                <span className="text-center text-sm italic text-muted-foreground">
+                  AI generated content might be inaccurate. Check for mistakes.
+                </span>
+              </div>
+            ) : (
+              <></>
+            )}
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );
@@ -301,34 +374,6 @@ const DesktopView: React.FC<{
   const hasImages = materialImages.length > 0;
   const hasText = Boolean(materialText.trim());
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDraggingRef.current) return;
-      const containerWidth = window.innerWidth;
-      const deltaX = e.clientX - dragStartXRef.current;
-      const deltaPercent = (deltaX / containerWidth) * 100;
-      const newWidth = Math.min(70, Math.max(20, dragStartWidthRef.current - deltaPercent));
-      onPanelWidthChange(newWidth);
-    };
-
-    const handleMouseUp = () => {
-      if (isDraggingRef.current) {
-        isDraggingRef.current = false;
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
-      }
-    };
-
-    if (isDraggingRef.current) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [onPanelWidthChange]);
-
   const handleDragStart = (e: React.MouseEvent) => {
     isDraggingRef.current = true;
     dragStartXRef.current = e.clientX;
@@ -336,6 +381,26 @@ const DesktopView: React.FC<{
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
     e.preventDefault();
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return;
+      const containerWidth = window.innerWidth;
+      const deltaX = dragStartXRef.current - e.clientX;
+      const deltaPercent = (deltaX / containerWidth) * 100;
+      const newWidth = Math.min(70, Math.max(20, dragStartWidthRef.current - deltaPercent));
+      onPanelWidthChange(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      isDraggingRef.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
   };
 
   return (
@@ -534,7 +599,7 @@ export const MaterialPane: React.FC<MaterialPaneProps> = ({
     }
   };
 
-  if (!isOpen || (!hasImages && !hasText)) {
+  if (!isOpen) {
     return null;
   }
 
@@ -547,8 +612,10 @@ export const MaterialPane: React.FC<MaterialPaneProps> = ({
           materialImages={materialImages}
           materialText={materialText}
           state={materialState.state}
+          onViewModeChange={materialState.setViewMode}
           onImageSelect={materialState.setImageIndex}
           onImageExpand={setExpandedImageUrl}
+          onSummarize={handleSummarize}
         />
       ) : (
         <DesktopView
