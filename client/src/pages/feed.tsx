@@ -140,7 +140,9 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
   const questionCount = (quiz.questions as any[]).length;
   const topicCount = quiz.lecture?.topics?.length || 0;
   const readMinutes = Math.max(1, Math.ceil(((quiz.lecture?.topics || []).reduce((acc, topic) => {
-    return acc + (topic.sections || []).reduce((sectionAcc, section) => sectionAcc + (section.content || "").split(/\s+/).filter(Boolean).length, 0);
+    return acc + (topic.slides || []).reduce((slideAcc, slide) => {
+      return slideAcc + (slide.body || []).join(" ").split(/\s+/).filter(Boolean).length;
+    }, 0);
   }, 0) || 0) / 220));
   const CategoryIcon = getCategoryIconLocal(quiz.category);
   const isCurated = quiz.author?.email === "giahienhn@gmail.com";

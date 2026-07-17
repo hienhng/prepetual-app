@@ -39,6 +39,70 @@ export type ImageClassification = {
   reason?: string;
 };
 
+export async function extractTextFromImagesWithVision(imageUrls: string[]): Promise<string> {
+  if (imageUrls.length === 0) {
+    return "";
+  }
+
+  const images = imageUrls.slice(0, 6).map((url) => ({
+    type: "image_url" as const,
+    image_url: { url, detail: "high" as const },
+  }));
+
+  try {
+    const content = await pRetry(
+      async () => {
+        const completion = await openai.chat.completions.create({
+          model: "meta-llama/llama-4-scout-17b-16e-instruct",
+          messages: [{
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "Transcribe every readable word from these study-material images. Preserve headings, lists, questions, equations, and answer choices. Return only JSON in this exact shape: {\"texts\":[{\"index\":0,\"text\":\"...\"}]}. Use an empty string when an image has no readable text.",
+              },
+              ...images,
+            ],
+          }],
+          response_format: { type: "json_object" },
+          max_tokens: 6000,
+        });
+
+        const response = completion.choices[0]?.message?.content;
+        if (!response) {
+          throw new Error("Empty response from vision text extraction");
+        }
+        return response;
+      },
+      {
+        retries: 2,
+        minTimeout: 1000,
+        maxTimeout: 8000,
+        onFailedAttempt: (error: any) => {
+          console.log(`Vision text extraction retry (attempt ${error.attemptNumber}): ${error.message || error}`);
+          if (!isRateLimitError(error)) {
+            throw error;
+          }
+        },
+      },
+    );
+
+    const parsed = JSON.parse(content);
+    if (!Array.isArray(parsed.texts)) {
+      return "";
+    }
+
+    return parsed.texts
+      .sort((a: { index?: number }, b: { index?: number }) => (a.index ?? 0) - (b.index ?? 0))
+      .map((item: { text?: unknown }) => typeof item.text === "string" ? item.text.trim() : "")
+      .filter(Boolean)
+      .join("\n\n");
+  } catch (error) {
+    console.error("Vision text extraction error:", error);
+    return "";
+  }
+}
+
 export async function classifyImages(
   imageUrls: string[],
   onProgress?: ProgressCallback,

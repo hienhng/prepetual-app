@@ -5,24 +5,24 @@ import { motion } from "framer-motion";
 import {
   Plus, BookOpen, Play, Target,
   Clock, FileText, Sparkles, ArrowRight,
-  Brain, GraduationCap, Lightbulb, ChartNoAxesColumn, ChevronLeft, ChevronRight, X,
+  Brain, GraduationCap, Lightbulb, CalendarCheck, CheckCircle2, XCircle, ChevronLeft, ChevronRight, X,
   Calculator, Languages, FlaskConical, Globe2, HelpCircle, BookText, Zap,
   Binary, Book, Globe
 } from "lucide-react";
 import { getCategoryIcon, getCategoryTranslationKey } from "@/lib/category-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faFileLines,
-  faBullseye,
-  faChartSimple,
-  faComment,
-  faMessage
-} from "@fortawesome/free-solid-svg-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,7 +36,7 @@ import {
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/language-context";
-import type { Quiz } from "@shared/schema";
+import type { Question, Quiz } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 
 
@@ -74,9 +74,14 @@ const difficultyColors: Record<string, { border: string, from: string, via: stri
   }
 };
 
-interface UserStats {
-  averageAccuracy: number;
-  totalAttempts: number;
+interface ResultHistoryItem {
+  quizId: string;
+  date: string;
+}
+
+interface DailyRevision {
+  quiz: Quiz;
+  questions: Question[];
 }
 
 // Learning tips are now handled via useLanguage in the component
@@ -109,108 +114,6 @@ const floatAnimation = {
     ease: "easeInOut",
   },
 };
-
-function CountingNumber({ value, duration = 2 }: { value: number | string, duration?: number }) {
-  const [displayValue, setDisplayValue] = useState(0);
-  const targetValue = typeof value === 'number' ? value : parseInt(String(value).replace(/[^0-9]/g, '')) || 0;
-  const isPercent = typeof value === 'string' && value.includes('%');
-
-  useEffect(() => {
-    let start = 0;
-    const end = targetValue;
-    if (start === end) {
-      setDisplayValue(end);
-      return;
-    }
-
-    const timer = setInterval(() => {
-      start += Math.ceil(end / (duration * 60));
-      if (start >= end) {
-        setDisplayValue(end);
-        clearInterval(timer);
-      } else {
-        setDisplayValue(start);
-      }
-    }, 1000 / 60);
-
-    return () => clearInterval(timer);
-  }, [targetValue, duration]);
-
-  return <>{isPercent ? `${displayValue}%` : displayValue}</>;
-}
-
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-  isActive = true,
-  onClick,
-  color = "blue"
-}: {
-  label: string;
-  value: number | string;
-  icon: any;
-  isActive?: boolean;
-  onClick?: () => void;
-  color?: "blue" | "violet" | "emerald";
-}) {
-  const colorSchemes = {
-    blue: {
-      bg: "bg-blue-50/50 dark:bg-blue-500/5",
-      border: "border-blue-100 dark:border-blue-500/10",
-      iconBg: "bg-blue-500/10 dark:bg-blue-500/20",
-      iconText: "text-blue-600 dark:text-blue-400",
-      shadow: "shadow-[0_4px_0_0_var(--stat-blue-shadow)]"
-    },
-    violet: {
-      bg: "bg-violet-50/50 dark:bg-violet-500/5",
-      border: "border-violet-100 dark:border-violet-500/10",
-      iconBg: "bg-violet-500/10 dark:bg-violet-500/20",
-      iconText: "text-violet-600 dark:text-violet-400",
-      shadow: "shadow-[0_4px_0_0_var(--stat-violet-shadow)]"
-    },
-    emerald: {
-      bg: "bg-emerald-50/50 dark:bg-emerald-500/5",
-      border: "border-emerald-100 dark:border-emerald-500/10",
-      iconBg: "bg-emerald-500/10 dark:bg-emerald-500/20",
-      iconText: "text-emerald-600 dark:text-emerald-400",
-      shadow: "shadow-[0_4px_0_0_var(--stat-emerald-shadow)]"
-    },
-    muted: {
-      bg: "bg-muted/30",
-      border: "border-border",
-      iconBg: "bg-muted",
-      iconText: "text-muted-foreground",
-      shadow: "shadow-[0_4px_0_0_var(--stat-muted-shadow)]"
-    }
-  };
-
-  const scheme = isActive ? colorSchemes[color] : colorSchemes.muted;
-
-  return (
-    <div
-      onClick={onClick}
-      className={`relative h-full ${onClick ? "cursor-pointer" : ""}`}
-    >
-      <Card className={`h-full border ${scheme.border} ${scheme.bg} ${scheme.shadow} overflow-hidden group transition-all duration-75 ${onClick ? "active:translate-y-[4px] active:shadow-none" : ""}`}>
-        <CardContent className="p-5 h-full flex items-center gap-4">
-          <div className={`p-3 rounded-2xl ${scheme.iconBg} ${scheme.iconText} transition-transform duration-300 group-hover:scale-110 flex-shrink-0`}>
-            <Icon className="w-6 h-6" />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60 mb-0.5">
-              {label}
-            </p>
-            <div className="text-2xl font-black tracking-tight text-foreground">
-              <CountingNumber value={value} />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
 
 function QuickActionCard({
   title,
@@ -632,6 +535,193 @@ function ContinueQuizCard({
   );
 }
 
+function DailyRevisionPanel({
+  revision,
+  isLoading,
+}: {
+  revision: DailyRevision | null | undefined;
+  isLoading: boolean;
+}) {
+  const { t } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [checkedQuestions, setCheckedQuestions] = useState<string[]>([]);
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+    setAnswers({});
+    setCheckedQuestions([]);
+    setIsComplete(false);
+  }, [revision?.quiz.id]);
+
+  if (isLoading) {
+    return <Skeleton className="h-48 w-full rounded-2xl" />;
+  }
+
+  if (!revision) {
+    return (
+      <Card className="border-dashed border-border/70 bg-muted/20">
+        <CardContent className="p-6 text-center">
+          <CalendarCheck className="mx-auto mb-3 h-9 w-9 text-muted-foreground" />
+          <h3 className="font-bold">{t('dashboard.dailyRevision')}</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {t('dashboard.dailyRevisionUnavailable')}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const currentQuestion = revision.questions[currentIndex];
+  const selectedAnswer = currentQuestion ? answers[currentQuestion.id] : undefined;
+  const isChecked = currentQuestion ? checkedQuestions.includes(currentQuestion.id) : false;
+  const isCorrect = !!currentQuestion && selectedAnswer?.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
+  const score = revision.questions.filter(
+    (question) => answers[question.id]?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim(),
+  ).length;
+
+  const restart = () => {
+    setCurrentIndex(0);
+    setAnswers({});
+    setCheckedQuestions([]);
+    setIsComplete(false);
+  };
+
+  return (
+    <>
+      <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-card to-violet-500/10 shadow-[0_4px_0_0_hsl(var(--primary)/0.18)]">
+        <CardContent className="p-6">
+          <div className="mb-5 flex items-start gap-4">
+            <div className="rounded-2xl bg-primary p-3 text-primary-foreground shadow-lg shadow-primary/20">
+              <CalendarCheck className="h-6 w-6" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
+                {t('dashboard.dailyRevision')}
+              </p>
+              <h3 className="mt-1 truncate text-lg font-bold">{revision.quiz.title}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t('dashboard.dailyRevisionDescription')}
+              </p>
+            </div>
+          </div>
+          <Button className="w-full rounded-xl font-bold" onClick={() => setOpen(true)} data-testid="button-start-daily-revision">
+            {isComplete ? t('dashboard.reviewAgain') : t('dashboard.startDailyRevision')}
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl" data-testid="dialog-daily-revision">
+          {isComplete ? (
+            <div className="py-5 text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <CheckCircle2 className="h-9 w-9 text-primary" />
+              </div>
+              <DialogHeader>
+                <DialogTitle className="text-center text-2xl">{t('dashboard.dailyRevisionComplete')}</DialogTitle>
+                <DialogDescription className="text-center">
+                  {t('dashboard.dailyRevisionScore', { score, total: revision.questions.length })}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="mt-6 flex justify-center gap-3">
+                <Button variant="outline" onClick={() => setOpen(false)}>{t('dashboard.done')}</Button>
+                <Button onClick={restart}>{t('dashboard.reviewAgain')}</Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <DialogHeader>
+                <div className="mb-2 flex items-center justify-between gap-3 pr-7">
+                  <Badge variant="secondary">
+                    {t('dashboard.questionProgress', { current: currentIndex + 1, total: revision.questions.length })}
+                  </Badge>
+                  <span className="truncate text-xs font-medium text-muted-foreground">{revision.quiz.title}</span>
+                </div>
+                <DialogTitle className="text-left text-xl leading-snug">{currentQuestion.question}</DialogTitle>
+                <DialogDescription className="text-left">{t('dashboard.chooseAnswer')}</DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-3 py-2">
+                {currentQuestion.options?.map((option, optionIndex) => {
+                  const isSelected = selectedAnswer === option;
+                  const isCorrectOption = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
+                  const showCorrect = isChecked && isCorrectOption;
+                  const showWrong = isChecked && isSelected && !isCorrectOption;
+
+                  return (
+                    <button
+                      key={`${currentQuestion.id}-${optionIndex}`}
+                      type="button"
+                      disabled={isChecked}
+                      aria-pressed={isSelected}
+                      onClick={() => setAnswers((previous) => ({ ...previous, [currentQuestion.id]: option }))}
+                      className={`flex w-full items-start gap-3 rounded-xl border-2 p-3 text-left transition-colors ${
+                        showCorrect
+                          ? 'border-emerald-500 bg-emerald-500/10'
+                          : showWrong
+                            ? 'border-destructive bg-destructive/10'
+                            : isSelected
+                              ? 'border-primary bg-primary/5'
+                              : 'border-border hover:border-primary/40 hover:bg-muted/40'
+                      } disabled:cursor-default`}
+                    >
+                      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-black">
+                        {String.fromCharCode(65 + optionIndex)}
+                      </span>
+                      <span className="pt-1 text-sm font-medium leading-relaxed">{option}</span>
+                      {showCorrect && <CheckCircle2 className="ml-auto mt-1 h-5 w-5 flex-shrink-0 text-emerald-600" />}
+                      {showWrong && <XCircle className="ml-auto mt-1 h-5 w-5 flex-shrink-0 text-destructive" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {isChecked && (
+                <div className={`rounded-xl border p-4 ${isCorrect ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-amber-500/30 bg-amber-500/10'}`}>
+                  <p className="font-bold">{isCorrect ? t('dashboard.correct') : t('dashboard.notQuite')}</p>
+                  {!isCorrect && (
+                    <p className="mt-1 text-sm">
+                      {t('dashboard.correctAnswer')}: <span className="font-semibold">{currentQuestion.correctAnswer}</span>
+                    </p>
+                  )}
+                  {currentQuestion.explanation && <p className="mt-2 text-sm text-muted-foreground">{currentQuestion.explanation}</p>}
+                </div>
+              )}
+
+              <DialogFooter>
+                {!isChecked ? (
+                  <Button
+                    className="w-full sm:w-auto"
+                    disabled={!selectedAnswer}
+                    onClick={() => setCheckedQuestions((previous) => [...previous, currentQuestion.id])}
+                  >
+                    {t('dashboard.checkAnswer')}
+                  </Button>
+                ) : (
+                  <Button
+                    className="w-full sm:w-auto"
+                    onClick={() => {
+                      if (currentIndex === revision.questions.length - 1) setIsComplete(true);
+                      else setCurrentIndex((index) => index + 1);
+                    }}
+                  >
+                    {currentIndex === revision.questions.length - 1 ? t('dashboard.seeResults') : t('dashboard.nextQuestion')}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                )}
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const {
@@ -664,8 +754,52 @@ export default function Dashboard() {
     queryKey: ["/api/quiz-progress?limit=1"],
   });
 
-  const { data: userStats } = useQuery<UserStats>({
-    queryKey: ["/api/user/stats"],
+  const { data: resultHistory, isLoading: isLoadingResultHistory } = useQuery<ResultHistoryItem[]>({
+    queryKey: ["/api/user/result-history"],
+  });
+
+  const revisionCandidateIds = useMemo(() => {
+    const recentlyUsedIds = resultHistory?.map((result) => result.quizId) || [];
+    const recentlyCreatedIds = quizzes?.map((quiz) => quiz.id) || [];
+    return Array.from(new Set([...recentlyUsedIds, ...recentlyCreatedIds])).slice(0, 12);
+  }, [quizzes, resultHistory]);
+
+  const dailyRevisionKey = new Date().toLocaleDateString('en-CA');
+  const { data: dailyRevision, isLoading: isLoadingDailyRevision } = useQuery<DailyRevision | null>({
+    queryKey: ["dashboard-daily-revision", dailyRevisionKey, revisionCandidateIds],
+    enabled: revisionCandidateIds.length > 0 && !isLoadingResultHistory,
+    queryFn: async () => {
+      const candidates = await Promise.all(
+        revisionCandidateIds.map(async (quizId) => {
+          const response = await fetch(`/api/quiz/${quizId}`, { credentials: 'include' });
+          if (!response.ok) return null;
+          return await response.json() as Quiz;
+        }),
+      );
+
+      for (const quiz of candidates) {
+        if (!quiz) continue;
+        const multipleChoiceQuestions = quiz.questions.filter(
+          (question) => question.type === 'multiple_choice' && (question.options?.length || 0) >= 2,
+        );
+        if (multipleChoiceQuestions.length < 4) continue;
+
+        // Keep the four-question set stable for the day while rotating it day to day.
+        let seed = `${dailyRevisionKey}-${quiz.id}`
+          .split('')
+          .reduce((value, character) => ((value * 31) + character.charCodeAt(0)) >>> 0, 2166136261);
+        const shuffled = [...multipleChoiceQuestions];
+        for (let index = shuffled.length - 1; index > 0; index--) {
+          seed = (seed * 1664525 + 1013904223) >>> 0;
+          const swapIndex = seed % (index + 1);
+          [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+        }
+
+        return { quiz, questions: shuffled.slice(0, 4) };
+      }
+
+      return null;
+    },
   });
 
   const handleTakeQuiz = async (quiz: any) => {
@@ -882,23 +1016,10 @@ export default function Dashboard() {
 
             {/* Right sidebar */}
             <div className="lg:col-span-4 space-y-8">
-              {/* Stats block */}
+              {/* Daily revision block */}
               <div className="space-y-4">
-                <Skeleton className="h-6 w-32" />
-                <div className="grid grid-cols-1 gap-4">
-                  {[...Array(3)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-4 p-5 rounded-xl border border-border/50 bg-card/40"
-                    >
-                      <Skeleton className="w-12 h-12 rounded-2xl flex-shrink-0" />
-                      <div className="space-y-2">
-                        <Skeleton className="h-3 w-20" />
-                        <Skeleton className="h-7 w-12" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-48 w-full rounded-2xl" />
               </div>
 
               {/* Quick actions block */}
@@ -920,7 +1041,6 @@ export default function Dashboard() {
   }
 
   const totalQuizzes = quizzes?.length || 0;
-  const totalQuestions = quizzes?.reduce((acc, q) => acc + (q as any).questionCount, 0) || 0;
   const recentQuizzes = quizzes || [];
   const hasQuizzes = totalQuizzes > 0;
 
@@ -1092,34 +1212,16 @@ export default function Dashboard() {
 
             {/* Sidebar (Right Column) */}
             <div className="lg:col-span-4 space-y-8">
-              {/* Stats Sidebar Block */}
+              {/* Daily Revision Sidebar Block */}
               <motion.section variants={itemVariants} className="space-y-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <ChartNoAxesColumn className="w-5 h-5 text-muted-foreground" />
-                  <h2 className="text-xl font-bold text-foreground">{t('dashboard.yourStats')}</h2>
+                  <CalendarCheck className="w-5 h-5 text-muted-foreground" />
+                  <h2 className="text-xl font-bold text-foreground">{t('dashboard.dailyRevision')}</h2>
                 </div>
-                <div className="grid grid-cols-1 gap-4">
-                  <StatCard
-                    label={t('dashboard.created')}
-                    value={totalQuizzes}
-                    icon={() => <FontAwesomeIcon icon={faFileLines} className="h-6 w-6" />}
-                    color="blue"
-                  />
-                  <StatCard
-                    label={t('dashboard.questions')}
-                    value={totalQuestions}
-                    icon={() => <FontAwesomeIcon icon={faMessage} className="h-6 w-6" />}
-                    color="violet"
-                  />
-                  <StatCard
-                    label={t('dashboard.accuracy')}
-                    value={userStats?.totalAttempts ? `${userStats.averageAccuracy}%` : "-"}
-                    icon={() => <FontAwesomeIcon icon={faChartSimple} className="h-6 w-6" />}
-                    color="emerald"
-                    isActive={(userStats?.totalAttempts ?? 0) > 0}
-                    onClick={() => setLocation("/progress")}
-                  />
-                </div>
+                <DailyRevisionPanel
+                  revision={dailyRevision}
+                  isLoading={isLoadingResultHistory || isLoadingDailyRevision}
+                />
               </motion.section>
 
               {/* Quick Actions Sidebar Block */}

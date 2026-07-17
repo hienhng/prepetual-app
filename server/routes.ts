@@ -16,7 +16,7 @@ async function getOfficeParser() {
   }
   return parseOffice;
 }
-import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
+import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, extractTextFromImagesWithVision, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
 import { generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs.js";
@@ -202,7 +202,17 @@ async function extractTextFromTextOnlyImages(
 ): Promise<string> {
   if (imageUrls.length === 0) return "";
 
-  onProgress?.("extracting", 20, "Extracting text from images...");
+  onProgress?.("extracting", 20, "Reading text from images...");
+
+  // Vision extraction is reliable in Vercel's serverless runtime, unlike a locally
+  // initialized OCR worker that may need to download language data at request time.
+  const visionText = await extractTextFromImagesWithVision(imageUrls);
+  if (visionText) {
+    console.log(`Vision extracted ${visionText.length} characters from ${imageUrls.length} images`);
+    return visionText;
+  }
+
+  console.warn("Vision text extraction returned no text; falling back to local OCR.");
 
   const textParts: string[] = [];
   for (const url of imageUrls) {

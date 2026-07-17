@@ -48,7 +48,7 @@ export interface IStorage {
   getQuiz(id: string): Promise<Quiz | undefined>;
   getAllQuizzes(): Promise<Quiz[]>;
   getQuizzesByUserId(userId: string): Promise<Quiz[]>;
-  getQuizzesByUserIdLight(userId: string): Promise<(Omit<Quiz, "questions" | "sourceText" | "sourceImages"> & { questionCount: number })[]>;
+  getQuizzesByUserIdLight(userId: string): Promise<(Omit<Quiz, "questions" | "sourceText" | "sourceImages" | "lecture"> & { questionCount: number })[]>;
   getPublicQuizzes(): Promise<(Quiz & { author?: { username: string | null; email: string | null; profileImageUrl: string | null } })[]>;
   updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined>;
   deleteQuiz(id: string): Promise<boolean>;
@@ -217,7 +217,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(quizzes).where(eq(quizzes.userId, userId)).orderBy(desc(quizzes.createdAt));
   }
 
-  async getQuizzesByUserIdLight(userId: string): Promise<(Omit<Quiz, "questions" | "sourceText" | "sourceImages"> & { questionCount: number })[]> {
+  async getQuizzesByUserIdLight(userId: string): Promise<(Omit<Quiz, "questions" | "sourceText" | "sourceImages" | "lecture"> & { questionCount: number })[]> {
     const rows = await db.select({
       id: quizzes.id,
       userId: quizzes.userId,
