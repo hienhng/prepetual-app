@@ -533,8 +533,8 @@ export default function HistoryPage() {
                             data-testid={`card-quiz-${quiz.id}`}
                           >
                             <CardContent className="p-3 sm:p-4">
-                              <div className="flex items-center gap-4">
-                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${colorClass} transition-transform duration-300 group-hover:scale-105 text-current`}>
+                              <div className="flex items-center gap-2 sm:gap-4">
+                                  <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 border ${colorClass} transition-transform duration-300 group-hover:scale-105 text-current`}>
                                     {(() => {
                                       const Icon = getCategoryIcon(catOrig);
                                       return <Icon className="h-4 w-4" />;
@@ -547,29 +547,29 @@ export default function HistoryPage() {
                                   </h3>
 
 
-                                  <div className="flex items-center gap-3 mt-1 text-[11px] font-medium text-muted-foreground/70">
-                                    <div className="flex items-center gap-1">
+                                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 sm:gap-3 mt-1 text-[11px] font-medium text-muted-foreground/70">
+                                    <div className="hidden sm:flex items-center gap-1">
                                       {formatDate(quiz.createdAt)}
                                     </div>
-                                    <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                                    <span className="hidden sm:block w-1 h-1 rounded-full bg-muted-foreground/30" />
                                     <div className="font-semibold text-primary/80">
                                       {catLabel}
                                     </div>
                                     <div className="flex items-center gap-1">
                                       {t('history.questions', { count: (quiz as any).questionCount || (quiz.questions as any[])?.length || 0 })}
                                     </div>
-                                    <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-                                    <div className={`capitalize ${getDifficultyColor(quiz.difficulty)}`}>
+                                    <span className="hidden sm:block w-1 h-1 rounded-full bg-muted-foreground/30" />
+                                    <div className={`hidden sm:block capitalize ${getDifficultyColor(quiz.difficulty)}`}>
                                       {t(`quizGenerator.${quiz.difficulty || "medium"}`)}
                                     </div>
                                     {quiz.folderId && folders.find(f => f.id === quiz.folderId) && (
-                                      <>
+                                      <span className="hidden sm:contents">
                                         <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                                         <div className="flex items-center gap-1">
                                           <Folder className="h-3 w-3" />
                                           {folders.find(f => f.id === quiz.folderId)?.name}
                                         </div>
-                                      </>
+                                      </span>
                                     )}
                                   </div>
                                 </div>
@@ -601,7 +601,19 @@ export default function HistoryPage() {
                                       size="icon"
                                       variant="ghost"
                                       className="h-8 w-8 text-primary"
+                                      onClick={() => handleStudy(quiz)}
+                                      data-testid={`button-study-mobile-${quiz.id}`}
+                                      aria-label={t('history.review')}
+                                    >
+                                      <BookOpen className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      className="h-8 w-8 text-primary"
                                       onClick={() => handleRetake(quiz)}
+                                      data-testid={`button-retake-mobile-${quiz.id}`}
+                                      aria-label={t('history.take')}
                                     >
                                       <Play className="h-4 w-4 fill-current" />
                                     </Button>

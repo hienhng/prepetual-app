@@ -298,26 +298,26 @@ function QuizCard({
       data-testid={`card-recent-quiz-${quiz.id}`}
       onClick={onTake}
     >
-      <div className="relative flex items-center gap-4 p-4 rounded-2xl bg-card/40 hover:bg-card border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+      <div className="relative flex items-center gap-2 p-3 sm:gap-4 sm:p-4 rounded-2xl bg-card/40 hover:bg-card border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
         <div className="relative flex-shrink-0">
-          <div className={`w-12 h-12 rounded-xl ${colors.icon} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-            <CategoryIcon className="w-6 h-6 text-white" />
+          <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${colors.icon} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+            <CategoryIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-bold text-foreground truncate group-hover:text-primary transition-colors">
+          <h3 className="text-sm sm:text-base font-bold text-foreground truncate group-hover:text-primary transition-colors">
             {quiz.title}
           </h3>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-            <span className="flex items-center gap-1 font-medium bg-muted px-2 py-0.5 rounded-md">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 text-xs text-muted-foreground mt-1">
+            <span className="flex items-center gap-1 font-medium bg-muted px-1.5 sm:px-2 py-0.5 rounded-md">
               <HelpCircle className="w-3 h-3" />
               {t('history.questions', { count: questionCount })}
             </span>
             <Badge variant="outline" className={`h-5 text-[10px] capitalize px-2 font-bold ${colors.badge}`}>
               {t(`quizGenerator.${difficulty}`)}
             </Badge>
-            <span className="flex items-center gap-1 font-medium bg-muted px-2 py-0.5 rounded-md">
+            <span className="hidden sm:flex items-center gap-1 font-medium bg-muted px-2 py-0.5 rounded-md">
               {t(getCategoryTranslationKey(quiz.category))}
             </span>
             <span className="hidden sm:inline-flex items-center gap-1 opacity-70">
@@ -327,23 +327,24 @@ function QuizCard({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
           <Button
             size="icon"
             variant="ghost"
-            className="h-10 w-10 rounded-xl hidden sm:flex hover:bg-muted"
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex hover:bg-muted"
             onClick={(e) => { e.stopPropagation(); onStudy(); }}
             data-testid={`button-study-${quiz.id}`}
+            aria-label={t('history.review')}
           >
             <BookOpen className="w-5 h-5" />
           </Button>
           <Button
             size="default"
-            className="h-10 px-5 rounded-xl font-bold shadow-sm shadow-primary/20 group-hover:shadow-primary/40 transition-all"
+            className="h-9 w-9 sm:h-10 sm:w-auto sm:px-5 rounded-xl font-bold shadow-sm shadow-primary/20 group-hover:shadow-primary/40 transition-all"
             onClick={(e) => { e.stopPropagation(); onTake(); }}
             data-testid={`button-take-${quiz.id}`}
           >
-            <Play className="w-4 h-4 mr-2 fill-current" />
+            <Play className="w-4 h-4 sm:mr-2 fill-current" />
             <span className="hidden sm:inline">{t('feed.play')}</span>
           </Button>
         </div>
@@ -1045,6 +1046,15 @@ export default function Dashboard() {
             <Skeleton className="h-5 w-56" />
           </div>
 
+          {/* Daily revision skeleton is shown before continue learning on mobile. */}
+          <div className="space-y-4 lg:hidden">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-5 w-5 rounded-md" />
+              <Skeleton className="h-6 w-40" />
+            </div>
+            <Skeleton className="h-48 w-full rounded-2xl" />
+          </div>
+
           {/* Main grid skeleton */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left column — quiz list */}
@@ -1068,20 +1078,20 @@ export default function Dashboard() {
                   {[...Array(5)].map((_, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-4 p-4 rounded-2xl border border-border/50 bg-card/40"
+                      className="flex items-center gap-2 p-3 sm:gap-4 sm:p-4 rounded-2xl border border-border/50 bg-card/40"
                     >
-                      <Skeleton className="w-12 h-12 rounded-xl flex-shrink-0" />
+                      <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex-shrink-0" />
                       <div className="flex-1 space-y-2 min-w-0">
                         <Skeleton className="h-4 w-3/4" />
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 sm:gap-2">
                           <Skeleton className="h-3.5 w-16 rounded-md" />
                           <Skeleton className="h-3.5 w-14 rounded-md" />
-                          <Skeleton className="h-3.5 w-20 rounded-md" />
+                          <Skeleton className="hidden sm:block h-3.5 w-20 rounded-md" />
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <Skeleton className="h-10 w-10 rounded-xl hidden sm:block" />
-                        <Skeleton className="h-10 w-20 rounded-xl" />
+                      <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                        <Skeleton className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl" />
+                        <Skeleton className="h-9 w-9 sm:h-10 sm:w-20 rounded-xl" />
                       </div>
                     </div>
                   ))}
@@ -1092,8 +1102,11 @@ export default function Dashboard() {
             {/* Right sidebar */}
             <div className="lg:col-span-4 space-y-8">
               {/* Daily revision block */}
-              <div className="space-y-4">
-                <Skeleton className="h-6 w-40" />
+              <div className="hidden space-y-4 lg:block">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-5 w-5 rounded-md" />
+                  <Skeleton className="h-6 w-40" />
+                </div>
                 <Skeleton className="h-48 w-full rounded-2xl" />
               </div>
 
