@@ -89,6 +89,23 @@ function getDailyRevisionDateKey() {
   return new Date().toLocaleDateString('en-CA');
 }
 
+function getTimeUntilNextLocalDay(now: Date) {
+  const nextLocalMidnight = new Date(now);
+  nextLocalMidnight.setHours(24, 0, 0, 0);
+  return Math.max(0, nextLocalMidnight.getTime() - now.getTime());
+}
+
+function formatCountdown(milliseconds: number) {
+  const totalSeconds = Math.ceil(milliseconds / 1_000);
+  const hours = Math.floor(totalSeconds / 3_600);
+  const minutes = Math.floor((totalSeconds % 3_600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return [hours, minutes, seconds]
+    .map((value) => String(value).padStart(2, '0'))
+    .join(':');
+}
+
 // Learning tips are now handled via useLanguage in the component
 
 const containerVariants = {
@@ -551,9 +568,14 @@ function DailyRevisionPanel({
   dayKey: string;
 }) {
   const { t } = useLanguage();
+  const [timeUntilReset, setTimeUntilReset] = useState(() => getTimeUntilNextLocalDay(new Date()));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [checkedQuestions, setCheckedQuestions] = useState<string[]>([]);
+  const [generatedExplanations, setGeneratedExplanations] = useState<Record<string, string>>({});
+  const [generatingExplanationFor, setGeneratingExplanationFor] = useState<string | null>(null);
+  const [expandedExplanationFor, setExpandedExplanationFor] = useState<string | null>(null);
+  const [isReviewing, setIsReviewing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [hydratedStorageKey, setHydratedStorageKey] = useState<string | null>(null);
   const storageKey = revision
@@ -561,10 +583,22 @@ function DailyRevisionPanel({
     : null;
 
   useEffect(() => {
+    const updateCountdown = () => setTimeUntilReset(getTimeUntilNextLocalDay(new Date()));
+    updateCountdown();
+
+    const intervalId = window.setInterval(updateCountdown, 1_000);
+    return () => window.clearInterval(intervalId);
+  }, [dayKey]);
+
+  useEffect(() => {
     setHydratedStorageKey(null);
     setCurrentIndex(0);
     setAnswers({});
     setCheckedQuestions([]);
+    setGeneratedExplanations({});
+    setGeneratingExplanationFor(null);
+    setExpandedExplanationFor(null);
+    setIsReviewing(false);
     setIsComplete(false);
 
     if (!revision || !storageKey) return;
@@ -661,13 +695,57 @@ function DailyRevisionPanel({
     return wasCorrect ? 'bg-emerald-500' : 'bg-destructive';
   };
 
+  const generateBriefExplanation = async () => {
+    if (!currentQuestion || !selectedAnswer || generatingExplanationFor === currentQuestion.id) return;
+
+    setExpandedExplanationFor(currentQuestion.id);
+    setGeneratingExplanationFor(currentQuestion.id);
+    try {
+      const response = await fetch('/api/generate-explanation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          question: currentQuestion.question,
+          options: currentQuestion.options,
+          correctAnswer: currentQuestion.correctAnswer,
+          selectedAnswer,
+          isCorrect,
+          brief: true,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Unable to generate explanation');
+      const result = await response.json() as { explanation?: string };
+      const explanation = result.explanation?.trim();
+      if (explanation) {
+        setGeneratedExplanations((previous) => ({ ...previous, [currentQuestion.id]: explanation }));
+      }
+    } catch (error) {
+      console.error('Unable to generate daily revision explanation:', error);
+    } finally {
+      setGeneratingExplanationFor(null);
+    }
+  };
+
+  const handleWhyClick = () => {
+    if (!currentQuestion) return;
+
+    if (generatedExplanations[currentQuestion.id]) {
+      setExpandedExplanationFor((previous) => previous === currentQuestion.id ? null : currentQuestion.id);
+      return;
+    }
+
+    void generateBriefExplanation();
+  };
+
   return (
     <Card
-      className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-card to-violet-500/10 shadow-[0_4px_0_0_hsl(var(--primary)/0.18)]"
+      className="h-[34rem] max-h-[calc(100dvh-2rem)] overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-card to-violet-500/10 shadow-[0_4px_0_0_hsl(var(--primary)/0.18)]"
       data-testid="dialog-daily-revision"
     >
-      <CardContent className="p-5">
-        <div className="mb-4 flex items-center gap-3">
+      <CardContent className="flex h-full flex-col p-5">
+        <div className="mb-4 flex shrink-0 items-center gap-3">
           <div className="rounded-xl bg-primary p-2.5 text-primary-foreground shadow-lg shadow-primary/20">
             <CalendarCheck className="h-5 w-5" />
           </div>
@@ -677,24 +755,23 @@ function DailyRevisionPanel({
             </p>
             <p className="truncate text-sm font-semibold text-muted-foreground">{revision.quiz.title}</p>
           </div>
-          {!isComplete && (
-            <Badge variant="secondary" className="flex-shrink-0">
-              {currentIndex + 1}/{revision.questions.length}
-            </Badge>
-          )}
+          <Badge variant="secondary" className="flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap" title={t('dashboard.dailyRevisionResetsIn', { time: formatCountdown(timeUntilReset) })}>
+            <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+            {formatCountdown(timeUntilReset)}
+          </Badge>
         </div>
 
-        <div className="mb-5 grid grid-cols-4 gap-1.5" aria-label={t('dashboard.questionProgress', { current: currentIndex + 1, total: revision.questions.length })}>
+        <div className="mb-5 grid shrink-0 grid-cols-4 gap-1.5" aria-label={t('dashboard.questionProgress', { current: currentIndex + 1, total: revision.questions.length })}>
           {revision.questions.map((question, index) => (
             <div
               key={question.id}
-              className={`h-2 rounded-full transition-colors duration-300 ${getProgressSegmentColor(question, index)}`}
+              className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex && (!isComplete || isReviewing) ? 'scale-y-150' : 'scale-y-100'} ${getProgressSegmentColor(question, index)}`}
             />
           ))}
         </div>
 
-        {isComplete ? (
-          <div className="py-4 text-center">
+        {isComplete && !isReviewing ? (
+          <div className="flex flex-1 flex-col items-center justify-center py-4 text-center">
             <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
               <CheckCircle2 className="h-8 w-8 text-primary" />
             </div>
@@ -702,9 +779,24 @@ function DailyRevisionPanel({
             <p className="mt-2 text-sm text-muted-foreground">
               {t('dashboard.dailyRevisionScore', { score, total: revision.questions.length })}
             </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-4 gap-2 rounded-lg"
+              onClick={() => {
+                setCurrentIndex(0);
+                setIsReviewing(true);
+              }}
+              data-testid="button-review-daily-revision"
+            >
+              <BookOpen className="h-4 w-4" />
+              {t('dashboard.reviewAnswers')}
+            </Button>
           </div>
         ) : (
-          <div>
+          <>
+          <div className="min-h-0 flex-1 overflow-y-auto pr-1">
             <h3 className="text-base font-bold leading-snug">{currentQuestion.question}</h3>
             <p className="mt-1 text-xs text-muted-foreground">{t('dashboard.chooseAnswer')}</p>
 
@@ -745,19 +837,53 @@ function DailyRevisionPanel({
 
             {isChecked && (
               <div className={`mt-3 rounded-xl border p-3 ${isCorrect ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-destructive/30 bg-destructive/10'}`}>
-                <p className="text-sm font-bold">{isCorrect ? t('dashboard.correct') : t('dashboard.notQuite')}</p>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-bold">{isCorrect ? t('dashboard.correct') : t('dashboard.notQuite')}</p>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 gap-1 px-2 text-xs"
+                    disabled={generatingExplanationFor === currentQuestion.id}
+                    onClick={handleWhyClick}
+                  >
+                    <HelpCircle className="h-3.5 w-3.5" />
+                    {generatingExplanationFor === currentQuestion.id ? t('dashboard.generatingWhy') : t('dashboard.why')}
+                    <ChevronRight className={`h-3.5 w-3.5 transition-transform ${expandedExplanationFor === currentQuestion.id ? 'rotate-90' : ''}`} />
+                  </Button>
+                </div>
                 {!isCorrect && (
                   <p className="mt-1 text-xs">
                     {t('dashboard.correctAnswer')}: <span className="font-semibold">{currentQuestion.correctAnswer}</span>
                   </p>
                 )}
-                {currentQuestion.explanation && <p className="mt-2 text-xs text-muted-foreground">{currentQuestion.explanation}</p>}
+                {expandedExplanationFor === currentQuestion.id && generatedExplanations[currentQuestion.id] && (
+                  <div className="mt-3 border-t border-current/10 pt-3 text-xs font-medium text-foreground">
+                    {generatedExplanations[currentQuestion.id]}
+                  </div>
+                )}
               </div>
             )}
 
-            {!isChecked ? (
+          </div>
+
+            {isReviewing ? (
+              <div className="mt-4 flex shrink-0 gap-2">
+                <Button type="button" variant="outline" className="flex-1 rounded-xl" disabled={currentIndex === 0} onClick={() => setCurrentIndex((index) => index - 1)}>
+                  <ChevronLeft className="mr-1 h-4 w-4" />
+                  {t('dashboard.previous')}
+                </Button>
+                <Button type="button" className="flex-1 rounded-xl" onClick={() => {
+                  if (currentIndex === revision.questions.length - 1) setIsReviewing(false);
+                  else setCurrentIndex((index) => index + 1);
+                }}>
+                  {currentIndex === revision.questions.length - 1 ? t('dashboard.done') : t('dashboard.nextQuestion')}
+                  {currentIndex < revision.questions.length - 1 && <ChevronRight className="ml-1 h-4 w-4" />}
+                </Button>
+              </div>
+            ) : !isChecked ? (
               <Button
-                className="mt-4 w-full rounded-xl"
+                className="mt-4 w-full shrink-0 rounded-xl"
                 disabled={!selectedAnswer}
                 onClick={() => setCheckedQuestions((previous) => [...previous, currentQuestion.id])}
               >
@@ -765,7 +891,7 @@ function DailyRevisionPanel({
               </Button>
             ) : (
               <Button
-                className="mt-4 w-full rounded-xl"
+                className="mt-4 w-full shrink-0 rounded-xl"
                 onClick={() => {
                   if (currentIndex === revision.questions.length - 1) setIsComplete(true);
                   else setCurrentIndex((index) => index + 1);
@@ -775,7 +901,7 @@ function DailyRevisionPanel({
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             )}
-          </div>
+          </>
         )}
       </CardContent>
     </Card>

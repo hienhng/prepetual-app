@@ -2039,7 +2039,7 @@ If the question and study material are in a non-English language, respond with t
 
   app.post("/api/generate-explanation", async (req, res) => {
     try {
-      const { question, options, correctAnswer, selectedAnswer, isCorrect, sourceText } = req.body;
+      const { question, options, correctAnswer, selectedAnswer, isCorrect, sourceText, brief } = req.body;
 
       if (!question || !correctAnswer || !selectedAnswer) {
         return res.status(400).json({ message: "Missing required fields" });
@@ -2049,15 +2049,9 @@ If the question and study material are in a non-English language, respond with t
         ? `\n\nOriginal study material:\n---\n${sourceText.slice(0, 3000)}\n---`
         : "";
 
-      const response = await openaiClient.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert tutor explaining a quiz question to a student.${sourceContext}
-            
-The student answered a multiple choice or true/false question.
-Your job is to provide short, concise explanations formatted in JSON.
+      const instructions = brief
+        ? `Return JSON with an "explanation" only. Explain why the student's answer is correct or incorrect in exactly 6 to 8 words. Be direct, use the question's language, and do not add a heading, label, or extra text.`
+        : `Your job is to provide short, concise explanations formatted in JSON.
 1. "explanation": Explain clearly why the correct answer is right. For math/science, briefly show the calculation.
 2. "wrongExplanation": Explain specifically why their selected answer is incorrect (if applicable) or the common misconception it represents. If they answered correctly, you can leave this empty or explain why options are generally tricky.
 
@@ -2068,7 +2062,17 @@ Always return JSON:
 {
   "explanation": "Why correct answer is right...",
   "wrongExplanation": "Why selected answer is wrong..."
-}`
+}`;
+
+      const response = await openaiClient.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert tutor explaining a quiz question to a student.${sourceContext}
+
+The student answered a multiple choice or true/false question.
+${instructions}`
           },
           {
             role: "user",
@@ -2076,7 +2080,7 @@ Always return JSON:
           }
         ],
         temperature: 0.1,
-        max_tokens: 350,
+        max_tokens: brief ? 80 : 350,
         response_format: { type: "json_object" }
       });
 
@@ -2084,7 +2088,7 @@ Always return JSON:
       const result = JSON.parse(content);
       
       res.json({
-        explanation: result.explanation || "",
+        explanation: result.explanation || result.wrongExplanation || "",
         wrongExplanation: result.wrongExplanation || "",
       });
     } catch (error: any) {
