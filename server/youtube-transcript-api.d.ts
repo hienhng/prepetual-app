@@ -1,12 +1,19 @@
 declare module 'youtube-transcript-api' {
   export interface TranscriptSegment {
     text: string;
-    start: number;
-    duration: number;
+    start: string;
+    dur: string;
+  }
+
+  export interface TranscriptTrack {
+    language: string;
+    transcript: TranscriptSegment[];
   }
 
   export interface TranscriptResult {
-    transcript: TranscriptSegment[];
+    id: string;
+    tracks: TranscriptTrack[];
+    languages: Array<{ label: string; languageCode: string }>;
   }
 
   export default class TranscriptClient {

@@ -44,6 +44,77 @@ const ollamaClient = new OpenAI({
 const MAX_AUDIO_SIZE_MB = 20; // Max 20MB audio file
 const MAX_DOWNLOAD_TIMEOUT_MS = 60000; // 60 second timeout for downloads
 
+type TranscriptSegment = { text: string };
+
+function extractYouTubeVideoId(value: string): string | null {
+  const input = value.trim();
+
+  // Keeping support for a bare ID is useful when a URL has already been parsed
+  // by a mobile share sheet before it reaches this endpoint.
+  if (/^[A-Za-z0-9_-]{11}$/.test(input)) return input;
+
+  try {
+    const url = new URL(/^https?:\/\//i.test(input) ? input : `https://${input}`);
+    const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
+    let candidate: string | null = null;
+
+    if (hostname === "youtu.be") {
+      candidate = url.pathname.split("/").filter(Boolean)[0] ?? null;
+    } else if (
+      hostname === "youtube.com" ||
+      hostname === "m.youtube.com" ||
+      hostname === "music.youtube.com" ||
+      hostname === "youtube-nocookie.com"
+    ) {
+      candidate = url.searchParams.get("v");
+      if (!candidate) {
+        const parts = url.pathname.split("/").filter(Boolean);
+        if (["embed", "shorts", "live", "v"].includes(parts[0])) {
+          candidate = parts[1] ?? null;
+        }
+      }
+    }
+
+    return candidate && /^[A-Za-z0-9_-]{11}$/.test(candidate) ? candidate : null;
+  } catch {
+    return null;
+  }
+}
+
+function getTranscriptSegments(payload: unknown): TranscriptSegment[] {
+  if (!payload || typeof payload !== "object") return [];
+
+  const result = payload as {
+    transcript?: unknown;
+    tracks?: Array<{ transcript?: unknown }>;
+  };
+  const transcript = Array.isArray(result.transcript)
+    ? result.transcript
+    : result.tracks?.find((track) => Array.isArray(track.transcript) && track.transcript.length > 0)?.transcript;
+
+  if (!Array.isArray(transcript)) return [];
+
+  return transcript.filter(
+    (segment): segment is TranscriptSegment =>
+      Boolean(segment) &&
+      typeof segment === "object" &&
+      typeof (segment as { text?: unknown }).text === "string",
+  );
+}
+
+function transcriptToText(segments: TranscriptSegment[]): string {
+  return segments
+    .map((segment) => segment.text)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .trim();
+}
+
 async function transcribeYouTubeAudio(videoId: string): Promise<string> {
   const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
   const tempDir = os.tmpdir();
@@ -252,16 +323,11 @@ export async function registerRoutes(
         return res.status(400).json({ message: "YouTube URL is required" });
       }
 
-      // Extract video ID from various YouTube URL formats
-      const videoIdMatch = url.match(
-        /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
-      );
-
-      if (!videoIdMatch || !videoIdMatch[1]) {
+      const videoId = extractYouTubeVideoId(url);
+      if (!videoId) {
         return res.status(400).json({ message: "Invalid YouTube URL. Please provide a valid YouTube video link." });
       }
 
-      const videoId = videoIdMatch[1];
       console.log(`[YouTube] Fetching transcript for video ${videoId}`);
 
       // Method 1: Try youtube-transcript.io API (external service - most reliable)
@@ -280,16 +346,9 @@ export async function registerRoutes(
 
           if (response.ok) {
             const data = await response.json();
-            if (data && Array.isArray(data) && data.length > 0 && data[0].transcript) {
-              const transcriptSegments = data[0].transcript;
-              const fullText = transcriptSegments
-                .map((segment: { text: string }) => segment.text)
-                .join(" ")
-                .replace(/\s+/g, " ")
-                .replace(/&#39;/g, "'")
-                .replace(/&quot;/g, '"')
-                .replace(/&amp;/g, '&')
-                .trim();
+            if (data && Array.isArray(data) && data.length > 0) {
+              const transcriptSegments = getTranscriptSegments(data[0]);
+              const fullText = transcriptToText(transcriptSegments);
 
               if (fullText.length >= 50) {
                 console.log(`[YouTube] Successfully got transcript via youtube-transcript.io`);
@@ -316,20 +375,17 @@ export async function registerRoutes(
         const client = new TranscriptClient();
         await client.ready;
         const result = await client.getTranscript(videoId);
+        const transcriptSegments = getTranscriptSegments(result);
 
-        if (result && result.transcript && result.transcript.length > 0) {
-          const fullText = result.transcript
-            .map((segment: { text: string }) => segment.text)
-            .join(" ")
-            .replace(/\s+/g, " ")
-            .trim();
+        if (transcriptSegments.length > 0) {
+          const fullText = transcriptToText(transcriptSegments);
 
           if (fullText.length >= 50) {
             console.log(`[YouTube] Successfully got transcript via youtube-transcript-api npm`);
             return res.json({
               text: fullText,
               videoId,
-              segmentCount: result.transcript.length,
+              segmentCount: transcriptSegments.length,
               method: "transcript_api"
             });
           }
@@ -359,11 +415,7 @@ export async function registerRoutes(
         }
 
         if (transcript && transcript.length > 0) {
-          const fullText = transcript
-            .map((segment: { text: string }) => segment.text)
-            .join(" ")
-            .replace(/\s+/g, " ")
-            .trim();
+          const fullText = transcriptToText(transcript);
 
           if (fullText.length >= 50) {
             console.log(`[YouTube] Successfully got transcript via youtube-transcript-plus`);
