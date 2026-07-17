@@ -16,14 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -82,6 +74,19 @@ interface ResultHistoryItem {
 interface DailyRevision {
   quiz: Quiz;
   questions: Question[];
+}
+
+interface DailyRevisionProgress {
+  currentIndex: number;
+  answers: Record<string, string>;
+  checkedQuestions: string[];
+  isComplete: boolean;
+}
+
+const DAILY_REVISION_STORAGE_PREFIX = 'prepetual:daily-revision:';
+
+function getDailyRevisionDateKey() {
+  return new Date().toLocaleDateString('en-CA');
 }
 
 // Learning tips are now handled via useLanguage in the component
@@ -538,23 +543,84 @@ function ContinueQuizCard({
 function DailyRevisionPanel({
   revision,
   isLoading,
+  dayKey,
 }: {
   revision: DailyRevision | null | undefined;
   isLoading: boolean;
+  dayKey: string;
 }) {
   const { t } = useLanguage();
-  const [open, setOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [checkedQuestions, setCheckedQuestions] = useState<string[]>([]);
   const [isComplete, setIsComplete] = useState(false);
+  const [hydratedStorageKey, setHydratedStorageKey] = useState<string | null>(null);
+  const storageKey = revision
+    ? `${DAILY_REVISION_STORAGE_PREFIX}${dayKey}:${revision.quiz.id}`
+    : null;
 
   useEffect(() => {
+    setHydratedStorageKey(null);
     setCurrentIndex(0);
     setAnswers({});
     setCheckedQuestions([]);
     setIsComplete(false);
-  }, [revision?.quiz.id]);
+
+    if (!revision || !storageKey) return;
+
+    try {
+      // Progress is intentionally day-scoped. Remove yesterday's saved revision.
+      for (let index = localStorage.length - 1; index >= 0; index--) {
+        const key = localStorage.key(index);
+        if (key?.startsWith(DAILY_REVISION_STORAGE_PREFIX) && key !== storageKey) {
+          localStorage.removeItem(key);
+        }
+      }
+
+      const savedValue = localStorage.getItem(storageKey);
+      if (savedValue) {
+        const saved = JSON.parse(savedValue) as Partial<DailyRevisionProgress>;
+        const questionIds = new Set(revision.questions.map((question) => question.id));
+        const savedAnswers = Object.fromEntries(
+          Object.entries(saved.answers || {}).filter(
+            ([questionId, answer]) => questionIds.has(questionId) && typeof answer === 'string',
+          ),
+        );
+        const savedCheckedQuestions = Array.isArray(saved.checkedQuestions)
+          ? saved.checkedQuestions.filter((questionId): questionId is string => typeof questionId === 'string' && questionIds.has(questionId))
+          : [];
+        const savedIndex = typeof saved.currentIndex === 'number' && Number.isFinite(saved.currentIndex)
+          ? Math.min(Math.max(Math.floor(saved.currentIndex), 0), revision.questions.length - 1)
+          : 0;
+
+        setCurrentIndex(savedIndex);
+        setAnswers(savedAnswers);
+        setCheckedQuestions(savedCheckedQuestions);
+        setIsComplete(saved.isComplete === true);
+      }
+    } catch (error) {
+      console.warn('Unable to restore daily revision progress:', error);
+    }
+
+    setHydratedStorageKey(storageKey);
+  }, [revision, storageKey]);
+
+  useEffect(() => {
+    if (!storageKey || hydratedStorageKey !== storageKey) return;
+
+    const progress: DailyRevisionProgress = {
+      currentIndex,
+      answers,
+      checkedQuestions,
+      isComplete,
+    };
+
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(progress));
+    } catch (error) {
+      console.warn('Unable to save daily revision progress:', error);
+    }
+  }, [answers, checkedQuestions, currentIndex, hydratedStorageKey, isComplete, storageKey]);
 
   if (isLoading) {
     return <Skeleton className="h-48 w-full rounded-2xl" />;
@@ -582,143 +648,136 @@ function DailyRevisionPanel({
     (question) => answers[question.id]?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim(),
   ).length;
 
-  const restart = () => {
-    setCurrentIndex(0);
-    setAnswers({});
-    setCheckedQuestions([]);
-    setIsComplete(false);
+  const getProgressSegmentColor = (question: Question, index: number) => {
+    if (!checkedQuestions.includes(question.id)) {
+      return index === currentIndex && !isComplete
+        ? 'bg-primary'
+        : 'bg-muted-foreground/20';
+    }
+
+    const answer = answers[question.id];
+    const wasCorrect = answer?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
+    return wasCorrect ? 'bg-emerald-500' : 'bg-destructive';
   };
 
   return (
-    <>
-      <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-card to-violet-500/10 shadow-[0_4px_0_0_hsl(var(--primary)/0.18)]">
-        <CardContent className="p-6">
-          <div className="mb-5 flex items-start gap-4">
-            <div className="rounded-2xl bg-primary p-3 text-primary-foreground shadow-lg shadow-primary/20">
-              <CalendarCheck className="h-6 w-6" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">
-                {t('dashboard.dailyRevision')}
-              </p>
-              <h3 className="mt-1 truncate text-lg font-bold">{revision.quiz.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t('dashboard.dailyRevisionDescription')}
-              </p>
-            </div>
+    <Card
+      className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-card to-violet-500/10 shadow-[0_4px_0_0_hsl(var(--primary)/0.18)]"
+      data-testid="dialog-daily-revision"
+    >
+      <CardContent className="p-5">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="rounded-xl bg-primary p-2.5 text-primary-foreground shadow-lg shadow-primary/20">
+            <CalendarCheck className="h-5 w-5" />
           </div>
-          <Button className="w-full rounded-xl font-bold" onClick={() => setOpen(true)} data-testid="button-start-daily-revision">
-            {isComplete ? t('dashboard.reviewAgain') : t('dashboard.startDailyRevision')}
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl" data-testid="dialog-daily-revision">
-          {isComplete ? (
-            <div className="py-5 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                <CheckCircle2 className="h-9 w-9 text-primary" />
-              </div>
-              <DialogHeader>
-                <DialogTitle className="text-center text-2xl">{t('dashboard.dailyRevisionComplete')}</DialogTitle>
-                <DialogDescription className="text-center">
-                  {t('dashboard.dailyRevisionScore', { score, total: revision.questions.length })}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="mt-6 flex justify-center gap-3">
-                <Button variant="outline" onClick={() => setOpen(false)}>{t('dashboard.done')}</Button>
-                <Button onClick={restart}>{t('dashboard.reviewAgain')}</Button>
-              </div>
-            </div>
-          ) : (
-            <>
-              <DialogHeader>
-                <div className="mb-2 flex items-center justify-between gap-3 pr-7">
-                  <Badge variant="secondary">
-                    {t('dashboard.questionProgress', { current: currentIndex + 1, total: revision.questions.length })}
-                  </Badge>
-                  <span className="truncate text-xs font-medium text-muted-foreground">{revision.quiz.title}</span>
-                </div>
-                <DialogTitle className="text-left text-xl leading-snug">{currentQuestion.question}</DialogTitle>
-                <DialogDescription className="text-left">{t('dashboard.chooseAnswer')}</DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-3 py-2">
-                {currentQuestion.options?.map((option, optionIndex) => {
-                  const isSelected = selectedAnswer === option;
-                  const isCorrectOption = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
-                  const showCorrect = isChecked && isCorrectOption;
-                  const showWrong = isChecked && isSelected && !isCorrectOption;
-
-                  return (
-                    <button
-                      key={`${currentQuestion.id}-${optionIndex}`}
-                      type="button"
-                      disabled={isChecked}
-                      aria-pressed={isSelected}
-                      onClick={() => setAnswers((previous) => ({ ...previous, [currentQuestion.id]: option }))}
-                      className={`flex w-full items-start gap-3 rounded-xl border-2 p-3 text-left transition-colors ${
-                        showCorrect
-                          ? 'border-emerald-500 bg-emerald-500/10'
-                          : showWrong
-                            ? 'border-destructive bg-destructive/10'
-                            : isSelected
-                              ? 'border-primary bg-primary/5'
-                              : 'border-border hover:border-primary/40 hover:bg-muted/40'
-                      } disabled:cursor-default`}
-                    >
-                      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-black">
-                        {String.fromCharCode(65 + optionIndex)}
-                      </span>
-                      <span className="pt-1 text-sm font-medium leading-relaxed">{option}</span>
-                      {showCorrect && <CheckCircle2 className="ml-auto mt-1 h-5 w-5 flex-shrink-0 text-emerald-600" />}
-                      {showWrong && <XCircle className="ml-auto mt-1 h-5 w-5 flex-shrink-0 text-destructive" />}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {isChecked && (
-                <div className={`rounded-xl border p-4 ${isCorrect ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-amber-500/30 bg-amber-500/10'}`}>
-                  <p className="font-bold">{isCorrect ? t('dashboard.correct') : t('dashboard.notQuite')}</p>
-                  {!isCorrect && (
-                    <p className="mt-1 text-sm">
-                      {t('dashboard.correctAnswer')}: <span className="font-semibold">{currentQuestion.correctAnswer}</span>
-                    </p>
-                  )}
-                  {currentQuestion.explanation && <p className="mt-2 text-sm text-muted-foreground">{currentQuestion.explanation}</p>}
-                </div>
-              )}
-
-              <DialogFooter>
-                {!isChecked ? (
-                  <Button
-                    className="w-full sm:w-auto"
-                    disabled={!selectedAnswer}
-                    onClick={() => setCheckedQuestions((previous) => [...previous, currentQuestion.id])}
-                  >
-                    {t('dashboard.checkAnswer')}
-                  </Button>
-                ) : (
-                  <Button
-                    className="w-full sm:w-auto"
-                    onClick={() => {
-                      if (currentIndex === revision.questions.length - 1) setIsComplete(true);
-                      else setCurrentIndex((index) => index + 1);
-                    }}
-                  >
-                    {currentIndex === revision.questions.length - 1 ? t('dashboard.seeResults') : t('dashboard.nextQuestion')}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                )}
-              </DialogFooter>
-            </>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-primary">
+              {t('dashboard.dailyRevision')}
+            </p>
+            <p className="truncate text-sm font-semibold text-muted-foreground">{revision.quiz.title}</p>
+          </div>
+          {!isComplete && (
+            <Badge variant="secondary" className="flex-shrink-0">
+              {currentIndex + 1}/{revision.questions.length}
+            </Badge>
           )}
-        </DialogContent>
-      </Dialog>
-    </>
+        </div>
+
+        <div className="mb-5 grid grid-cols-4 gap-1.5" aria-label={t('dashboard.questionProgress', { current: currentIndex + 1, total: revision.questions.length })}>
+          {revision.questions.map((question, index) => (
+            <div
+              key={question.id}
+              className={`h-2 rounded-full transition-colors duration-300 ${getProgressSegmentColor(question, index)}`}
+            />
+          ))}
+        </div>
+
+        {isComplete ? (
+          <div className="py-4 text-center">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+              <CheckCircle2 className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold">{t('dashboard.dailyRevisionComplete')}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t('dashboard.dailyRevisionScore', { score, total: revision.questions.length })}
+            </p>
+          </div>
+        ) : (
+          <div>
+            <h3 className="text-base font-bold leading-snug">{currentQuestion.question}</h3>
+            <p className="mt-1 text-xs text-muted-foreground">{t('dashboard.chooseAnswer')}</p>
+
+            <div className="mt-4 space-y-2.5">
+              {currentQuestion.options?.map((option, optionIndex) => {
+                const isSelected = selectedAnswer === option;
+                const isCorrectOption = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
+                const showCorrect = isChecked && isCorrectOption;
+                const showWrong = isChecked && isSelected && !isCorrectOption;
+
+                return (
+                  <button
+                    key={`${currentQuestion.id}-${optionIndex}`}
+                    type="button"
+                    disabled={isChecked}
+                    aria-pressed={isSelected}
+                    onClick={() => setAnswers((previous) => ({ ...previous, [currentQuestion.id]: option }))}
+                    className={`flex w-full items-start gap-2.5 rounded-xl border-2 p-2.5 text-left transition-colors ${
+                      showCorrect
+                        ? 'border-emerald-500 bg-emerald-500/10'
+                        : showWrong
+                          ? 'border-destructive bg-destructive/10'
+                          : isSelected
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border bg-card/60 hover:border-primary/40 hover:bg-muted/40'
+                    } disabled:cursor-default`}
+                  >
+                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-muted text-[11px] font-black">
+                      {String.fromCharCode(65 + optionIndex)}
+                    </span>
+                    <span className="pt-0.5 text-sm font-medium leading-snug">{option}</span>
+                    {showCorrect && <CheckCircle2 className="ml-auto h-5 w-5 flex-shrink-0 text-emerald-600" />}
+                    {showWrong && <XCircle className="ml-auto h-5 w-5 flex-shrink-0 text-destructive" />}
+                  </button>
+                );
+              })}
+            </div>
+
+            {isChecked && (
+              <div className={`mt-3 rounded-xl border p-3 ${isCorrect ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-destructive/30 bg-destructive/10'}`}>
+                <p className="text-sm font-bold">{isCorrect ? t('dashboard.correct') : t('dashboard.notQuite')}</p>
+                {!isCorrect && (
+                  <p className="mt-1 text-xs">
+                    {t('dashboard.correctAnswer')}: <span className="font-semibold">{currentQuestion.correctAnswer}</span>
+                  </p>
+                )}
+                {currentQuestion.explanation && <p className="mt-2 text-xs text-muted-foreground">{currentQuestion.explanation}</p>}
+              </div>
+            )}
+
+            {!isChecked ? (
+              <Button
+                className="mt-4 w-full rounded-xl"
+                disabled={!selectedAnswer}
+                onClick={() => setCheckedQuestions((previous) => [...previous, currentQuestion.id])}
+              >
+                {t('dashboard.checkAnswer')}
+              </Button>
+            ) : (
+              <Button
+                className="mt-4 w-full rounded-xl"
+                onClick={() => {
+                  if (currentIndex === revision.questions.length - 1) setIsComplete(true);
+                  else setCurrentIndex((index) => index + 1);
+                }}
+              >
+                {currentIndex === revision.questions.length - 1 ? t('dashboard.seeResults') : t('dashboard.nextQuestion')}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -764,7 +823,17 @@ export default function Dashboard() {
     return Array.from(new Set([...recentlyUsedIds, ...recentlyCreatedIds])).slice(0, 12);
   }, [quizzes, resultHistory]);
 
-  const dailyRevisionKey = new Date().toLocaleDateString('en-CA');
+  const [dailyRevisionKey, setDailyRevisionKey] = useState(getDailyRevisionDateKey);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      const currentDayKey = getDailyRevisionDateKey();
+      setDailyRevisionKey((previousDayKey) => previousDayKey === currentDayKey ? previousDayKey : currentDayKey);
+    }, 60_000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
   const { data: dailyRevision, isLoading: isLoadingDailyRevision } = useQuery<DailyRevision | null>({
     queryKey: ["dashboard-daily-revision", dailyRevisionKey, revisionCandidateIds],
     enabled: revisionCandidateIds.length > 0 && !isLoadingResultHistory,
@@ -777,28 +846,34 @@ export default function Dashboard() {
         }),
       );
 
-      for (const quiz of candidates) {
-        if (!quiz) continue;
-        const multipleChoiceQuestions = quiz.questions.filter(
+      const eligibleCandidates = candidates.flatMap((quiz) => {
+        if (!quiz) return [];
+        const questions = quiz.questions.filter(
           (question) => question.type === 'multiple_choice' && (question.options?.length || 0) >= 2,
         );
-        if (multipleChoiceQuestions.length < 4) continue;
+        return questions.length >= 4 ? [{ quiz, questions }] : [];
+      }).sort((first, second) => first.quiz.id.localeCompare(second.quiz.id));
 
-        // Keep the four-question set stable for the day while rotating it day to day.
-        let seed = `${dailyRevisionKey}-${quiz.id}`
-          .split('')
-          .reduce((value, character) => ((value * 31) + character.charCodeAt(0)) >>> 0, 2166136261);
-        const shuffled = [...multipleChoiceQuestions];
-        for (let index = shuffled.length - 1; index > 0; index--) {
-          seed = (seed * 1664525 + 1013904223) >>> 0;
-          const swapIndex = seed % (index + 1);
-          [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-        }
+      if (eligibleCandidates.length === 0) return null;
 
-        return { quiz, questions: shuffled.slice(0, 4) };
+      // Cycle through eligible quizzes by calendar day. With multiple candidates,
+      // tomorrow's revision comes from a different quiz while remaining stable today.
+      const dayNumber = Math.floor(new Date(`${dailyRevisionKey}T00:00:00`).getTime() / 86_400_000);
+      const selectedCandidate = eligibleCandidates[dayNumber % eligibleCandidates.length];
+      const { quiz, questions: multipleChoiceQuestions } = selectedCandidate;
+
+      // Keep the four-question set stable for the day while rotating it day to day.
+      let seed = `${dailyRevisionKey}-${quiz.id}`
+        .split('')
+        .reduce((value, character) => ((value * 31) + character.charCodeAt(0)) >>> 0, 2166136261);
+      const shuffled = [...multipleChoiceQuestions];
+      for (let index = shuffled.length - 1; index > 0; index--) {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        const swapIndex = seed % (index + 1);
+        [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
       }
 
-      return null;
+      return { quiz, questions: shuffled.slice(0, 4) };
     },
   });
 
@@ -1221,6 +1296,7 @@ export default function Dashboard() {
                 <DailyRevisionPanel
                   revision={dailyRevision}
                   isLoading={isLoadingResultHistory || isLoadingDailyRevision}
+                  dayKey={dailyRevisionKey}
                 />
               </motion.section>
 
