@@ -1153,6 +1153,21 @@ export default function Dashboard() {
           </div>
         </motion.section>
 
+        {/* Daily revision is shown before continue learning on mobile. */}
+        {hasQuizzes && (
+          <motion.section variants={itemVariants} className="space-y-4 lg:hidden">
+            <div className="flex items-center gap-2 mb-1">
+              <CalendarCheck className="w-5 h-5 text-muted-foreground" />
+              <h2 className="text-xl font-bold text-foreground">{t('dashboard.dailyRevision')}</h2>
+            </div>
+            <DailyRevisionPanel
+              revision={dailyRevision}
+              isLoading={isLoadingResultHistory || isLoadingDailyRevision}
+              dayKey={dailyRevisionKey}
+            />
+          </motion.section>
+        )}
+
         {/* Dynamic Grid Layout */}
         {!hasQuizzes ? (
           <motion.section variants={itemVariants} className="w-full max-w-2xl mx-auto">
@@ -1288,7 +1303,7 @@ export default function Dashboard() {
             {/* Sidebar (Right Column) */}
             <div className="lg:col-span-4 space-y-8">
               {/* Daily Revision Sidebar Block */}
-              <motion.section variants={itemVariants} className="space-y-4">
+              <motion.section variants={itemVariants} className="hidden space-y-4 lg:block">
                 <div className="flex items-center gap-2 mb-1">
                   <CalendarCheck className="w-5 h-5 text-muted-foreground" />
                   <h2 className="text-xl font-bold text-foreground">{t('dashboard.dailyRevision')}</h2>

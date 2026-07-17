@@ -21,6 +21,7 @@ import { generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSche
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs.js";
 import { extractTextFromPDFWithOCR } from "./pdf-extract.js";
+import { fetchSupadataTranscript, SupadataTranscriptError } from "./supadata.js";
 import crypto from "crypto";
 import { fetchTranscript } from "youtube-transcript-plus";
 import TranscriptClient from "youtube-transcript-api";  // type: ignore
@@ -330,7 +331,37 @@ export async function registerRoutes(
 
       console.log(`[YouTube] Fetching transcript for video ${videoId}`);
 
-      // Method 1: Try youtube-transcript.io API (external service - most reliable)
+      // Method 1: Supadata's hosted API avoids YouTube blocking Vercel IPs.
+      // Native mode uses one free-tier credit and never starts paid AI transcription.
+      const supadataApiKey = process.env.SUPADATA_API_KEY?.trim();
+      if (supadataApiKey) {
+        try {
+          console.log(`[YouTube] Trying Supadata for ${videoId}`);
+          const transcript = await fetchSupadataTranscript(
+            `https://www.youtube.com/watch?v=${videoId}`,
+            supadataApiKey,
+          );
+
+          if (transcript.text.length >= 50) {
+            console.log(`[YouTube] Successfully got transcript via Supadata`);
+            return res.json({
+              text: transcript.text,
+              videoId,
+              segmentCount: transcript.segmentCount,
+              method: "supadata",
+            });
+          }
+        } catch (apiError) {
+          const status =
+            apiError instanceof SupadataTranscriptError
+              ? apiError.status ?? "unknown"
+              : "unknown";
+          const message = apiError instanceof Error ? apiError.message : "Unknown error";
+          console.log(`[YouTube] Supadata failed (${status}): ${message}`);
+        }
+      }
+
+      // Method 2: Try youtube-transcript.io API.
       const youtubeTranscriptApiKey = process.env.YOUTUBE_TRANSCRIPT_API_KEY;
       if (youtubeTranscriptApiKey) {
         try {
@@ -369,7 +400,7 @@ export async function registerRoutes(
         }
       }
 
-      // Method 2: Try youtube-transcript-api npm package (uses youtube-transcript.io backend)
+      // Method 3: Try youtube-transcript-api npm package (uses youtube-transcript.io backend)
       try {
         console.log(`[YouTube] Trying youtube-transcript-api npm for ${videoId}`);
         const client = new TranscriptClient();
@@ -394,7 +425,7 @@ export async function registerRoutes(
         console.log(`[YouTube] youtube-transcript-api npm failed: ${apiError.message}`);
       }
 
-      // Method 3: Try youtube-transcript-plus (direct scraping - fallback)
+      // Method 4: Try youtube-transcript-plus (direct scraping - fallback)
       try {
         console.log(`[YouTube] Trying youtube-transcript-plus for ${videoId}`);
         let transcript;
