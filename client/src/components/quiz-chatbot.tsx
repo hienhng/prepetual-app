@@ -23,6 +23,7 @@ interface QuizChatbotProps {
   questions: Question[];
   currentQuestionIndex: number;
   sourceMaterial?: string;
+  suggestedQuestions?: string[];
   isOpen: boolean;
   onClose: () => void;
 }
@@ -173,7 +174,7 @@ function TutorAvatar({ isAnimating = false, isSuccess = false, large = false }: 
   );
 }
 
-export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, sourceMaterial, isOpen, onClose }: QuizChatbotProps) {
+export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, sourceMaterial, suggestedQuestions, isOpen, onClose }: QuizChatbotProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -190,12 +191,18 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const suggestedCues = [
+  const defaultSuggestedCues = [
     { icon: HelpCircle, label: "Explain the concept behind this question" },
     { icon: Lightbulb,  label: "Give me a hint without revealing the answer" },
     { icon: BookOpen,   label: "What topics should I study more?" },
     { icon: RefreshCw,  label: "Quiz me on this concept with a different question" },
   ];
+  const suggestedCues = suggestedQuestions
+    ? suggestedQuestions.map((label, index) => ({
+        icon: defaultSuggestedCues[index % defaultSuggestedCues.length].icon,
+        label,
+      }))
+    : defaultSuggestedCues;
 
   const handleCueClick = (label: string) => {
     setInputValue(label);
@@ -578,4 +585,3 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
     </motion.div>
   );
 }
-

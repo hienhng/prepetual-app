@@ -770,20 +770,13 @@ function DailyRevisionPanel({
           ))}
         </div>
 
-        {isComplete && !isReviewing ? (
-          <div className="flex flex-1 flex-col items-center justify-center py-4 text-center">
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-              <CheckCircle2 className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold">{t('dashboard.dailyRevisionComplete')}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t('dashboard.dailyRevisionScore', { score, total: revision.questions.length })}
-            </p>
+        {isComplete && !isReviewing && (
+          <div className="-mt-2 mb-2 flex shrink-0 justify-end">
             <Button
               type="button"
-              variant="outline"
+              variant="default"
               size="sm"
-              className="mt-4 gap-2 rounded-lg"
+              className="h-auto gap-1.5 px-1.5 py-1 text-white bg-transparent shadow-none border-none text-foreground"
               onClick={() => {
                 setCurrentIndex(0);
                 setIsReviewing(true);
@@ -793,6 +786,18 @@ function DailyRevisionPanel({
               <BookOpen className="h-4 w-4" />
               {t('dashboard.reviewAnswers')}
             </Button>
+          </div>
+        )}
+
+        {isComplete && !isReviewing ? (
+          <div className="flex flex-1 flex-col items-center justify-center py-4 text-center">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+              <CheckCircle2 className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold">{t('dashboard.dailyRevisionComplete')}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t('dashboard.dailyRevisionScore', { score, total: revision.questions.length })}
+            </p>
           </div>
         ) : (
           <>

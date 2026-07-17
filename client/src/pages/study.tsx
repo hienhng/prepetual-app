@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "wouter";
-import { BookOpen, ChevronLeft, ChevronRight, Home, Sparkles, Moon, Sun } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Home, Menu, Sparkles, Moon, Sun } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { QuizChatbot } from "@/components/quiz-chatbot";
+import AskPipIcon from "@/components/ui/ask-pip-icon";
 import { useQuiz } from "@/lib/quiz-context";
 import { useLanguage } from "@/lib/language-context";
 import { apiRequest } from "@/lib/queryClient";
@@ -210,6 +213,8 @@ export default function StudyPage() {
   const [lecture, setLecture] = useState<GeneratedLecture | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [isGeneratingLecture, setIsGeneratingLecture] = useState(false);
+  const [isTopicsOpen, setIsTopicsOpen] = useState(false);
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
   useEffect(() => {
     if (!currentQuiz) {
@@ -237,6 +242,12 @@ export default function StudyPage() {
     if (!lecture) return;
     const targetIndex = lecture.topicStartIndices[Math.min(topicIndex, lecture.topicStartIndices.length - 1)];
     setCurrentStep(targetIndex);
+    setIsTopicsOpen(false);
+  };
+
+  const selectStep = (step: number) => {
+    setCurrentStep(step);
+    setIsTopicsOpen(false);
   };
 
   const goToPrevious = () => {
@@ -281,6 +292,80 @@ export default function StudyPage() {
     }
   };
 
+  const topicsNavigation = lecture ? (
+    <>
+      <div className="mb-4 px-2">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground/70">
+          {t("study.lectureProgress")}
+        </p>
+        <h3 className="mt-1 text-lg font-bold">{t("study.lectureSession")}</h3>
+      </div>
+      <div className="space-y-2 overflow-y-auto pr-1 lg:flex-1 lg:max-h-[calc(100vh-20rem)]">
+        <Button
+          variant={currentStep === 0 ? "default" : "outline"}
+          className="w-full justify-start rounded-2xl px-3 py-2 text-left"
+          onClick={() => selectStep(0)}
+        >
+          <span className="flex flex-col items-start">
+            <span className="font-semibold">{t("study.intro")}</span>
+            <span className="text-xs opacity-70">Start here</span>
+          </span>
+        </Button>
+        {lecture.topics.map((topic, topicIndex) => (
+          <div key={topic.id} className="rounded-3xl border border-border/70 bg-background/80 p-2">
+            <button
+              type="button"
+              className={`flex w-full items-center justify-between rounded-2xl px-3 py-2 text-left transition ${currentTopicIndex === topicIndex ? "bg-primary/10 text-primary" : "bg-transparent text-foreground hover:bg-muted/80"}`}
+              onClick={() => goToTopic(topicIndex)}
+            >
+              <span className="flex flex-col items-start gap-0.5">
+                <span className="font-semibold text-sm">{topic.title}</span>
+                <span className="text-[11px] opacity-70">{t("study.topicLabel", { number: topicIndex + 1 })}</span>
+              </span>
+            </button>
+            <div className="mt-2 space-y-1 px-2">
+              {topic.slides.map((slide, slideIndex) => {
+                const slideNumber = lecture.topicStartIndices[topicIndex] + slideIndex;
+                const isActive = currentStep === slideNumber;
+                return (
+                  <button
+                    key={`${topic.id}-slide-${slideIndex}`}
+                    type="button"
+                    className={`w-full rounded-2xl px-3 py-2 text-left text-sm transition ${isActive ? "bg-primary text-primary-foreground" : "bg-transparent text-muted-foreground hover:bg-muted/80"}`}
+                    onClick={() => selectStep(slideNumber)}
+                  >
+                    <div className="font-semibold leading-snug">{slide.title}</div>
+                    <div className="text-[11px] opacity-70">{slide.subtitle}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+        <Button
+          variant={currentLecture?.kind === "summary" ? "default" : "outline"}
+          className="w-full justify-start rounded-2xl px-3 py-2 text-left"
+          onClick={() => selectStep(lecture.sequence.length - 2)}
+        >
+          <span className="flex flex-col items-start">
+            <span className="font-semibold">{t("study.summary")}</span>
+            <span className="text-xs opacity-70">Wrap up</span>
+          </span>
+        </Button>
+        <Button
+          variant={currentLecture?.kind === "quiz" ? "default" : "outline"}
+          className="w-full justify-start rounded-2xl px-3 py-2 text-left"
+          onClick={() => selectStep(lecture.sequence.length - 1)}
+        >
+          <span className="flex flex-col items-start">
+            <span className="font-semibold">{t("study.revisionQuiz")}</span>
+            <span className="text-xs opacity-70">Test yourself</span>
+          </span>
+        </Button>
+      </div>
+    </>
+  ) : null;
+
   if (!currentQuiz) {
     return (
       <div className="container mx-auto px-4 py-24 text-center">
@@ -315,6 +400,30 @@ export default function StudyPage() {
           </p>
         </div>
         <div className="flex items-center gap-1">
+          {lecture ? (
+            <Sheet open={isTopicsOpen} onOpenChange={setIsTopicsOpen}>
+              <SheetTrigger asChild>
+                <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full lg:hidden" aria-label="Open lecture topics" data-testid="button-open-topics">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="flex w-[min(86vw,22rem)] flex-col rounded-r-[2rem] p-4 sm:max-w-sm">
+                <SheetHeader className="sr-only">
+                  <SheetTitle>{t("study.lectureSession")}</SheetTitle>
+                </SheetHeader>
+                {topicsNavigation}
+              </SheetContent>
+            </Sheet>
+          ) : null}
+          <Button
+            variant="ghost"
+            className="h-10 rounded-full px-2.5 sm:px-3"
+            onClick={() => setIsChatbotOpen((isOpen) => !isOpen)}
+            data-testid="button-ask-prepal"
+          >
+            <AskPipIcon size={22} />
+            <span className="ml-1.5 hidden text-sm font-semibold sm:inline">Prepal AI</span>
+          </Button>
           <Link href="/dashboard">
             <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full">
               <Home className="h-5 w-5" />
@@ -346,79 +455,11 @@ export default function StudyPage() {
         </Card>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start">
-          <aside className="sticky top-8 rounded-[2rem] border border-border/60 bg-card/80 p-4 shadow-sm lg:col-start-1 lg:row-start-1 lg:mr-4 lg:max-h-[calc(110vh-12rem)] lg:flex lg:flex-col lg:overflow-hidden">
-            <div className="mb-4 px-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground/70">
-                {t("study.lectureProgress")}
-              </p>
-              <h3 className="mt-1 text-lg font-bold">{t("study.lectureSession")}</h3>
-            </div>
-            <div className="space-y-2 overflow-y-auto pr-1 lg:flex-1 lg:max-h-[calc(100vh-20rem)]">
-              <Button
-                variant={currentStep === 0 ? "default" : "outline"}
-                className="w-full justify-start rounded-2xl px-3 py-2 text-left"
-                onClick={() => setCurrentStep(0)}
-              >
-                <span className="flex flex-col items-start">
-                  <span className="font-semibold">{t("study.intro")}</span>
-                  <span className="text-xs opacity-70">Start here</span>
-                </span>
-              </Button>
-              {lecture.topics.map((topic, topicIndex) => (
-                <div key={topic.id} className="rounded-3xl border border-border/70 bg-background/80 p-2">
-                  <button
-                    type="button"
-                    className={`flex w-full items-center justify-between rounded-2xl px-3 py-2 text-left transition ${currentTopicIndex === topicIndex ? "bg-primary/10 text-primary" : "bg-transparent text-foreground hover:bg-muted/80"}`}
-                    onClick={() => goToTopic(topicIndex)}
-                  >
-                    <span className="flex flex-col items-start gap-0.5">
-                      <span className="font-semibold text-sm">{topic.title}</span>
-                      <span className="text-[11px] opacity-70">{t("study.topicLabel", { number: topicIndex + 1 })}</span>
-                    </span>
-                  </button>
-                  <div className="mt-2 space-y-1 px-2">
-                    {topic.slides.map((slide, slideIndex) => {
-                      const slideNumber = lecture.topicStartIndices[topicIndex] + slideIndex;
-                      const isActive = currentStep === slideNumber;
-                      return (
-                        <button
-                          key={`${topic.id}-slide-${slideIndex}`}
-                          type="button"
-                          className={`w-full rounded-2xl px-3 py-2 text-left text-sm transition ${isActive ? "bg-primary text-primary-foreground" : "bg-transparent text-muted-foreground hover:bg-muted/80"}`}
-                          onClick={() => setCurrentStep(slideNumber)}
-                        >
-                          <div className="font-semibold leading-snug">{slide.title}</div>
-                          <div className="text-[11px] opacity-70">{slide.subtitle}</div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-              <Button
-                variant={currentLecture?.kind === "summary" ? "default" : "outline"}
-                className="w-full justify-start rounded-2xl px-3 py-2 text-left"
-                onClick={() => lecture && setCurrentStep(lecture.sequence.length - 2)}
-              >
-                <span className="flex flex-col items-start">
-                  <span className="font-semibold">{t("study.summary")}</span>
-                  <span className="text-xs opacity-70">Wrap up</span>
-                </span>
-              </Button>
-              <Button
-                variant={currentLecture?.kind === "quiz" ? "default" : "outline"}
-                className="w-full justify-start rounded-2xl px-3 py-2 text-left"
-                onClick={() => lecture && setCurrentStep(lecture.sequence.length - 1)}
-              >
-                <span className="flex flex-col items-start">
-                  <span className="font-semibold">{t("study.revisionQuiz")}</span>
-                  <span className="text-xs opacity-70">Test yourself</span>
-                </span>
-              </Button>
-            </div>
+          <aside className="sticky top-8 hidden rounded-[2rem] border border-border/60 bg-card/80 p-4 shadow-sm lg:col-start-1 lg:row-start-1 lg:mr-4 lg:flex lg:max-h-[calc(110vh-12rem)] lg:flex-col lg:overflow-hidden">
+            {topicsNavigation}
           </aside>
 
-          <Card className="rounded-[2rem] border border-primary/10 bg-card p-6 shadow-[0_20px_50px_rgba(0,0,0,0.08)] sm:p-8">
+          <Card className="flex h-[min(42rem,calc(100dvh-10rem))] min-h-[30rem] flex-col rounded-[2rem] border border-primary/10 bg-card p-6 shadow-[0_20px_50px_rgba(0,0,0,0.08)] sm:p-8">
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground/60">
@@ -438,7 +479,7 @@ export default function StudyPage() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -12, scale: 0.98 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                className="rounded-3xl border border-border/60 bg-background/70 p-6 sm:p-8"
+                className="min-h-0 flex-1 overflow-y-auto rounded-3xl border border-border/60 bg-background/70 p-6 sm:p-8"
               >
                 {currentLecture?.subtitle ? (
                   <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-primary/70">{currentLecture.subtitle}</p>
@@ -480,7 +521,23 @@ export default function StudyPage() {
           </Card>
         </div>
       )}
+      <QuizChatbot
+        quizTitle={currentQuiz.title}
+        questions={currentQuiz.questions}
+        currentQuestionIndex={0}
+        sourceMaterial={[
+          currentQuiz.sourceText,
+          currentLecture ? `Current lecture slide: ${currentLecture.title}\n${currentLecture.body.join("\n")}` : "",
+        ].filter(Boolean).join("\n\n") || undefined}
+        suggestedQuestions={[
+          "Explain the main idea of this lecture slide",
+          "Summarize this topic in simple terms",
+          "Give me an example that helps explain this lesson",
+          "Quiz me on the material covered in this lecture",
+        ]}
+        isOpen={isChatbotOpen}
+        onClose={() => setIsChatbotOpen(false)}
+      />
     </motion.div>
   );
 }
-
