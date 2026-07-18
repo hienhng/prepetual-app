@@ -490,7 +490,8 @@ LANGUAGE HANDLING:
 5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
  6. For multiple choice, always provide exactly 4 options
  7. Options must be meaningful and readable text or numbers (not placeholder symbols). If an option is numeric, use digits 0-9 (e.g., "12", "3.5", "$\\frac{1}{2}$"), NEVER use shifted symbols like ! @ # $ % ^ & * ( ) to represent digits.
- 8. CATEGORY: Assign exactly ONE category from: ${categoryList}
+ 8. MULTIPLE-CHOICE OPTIONS — STRICT RULE: NEVER generate similar, synonymous, overlapping, or lightly reworded options. Every option must be a clearly distinct answer with a different meaning, value, outcome, category, or reasoning path. Before returning the question, compare every pair of options; if two could reasonably be treated as the same answer, replace one. Distractors must be plausible but definitively wrong, not alternate phrasings or close variants of the correct answer.
+ 9. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
    - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
    - Science: biology, chemistry, physics, earth science, etc.
@@ -524,7 +525,7 @@ MATHEMATICAL CONTENT & LATEX (CRITICAL):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
+      "options": ["Distinct option A", "Distinct option B", "Distinct option C", "Distinct option D"],
       "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
       "explanation": "Detailed explanation using LaTeX for formulas"
     }
@@ -563,7 +564,8 @@ LANGUAGE HANDLING:
  5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
  6. For multiple choice, always provide exactly 4 options labeled A, B, C, D
  7. Options must be meaningful and readable text or numbers (not placeholder symbols). If an option is numeric, use digits 0-9 (e.g., "12", "3.5", "$\\frac{1}{2}$"), NEVER use shifted symbols like ! @ # $ % ^ & * ( ) to represent digits.
- 8. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
+ 8. MULTIPLE-CHOICE OPTIONS — STRICT RULE: NEVER generate similar, synonymous, overlapping, or lightly reworded options. Every option must be a clearly distinct answer with a different meaning, value, outcome, category, or reasoning path. Before returning the question, compare every pair of options; if two could reasonably be treated as the same answer, replace one. Distractors must be plausible but definitively wrong, not alternate phrasings or close variants of the correct answer.
+ 9. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
  9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
  10. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
@@ -590,7 +592,7 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
+      "options": ["Distinct option A", "Distinct option B", "Distinct option C", "Distinct option D"],
       "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
       "explanation": "Detailed explanation using LaTeX for formulas",
       "imageIndex": 0
@@ -630,7 +632,8 @@ LANGUAGE HANDLING:
  5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
  6. For multiple choice, always provide exactly 4 options
  7. Options must be meaningful and readable text or numbers (not placeholder symbols). If an option is numeric, use digits 0-9 (e.g., "12", "3.5", "$\\frac{1}{2}$"), NEVER use shifted symbols like ! @ # $ % ^ & * ( ) to represent digits.
- 8. ALL questions should be based on the visual content
+ 8. MULTIPLE-CHOICE OPTIONS — STRICT RULE: NEVER generate similar, synonymous, overlapping, or lightly reworded options. Every option must be a clearly distinct answer with a different meaning, value, outcome, category, or reasoning path. Before returning the question, compare every pair of options; if two could reasonably be treated as the same answer, replace one. Distractors must be plausible but definitively wrong, not alternate phrasings or close variants of the correct answer.
+ 9. ALL questions should be based on the visual content
  9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
  10. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
@@ -665,7 +668,7 @@ OUTPUT FORMAT (JSON):
     {
       "type": "multiple_choice" | "true_false" | "short_answer",
       "question": "The question text",
-      "options": ["Option with similar length", "Option with similar length", "Option with similar length", "Option with similar length"],
+      "options": ["Distinct option A", "Distinct option B", "Distinct option C", "Distinct option D"],
       "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
       "explanation": "Detailed explanation using LaTeX for formulas",
       "imageIndex": 0
@@ -949,6 +952,7 @@ IMPORTANT:
 - Use ONLY these question types: ${questionTypeDescriptions}
 - Use the SAME language as the CONTENT.
 - Follow the same formatting rules as before (4 options for multiple choice, LaTeX formatting for math, etc.).
+- For every multiple-choice question, NEVER generate similar, synonymous, overlapping, or lightly reworded options. Each option must be semantically distinct; replace any pair that could be treated as the same answer.
 - Return ONLY valid JSON (no markdown).
 
 CONTENT:
@@ -1965,6 +1969,7 @@ REQUIREMENTS:
 4. Use primarily Multiple Choice format (4 options).
 5. Ensure factual accuracy based on the provided source material (if any).
 6. Detect the language of the reference questions and respond in the SAME language.
+7. MULTIPLE-CHOICE OPTIONS — STRICT RULE: NEVER generate similar, synonymous, overlapping, or lightly reworded options. Each option must have a distinctly different meaning, value, outcome, category, or reasoning path. Compare every option pair before returning the question and replace any pair that could be treated as the same answer.
 
 OUTPUT FORMAT (JSON):
 {
