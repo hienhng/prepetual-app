@@ -28,6 +28,7 @@ import {
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/language-context";
+import { MathText } from "@/components/formatted-text";
 import type { Question, Quiz } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 
@@ -802,7 +803,9 @@ function DailyRevisionPanel({
         ) : (
           <>
           <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-            <h3 className="text-base font-bold leading-snug">{currentQuestion.question}</h3>
+            <h3 className="text-base font-bold leading-snug">
+              <MathText content={currentQuestion.question} />
+            </h3>
             <p className="mt-1 text-xs text-muted-foreground">{t('dashboard.chooseAnswer')}</p>
 
             <div className="mt-4 space-y-2.5">
@@ -832,7 +835,7 @@ function DailyRevisionPanel({
                     <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-muted text-[11px] font-black">
                       {String.fromCharCode(65 + optionIndex)}
                     </span>
-                    <span className="pt-0.5 text-sm font-medium leading-snug">{option}</span>
+                    <MathText content={option} className="pt-0.5 text-sm font-medium leading-snug" />
                     {showCorrect && <CheckCircle2 className="ml-auto h-5 w-5 flex-shrink-0 text-emerald-600" />}
                     {showWrong && <XCircle className="ml-auto h-5 w-5 flex-shrink-0 text-destructive" />}
                   </button>
@@ -859,12 +862,12 @@ function DailyRevisionPanel({
                 </div>
                 {!isCorrect && (
                   <p className="mt-1 text-xs">
-                    {t('dashboard.correctAnswer')}: <span className="font-semibold">{currentQuestion.correctAnswer}</span>
+                    {t('dashboard.correctAnswer')}: <MathText content={currentQuestion.correctAnswer} className="font-semibold" />
                   </p>
                 )}
                 {expandedExplanationFor === currentQuestion.id && generatedExplanations[currentQuestion.id] && (
                   <div className="mt-3 border-t border-current/10 pt-3 text-xs font-medium text-foreground">
-                    {generatedExplanations[currentQuestion.id]}
+                    <MathText content={generatedExplanations[currentQuestion.id]} />
                   </div>
                 )}
               </div>
