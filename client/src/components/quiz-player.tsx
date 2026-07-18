@@ -431,6 +431,7 @@ export function QuizPlayer() {
               correctAnswer: questionSnapshot.correctAnswer,
               userAnswer: answerToCheck,
               sourceText: sourceMaterial?.text || (currentQuiz as any)?.sourceText || "",
+              category: currentQuiz.category,
               userPreferences: user,
             }),
           });
@@ -533,6 +534,7 @@ export function QuizPlayer() {
           selectedAnswer: ansToCheck,
           isCorrect: isCorrectAnswer(ansToCheck, qSnap),
           sourceText: sourceMaterial?.text || (currentQuiz as any)?.sourceText || "",
+          category: currentQuiz.category,
           userPreferences: user,
         }),
       });

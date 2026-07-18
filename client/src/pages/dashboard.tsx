@@ -712,6 +712,7 @@ function DailyRevisionPanel({
           correctAnswer: currentQuestion.correctAnswer,
           selectedAnswer,
           isCorrect,
+          category: revision.quiz.category,
           brief: true,
         }),
       });

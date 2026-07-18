@@ -1899,7 +1899,7 @@ IMPORTANT NOTE:
 
   app.post("/api/grade-short-answer", async (req, res) => {
     try {
-      const { question, correctAnswer, userAnswer, sourceText } = req.body;
+      const { question, correctAnswer, userAnswer, sourceText, category } = req.body;
 
       if (!question || !userAnswer) {
         return res.status(400).json({ message: "Missing required fields" });
@@ -1913,6 +1913,10 @@ IMPORTANT NOTE:
 
       const referenceHint = correctAnswer
         ? `\nA suggested answer was: "${correctAnswer}" — but do NOT treat this as the only correct answer. Use the study material and your knowledge to determine if the student's answer is valid.`
+        : "";
+
+      const mathFormattingRules = category === "Math"
+        ? `\n\nThis is a Math quiz. In the explanation, format EVERY mathematical expression, formula, equation, variable, and symbolic numeric notation as KaTeX-compatible LaTeX. Always wrap inline math in $...$ and display math in $$...$$. Apply this even to single variables and expressions copied from the question or answers. Never emit bare LaTeX, bare ^ or _, or Unicode math symbols.`
         : "";
 
       const stripCodeFences = (s: string) => {
@@ -1984,7 +1988,7 @@ Respond in JSON format:
   "explanation": "Brief explanation of why the answer is correct/incorrect/partial. For correct answers, affirm what makes it right. For incorrect answers, explain what the correct answer should be based on the material and why theirs was wrong."
 }
 
-If the question and study material are in a non-English language, respond with the explanation in that same language.`
+If the question and study material are in a non-English language, respond with the explanation in that same language.${mathFormattingRules}`
           },
           {
             role: "user",
@@ -2026,7 +2030,7 @@ Respond in JSON format:
   "explanation": "Brief explanation of why the answer is correct/incorrect/partial. For correct answers, affirm what makes it right. For incorrect answers, explain what the correct answer should be based on the material and why theirs was wrong."
 }
 
-If the question and study material are in a non-English language, respond with the explanation in that same language.`
+If the question and study material are in a non-English language, respond with the explanation in that same language.${mathFormattingRules}`
                   },
                   {
                     role: "user",
@@ -2071,7 +2075,7 @@ If the question and study material are in a non-English language, respond with t
 
   app.post("/api/generate-explanation", async (req, res) => {
     try {
-      const { question, options, correctAnswer, selectedAnswer, isCorrect, sourceText, brief } = req.body;
+      const { question, options, correctAnswer, selectedAnswer, isCorrect, sourceText, brief, category } = req.body;
 
       if (!question || !correctAnswer || !selectedAnswer) {
         return res.status(400).json({ message: "Missing required fields" });
@@ -2079,6 +2083,10 @@ If the question and study material are in a non-English language, respond with t
 
       const sourceContext = sourceText
         ? `\n\nOriginal study material:\n---\n${sourceText.slice(0, 3000)}\n---`
+        : "";
+
+      const mathFormattingRules = category === "Math"
+        ? `\n\nThis is a Math quiz. In every explanation field, format EVERY mathematical expression, formula, equation, variable, and symbolic numeric notation as KaTeX-compatible LaTeX. Always wrap inline math in $...$ and display math in $$...$$. Apply this even to single variables and expressions copied from the question or answers. Never emit bare LaTeX, bare ^ or _, or Unicode math symbols.`
         : "";
 
       const instructions = brief
@@ -2104,7 +2112,7 @@ Always return JSON:
             content: `You are an expert tutor explaining a quiz question to a student.${sourceContext}
 
 The student answered a multiple choice or true/false question.
-${instructions}`
+${instructions}${mathFormattingRules}`
           },
           {
             role: "user",

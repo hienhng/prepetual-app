@@ -1236,7 +1236,9 @@ export default function EditQuizPage() {
                 <p className="mb-3">{t('editQuiz.aiReviseDesc')}</p>
                 {reviseDialogIndex !== null && (
                   <div className="text-left">
-                    <p className="text-sm font-medium text-foreground mb-3">{questions[reviseDialogIndex]?.question}</p>
+                    <p className="text-sm font-medium text-foreground mb-3">
+                      <MathText content={questions[reviseDialogIndex]?.question || ""} />
+                    </p>
                     {questions[reviseDialogIndex]?.type === "short_answer" ? (
                       <Input
                         value={reviseSelectedAnswer}
@@ -1261,7 +1263,7 @@ export default function EditQuizPage() {
                             data-testid={`label-revise-option-${i}`}
                           >
                             <RadioGroupItem value={option} />
-                            <span className="text-sm text-foreground">{option}</span>
+                            <MathText content={option} className="text-sm text-foreground" />
                           </label>
                         ))}
                       </RadioGroup>
