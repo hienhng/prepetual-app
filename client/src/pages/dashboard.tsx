@@ -73,7 +73,7 @@ interface ResultHistoryItem {
 }
 
 interface DailyRevision {
-  quiz: Quiz;
+  quiz: Pick<Quiz, 'id' | 'title'> & { category: string };
   questions: Question[];
 }
 
@@ -85,6 +85,26 @@ interface DailyRevisionProgress {
 }
 
 const DAILY_REVISION_STORAGE_PREFIX = 'prepetual:daily-revision:';
+const DAILY_REVISION_SELECTION_PREFIX = 'prepetual:daily-revision-selection:';
+
+function isDailyRevision(value: unknown): value is DailyRevision {
+  if (!value || typeof value !== 'object') return false;
+
+  const candidate = value as Partial<DailyRevision>;
+  return !!candidate.quiz
+    && typeof candidate.quiz.id === 'string'
+    && typeof candidate.quiz.title === 'string'
+    && typeof candidate.quiz.category === 'string'
+    && Array.isArray(candidate.questions)
+    && candidate.questions.length === 4
+    && candidate.questions.every((question) =>
+      !!question
+      && typeof question.id === 'string'
+      && typeof question.question === 'string'
+      && typeof question.correctAnswer === 'string'
+      && Array.isArray(question.options),
+    );
+}
 
 function getDailyRevisionDateKey() {
   return new Date().toLocaleDateString('en-CA');
@@ -960,20 +980,36 @@ export default function Dashboard() {
   }, [quizzes, resultHistory]);
 
   const [dailyRevisionKey, setDailyRevisionKey] = useState(getDailyRevisionDateKey);
+  const dailyRevisionSelectionKey = `${DAILY_REVISION_SELECTION_PREFIX}${user?.id || 'anonymous'}:${dailyRevisionKey}`;
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
       const currentDayKey = getDailyRevisionDateKey();
       setDailyRevisionKey((previousDayKey) => previousDayKey === currentDayKey ? previousDayKey : currentDayKey);
-    }, 60_000);
+    }, 1_000);
 
     return () => window.clearInterval(intervalId);
   }, []);
 
   const { data: dailyRevision, isLoading: isLoadingDailyRevision } = useQuery<DailyRevision | null>({
-    queryKey: ["dashboard-daily-revision", dailyRevisionKey, revisionCandidateIds],
-    enabled: revisionCandidateIds.length > 0 && !isLoadingResultHistory,
+    // The candidate list deliberately is not part of this key. A revision is selected
+    // once per user/day and must not refetch merely because dashboard data changes.
+    queryKey: ["dashboard-daily-revision", user?.id, dailyRevisionKey],
+    enabled: !!user && !isLoadingQuizzes && !isLoadingResultHistory,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
+      try {
+        const savedRevision = localStorage.getItem(dailyRevisionSelectionKey);
+        if (savedRevision) {
+          const parsedRevision = JSON.parse(savedRevision) as unknown;
+          if (isDailyRevision(parsedRevision)) return parsedRevision;
+          localStorage.removeItem(dailyRevisionSelectionKey);
+        }
+      } catch (error) {
+        console.warn('Unable to restore the daily revision selection:', error);
+      }
+
       const candidates = await Promise.all(
         revisionCandidateIds.map(async (quizId) => {
           const response = await fetch(`/api/quiz/${quizId}`, { credentials: 'include' });
@@ -1009,7 +1045,31 @@ export default function Dashboard() {
         [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
       }
 
-      return { quiz, questions: shuffled.slice(0, 4) };
+      const selectedRevision: DailyRevision = {
+        quiz: {
+          id: quiz.id,
+          title: quiz.title,
+          category: quiz.category || 'Others/General',
+        },
+        questions: shuffled.slice(0, 4),
+      };
+
+      try {
+        localStorage.setItem(dailyRevisionSelectionKey, JSON.stringify(selectedRevision));
+
+        // Retain only today's immutable selection for this user.
+        const userSelectionPrefix = `${DAILY_REVISION_SELECTION_PREFIX}${user?.id || 'anonymous'}:`;
+        for (let index = localStorage.length - 1; index >= 0; index--) {
+          const key = localStorage.key(index);
+          if (key?.startsWith(userSelectionPrefix) && key !== dailyRevisionSelectionKey) {
+            localStorage.removeItem(key);
+          }
+        }
+      } catch (error) {
+        console.warn('Unable to save the daily revision selection:', error);
+      }
+
+      return selectedRevision;
     },
   });
 
