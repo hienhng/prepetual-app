@@ -14,6 +14,9 @@ import {
   ChevronsLeft,
   ChevronsRight,
   PanelRight,
+  PanelLeft,
+  PanelLeftClose,
+  PanelLeftOpen,
   Compass,
   HelpCircle,
   Settings,
@@ -318,7 +321,7 @@ export function AppSidebar() {
                 className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0 group-hover/logo:opacity-0 transition-opacity"
               />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/logo:opacity-100 transition-opacity bg-sidebar-accent rounded-md">
-                <PanelRight className="h-4 w-4" />
+                <PanelLeftOpen className="h-4 w-4" />
               </div>
             </button>
           ) : (
@@ -339,7 +342,7 @@ export function AppSidebar() {
               className="hidden md:flex"
               data-testid="sidebar-collapse-toggle"
             >
-              <PanelRight className="h-4 w-4" />
+              <PanelLeftClose className="h-4 w-4" />
             </Button>
           )}
         </div>
