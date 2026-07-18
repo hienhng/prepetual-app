@@ -73,6 +73,7 @@ export default function EditQuizPage() {
   const [reviseDialogIndex, setReviseDialogIndex] = useState<number | null>(null);
   const [reviseSelectedAnswer, setReviseSelectedAnswer] = useState<string>("");
   const [previewIndex, setPreviewIndex] = useState(0);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     if (currentQuiz) {
@@ -116,8 +117,6 @@ export default function EditQuizPage() {
       </div>
     );
   }
-  const [isExporting, setIsExporting] = useState(false);
-
   const handleExportPdf = async () => {
     setIsExporting(true);
     toast({
