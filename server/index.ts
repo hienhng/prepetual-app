@@ -3,7 +3,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
 import { serveStatic } from "./static.js";
 import { createServer } from "http";
-import { seedPublicQuizzes } from "./seed-public-quizzes.js";
+import { removeSeededPublicQuizzes } from "./remove-seeded-public-quizzes.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -71,7 +71,7 @@ app.use((req, res, next) => {
 // Export a function to initialize the server, which can be awaited
 export const initServer = async () => {
   await registerRoutes(httpServer, app);
-  await seedPublicQuizzes();
+  await removeSeededPublicQuizzes();
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

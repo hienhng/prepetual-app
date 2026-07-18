@@ -1464,7 +1464,10 @@ INSTRUCTIONS:
     const response = await pRetry(
       async () => {
         const completion = await openai.chat.completions.create({
-          model: "meta-llama/llama-4-scout-17b-16e-instruct",
+          // This is the Groq model used by the other live tutoring endpoints.
+          // The former Llama 4 Scout model is no longer available to this API key,
+          // which made every quiz-chat request fail with `model_not_found`.
+          model: "llama-3.3-70b-versatile",
           messages,
           max_tokens: 1000,
         });
