@@ -8,7 +8,6 @@ import { QuizProvider } from "@/lib/quiz-context";
 import { QuizNavigationGuardProvider } from "@/lib/quiz-navigation-guard";
 import { UploadProvider } from "@/lib/upload-context";
 import { AuthDialogProvider, useAuthDialog } from "@/lib/auth-context";
-import { GlobalUploadIndicator } from "@/components/global-upload-indicator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useAuth } from "@/hooks/useAuth";
@@ -404,7 +403,6 @@ function AppWithAuth() {
         <QuizNavigationGuardProvider>
           <UploadProvider>
             <AppContent />
-            <GlobalUploadIndicator />
             <Toaster />
           </UploadProvider>
         </QuizNavigationGuardProvider>

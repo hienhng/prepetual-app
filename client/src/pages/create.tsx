@@ -68,6 +68,7 @@ export default function Create() {
   const [isReady, setIsReady] = useState(false);
   const redirectedRef = useRef(false);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+  const [showUploadCloseWarning, setShowUploadCloseWarning] = useState(false);
   const [sourceInputType, setSourceInputType] = useState<SourceInputType>(null);
   const [manualText, setManualText] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -111,6 +112,20 @@ export default function Create() {
       documentImages: documentImages || [],
       isImageOnly: isImageOnly || false,
     });
+  };
+
+  const handleUploadDialogOpenChange = (open: boolean) => {
+    if (open) {
+      setActiveModal("upload");
+      return;
+    }
+
+    if (activeJobs.length > 0) {
+      setShowUploadCloseWarning(true);
+      return;
+    }
+
+    setActiveModal(null);
   };
 
   const handleManualTextSubmit = () => {
@@ -490,7 +505,7 @@ export default function Create() {
           )}
         </motion.div>
 
-        <Dialog open={activeModal === "upload"} onOpenChange={(open) => !open && setActiveModal(null)}>
+        <Dialog open={activeModal === "upload"} onOpenChange={handleUploadDialogOpenChange}>
           <DialogContent className="max-w-2xl rounded-3xl border-border/50 backdrop-blur-xl p-0 overflow-hidden">
             <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/5 p-8 pb-4">
               <DialogHeader>
@@ -517,6 +532,29 @@ export default function Create() {
             </div>
           </DialogContent>
         </Dialog>
+
+        <AlertDialog open={showUploadCloseWarning} onOpenChange={setShowUploadCloseWarning}>
+          <AlertDialogContent className="rounded-2xl border-border/50 backdrop-blur-xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-2xl font-black tracking-tight">Close upload?</AlertDialogTitle>
+              <AlertDialogDescription className="text-base font-medium">
+                Your uploaded files are still in the list. Closing this dialog may disrupt their upload progress.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-2">
+              <AlertDialogCancel className="rounded-xl font-bold">Keep uploading</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  setShowUploadCloseWarning(false);
+                  setActiveModal(null);
+                }}
+                className="rounded-xl font-bold"
+              >
+                Close dialog
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         <Dialog open={activeModal === "manual"} onOpenChange={(open) => !open && setActiveModal(null)}>
           <DialogContent className="max-w-2xl rounded-3xl border-border/50 backdrop-blur-xl p-0 overflow-hidden">

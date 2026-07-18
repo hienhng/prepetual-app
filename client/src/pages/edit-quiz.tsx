@@ -6,7 +6,7 @@ import {
   Copy, ArrowUp, ArrowDown, Eye, EyeOff, CheckSquare, Square,
   Search, Filter, MoreHorizontal, GripVertical, Shuffle,
   ChevronLeft, ChevronRight, FileText, ListChecks, ToggleLeft,
-  ImagePlus, Image as ImageIcon, Sparkles, Loader2, Download
+  ImagePlus, Image as ImageIcon, Sparkles, Loader2, Download, Bug
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
@@ -822,7 +822,7 @@ export default function EditQuizPage() {
                                     {isRevising === index ? (
                                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                                     ) : (
-                                      <Sparkles className="h-4 w-4 mr-2" />
+                                      <Bug className="h-4 w-4 mr-2" />
                                     )}
                                     {t('editQuiz.aiRevise')}
                                   </DropdownMenuItem>
@@ -1228,7 +1228,7 @@ export default function EditQuizPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5" />
+              <Bug className="h-5 w-5" />
               {t('editQuiz.whichAnswerIsCorrect')}
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
