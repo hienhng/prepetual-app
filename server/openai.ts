@@ -58,12 +58,37 @@ function parseVisionTextResponse(content: string): string {
     .join("\n\n");
 }
 
-function recoverFailedVisionGeneration(error: any): string {
-  const candidates = [
-    error?.error?.failed_generation,
-    error?.failed_generation,
-    error?.cause?.error?.failed_generation,
-  ];
+function getFailedGenerationPayloads(error: unknown): string[] {
+  const payloads: string[] = [];
+  const queue: unknown[] = [error];
+  const seen = new Set<unknown>();
+
+  while (queue.length > 0 && seen.size < 12) {
+    const current = queue.shift();
+    if (!current || typeof current !== "object" || seen.has(current)) continue;
+    seen.add(current);
+
+    const record = current as Record<string, unknown>;
+    if (typeof record.failed_generation === "string" && record.failed_generation.trim()) {
+      payloads.push(record.failed_generation);
+    }
+
+    if (record.error && typeof record.error === "object") queue.push(record.error);
+    if (record.cause && typeof record.cause === "object") queue.push(record.cause);
+  }
+
+  return payloads;
+}
+
+function extractJsonObject(content: string): string {
+  const cleaned = content.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  return start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned;
+}
+
+function recoverFailedVisionGeneration(error: unknown): string {
+  const candidates = getFailedGenerationPayloads(error);
 
   for (const candidate of candidates) {
     if (typeof candidate !== "string" || candidate.length === 0) continue;
@@ -1052,25 +1077,44 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     const questions = await buildQuestionsFromRaw(rawQuestions, questionCount, seenQuestionKeys, "[AI VERIFY]");
 
     if (questions.length < questionCount) {
-      const missing = questionCount - questions.length;
-      console.warn(`Only built ${questions.length}/${questionCount} valid questions. Attempting to generate ${missing} more...`);
-      onProgress?.("refining", 88, "Refining your questions...");
+      const maxTopUpAttempts = 4;
+      const topUpSignal = AbortSignal.timeout(120_000);
 
-      const existingQuestionsList = questions
-        .map((q) => `- ${q.question}`)
-        .slice(0, 20)
-        .join("\n");
+      for (let attempt = 0; attempt < maxTopUpAttempts && questions.length < questionCount; attempt++) {
+        if (topUpSignal.aborted) break;
 
-      const topUpPrompt = `You are an expert educator. Generate ${missing} additional ${difficulty.toUpperCase()} quiz questions based on the CONTENT below.
+        const missing = questionCount - questions.length;
+        const candidateCount = Math.min(questionCount, missing + Math.min(2, missing));
+        const useImages = hasImages && attempt === 0;
+        const enforceJsonResponse = attempt !== 2;
+        const attemptModel = useImages ? visionModel : quizModel;
+        const existingQuestionsList = questions
+          .map((q) => `- ${q.question}`)
+          .slice(0, 20)
+          .join("\n");
+
+        console.warn(
+          `Only built ${questions.length}/${questionCount} valid questions. ` +
+          `Top-up attempt ${attempt + 1}/${maxTopUpAttempts}: requesting ${candidateCount} candidates for ${missing} missing.`,
+        );
+        onProgress?.(
+          "refining",
+          Math.min(93, 88 + attempt),
+          `Generating ${missing} remaining question${missing === 1 ? "" : "s"}...`,
+        );
+
+        const topUpPrompt = `You are an expert educator. Generate EXACTLY ${candidateCount} candidate ${difficulty.toUpperCase()} quiz questions based on the CONTENT below. The system needs ${missing} additional valid, unique questions and will select the best candidates.
 
 IMPORTANT:
 - Do NOT repeat any of the existing questions listed.
 - Use ONLY these question types: ${questionTypeDescriptions}
 - Use the SAME language as the CONTENT.
-- Follow the same formatting rules as before (4 options for multiple choice, LaTeX formatting for math, etc.).
-- For every multiple-choice question, NEVER generate similar, synonymous, overlapping, or lightly reworded options. Each option must be semantically distinct; replace any pair that could be treated as the same answer.
-- Test all 4 options against the exact stem. Exactly ONE option may satisfy it; if 0 or 2+ do, rewrite the question. Avoid broad shared-property stems, and never use "All of the above" or "None of the above".
-- Return ONLY valid JSON (no markdown).
+- For multiple choice, provide exactly 4 options and make exactly ONE option correct.
+- The correctAnswer must exactly match one option.
+- Use LaTeX delimiters for mathematical expressions.
+- Never use similar, synonymous, overlapping, or lightly reworded options.
+- Avoid ambiguous stems, "All of the above", and "None of the above".
+- Return ONLY one valid JSON object with a questions array and no markdown.
 
 CONTENT:
 ${truncatedText}
@@ -1086,55 +1130,103 @@ OUTPUT FORMAT (JSON):
       "question": "The question text",
       "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
       "correctAnswer": "The exact correct option text",
-      "explanation": "Detailed explanation"
+      "explanation": "Detailed explanation",
+      "imageIndex": 0
     }
   ]
 }`;
 
-      const topUpResponse = await pRetry(
-        async () => {
-          let messages: any[];
-          if (hasImages) {
-            const imageContent = documentImages.slice(0, maxVisionImages).map((imageUrl) => ({
-              type: "image_url" as const,
-              image_url: { url: imageUrl, detail: "high" as const },
-            }));
+        let topUpResponse = "";
 
-            messages = [{
-              role: "user",
-              content: [{ type: "text", text: topUpPrompt }, ...imageContent],
-            }];
+        try {
+          topUpResponse = await pRetry(
+            async () => {
+              let messages: any[];
+              if (useImages) {
+                const imageContent = documentImages.slice(0, maxVisionImages).map((imageUrl) => ({
+                  type: "image_url" as const,
+                  image_url: { url: imageUrl, detail: "high" as const },
+                }));
+
+                messages = [{
+                  role: "user",
+                  content: [{ type: "text", text: topUpPrompt }, ...imageContent],
+                }];
+              } else {
+                messages = [{ role: "user", content: topUpPrompt }];
+              }
+
+              const request: any = {
+                model: attemptModel,
+                messages,
+                max_tokens: 4096,
+              };
+              if (enforceJsonResponse) {
+                request.response_format = { type: "json_object" };
+              }
+
+              const completion = await openai.chat.completions.create(request, {
+                signal: topUpSignal,
+                timeout: 30_000,
+                maxRetries: 0,
+              });
+
+              const content = completion.choices[0]?.message?.content;
+              if (!content) throw new Error("No response from AI (top-up)");
+              return content;
+            },
+            {
+              retries: 1,
+              minTimeout: 2000,
+              maxTimeout: 10000,
+              signal: topUpSignal,
+              onFailedAttempt: (error: any) => {
+                if (!isRateLimitError(error)) throw error;
+              },
+            },
+          );
+        } catch (error) {
+          const recoveredPayload = getFailedGenerationPayloads(error)[0];
+          if (recoveredPayload) {
+            topUpResponse = recoveredPayload;
+            console.warn(`Recovered a failed JSON generation during top-up attempt ${attempt + 1}.`);
           } else {
-            messages = [{ role: "user", content: topUpPrompt }];
+            const message =
+              (error as any)?.error?.message ||
+              (error as any)?.message ||
+              String(error);
+            console.warn(`Top-up attempt ${attempt + 1} failed: ${message}`);
+            continue;
           }
+        }
 
-          const completion = await openai.chat.completions.create({
-            model: hasImages ? visionModel : quizModel,
-            messages,
-            response_format: { type: "json_object" },
-            max_tokens: 4096,
-          });
+        let topUpRaw: any[] = [];
+        try {
+          const topUpParsed = JSON.parse(extractJsonObject(topUpResponse));
+          topUpRaw = Array.isArray(topUpParsed?.questions) ? topUpParsed.questions : [];
+        } catch (parseError) {
+          const message = parseError instanceof Error ? parseError.message : String(parseError);
+          console.warn(`Top-up attempt ${attempt + 1} returned invalid JSON: ${message}`);
+          continue;
+        }
 
-          const content = completion.choices[0]?.message?.content;
-          if (!content) throw new Error("No response from AI (top-up)");
-          const jsonMatch = content.match(/\{[\s\S]*\}/);
-          return jsonMatch ? jsonMatch[0] : content;
-        },
-        {
-          retries: 2,
-          minTimeout: 2000,
-          maxTimeout: 20000,
-          factor: 2,
-          onFailedAttempt: (error: any) => {
-            if (!isRateLimitError(error)) throw error;
-          },
-        },
-      );
+        if (topUpRaw.length === 0) {
+          console.warn(`Top-up attempt ${attempt + 1} returned no question candidates.`);
+          continue;
+        }
 
-      const topUpParsed = JSON.parse(topUpResponse);
-      const topUpRaw = Array.isArray(topUpParsed?.questions) ? topUpParsed.questions : [];
-      const extra = await buildQuestionsFromRaw(topUpRaw, missing, seenQuestionKeys, "[AI VERIFY TOPUP]");
-      questions.push(...extra);
+        const extra = await buildQuestionsFromRaw(
+          topUpRaw,
+          missing,
+          seenQuestionKeys,
+          `[AI VERIFY TOPUP ${attempt + 1}]`,
+        );
+        questions.push(...extra);
+        console.log(
+          `Top-up attempt ${attempt + 1} added ${extra.length} valid questions; ` +
+          `total is now ${questions.length}/${questionCount}.`,
+        );
+      }
     }
 
     if (questions.length === 0) {
