@@ -1749,7 +1749,7 @@ STYLE:
 - Favor short paragraphs over single-line bullets. Each body entry should feel like a mini-explanation, not a keyword.
 - Still keep it tight: no rambling, no repeating the same point across paragraphs.
 - Go deep enough that a student could understand the topic from these slides alone, without needing the original material.
-- Make sure to use LaTex format wherever needed.
+- Make sure to use LaTeX format wherever needed, with syntax supported by KaTeX.
 
 Return valid JSON only, no markdown, no preamble, in exactly this structure:
 {

@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { MathText } from "@/components/formatted-text";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -784,7 +785,7 @@ export default function EditQuizPage() {
                               {question.imageUrl && (
                                 <ImageIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                               )}
-                              <span className="text-sm font-medium truncate">{question.question}</span>
+                              <MathText content={question.question} className="text-sm font-medium truncate" />
                             </div>
                             
                             <div className="flex items-center gap-1 shrink-0">
@@ -900,7 +901,7 @@ export default function EditQuizPage() {
                                         className="px-3 py-2 rounded-md border bg-green-500/10 border-green-500/30 text-sm"
                                         data-testid={`text-answer-${index}`}
                                       >
-                                        {question.correctAnswer}
+                                        <MathText content={question.correctAnswer} />
                                         <span className="ml-2 text-xs text-green-600 dark:text-green-400">({t('editQuiz.cannotBeEdited')})</span>
                                       </div>
                                     </div>
@@ -981,7 +982,7 @@ export default function EditQuizPage() {
                                             }`}
                                             data-testid={`text-option-${index}-${optIndex}`}
                                           >
-                                            {option}
+                                            <MathText content={option} />
                                             {option === question.correctAnswer && (
                                               <span className="ml-2 text-xs text-green-600 dark:text-green-400">({t('common.correct')})</span>
                                             )}
@@ -1111,7 +1112,7 @@ export default function EditQuizPage() {
                             {getTypeLabel(questions[previewIndex].type)}
                           </Badge>
                           <h3 className="text-lg font-medium flex-1">
-                            {questions[previewIndex].question}
+                            <MathText content={questions[previewIndex].question} />
                           </h3>
                         </div>
                         
@@ -1136,7 +1137,7 @@ export default function EditQuizPage() {
                                     : "border-border"
                                 }`}
                               >
-                                {option}
+                                <MathText content={option} />
                                 {option === questions[previewIndex].correctAnswer && (
                                   <Badge variant="outline" className="ml-2 text-green-600">{t('common.correct')}</Badge>
                                 )}
@@ -1168,7 +1169,7 @@ export default function EditQuizPage() {
                         {questions[previewIndex].type === "short_answer" && (
                           <div className="ml-8 p-3 rounded-lg border border-green-500 bg-green-500/10">
                             <span className="text-sm text-muted-foreground">{t('quizResults.correctAnswer')}: </span>
-                            {questions[previewIndex].correctAnswer}
+                            <MathText content={questions[previewIndex].correctAnswer} />
                           </div>
                         )}
                         
@@ -1176,7 +1177,7 @@ export default function EditQuizPage() {
                           <div className="ml-8 p-3 rounded-lg bg-muted/50">
                             <span className="text-sm font-medium">{t('quizPlayer.explanation')}: </span>
                             <span className="text-sm text-muted-foreground">
-                              {questions[previewIndex].explanation}
+                              <MathText content={questions[previewIndex].explanation} />
                             </span>
                           </div>
                         )}
