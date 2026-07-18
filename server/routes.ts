@@ -2050,12 +2050,12 @@ If the question and study material are in a non-English language, respond with t
         : "";
 
       const instructions = brief
-        ? `Return JSON with an "explanation" only. Explain why the student's answer is correct or incorrect in exactly 6 to 8 words. Be direct, use the question's language, and do not add a heading, label, or extra text.`
+        ? `Return JSON with an "explanation" only. Explain why the student's answer is correct or incorrect in exactly 10 to 15 words. Be direct, use the question's language, and do not add a heading, label, or extra text.`
         : `Your job is to provide short, concise explanations formatted in JSON.
 1. "explanation": Explain clearly why the correct answer is right. For math/science, briefly show the calculation.
 2. "wrongExplanation": Explain specifically why their selected answer is incorrect (if applicable) or the common misconception it represents. If they answered correctly, you can leave this empty or explain why options are generally tricky.
 
-The explanation should be said in the perspective of a tutor talking to the student. Use the pronoun "you" and "your" to talk to the user. The explanation should be 2-3 sentences long.
+The explanation should be said in the perspective of a tutor talking to the student. ALWAYS use the pronoun "you" and "your" to talk to the user (IMORTANT). The explanation should be 2-3 sentences long.
 
 If the question and study material are in a non-English language, respond with the explanations in that same language.
 Always return JSON:
