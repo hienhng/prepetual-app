@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 
 interface UploadJob {
   jobId: string;
@@ -37,6 +37,7 @@ const UploadContext = createContext<UploadContextType | undefined>(undefined);
 const STORAGE_KEY = "upload_jobs";
 
 export function UploadProvider({ children }: { children: ReactNode }) {
+  const pollInFlightRef = useRef(false);
   const [activeJobs, setActiveJobs] = useState<UploadJob[]>(() => {
     try {
       const stored = sessionStorage.getItem(STORAGE_KEY);
@@ -57,13 +58,15 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const pollJobStatus = useCallback(async () => {
-    if (activeJobs.length === 0) return;
+    if (activeJobs.length === 0 || pollInFlightRef.current) return;
     
     const pendingJobs = activeJobs.filter(
       job => job.status === "pending" || job.status === "processing"
     );
     
     if (pendingJobs.length === 0) return;
+
+    pollInFlightRef.current = true;
 
     try {
       const updatedJobs = await Promise.all(
@@ -76,13 +79,9 @@ export function UploadProvider({ children }: { children: ReactNode }) {
             const response = await fetch(`/api/upload-status/${job.jobId}`);
             
             if (response.status === 404) {
-              return {
-                ...job,
-                status: "error" as const,
-                progress: 0,
-                message: "Upload session expired",
-                error: "The upload session has expired. Please try uploading again.",
-              };
+              // Upload IDs are stored in the browser, while local development jobs
+              // live in server memory. Drop IDs left behind by a server restart.
+              return null;
             }
             
             if (!response.ok) {
@@ -108,9 +107,11 @@ export function UploadProvider({ children }: { children: ReactNode }) {
         })
       );
       
-      saveJobs(updatedJobs);
+      saveJobs(updatedJobs.filter((job): job is UploadJob => job !== null));
     } catch (error) {
       console.error("Polling error:", error);
+    } finally {
+      pollInFlightRef.current = false;
     }
   }, [activeJobs, saveJobs]);
 
@@ -169,8 +170,13 @@ export function UploadProvider({ children }: { children: ReactNode }) {
         fileName: jobData.fileName || file.name,
         fileType: file.type,
         status: jobData.status,
-        progress: 5,
+        progress: jobData.progress ?? 5,
         message: jobData.message,
+        text: jobData.text,
+        error: jobData.error,
+        isOfficeWithImages: jobData.isOfficeWithImages || false,
+        documentImages: jobData.documentImages || [],
+        isImageOnly: jobData.isImageOnly || false,
         // Store image data URL for preview
         imageDataUrl: isImage ? imageDataUrls.get(file.name) : undefined,
       };

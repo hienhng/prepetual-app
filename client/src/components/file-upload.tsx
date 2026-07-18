@@ -44,7 +44,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
 
   const loadingMessage = processingJobs.length > 0
     ? processingJobs[0].message || "Processing files..."
-    : isUploading ? "Uploading files..." : "";
+    : isUploading ? "Uploading and scanning files..." : "";
 
   useEffect(() => {
     if (isAllCompleted() && completedJobs.length > 0) {
@@ -167,7 +167,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   return (
     <div className="w-full max-w-2xl mx-auto">
       <AnimatePresence mode="wait">
-        {isLoading && processingJobs.length > 0 ? (
+        {isLoading ? (
           <motion.div
             key="loading"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -196,7 +196,9 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
               {loadingMessage}
             </h3>
             <p className="text-muted-foreground font-medium mb-6">
-              Processing {processingJobs.length} of {activeJobs.length} files
+              {activeJobs.length > 0
+                ? `Processing ${processingJobs.length} of ${activeJobs.length} files`
+                : "Classifying visuals and extracting readable text"}
             </p>
 
             <div className="w-full max-w-xs space-y-3">

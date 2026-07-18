@@ -525,20 +525,50 @@ export async function registerRoutes(
         return res.status(400).json({ message: "No files uploaded" });
       }
 
-      const jobs: { jobId: string; fileName: string; status: string; message: string }[] = [];
+      const queuedJobs: { jobId: string; fileName: string }[] = [];
 
       for (const file of files) {
         const { buffer, mimetype, originalname } = file;
         const jobId = crypto.randomUUID();
 
-        const job = createJob(jobId, mimetype);
+        createJob(jobId, mimetype);
         storeBuffer(jobId, buffer);
 
-        setImmediate(() => {
-          processJob(jobId);
-        });
+        queuedJobs.push({ jobId, fileName: originalname });
 
-        jobs.push({ jobId, fileName: originalname, status: job.status, message: job.message });
+        // Serverless requests can be handled by different instances, so an in-memory
+        // job created here may not exist when the browser polls for it. Process the
+        // upload before responding in that environment; persistent servers retain
+        // the asynchronous progress-polling behavior.
+        if (!process.env.VERCEL) {
+          setImmediate(() => {
+            processJob(jobId);
+          });
+        }
+      }
+
+      if (process.env.VERCEL) {
+        await Promise.all(queuedJobs.map(({ jobId }) => processJob(jobId)));
+      }
+
+      const jobs = queuedJobs.map(({ jobId, fileName }) => {
+        const job = getJob(jobId);
+        return {
+          jobId,
+          fileName,
+          status: job?.status || "error",
+          progress: job?.progress || 0,
+          message: job?.message || "Upload processing failed",
+          text: job?.text,
+          error: job?.error,
+          isOfficeWithImages: job?.isOfficeWithImages || false,
+          documentImages: job?.documentImages || [],
+          isImageOnly: job?.isImageOnly || false,
+        };
+      });
+
+      if (process.env.VERCEL) {
+        queuedJobs.forEach(({ jobId }) => deleteJob(jobId));
       }
 
       res.json({ jobs });
