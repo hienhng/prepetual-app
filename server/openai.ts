@@ -360,8 +360,9 @@ export function verifyAnswerMatchesExplanation(
   return null;
 }
 
-async function aiVerifyAnswers(mcQuestions: any[], logPrefix: string = "[AI VERIFY]"): Promise<void> {
-  if (mcQuestions.length === 0) return;
+async function aiVerifyAnswers(mcQuestions: any[], logPrefix: string = "[AI VERIFY]"): Promise<Set<any>> {
+  const ambiguousQuestions = new Set<any>();
+  if (mcQuestions.length === 0) return ambiguousQuestions;
 
   try {
     const verificationItems = mcQuestions.map((q: any, i: number) => ({
@@ -371,13 +372,21 @@ async function aiVerifyAnswers(mcQuestions: any[], logPrefix: string = "[AI VERI
       markedCorrect: q.correctAnswer,
     }));
 
-    const verificationPrompt = `You are a strict answer verifier specializing in catching numeric and unit errors. For each question below, you must INDEPENDENTLY solve the problem and determine which option is correct. Do NOT trust the marked answer — verify by solving it yourself.
+    const verificationPrompt = `You are a strict multiple-choice quality and answer verifier. For each question below, independently evaluate EVERY option against the exact wording of the stem. Do not trust the marked answer.
 
 STEP-BY-STEP PROCESS FOR EACH QUESTION:
 1. Read the question carefully
 2. Solve it yourself from scratch (do the math, apply the formula, check the facts)
-3. Find the option that matches YOUR calculated/determined answer
-4. Compare with the "markedCorrect" — if they differ, output YOUR answer
+3. Decide separately whether EACH option satisfies the stem
+4. The question is valid only when EXACTLY ONE option satisfies the stem
+5. If exactly one option is valid, compare it with "markedCorrect" and output the valid option
+
+AMBIGUITY RULES:
+- Reject a question when zero, two, three, or four options could reasonably be correct
+- Reject broad property/category stems when multiple options share the property (for example, "Which stores energy?" when a battery, food, and a stretched rubber band all store energy)
+- Reject questions that depend on an unstated context, convention, degree, or interpretation
+- "Best" or "most" does not repair ambiguity unless the stem states a clear comparison criterion
+- Treat "All of the above" and "None of the above" as invalid answer choices
 
 CRITICAL NUMERIC/UNIT RULES:
 - 50g = 0.05kg (NOT 5kg) — always check decimal places and unit conversions
@@ -392,8 +401,10 @@ Questions to verify:
 ${JSON.stringify(verificationItems, null, 2)}
 
 Respond with ONLY a JSON array. For each question:
-- "correctAnswer": the EXACT text from the options array
-[{"index": 0, "correctAnswer": "exact option text"}, ...]`;
+- "satisfyingOptions": every option that could reasonably satisfy the stem, copied EXACTLY from the options array
+- "isUnambiguous": true only when satisfyingOptions contains exactly one option
+- "correctAnswer": that one exact option when isUnambiguous is true; otherwise use null
+[{"index": 0, "satisfyingOptions": ["exact option text"], "isUnambiguous": true, "correctAnswer": "exact option text"}, ...]`;
 
     const verifyResponse = await pRetry(
       async () => {
@@ -413,10 +424,21 @@ Respond with ONLY a JSON array. For each question:
 
     if (Array.isArray(verifications)) {
       for (const v of verifications) {
-        if (typeof v.index === "number" && typeof v.correctAnswer === "string") {
+        if (typeof v.index === "number") {
           const q = mcQuestions[v.index];
           if (q) {
             const options = q.options.map((o: any) => String(o).trim());
+            const satisfyingOptions = Array.isArray(v.satisfyingOptions)
+              ? v.satisfyingOptions.map((o: any) => String(o).trim()).filter((o: string) => options.includes(o))
+              : [];
+
+            if (v.isUnambiguous === false || (Array.isArray(v.satisfyingOptions) && satisfyingOptions.length !== 1)) {
+              ambiguousQuestions.add(q);
+              console.warn(`${logPrefix} Rejecting ambiguous question "${String(q.question).substring(0, 60)}..."; satisfying options: ${satisfyingOptions.join(" | ") || "none"}`);
+              continue;
+            }
+
+            if (typeof v.correctAnswer !== "string") continue;
             const verifiedAnswer = v.correctAnswer.trim();
             const markedCorrect = String(q.correctAnswer).trim();
 
@@ -431,6 +453,8 @@ Respond with ONLY a JSON array. For each question:
   } catch (verifyError) {
     console.warn(`${logPrefix} Verification step failed, using original answers:`, verifyError);
   }
+
+  return ambiguousQuestions;
 }
 
 interface QuizGenerationParams {
@@ -513,6 +537,8 @@ LANGUAGE HANDLING:
  6. For multiple choice, always provide exactly 4 options
  7. Options must be meaningful and readable text or numbers (not placeholder symbols). If an option is numeric, use digits 0-9 (e.g., "12", "3.5", "$\\frac{1}{2}$"), NEVER use shifted symbols like ! @ # $ % ^ & * ( ) to represent digits.
  8. MULTIPLE-CHOICE OPTIONS — STRICT RULE: NEVER generate similar, synonymous, overlapping, or lightly reworded options. Every option must be a clearly distinct answer with a different meaning, value, outcome, category, or reasoning path. Before returning the question, compare every pair of options; if two could reasonably be treated as the same answer, replace one. Distractors must be plausible but definitively wrong, not alternate phrasings or close variants of the correct answer.
+ 8a. SINGLE-ANSWER TEST — REQUIRED: Evaluate all 4 options independently against the exact stem. Exactly ONE option must satisfy it. If 0 or 2+ options could be correct, rewrite the stem or replace options. Avoid broad property/category questions such as "Which stores energy?" because several different examples may all qualify. State the needed context, mechanism, condition, or comparison criterion explicitly.
+ 8b. Do NOT use "All of the above" or "None of the above". Avoid "best", "most", and "primarily" unless the source establishes an objective criterion that makes one answer uniquely correct.
  9. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
    - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
@@ -587,6 +613,8 @@ LANGUAGE HANDLING:
  6. For multiple choice, always provide exactly 4 options labeled A, B, C, D
  7. Options must be meaningful and readable text or numbers (not placeholder symbols). If an option is numeric, use digits 0-9 (e.g., "12", "3.5", "$\\frac{1}{2}$"), NEVER use shifted symbols like ! @ # $ % ^ & * ( ) to represent digits.
  8. MULTIPLE-CHOICE OPTIONS — STRICT RULE: NEVER generate similar, synonymous, overlapping, or lightly reworded options. Every option must be a clearly distinct answer with a different meaning, value, outcome, category, or reasoning path. Before returning the question, compare every pair of options; if two could reasonably be treated as the same answer, replace one. Distractors must be plausible but definitively wrong, not alternate phrasings or close variants of the correct answer.
+ 8a. SINGLE-ANSWER TEST — REQUIRED: Evaluate all 4 options independently against the exact stem. Exactly ONE option must satisfy it. If 0 or 2+ options could be correct, rewrite the stem or replace options. Avoid broad property/category questions such as "Which stores energy?" because several different examples may all qualify. State the needed context, mechanism, condition, or comparison criterion explicitly.
+ 8b. Do NOT use "All of the above" or "None of the above". Avoid "best", "most", and "primarily" unless the source establishes an objective criterion that makes one answer uniquely correct.
  9. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
  9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
  10. CATEGORY: Assign exactly ONE category from: ${categoryList}
@@ -655,6 +683,8 @@ LANGUAGE HANDLING:
  6. For multiple choice, always provide exactly 4 options
  7. Options must be meaningful and readable text or numbers (not placeholder symbols). If an option is numeric, use digits 0-9 (e.g., "12", "3.5", "$\\frac{1}{2}$"), NEVER use shifted symbols like ! @ # $ % ^ & * ( ) to represent digits.
  8. MULTIPLE-CHOICE OPTIONS — STRICT RULE: NEVER generate similar, synonymous, overlapping, or lightly reworded options. Every option must be a clearly distinct answer with a different meaning, value, outcome, category, or reasoning path. Before returning the question, compare every pair of options; if two could reasonably be treated as the same answer, replace one. Distractors must be plausible but definitively wrong, not alternate phrasings or close variants of the correct answer.
+ 8a. SINGLE-ANSWER TEST — REQUIRED: Evaluate all 4 options independently against the exact stem. Exactly ONE option must satisfy it. If 0 or 2+ options could be correct, rewrite the stem or replace options. Avoid broad property/category questions such as "Which stores energy?" because several different examples may all qualify. State the needed context, mechanism, condition, or comparison criterion explicitly.
+ 8b. Do NOT use "All of the above" or "None of the above". Avoid "best", "most", and "primarily" unless the source establishes an objective criterion that makes one answer uniquely correct.
  9. ALL questions should be based on the visual content
  9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
  10. CATEGORY: Assign exactly ONE category from: ${categoryList}
@@ -837,8 +867,9 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
       const mcQuestions = inputRawQuestions.filter((q: any) =>
         q?.type === "multiple_choice" && q?.explanation && q?.correctAnswer && Array.isArray(q?.options),
       );
+      let ambiguousMcQuestions = new Set<any>();
       if (mcQuestions.length > 0) {
-        await aiVerifyAnswers(mcQuestions, logPrefix);
+        ambiguousMcQuestions = await aiVerifyAnswers(mcQuestions, logPrefix);
         for (const q of mcQuestions) {
           const fixedAnswer = verifyAnswerMatchesExplanation(
             String(q.explanation),
@@ -856,6 +887,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
 
       for (const q of inputRawQuestions) {
         if (built.length >= limit) break;
+        if (ambiguousMcQuestions.has(q)) continue;
         if (!q?.type || !q?.question || !q?.correctAnswer) {
           console.warn("Skipping malformed question:", q);
           continue;
@@ -975,6 +1007,7 @@ IMPORTANT:
 - Use the SAME language as the CONTENT.
 - Follow the same formatting rules as before (4 options for multiple choice, LaTeX formatting for math, etc.).
 - For every multiple-choice question, NEVER generate similar, synonymous, overlapping, or lightly reworded options. Each option must be semantically distinct; replace any pair that could be treated as the same answer.
+- Test all 4 options against the exact stem. Exactly ONE option may satisfy it; if 0 or 2+ do, rewrite the question. Avoid broad shared-property stems, and never use "All of the above" or "None of the above".
 - Return ONLY valid JSON (no markdown).
 
 CONTENT:
@@ -1992,6 +2025,8 @@ REQUIREMENTS:
 5. Ensure factual accuracy based on the provided source material (if any).
 6. Detect the language of the reference questions and respond in the SAME language.
 7. MULTIPLE-CHOICE OPTIONS — STRICT RULE: NEVER generate similar, synonymous, overlapping, or lightly reworded options. Each option must have a distinctly different meaning, value, outcome, category, or reasoning path. Compare every option pair before returning the question and replace any pair that could be treated as the same answer.
+8. SINGLE-ANSWER TEST — REQUIRED: Evaluate all 4 options independently against the exact stem. Exactly ONE option must satisfy it. If 0 or 2+ options could be correct, rewrite the stem or options. Avoid broad shared-property questions, and state any required context or comparison criterion explicitly.
+9. Do NOT use "All of the above" or "None of the above". Avoid subjective "best" or "most" stems unless one answer is objectively established by the source.
 
 OUTPUT FORMAT (JSON):
 {
@@ -2045,8 +2080,12 @@ Respond with ONLY valid JSON.`;
       ...q,
       id: randomUUID(),
     }));
+    const reviewMcQuestions = newQuestions.filter((q: any) =>
+      q?.type === "multiple_choice" && q?.correctAnswer && Array.isArray(q?.options),
+    );
+    const ambiguousQuestions = await aiVerifyAnswers(reviewMcQuestions, "[REVIEW AI VERIFY]");
 
-    return newQuestions.slice(0, count);
+    return newQuestions.filter((q: any) => !ambiguousQuestions.has(q)).slice(0, count);
   } catch (error) {
     console.error("Error generating review questions:", error);
     return [];
