@@ -1,4 +1,3 @@
-import { ocrImageBuffer } from "./ocr.js";
 // Dynamic import for officeparser to prevent hidden pdfjs-dist dependency issues
 let parseOffice: any = null;
 async function getOfficeParser() {
@@ -9,7 +8,6 @@ async function getOfficeParser() {
   return parseOffice;
 }
 import JSZip from "jszip";
-import { classifyImages } from "./openai.js";
 import { extractTextFromPDFWithOCR, renderPdfPagesAsDataUrls } from "./pdf-extract.js";
 
 export interface UploadJob {
@@ -64,27 +62,6 @@ export function cleanupBuffer(id: string) {
 export function deleteJob(id: string) {
   jobs.delete(id);
   jobBuffers.delete(id);
-}
-
-async function extractTextFromImage(buffer: Buffer): Promise<string> {
-  return await ocrImageBuffer(buffer, { languages: "eng+vie" });
-}
-
-async function extractTextFromDataUrl(dataUrl: string): Promise<string> {
-  const matches = dataUrl.match(/^data:image\/[^;]+;base64,(.+)$/);
-  if (!matches) return "";
-
-  try {
-    const buffer = Buffer.from(matches[1], "base64");
-    return (await extractTextFromImage(buffer)).trim();
-  } catch (error) {
-    console.warn("Failed to OCR extracted document image:", error);
-    return "";
-  }
-}
-
-function bufferToDataUrl(buffer: Buffer, fileType: string): string {
-  return `data:${fileType};base64,${buffer.toString("base64")}`;
 }
 
 async function extractTextFromOfficeDocument(buffer: Buffer): Promise<string> {
@@ -202,23 +179,12 @@ export async function processJob(id: string) {
         maxPages: 10,
         renderScale: 1.4,
         maxRenderPixels: 2_500_000,
+        performOcr: false,
       });
       extractedText = result.text;
     } else if (fileType.startsWith("image/")) {
       isImageFile = true;
-      updateJob(id, { progress: 20, message: "Inspecting image content..." });
-
-      const imageDataUrl = bufferToDataUrl(buffer, fileType);
-      const [classification] = await classifyImages([imageDataUrl], undefined, true);
-
-      if (!classification?.hasIllustrations) {
-        updateJob(id, { progress: 45, message: "Text-only image detected. Running OCR..." });
-        extractedText = await extractTextFromImage(buffer);
-        isImageFile = false;
-      } else {
-        updateJob(id, { progress: 45, message: "Visual content detected. Preparing image analysis..." });
-        extractedText = "";
-      }
+      updateJob(id, { progress: 45, message: "Preparing image for quiz generation..." });
     } else if (isOfficeDocument(fileType)) {
       updateJob(id, { progress: 15, message: "Extracting text from document..." });
       extractedText = await extractTextFromOfficeDocument(buffer);
@@ -227,34 +193,8 @@ export async function processJob(id: string) {
       documentImages = await extractImagesFromOfficeDocument(buffer);
       
       if (documentImages.length > 0) {
-        updateJob(id, { progress: 55, message: "Classifying extracted images..." });
-
-        const classifications = await classifyImages(documentImages, undefined, false);
-        const illustrationImages = classifications
-          .filter((classification) => classification.hasIllustrations)
-          .map((classification) => classification.url);
-        const textOnlyImages = classifications
-          .filter((classification) => !classification.hasIllustrations)
-          .map((classification) => classification.url);
-
-        if (textOnlyImages.length > 0) {
-          updateJob(id, { progress: 65, message: "Running OCR on text-only images..." });
-          const ocrTexts = await Promise.all(textOnlyImages.map((imageUrl) => extractTextFromDataUrl(imageUrl)));
-          const mergedOcrText = ocrTexts.map((text) => text.trim()).filter(Boolean).join("\n\n");
-          if (mergedOcrText) {
-            extractedText = extractedText
-              ? `${extractedText}\n\n${mergedOcrText}`.trim()
-              : mergedOcrText;
-          }
-        }
-
-        documentImages = illustrationImages;
-        if (documentImages.length > 0) {
-          isOfficeWithImages = true;
-          console.log(`Office document retained ${documentImages.length} visual images after classification`);
-        } else {
-          console.log("Office document images were text-only; using OCR text instead of image attachments");
-        }
+        isOfficeWithImages = true;
+        updateJob(id, { progress: 65, message: "Preparing embedded images for quiz generation..." });
       }
     }
     
@@ -268,6 +208,7 @@ export async function processJob(id: string) {
         text: extractedText,
         isOfficeWithImages: true,
         documentImages: documentImages,
+        isImageOnly: extractedText.length < 50,
       });
     } else if (isImageFile) {
       updateJob(id, {
@@ -300,6 +241,7 @@ export async function processJob(id: string) {
               text: extractedText || "",
               isOfficeWithImages: true,
               documentImages: pageImages,
+              isImageOnly: true,
             });
             cleanupBuffer(id);
             return;

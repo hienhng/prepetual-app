@@ -93,18 +93,23 @@ export default function Create() {
     }
   }, [extractedText, sourceMaterial.isImageOnly]);
 
-  const handleTextExtracted = (text: string, hasImages?: boolean, documentImages?: string[]) => {
-    setExtractedText(text);
+  const handleTextExtracted = (text: string, hasImages?: boolean, documentImages?: string[], isImageOnly?: boolean) => {
+    const sourceText = isImageOnly && !text
+      ? "[Images uploaded - AI will analyze visually]"
+      : text;
+
+    setExtractedText(sourceText);
     setSourceInputType("upload");
     setActiveModal(null);
 
     // Always set source material with images if available
     setSourceMaterial({
-      type: "document",
-      text: text,
+      type: isImageOnly ? "image" : "document",
+      text: isImageOnly ? null : text,
       imageDataUrl: null,
       isOfficeWithImages: hasImages && documentImages && documentImages.length > 0,
       documentImages: documentImages || [],
+      isImageOnly: isImageOnly || false,
     });
   };
 

@@ -1347,6 +1347,23 @@ export function QuizPlayer() {
     
   const canCheck = !isChecked && !isGrading && (selectedAnswer || (currentQuestion?.type === "short_answer" && shortAnswerInput.trim()));
 
+  useEffect(() => {
+    const handleEnterShortcut = (event: KeyboardEvent) => {
+      if (event.key !== "Enter" || event.repeat || event.isComposing) return;
+
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("textarea, [contenteditable=\"true\"]")) return;
+
+      if (canCheck) {
+        event.preventDefault();
+        void handleCheck();
+      }
+    };
+
+    window.addEventListener("keydown", handleEnterShortcut);
+    return () => window.removeEventListener("keydown", handleEnterShortcut);
+  }, [canCheck, handleCheck]);
+
   if (!currentQuestion) return null;
 
   const displayQuestionNum = isRetryQuestion 

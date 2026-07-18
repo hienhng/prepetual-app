@@ -48,6 +48,15 @@ export async function extractTextFromImagesWithVision(imageUrls: string[]): Prom
     return "";
   }
 
+  if (imageUrls.length > maxVisionImages) {
+    const textParts: string[] = [];
+    for (let index = 0; index < imageUrls.length; index += maxVisionImages) {
+      const text = await extractTextFromImagesWithVision(imageUrls.slice(index, index + maxVisionImages));
+      if (text) textParts.push(text);
+    }
+    return textParts.join("\n\n");
+  }
+
   const images = imageUrls.slice(0, maxVisionImages).map((url) => ({
     type: "image_url" as const,
     image_url: { url, detail: "high" as const },
@@ -114,6 +123,15 @@ export async function classifyImages(
 ): Promise<ImageClassification[]> {
   if (imageUrls.length === 0) {
     return [];
+  }
+
+  if (imageUrls.length > maxVisionImages) {
+    const results: ImageClassification[] = [];
+    for (let index = 0; index < imageUrls.length; index += maxVisionImages) {
+      const batch = imageUrls.slice(index, index + maxVisionImages);
+      results.push(...await classifyImages(batch, onProgress, isImageOnlyMode));
+    }
+    return results;
   }
 
   onProgress?.("classifying", 15, "Analyzing image content types...");

@@ -20,11 +20,11 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface FileUploadProps {
-  onTextExtracted: (text: string, isOfficeWithImages?: boolean, documentImages?: string[]) => void;
+  onTextExtracted: (text: string, isOfficeWithImages?: boolean, documentImages?: string[], isImageOnly?: boolean) => void;
 }
 
 export function FileUpload({ onTextExtracted }: FileUploadProps) {
-  const { activeJobs, startUpload, clearJobs, removeJob, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages } = useUpload();
+  const { activeJobs, startUpload, clearJobs, removeJob, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, hasImageOnlyUploads } = useUpload();
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { setSourceMaterial } = useQuiz();
@@ -44,16 +44,17 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
 
   const loadingMessage = processingJobs.length > 0
     ? processingJobs[0].message || "Processing files..."
-    : isUploading ? "Uploading and scanning files..." : "";
+    : isUploading ? "Preparing files..." : "";
 
   useEffect(() => {
     if (isAllCompleted() && completedJobs.length > 0) {
       const combinedText = getCombinedText();
       const combinedImages = getCombinedDocumentImages();
+      const isImageOnly = hasImageOnlyUploads();
 
       // Always pass images if available
       if (combinedImages.length > 0) {
-        onTextExtracted(combinedText, true, combinedImages);
+        onTextExtracted(combinedText, true, combinedImages, isImageOnly);
       } else if (combinedText) {
         onTextExtracted(combinedText, false, []);
       }
@@ -69,7 +70,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
     } else if (activeJobs.length > 0) {
       setError(null);
     }
-  }, [activeJobs, isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, onTextExtracted, errorJobs, pendingFiles.length]);
+  }, [activeJobs, isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasImageOnlyUploads, onTextExtracted, errorJobs, pendingFiles.length]);
 
   const processFiles = useCallback(async (files: File[]) => {
     setError(null);
@@ -198,7 +199,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
             <p className="text-muted-foreground font-medium mb-6">
               {activeJobs.length > 0
                 ? `Processing ${processingJobs.length} of ${activeJobs.length} files`
-                : "Classifying visuals and extracting readable text"}
+                : "Extracting available text and preserving visuals"}
             </p>
 
             <div className="w-full max-w-xs space-y-3">

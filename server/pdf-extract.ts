@@ -8,6 +8,7 @@ export interface PdfExtractOptions {
   maxPages?: number;
   renderScale?: number;
   maxRenderPixels?: number;
+  performOcr?: boolean;
 }
 
 export interface PdfExtractResult {
@@ -99,6 +100,7 @@ export async function extractTextFromPDFWithOCR(buffer: Buffer, opts: PdfExtract
   const maxPages = opts.maxPages ?? 10;
   const renderScale = opts.renderScale ?? 1.4;
   const maxRenderPixels = opts.maxRenderPixels ?? 2_500_000;
+  const performOcr = opts.performOcr ?? true;
 
   const pdfjs = await loadPdfJs();
   const loadingTask = pdfjs.getDocument({
@@ -121,7 +123,7 @@ export async function extractTextFromPDFWithOCR(buffer: Buffer, opts: PdfExtract
     const selectableText = await extractSelectableTextFromPage(page);
 
     let pageText = selectableText;
-    if (selectableText.length < sparseTextThresholdChars) {
+    if (performOcr && selectableText.length < sparseTextThresholdChars) {
       try {
         const imageBuffer = await renderPdfPageToImageBuffer(page, {
           renderScale,
