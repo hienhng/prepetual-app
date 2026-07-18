@@ -16,6 +16,9 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       user: "User",
       save: "Save",
       saving: "Saving...",
+      backToHome: "Back to Home",
+      goBack: "Back",
+      footer: "Prepetual",
       duplicate: "Duplicate question",
       cancel: "Cancel",
       settings: "Settings",
@@ -478,6 +481,10 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       revisingWarning: "You're currently revising this quiz. Deleting will remove all your progress including your original answers and revision progress.",
       keepRevising: "Keep Revising",
       deleteAllProgress: "Delete All Progress",
+    },
+    notFound: {
+      title: "Seems like we are lost...",
+      description: "Check your URL again or return to Home",
     },
     create: {
       title: "Create a Practice Quiz",
