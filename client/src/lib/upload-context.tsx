@@ -213,8 +213,8 @@ export function UploadProvider({ children }: { children: ReactNode }) {
         images.push(...job.documentImages);
       }
       
-      // Also add image data URL from uploaded images (always check, not else-if)
-      if (job.imageDataUrl) {
+      // Only keep standalone uploaded images when the server classified them as visual.
+      if (job.imageDataUrl && job.isImageOnly) {
         images.push(job.imageDataUrl);
       }
     }
@@ -223,16 +223,16 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   }, [activeJobs]);
 
   const hasOfficeWithImages = useCallback(() => {
-    // Check for office docs with images OR uploaded images
+    // Check for visual assets that should be forwarded to the vision pipeline.
     return activeJobs.some(job => 
-      job.status === "completed" && (job.isOfficeWithImages || job.imageDataUrl)
+      job.status === "completed" && (job.isOfficeWithImages || (job.isImageOnly && job.imageDataUrl))
     );
   }, [activeJobs]);
 
   const hasImageOnlyUploads = useCallback(() => {
-    // Check if ALL completed jobs are image-only (PNG/JPG uploads with no text)
+    // Check if ALL completed jobs still require image analysis after classification.
     const completedJobs = activeJobs.filter(job => job.status === "completed");
-    return completedJobs.length > 0 && completedJobs.every(job => job.isImageOnly || job.imageDataUrl);
+    return completedJobs.length > 0 && completedJobs.every(job => job.isImageOnly);
   }, [activeJobs]);
 
   const isAllCompleted = useCallback(() => {
