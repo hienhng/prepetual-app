@@ -10,6 +10,10 @@ const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
 });
 
+const quizModel = process.env.AI_QUIZ_MODEL || "llama-3.3-70b-versatile";
+const visionModel = process.env.AI_VISION_MODEL || "qwen/qwen3.6-27b";
+const maxVisionImages = 3;
+
 const gemini = new OpenAI({
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
   apiKey: process.env.GEMINI_API_KEY,
@@ -44,7 +48,7 @@ export async function extractTextFromImagesWithVision(imageUrls: string[]): Prom
     return "";
   }
 
-  const images = imageUrls.slice(0, 6).map((url) => ({
+  const images = imageUrls.slice(0, maxVisionImages).map((url) => ({
     type: "image_url" as const,
     image_url: { url, detail: "high" as const },
   }));
@@ -53,7 +57,7 @@ export async function extractTextFromImagesWithVision(imageUrls: string[]): Prom
     const content = await pRetry(
       async () => {
         const completion = await openai.chat.completions.create({
-          model: "meta-llama/llama-4-scout-17b-16e-instruct",
+          model: visionModel,
           messages: [{
             role: "user",
             content: [
@@ -145,8 +149,8 @@ OUTPUT FORMAT (JSON):
 Respond with ONLY valid JSON, no markdown or additional text.`;
 
   try {
-    // Match the 6-image limit used in question generation to ensure consistent classification
-    const imagesToClassify = imageUrls.slice(0, 6);
+    // Match the vision model's image limit used in question generation.
+    const imagesToClassify = imageUrls.slice(0, maxVisionImages);
     const imageContent = imagesToClassify.map(imageUrl => ({
       type: "image_url" as const,
       image_url: { url: imageUrl, detail: "low" as const }
@@ -155,7 +159,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     const response = await pRetry(
       async () => {
         const completion = await openai.chat.completions.create({
-          model: "meta-llama/llama-4-scout-17b-16e-instruct",
+          model: visionModel,
           messages: [{
             role: "user",
             content: [
@@ -193,11 +197,11 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
       // - Image-only mode: treat as text-only (conservative, won't embed but will analyze)
       // - Mixed mode: treat as illustrations (include all, fallback to previous behavior)
       console.warn(`Invalid classification response, defaulting to ${isImageOnlyMode ? 'text-only' : 'illustrations'}`);
-      return imageUrls.slice(0, 6).map(url => ({ url, hasIllustrations: !isImageOnlyMode }));
+      return imageUrls.slice(0, maxVisionImages).map(url => ({ url, hasIllustrations: !isImageOnlyMode }));
     }
 
-    // Only classify the first 6 images (matches the generation limit)
-    const classifiedUrls = imageUrls.slice(0, 6);
+    // Only classify the images that can be sent in one vision request.
+    const classifiedUrls = imageUrls.slice(0, maxVisionImages);
     const results: ImageClassification[] = classifiedUrls.map((url, index) => {
       const classification = parsed.images.find((img: any) => img.index === index);
       // Default for missing classifications depends on mode:
@@ -220,7 +224,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
   } catch (error) {
     // Fallback behavior depends on mode (same as invalid response)
     console.error("Error classifying images:", error);
-    return imageUrls.slice(0, 6).map(url => ({ url, hasIllustrations: !isImageOnlyMode }));
+    return imageUrls.slice(0, maxVisionImages).map(url => ({ url, hasIllustrations: !isImageOnlyMode }));
   }
 }
 
@@ -376,7 +380,7 @@ Respond with ONLY a JSON array. For each question:
     const verifyResponse = await pRetry(
       async () => {
         const result = await openai.chat.completions.create({
-          model: "meta-llama/llama-4-scout-17b-16e-instruct",
+          model: quizModel,
           messages: [{ role: "user", content: verificationPrompt }],
           temperature: 0,
           max_tokens: 4000,
@@ -697,7 +701,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
         onProgress?.("generating", 50, "AI is generating questions...");
 
         if (hasImages) {
-          const imageContent = documentImages.slice(0, 6).map(imageUrl => ({
+          const imageContent = documentImages.slice(0, maxVisionImages).map(imageUrl => ({
             type: "image_url" as const,
             image_url: { url: imageUrl, detail: "high" as const }
           }));
@@ -721,7 +725,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
         const maxEmptyRetries = 3;
 
         const aiClient = openai;
-        const aiModel = "meta-llama/llama-4-scout-17b-16e-instruct";
+        const aiModel = hasImages ? visionModel : quizModel;
 
         while (!content && emptyRetries < maxEmptyRetries) {
           const completion = await aiClient.chat.completions.create({
@@ -978,7 +982,7 @@ OUTPUT FORMAT (JSON):
         async () => {
           let messages: any[];
           if (hasImages) {
-            const imageContent = documentImages.slice(0, 6).map((imageUrl) => ({
+            const imageContent = documentImages.slice(0, maxVisionImages).map((imageUrl) => ({
               type: "image_url" as const,
               image_url: { url: imageUrl, detail: "high" as const },
             }));
@@ -992,7 +996,7 @@ OUTPUT FORMAT (JSON):
           }
 
           const completion = await openai.chat.completions.create({
-            model: "meta-llama/llama-4-scout-17b-16e-instruct",
+            model: hasImages ? visionModel : quizModel,
             messages,
             response_format: { type: "json_object" },
             max_tokens: 4096,
@@ -1154,7 +1158,7 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
         let messages: any[];
 
         if (hasImages) {
-          const imageContent = documentImages.slice(0, 6).map(imageUrl => ({
+          const imageContent = documentImages.slice(0, maxVisionImages).map(imageUrl => ({
             type: "image_url" as const,
             image_url: { url: imageUrl, detail: "high" as const }
           }));
@@ -1173,7 +1177,7 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
         }
 
         const aiClient = openai;
-        const aiModel = "meta-llama/llama-4-scout-17b-16e-instruct";
+        const aiModel = hasImages ? visionModel : quizModel;
 
         const completion = await aiClient.chat.completions.create({
           model: aiModel,
@@ -1605,7 +1609,7 @@ Independently solve this and determine which option is actually correct. Show yo
             }
 
             const completion = await openai.chat.completions.create({
-              model: "meta-llama/llama-4-scout-17b-16e-instruct",
+              model: quizModel,
               messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt },
@@ -1679,7 +1683,7 @@ export async function generateLectureFromMaterial(params: {
 }): Promise<GeneratedLecture | null> {
   const { sourceText = "", imageUrls = [], topicCount = 4, title, difficulty = "medium" } = params;
   const cleanedSource = (sourceText ?? "").replace(/\s+/g, " ").trim();
-  const imageContent = imageUrls.slice(0, 4).map((url) => ({
+  const imageContent = imageUrls.slice(0, maxVisionImages).map((url) => ({
     type: "image_url" as const,
     image_url: { url, detail: "low" as const },
   }));
@@ -1754,7 +1758,7 @@ If the images contain diagrams, charts, formulas, or visual explanations, use th
     const response = await pRetry(
       async () => {
         const completion = await openai.chat.completions.create({
-          model: "meta-llama/llama-4-scout-17b-16e-instruct",
+          model: imageContent.length > 0 ? visionModel : quizModel,
           messages: [
             {
               role: "user",
@@ -1902,7 +1906,7 @@ ${cleanedSource.slice(0, 8000)}`;
     const response = await pRetry(
       async () => {
         const completion = await openai.chat.completions.create({
-          model: "meta-llama/llama-4-scout-17b-16e-instruct",
+          model: quizModel,
           messages: [{ role: "user", content: prompt }],
           response_format: { type: "json_object" },
           temperature: 0.6,
@@ -1989,7 +1993,7 @@ Respond with ONLY valid JSON.`;
     const response = await pRetry(
       async () => {
         const aiClient = openai;
-        const aiModel = "meta-llama/llama-4-scout-17b-16e-instruct";
+        const aiModel = quizModel;
 
         const completion = await aiClient.chat.completions.create({
           model: aiModel,

@@ -88,7 +88,7 @@ async function extractImagesFromOfficeDocument(buffer: Buffer): Promise<string[]
     const zip = await JSZip.loadAsync(buffer);
     const images: string[] = [];
     const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.emf', '.wmf'];
-    const maxImages = 10;
+    const maxImages = 5;
     const maxImageSizeKB = 500;
     
     const mediaFolders = [

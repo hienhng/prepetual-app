@@ -5,13 +5,21 @@ import { motion } from "framer-motion";
 import {
   Play, ArrowLeft, Target, Clock, BookOpen, Trash2, RotateCcw,
   Binary, Book, FlaskConical, Globe, Languages, GraduationCap,
-  Loader2, InboxIcon, ArrowRight,
+  Loader2, InboxIcon, ArrowRight, Search, X,
 } from "lucide-react";
 import { getCategoryIcon, getCategoryTranslationKey } from "@/lib/category-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -68,6 +76,10 @@ const difficultyColors: Record<string, {
 function getDifficulty(raw?: string | null): "easy" | "medium" | "hard" {
   if (raw === "easy" || raw === "hard") return raw;
   return "medium";
+}
+
+function getCategoryValue(raw?: string | null) {
+  return raw || "General";
 }
 
 interface InProgressItem {
@@ -327,6 +339,9 @@ export default function InProgressPage() {
   const { savedProgresses, loadSavedProgress, removeSavedProgress } = useQuiz();
   const { t } = useLanguage();
   const [discardTarget, setDiscardTarget] = useState<InProgressItem | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("all");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("all");
 
   // Fetch ALL progress (no limit)
   const { data: allProgress = [], isLoading } = useQuery<any[]>({
@@ -335,6 +350,51 @@ export default function InProgressPage() {
   });
 
   const items = useMemo(() => allProgress.map(buildInProgressItem), [allProgress]);
+  const availableSubjects = useMemo(() => {
+    return Array.from(new Set(items.map((item) => getCategoryValue(item.quiz.category)))).sort((a, b) =>
+      t(getCategoryTranslationKey(a)).localeCompare(t(getCategoryTranslationKey(b)))
+    );
+  }, [items, t]);
+  const availableDifficulties = useMemo(() => {
+    const difficultyOrder = ["easy", "medium", "hard"];
+    const difficulties = new Set(items.map((item) => getDifficulty(item.quiz.difficulty)));
+    return difficultyOrder.filter((difficulty) => difficulties.has(difficulty as "easy" | "medium" | "hard"));
+  }, [items]);
+  const filteredItems = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    return items.filter((item) => {
+      const difficulty = getDifficulty(item.quiz.difficulty);
+      const category = getCategoryValue(item.quiz.category);
+      const matchesSubject = selectedSubject === "all" || category === selectedSubject;
+      const matchesDifficulty = selectedDifficulty === "all" || difficulty === selectedDifficulty;
+      if (!matchesSubject || !matchesDifficulty) return false;
+
+      if (!normalizedQuery) return true;
+
+      const categoryKey = getCategoryTranslationKey(item.quiz.category);
+      const searchableText = [
+        item.quiz.title,
+        item.quiz.category,
+        t(categoryKey),
+        t(`quizGenerator.${difficulty}`),
+        item.isRevising ? t("inProgress.revising") : "",
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(normalizedQuery);
+    });
+  }, [items, searchQuery, selectedSubject, selectedDifficulty, t]);
+  const hasActiveFilters =
+    !!searchQuery.trim() || selectedSubject !== "all" || selectedDifficulty !== "all";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedSubject("all");
+    setSelectedDifficulty("all");
+  };
 
   const handleContinue = (item: InProgressItem) => {
     loadSavedProgress(item.quizId);
@@ -395,6 +455,87 @@ export default function InProgressPage() {
         </div>
       </motion.div>
 
+      {!isLoading && items.length > 0 && (
+        <div className="mb-5 flex flex-col gap-3">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="relative w-full lg:max-w-md">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t("inProgress.searchPlaceholder")}
+                className="h-11 bg-muted/30 border-border/50 pl-9 pr-9 focus:bg-background transition-all"
+                data-testid="input-search-in-progress"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={t("inProgress.clearSearch")}
+                  data-testid="button-clear-in-progress-search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:flex lg:flex-1">
+              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                <SelectTrigger
+                  className="h-11 bg-muted/30 border-border/50 lg:w-[190px]"
+                  data-testid="filter-in-progress-subject"
+                >
+                  <SelectValue placeholder={t("inProgress.allSubjects")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("inProgress.allSubjects")}</SelectItem>
+                  {availableSubjects.map((subject) => (
+                    <SelectItem key={subject} value={subject}>
+                      {t(getCategoryTranslationKey(subject))}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+                <SelectTrigger
+                  className="h-11 bg-muted/30 border-border/50 lg:w-[190px]"
+                  data-testid="filter-in-progress-difficulty"
+                >
+                  <SelectValue placeholder={t("inProgress.allDifficulties")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("inProgress.allDifficulties")}</SelectItem>
+                  {availableDifficulties.map((difficulty) => (
+                    <SelectItem key={difficulty} value={difficulty}>
+                      {t(`quizGenerator.${difficulty}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {hasActiveFilters && (
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">
+                {t("inProgress.searchResultsCount", { count: filteredItems.length })}
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="w-fit px-2 text-muted-foreground hover:text-foreground"
+                data-testid="button-clear-in-progress-filters"
+              >
+                <X className="mr-1 h-4 w-4" />
+                {t("inProgress.clearFilters")}
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Loading state */}
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
@@ -437,10 +578,31 @@ export default function InProgressPage() {
         </motion.div>
       )}
 
+      {/* No search results */}
+      {!isLoading && items.length > 0 && filteredItems.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+          className="flex flex-col items-center justify-center py-20 text-center"
+        >
+          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-6">
+            <Search className="w-8 h-8 text-muted-foreground/60" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">{t("inProgress.noSearchResults")}</h2>
+          <p className="text-muted-foreground max-w-sm mb-6">
+            {t("inProgress.tryDifferentSearch")}
+          </p>
+          <Button variant="outline" onClick={clearFilters}>
+            {t("inProgress.clearFilters")}
+          </Button>
+        </motion.div>
+      )}
+
       {/* Grid */}
-      {!isLoading && items.length > 0 && (
+      {!isLoading && filteredItems.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-          {items.map((item, index) => (
+          {filteredItems.map((item, index) => (
             <InProgressCard
               key={item.quizId}
               item={item}

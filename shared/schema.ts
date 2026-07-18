@@ -294,7 +294,7 @@ export const generateQuizRequestSchema = z.object({
   questionCount: z.number().min(3).max(20).default(10),
   questionTypes: z.array(z.enum(["multiple_choice", "true_false", "short_answer"])).min(1),
   difficulty: z.enum(["easy", "medium", "hard"]).default("medium"),
-  documentImages: z.array(z.string()).optional(),
+  documentImages: z.array(z.string()).max(5, "A maximum of 5 images is allowed").optional(),
   isImageOnly: z.boolean().optional(),
 }).refine(
   (data) => data.isImageOnly || data.text.length >= 50,

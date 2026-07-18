@@ -185,6 +185,21 @@ export default function Create() {
     setSourceInputType(null);
   };
 
+  const handleRemoveSourceImage = (index: number) => {
+    const currentImages = sourceMaterial.documentImages || [];
+
+    // The material-level remove action above is the way to clear an image-only
+    // source completely. Keep one image here so the source cannot become empty.
+    if (sourceMaterial.isImageOnly && currentImages.length === 1) return;
+
+    const nextImages = currentImages.filter((_, currentIndex) => currentIndex !== index);
+    setSourceMaterial({
+      ...sourceMaterial,
+      documentImages: nextImages,
+      isOfficeWithImages: nextImages.length > 0,
+    });
+  };
+
   const getWordCount = (text: string) => {
     return text.trim().split(/\s+/).filter(Boolean).length;
   };
@@ -209,7 +224,10 @@ export default function Create() {
       gradient: "from-blue-600 to-indigo-700",
       bgLight: "bg-blue-50/50 dark:bg-blue-950/20",
       iconBg: "bg-blue-600",
+      hoverBorderClass: "group-hover:border-blue-500/40",
       badgeClass: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+      arrowWrapClass: "group-hover:bg-blue-500/10",
+      arrowClass: "group-hover:text-blue-600 dark:group-hover:text-blue-400",
       formats: [t('create.formats.docs'), t('create.formats.photos')],
     },
     {
@@ -220,7 +238,10 @@ export default function Create() {
       gradient: "from-violet-600 to-purple-700",
       bgLight: "bg-violet-50/50 dark:bg-violet-950/20",
       iconBg: "bg-violet-600",
+      hoverBorderClass: "group-hover:border-violet-500/40",
       badgeClass: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
+      arrowWrapClass: "group-hover:bg-violet-500/10",
+      arrowClass: "group-hover:text-violet-600 dark:group-hover:text-violet-400",
       formats: [t('create.formats.handwritten'), t('create.formats.summaries')],
     },
     {
@@ -231,7 +252,10 @@ export default function Create() {
       gradient: "from-red-600 to-rose-700",
       bgLight: "bg-red-50/50 dark:bg-red-950/20",
       iconBg: "bg-red-600",
+      hoverBorderClass: "group-hover:border-red-500/40",
       badgeClass: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+      arrowWrapClass: "group-hover:bg-red-500/10",
+      arrowClass: "group-hover:text-red-600 dark:group-hover:text-red-400",
       formats: [t('create.formats.lectures'), t('create.formats.explainers')],
     },
   ];
@@ -291,7 +315,7 @@ export default function Create() {
                   <div className={`absolute -inset-0.5 rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-r ${option.gradient}`} />
 
                   <Card
-                    className={`relative cursor-pointer overflow-hidden border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-300 group-hover:bg-background group-hover:border-primary/30 group-hover:shadow-xl shadow-primary/5`}
+                    className={`relative cursor-pointer overflow-hidden border border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-300 group-hover:bg-background ${option.hoverBorderClass} group-hover:shadow-xl shadow-primary/5`}
                     onClick={() => setActiveModal(option.id as ActiveModal)}
                     data-testid={`card-${option.id}`}
                   >
@@ -322,8 +346,8 @@ export default function Create() {
                         </div>
                       </div>
                       <div className="flex-shrink-0 z-10">
-                        <div className="w-12 h-12 rounded-2xl bg-muted group-hover:bg-primary/10 transition-colors flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <ArrowRight className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <div className={`w-12 h-12 rounded-2xl bg-muted transition-colors flex items-center justify-center group-hover:scale-110 transition-transform ${option.arrowWrapClass}`}>
+                          <ArrowRight className={`w-6 h-6 text-muted-foreground transition-colors ${option.arrowClass}`} />
                         </div>
                       </div>
                     </CardContent>
@@ -385,33 +409,29 @@ export default function Create() {
 
                     {(sourceMaterial?.isOfficeWithImages || sourceMaterial?.isImageOnly) && sourceMaterial?.documentImages && sourceMaterial.documentImages.length > 0 ? (
                       <div className="p-4 rounded-2xl bg-background/50 border border-border/50 backdrop-blur-sm shadow-inner group/images">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Image className="w-4 h-4 text-emerald-500" />
-                          <p className="text-sm font-bold text-foreground">
-                            {t('create.visualAssetsFound')}
-                          </p>
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <div className="flex items-center gap-2">
+                            <Image className="w-4 h-4 text-emerald-500" />
+                            <p className="text-sm font-bold text-foreground">
+                              {t('create.visualAssetsFound')} ({sourceMaterial.documentImages.length})
+                            </p>
+                          </div>
+                          
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {sourceMaterial.documentImages.slice(0, 5).map((img, index) => (
+                          {sourceMaterial.documentImages.map((img, index) => (
                             <motion.div
                               key={index}
                               whileHover={{ scale: 1.05, y: -2 }}
-                              className="w-14 h-14 rounded-xl overflow-hidden border-2 border-background shadow-md"
+                              className="relative w-20 h-20 rounded-xl border-2 border-background shadow-md"
                             >
                               <img
                                 src={img}
                                 alt={`Asset ${index + 1}`}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover rounded-xl"
                               />
                             </motion.div>
                           ))}
-                          {sourceMaterial.documentImages.length > 5 && (
-                            <div className="w-14 h-14 rounded-xl border-2 border-dashed border-muted flex items-center justify-center bg-muted/30">
-                              <span className="text-xs text-muted-foreground font-black">
-                                +{sourceMaterial.documentImages.length - 5}
-                              </span>
-                            </div>
-                          )}
                         </div>
                       </div>
                     ) : (

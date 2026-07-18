@@ -37,6 +37,8 @@ const openaiClient = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
+const textModel = process.env.AI_QUIZ_MODEL || "llama-3.3-70b-versatile";
+
 const ollamaClient = new OpenAI({
   baseURL: process.env.OLLAMA_BASE_URL || "http://localhost:11434/v1",
   apiKey: "ollama",
@@ -864,7 +866,7 @@ export async function registerRoutes(
       }
 
       const completion = await openaiClient.chat.completions.create({
-        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        model: textModel,
         messages: [
           {
             role: "system",
@@ -941,7 +943,7 @@ IMPORTANT NOTE:
               ? `\nA suggested answer was: "${question.correctAnswer}" — but do NOT treat this as the only correct answer. Use the study material to determine if the student's answer is valid.`
               : "";
             const response = await openaiClient.chat.completions.create({
-              model: "meta-llama/llama-4-scout-17b-16e-instruct",
+              model: textModel,
               messages: [
                 {
                   role: "system",

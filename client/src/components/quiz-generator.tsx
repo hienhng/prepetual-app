@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, Import, FileQuestionIcon, ArrowRight, BookText, Gauge, CheckSquare, ToggleLeft, MessageSquare } from "lucide-react";
+import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, Import, FileQuestionIcon, ArrowRight, BookText, Gauge, CheckSquare, ToggleLeft, MessageSquare, X } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { QuizGenerationDialog } from "@/components/quiz-generation-dialog";
 
 type QuizMode = "generate" | "import";
+const MAX_SOURCE_IMAGES = 5;
 
 export function QuizGenerator() {
   const [, setLocation] = useLocation();
@@ -127,6 +128,15 @@ export function QuizGenerator() {
 
   const generateQuiz = async () => {
     if (!extractedText) return;
+
+    const selectedImageCount = documentImages.length + (sourceMaterial.imageDataUrl ? 1 : 0);
+    if (selectedImageCount > MAX_SOURCE_IMAGES) {
+      const excessCount = selectedImageCount - MAX_SOURCE_IMAGES;
+      setError(
+        `You selected ${selectedImageCount} images. Remove ${excessCount} image${excessCount === 1 ? "" : "s"} before generating. A maximum of ${MAX_SOURCE_IMAGES} images is allowed.`,
+      );
+      return;
+    }
 
     setError(null);
     setIsLoading(true);
@@ -286,10 +296,47 @@ export function QuizGenerator() {
 
   // Check if we have images to display (from document images or single image upload)
   const singleImageUrl = sourceMaterial?.imageDataUrl;
-  const allImages = singleImageUrl ? [singleImageUrl] : documentImages;
+  const allImages = [...(singleImageUrl ? [singleImageUrl] : []), ...documentImages];
   const hasVisualContent = allImages.length > 0;
   const [showTextInstead, setShowTextInstead] = useState(false);
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
+
+  const removeImage = (index: number, imageUrl: string) => {
+    if (allImages.length === 1 && sourceMaterial.isImageOnly) {
+      setError("Keep at least one image to generate a quiz from image-only material.");
+      return;
+    }
+
+    const hasSingleImage = Boolean(singleImageUrl);
+    const removingSingleImage = hasSingleImage && index === 0;
+    const documentImageIndex = index - (hasSingleImage ? 1 : 0);
+    const nextDocumentImages = removingSingleImage
+      ? documentImages
+      : documentImages.filter((_, currentIndex) => currentIndex !== documentImageIndex);
+    const nextSingleImage = removingSingleImage ? null : sourceMaterial.imageDataUrl;
+    const nextImageCount = nextDocumentImages.length + (nextSingleImage ? 1 : 0);
+
+    setSourceMaterial({
+      ...sourceMaterial,
+      imageDataUrl: nextSingleImage,
+      documentImages: nextDocumentImages,
+      isOfficeWithImages: nextDocumentImages.length > 0,
+      isImageOnly: sourceMaterial.isImageOnly && nextImageCount > 0,
+    });
+
+    if (expandedImage === imageUrl) {
+      setExpandedImage(null);
+    }
+
+    if (nextImageCount <= MAX_SOURCE_IMAGES) {
+      setError(null);
+    } else {
+      const excessCount = nextImageCount - MAX_SOURCE_IMAGES;
+      setError(
+        `Remove ${excessCount} more image${excessCount === 1 ? "" : "s"} before generating. A maximum of ${MAX_SOURCE_IMAGES} images is allowed.`,
+      );
+    }
+  };
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -373,6 +420,18 @@ export function QuizGenerator() {
                           <FileQuestionIcon className="w-4 h-4 text-primary" />
                         </div>
                       </div>
+                      <button
+                        type="button"
+                        className="absolute right-2 top-2 z-50 inline-flex h-9 items-center gap-1.5 rounded-full border border-white bg-red-500 p-2.5 text-xs font-black text-white shadow-xl transition-transform hover:scale-105 hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          removeImage(index, img);
+                        }}
+                        aria-label={`Remove image ${index + 1}`}
+                        data-testid={`button-remove-source-image-${index}`}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
                     </motion.div>
                   ))}
                 </div>
