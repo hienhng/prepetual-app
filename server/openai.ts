@@ -47,15 +47,15 @@ export type ImageClassification = {
   reason?: string;
 };
 
-function parseVisionTextResponse(content: string): string {
-  const parsed = JSON.parse(content);
-  if (!Array.isArray(parsed.texts)) return "";
+function normalizeVisionTextResponse(content: string): string {
+  const trimmed = content.trim();
+  if (!trimmed) return "";
 
-  return parsed.texts
-    .sort((a: { index?: number }, b: { index?: number }) => (a.index ?? 0) - (b.index ?? 0))
-    .map((item: { text?: unknown }) => typeof item.text === "string" ? item.text.trim() : "")
-    .filter(Boolean)
-    .join("\n\n");
+  // Some models still wrap plain-text answers in one outer Markdown fence even
+  // when explicitly told not to. Remove only that wrapper and preserve any
+  // fences that were actually present in the source material.
+  const fenced = trimmed.match(/^```(?:text|markdown|md)?\s*\r?\n([\s\S]*?)\r?\n```$/i);
+  return (fenced?.[1] ?? trimmed).trim();
 }
 
 function getFailedGenerationPayloads(error: unknown): string[] {
@@ -91,13 +91,8 @@ function recoverFailedVisionGeneration(error: unknown): string {
   const candidates = getFailedGenerationPayloads(error);
 
   for (const candidate of candidates) {
-    if (typeof candidate !== "string" || candidate.length === 0) continue;
-    try {
-      const recoveredText = parseVisionTextResponse(candidate);
-      if (recoveredText) return recoveredText;
-    } catch {
-      // The provider may return a partial generation. Basic OCR remains the fallback.
-    }
+    const recoveredText = normalizeVisionTextResponse(candidate);
+    if (recoveredText) return recoveredText;
   }
 
   return "";
@@ -138,12 +133,11 @@ async function extractTextFromImagesWithVisionInternal(
             content: [
               {
                 type: "text",
-                text: "Transcribe every readable word from these study-material images. Preserve headings, lists, questions, equations, and answer choices. Return only JSON in this exact shape: {\"texts\":[{\"index\":0,\"text\":\"...\"}]}. Use an empty string when an image has no readable text.",
+                text: "Transcribe every readable word from these study-material images in the order supplied. Preserve headings, lists, questions, equations, tables, and answer choices. Separate images with a line containing only --- PAGE BREAK ---. Return only the transcription as plain text: no JSON, no Markdown fence, no analysis, and no summary. Skip an image if it has no readable text.",
               },
               ...images,
             ],
           }],
-          response_format: { type: "json_object" },
           max_tokens: 6000,
         },
         {
@@ -172,7 +166,7 @@ async function extractTextFromImagesWithVisionInternal(
     },
   );
 
-  return parseVisionTextResponse(content);
+  return normalizeVisionTextResponse(content);
 }
 
 export async function extractTextFromImagesWithVision(imageUrls: string[]): Promise<string> {
@@ -186,7 +180,7 @@ export async function extractTextFromImagesWithVision(imageUrls: string[]): Prom
     const recoveredText = recoverFailedVisionGeneration(error);
     if (recoveredText) {
       console.warn(
-        `Recovered ${recoveredText.length} characters from the vision provider's failed JSON generation.`,
+        `Recovered ${recoveredText.length} characters from the vision provider's partial generation.`,
       );
       return recoveredText;
     }
@@ -642,6 +636,7 @@ FACTUAL ACCURACY (HIGHEST PRIORITY):
 - For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
 - NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
 - Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
+- For math problems explanations and options, use a calculation tool. Show the formula and assumptions, preserve full precision until the final step, verify the result independently, and clearly state the rounding rule.
 
 MATHEMATICAL CONTENT & LATEX (CRITICAL):
 - For ALL mathematical expressions, formulas, equations, variables (even single letters like x, y), or numeric notations with symbols, you MUST use LaTeX formatting.

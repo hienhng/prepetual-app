@@ -17,7 +17,7 @@ async function getOfficeParser() {
   return parseOffice;
 }
 import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, extractTextFromImagesWithVision, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
-import { generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
+import { IMAGE_ANALYSIS_SOURCE_MARKER, generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs.js";
 import { extractTextFromPDFWithOCR } from "./pdf-extract.js";
@@ -270,11 +270,16 @@ async function extractTextFromBase64Image(base64Url: string): Promise<string> {
   }
 }
 
+type ImageTextExtractionResult = {
+  text: string;
+  source: "vision" | "ocr" | "none";
+};
+
 async function extractTextFromTextOnlyImages(
   imageUrls: string[],
   onProgress?: (step: string, progress: number, message: string) => void
-): Promise<string> {
-  if (imageUrls.length === 0) return "";
+): Promise<ImageTextExtractionResult> {
+  if (imageUrls.length === 0) return { text: "", source: "none" };
 
   onProgress?.("extracting", 20, "Reading text from images...");
 
@@ -283,7 +288,7 @@ async function extractTextFromTextOnlyImages(
   const visionText = await extractTextFromImagesWithVision(imageUrls);
   if (visionText) {
     console.log(`Vision extracted ${visionText.length} characters from ${imageUrls.length} images`);
-    return visionText;
+    return { text: visionText, source: "vision" };
   }
 
   console.warn("Vision text extraction returned no text; falling back to local OCR.");
@@ -297,7 +302,15 @@ async function extractTextFromTextOnlyImages(
     }
   }
 
-  return textParts.join("\n\n");
+  const ocrText = textParts.join("\n\n");
+  return {
+    text: ocrText,
+    source: ocrText ? "ocr" : "none",
+  };
+}
+
+function markInternalImageAnalysisText(text: string): string {
+  return `${IMAGE_ANALYSIS_SOURCE_MARKER}\n${text}`;
 }
 
 export async function registerRoutes(
@@ -653,6 +666,7 @@ export async function registerRoutes(
       // For image-only uploads, we still need images for the AI to analyze even if they're text-only
       let imagesForQuestions: string[] | undefined;
       let textForQuiz = text;
+      let sourceUsesVisionTranscription = false;
       const imageOnlyFlag = isImageOnly || false;
       if (documentImages && documentImages.length > 0) {
         const classifications = await classifyImages(documentImages, sendProgress, imageOnlyFlag);
@@ -670,17 +684,18 @@ export async function registerRoutes(
           .map(c => c.url);
 
         if (textOnlyImages.length > 0) {
-          console.log(`Found ${textOnlyImages.length} text-only images, running OCR...`);
-          // Extract text from text-only images using OCR
-          const ocrText = await extractTextFromTextOnlyImages(textOnlyImages, sendProgress);
-          if (ocrText) {
-            // Append OCR text to existing text (or replace placeholder)
+          console.log(`Found ${textOnlyImages.length} text-only images, extracting text...`);
+          // Qwen plain-text transcription is primary; local OCR is the final fallback.
+          const imageTextExtraction = await extractTextFromTextOnlyImages(textOnlyImages, sendProgress);
+          if (imageTextExtraction.text) {
+            // Append extracted image text to existing text (or replace placeholder)
             if (text === "[Images uploaded - AI will analyze visually]" || text.length < 50) {
-              textForQuiz = ocrText;
+              textForQuiz = imageTextExtraction.text;
+              sourceUsesVisionTranscription = imageTextExtraction.source === "vision";
             } else {
-              textForQuiz = text + "\n\n" + ocrText;
+              textForQuiz = text + "\n\n" + imageTextExtraction.text;
             }
-            console.log(`OCR extracted ${ocrText.length} characters from text-only images`);
+            console.log(`Extracted ${imageTextExtraction.text.length} characters from text-only images via ${imageTextExtraction.source}`);
           }
         }
 
@@ -690,14 +705,14 @@ export async function registerRoutes(
           imagesForQuestions = illustrationImages;
           console.log(`Passing ${illustrationImages.length} illustration images for visual analysis`);
         } else if (isImageOnly && textOnlyImages.length > 0) {
-          // In image-only mode, if we have text-only images, we check if OCR got enough content.
+          // In image-only mode, check whether transcription/OCR found enough content.
           if (textForQuiz && textForQuiz.length > 100) {
             console.log(`Successfully extracted ${textForQuiz.length} characters from text-only images. Dropping images from vision prompt.`);
             imagesForQuestions = undefined;
           } else {
-            // Fallback: If OCR failed or was sparse, pass the images so the vision model can read them.
+            // If extraction was sparse, keep the images in the generation prompt for visual analysis.
             imagesForQuestions = textOnlyImages;
-            console.log(`OCR results sparse or failed, passing ${textOnlyImages.length} text-only images to vision model as fallback.`);
+            console.log(`Image text extraction was sparse, passing ${textOnlyImages.length} text-only images to the vision model.`);
           }
         }
       }
@@ -717,7 +732,7 @@ export async function registerRoutes(
       const quiz = await storage.saveQuiz({
         userId,
         title,
-        sourceText: textForQuiz,
+        sourceText: sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForQuiz) : textForQuiz,
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: documentImages || null,
         questions: questions as Question[],
@@ -755,6 +770,7 @@ export async function registerRoutes(
       // Classify images to separate text-only from illustrations
       let imagesForQuestions: string[] | undefined;
       let textForQuiz = text;
+      let sourceUsesVisionTranscription = false;
       const imageOnlyFlag = isImageOnly || false;
 
       if (documentImages && documentImages.length > 0) {
@@ -767,17 +783,17 @@ export async function registerRoutes(
           .map(c => c.url);
 
         if (textOnlyImages.length > 0) {
-          console.log(`Found ${textOnlyImages.length} text-only images, running OCR...`);
-          // Extract text from text-only images using OCR
-          const ocrText = await extractTextFromTextOnlyImages(textOnlyImages);
-          if (ocrText) {
-            // Append OCR text to existing text (or replace placeholder)
+          console.log(`Found ${textOnlyImages.length} text-only images, extracting text...`);
+          const imageTextExtraction = await extractTextFromTextOnlyImages(textOnlyImages);
+          if (imageTextExtraction.text) {
+            // Append extracted image text to existing text (or replace placeholder)
             if (text === "[Images uploaded - AI will analyze visually]" || text.length < 50) {
-              textForQuiz = ocrText;
+              textForQuiz = imageTextExtraction.text;
+              sourceUsesVisionTranscription = imageTextExtraction.source === "vision";
             } else {
-              textForQuiz = text + "\n\n" + ocrText;
+              textForQuiz = text + "\n\n" + imageTextExtraction.text;
             }
-            console.log(`OCR extracted ${ocrText.length} characters from text-only images`);
+            console.log(`Extracted ${imageTextExtraction.text.length} characters from text-only images via ${imageTextExtraction.source}`);
           }
         }
 
@@ -801,7 +817,7 @@ export async function registerRoutes(
       const quiz = await storage.saveQuiz({
         userId,
         title,
-        sourceText: textForQuiz,
+        sourceText: sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForQuiz) : textForQuiz,
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: documentImages || null,
         questions: questions as Question[],
@@ -834,15 +850,17 @@ export async function registerRoutes(
         });
       }
 
-      // For image-only uploads, run OCR to extract text
+      // For image-only uploads, use Qwen transcription with local OCR fallback.
       let textForImport = text;
+      let sourceUsesVisionTranscription = false;
       if (documentImages && Array.isArray(documentImages) && documentImages.length > 0) {
         if (text === "[Images uploaded - AI will analyze visually]" || text.length < 50) {
-          console.log(`Import: Running OCR on ${documentImages.length} images...`);
-          const ocrText = await extractTextFromTextOnlyImages(documentImages);
-          if (ocrText && ocrText.length > 50) {
-            textForImport = ocrText;
-            console.log(`Import: OCR extracted ${ocrText.length} characters`);
+          console.log(`Import: Extracting text from ${documentImages.length} images...`);
+          const imageTextExtraction = await extractTextFromTextOnlyImages(documentImages);
+          if (imageTextExtraction.text && imageTextExtraction.text.length > 50) {
+            textForImport = imageTextExtraction.text;
+            sourceUsesVisionTranscription = imageTextExtraction.source === "vision";
+            console.log(`Import: Extracted ${imageTextExtraction.text.length} characters via ${imageTextExtraction.source}`);
           }
         }
       }
@@ -861,7 +879,7 @@ export async function registerRoutes(
       const quiz = await storage.saveQuiz({
         userId,
         title,
-        sourceText: textForImport,
+        sourceText: sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForImport) : textForImport,
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: Array.isArray(documentImages) ? documentImages : null,
         questions: questions as Question[],

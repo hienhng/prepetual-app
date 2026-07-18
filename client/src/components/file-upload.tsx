@@ -188,7 +188,7 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                 />
                 <Upload className="h-10 w-10 text-primary animate-bounce fill-current opacity-20" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Loader2 className="h-12 w-12 text-primary animate-spin-slow opacity-80" />
+                  <Loader2 className="h-12 w-12 text-primary animate-spin opacity-80" />
                 </div>
               </div>
             </div>

@@ -13,9 +13,19 @@ import { useQuiz } from "@/lib/quiz-context";
 import { useUpload } from "@/lib/upload-context";
 import { motion, AnimatePresence } from "framer-motion";
 import { QuizGenerationDialog } from "@/components/quiz-generation-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 type QuizMode = "generate" | "import";
 const MAX_SOURCE_IMAGES = 5;
+
+async function getResponseErrorMessage(response: Response, fallback: string): Promise<string> {
+  try {
+    const data = await response.json();
+    return typeof data?.message === "string" && data.message.trim() ? data.message : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 export function QuizGenerator() {
   const [, setLocation] = useLocation();
@@ -29,6 +39,7 @@ export function QuizGenerator() {
     currentGenerationStep, setCurrentGenerationStep
   } = useQuiz();
   const { clearJob } = useUpload();
+  const { toast } = useToast();
   const [showFullText, setShowFullText] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<QuizMode>("generate");
@@ -39,6 +50,16 @@ export function QuizGenerator() {
   const [questionCount, setQuestionCount] = useState<number>(10);
   const [questionTypes, setQuestionTypes] = useState<Array<"multiple_choice" | "true_false" | "short_answer">>(["multiple_choice", "true_false"]);
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
+
+  const showGenerationFailure = (title: string, error: unknown, fallback: string) => {
+    const message = error instanceof Error && error.message.trim() ? error.message : fallback;
+    setError(message);
+    toast({
+      title,
+      description: message,
+      variant: "destructive",
+    });
+  };
 
   const toggleQuestionType = (type: "multiple_choice" | "true_false" | "short_answer") => {
     setQuestionTypes((prev) => {
@@ -155,8 +176,7 @@ export function QuizGenerator() {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to import quiz");
+          throw new Error(await getResponseErrorMessage(response, "Failed to import quiz"));
         }
 
         const quiz = await response.json();
@@ -181,7 +201,7 @@ export function QuizGenerator() {
         await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
         setLocation("/history");
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred while importing the quiz");
+        showGenerationFailure("Quiz import failed", err, "An error occurred while importing the quiz");
       } finally {
         setIsLoading(false);
         setLoadingMessage("");
@@ -213,7 +233,7 @@ export function QuizGenerator() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to start quiz generation");
+        throw new Error(await getResponseErrorMessage(response, "Failed to start quiz generation"));
       }
 
       const reader = response.body?.getReader();
@@ -223,6 +243,64 @@ export function QuizGenerator() {
 
       const decoder = new TextDecoder();
       let buffer = "";
+      let generationCompleted = false;
+
+      const handleSseLine = async (line: string) => {
+        if (!line.startsWith("data: ")) return;
+
+        let data: any;
+        try {
+          data = JSON.parse(line.slice(6));
+        } catch (parseError) {
+          console.warn("[SSE] Ignoring malformed event:", parseError);
+          return;
+        }
+
+        console.log("[SSE] Received:", data);
+
+        if (data.type === "progress") {
+          console.log("[SSE] Progress update:", data.step, data.progress);
+          setProcessingProgress(data.progress);
+          setCurrentGenerationStep(data.step);
+          setLoadingMessage(data.message);
+        } else if (data.type === "complete") {
+          generationCompleted = true;
+
+          // Show final completion steps
+          setProcessingProgress(98);
+          setCurrentGenerationStep("saving");
+          setLoadingMessage("Saving your quiz...");
+
+          // Brief pause to show saving state
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          setProcessingProgress(100);
+          setCurrentGenerationStep("complete");
+          setLoadingMessage("Quiz created successfully!");
+
+          // Another brief pause before redirect
+          await new Promise(resolve => setTimeout(resolve, 800));
+
+          setCurrentQuiz(data.quiz);
+          clearJob();
+          setExtractedText("");
+          // Preserve documentImages for viewing in quiz player
+          setSourceMaterial({
+            type: sourceMaterial.type,
+            text: null,
+            imageDataUrl: sourceMaterial.imageDataUrl,
+            isOfficeWithImages: sourceMaterial.isOfficeWithImages,
+            documentImages: documentImages
+          });
+          await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
+          setLocation("/history");
+        } else if (data.type === "error") {
+          const message = typeof data.message === "string" && data.message.trim()
+            ? data.message
+            : "Quiz generation failed";
+          throw new Error(message);
+        }
+      };
 
       while (true) {
         const { done, value } = await reader.read();
@@ -233,56 +311,22 @@ export function QuizGenerator() {
         buffer = lines.pop() || "";
 
         for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              console.log("[SSE] Received:", data);
-
-              if (data.type === "progress") {
-                console.log("[SSE] Progress update:", data.step, data.progress);
-                setProcessingProgress(data.progress);
-                setCurrentGenerationStep(data.step);
-                setLoadingMessage(data.message);
-              } else if (data.type === "complete") {
-                // Show final completion steps
-                setProcessingProgress(98);
-                setCurrentGenerationStep("saving");
-                setLoadingMessage("Saving your quiz...");
-
-                // Brief pause to show saving state
-                await new Promise(resolve => setTimeout(resolve, 500));
-
-                setProcessingProgress(100);
-                setCurrentGenerationStep("complete");
-                setLoadingMessage("Quiz created successfully!");
-
-                // Another brief pause before redirect
-                await new Promise(resolve => setTimeout(resolve, 800));
-
-                setCurrentQuiz(data.quiz);
-                clearJob();
-                setExtractedText("");
-                // Preserve documentImages for viewing in quiz player
-                setSourceMaterial({
-                  type: sourceMaterial.type,
-                  text: null,
-                  imageDataUrl: sourceMaterial.imageDataUrl,
-                  isOfficeWithImages: sourceMaterial.isOfficeWithImages,
-                  documentImages: documentImages
-                });
-                await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
-                setLocation("/history");
-              } else if (data.type === "error") {
-                throw new Error(data.message);
-              }
-            } catch (parseError) {
-              // Ignore parse errors for incomplete chunks
-            }
-          }
+          await handleSseLine(line);
         }
       }
+
+      buffer += decoder.decode();
+      if (buffer.trim()) {
+        for (const line of buffer.split("\n")) {
+          await handleSseLine(line);
+        }
+      }
+
+      if (!generationCompleted) {
+        throw new Error("Quiz generation stopped before completion. Please try again.");
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred while generating the quiz");
+      showGenerationFailure("Quiz generation failed", err, "An error occurred while generating the quiz");
     } finally {
       setIsLoading(false);
       setLoadingMessage("");

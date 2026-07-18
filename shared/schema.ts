@@ -61,6 +61,12 @@ export type VerificationToken = typeof verificationTokens.$inferSelect;
 export type QuestionType = "multiple_choice" | "true_false" | "short_answer";
 export type DifficultyLevel = "easy" | "medium" | "hard";
 
+// Prefix stored with an internal Qwen image transcription. The transcription
+// remains available to AI features, while user-facing material views can avoid
+// presenting model-generated text as if it came directly from the document.
+export const IMAGE_ANALYSIS_SOURCE_MARKER = "[[PREPETUAL_IMAGE_ANALYSIS]]";
+export const IMAGE_ANALYSIS_DISPLAY_TEXT = "Images analyzed visually";
+
 // Quiz categories - AI will assign one of these based on content
 export const QUIZ_CATEGORIES = [
   "Math",

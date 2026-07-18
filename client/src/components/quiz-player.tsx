@@ -15,7 +15,7 @@ import { useSidebarOptional } from "@/components/ui/sidebar";
 import { useLanguage } from "@/lib/language-context";
 import { apiRequest } from "@/lib/queryClient";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Question } from "@shared/schema";
+import { IMAGE_ANALYSIS_DISPLAY_TEXT, IMAGE_ANALYSIS_SOURCE_MARKER, type Question } from "@shared/schema";
 import confetti from "canvas-confetti";
 import { QuizChatbot } from "@/components/quiz-chatbot";
 import AskPipIcon from "@/components/ui/ask-pip-icon";
@@ -1338,7 +1338,11 @@ export function QuizPlayer() {
   const hasMaterialImages = allMaterialImages.length > 0;
 
   const rawText = (currentQuiz as any)?.sourceText || sourceMaterial?.text || "";
-  const materialText = rawText === "[Images uploaded - AI will analyze visually]" ? "" : rawText;
+  const materialText = rawText.startsWith(IMAGE_ANALYSIS_SOURCE_MARKER)
+    ? IMAGE_ANALYSIS_DISPLAY_TEXT
+    : rawText === "[Images uploaded - AI will analyze visually]"
+      ? ""
+      : rawText;
   const hasMaterialText = Boolean(materialText.trim());
   const hasMaterialContent = hasMaterialImages || hasMaterialText;
 
