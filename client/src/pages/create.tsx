@@ -506,8 +506,8 @@ export default function Create() {
         </motion.div>
 
         <Dialog open={activeModal === "upload"} onOpenChange={handleUploadDialogOpenChange}>
-          <DialogContent className="max-w-2xl rounded-3xl border-border/50 backdrop-blur-xl p-0 overflow-hidden">
-            <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/5 p-8 pb-4">
+          <DialogContent className="max-h-[90svh] max-w-2xl flex flex-col rounded-3xl border-border/50 backdrop-blur-xl p-0 overflow-hidden">
+            <div className="shrink-0 bg-gradient-to-br from-blue-500/10 to-indigo-500/5 p-8 pb-4">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-4 text-3xl font-black tracking-tight">
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
@@ -517,7 +517,7 @@ export default function Create() {
                 </DialogTitle>
               </DialogHeader>
             </div>
-            <div className="p-8 pt-4">
+            <div className="min-h-0 flex-1 overflow-y-auto p-8 pt-4">
               <FileUpload onTextExtracted={handleTextExtracted} />
               <div className="mt-8 pt-6 border-t border-border/50 flex items-center justify-between">
                 <div className="flex gap-2">
