@@ -287,6 +287,7 @@ async function extractTextFromTextOnlyImages(
   }
 
   console.warn("Vision text extraction returned no text; falling back to local OCR.");
+  onProgress?.("ocr-fallback", 25, "AI reading unavailable. Using basic OCR...");
 
   const textParts: string[] = [];
   for (const url of imageUrls) {

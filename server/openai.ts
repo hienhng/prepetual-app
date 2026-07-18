@@ -13,6 +13,10 @@ const openai = new OpenAI({
 const quizModel = process.env.AI_QUIZ_MODEL || "llama-3.3-70b-versatile";
 const visionModel = process.env.AI_VISION_MODEL || "qwen/qwen3.6-27b";
 const maxVisionImages = 3;
+const visionTextTimeoutMs = Math.max(
+  1_000,
+  Number(process.env.AI_VISION_TEXT_TIMEOUT_MS) || 30_000,
+);
 
 const gemini = new OpenAI({
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
@@ -43,7 +47,41 @@ export type ImageClassification = {
   reason?: string;
 };
 
-export async function extractTextFromImagesWithVision(imageUrls: string[]): Promise<string> {
+function parseVisionTextResponse(content: string): string {
+  const parsed = JSON.parse(content);
+  if (!Array.isArray(parsed.texts)) return "";
+
+  return parsed.texts
+    .sort((a: { index?: number }, b: { index?: number }) => (a.index ?? 0) - (b.index ?? 0))
+    .map((item: { text?: unknown }) => typeof item.text === "string" ? item.text.trim() : "")
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function recoverFailedVisionGeneration(error: any): string {
+  const candidates = [
+    error?.error?.failed_generation,
+    error?.failed_generation,
+    error?.cause?.error?.failed_generation,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate !== "string" || candidate.length === 0) continue;
+    try {
+      const recoveredText = parseVisionTextResponse(candidate);
+      if (recoveredText) return recoveredText;
+    } catch {
+      // The provider may return a partial generation. Basic OCR remains the fallback.
+    }
+  }
+
+  return "";
+}
+
+async function extractTextFromImagesWithVisionInternal(
+  imageUrls: string[],
+  signal: AbortSignal,
+): Promise<string> {
   if (imageUrls.length === 0) {
     return "";
   }
@@ -51,7 +89,10 @@ export async function extractTextFromImagesWithVision(imageUrls: string[]): Prom
   if (imageUrls.length > maxVisionImages) {
     const textParts: string[] = [];
     for (let index = 0; index < imageUrls.length; index += maxVisionImages) {
-      const text = await extractTextFromImagesWithVision(imageUrls.slice(index, index + maxVisionImages));
+      const text = await extractTextFromImagesWithVisionInternal(
+        imageUrls.slice(index, index + maxVisionImages),
+        signal,
+      );
       if (text) textParts.push(text);
     }
     return textParts.join("\n\n");
@@ -62,10 +103,10 @@ export async function extractTextFromImagesWithVision(imageUrls: string[]): Prom
     image_url: { url, detail: "high" as const },
   }));
 
-  try {
-    const content = await pRetry(
-      async () => {
-        const completion = await openai.chat.completions.create({
+  const content = await pRetry(
+    async () => {
+      const completion = await openai.chat.completions.create(
+        {
           model: visionModel,
           messages: [{
             role: "user",
@@ -79,39 +120,60 @@ export async function extractTextFromImagesWithVision(imageUrls: string[]): Prom
           }],
           response_format: { type: "json_object" },
           max_tokens: 6000,
-        });
-
-        const response = completion.choices[0]?.message?.content;
-        if (!response) {
-          throw new Error("Empty response from vision text extraction");
-        }
-        return response;
-      },
-      {
-        retries: 2,
-        minTimeout: 1000,
-        maxTimeout: 8000,
-        onFailedAttempt: (error: any) => {
-          console.log(`Vision text extraction retry (attempt ${error.attemptNumber}): ${error.message || error}`);
-          if (!isRateLimitError(error)) {
-            throw error;
-          }
         },
-      },
-    );
+        {
+          signal,
+          maxRetries: 0,
+        },
+      );
 
-    const parsed = JSON.parse(content);
-    if (!Array.isArray(parsed.texts)) {
-      return "";
+      const response = completion.choices[0]?.message?.content;
+      if (!response) {
+        throw new Error("Empty response from vision text extraction");
+      }
+      return response;
+    },
+    {
+      retries: 2,
+      minTimeout: 1000,
+      maxTimeout: 8000,
+      signal,
+      onFailedAttempt: (error: any) => {
+        console.log(`Vision text extraction retry (attempt ${error.attemptNumber}): ${error.message || error}`);
+        if (!isRateLimitError(error)) {
+          throw error;
+        }
+      },
+    },
+  );
+
+  return parseVisionTextResponse(content);
+}
+
+export async function extractTextFromImagesWithVision(imageUrls: string[]): Promise<string> {
+  if (imageUrls.length === 0) return "";
+
+  const signal = AbortSignal.timeout(visionTextTimeoutMs);
+
+  try {
+    return await extractTextFromImagesWithVisionInternal(imageUrls, signal);
+  } catch (error) {
+    const recoveredText = recoverFailedVisionGeneration(error);
+    if (recoveredText) {
+      console.warn(
+        `Recovered ${recoveredText.length} characters from the vision provider's failed JSON generation.`,
+      );
+      return recoveredText;
     }
 
-    return parsed.texts
-      .sort((a: { index?: number }, b: { index?: number }) => (a.index ?? 0) - (b.index ?? 0))
-      .map((item: { text?: unknown }) => typeof item.text === "string" ? item.text.trim() : "")
-      .filter(Boolean)
-      .join("\n\n");
-  } catch (error) {
-    console.error("Vision text extraction error:", error);
+    if (signal.aborted) {
+      console.warn(
+        `Vision text extraction timed out after ${visionTextTimeoutMs}ms; basic OCR will be used.`,
+      );
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`Vision text extraction failed; basic OCR will be used: ${message}`);
+    }
     return "";
   }
 }

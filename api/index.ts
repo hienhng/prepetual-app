@@ -1,6 +1,9 @@
 import "../server/polyfills.js";
 import { app, initServer } from "../server/index.js";
 
+// OCR plus quiz generation can legitimately take longer than one minute.
+export const maxDuration = 300;
+
 let initialized = false;
 
 export default async function handler(req: any, res: any) {

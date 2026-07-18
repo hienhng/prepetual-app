@@ -1,4 +1,5 @@
 import { createWorker } from "tesseract.js";
+import path from "path";
 
 let tesseractWorker: Awaited<ReturnType<typeof createWorker>> | null = null;
 
@@ -10,7 +11,12 @@ export interface OcrOptions {
 export async function getOCRWorker(options: OcrOptions = {}) {
   if (!tesseractWorker) {
     const languages = options.languages ?? "eng+vie";
+    const bundledLanguagePath = path.resolve(process.cwd());
     tesseractWorker = await createWorker(languages, 1, {
+      // Both language models are bundled with the serverless function. Keeping
+      // gzip disabled prevents Tesseract from looking for remote .gz files.
+      langPath: bundledLanguagePath,
+      gzip: false,
       cachePath: options.cachePath ?? "/tmp",
     });
   }
@@ -36,4 +42,3 @@ export async function terminateOCRWorker() {
   try { await tesseractWorker.terminate(); } catch {}
   tesseractWorker = null;
 }
-
