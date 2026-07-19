@@ -448,6 +448,142 @@ type AnswerVerificationContext = {
 
 const AI_VALIDATION_BATCH_SIZE = 5;
 
+async function aiValidateLanguageConsistencyBatch(
+  questions: any[],
+  logPrefix: string = "[AI LANGUAGE VERIFY]",
+  context: AnswerVerificationContext = {},
+): Promise<Set<any>> {
+  const inconsistentQuestions = new Set<any>();
+  if (questions.length === 0) return inconsistentQuestions;
+
+  const sourceExcerpt = context.sourceText?.trim().substring(0, 12_000) || "";
+  const hasSourceImages = (context.documentImages?.length || 0) > 0;
+
+  // Without either source text or source images there is no reliable language
+  // reference to compare against. The generation route normally always has one.
+  if (!sourceExcerpt && !hasSourceImages) return inconsistentQuestions;
+
+  const items = questions.map((q: any, index: number) => ({
+    index,
+    type: q.type,
+    question: q.question,
+    options: q.options,
+    correctAnswer: q.correctAnswer,
+    explanation: q.explanation,
+  }));
+
+  const languagePrompt = `You are a strict language-consistency auditor for generated study quizzes. Compare every generated quiz item with the supplied source material.
+
+For each item:
+1. Determine the primary instructional language of the relevant source material. If the source intentionally mixes languages, identify the language pattern relevant to the item instead of forcing the entire document into one language.
+2. Check that the question stem uses that same language or intentional language pattern.
+3. Check that answer choices, the answer, and the learner-facing explanation use the same language as the question where natural-language text is present.
+4. Check that the item broadly preserves the source's terminology, regional language variety, formality, and reading level. Do not require verbatim copying.
+
+Mark isConsistent false when the item switches to an unrelated language, translates terminology that the source consistently leaves untranslated, or uses a clearly incompatible register or reading level.
+
+Do NOT mark an item inconsistent merely because it contains:
+- proper names, citations, abbreviations, formulas, code, symbols, or internationally used technical terms;
+- a short borrowed word or phrase that is natural in the source language;
+- quoted source text in another language;
+- language-learning content that intentionally asks about a target language;
+- the schema values "True" and "False" in a true/false item's options or correctAnswer. These two values are always English by design.
+
+GENERATED ITEMS:
+${JSON.stringify(items, null, 2)}
+
+${sourceExcerpt ? `SOURCE MATERIAL:\n${sourceExcerpt}` : "The source consists only of the attached study-material images. Read their visible text to determine the expected language."}
+
+Respond with ONLY one JSON object in this format:
+{"evaluations":[{"index":0,"sourceLanguage":"Vietnamese","itemLanguage":"Vietnamese","isConsistent":true,"reason":"The item matches the source language and register."}]}
+Include exactly one evaluation for every generated item.`;
+
+  try {
+    const imageContent = (context.documentImages || []).slice(0, maxVisionImages).map((imageUrl) => ({
+      type: "image_url" as const,
+      image_url: { url: imageUrl, detail: "high" as const },
+    }));
+    const messages: any[] = imageContent.length > 0
+      ? [{ role: "user", content: [{ type: "text", text: languagePrompt }, ...imageContent] }]
+      : [{ role: "user", content: languagePrompt }];
+
+    const response = await pRetry(
+      async () => {
+        const result = await openai.chat.completions.create({
+          model: imageContent.length > 0 ? visionModel : (process.env.AI_VALIDATION_MODEL || quizModel),
+          messages,
+          response_format: { type: "json_object" },
+          temperature: 0,
+          max_tokens: 2000,
+        });
+        const content = result.choices[0]?.message?.content;
+        if (!content) throw new Error("Empty language-consistency response");
+        return content;
+      },
+      { retries: 2, minTimeout: 1000 },
+    );
+
+    const parsed = JSON.parse(extractJsonObject(response));
+    const evaluations = Array.isArray(parsed) ? parsed : parsed?.evaluations;
+    if (!Array.isArray(evaluations)) {
+      throw new Error("Language-consistency response is missing evaluations");
+    }
+
+    const reportedIndexes = new Set<number>();
+    for (const evaluation of evaluations) {
+      if (!Number.isInteger(evaluation?.index)) continue;
+      const question = questions[evaluation.index];
+      if (!question) continue;
+
+      reportedIndexes.add(evaluation.index);
+      if (evaluation.isConsistent !== true) {
+        inconsistentQuestions.add(question);
+        console.warn(
+          `${logPrefix} Rejecting language-inconsistent question ` +
+          `"${String(question.question).substring(0, 60)}...": ${String(evaluation.reason || "no reason supplied")}`,
+        );
+      }
+    }
+
+    questions.forEach((question, index) => {
+      if (!reportedIndexes.has(index)) inconsistentQuestions.add(question);
+    });
+  } catch (error) {
+    // Fail closed: a fresh candidate can be generated by the existing top-up
+    // loop, but an unaudited item should not be returned as language-consistent.
+    questions.forEach((question) => inconsistentQuestions.add(question));
+    console.warn(`${logPrefix} Language validation failed; rejecting unaudited questions:`, error);
+  }
+
+  return inconsistentQuestions;
+}
+
+async function aiValidateLanguageConsistency(
+  questions: any[],
+  logPrefix: string = "[AI LANGUAGE VERIFY]",
+  context: AnswerVerificationContext = {},
+): Promise<Set<any>> {
+  const rejectedQuestions = new Set<any>();
+
+  for (let start = 0; start < questions.length; start += AI_VALIDATION_BATCH_SIZE) {
+    const batch = questions.slice(start, start + AI_VALIDATION_BATCH_SIZE);
+    const batchNumber = Math.floor(start / AI_VALIDATION_BATCH_SIZE) + 1;
+    const batchCount = Math.ceil(questions.length / AI_VALIDATION_BATCH_SIZE);
+    console.log(
+      `${logPrefix} Auditing batch ${batchNumber}/${batchCount} ` +
+      `(questions ${start + 1}-${start + batch.length} of ${questions.length}).`,
+    );
+    const batchRejected = await aiValidateLanguageConsistencyBatch(
+      batch,
+      `${logPrefix} BATCH ${batchNumber}/${batchCount}`,
+      context,
+    );
+    batchRejected.forEach((question) => rejectedQuestions.add(question));
+  }
+
+  return rejectedQuestions;
+}
+
 async function aiVerifyAnswersBatch(
   objectiveQuestions: any[],
   logPrefix: string = "[AI VERIFY]",
@@ -1326,10 +1462,22 @@ ${draftPhaseInstructions}`;
         seenKeys.add(key);
       }
 
+      const languageRejectedQuestions = await aiValidateLanguageConsistency(
+        built,
+        `${logPrefix} LANGUAGE AUDIT`,
+        { sourceText: truncatedText, documentImages },
+      );
+      for (const q of languageRejectedQuestions) {
+        seenKeys.delete(normalizeQuestionKey(q.question));
+      }
+      const languageValidatedQuestions = built.filter(
+        (q) => !languageRejectedQuestions.has(q),
+      );
+
       // The solve/build pass is internally self-consistent, but it can still make
       // the same arithmetic or factual mistake in its answer and its explanation.
       // Audit objective questions in a separate request that never sees that key.
-      const objectiveQuestions = built.filter(
+      const objectiveQuestions = languageValidatedQuestions.filter(
         (q) => q.type === "multiple_choice" || q.type === "true_false",
       );
       const auditRejectedQuestions = await aiVerifyAnswers(
@@ -1340,16 +1488,17 @@ ${draftPhaseInstructions}`;
 
       console.log(
         `${logPrefix} Validation summary: received ${inputRawQuestions.length} raw candidates; ` +
-        `${built.length} passed solve/build; ${auditRejectedQuestions.size} failed the independent audit; ` +
-        `${built.length - auditRejectedQuestions.size} accepted.`,
+        `${built.length} passed solve/build; ${languageRejectedQuestions.size} failed the language audit; ` +
+        `${auditRejectedQuestions.size} failed the independent answer audit; ` +
+        `${languageValidatedQuestions.length - auditRejectedQuestions.size} accepted.`,
       );
 
-      if (auditRejectedQuestions.size === 0) return built;
+      if (auditRejectedQuestions.size === 0) return languageValidatedQuestions;
 
       for (const q of auditRejectedQuestions) {
         seenKeys.delete(normalizeQuestionKey(q.question));
       }
-      return built.filter((q) => !auditRejectedQuestions.has(q));
+      return languageValidatedQuestions.filter((q) => !auditRejectedQuestions.has(q));
     };
 
     onProgress?.("verifying", 85, "Solving and independently auditing answers...");
