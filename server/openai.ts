@@ -441,26 +441,41 @@ export function verifyAnswerMatchesExplanation(
   return null;
 }
 
-async function aiVerifyAnswers(mcQuestions: any[], logPrefix: string = "[AI VERIFY]"): Promise<Set<any>> {
+type AnswerVerificationContext = {
+  sourceText?: string;
+  documentImages?: string[];
+};
+
+const AI_VALIDATION_BATCH_SIZE = 5;
+
+async function aiVerifyAnswersBatch(
+  objectiveQuestions: any[],
+  logPrefix: string = "[AI VERIFY]",
+  context: AnswerVerificationContext = {},
+): Promise<Set<any>> {
   const ambiguousQuestions = new Set<any>();
-  if (mcQuestions.length === 0) return ambiguousQuestions;
+  if (objectiveQuestions.length === 0) return ambiguousQuestions;
 
   try {
-    const verificationItems = mcQuestions.map((q: any, i: number) => ({
+    // Omit the generated key and rationale so the audit is genuinely independent.
+    const verificationItems = objectiveQuestions.map((q: any, i: number) => ({
       index: i,
+      type: q.type,
       question: q.question,
-      options: q.options,
-      markedCorrect: q.correctAnswer,
+      options: q.type === "true_false" ? ["True", "False"] : q.options,
     }));
+    const sourceExcerpt = context.sourceText?.trim().substring(0, 12_000) || "";
 
-    const verificationPrompt = `You are a strict multiple-choice quality and answer verifier. For each question below, independently evaluate EVERY option against the exact wording of the stem. Do not trust the marked answer.
+    const verificationPrompt = `You are a strict, independent quiz answer auditor. The answer key and prior explanations have intentionally NOT been provided. Solve every question from scratch using the source material and established knowledge.
 
 STEP-BY-STEP PROCESS FOR EACH QUESTION:
 1. Read the question carefully
-2. Solve it yourself from scratch (do the math, apply the formula, check the facts)
+2. Solve it yourself from scratch. For every mathematical problem, write the full derivation in solution before selecting an answer: identify the givens, state the formula or rule, substitute values, perform one algebraic/arithmetic transformation per step, carry units through each step, and simplify only at the end.
 3. Decide separately whether EACH option satisfies the stem
 4. The question is valid only when EXACTLY ONE option satisfies the stem
-5. If exactly one option is valid, compare it with "markedCorrect" and output the valid option
+5. Only after solution is complete, return the zero-based index of the correct option and a self-contained learner-facing explanation in the question's language. Mathematical explanations must preserve the sequential work; non-mathematical explanations should remain concise.
+
+For true/false questions, options are always ["True", "False"]. Evaluate whether the statement itself is true. Do not confuse a false statement with the user's choice of False being incorrect.
 
 AMBIGUITY RULES:
 - Reject a question when zero, two, three, or four options could reasonably be correct
@@ -468,30 +483,42 @@ AMBIGUITY RULES:
 - Reject questions that depend on an unstated context, convention, degree, or interpretation
 - "Best" or "most" does not repair ambiguity unless the stem states a clear comparison criterion
 - Treat "All of the above" and "None of the above" as invalid answer choices
+- Never include the answer or a factually incorrect clue within the premise/question stem itself.
+- Do not generate questions like: 'Water boils at 50°C. What temperature does water boil at?
 
 CRITICAL NUMERIC/UNIT RULES:
 - 50g = 0.05kg (NOT 5kg) — always check decimal places and unit conversions
 - 0.05kg and 0,05kg are the SAME value (comma vs period decimal notation)
 - When converting: g→kg divide by 1000, kg→g multiply by 1000, cm→m divide by 100, mm→cm divide by 10
 - Common AI mistakes: off by factor of 10, 100, or 1000 in unit conversions
-- For calculations: re-do the arithmetic yourself
+- For calculations, never jump directly from the question to the result. Write each intermediate equation sequentially so every later step follows from the previous one.
+- After obtaining the result, independently cross-check it by substitution, inverse operation, estimation, dimensional analysis, or another suitable method before choosing the option.
 - The correct answer must have the right NUMBER and the right UNIT
 - If you calculate "0,05kg" but markedCorrect is "5kg", the correct answer is the option with "0,05kg" NOT "5kg"
 
 Questions to verify:
 ${JSON.stringify(verificationItems, null, 2)}
 
-Respond with ONLY a JSON array. For each question:
-- "satisfyingOptions": every option that could reasonably satisfy the stem, copied EXACTLY from the options array
-- "isUnambiguous": true only when satisfyingOptions contains exactly one option
-- "correctAnswer": that one exact option when isUnambiguous is true; otherwise use null
-[{"index": 0, "satisfyingOptions": ["exact option text"], "isUnambiguous": true, "correctAnswer": "exact option text"}, ...]`;
+${sourceExcerpt ? `SOURCE MATERIAL (use as evidence, but correct obvious source typos using established knowledge):\n${sourceExcerpt}` : "No source text is available. Use established knowledge and reject anything you cannot verify confidently."}
+
+Respond with ONLY one JSON object in this format:
+{"verifications":[{"index":0,"solution":"For math: sequential derivation and final cross-check. Otherwise: concise decisive fact.","satisfyingOptionIndexes":[1],"isUnambiguous":true,"correctOptionIndex":1,"explanation":"Learner-facing explanation retaining the mathematical work"}]}
+The field order is mandatory: solution MUST be emitted before satisfyingOptionIndexes and correctOptionIndex so the answer cannot be chosen before the work is written.
+Use null for correctOptionIndex when ambiguous or unverifiable. Include exactly one result per input question.`;
 
     const verifyResponse = await pRetry(
       async () => {
+        const imageContent = (context.documentImages || []).slice(0, maxVisionImages).map((imageUrl) => ({
+          type: "image_url" as const,
+          image_url: { url: imageUrl, detail: "high" as const },
+        }));
+        const messages: any[] = imageContent.length > 0
+          ? [{ role: "user", content: [{ type: "text", text: verificationPrompt }, ...imageContent] }]
+          : [{ role: "user", content: verificationPrompt }];
         const result = await openai.chat.completions.create({
-          model: quizModel,
-          messages: [{ role: "user", content: verificationPrompt }],
+          model: imageContent.length > 0 ? visionModel : (process.env.AI_VALIDATION_MODEL || quizModel),
+          messages,
+          response_format: { type: "json_object" },
           temperature: 0,
           max_tokens: 4000,
         });
@@ -501,41 +528,307 @@ Respond with ONLY a JSON array. For each question:
     );
 
     const cleanVerify = verifyResponse.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-    const verifications = JSON.parse(cleanVerify);
+    const parsedVerification = JSON.parse(cleanVerify);
+    const verifications = Array.isArray(parsedVerification)
+      ? parsedVerification
+      : parsedVerification?.verifications;
 
     if (Array.isArray(verifications)) {
+      const reportedIndexes = new Set<number>();
       for (const v of verifications) {
         if (typeof v.index === "number") {
-          const q = mcQuestions[v.index];
+          reportedIndexes.add(v.index);
+          const q = objectiveQuestions[v.index];
           if (q) {
-            const options = q.options.map((o: any) => String(o).trim());
-            const satisfyingOptions = Array.isArray(v.satisfyingOptions)
-              ? v.satisfyingOptions.map((o: any) => String(o).trim()).filter((o: string) => options.includes(o))
+            const solution = typeof v.solution === "string" ? v.solution.trim() : "";
+            if (!solution) {
+              ambiguousQuestions.add(q);
+              continue;
+            }
+            const options = q.type === "true_false"
+              ? ["True", "False"]
+              : q.options.map((o: any) => String(o).trim());
+            const satisfyingIndexes = Array.isArray(v.satisfyingOptionIndexes)
+              ? v.satisfyingOptionIndexes.filter(
+                  (i: any) => Number.isInteger(i) && i >= 0 && i < options.length,
+                )
               : [];
 
-            if (v.isUnambiguous === false || (Array.isArray(v.satisfyingOptions) && satisfyingOptions.length !== 1)) {
+            if (v.isUnambiguous !== true || satisfyingIndexes.length !== 1 || !Number.isInteger(v.correctOptionIndex)) {
               ambiguousQuestions.add(q);
-              console.warn(`${logPrefix} Rejecting ambiguous question "${String(q.question).substring(0, 60)}..."; satisfying options: ${satisfyingOptions.join(" | ") || "none"}`);
+              console.warn(`${logPrefix} Rejecting ambiguous/unverifiable question "${String(q.question).substring(0, 60)}..."; satisfying option indexes: ${satisfyingIndexes.join(", ") || "none"}`);
               continue;
             }
 
-            if (typeof v.correctAnswer !== "string") continue;
-            const verifiedAnswer = v.correctAnswer.trim();
+            const verifiedIndex = v.correctOptionIndex;
+            if (verifiedIndex !== satisfyingIndexes[0] || verifiedIndex < 0 || verifiedIndex >= options.length) {
+              ambiguousQuestions.add(q);
+              continue;
+            }
+            const verifiedAnswer = options[verifiedIndex];
             const markedCorrect = String(q.correctAnswer).trim();
 
-            if (verifiedAnswer !== markedCorrect && options.includes(verifiedAnswer)) {
+            if (verifiedAnswer !== markedCorrect) {
               console.warn(`${logPrefix} Question "${String(q.question).substring(0, 60)}..." — changing answer from "${markedCorrect}" to "${verifiedAnswer}"`);
               q.correctAnswer = verifiedAnswer;
+              delete q.wrongAnswerExplanations;
             }
+            q.explanation = typeof v.explanation === "string" && v.explanation.trim()
+              ? v.explanation.trim()
+              : solution;
           }
         }
       }
+      objectiveQuestions.forEach((q, index) => {
+        if (!reportedIndexes.has(index)) ambiguousQuestions.add(q);
+      });
+    } else {
+      objectiveQuestions.forEach((q) => ambiguousQuestions.add(q));
     }
   } catch (verifyError) {
-    console.warn(`${logPrefix} Verification step failed, using original answers:`, verifyError);
+    // Accuracy validation must fail closed. A fresh candidate can be generated,
+    // but an unaudited answer key must never be presented as correct.
+    objectiveQuestions.forEach((q) => ambiguousQuestions.add(q));
+    console.warn(`${logPrefix} Verification step failed; rejecting unaudited questions:`, verifyError);
   }
 
   return ambiguousQuestions;
+}
+
+async function aiVerifyAnswers(
+  objectiveQuestions: any[],
+  logPrefix: string = "[AI VERIFY]",
+  context: AnswerVerificationContext = {},
+): Promise<Set<any>> {
+  const rejectedQuestions = new Set<any>();
+
+  for (let start = 0; start < objectiveQuestions.length; start += AI_VALIDATION_BATCH_SIZE) {
+    const batch = objectiveQuestions.slice(start, start + AI_VALIDATION_BATCH_SIZE);
+    const batchNumber = Math.floor(start / AI_VALIDATION_BATCH_SIZE) + 1;
+    const batchCount = Math.ceil(objectiveQuestions.length / AI_VALIDATION_BATCH_SIZE);
+    console.log(
+      `${logPrefix} Auditing batch ${batchNumber}/${batchCount} ` +
+      `(questions ${start + 1}-${start + batch.length} of ${objectiveQuestions.length}).`,
+    );
+    const batchRejected = await aiVerifyAnswersBatch(
+      batch,
+      `${logPrefix} BATCH ${batchNumber}/${batchCount}`,
+      context,
+    );
+    batchRejected.forEach((question) => rejectedQuestions.add(question));
+  }
+
+  return rejectedQuestions;
+}
+
+async function aiSolveAndCompleteDraftsBatch(
+  draftQuestions: any[],
+  logPrefix: string,
+  context: AnswerVerificationContext,
+): Promise<Set<any>> {
+  const rejectedQuestions = new Set<any>();
+  if (draftQuestions.length === 0) return rejectedQuestions;
+
+  const validTypes = new Set(["multiple_choice", "true_false", "short_answer"]);
+  const solvableDrafts = draftQuestions.filter((q: any) => {
+    const hasTrueFalsePlan = q?.type !== "true_false" || (
+      typeof q?.factBasis === "string" &&
+      q.factBasis.trim() &&
+      (q.targetTruthValue === "True" || q.targetTruthValue === "False")
+    );
+    const valid = validTypes.has(q?.type) &&
+      typeof q?.question === "string" &&
+      q.question.trim() &&
+      hasTrueFalsePlan;
+    if (!valid) rejectedQuestions.add(q);
+    return valid;
+  });
+  if (solvableDrafts.length === 0) return rejectedQuestions;
+
+  const sourceExcerpt = context.sourceText?.trim().substring(0, 12_000) || "";
+  const draftItems = solvableDrafts.map((q: any, index: number) => ({
+    index,
+    type: q.type,
+    factBasis: q.type === "true_false" ? q.factBasis : undefined,
+    targetTruthValue: q.type === "true_false" ? q.targetTruthValue : undefined,
+    question: q.question,
+    imageIndex: Number.isInteger(q.imageIndex) ? q.imageIndex : undefined,
+  }));
+
+  const solvePrompt = `You are the independent solving and answer-construction pass of a quiz system. You receive question stems only. No proposed answer, options, or explanation exists yet.
+
+For EACH draft, follow this exact order:
+1. Check that the exact stem is unambiguous, answerable, and supported by the source or established knowledge.
+2. Solve it from scratch in solution. For every mathematical problem, explicitly identify the givens, state the formula or rule, substitute values, and write one algebraic or arithmetic transformation per sequential step. Carry units throughout and preserve precision until the final step.
+3. Cross-check every mathematical result using substitution, an inverse operation, estimation, dimensional analysis, or another independent method. Include this check in solution.
+4. Write the canonical correct answer only after the derivation and cross-check are complete, and BEFORE creating any distractors.
+5. Only after fixing the answer, create the answer options.
+6. Check every option independently against the stem and keep the draft only if exactly one option is correct.
+
+QUESTION-TYPE RULES:
+- multiple_choice: create exactly four concise, distinct options. Include correctAnswer exactly once, character-for-character. Distractors must be plausible but definitively wrong—not synonyms, equivalent values, overlapping categories, or lightly reworded versions. Never use "All of the above" or "None of the above".
+- true_false: first verify factBasis independently, then evaluate the final statement. The statement must be a direct, mutually exclusive expression of factBasis: an accurate expression when targetTruthValue is "True", or a definite contradiction when it is "False". Reject unsupported, merely uncertain, partially true, or unrelated false statements. correctAnswer must exactly equal targetTruthValue and must be the English schema value "True" or "False"; options must be ["True", "False"]. The explanation remains in the question's language.
+- short_answer: give the most standard concise answer. Return an empty options array.
+
+OUTPUT ORDER IS REQUIRED:
+Within every result object, emit fields in this order: index, isValid, solution, correctAnswer, options, optionVerdicts, explanation. solution must appear before correctAnswer and options. For mathematical problems, solution must contain the complete sequential derivation and cross-check, not merely a summary or final formula. For factual problems, solution may be the concise decisive fact. After creating options, optionVerdicts must evaluate each option against the exact stem in matching array order. Exactly one verdict must be true, and it must belong to correctAnswer. For short-answer questions, both arrays are empty. The learner-facing explanation must agree with the solution and answer and retain the mathematical steps when applicable.
+
+QUALITY RULES:
+- Reject partially true, context-dependent, underspecified, opinion-based, or unverifiable stems by setting isValid to false.
+- Do not silently rewrite a stem to make it work.
+- Use the same language as the question for answer text and explanations, except the True/False schema values.
+- Use LaTeX delimiters for mathematical notation.
+- Numeric options must use ordinary digits and the correct units.
+
+DRAFT QUESTIONS:
+${JSON.stringify(draftItems, null, 2)}
+
+${sourceExcerpt ? `SOURCE MATERIAL:\n${sourceExcerpt}` : "No source text is available. Use established knowledge and reject anything you cannot confidently verify."}
+
+Respond with ONLY one JSON object in this form:
+{"results":[{"index":0,"isValid":true,"solution":"For math: givens, formula, substitution, sequential calculations, and cross-check. Otherwise: decisive fact.","correctAnswer":"Answer fixed only after solution","options":["Option 1","Option 2","Option 3","Option 4"],"optionVerdicts":[false,true,false,false],"explanation":"Learner-facing solution retaining all mathematical steps"}]}
+Include exactly one result for every draft.`;
+
+  try {
+    const imageContent = (context.documentImages || []).slice(0, maxVisionImages).map((imageUrl) => ({
+      type: "image_url" as const,
+      image_url: { url: imageUrl, detail: "high" as const },
+    }));
+    const messages: any[] = imageContent.length > 0
+      ? [{ role: "user", content: [{ type: "text", text: solvePrompt }, ...imageContent] }]
+      : [{ role: "user", content: solvePrompt }];
+
+    const solveResponse = await pRetry(
+      async () => {
+        const result = await openai.chat.completions.create({
+          model: imageContent.length > 0 ? visionModel : (process.env.AI_VALIDATION_MODEL || quizModel),
+          messages,
+          response_format: { type: "json_object" },
+          temperature: 0,
+          max_tokens: 8192,
+        });
+        const content = result.choices[0]?.message?.content;
+        if (!content) throw new Error("Empty solve-and-complete response");
+        return content;
+      },
+      { retries: 2, minTimeout: 1000 },
+    );
+
+    const cleanResponse = solveResponse.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+    const parsed = JSON.parse(cleanResponse);
+    const results = Array.isArray(parsed) ? parsed : parsed?.results;
+    if (!Array.isArray(results)) throw new Error("Solve-and-complete response is missing results");
+
+    const reportedIndexes = new Set<number>();
+    for (const result of results) {
+      if (!Number.isInteger(result?.index)) continue;
+      reportedIndexes.add(result.index);
+      const q = solvableDrafts[result.index];
+      if (!q) continue;
+
+      const solution = typeof result.solution === "string" ? result.solution.trim() : "";
+      const correctAnswer = typeof result.correctAnswer === "string" ? result.correctAnswer.trim() : "";
+      const explanation = typeof result.explanation === "string" ? result.explanation.trim() : "";
+      const rawOptions = Array.isArray(result.options)
+        ? result.options.map((option: any) => String(option).trim())
+        : [];
+      const optionVerdicts = Array.isArray(result.optionVerdicts) ? result.optionVerdicts : [];
+
+      if (result.isValid !== true || !solution || !correctAnswer || !explanation) {
+        rejectedQuestions.add(q);
+        continue;
+      }
+
+      if (q.type === "multiple_choice") {
+        const normalizedOptions = rawOptions.map((option: string) => option.toLowerCase().replace(/\s+/g, " "));
+        const exactAnswerCount = rawOptions.filter((option: string) => option === correctAnswer).length;
+        const correctIndex = rawOptions.indexOf(correctAnswer);
+        const trueVerdictIndexes = optionVerdicts
+          .map((verdict: any, index: number) => verdict === true ? index : -1)
+          .filter((index: number) => index >= 0);
+        if (
+          rawOptions.length !== 4 ||
+          new Set(normalizedOptions).size !== 4 ||
+          exactAnswerCount !== 1 ||
+          optionVerdicts.length !== 4 ||
+          trueVerdictIndexes.length !== 1 ||
+          trueVerdictIndexes[0] !== correctIndex
+        ) {
+          rejectedQuestions.add(q);
+          continue;
+        }
+        q.options = rawOptions;
+        q.correctAnswer = correctAnswer;
+      } else if (q.type === "true_false") {
+        const normalizedAnswer = correctAnswer.toLowerCase();
+        if (normalizedAnswer !== "true" && normalizedAnswer !== "false") {
+          rejectedQuestions.add(q);
+          continue;
+        }
+        const expectedTrueIndex = normalizedAnswer === "true" ? 0 : 1;
+        const targetTruthValue = String(q.targetTruthValue);
+        const trueVerdictIndexes = optionVerdicts
+          .map((verdict: any, index: number) => verdict === true ? index : -1)
+          .filter((index: number) => index >= 0);
+        if (
+          correctAnswer !== targetTruthValue ||
+          optionVerdicts.length !== 2 ||
+          trueVerdictIndexes.length !== 1 ||
+          trueVerdictIndexes[0] !== expectedTrueIndex
+        ) {
+          rejectedQuestions.add(q);
+          continue;
+        }
+        q.options = ["True", "False"];
+        q.correctAnswer = normalizedAnswer === "true" ? "True" : "False";
+      } else {
+        if (rawOptions.length !== 0 || optionVerdicts.length !== 0) {
+          rejectedQuestions.add(q);
+          continue;
+        }
+        q.options = undefined;
+        q.correctAnswer = correctAnswer;
+      }
+
+      q.explanation = explanation;
+      delete q.wrongAnswerExplanations;
+    }
+
+    solvableDrafts.forEach((q, index) => {
+      if (!reportedIndexes.has(index)) rejectedQuestions.add(q);
+    });
+  } catch (error) {
+    solvableDrafts.forEach((q) => rejectedQuestions.add(q));
+    console.warn(`${logPrefix} Solve-and-complete pass failed; rejecting unfinished drafts:`, error);
+  }
+
+  return rejectedQuestions;
+}
+
+async function aiSolveAndCompleteDrafts(
+  draftQuestions: any[],
+  logPrefix: string,
+  context: AnswerVerificationContext,
+): Promise<Set<any>> {
+  const rejectedQuestions = new Set<any>();
+
+  for (let start = 0; start < draftQuestions.length; start += AI_VALIDATION_BATCH_SIZE) {
+    const batch = draftQuestions.slice(start, start + AI_VALIDATION_BATCH_SIZE);
+    const batchNumber = Math.floor(start / AI_VALIDATION_BATCH_SIZE) + 1;
+    const batchCount = Math.ceil(draftQuestions.length / AI_VALIDATION_BATCH_SIZE);
+    console.log(
+      `${logPrefix} Solving batch ${batchNumber}/${batchCount} ` +
+      `(questions ${start + 1}-${start + batch.length} of ${draftQuestions.length}).`,
+    );
+    const batchRejected = await aiSolveAndCompleteDraftsBatch(
+      batch,
+      `${logPrefix} BATCH ${batchNumber}/${batchCount}`,
+      context,
+    );
+    batchRejected.forEach((question) => rejectedQuestions.add(question));
+  }
+
+  return rejectedQuestions;
 }
 
 interface QuizGenerationParams {
@@ -576,14 +869,16 @@ export async function generateQuizQuestions(
     .map((type) => {
       switch (type) {
         case "multiple_choice":
-          return "Multiple choice questions with 4 options (A, B, C, D)";
+          return "Multiple-choice question stems";
         case "true_false":
           return "True/False questions";
         case "short_answer":
-          return "Short answer questions with brief 1-3 word answers";
+          return "Short-answer question stems whose answers are brief (1-3 words)";
       }
     })
     .join(", ");
+  const allowedQuestionTypeValues = questionTypes.map((type) => `"${type}"`).join(" | ");
+  const exampleQuestionTypeValue = JSON.stringify(questionTypes[0]);
   
 
   const persona = userPreferences?.persona || "General";
@@ -597,6 +892,40 @@ export async function generateQuizQuestions(
   };
 
   const categoryList = QUIZ_CATEGORIES.join(", ");
+  const draftPhaseInstructions = `DRAFTING PHASE (HIGHEST PRIORITY):
+- This first pass creates question stems. Do NOT generate options, explanations, hints, or answer keys, except for the required private True/False planning fields below.
+- Make every stem self-contained, precise, source-grounded, and objectively answerable.
+- For multiple-choice drafts, write a stem for which a later independent solver can produce exactly one correct answer and three clearly wrong distractors.
+- For short-answer drafts, ensure at least one standard concise answer exists.
+- A separate independent pass will solve each accepted stem first and only then construct its options.
+
+TRUE/FALSE FACT-FIRST SEQUENCE (MANDATORY):
+For every true_false item, perform these steps in order. Never draft the statement first and assign its truth value afterward.
+1. IDENTIFY THE FACT: establish one concise, source-grounded fact and write it in factBasis.
+2. DETERMINE THE TARGET TRUTH VALUE: before writing the statement, set targetTruthValue to the English schema value "True" or "False". Alternate targets across true_false items, beginning with "False", so the set is balanced and false-statement construction is exercised.
+3. GENERATE THE STATEMENT: only now write question. If the target is "True", state the fact accurately. If the target is "False", write a definite, mutually exclusive contradiction of the fact—not a vague, debatable, partially true, or merely unsupported claim.
+4. SELF-CHECK: compare question against factBasis. Keep it only if an independent evaluator must reach exactly targetTruthValue.
+
+Example field order:
+{"type":"true_false","factBasis":"Potential energy increases linearly with mass when gravitational acceleration and height are fixed: $PE = mgh$.","targetTruthValue":"False","question":"At fixed gravitational acceleration and height, potential energy is inversely proportional to an object's mass."}
+
+OUTPUT FORMAT (JSON):
+{
+  "title": "A short descriptive title for the quiz",
+  "category": "One of: ${categoryList}",
+  "questions": [
+    {
+      "type": "multiple_choice" | "true_false" | "short_answer",
+      "factBasis": "Required for true_false only; omit otherwise",
+      "targetTruthValue": "True or False; required for true_false only; omit otherwise",
+      "question": "Question stem only",
+      "imageIndex": 0
+    }
+  ]
+}
+
+Omit imageIndex when the question does not depend on an attached image.
+Respond with ONLY valid JSON, no markdown or additional text.`;
   
   const prompt = `You are an expert educator and subject-matter specialist. Based on the following content, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz and categorize it.
 
@@ -605,7 +934,7 @@ ${truncatedText}
 
 LANGUAGE HANDLING:
 - Detect the primary language of the content above (English, Vietnamese, or other)
-- Generate ALL questions, options, correct answers, explanations, and the QUIZ TITLE in the SAME language as the content
+- Generate all question stems and the QUIZ TITLE in the same language as the content
 - If the content is in Vietnamese, write everything in Vietnamese
 - If the content is in English, write everything in English
 
@@ -615,11 +944,6 @@ LANGUAGE HANDLING:
 3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
 4. Distribute question types roughly evenly among the selected types
 5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
- 6. For multiple choice, always provide exactly 4 options
- 7. Options must be meaningful and readable text or numbers (not placeholder symbols). If an option is numeric, use digits 0-9 (e.g., "12", "3.5", "$\\frac{1}{2}$"), NEVER use shifted symbols like ! @ # $ % ^ & * ( ) to represent digits.
- 8. MULTIPLE-CHOICE OPTIONS — STRICT RULE: NEVER generate similar, synonymous, overlapping, or lightly reworded options. Every option must be a clearly distinct answer with a different meaning, value, outcome, category, or reasoning path. Before returning the question, compare every pair of options; if two could reasonably be treated as the same answer, replace one. Distractors must be plausible but definitively wrong, not alternate phrasings or close variants of the correct answer.
- 8a. SINGLE-ANSWER TEST — REQUIRED: Evaluate all 4 options independently against the exact stem. Exactly ONE option must satisfy it. If 0 or 2+ options could be correct, rewrite the stem or replace options. Avoid broad property/category questions such as "Which stores energy?" because several different examples may all qualify. State the needed context, mechanism, condition, or comparison criterion explicitly.
- 8b. Do NOT use "All of the above" or "None of the above". Avoid "best", "most", and "primarily" unless the source establishes an objective criterion that makes one answer uniquely correct.
  9. CATEGORY: Assign exactly ONE category from: ${categoryList}
    - Math: arithmetic, algebra, geometry, calculus, statistics, etc.
    - English: grammar, literature, writing, reading comprehension, vocabulary (English language)
@@ -629,14 +953,10 @@ LANGUAGE HANDLING:
    - Others/General: anything that doesn't fit the above categories
 
 
-FACTUAL ACCURACY (HIGHEST PRIORITY):
-- Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
-- If the source content contains a factual claim, use it as the basis for the correct answer
-- For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
-- For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
-- NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
-- Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
-- For math problems explanations and options, use a calculation tool. Show the formula and assumptions, preserve full precision until the final step, verify the result independently, and clearly state the rounding rule.
+STEM QUALITY (HIGHEST PRIORITY):
+- Every stem must be supported by the source content and established knowledge.
+- State every condition, unit, convention, and comparison criterion needed to obtain one objective answer.
+- Avoid broad properties, partially true statements, opinion questions, and prompts that admit several acceptable answers.
 
 MATHEMATICAL CONTENT & LATEX (CRITICAL):
 - For ALL mathematical expressions, formulas, equations, variables (even single letters like x, y), or numeric notations with symbols, you MUST use LaTeX formatting.
@@ -645,24 +965,9 @@ MATHEMATICAL CONTENT & LATEX (CRITICAL):
 - DO NOT use unicode symbols like √, π, ±, ∞. ALWAYS use LaTeX (like $\sqrt{}$, $\pi$, $\pm$, $\infty$).
 - DO NOT use ^ or _ without wrapping them in $...$ delimiters.
 - Ensure all LaTeX is syntactically correct for KaTeX.
-- This applies to questions, options, AND explanations.
+- This applies to question stems.
 
-  OUTPUT FORMAT (JSON):
-{
-  "title": "A short descriptive title for the quiz",
-  "category": "One of: ${categoryList}",
-  "questions": [
-    {
-      "type": "multiple_choice" | "true_false" | "short_answer",
-      "question": "The question text",
-      "options": ["Distinct option A", "Distinct option B", "Distinct option C", "Distinct option D"],
-      "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
-      "explanation": "Detailed explanation using LaTeX for formulas"
-    }
-  ]
-}
-
-Respond with ONLY valid JSON, no markdown or additional text.`;
+${draftPhaseInstructions}`;
 
   const visionPrompt = hasImages ? `You are an expert educator and subject-matter specialist. Based on the following document content AND the attached images/diagrams/charts from the document, generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions to help students study and learn the material.
 
@@ -682,7 +987,7 @@ ${truncatedText}
 
 LANGUAGE HANDLING:
 - Detect the primary language of the content above (English, Vietnamese, or other)
-- Generate ALL questions, options, correct answers, explanations, and the QUIZ TITLE in the SAME language as the content
+- Generate all question stems and the QUIZ TITLE in the same language as the content
 - If the content is in Vietnamese, write everything in Vietnamese
 - If the content is in English, write everything in English
 
@@ -692,11 +997,6 @@ LANGUAGE HANDLING:
  3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
  4. Distribute question types roughly evenly among the selected types
  5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
- 6. For multiple choice, always provide exactly 4 options labeled A, B, C, D
- 7. Options must be meaningful and readable text or numbers (not placeholder symbols). If an option is numeric, use digits 0-9 (e.g., "12", "3.5", "$\\frac{1}{2}$"), NEVER use shifted symbols like ! @ # $ % ^ & * ( ) to represent digits.
- 8. MULTIPLE-CHOICE OPTIONS — STRICT RULE: NEVER generate similar, synonymous, overlapping, or lightly reworded options. Every option must be a clearly distinct answer with a different meaning, value, outcome, category, or reasoning path. Before returning the question, compare every pair of options; if two could reasonably be treated as the same answer, replace one. Distractors must be plausible but definitively wrong, not alternate phrasings or close variants of the correct answer.
- 8a. SINGLE-ANSWER TEST — REQUIRED: Evaluate all 4 options independently against the exact stem. Exactly ONE option must satisfy it. If 0 or 2+ options could be correct, rewrite the stem or replace options. Avoid broad property/category questions such as "Which stores energy?" because several different examples may all qualify. State the needed context, mechanism, condition, or comparison criterion explicitly.
- 8b. Do NOT use "All of the above" or "None of the above". Avoid "best", "most", and "primarily" unless the source establishes an objective criterion that makes one answer uniquely correct.
  9. At least 30% of questions should be based on or reference the visual content (charts, diagrams, images)
  9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
  10. CATEGORY: Assign exactly ONE category from: ${categoryList}
@@ -714,25 +1014,9 @@ MATHEMATICAL CONTENT & LATEX (CRITICAL):
 - DO NOT use unicode symbols like √, π, ±, ∞. ALWAYS use LaTeX (like $\sqrt{}$, $\pi$, $\pm$, $\infty$).
 - DO NOT use ^ or _ without wrapping them in $...$ delimiters.
 - Ensure all LaTeX is syntactically correct for KaTeX.
-- This applies to questions, options, AND explanations.
+- This applies to question stems.
 
-OUTPUT FORMAT (JSON):
-{
-  "title": "A short descriptive title for the quiz",
-  "category": "One of: ${categoryList}",
-  "questions": [
-    {
-      "type": "multiple_choice" | "true_false" | "short_answer",
-      "question": "The question text",
-      "options": ["Distinct option A", "Distinct option B", "Distinct option C", "Distinct option D"],
-      "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
-      "explanation": "Detailed explanation using LaTeX for formulas",
-      "imageIndex": 0
-    }
-  ]
-}
-
-Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
+${draftPhaseInstructions}` : prompt;
 
   // Special prompt for image-only uploads (no text content)
   const imageOnlyPrompt = `You are an expert educator and subject-matter specialist. Analyze the attached images carefully and generate ${questionCount} ${difficulty.toUpperCase()} difficulty quiz questions based ENTIRELY on what you see in the images.
@@ -752,7 +1036,7 @@ Your task is to:
 
 LANGUAGE HANDLING:
 - Detect the primary language visible in the images
-- Generate ALL questions, options, correct answers, explanations, and the QUIZ TITLE in the SAME language as the content
+- Generate all question stems and the QUIZ TITLE in the same language as the content
 - If the content is in Vietnamese, write everything in Vietnamese
 - If the content is in English, write everything in English
 
@@ -762,11 +1046,6 @@ LANGUAGE HANDLING:
  3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
  4. Distribute question types roughly evenly among the selected types
  5. DIFFICULTY LEVEL: ${difficulty.toUpperCase()} - ${difficultyDescriptions[difficulty]}
- 6. For multiple choice, always provide exactly 4 options
- 7. Options must be meaningful and readable text or numbers (not placeholder symbols). If an option is numeric, use digits 0-9 (e.g., "12", "3.5", "$\\frac{1}{2}$"), NEVER use shifted symbols like ! @ # $ % ^ & * ( ) to represent digits.
- 8. MULTIPLE-CHOICE OPTIONS — STRICT RULE: NEVER generate similar, synonymous, overlapping, or lightly reworded options. Every option must be a clearly distinct answer with a different meaning, value, outcome, category, or reasoning path. Before returning the question, compare every pair of options; if two could reasonably be treated as the same answer, replace one. Distractors must be plausible but definitively wrong, not alternate phrasings or close variants of the correct answer.
- 8a. SINGLE-ANSWER TEST — REQUIRED: Evaluate all 4 options independently against the exact stem. Exactly ONE option must satisfy it. If 0 or 2+ options could be correct, rewrite the stem or replace options. Avoid broad property/category questions such as "Which stores energy?" because several different examples may all qualify. State the needed context, mechanism, condition, or comparison criterion explicitly.
- 8b. Do NOT use "All of the above" or "None of the above". Avoid "best", "most", and "primarily" unless the source establishes an objective criterion that makes one answer uniquely correct.
  9. ALL questions should be based on the visual content
  9. For questions that reference a specific image, include the imageIndex (0-based index of the attached image)
  10. CATEGORY: Assign exactly ONE category from: ${categoryList}
@@ -777,13 +1056,10 @@ LANGUAGE HANDLING:
    - Global Languages: foreign languages other than English (Spanish, French, Vietnamese, Chinese, etc.)
    - Others/General: anything that doesn't fit the above categories
 
-FACTUAL ACCURACY (HIGHEST PRIORITY):
-- Every correct answer MUST be verifiably, objectively correct based on the source content and established knowledge
-- If the source content contains a factual claim, use it as the basis for the correct answer
-- For true/false questions: make sure the statement is UNAMBIGUOUSLY true or false — avoid statements that are partially true or context-dependent
-- For short answer questions: ensure the expected answer is the most standard, widely-accepted answer — not an obscure or ambiguous phrasing
-- NEVER set a wrong answer as the correct answer. If you are unsure about the correct answer, use the most defensible and commonly accepted answer
-- Each wrong option must be clearly and definitively wrong — not a "close second" or debatable alternative
+STEM QUALITY (HIGHEST PRIORITY):
+- Every stem must be supported by the visual source and established knowledge.
+- State every condition, unit, convention, and comparison criterion needed to obtain one objective answer.
+- Avoid broad properties, partially true statements, opinion questions, and prompts that admit several acceptable answers.
 
 MATHEMATICAL CONTENT & LATEX (CRITICAL):
 - For ALL mathematical expressions, formulas, equations, variables (even single letters like x, y), or numeric notations with symbols, you MUST use LaTeX formatting.
@@ -792,25 +1068,9 @@ MATHEMATICAL CONTENT & LATEX (CRITICAL):
 - DO NOT use unicode symbols like √, π, ±, ∞. ALWAYS use LaTeX (like $\sqrt{}$, $\pi$, $\pm$, $\infty$).
 - DO NOT use ^ or _ without wrapping them in $...$ delimiters.
 - Ensure all LaTeX is syntactically correct for KaTeX.
-- This applies to questions, options, AND explanations.
+- This applies to question stems.
 
-OUTPUT FORMAT (JSON):
-{
-  "title": "A short descriptive title for the quiz",
-  "category": "One of: ${categoryList}",
-  "questions": [
-    {
-      "type": "multiple_choice" | "true_false" | "short_answer",
-      "question": "The question text",
-      "options": ["Distinct option A", "Distinct option B", "Distinct option C", "Distinct option D"],
-      "correctAnswer": "The exact correct option text (decided FIRST, without any prefix)",
-      "explanation": "Detailed explanation using LaTeX for formulas",
-      "imageIndex": 0
-    }
-  ]
-}
-
-Respond with ONLY valid JSON, no markdown or additional text.`;
+${draftPhaseInstructions}`;
 
   // Choose the right prompt based on content type
   const finalPrompt = isImageOnly ? imageOnlyPrompt : visionPrompt;
@@ -862,7 +1122,8 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
             model: aiModel,
             messages,
             response_format: { type: "json_object" },
-            max_tokens: 8192,
+            // Drafts contain stems only; the second pass owns solutions and options.
+            max_tokens: 4096,
           });
 
           content = completion.choices[0]?.message?.content;
@@ -946,30 +1207,20 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
 
       const built: Question[] = [];
 
-      const mcQuestions = inputRawQuestions.filter((q: any) =>
-        q?.type === "multiple_choice" && q?.explanation && q?.correctAnswer && Array.isArray(q?.options),
+      const rejectedDraftQuestions = new Set<any>(
+        inputRawQuestions.filter((q: any) => !questionTypes.includes(q?.type as QuestionType)),
       );
-      let ambiguousMcQuestions = new Set<any>();
-      if (mcQuestions.length > 0) {
-        ambiguousMcQuestions = await aiVerifyAnswers(mcQuestions, logPrefix);
-        for (const q of mcQuestions) {
-          const fixedAnswer = verifyAnswerMatchesExplanation(
-            String(q.explanation),
-            String(q.correctAnswer),
-            q.options.map((o: any) => String(o)),
-          );
-          if (fixedAnswer && fixedAnswer !== q.correctAnswer) {
-            console.warn(`[REGEX VERIFY] Correcting answer: "${q.correctAnswer}" -> "${fixedAnswer}" for: "${String(q.question).substring(0, 60)}..."`);
-            q.correctAnswer = fixedAnswer;
-          }
-        }
-      }
-
-      const fallbackSelectedType: QuestionType = (questionTypes[0] || "multiple_choice") as QuestionType;
+      const eligibleDraftQuestions = inputRawQuestions.filter((q: any) => !rejectedDraftQuestions.has(q));
+      const solveRejectedQuestions = await aiSolveAndCompleteDrafts(
+        eligibleDraftQuestions,
+        logPrefix,
+        { sourceText: truncatedText, documentImages },
+      );
+      solveRejectedQuestions.forEach((q) => rejectedDraftQuestions.add(q));
 
       for (const q of inputRawQuestions) {
         if (built.length >= limit) break;
-        if (ambiguousMcQuestions.has(q)) continue;
+        if (rejectedDraftQuestions.has(q)) continue;
         if (!q?.type || !q?.question || !q?.correctAnswer) {
           console.warn("Skipping malformed question:", q);
           continue;
@@ -977,19 +1228,6 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
 
         const key = normalizeQuestionKey(q.question);
         if (!key || seenKeys.has(key)) continue;
-
-        if (!["multiple_choice", "true_false", "short_answer"].includes(q.type)) {
-          console.warn("Question has invalid type, coercing to a selected type:", q.type);
-          q.type = fallbackSelectedType as any;
-        }
-
-        if (!questionTypes.includes(q.type as QuestionType)) {
-          console.warn(`AI generated ${q.type} but user only selected [${questionTypes.join(", ")}], converting...`);
-          q.type = fallbackSelectedType;
-          if (q.type === "short_answer") {
-            q.options = undefined;
-          }
-        }
 
         let options =
           q.type === "multiple_choice" && Array.isArray(q.options)
@@ -1002,6 +1240,30 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
           options = options.map(maybeFixShiftedDigitSymbols);
         }
         correctAnswer = maybeFixShiftedDigitSymbols(correctAnswer);
+
+        if (q.type === "multiple_choice") {
+          if (!options || options.length !== 4) {
+            console.warn(`Skipping multiple-choice question without exactly four options: "${String(q.question).substring(0, 60)}..."`);
+            continue;
+          }
+          const normalizedOptions = options.map(normalizeQuestionKey);
+          if (new Set(normalizedOptions).size !== options.length) {
+            console.warn(`Skipping multiple-choice question with duplicate options: "${String(q.question).substring(0, 60)}..."`);
+            continue;
+          }
+          if (!options.includes(correctAnswer)) {
+            console.warn(`Skipping multiple-choice question whose audited answer is not an option: "${String(q.question).substring(0, 60)}..."`);
+            continue;
+          }
+        } else if (q.type === "true_false") {
+          const normalizedAnswer = correctAnswer.toLowerCase();
+          if (normalizedAnswer !== "true" && normalizedAnswer !== "false") {
+            console.warn(`Skipping true/false question with an invalid audited answer: "${String(q.question).substring(0, 60)}..."`);
+            continue;
+          }
+          correctAnswer = normalizedAnswer === "true" ? "True" : "False";
+          options = ["True", "False"];
+        }
 
         // Programmatically shuffle options to ensure maximum randomness
         if (q.type === "multiple_choice" && options && options.length > 0) {
@@ -1064,22 +1326,65 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
         seenKeys.add(key);
       }
 
-      return built;
+      // The solve/build pass is internally self-consistent, but it can still make
+      // the same arithmetic or factual mistake in its answer and its explanation.
+      // Audit objective questions in a separate request that never sees that key.
+      const objectiveQuestions = built.filter(
+        (q) => q.type === "multiple_choice" || q.type === "true_false",
+      );
+      const auditRejectedQuestions = await aiVerifyAnswers(
+        objectiveQuestions,
+        `${logPrefix} INDEPENDENT AUDIT`,
+        { sourceText: truncatedText, documentImages },
+      );
+
+      console.log(
+        `${logPrefix} Validation summary: received ${inputRawQuestions.length} raw candidates; ` +
+        `${built.length} passed solve/build; ${auditRejectedQuestions.size} failed the independent audit; ` +
+        `${built.length - auditRejectedQuestions.size} accepted.`,
+      );
+
+      if (auditRejectedQuestions.size === 0) return built;
+
+      for (const q of auditRejectedQuestions) {
+        seenKeys.delete(normalizeQuestionKey(q.question));
+      }
+      return built.filter((q) => !auditRejectedQuestions.has(q));
     };
 
-    onProgress?.("verifying", 85, "Verifying answer accuracy...");
+    onProgress?.("verifying", 85, "Solving and independently auditing answers...");
     const seenQuestionKeys = new Set<string>();
-    const questions = await buildQuestionsFromRaw(rawQuestions, questionCount, seenQuestionKeys, "[AI VERIFY]");
+    const questions = await buildQuestionsFromRaw(rawQuestions, questionCount, seenQuestionKeys, "[SOLVE/BUILD]");
+    const logGeneratedQuestionNumbers = (
+      source: string,
+      firstQuestionNumber: number,
+      generatedCount: number,
+    ) => {
+      const generatedNumbers = Array.from(
+        { length: generatedCount },
+        (_, index) => firstQuestionNumber + index,
+      );
+      console.log(
+        `[QUIZ GENERATION] ${source} generated valid question numbers: ` +
+        `${generatedNumbers.length > 0 ? generatedNumbers.join(", ") : "none"}; ` +
+        `total is ${questions.length}/${questionCount}.`,
+      );
+    };
+
+    logGeneratedQuestionNumbers("Initial pass", 1, questions.length);
 
     if (questions.length < questionCount) {
-      const maxTopUpAttempts = 4;
-      const topUpSignal = AbortSignal.timeout(120_000);
+      const initiallyMissing = questionCount - questions.length;
+      // A top-up can legitimately add only one question after the solve and audit
+      // passes. Size the retry budget to the deficit instead of giving every quiz
+      // the same four attempts, and give each attempt its own timeout. A single
+      // cumulative signal made later attempts inherit time already spent by the
+      // earlier solve/audit calls.
+      const maxTopUpAttempts = Math.min(12, Math.max(6, initiallyMissing * 3));
 
       for (let attempt = 0; attempt < maxTopUpAttempts && questions.length < questionCount; attempt++) {
-        if (topUpSignal.aborted) break;
-
         const missing = questionCount - questions.length;
-        const candidateCount = Math.min(questionCount, missing + Math.min(2, missing));
+        const candidateCount = Math.min(6, missing + Math.min(2, missing));
         const useImages = hasImages && attempt === 0;
         const enforceJsonResponse = attempt !== 2;
         const attemptModel = useImages ? visionModel : quizModel;
@@ -1102,13 +1407,14 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
 
 IMPORTANT:
 - Do NOT repeat any of the existing questions listed.
-- Use ONLY these question types: ${questionTypeDescriptions}
+- Use ONLY these exact type values: ${allowedQuestionTypeValues} (${questionTypeDescriptions}).
+- Do not emit a type that is absent from that list, even if it appears in examples you have seen elsewhere.
 - Use the SAME language as the CONTENT.
-- For multiple choice, provide exactly 4 options and make exactly ONE option correct.
-- The correctAnswer must exactly match one option.
+- Return question stems only. Do NOT provide options or learner-facing explanations. For true_false items, the private factBasis and targetTruthValue planning fields below are required.
+- Make each stem precise, self-contained, source-grounded, and objectively answerable.
 - Use LaTeX delimiters for mathematical expressions.
-- Never use similar, synonymous, overlapping, or lightly reworded options.
-- Avoid ambiguous stems, "All of the above", and "None of the above".
+- Avoid ambiguous or context-dependent stems.
+- For every true_false item, follow this exact order: (1) establish a source-grounded fact in factBasis; (2) choose targetTruthValue as "True" or "False" before drafting the statement, alternating targets beginning with "False"; (3) only then write question to match the target; (4) verify the statement against factBasis. A False statement must directly and unambiguously contradict the fact, not merely be unsupported or partially true.
 - Return ONLY one valid JSON object with a questions array and no markdown.
 
 CONTENT:
@@ -1121,17 +1427,17 @@ OUTPUT FORMAT (JSON):
 {
   "questions": [
     {
-      "type": "multiple_choice" | "true_false" | "short_answer",
+      "type": ${exampleQuestionTypeValue},
+      "factBasis": "Required for true_false only; omit otherwise",
+      "targetTruthValue": "True or False; required for true_false only; omit otherwise",
       "question": "The question text",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-      "correctAnswer": "The exact correct option text",
-      "explanation": "Detailed explanation",
       "imageIndex": 0
     }
   ]
 }`;
 
         let topUpResponse = "";
+        const topUpSignal = AbortSignal.timeout(45_000);
 
         try {
           topUpResponse = await pRetry(
@@ -1214,9 +1520,15 @@ OUTPUT FORMAT (JSON):
           topUpRaw,
           missing,
           seenQuestionKeys,
-          `[AI VERIFY TOPUP ${attempt + 1}]`,
+          `[SOLVE/BUILD TOPUP ${attempt + 1}]`,
         );
+        const firstGeneratedQuestionNumber = questions.length + 1;
         questions.push(...extra);
+        logGeneratedQuestionNumbers(
+          `Top-up attempt ${attempt + 1}`,
+          firstGeneratedQuestionNumber,
+          extra.length,
+        );
         console.log(
           `Top-up attempt ${attempt + 1} added ${extra.length} valid questions; ` +
           `total is now ${questions.length}/${questionCount}.`,
@@ -1276,7 +1588,7 @@ LANGUAGE HANDLING:
 
 FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
 - Every correct answer MUST be verifiably, objectively correct based on established academic knowledge
-- For math/science: work through all calculations, unit conversions, and formulas step by step FIRST, arrive at the result, THEN set correctAnswer to the option matching your result
+- For every mathematical problem, write solution BEFORE correctAnswer. In solution: identify the givens, state the formula or rule, substitute values, perform one transformation per sequential step, carry units, and independently cross-check the result. Only then set correctAnswer to the matching option.
 - NEVER mark a wrong answer as correct. If uncertain, use the most defensible and commonly accepted answer
 
 IMPORTANT INSTRUCTIONS:
@@ -1297,6 +1609,7 @@ OUTPUT FORMAT (JSON):
       "type": "multiple_choice OR true_false OR short_answer",
       "question": "The exact question text as it appears",
       "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // For multiple_choice/true_false only. Extract exactly as they appear, but REMOVE any prefixes like "A) ", "1. ", "a. ", etc. For short_answer, omit this field or use empty array.
+      "solution": "For math: full sequential derivation and cross-check; otherwise: concise decisive fact",
       "correctAnswer": "The exact full text of the correct option (without any prefix)"
     }
   ]
@@ -1324,7 +1637,7 @@ LANGUAGE HANDLING:
 
 FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
 - Every correct answer MUST be verifiably, objectively correct based on established academic knowledge
-- For math/science: work through all calculations, unit conversions, and formulas step by step FIRST, arrive at the result, THEN set correctAnswer to the option matching your result
+- For every mathematical problem, write solution BEFORE correctAnswer. In solution: identify the givens, state the formula or rule, substitute values, perform one transformation per sequential step, carry units, and independently cross-check the result. Only then set correctAnswer to the matching option.
 - NEVER mark a wrong answer as correct. If uncertain, use the most defensible and commonly accepted answer
 
 IMPORTANT INSTRUCTIONS:
@@ -1345,6 +1658,7 @@ OUTPUT FORMAT (JSON):
       "type": "multiple_choice OR true_false OR short_answer",
       "question": "The exact question text as it appears",
       "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // For multiple_choice/true_false only. Extract exactly as they appear, but REMOVE any prefixes. For short_answer, omit this field or use empty array.
+      "solution": "For math: full sequential derivation and cross-check; otherwise: concise decisive fact",
       "correctAnswer": "The exact full text of the correct option (without any prefix)"
     }
   ]
@@ -1430,19 +1744,13 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
     const importMcQuestions = parsed.questions.filter((q: any) =>
       q.correctAnswer && Array.isArray(q.options) && q.options.length > 0
     );
-    await aiVerifyAnswers(importMcQuestions, "[IMPORT AI VERIFY]");
-
-    for (const q of importMcQuestions) {
-      if (q.explanation) {
-        const fixedAnswer = verifyAnswerMatchesExplanation(String(q.explanation), String(q.correctAnswer), q.options.map((o: any) => String(o)));
-        if (fixedAnswer && fixedAnswer !== q.correctAnswer) {
-          console.warn(`[IMPORT REGEX VERIFY] Correcting answer: "${q.correctAnswer}" -> "${fixedAnswer}" for: "${String(q.question).substring(0, 60)}..."`);
-          q.correctAnswer = fixedAnswer;
-        }
-      }
-    }
+    const rejectedImportQuestions = await aiVerifyAnswers(importMcQuestions, "[IMPORT AI VERIFY]", {
+      sourceText: truncatedText,
+      documentImages,
+    });
 
     for (const q of parsed.questions) {
+      if (rejectedImportQuestions.has(q)) continue;
       if (!q.question || !q.correctAnswer) {
         console.warn(
           "Skipping malformed question (missing question or answer):",
@@ -1484,6 +1792,11 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
           questionType = "true_false";
           // Normalize options to "True" and "False"
           options = ["True", "False"];
+        } else if (q.type === "true_false") {
+          // Preserve the detected type when option labels are localized or
+          // otherwise outside the small auto-detection list.
+          questionType = "true_false";
+          options = ["True", "False"];
         }
       } else if (q.type && ["multiple_choice", "true_false", "short_answer"].includes(q.type)) {
         // Use AI-detected type if valid
@@ -1498,6 +1811,21 @@ Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
         if (["true", "t", "yes", "đúng"].includes(lowerAnswer)) {
           correctAnswer = "True";
         } else if (["false", "f", "no", "sai"].includes(lowerAnswer)) {
+          correctAnswer = "False";
+        }
+      }
+
+      // Normalize localized true/false answers (including Vietnamese) without
+      // relying on the encoding of the model response.
+      if (questionType === "true_false") {
+        const normalizedAnswer = correctAnswer
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/\u0111/g, "d");
+        if (["true", "t", "yes", "dung"].includes(normalizedAnswer)) {
+          correctAnswer = "True";
+        } else if (["false", "f", "no", "sai"].includes(normalizedAnswer)) {
           correctAnswer = "False";
         }
       }
@@ -2170,21 +2498,18 @@ REQUIREMENTS:
 1. Generate exactly ${count} new questions.
 2. The questions should test the same concepts or related areas as the reference questions.
 3. Match the difficulty level: ${difficulty.toUpperCase()}.
-4. Use primarily Multiple Choice format (4 options).
+4. Use multiple-choice question stems.
 5. Ensure factual accuracy based on the provided source material (if any).
 6. Detect the language of the reference questions and respond in the SAME language.
-7. MULTIPLE-CHOICE OPTIONS — STRICT RULE: NEVER generate similar, synonymous, overlapping, or lightly reworded options. Each option must have a distinctly different meaning, value, outcome, category, or reasoning path. Compare every option pair before returning the question and replace any pair that could be treated as the same answer.
-8. SINGLE-ANSWER TEST — REQUIRED: Evaluate all 4 options independently against the exact stem. Exactly ONE option must satisfy it. If 0 or 2+ options could be correct, rewrite the stem or options. Avoid broad shared-property questions, and state any required context or comparison criterion explicitly.
-9. Do NOT use "All of the above" or "None of the above". Avoid subjective "best" or "most" stems unless one answer is objectively established by the source.
+7. Produce stems only. Do NOT solve them or generate options, answers, or explanations.
+8. Make each stem self-contained and precise enough to have exactly one objective answer.
 
 OUTPUT FORMAT (JSON):
 {
   "questions": [
     {
       "type": "multiple_choice",
-      "question": "The question text",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
-      "correctAnswer": "The exact correct option text"
+      "question": "The question stem only"
     }
   ]
 }
@@ -2225,16 +2550,15 @@ Respond with ONLY valid JSON.`;
     );
 
     const parsed = JSON.parse(response);
-    const newQuestions = (parsed.questions || []).map((q: any) => ({
-      ...q,
-      id: randomUUID(),
-    }));
-    const reviewMcQuestions = newQuestions.filter((q: any) =>
-      q?.type === "multiple_choice" && q?.correctAnswer && Array.isArray(q?.options),
-    );
-    const ambiguousQuestions = await aiVerifyAnswers(reviewMcQuestions, "[REVIEW AI VERIFY]");
+    const newQuestionDrafts = Array.isArray(parsed.questions) ? parsed.questions : [];
+    const rejectedQuestions = await aiSolveAndCompleteDrafts(newQuestionDrafts, "[REVIEW SOLVE/BUILD]", {
+      sourceText,
+    });
 
-    return newQuestions.filter((q: any) => !ambiguousQuestions.has(q)).slice(0, count);
+    return newQuestionDrafts
+      .filter((q: any) => !rejectedQuestions.has(q) && q?.correctAnswer)
+      .slice(0, count)
+      .map((q: any) => ({ ...q, id: randomUUID() }));
   } catch (error) {
     console.error("Error generating review questions:", error);
     return [];

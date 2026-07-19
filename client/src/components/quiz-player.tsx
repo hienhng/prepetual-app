@@ -71,6 +71,37 @@ const getStreakMessage = (streak: number, t: any) => {
   return messages[3];
 };
 
+const normalizeTrueFalseAnswer = (answer: string | undefined): "true" | "false" | null => {
+  if (!answer) return null;
+
+  const normalized = answer
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\u0111/g, "d");
+
+  if (["true", "t", "yes", "y", "dung"].includes(normalized)) return "true";
+  if (["false", "f", "no", "n", "sai"].includes(normalized)) return "false";
+  return null;
+};
+
+const answersMatch = (
+  answer: string | undefined,
+  correctAnswer: string | undefined,
+  type: Question["type"],
+) => {
+  if (!answer || !correctAnswer) return false;
+
+  if (type === "true_false") {
+    const normalizedAnswer = normalizeTrueFalseAnswer(answer);
+    const normalizedCorrect = normalizeTrueFalseAnswer(correctAnswer);
+    return normalizedAnswer !== null && normalizedAnswer === normalizedCorrect;
+  }
+
+  return answer.toLowerCase().trim() === correctAnswer.toLowerCase().trim();
+};
+
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MaterialPane } from "@/components/material-pane";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -166,7 +197,7 @@ export function QuizPlayer() {
     for (const q of questions) {
       const userAnswer = userAnswers[q.id];
       if (userAnswer && checkedQuestions.has(q.id)) {
-        const isCorrect = userAnswer.toLowerCase().trim() === q.correctAnswer.toLowerCase().trim();
+        const isCorrect = answersMatch(userAnswer, q.correctAnswer, q.type);
         if (!isCorrect) {
           derivedWrongIds.add(q.id);
         }
@@ -282,9 +313,7 @@ export function QuizPlayer() {
       if (grading) return grading.isCorrect;
       return false;
     }
-    const normalizedUser = answer.toLowerCase().trim();
-    const normalizedCorrect = question.correctAnswer.toLowerCase().trim();
-    return normalizedUser === normalizedCorrect;
+    return answersMatch(answer, question.correctAnswer, question.type);
   };
 
   const isCorrect = () => {
@@ -363,7 +392,7 @@ export function QuizPlayer() {
 
     const keysToExpand: string[] = [];
     if (qSnap.type === "true_false") {
-      const correctOption = qSnap.correctAnswer.toLowerCase() === "true" ? "True" : "False";
+      const correctOption = normalizeTrueFalseAnswer(qSnap.correctAnswer) === "true" ? "True" : "False";
       keysToExpand.push(`${qSnap.id}-tf-${correctOption}`);
       if (!correct && answerToCheck) {
         keysToExpand.push(`${qSnap.id}-tf-${answerToCheck}`);
@@ -394,7 +423,7 @@ export function QuizPlayer() {
 
         if (qSnap.type === "true_false") {
           optionText = key.includes("-tf-True") ? "True" : "False";
-          isCorrectOpt = optionText.toLowerCase() === qSnap.correctAnswer.toLowerCase();
+          isCorrectOpt = answersMatch(optionText, qSnap.correctAnswer, qSnap.type);
         } else if (qSnap.type === "multiple_choice") {
           const optIdx = parseInt(key.split("-").pop() || "0");
           optionText = qSnap.options?.[optIdx] || "";
@@ -630,7 +659,7 @@ export function QuizPlayer() {
           if (rq.type === "short_answer") {
             const grading = aiGradingResults[rq.id];
             if (grading?.isCorrect) retryCorrect++;
-          } else if (answer.toLowerCase().trim() === rq.correctAnswer.toLowerCase().trim()) {
+          } else if (answersMatch(answer, rq.correctAnswer, rq.type)) {
             retryCorrect++;
           }
         }
@@ -644,7 +673,7 @@ export function QuizPlayer() {
           if (q.type === "short_answer") {
             return aiGradingResults[q.id]?.isCorrect;
           }
-          return answer.toLowerCase().trim() === q.correctAnswer.toLowerCase().trim();
+          return answersMatch(answer, q.correctAnswer, q.type);
         }).length;
 
         const result = {
@@ -661,7 +690,7 @@ export function QuizPlayer() {
             if (q.type === "short_answer") {
               return !aiGradingResults[q.id]?.isCorrect;
             }
-            return answer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
+            return !answersMatch(answer, q.correctAnswer, q.type);
           }).map(q => q.id),
         };
         setQuizResult(result as any);
@@ -832,8 +861,8 @@ export function QuizPlayer() {
       return (
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {["True", "False"].map((option, index) => {
-            const isSelected = selectedAnswer === option;
-            const isCorrectOpt = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
+            const isSelected = answersMatch(selectedAnswer, option, "true_false");
+            const isCorrectOpt = answersMatch(option, currentQuestion.correctAnswer, "true_false");
             const gradeKey = currentQuestion.isRetry ? currentQuestion.id : currentQuestion.originalId;
             const aiExplanation = aiGradingResults[gradeKey];
             const currentExplanation = currentQuestion.explanation || aiExplanation?.explanation;

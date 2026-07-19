@@ -163,7 +163,7 @@ export function QuizGenerationDialog({
                 </p>
 
                 {/* Step message */}
-                <AnimatePresence mode="wait">
+                {/* <AnimatePresence mode="wait">
                   <motion.p
                     key={currentStep}
                     initial={{ opacity: 0 }}
@@ -174,7 +174,10 @@ export function QuizGenerationDialog({
                   >
                     {stepMessage}
                   </motion.p>
-                </AnimatePresence>
+                </AnimatePresence> */}
+                <p className="text-xs text-muted-foreground min-h-[1rem]">
+                  Just a moment... take a quick break
+                </p>
               </div>
 
               {/* Study Tips */}
