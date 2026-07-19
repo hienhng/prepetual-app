@@ -4,6 +4,7 @@ import pRetry from "p-retry";
 import type { Question, QuestionType, DifficultyLevel, QuizCategory, GeneratedLecture, LectureSlide, LectureTopic, LectureStep } from "../shared/schema.js";
 import { QUIZ_CATEGORIES } from "../shared/schema.js";
 import { randomUUID } from "crypto";
+import { getMultipleChoiceOptionQualityIssue } from "./quiz-quality.js";
 
 const openai = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
@@ -618,6 +619,7 @@ AMBIGUITY RULES:
 - Reject broad property/category stems when multiple options share the property (for example, "Which stores energy?" when a battery, food, and a stretched rubber band all store energy)
 - Reject questions that depend on an unstated context, convention, degree, or interpretation
 - "Best" or "most" does not repair ambiguity unless the stem states a clear comparison criterion
+- Reject answer sets containing bare labels or placeholders instead of substantive answers (for example, ["A", "B", "C", "D"] or ["Option 1", "Option 2", "Option 3", "Option 4"])
 - Treat "All of the above" and "None of the above" as invalid answer choices
 - Never include the answer or a factually incorrect clue within the premise/question stem itself.
 - Do not generate questions like: 'Water boils at 50°C. What temperature does water boil at?
@@ -802,7 +804,7 @@ For EACH draft, follow this exact order:
 6. Check every option independently against the stem and keep the draft only if exactly one option is correct.
 
 QUESTION-TYPE RULES:
-- multiple_choice: create exactly four concise, distinct options. Include correctAnswer exactly once, character-for-character. Distractors must be plausible but definitively wrong—not synonyms, equivalent values, overlapping categories, or lightly reworded versions. Never use "All of the above" or "None of the above".
+- multiple_choice: create exactly four concise, distinct, meaningful answer options. Include correctAnswer exactly once, character-for-character. Distractors must be plausible but definitively wrong—not synonyms, equivalent values, overlapping categories, or lightly reworded versions. Never use "All of the above" or "None of the above". Never return bare choice labels (such as "A", "B", "C", "D"), generic placeholders (such as "Option 1"), or a prefixed label without actual answer text.
 - true_false: first verify factBasis independently, then evaluate the final statement. The statement must be a direct, mutually exclusive expression of factBasis: an accurate expression when targetTruthValue is "True", or a definite contradiction when it is "False". Reject unsupported, merely uncertain, partially true, or unrelated false statements. correctAnswer must exactly equal targetTruthValue and must be the English schema value "True" or "False"; options must be ["True", "False"]. The explanation remains in the question's language.
 - short_answer: give the most standard concise answer. Return an empty options array.
 
@@ -877,6 +879,7 @@ Include exactly one result for every draft.`;
 
       if (q.type === "multiple_choice") {
         const normalizedOptions = rawOptions.map((option: string) => option.toLowerCase().replace(/\s+/g, " "));
+        const optionQualityIssue = getMultipleChoiceOptionQualityIssue(rawOptions);
         const exactAnswerCount = rawOptions.filter((option: string) => option === correctAnswer).length;
         const correctIndex = rawOptions.indexOf(correctAnswer);
         const trueVerdictIndexes = optionVerdicts
@@ -884,12 +887,16 @@ Include exactly one result for every draft.`;
           .filter((index: number) => index >= 0);
         if (
           rawOptions.length !== 4 ||
+          optionQualityIssue !== null ||
           new Set(normalizedOptions).size !== 4 ||
           exactAnswerCount !== 1 ||
           optionVerdicts.length !== 4 ||
           trueVerdictIndexes.length !== 1 ||
           trueVerdictIndexes[0] !== correctIndex
         ) {
+          if (optionQualityIssue) {
+            console.warn(`${logPrefix} Rejecting multiple-choice draft that ${optionQualityIssue}: "${String(q.question).substring(0, 60)}..."`);
+          }
           rejectedQuestions.add(q);
           continue;
         }
@@ -1383,6 +1390,11 @@ ${draftPhaseInstructions}`;
             continue;
           }
           const normalizedOptions = options.map(normalizeQuestionKey);
+          const optionQualityIssue = getMultipleChoiceOptionQualityIssue(options);
+          if (optionQualityIssue) {
+            console.warn(`Skipping multiple-choice question that ${optionQualityIssue}: "${String(q.question).substring(0, 60)}..."`);
+            continue;
+          }
           if (new Set(normalizedOptions).size !== options.length) {
             console.warn(`Skipping multiple-choice question with duplicate options: "${String(q.question).substring(0, 60)}..."`);
             continue;
