@@ -3,7 +3,6 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
 import { serveStatic } from "./static.js";
 import { createServer } from "http";
-import { removeSeededPublicQuizzes } from "./remove-seeded-public-quizzes.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -71,14 +70,28 @@ app.use((req, res, next) => {
 // Export a function to initialize the server, which can be awaited
 export const initServer = async () => {
   await registerRoutes(httpServer, app);
-  await removeSeededPublicQuizzes();
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  // Keep maintenance jobs out of application startup. In a serverless
+  // environment this function runs on cold starts, so any database cleanup
+  // here can both delay every route and make the whole API fail to initialize.
+  app.use("/api", (req, res) => {
+    res.status(404).json({
+      message: `API route not found: ${req.method} ${req.originalUrl}`,
+    });
+  });
+
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    if (res.headersSent) {
+      return next(err);
+    }
+
     const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    const message = status >= 500
+      ? "Internal Server Error"
+      : err.message || "Request failed";
 
+    console.error(`${req.method} ${req.originalUrl} failed:`, err);
     res.status(status).json({ message });
-    throw err;
   });
 
   // importantly only setup vite in development and after

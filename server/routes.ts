@@ -1536,11 +1536,13 @@ IMPORTANT NOTE:
   app.get("/api/public-quizzes", async (req, res) => {
     try {
       const publicQuizzes = await storage.getPublicQuizzes();
+      res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
       res.json(publicQuizzes.map(q => ({
         ...q,
         createdAt: q.createdAt.toISOString(),
       })));
     } catch (error) {
+      console.error("Failed to get public quizzes:", error);
       res.status(500).json({ message: "Failed to get public quizzes" });
     }
   });

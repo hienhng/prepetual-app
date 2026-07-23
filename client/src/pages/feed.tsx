@@ -30,12 +30,22 @@ import { useLanguage } from "@/lib/language-context";
 import type { Quiz } from "@shared/schema";
 import { QUIZ_CATEGORIES } from "@shared/schema";
 
-type PublicQuiz = Quiz & { 
+type PublicQuiz = {
+  id: string;
+  userId: string | null;
+  title: string;
+  difficulty: string | null;
+  category: string | null;
+  generationMode: "generate" | "import" | "review" | null;
+  isPublic: number | null;
+  createdAt: string | Date;
+  questionCount: number;
+  topicCount: number;
+  isCurated: boolean;
   author?: { 
     username: string | null; 
-    email: string | null;
     profileImageUrl: string | null;
-  } 
+  };
 };
 
 
@@ -70,6 +80,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isOpening, setIsOpening] = useState(false);
 
   const handleShare = (quizId: string) => {
     const url = `${window.location.origin}/share/${quizId}`;
@@ -77,28 +88,45 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
     toast({ title: t('history.linkCopied'), description: t('history.linkCopiedDesc') });
   };
 
-  const setupQuiz = () => {
-    setCurrentQuiz({
-      ...quiz,
-      createdAt: typeof quiz.createdAt === "string" ? quiz.createdAt : quiz.createdAt.toISOString(),
-    } as any);
-    setSourceMaterial({
-      type: quiz.sourceImageUrl ? "image" : null,
-      text: quiz.sourceText,
-      imageDataUrl: quiz.sourceImageUrl || null,
-      isOfficeWithImages: (quiz.sourceImages?.length || 0) > 0,
-      documentImages: quiz.sourceImages || [],
-    });
+  const setupQuiz = async (): Promise<boolean> => {
+    setIsOpening(true);
+    try {
+      const response = await fetch(`/api/quiz/${quiz.id}`);
+      if (!response.ok) {
+        throw new Error("Failed to load quiz");
+      }
+      const fullQuiz = await response.json() as Quiz;
+
+      setCurrentQuiz({
+        ...fullQuiz,
+        createdAt: typeof fullQuiz.createdAt === "string" ? fullQuiz.createdAt : fullQuiz.createdAt.toISOString(),
+      } as any);
+      setSourceMaterial({
+        type: fullQuiz.sourceImageUrl ? "image" : null,
+        text: fullQuiz.sourceText,
+        imageDataUrl: fullQuiz.sourceImageUrl || null,
+        isOfficeWithImages: (fullQuiz.sourceImages?.length || 0) > 0,
+        documentImages: fullQuiz.sourceImages || [],
+      });
+      return true;
+    } catch {
+      toast({
+        title: t("common.error"),
+        description: "The quiz could not be loaded. Please try again.",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setIsOpening(false);
+    }
   };
 
-  const handleTakeQuiz = () => {
-    setupQuiz();
-    setLocation("/quiz");
+  const handleTakeQuiz = async () => {
+    if (await setupQuiz()) setLocation("/quiz");
   };
 
-  const handleStudyQuiz = () => {
-    setupQuiz();
-    setLocation("/study");
+  const handleStudyQuiz = async () => {
+    if (await setupQuiz()) setLocation("/study");
   };
 
   const getAuthorName = (author?: PublicQuiz["author"]) => {
@@ -137,15 +165,10 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
 
   const diffConfig = getDifficultyConfig(quiz.difficulty);
   const categoryGradient = getCategoryGradientLocal(quiz.category);
-  const questionCount = (quiz.questions as any[]).length;
-  const topicCount = quiz.lecture?.topics?.length || 0;
-  const readMinutes = Math.max(1, Math.ceil(((quiz.lecture?.topics || []).reduce((acc, topic) => {
-    return acc + (topic.slides || []).reduce((slideAcc, slide) => {
-      return slideAcc + (slide.body || []).join(" ").split(/\s+/).filter(Boolean).length;
-    }, 0);
-  }, 0) || 0) / 220));
+  const questionCount = quiz.questionCount;
+  const topicCount = quiz.topicCount;
   const CategoryIcon = getCategoryIconLocal(quiz.category);
-  const isCurated = quiz.author?.email === "giahienhn@gmail.com";
+  const isCurated = quiz.isCurated;
   const recConfig = getRecommendationConfig();
 
   return (
@@ -210,7 +233,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                   </Badge>
                   <span className="text-xs text-muted-foreground">
                     {topicCount > 0
-                      ? `${topicCount} topics | ${readMinutes} min read`
+                      ? `${topicCount} topics`
                       : t('history.questions', { count: questionCount })}
                   </span>
                 </div>
@@ -322,6 +345,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                   variant="outline"
                   className="w-full h-12 gap-2 hover:bg-blue-500/5 hover:border-blue-500/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
                   onClick={handleStudyQuiz}
+                  disabled={isOpening}
                   data-testid={`button-study-${quiz.id}`}
                 >
                   <BookOpen className="h-4 w-4" />
@@ -333,6 +357,7 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
                 <Button
                   className="w-full h-12 gap-2"
                   onClick={handleTakeQuiz}
+                  disabled={isOpening}
                   data-testid={`button-play-${quiz.id}`}
                 >
                   <Play className="h-4 w-4" />
@@ -382,8 +407,7 @@ export default function Feed() {
     
     return quizzes.filter(quiz => {
       const matchesSearch = searchQuery === "" || 
-        quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        quiz.sourceText.toLowerCase().includes(searchQuery.toLowerCase());
+        quiz.title.toLowerCase().includes(searchQuery.toLowerCase());
       
       const matchesCategory = selectedCategory === "all" || 
         quiz.category === selectedCategory;
@@ -405,7 +429,7 @@ export default function Feed() {
     if (!quizzes) return { totalQuizzes: 0, totalQuestions: 0, totalContributors: 0 };
     return {
       totalQuizzes: quizzes.length,
-      totalQuestions: quizzes.reduce((acc, q) => acc + (q.questions as any[]).length, 0),
+      totalQuestions: quizzes.reduce((acc, q) => acc + q.questionCount, 0),
       totalContributors: new Set(quizzes.map(q => q.userId)).size,
     };
   }, [quizzes]);

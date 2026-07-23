@@ -31,6 +31,19 @@ import {
   type InsertBugReport
 } from "../shared/schema.js";
 
+export type PublicQuizSummary = Pick<
+  Quiz,
+  "id" | "userId" | "title" | "difficulty" | "category" | "generationMode" | "isPublic" | "createdAt"
+> & {
+  questionCount: number;
+  topicCount: number;
+  isCurated: boolean;
+  author?: {
+    username: string | null;
+    profileImageUrl: string | null;
+  };
+};
+
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
@@ -49,7 +62,7 @@ export interface IStorage {
   getAllQuizzes(): Promise<Quiz[]>;
   getQuizzesByUserId(userId: string): Promise<Quiz[]>;
   getQuizzesByUserIdLight(userId: string): Promise<(Omit<Quiz, "questions" | "sourceText" | "sourceImages" | "lecture"> & { questionCount: number })[]>;
-  getPublicQuizzes(): Promise<(Quiz & { author?: { username: string | null; email: string | null; profileImageUrl: string | null } })[]>;
+  getPublicQuizzes(): Promise<PublicQuizSummary[]>;
   updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined>;
   deleteQuiz(id: string): Promise<boolean>;
   saveQuizResult(result: InsertQuizResult): Promise<QuizResult>;
@@ -238,10 +251,21 @@ export class DatabaseStorage implements IStorage {
     return rows;
   }
 
-  async getPublicQuizzes(): Promise<(Quiz & { author?: { username: string | null; email: string | null; profileImageUrl: string | null } })[]> {
+  async getPublicQuizzes(): Promise<PublicQuizSummary[]> {
     const results = await db
       .select({
-        quiz: quizzes,
+        quiz: {
+          id: quizzes.id,
+          userId: quizzes.userId,
+          title: quizzes.title,
+          difficulty: quizzes.difficulty,
+          category: quizzes.category,
+          generationMode: quizzes.generationMode,
+          isPublic: quizzes.isPublic,
+          createdAt: quizzes.createdAt,
+          questionCount: sql<number>`jsonb_array_length(${quizzes.questions})`,
+          topicCount: sql<number>`coalesce(jsonb_array_length(${quizzes.lecture}->'topics'), 0)`,
+        },
         author: {
           username: users.username,
           email: users.email,
@@ -255,7 +279,13 @@ export class DatabaseStorage implements IStorage {
     
     return results.map(r => ({
       ...r.quiz,
-      author: r.author || undefined,
+      questionCount: Number(r.quiz.questionCount),
+      topicCount: Number(r.quiz.topicCount),
+      isCurated: r.author?.email === "giahienhn@gmail.com",
+      author: r.author ? {
+        username: r.author.username,
+        profileImageUrl: r.author.profileImageUrl,
+      } : undefined,
     }));
   }
 
@@ -391,8 +421,13 @@ export class DatabaseStorage implements IStorage {
   async getUserResultHistory(userId: string): Promise<{ id: string; date: string; accuracy: number; quizTitle: string; correctAnswers: number; totalQuestions: number; category: string; quizId: string }[]> {
     const results = await db
       .select({
-        result: quizResults,
-        quiz: quizzes
+        id: quizResults.id,
+        completedAt: quizResults.completedAt,
+        correctAnswers: quizResults.correctAnswers,
+        totalQuestions: quizResults.totalQuestions,
+        quizId: quizResults.quizId,
+        quizTitle: quizzes.title,
+        category: quizzes.category,
       })
       .from(quizResults)
       .innerJoin(quizzes, eq(quizResults.quizId, quizzes.id))
@@ -400,14 +435,14 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(quizResults.completedAt));
 
     return results.map(r => ({
-      id: r.result.id,
-      date: r.result.completedAt.toISOString(),
-      accuracy: r.result.totalQuestions > 0 ? Math.round((r.result.correctAnswers / r.result.totalQuestions) * 100) : 0,
-      quizTitle: r.quiz.title,
-      correctAnswers: r.result.correctAnswers,
-      totalQuestions: r.result.totalQuestions,
-      category: r.quiz.category || "Others/General",
-      quizId: r.result.quizId,
+      id: r.id,
+      date: r.completedAt.toISOString(),
+      accuracy: r.totalQuestions > 0 ? Math.round((r.correctAnswers / r.totalQuestions) * 100) : 0,
+      quizTitle: r.quizTitle,
+      correctAnswers: r.correctAnswers,
+      totalQuestions: r.totalQuestions,
+      category: r.category || "Others/General",
+      quizId: r.quizId,
     }));
   }
 
@@ -495,13 +530,22 @@ export class DatabaseStorage implements IStorage {
     recentQuizIds: string[];
   }> {
     // Get quizzes the user has taken (from quiz results with userId)
-    const userResults = await db.select()
+    const userResults = await db.select({
+      quizId: quizResults.quizId,
+      correctAnswers: quizResults.correctAnswers,
+      totalQuestions: quizResults.totalQuestions,
+    })
       .from(quizResults)
       .where(eq(quizResults.userId, userId))
       .orderBy(desc(quizResults.completedAt));
 
     // Also get quizzes the user has created (ordered by creation date)
-    const userCreatedQuizzes = await this.getQuizzesByUserId(userId);
+    const userCreatedQuizzes = await db.select({
+      id: quizzes.id,
+    })
+      .from(quizzes)
+      .where(eq(quizzes.userId, userId))
+      .orderBy(desc(quizzes.createdAt));
     
     // Build recentQuizIds preserving recency order from results first
     const recentTakenQuizIds: string[] = [];
@@ -532,7 +576,10 @@ export class DatabaseStorage implements IStorage {
     }
 
     // Get quiz details for category lookup
-    const quizDetails = await db.select()
+    const quizDetails = await db.select({
+      id: quizzes.id,
+      category: quizzes.category,
+    })
       .from(quizzes)
       .where(inArray(quizzes.id, allUserQuizIds));
     
