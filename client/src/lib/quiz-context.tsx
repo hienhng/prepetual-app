@@ -18,7 +18,7 @@ const safeSessionStorageSet = (key: string, value: string) => {
   }
 };
 
-export type SourceMaterialType = "pdf" | "image" | "document" | null;
+export type SourceMaterialType = "pdf" | "image" | "document" | "prompt" | null;
 
 interface SourceMaterial {
   type: SourceMaterialType;
@@ -27,6 +27,7 @@ interface SourceMaterial {
   isOfficeWithImages?: boolean;
   documentImages?: string[];
   isImageOnly?: boolean;
+  autoGenerate?: boolean;
 }
 
 export interface SavedQuizProgress {

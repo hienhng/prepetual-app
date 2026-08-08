@@ -297,15 +297,48 @@ export type QuizResultLegacy = z.infer<typeof quizResultSchemaLegacy>;
 // API request schemas
 export const generateQuizRequestSchema = z.object({
   text: z.string().min(1, "Text is required"),
+  sourceType: z.enum(["material", "prompt"]).default("material"),
   questionCount: z.number().min(3).max(20).default(10),
   questionTypes: z.array(z.enum(["multiple_choice", "true_false", "short_answer"])).min(1),
   difficulty: z.enum(["easy", "medium", "hard"]).default("medium"),
   documentImages: z.array(z.string()).max(5, "A maximum of 5 images is allowed").optional(),
   isImageOnly: z.boolean().optional(),
-}).refine(
-  (data) => data.isImageOnly || data.text.length >= 50,
-  { message: "Text must be at least 50 characters (unless using image-only mode)", path: ["text"] }
-);
+}).superRefine((data, ctx) => {
+  const textLength = data.text.trim().length;
+
+  if (data.sourceType === "prompt") {
+    if (textLength < 3) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Prompt must be at least 3 characters",
+        path: ["text"],
+      });
+    }
+    if (textLength > 1000) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Prompt must be 1000 characters or fewer",
+        path: ["text"],
+      });
+    }
+    if (data.isImageOnly || (data.documentImages?.length || 0) > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Prompt-based quizzes cannot include source images",
+        path: ["documentImages"],
+      });
+    }
+    return;
+  }
+
+  if (!data.isImageOnly && data.text.length < 50) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Text must be at least 50 characters (unless using image-only mode)",
+      path: ["text"],
+    });
+  }
+});
 
 export type GenerateQuizRequest = z.infer<typeof generateQuizRequestSchema>;
 

@@ -67,6 +67,7 @@ export default function Generate() {
   }, [extractedText, sourceMaterial.isImageOnly, isProcessing, hasCompletedJobs, isLoading, setLocation]);
 
   const hasContent = extractedText || sourceMaterial.isImageOnly;
+  const isPromptBased = sourceMaterial.type === "prompt";
   if (!hasContent && !isProcessing && !hasCompletedJobs && !isLoading) {
     return null;
   }
@@ -118,7 +119,7 @@ export default function Generate() {
             >
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                Material Processed & Ready
+                {isPromptBased ? "Quiz Prompt Ready" : "Material Processed & Ready"}
               </span>
             </motion.div>
           </div>

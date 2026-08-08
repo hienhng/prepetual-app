@@ -77,6 +77,7 @@ interface QuizGenerationDialogProps {
   progress: number;
   currentStep: string;
   message: string;
+  notice?: string;
   mode: "generate" | "import";
 }
 
@@ -85,6 +86,7 @@ export function QuizGenerationDialog({
   progress,
   currentStep,
   message,
+  notice,
   mode,
 }: QuizGenerationDialogProps) {
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
@@ -178,6 +180,12 @@ export function QuizGenerationDialog({
                 <p className="text-xs text-muted-foreground min-h-[1rem]">
                   Just a moment... take a quick break
                 </p>
+
+                {notice && (
+                  <p className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-700 dark:text-amber-300">
+                    {notice}
+                  </p>
+                )}
               </div>
 
               {/* Study Tips */}

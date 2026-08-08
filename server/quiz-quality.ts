@@ -5,6 +5,27 @@ function normalizeChoice(value: string): string {
   return value.normalize("NFKC").trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+/** Detects answer choices that were incorrectly appended to a question stem. */
+export function hasEmbeddedMultipleChoiceOptions(question: unknown): boolean {
+  if (typeof question !== "string" || !question.trim()) return false;
+
+  const searchable = question.normalize("NFKC").replace(/[*_`]/g, "");
+  const labels = Array.from(
+    searchable.matchAll(/(?:^|\s)(?:\(([A-H])\)|([A-H])[).:\-])(?=\s)/giu),
+    (match) => (match[1] || match[2]).toUpperCase(),
+  );
+
+  // Requiring a sequence of at least three labels avoids treating an ordinary
+  // mention such as "vitamin A" as an embedded answer set.
+  for (let index = 0; index <= labels.length - 3; index++) {
+    if (labels[index] === "A" && labels[index + 1] === "B" && labels[index + 2] === "C") {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /** Returns why generated multiple-choice options have no usable answer content. */
 export function getMultipleChoiceOptionQualityIssue(options: string[]): string | null {
   if (options.length !== 4) return "expected exactly four answer choices";

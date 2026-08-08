@@ -16,12 +16,14 @@ async function getOfficeParser() {
   }
   return parseOffice;
 }
-import { generateQuizQuestions, importExistingQuiz, quizChatResponse, classifyImages, extractTextFromImagesWithVision, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
+import { detectQuizSettingsFromPrompt, generateQuizQuestions, generateStudyMaterialFromPrompt, importExistingQuiz, quizChatResponse, classifyImages, extractTextFromImagesWithVision, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
 import { IMAGE_ANALYSIS_SOURCE_MARKER, generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs.js";
 import { extractTextFromPDFWithOCR } from "./pdf-extract.js";
 import { fetchSupadataTranscript, SupadataTranscriptError } from "./supadata.js";
+import { setPublicFeedCacheHeaders } from "./public-feed-cache.js";
+import { POSITION_INDEPENDENT_EXPLANATION_RULE } from "./explanation-guidance.js";
 import crypto from "crypto";
 import { fetchTranscript } from "youtube-transcript-plus";
 import TranscriptClient from "youtube-transcript-api";  // type: ignore
@@ -657,7 +659,7 @@ export async function registerRoutes(
         return;
       }
 
-      const { text, questionCount, questionTypes, difficulty, documentImages, isImageOnly } = validation.data;
+      const { text, sourceType, questionCount, questionTypes, difficulty, documentImages, isImageOnly } = validation.data;
       const { sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -666,8 +668,28 @@ export async function registerRoutes(
       // For image-only uploads, we still need images for the AI to analyze even if they're text-only
       let imagesForQuestions: string[] | undefined;
       let textForQuiz = text;
+      let resolvedQuestionCount = questionCount;
+      let resolvedDifficulty = difficulty as DifficultyLevel;
       let sourceUsesVisionTranscription = false;
       const imageOnlyFlag = isImageOnly || false;
+
+      if (sourceType === "prompt") {
+        const detectedSettings = await detectQuizSettingsFromPrompt({
+          prompt: text,
+          onProgress: sendProgress,
+        });
+        resolvedQuestionCount = detectedSettings.questionCount;
+        resolvedDifficulty = detectedSettings.difficulty;
+
+        textForQuiz = await generateStudyMaterialFromPrompt({
+          prompt: text,
+          questionCount: resolvedQuestionCount,
+          questionTypes,
+          difficulty: resolvedDifficulty,
+          onProgress: sendProgress,
+        });
+      }
+
       if (documentImages && documentImages.length > 0) {
         const classifications = await classifyImages(documentImages, sendProgress, imageOnlyFlag);
         
@@ -717,14 +739,20 @@ export async function registerRoutes(
         }
       }
 
+      const questionProgress = sourceType === "prompt"
+        ? (step: string, progress: number, message: string) =>
+            sendProgress(step, 35 + Math.round(progress * 0.6), message)
+        : sendProgress;
+
       const { questions, title, category } = await generateQuizQuestions({
         text: textForQuiz,
-        questionCount,
+        questionCount: resolvedQuestionCount,
         questionTypes,
-        difficulty: difficulty as DifficultyLevel,
+        difficulty: resolvedDifficulty,
         documentImages: imagesForQuestions,
-        onProgress: sendProgress,
+        onProgress: questionProgress,
         isImageOnly: isImageOnly || false,
+        sourceRequest: sourceType === "prompt" ? text : undefined,
       });
 
       sendProgress("saving", 98, "Saving your quiz...");
@@ -736,7 +764,7 @@ export async function registerRoutes(
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: documentImages || null,
         questions: questions as Question[],
-        difficulty: difficulty || "medium",
+        difficulty: resolvedDifficulty,
         category,
         generationMode: "generate",
         isPublic: 0,
@@ -763,15 +791,30 @@ export async function registerRoutes(
         });
       }
 
-      const { text, questionCount, questionTypes, difficulty, documentImages, isImageOnly } = validation.data;
+      const { text, sourceType, questionCount, questionTypes, difficulty, documentImages, isImageOnly } = validation.data;
       const { sourceImageUrl } = req.body;
       const userId = req.user.claims.sub;
 
       // Classify images to separate text-only from illustrations
       let imagesForQuestions: string[] | undefined;
       let textForQuiz = text;
+      let resolvedQuestionCount = questionCount;
+      let resolvedDifficulty = difficulty as DifficultyLevel;
       let sourceUsesVisionTranscription = false;
       const imageOnlyFlag = isImageOnly || false;
+
+      if (sourceType === "prompt") {
+        const detectedSettings = await detectQuizSettingsFromPrompt({ prompt: text });
+        resolvedQuestionCount = detectedSettings.questionCount;
+        resolvedDifficulty = detectedSettings.difficulty;
+
+        textForQuiz = await generateStudyMaterialFromPrompt({
+          prompt: text,
+          questionCount: resolvedQuestionCount,
+          questionTypes,
+          difficulty: resolvedDifficulty,
+        });
+      }
 
       if (documentImages && documentImages.length > 0) {
         const classifications = await classifyImages(documentImages, undefined, imageOnlyFlag);
@@ -808,10 +851,11 @@ export async function registerRoutes(
 
       const { questions, title, category } = await generateQuizQuestions({
         text: textForQuiz,
-        questionCount,
+        questionCount: resolvedQuestionCount,
         questionTypes,
-        difficulty: difficulty as DifficultyLevel,
+        difficulty: resolvedDifficulty,
         documentImages: imagesForQuestions,
+        sourceRequest: sourceType === "prompt" ? text : undefined,
       });
 
       const quiz = await storage.saveQuiz({
@@ -821,7 +865,7 @@ export async function registerRoutes(
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: documentImages || null,
         questions: questions as Question[],
-        difficulty: difficulty || "medium",
+        difficulty: resolvedDifficulty,
         category,
         generationMode: "generate",
         isPublic: 0,
@@ -1536,7 +1580,7 @@ IMPORTANT NOTE:
   app.get("/api/public-quizzes", async (req, res) => {
     try {
       const publicQuizzes = await storage.getPublicQuizzes();
-      res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+      setPublicFeedCacheHeaders(res);
       res.json(publicQuizzes.map(q => ({
         ...q,
         createdAt: q.createdAt.toISOString(),
@@ -2133,7 +2177,9 @@ Always return JSON:
             content: `You are an expert tutor explaining a quiz question to a student.${sourceContext}
 
 The student answered a multiple choice or true/false question.
-${instructions}${mathFormattingRules}`
+${instructions}
+
+${POSITION_INDEPENDENT_EXPLANATION_RULE}${mathFormattingRules}`
           },
           {
             role: "user",

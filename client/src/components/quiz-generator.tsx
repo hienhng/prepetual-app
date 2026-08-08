@@ -18,6 +18,10 @@ import { useToast } from "@/hooks/use-toast";
 type QuizMode = "generate" | "import";
 const MAX_SOURCE_IMAGES = 5;
 
+type QuizGeneratorProps = {
+  headless?: boolean;
+};
+
 async function getResponseErrorMessage(response: Response, fallback: string): Promise<string> {
   try {
     const data = await response.json();
@@ -27,7 +31,7 @@ async function getResponseErrorMessage(response: Response, fallback: string): Pr
   }
 }
 
-export function QuizGenerator() {
+export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
   const [, setLocation] = useLocation();
   const {
     extractedText, setExtractedText,
@@ -42,14 +46,23 @@ export function QuizGenerator() {
   const { toast } = useToast();
   const [showFullText, setShowFullText] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generationNotice, setGenerationNotice] = useState("");
   const [mode, setMode] = useState<QuizMode>("generate");
 
+  const isPromptBased = sourceMaterial.type === "prompt";
   const isOfficeWithImages = sourceMaterial?.isOfficeWithImages || false;
   const documentImages = sourceMaterial?.documentImages || [];
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const autoGenerationStartedRef = useRef(false);
   const [questionCount, setQuestionCount] = useState<number>(10);
   const [questionTypes, setQuestionTypes] = useState<Array<"multiple_choice" | "true_false" | "short_answer">>(["multiple_choice", "true_false"]);
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
+
+  useEffect(() => {
+    if (isPromptBased && mode !== "generate") {
+      setMode("generate");
+    }
+  }, [isPromptBased, mode]);
 
   const showGenerationFailure = (title: string, error: unknown, fallback: string) => {
     const message = error instanceof Error && error.message.trim() ? error.message : fallback;
@@ -134,6 +147,9 @@ export function QuizGenerator() {
 
     const messages: Record<string, string> = {
       starting: "Starting quiz generation...",
+      analyzing_prompt: "Analyzing your quiz request...",
+      creating_material: "Creating study material for your quiz...",
+      material_ready: "Study material created. Generating questions from it...",
       reading: "Reading your study material...",
       analyzing: "Analyzing content structure...",
       preparing: "Preparing quiz generation...",
@@ -149,6 +165,8 @@ export function QuizGenerator() {
 
   const generateQuiz = async () => {
     if (!extractedText) return;
+
+    setGenerationNotice("");
 
     const selectedImageCount = documentImages.length + (sourceMaterial.imageDataUrl ? 1 : 0);
     if (selectedImageCount > MAX_SOURCE_IMAGES) {
@@ -217,6 +235,7 @@ export function QuizGenerator() {
       const isImageOnly = sourceMaterial.isImageOnly === true;
       const body = {
         text: extractedText,
+        sourceType: isPromptBased ? "prompt" : "material",
         questionCount: Number(questionCount),
         questionTypes: questionTypes,
         difficulty,
@@ -263,6 +282,9 @@ export function QuizGenerator() {
           setProcessingProgress(data.progress);
           setCurrentGenerationStep(data.step);
           setLoadingMessage(data.message);
+          if (data.step === "question_count_capped") {
+            setGenerationNotice(data.message);
+          }
         } else if (data.type === "complete") {
           generationCompleted = true;
 
@@ -287,7 +309,7 @@ export function QuizGenerator() {
           // Preserve documentImages for viewing in quiz player
           setSourceMaterial({
             type: sourceMaterial.type,
-            text: null,
+            text: data.quiz.sourceText || null,
             imageDataUrl: sourceMaterial.imageDataUrl,
             isOfficeWithImages: sourceMaterial.isOfficeWithImages,
             documentImages: documentImages
@@ -335,6 +357,22 @@ export function QuizGenerator() {
     }
   };
 
+  useEffect(() => {
+    if (
+      !isPromptBased ||
+      !sourceMaterial.autoGenerate ||
+      !extractedText ||
+      isLoading ||
+      autoGenerationStartedRef.current
+    ) {
+      return;
+    }
+
+    autoGenerationStartedRef.current = true;
+    setSourceMaterial({ ...sourceMaterial, autoGenerate: false });
+    void generateQuiz();
+  }, [isPromptBased, sourceMaterial.autoGenerate, extractedText, isLoading]);
+
   const truncatedText = extractedText?.substring(0, 300) || "";
   const hasMoreText = (extractedText?.length || 0) > 300;
 
@@ -381,6 +419,19 @@ export function QuizGenerator() {
       );
     }
   };
+
+  if (headless) {
+    return (
+      <QuizGenerationDialog
+        isOpen={isLoading}
+        progress={processingProgress}
+        currentStep={currentGenerationStep}
+        message={loadingMessage}
+        notice={generationNotice}
+        mode={mode}
+      />
+    );
+  }
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -491,16 +542,20 @@ export function QuizGenerator() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="border-2 border-green-200 dark:border-green-800/50 bg-green-50/50 dark:bg-green-950/20">
+          <Card className={`border-2 ${isPromptBased ? "border-fuchsia-200 dark:border-fuchsia-800/50 bg-fuchsia-50/50 dark:bg-fuchsia-950/20" : "border-green-200 dark:border-green-800/50 bg-green-50/50 dark:bg-green-950/20"}`}>
             <CardContent className="p-5">
               <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center shadow-lg flex-shrink-0">
-                  <FileText className="w-6 h-6 text-white" />
+                <div className={`w-12 h-12 rounded-xl ${isPromptBased ? "bg-fuchsia-500" : "bg-green-500"} flex items-center justify-center shadow-lg flex-shrink-0`}>
+                  {isPromptBased ? <Sparkles className="w-6 h-6 text-white" /> : <FileText className="w-6 h-6 text-white" />}
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg text-foreground mb-0.5">Your Study Material</h3>
+                  <h3 className="font-semibold text-lg text-foreground mb-0.5">
+                    {isPromptBased ? "Your Quiz Prompt" : "Your Study Material"}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    {extractedText?.length.toLocaleString()} characters ready for quiz generation
+                    {isPromptBased
+                      ? "AI will use this request to choose the topic and focus"
+                      : `${extractedText?.length.toLocaleString()} characters ready for quiz generation`}
                   </p>
                 </div>
               </div>
@@ -567,7 +622,9 @@ export function QuizGenerator() {
                   Smart Practice
                 </h3>
                 <p className="text-sm font-medium text-muted-foreground leading-snug">
-                  Prepetual creates original questions based on your specific notes.
+                  {isPromptBased
+                    ? "Prepetual creates original questions that follow your topic and focus."
+                    : "Prepetual creates original questions based on your specific notes."}
                 </p>
               </div>
               <div className="flex-shrink-0">
@@ -580,48 +637,49 @@ export function QuizGenerator() {
           </Card>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ scale: 1.01, y: -2 }}
-          whileTap={{ scale: 0.99 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.05 }}
-        >
-          <Card
-            className={`group relative overflow-hidden cursor-pointer border-2 transition-all duration-500 hover:shadow-2xl ${mode === "import"
-              ? "border-amber-500 bg-amber-500/[0.03] shadow-amber-500/10"
-              : "border-border/50 bg-background/50 hover:border-amber-300"
-              }`}
-            onClick={() => setMode("import")}
-            data-testid="mode-import"
+        {!isPromptBased && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.01, y: -2 }}
+            whileTap={{ scale: 0.99 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.05 }}
           >
-            {/* Active Highlight */}
-            {mode === "import" && (
-              <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-500" />
-            )}
+            <Card
+              className={`group relative overflow-hidden cursor-pointer border-2 transition-all duration-500 hover:shadow-2xl ${mode === "import"
+                ? "border-amber-500 bg-amber-500/[0.03] shadow-amber-500/10"
+                : "border-border/50 bg-background/50 hover:border-amber-300"
+                }`}
+              onClick={() => setMode("import")}
+              data-testid="mode-import"
+            >
+              {mode === "import" && (
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-500" />
+              )}
 
-            <CardContent className="p-6 flex items-center gap-6">
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:scale-110 ${mode === "import" ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"
-                }`}>
-                <Import className="w-8 h-8" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className={`font-black text-xl tracking-tight mb-0.5 ${mode === "import" ? "text-amber-600 dark:text-amber-400" : "text-foreground"}`}>
-                  Import Questions
-                </h3>
-                <p className="text-sm font-medium text-muted-foreground leading-snug">
-                  Already have an exam? Prepetual can scan it and find the answers.
-                </p>
-              </div>
-              <div className="flex-shrink-0">
-                <div className={`w-6 h-6 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${mode === "import" ? "border-amber-500 bg-amber-500" : "border-muted-foreground/30"
+              <CardContent className="p-6 flex items-center gap-6">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:scale-110 ${mode === "import" ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"
                   }`}>
-                  {mode === "import" && <div className="w-2.5 h-2.5 rounded-full bg-white animate-in zoom-in duration-300" />}
+                  <Import className="w-8 h-8" />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+                <div className="flex-1 min-w-0">
+                  <h3 className={`font-black text-xl tracking-tight mb-0.5 ${mode === "import" ? "text-amber-600 dark:text-amber-400" : "text-foreground"}`}>
+                    Import Questions
+                  </h3>
+                  <p className="text-sm font-medium text-muted-foreground leading-snug">
+                    Already have an exam? Prepetual can scan it and find the answers.
+                  </p>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className={`w-6 h-6 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${mode === "import" ? "border-amber-500 bg-amber-500" : "border-muted-foreground/30"
+                    }`}>
+                    {mode === "import" && <div className="w-2.5 h-2.5 rounded-full bg-white animate-in zoom-in duration-300" />}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
       </div>
 
       {mode === "generate" && (
@@ -848,6 +906,7 @@ export function QuizGenerator() {
         progress={processingProgress}
         currentStep={currentGenerationStep}
         message={loadingMessage}
+        notice={generationNotice}
         mode={mode}
       />
     </div>

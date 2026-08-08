@@ -2270,6 +2270,9 @@ function FeatureShowcase() {
 
 function ParsingShowcase() {
   const { t } = useLanguage();
+  const parsingTitle = t("home.parsing.title");
+  const parsingTitleEmphasis = t("home.parsing.titleEmphasis");
+  const parsingTitleEmphasisIndex = parsingTitle.indexOf(parsingTitleEmphasis);
   const originalQuestions = [
     { num: "1", question: "What is the powerhouse of the cell?", options: ["A) Nucleus", "B) Mitochondria", "C) Ribosome", "D) Golgi apparatus"] },
     { num: "2", question: "DNA replication occurs during which phase?", options: ["A) G1 phase", "B) S phase", "C) G2 phase", "D) M phase"] },
@@ -2334,19 +2337,19 @@ function ParsingShowcase() {
                 delay: 0.05,
               }}
             >
-              {t("home.parsing.title").split(", ").map((part, i) => (
-                <React.Fragment key={i}>
-                  {i === 0 ? part + ", " : ""}
-                  {i === 1 && (
-                    <>
-                      <span className="text-primary italic custom-highlight">
-                        {t("common.exactly")}
-                      </span>
-                      {part.replace(t("common.exactly"), "")}
-                    </>
+              {parsingTitleEmphasisIndex >= 0 ? (
+                <>
+                  {parsingTitle.slice(0, parsingTitleEmphasisIndex)}
+                  <span className="text-primary custom-highlight">
+                    <em>{parsingTitleEmphasis}</em>
+                  </span>
+                  {parsingTitle.slice(
+                    parsingTitleEmphasisIndex + parsingTitleEmphasis.length,
                   )}
-                </React.Fragment>
-              ))}
+                </>
+              ) : (
+                parsingTitle
+              )}
             </motion.h2>
           </div>
           <motion.p
@@ -2406,15 +2409,6 @@ function ParsingShowcase() {
               <div className="flex items-center gap-2 text-[10px] font-bold text-primary uppercase tracking-widest">
                 <Zap className="w-3 h-3" /> {t("home.parsing.interactive")}
               </div>
-              {phase === "result" && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="px-2 py-0.5 bg-primary/10 border border-primary/20 rounded-full text-[9px] font-bold text-primary uppercase"
-                >
-                  {t("home.parsing.ready")}
-                </motion.div>
-              )}
             </div>
             <Card className={`transition-all duration-700 ${phase === "result" ? "border-primary/30 shadow-2xl shadow-primary/5" : "opacity-30 grayscale blur-sm border-border/40"}`}>
               <CardContent className="p-8 space-y-6 text-pretty">

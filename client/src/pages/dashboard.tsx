@@ -965,8 +965,12 @@ export default function Dashboard() {
     queryKey: ["/api/quizzes?limit=8"],
   });
 
-  const { data: latestProgress, isLoading: isLoadingProgress } = useQuery<any[]>({
-    queryKey: ["/api/quiz-progress?limit=1"],
+  const { data: progressItems, isLoading: isLoadingProgress } = useQuery<any[]>({
+    // Share the canonical progress query with QuizProvider and the In Progress page.
+    // Save/delete mutations invalidate this key, so the dashboard cannot retain a
+    // stale limited-query result after the user changes their progress.
+    queryKey: ["/api/quiz-progress"],
+    staleTime: 0,
   });
 
   const { data: resultHistory, isLoading: isLoadingResultHistory } = useQuery<ResultHistoryItem[]>({
@@ -1203,11 +1207,12 @@ export default function Dashboard() {
   const inProgressAnsweredCount = Object.keys(userAnswers).filter(k => !k.startsWith('retry-')).length;
   const inProgressTotalCount = currentQuiz?.questions?.length || 0;
 
-  // Show only the latest saved progress in the dashboard to ease loading
+  // The API returns progress in newest-first order. The shared query is already
+  // loaded by QuizProvider, so selecting one item here adds no extra request.
   const latestSavedQuiz = useMemo(() => {
-    if (!latestProgress || latestProgress.length === 0) return null;
+    if (!progressItems || progressItems.length === 0) return null;
 
-    const p = latestProgress[0];
+    const p = progressItems[0];
     const mergedAnswers: Record<string, string> = { ...p.answers };
     if (p.retryAnswers) {
       Object.entries(p.retryAnswers as Record<string, string>).forEach(([key, value]) => {
@@ -1223,7 +1228,7 @@ export default function Dashboard() {
       checkedQuestions: p.checkedQuestions || [],
       savedAt: p.savedAt,
     };
-  }, [latestProgress]);
+  }, [progressItems]);
 
 
 
@@ -1516,16 +1521,18 @@ export default function Dashboard() {
                   <CalendarCheck className="w-5 h-5 text-muted-foreground" />
                   <h2 className="text-xl font-bold text-foreground">{t('dashboard.dailyRevision')}</h2>
                 </div>
-                <DailyRevisionPanel
-                  revision={dailyRevision}
-                  isLoading={isLoadingResultHistory || isLoadingDailyRevision}
-                  dayKey={dailyRevisionKey}
-                />
+                <div className="lg:pt-1">
+                  <DailyRevisionPanel
+                    revision={dailyRevision}
+                    isLoading={isLoadingResultHistory || isLoadingDailyRevision}
+                    dayKey={dailyRevisionKey}
+                  />
+                </div>
               </motion.section>
 
               {/* Quick Actions Sidebar Block */}
               <motion.section variants={itemVariants} className="space-y-4">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-5">
                   <Zap className="w-5 h-5 text-muted-foreground" />
                   <h2 className="text-xl font-bold text-foreground">{t('dashboard.quickActions')}</h2>
                 </div>

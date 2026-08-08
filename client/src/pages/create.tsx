@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  Upload, FileText, Image, Sparkles, ArrowRight,
+  FileText, Image, Sparkles, ArrowRight,
   CheckCircle2, Loader2, X, Wand2,
-  Type, Youtube, Link, AlertCircle, FileUp, FilePlusIcon
+  Type, Youtube, Link, AlertCircle, FileUp, Lightbulb, SendHorizonal, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { FileUpload } from "@/components/file-upload";
+import { QuizGenerator } from "@/components/quiz-generator";
 import { useQuiz } from "@/lib/quiz-context";
 import { useUpload } from "@/lib/upload-context";
 import { useLanguage } from "@/lib/language-context";
@@ -52,38 +53,89 @@ const itemVariants = {
   },
 };
 
-const cardHoverVariants = {
-  rest: { scale: 1 },
-  hover: { scale: 1.02, transition: { duration: 0.2 } },
-};
+function getRandomPromptIndex(total: number, currentIndex: number = -1) {
+  if (total <= 1) return 0;
+  if (currentIndex < 0 || currentIndex >= total) return Math.floor(Math.random() * total);
 
-type SourceInputType = "upload" | "manual" | "youtube" | null;
+  const candidate = Math.floor(Math.random() * (total - 1));
+  return candidate >= currentIndex ? candidate + 1 : candidate;
+}
+
+type SourceInputType = "prompt" | "upload" | "manual" | "youtube" | null;
 type ActiveModal = "upload" | "manual" | "youtube" | null;
 
 export default function Create() {
   const [, setLocation] = useLocation();
   const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial, isLoading } = useQuiz();
-  const { t } = useLanguage();
+  const { t, tArray, language } = useLanguage();
   const { activeJobs, clearJobs } = useUpload();
+  const examplePrompts = tArray('create.examplePrompts');
   const [isReady, setIsReady] = useState(false);
   const redirectedRef = useRef(false);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [showUploadCloseWarning, setShowUploadCloseWarning] = useState(false);
   const [sourceInputType, setSourceInputType] = useState<SourceInputType>(null);
+  const [quizPrompt, setQuizPrompt] = useState("");
+  const [animatedPrompt, setAnimatedPrompt] = useState("");
+  const [examplePromptIndex, setExamplePromptIndex] = useState(() => getRandomPromptIndex(examplePrompts.length));
+  const [isDeletingExample, setIsDeletingExample] = useState(false);
   const [manualText, setManualText] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [isLoadingYoutube, setIsLoadingYoutube] = useState(false);
   const [youtubeError, setYoutubeError] = useState<string | null>(null);
+  const isPromptSource = sourceInputType === "prompt" || sourceMaterial.type === "prompt";
+  const samplePrompt = t('create.samplePrompt');
 
   useEffect(() => {
-    if (isLoading && !redirectedRef.current) {
+    setAnimatedPrompt("");
+    setIsDeletingExample(false);
+    setExamplePromptIndex(getRandomPromptIndex(examplePrompts.length));
+  }, [language]);
+
+  useEffect(() => {
+    if (quizPrompt || examplePrompts.length === 0) return;
+
+    const currentIndex = examplePromptIndex % examplePrompts.length;
+    const targetPrompt = examplePrompts[currentIndex];
+
+    if (typeof window.matchMedia === "function" && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (animatedPrompt !== targetPrompt) setAnimatedPrompt(targetPrompt);
+      return;
+    }
+
+    let delay = 0;
+    let nextStep: () => void;
+
+    if (!isDeletingExample && animatedPrompt.length < targetPrompt.length) {
+      delay = 35 + Math.random() * 35;
+      nextStep = () => setAnimatedPrompt(targetPrompt.slice(0, animatedPrompt.length + 1));
+    } else if (!isDeletingExample) {
+      delay = 1800;
+      nextStep = () => setIsDeletingExample(true);
+    } else if (animatedPrompt.length > 0) {
+      delay = 18 + Math.random() * 14;
+      nextStep = () => setAnimatedPrompt((current) => current.slice(0, -1));
+    } else {
+      delay = 350;
+      nextStep = () => {
+        setExamplePromptIndex(getRandomPromptIndex(examplePrompts.length, currentIndex));
+        setIsDeletingExample(false);
+      };
+    }
+
+    const timeoutId = window.setTimeout(nextStep, delay);
+    return () => window.clearTimeout(timeoutId);
+  }, [animatedPrompt, examplePromptIndex, examplePrompts, isDeletingExample, quizPrompt]);
+
+  useEffect(() => {
+    if (isLoading && !isPromptSource && !redirectedRef.current) {
       redirectedRef.current = true;
       setLocation("/generate");
     }
     if (!isLoading) {
       redirectedRef.current = false;
     }
-  }, [isLoading, setLocation]);
+  }, [isLoading, isPromptSource, setLocation]);
 
   useEffect(() => {
     // Check if ready: either has extracted text OR is image-only mode
@@ -144,6 +196,43 @@ export default function Create() {
     });
   };
 
+  const handlePromptSubmit = () => {
+    const prompt = quizPrompt.trim();
+    if (prompt.length < 3 || prompt.length > 1000) return;
+
+    setExtractedText(prompt);
+    setSourceInputType("prompt");
+    setActiveModal(null);
+    setSourceMaterial({
+      type: "prompt",
+      text: prompt,
+      imageDataUrl: null,
+      isOfficeWithImages: false,
+      documentImages: [],
+      isImageOnly: false,
+      autoGenerate: true,
+    });
+  };
+
+  const handlePromptKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handlePromptSubmit();
+    }
+  };
+
+  const handleSamplePrompt = () => {
+    if (examplePrompts.length === 0) {
+      setQuizPrompt(samplePrompt);
+      return;
+    }
+
+    const currentIndex = examplePromptIndex % examplePrompts.length;
+    const nextIndex = getRandomPromptIndex(examplePrompts.length, currentIndex);
+    setExamplePromptIndex(nextIndex);
+    setQuizPrompt(examplePrompts[nextIndex]);
+  };
+
   const handleYoutubeSubmit = async () => {
     if (!youtubeUrl.trim()) {
       setYoutubeError(t('create.youtubeLink')); // Enter a link
@@ -199,25 +288,11 @@ export default function Create() {
     setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [] });
     clearJobs();
     setIsReady(false);
+    setQuizPrompt("");
     setManualText("");
     setYoutubeUrl("");
     setYoutubeError(null);
     setSourceInputType(null);
-  };
-
-  const handleRemoveSourceImage = (index: number) => {
-    const currentImages = sourceMaterial.documentImages || [];
-
-    // The material-level remove action above is the way to clear an image-only
-    // source completely. Keep one image here so the source cannot become empty.
-    if (sourceMaterial.isImageOnly && currentImages.length === 1) return;
-
-    const nextImages = currentImages.filter((_, currentIndex) => currentIndex !== index);
-    setSourceMaterial({
-      ...sourceMaterial,
-      documentImages: nextImages,
-      isOfficeWithImages: nextImages.length > 0,
-    });
   };
 
   const getWordCount = (text: string) => {
@@ -229,12 +304,6 @@ export default function Create() {
     return text.substring(0, maxLength).trim() + "...";
   };
 
-  const getSourceLabel = () => {
-    if (sourceInputType === "youtube") return t('create.youtubeVideo');
-    if (sourceInputType === "manual") return t('create.pastedText');
-    return sourceMaterial?.type === "image" ? t('create.image') : t('create.document');
-  };
-
   const inputOptions = [
     {
       id: "upload",
@@ -242,12 +311,13 @@ export default function Create() {
       description: t('create.uploadDocsDesc'),
       icon: FileUp,
       gradient: "from-blue-600 to-indigo-700",
-      bgLight: "bg-blue-50/50 dark:bg-blue-950/20",
       iconBg: "bg-blue-600",
-      hoverBorderClass: "group-hover:border-blue-500/40",
-      badgeClass: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-      arrowWrapClass: "group-hover:bg-blue-500/10",
-      arrowClass: "group-hover:text-blue-600 dark:group-hover:text-blue-400",
+      border: "border-blue-500/30 hover:border-blue-500/70 dark:border-blue-400/25 dark:hover:border-blue-400/60",
+      surface: "bg-blue-500/[0.13]",
+      shadow: "shadow-[0_7px_0_-2px_rgba(37,99,235,0.22),0_22px_45px_-24px_rgba(37,99,235,0.65)] hover:shadow-[0_9px_0_-2px_rgba(37,99,235,0.3),0_28px_55px_-24px_rgba(37,99,235,0.75)]",
+      iconShadow: "shadow-[0_8px_20px_-8px_rgba(37,99,235,0.9)] ring-blue-400/30",
+      badge: "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:text-blue-300",
+      accent: "bg-blue-400",
       formats: [t('create.formats.docs'), t('create.formats.photos')],
     },
     {
@@ -256,12 +326,13 @@ export default function Create() {
       description: t('create.pasteNotesDesc'),
       icon: Type,
       gradient: "from-violet-600 to-purple-700",
-      bgLight: "bg-violet-50/50 dark:bg-violet-950/20",
       iconBg: "bg-violet-600",
-      hoverBorderClass: "group-hover:border-violet-500/40",
-      badgeClass: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
-      arrowWrapClass: "group-hover:bg-violet-500/10",
-      arrowClass: "group-hover:text-violet-600 dark:group-hover:text-violet-400",
+      border: "border-violet-500/30 hover:border-violet-500/70 dark:border-violet-400/25 dark:hover:border-violet-400/60",
+      surface: "bg-gradient-to-br from-violet-500/[0.13] via-card/95 to-purple-500/[0.06]",
+      shadow: "shadow-[0_7px_0_-2px_rgba(124,58,237,0.22),0_22px_45px_-24px_rgba(124,58,237,0.65)] hover:shadow-[0_9px_0_-2px_rgba(124,58,237,0.3),0_28px_55px_-24px_rgba(124,58,237,0.75)]",
+      iconShadow: "shadow-[0_8px_20px_-8px_rgba(124,58,237,0.9)] ring-violet-400/30",
+      badge: "border-violet-500/20 bg-violet-500/10 text-violet-700 dark:text-violet-300",
+      accent: "bg-violet-400",
       formats: [t('create.formats.handwritten'), t('create.formats.summaries')],
     },
     {
@@ -270,18 +341,21 @@ export default function Create() {
       description: t('create.learnYoutubeDesc'),
       icon: Youtube,
       gradient: "from-red-600 to-rose-700",
-      bgLight: "bg-red-50/50 dark:bg-red-950/20",
       iconBg: "bg-red-600",
-      hoverBorderClass: "group-hover:border-red-500/40",
-      badgeClass: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
-      arrowWrapClass: "group-hover:bg-red-500/10",
-      arrowClass: "group-hover:text-red-600 dark:group-hover:text-red-400",
+      border: "border-rose-500/30 hover:border-rose-500/70 dark:border-rose-400/25 dark:hover:border-rose-400/60",
+      surface: "bg-gradient-to-br from-red-500/[0.12] via-card/95 to-rose-500/[0.06]",
+      shadow: "shadow-[0_7px_0_-2px_rgba(225,29,72,0.22),0_22px_45px_-24px_rgba(225,29,72,0.65)] hover:shadow-[0_9px_0_-2px_rgba(225,29,72,0.3),0_28px_55px_-24px_rgba(225,29,72,0.75)]",
+      iconShadow: "shadow-[0_8px_20px_-8px_rgba(225,29,72,0.9)] ring-rose-400/30",
+      badge: "border-rose-500/20 bg-rose-500/10 text-rose-700 dark:text-rose-300",
+      accent: "bg-rose-400",
       formats: [t('create.formats.lectures'), t('create.formats.explainers')],
     },
   ];
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
+      {isPromptSource && <QuizGenerator headless />}
+
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
         <motion.div
@@ -290,91 +364,102 @@ export default function Create() {
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
         />
         <motion.div
-          className="absolute top-1/2 -right-24 w-[30rem] h-[30rem] bg-violet-500/5 rounded-full blur-[150px]"
+          className="absolute top-1/2 -right-24 w-[30rem] h-[30rem] bg-violet-500/5 rounded-full blur-[120px]"
           animate={{ x: [0, -40, 0], y: [0, 60, 0] }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         />
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`, backgroundSize: '24px 24px' }} />
       </div>
 
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-3xl relative z-10">
+      <div className="container mx-auto px-4 py-10 md:py-16 max-w-5xl relative z-10">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
           className="space-y-8"
         >
-          <motion.div variants={itemVariants} className="text-center space-y-4 pb-4">
-            <div className="relative inline-flex mb-2">
-              <div className="absolute -inset-2 bg-primary/20 rounded-full blur-xl animate-pulse" />
-              <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-2xl shadow-primary/20">
-                <FilePlusIcon className="w-8 h-8 text-primary-foreground stroke-[2.5]" />
-              </div>
-            </div>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
+          <motion.div variants={itemVariants} className="text-center space-y-3 pb-2">
+            <h1 className="font-brand text-4xl font-black tracking-tight text-foreground md:text-6xl">
               {t('create.title')}
             </h1>
-            <p className="text-muted-foreground text-lg font-medium max-w-md mx-auto">
-              {t('create.subtitle')}
+            <p className="mx-auto max-w-xl text-base font-medium text-muted-foreground md:text-lg">
+              {t('create.aiSubtitle')}
             </p>
           </motion.div>
 
           {!isReady && (
-            <div className="space-y-4">
-              {inputOptions.map((option) => (
-                <motion.div
-                  key={option.id}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="relative group"
-                >
-                  {/* Glow effect on hover */}
-                  <div className={`absolute -inset-0.5 rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-r ${option.gradient}`} />
+            <motion.div variants={itemVariants} className="space-y-5">
+              <div className="relative rounded-[2rem] border border-border/70 bg-background/90 p-2 shadow-[0_24px_80px_-35px_rgba(0,0,0,0.45)] backdrop-blur-xl transition-shadow focus-within:shadow-[0_24px_90px_-30px_hsl(var(--primary)/0.32)]">
+                <div className="rounded-[1.45rem] border border-border/50 bg-background/95 p-4 md:p-5">
+                  <Textarea
+                    autoFocus
+                    aria-label={t('create.createFromPrompt')}
+                    placeholder={animatedPrompt}
+                    value={quizPrompt}
+                    onChange={(event) => setQuizPrompt(event.target.value.slice(0, 1000))}
+                    onKeyDown={handlePromptKeyDown}
+                    className="min-h-[132px] resize-none appearance-none border-none bg-transparent px-1 py-1 text-lg font-medium leading-relaxed shadow-none outline-none ring-0 ring-offset-0 placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 md:text-xl"
+                    data-testid="textarea-quiz-prompt"
+                  />
 
-                  <Card
-                    className={`relative cursor-pointer overflow-hidden border border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-300 group-hover:bg-background ${option.hoverBorderClass} group-hover:shadow-xl shadow-primary/5`}
+                  <div className="mt-3 flex flex-col gap-3 border-t border-border/60 pt-3 sm:flex-row sm:items-center sm:justify-between">
+                    <button
+                      type="button"
+                      onClick={handleSamplePrompt}
+                      className="group flex min-w-0 items-center gap-2 rounded-xl px-2 py-2 text-left text-sm font-bold text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+                      data-testid="button-sample-prompt"
+                    >
+                      <Zap className="h-4 w-4 shrink-0 text-primary transition-transform group-hover:-rotate-6" />
+                      <span className="truncate">{t('create.trySamplePrompt')}</span>
+                    </button>
+                    <div className="flex items-center justify-end gap-3">
+                      <span className="text-xs font-bold tabular-nums text-muted-foreground/70">{quizPrompt.length}/1000</span>
+                      <Button
+                        onClick={handlePromptSubmit}
+                        disabled={quizPrompt.trim().length < 3}
+                        className="h-11 gap-2 rounded-full px-4 font-black"
+                        data-testid="button-submit-quiz-prompt"
+                      >
+                        <SendHorizonal className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 px-2">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">{t('create.orAddMaterial')}</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+
+              <div className="grid gap-5 md:grid-cols-3">
+                {inputOptions.map((option) => (
+                  <motion.button
+                    key={option.id}
+                    type="button"
+                    whileHover={{ y: -5 }}
+                    whileTap={{ y: 2, scale: 0.99 }}
                     onClick={() => setActiveModal(option.id as ActiveModal)}
+                    className={`group relative overflow-hidden rounded-2xl border-2 p-5 text-left backdrop-blur-sm transition-[border-color,box-shadow,background-color] duration-300 ${option.border} ${option.surface} ${option.shadow}`}
                     data-testid={`card-${option.id}`}
                   >
-                    <CardContent className="p-6 flex items-center gap-6 relative">
-                      {/* Mesh pattern overlay */}
-                      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`, backgroundSize: '16px 16px' }} />
-
-                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${option.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500 flex-shrink-0`}>
-                        <option.icon className="w-8 h-8 text-white" />
+                    <div className={`absolute inset-x-5 top-0 h-1 rounded-b-full bg-gradient-to-r ${option.gradient} opacity-80 transition-all duration-300 group-hover:inset-x-3 group-hover:opacity-100`} />
+                    <div className={`absolute -right-10 -top-10 h-28 w-28 rounded-full ${option.accent} opacity-[0.08] blur-2xl transition-opacity duration-300 group-hover:opacity-[0.16]`} />
+                    <div className="mb-5 flex items-start justify-between">
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-[14px] ${option.iconBg} ring-4 ${option.iconShadow} transition-transform duration-300 group-hover:rotate-[-3deg] group-hover:scale-105`}>
+                        <option.icon className="h-5 w-5 text-white" />
                       </div>
-                      <div className="flex-1 min-w-0 z-10">
-                        <h3 className="font-black text-xl text-foreground mb-1 tracking-tight">
-                          {option.title}
-                        </h3>
-                        <p className="text-muted-foreground font-medium mb-3">
-                          {option.description}
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {option.formats.map((format) => (
-                            <Badge
-                              key={format}
-                              variant="secondary"
-                              className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 ${option.badgeClass}`}
-                            >
-                              {format}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex-shrink-0 z-10">
-                        <div className={`w-12 h-12 rounded-2xl bg-muted transition-colors flex items-center justify-center group-hover:scale-110 transition-transform ${option.arrowWrapClass}`}>
-                          <ArrowRight className={`w-6 h-6 text-muted-foreground transition-colors ${option.arrowClass}`} />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+                      <span className={`flex h-8 w-8 items-center justify-center rounded-full border border-current/10 bg-background/50 text-muted-foreground transition-all group-hover:translate-x-1 group-hover:bg ${option.gradient}`}>
+                        <ArrowRight className="h-4 w-4" />
+                      </span>
+                    </div>
+                    <h2 className="text-base font-black tracking-tight text-foreground">{option.title}</h2>
+                    <p className="mt-1 min-h-10 text-sm font-medium leading-5 text-muted-foreground">{option.description}</p>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
           )}
 
           {isReady && (
@@ -392,11 +477,13 @@ export default function Create() {
                   <div className="space-y-5 relative z-10">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                        <div className="w-14 h-14 rounded-2xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                           <CheckCircle2 className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-xl font-black text-foreground tracking-tight">{t('create.materialReady')}</h3>
+                          <h3 className="text-xl font-black text-foreground tracking-tight">
+                            {isPromptSource ? t('create.promptReady') : t('create.materialReady')}
+                          </h3>
                         </div>
                       </div>
                       <AlertDialog>
@@ -412,9 +499,11 @@ export default function Create() {
                         </AlertDialogTrigger>
                         <AlertDialogContent className="rounded-2xl border-border/50 backdrop-blur-xl">
                           <AlertDialogHeader>
-                            <AlertDialogTitle className="text-2xl font-black tracking-tight">{t('create.removeMaterial')}</AlertDialogTitle>
+                            <AlertDialogTitle className="text-2xl font-black tracking-tight">
+                              {isPromptSource ? t('create.removePrompt') : t('create.removeMaterial')}
+                            </AlertDialogTitle>
                             <AlertDialogDescription className="text-base font-medium">
-                              {t('create.removeMaterialDesc')}
+                              {isPromptSource ? t('create.removePromptDesc') : t('create.removeMaterialDesc')}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter className="gap-2">
@@ -468,7 +557,9 @@ export default function Create() {
 
                     <div className="flex items-center gap-2" data-testid="badges-source-info">
                       <Badge variant="secondary" className="gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-black tracking-wide uppercase text-[10px] px-3 py-1" data-testid="badge-source-type">
-                        {sourceInputType === "youtube" ? (
+                        {isPromptSource ? (
+                          <><Wand2 className="w-3.5 h-3.5" />{t('create.prompt')}</>
+                        ) : sourceInputType === "youtube" ? (
                           <><Youtube className="w-3.5 h-3.5" />{t('create.youtubeVideo')}</>
                         ) : sourceInputType === "manual" ? (
                           <><Type className="w-3.5 h-3.5" />{t('create.pastedText')}</>
@@ -510,7 +601,7 @@ export default function Create() {
             <div className="shrink-0 bg-gradient-to-br from-blue-500/10 to-indigo-500/5 p-8 pb-4">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-4 text-3xl font-black tracking-tight">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                  <div className="w-14 h-14 rounded-2xl bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
                     <FileUp className="w-8 h-8 text-white" />
                   </div>
                   {t('create.addStudyMaterials')}
@@ -561,7 +652,7 @@ export default function Create() {
             <div className="bg-gradient-to-br from-violet-500/10 to-purple-500/5 p-8 pb-4">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-4 text-3xl font-black tracking-tight">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                  <div className="w-14 h-14 rounded-2xl bg-violet-500 flex items-center justify-center shadow-lg shadow-violet-500/20">
                     <Type className="w-8 h-8 text-white" />
                   </div>
                   {t('create.pasteNotes')}
@@ -624,7 +715,7 @@ export default function Create() {
             <div className="bg-gradient-to-br from-red-500/10 to-rose-500/5 p-8 pb-4">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-4 text-3xl font-black tracking-tight">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+                  <div className="w-14 h-14 rounded-2xl bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/20">
                     <Youtube className="w-8 h-8 text-white" />
                   </div>
                   {t('create.learnYoutube')}
