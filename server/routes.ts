@@ -18,6 +18,11 @@ import { setPublicFeedCacheHeaders } from "./public-feed-cache.js";
 import { canManageQuiz, canReadQuiz, canReadQuizResult } from "./quiz-access.js";
 import { POSITION_INDEPENDENT_EXPLANATION_RULE } from "./explanation-guidance.js";
 import { KATEX_FORMATTING_RULES } from "./math-format.js";
+import {
+  isJsonResponseFormatError,
+  parseAiJsonObject,
+  recoverFailedGenerationJson,
+} from "./ai-json-response.js";
 import { deleteRagSource, indexRagSource, planQuizRetrievalQueries, retrieveRagContext } from "./rag.js";
 import {
   MAX_AI_GRADED_SHORT_ANSWERS_PER_SUBMISSION,
@@ -2374,6 +2379,8 @@ If the question and study material are in a non-English language, respond with t
   });
 
   app.post("/api/generate-explanation", interactiveAiRateLimit, async (req, res) => {
+    const requestId = crypto.randomUUID();
+
     try {
       const validation = generateExplanationRequestSchema.safeParse(req.body);
       if (!validation.success) {
@@ -2404,38 +2411,88 @@ Always return JSON:
   "wrongExplanation": "Why selected answer is wrong..."
 }`;
 
-      const response = await openaiClient.chat.completions.create({
-        model: textModel,
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert tutor explaining a quiz question to a student.${sourceContext}
+      const messages = [
+        {
+          role: "system" as const,
+          content: `You are an expert tutor explaining a quiz question to a student.${sourceContext}
 
 The student answered a multiple choice or true/false question.
 ${instructions}
 
 ${POSITION_INDEPENDENT_EXPLANATION_RULE}${mathFormattingRules}`
-          },
-          {
-            role: "user",
-            content: `Question: ${question}\nOptions: ${options ? options.join(", ") : "N/A"}\nCorrect Answer: ${correctAnswer}\nStudent Selected: ${selectedAnswer}\nDid student answer correctly?: ${isCorrect ? "Yes" : "No"}`
-          }
-        ],
+        },
+        {
+          role: "user" as const,
+          content: `Question: ${question}\nOptions: ${options ? options.join(", ") : "N/A"}\nCorrect Answer: ${correctAnswer}\nStudent Selected: ${selectedAnswer}\nDid student answer correctly?: ${isCorrect ? "Yes" : "No"}`
+        }
+      ];
+      const completionRequest = {
+        model: textModel,
+        messages,
         temperature: 0.1,
-        max_tokens: brief ? 80 : 350,
-        response_format: { type: "json_object" }
-      });
+        // Reasoning models count their hidden reasoning against this budget.
+        // A very small cap can leave no room for the requested JSON payload.
+        max_tokens: brief ? 320 : 350,
+      };
 
-      const content = response.choices[0]?.message?.content || "{}";
-      const result = JSON.parse(content);
+      let result: Record<string, unknown> | null = null;
+      let content = "";
+
+      try {
+        const response = await openaiClient.chat.completions.create({
+          ...completionRequest,
+          response_format: { type: "json_object" },
+        });
+        content = response.choices[0]?.message?.content || "";
+      } catch (error) {
+        result = recoverFailedGenerationJson(error);
+
+        if (!result) {
+          if (!isJsonResponseFormatError(error)) throw error;
+
+          console.warn(
+            `[generate-explanation:${requestId}] Provider rejected JSON mode; retrying without response_format`,
+          );
+          const fallbackResponse = await openaiClient.chat.completions.create(completionRequest);
+          content = fallbackResponse.choices[0]?.message?.content || "";
+        }
+      }
+
+      if (!result) {
+        try {
+          result = parseAiJsonObject(content);
+        } catch (parseError: any) {
+          console.error(`[generate-explanation:${requestId}] Failed to parse AI JSON:`, {
+            error: parseError?.message || parseError,
+            contentPreview: String(content).slice(0, 500),
+          });
+          return res.status(502).json({ message: "Failed to parse AI explanation response" });
+        }
+      }
+
+      const explanation = typeof result.explanation === "string"
+        ? result.explanation.trim()
+        : "";
+      const wrongExplanation = typeof result.wrongExplanation === "string"
+        ? result.wrongExplanation.trim()
+        : "";
+
+      if (!explanation && !wrongExplanation) {
+        console.error(`[generate-explanation:${requestId}] AI response omitted explanation fields`);
+        return res.status(502).json({ message: "AI explanation response was incomplete" });
+      }
       
       res.json({
-        explanation: result.explanation || result.wrongExplanation || "",
-        wrongExplanation: result.wrongExplanation || "",
+        explanation: explanation || wrongExplanation,
+        wrongExplanation,
       });
     } catch (error: any) {
-      console.error("AI explanation error:", error);
-      res.status(500).json({ message: error.message || "Failed to generate explanation" });
+      console.error(`[generate-explanation:${requestId}] AI explanation error:`, error);
+      const status = error?.status ?? error?.response?.status;
+      if (status === 429) {
+        return res.status(429).json({ message: "The AI provider is busy. Please try again shortly." });
+      }
+      res.status(502).json({ message: "The AI explanation service is temporarily unavailable" });
     }
   });
 
