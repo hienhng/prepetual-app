@@ -45,7 +45,7 @@ export function Footer() {
         <div className="mt-8 flex flex-col items-center justify-between gap-6 border-t pt-8 md:flex-row">
           <div className="space-y-2 text-center md:text-left">
             <p className="text-sm text-muted-foreground">
-              © {currentYear} Prepetual. {t("footer.rights")}
+              © {currentYear} Prepetual.
             </p>
             <p className="text-sm text-muted-foreground">{t("footer.madeBy")}</p>
           </div>

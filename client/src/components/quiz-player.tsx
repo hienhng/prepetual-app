@@ -1718,10 +1718,10 @@ export function QuizPlayer() {
       </div>
 
       <QuizChatbot
+        quizId={currentQuiz.id}
         quizTitle={currentQuiz.title}
         questions={currentQuiz.questions}
         currentQuestionIndex={Math.min(currentIndex, currentQuiz.questions.length - 1)}
-        sourceMaterial={sourceMaterial?.text || undefined}
         isOpen={showChatbot}
         onClose={() => setShowChatbot(false)}
       />

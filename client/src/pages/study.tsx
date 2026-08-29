@@ -522,13 +522,10 @@ export default function StudyPage() {
         </div>
       )}
       <QuizChatbot
+        quizId={currentQuiz.id}
         quizTitle={currentQuiz.title}
         questions={currentQuiz.questions}
         currentQuestionIndex={0}
-        sourceMaterial={[
-          currentQuiz.sourceText,
-          currentLecture ? `Current lecture slide: ${currentLecture.title}\n${currentLecture.body.join("\n")}` : "",
-        ].filter(Boolean).join("\n\n") || undefined}
         suggestedQuestions={[
           "Explain the main idea of this lecture slide",
           "Summarize this topic in simple terms",

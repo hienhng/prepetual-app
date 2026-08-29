@@ -19,10 +19,10 @@ interface ChatMessage {
 }
 
 interface QuizChatbotProps {
+  quizId: string;
   quizTitle: string;
   questions: Question[];
   currentQuestionIndex: number;
-  sourceMaterial?: string;
   suggestedQuestions?: string[];
   isOpen: boolean;
   onClose: () => void;
@@ -174,7 +174,7 @@ function TutorAvatar({ isAnimating = false, isSuccess = false, large = false }: 
   );
 }
 
-export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, sourceMaterial, suggestedQuestions, isOpen, onClose }: QuizChatbotProps) {
+export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex, suggestedQuestions, isOpen, onClose }: QuizChatbotProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -246,12 +246,10 @@ export function QuizChatbot({ quizTitle, questions, currentQuestionIndex, source
 
     try {
       const response = await apiRequest("POST", "/api/quiz-chat", {
-        quizTitle,
-        questions,
+        quizId,
         currentQuestionIndex,
         userMessage,
         chatHistory: messages,
-        sourceMaterial,
         mode: conversationMode,
         userPreferences: user,
       });

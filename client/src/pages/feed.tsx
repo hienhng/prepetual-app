@@ -121,8 +121,8 @@ function QuizCard({ quiz, recommendationLabel }: QuizCardProps) {
     }
   };
 
-  const handleTakeQuiz = async () => {
-    if (await setupQuiz()) setLocation("/quiz");
+  const handleTakeQuiz = () => {
+    setLocation(`/quiz?id=${encodeURIComponent(quiz.id)}`);
   };
 
   const handleStudyQuiz = async () => {

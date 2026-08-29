@@ -45,7 +45,7 @@ export default function FolderPage() {
   const params = useParams<{ id: string }>();
   const folderId = params.id;
   const [, setLocation] = useLocation();
-  const { setCurrentQuiz, setSourceMaterial, savedProgresses, loadSavedProgress } = useQuiz();
+  const { setCurrentQuiz, setSourceMaterial } = useQuiz();
   const { toast } = useToast();
   const { t } = useLanguage();
   const [quizToDelete, setQuizToDelete] = useState<QuizWithAttempts | null>(null);
@@ -203,34 +203,8 @@ export default function FolderPage() {
     },
   });
 
-  const handleRetake = async (quiz: any) => {
-    const hasSavedProgress = savedProgresses.some(p => p.quizId === quiz.id);
-    if (hasSavedProgress) {
-      loadSavedProgress(quiz.id);
-      setLocation("/quiz");
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/quiz/${quiz.id}`);
-      if (!response.ok) throw new Error("Failed to fetch quiz details");
-      const fullQuiz = await response.json();
-
-      setCurrentQuiz({
-        ...fullQuiz,
-        createdAt: typeof fullQuiz.createdAt === "string" ? fullQuiz.createdAt : fullQuiz.createdAt.toISOString(),
-      } as any);
-      setSourceMaterial({
-        type: fullQuiz.sourceImageUrl ? "image" : null,
-        text: fullQuiz.sourceText,
-        imageDataUrl: fullQuiz.sourceImageUrl || null,
-        isOfficeWithImages: (fullQuiz.sourceImages?.length || 0) > 0,
-        documentImages: fullQuiz.sourceImages || [],
-      });
-      setLocation("/quiz");
-    } catch (err) {
-      console.error("Failed to load quiz details:", err);
-    }
+  const handleRetake = (quiz: any) => {
+    setLocation(`/quiz?id=${encodeURIComponent(quiz.id)}`);
   };
 
   const handleStudy = async (quiz: any) => {

@@ -1077,36 +1077,8 @@ export default function Dashboard() {
     },
   });
 
-  const handleTakeQuiz = async (quiz: any) => {
-    // Check if there's saved progress for this quiz
-    const hasSavedProgress = savedProgresses.some(p => p.quizId === quiz.id);
-    if (hasSavedProgress) {
-      loadSavedProgress(quiz.id);
-      setLocation("/quiz");
-      return;
-    }
-
-    // Fetch full quiz data since the list only has metadata
-    try {
-      const response = await fetch(`/api/quiz/${quiz.id}`);
-      if (!response.ok) throw new Error("Failed to fetch quiz details");
-      const fullQuiz = await response.json();
-
-      setCurrentQuiz({
-        ...fullQuiz,
-        createdAt: typeof fullQuiz.createdAt === "string" ? fullQuiz.createdAt : fullQuiz.createdAt.toISOString(),
-      } as any);
-      setSourceMaterial({
-        type: fullQuiz.sourceImageUrl ? "image" : null,
-        text: fullQuiz.sourceText,
-        imageDataUrl: fullQuiz.sourceImageUrl || null,
-        isOfficeWithImages: (fullQuiz.sourceImages?.length || 0) > 0,
-        documentImages: fullQuiz.sourceImages || [],
-      });
-      setLocation("/quiz");
-    } catch (err) {
-      console.error("Failed to load quiz details:", err);
-    }
+  const handleTakeQuiz = (quiz: any) => {
+    setLocation(`/quiz?id=${encodeURIComponent(quiz.id)}`);
   };
 
   const handleStudyQuiz = async (quiz: any) => {

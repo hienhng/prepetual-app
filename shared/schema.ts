@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, jsonb, timestamp, index, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, jsonb, timestamp, index, uniqueIndex, boolean, vector } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -89,6 +89,7 @@ export const questionSchema = z.object({
   explanation: z.string().optional(),
   wrongAnswerExplanations: z.record(z.string(), z.string()).optional(),
   imageUrl: z.string().optional(),
+  sourceChunkIds: z.array(z.string()).optional(),
 });
 
 export type Question = z.infer<typeof questionSchema>;
@@ -137,11 +138,51 @@ export const insertFolderSchema = createInsertSchema(folders).omit({
 export type InsertFolder = z.infer<typeof insertFolderSchema>;
 export type Folder = typeof folders.$inferSelect;
 
+// Source material is indexed independently before quiz generation. Keeping the
+// source separate from the quiz allows dense retrieval to happen before a quiz
+// row exists and lets every generated question retain evidence provenance.
+export const ragSources = pgTable("rag_sources", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  contentHash: varchar("content_hash", { length: 64 }).notNull(),
+  embeddingModel: text("embedding_model").notNull(),
+  embeddingDimensions: integer("embedding_dimensions").notNull().default(1536),
+  chunkCount: integer("chunk_count").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("rag_sources_user_idx").on(table.userId),
+  index("rag_sources_content_hash_idx").on(table.contentHash),
+]);
+
+export const ragSourceChunks = pgTable("rag_source_chunks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sourceId: varchar("source_id").notNull().references(() => ragSources.id, { onDelete: "cascade" }),
+  chunkIndex: integer("chunk_index").notNull(),
+  content: text("content").notNull(),
+  startOffset: integer("start_offset").notNull(),
+  endOffset: integer("end_offset").notNull(),
+  sectionLabel: text("section_label"),
+  embedding: vector("embedding", { dimensions: 1536 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex("rag_source_chunks_source_position_idx").on(table.sourceId, table.chunkIndex),
+  index("rag_source_chunks_source_idx").on(table.sourceId),
+  index("rag_source_chunks_embedding_hnsw_idx")
+    .using("hnsw", table.embedding.op("vector_cosine_ops"))
+    // PostgreSQL exposes index reloptions as text. Keeping these values as
+    // strings prevents drizzle-kit from rebuilding the unchanged index.
+    .with({ m: "16", ef_construction: "64" }),
+]);
+
+export type RagSource = typeof ragSources.$inferSelect;
+export type RagSourceChunk = typeof ragSourceChunks.$inferSelect;
+
 // Quizzes table
 export const quizzes = pgTable("quizzes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
   folderId: varchar("folder_id").references(() => folders.id, { onDelete: "set null" }),
+  ragSourceId: varchar("rag_source_id").references(() => ragSources.id, { onDelete: "set null" }),
   title: text("title").notNull(),
   sourceText: text("source_text").notNull(),
   sourceImageUrl: text("source_image_url"),
@@ -153,7 +194,9 @@ export const quizzes = pgTable("quizzes", {
   generationMode: text("generation_mode").$type<"generate" | "import" | "review">(),
   isPublic: integer("is_public").default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => [
+  uniqueIndex("quizzes_rag_source_idx").on(table.ragSourceId),
+]);
 
 export const insertQuizSchema = createInsertSchema(quizzes).omit({
   id: true,
@@ -295,16 +338,46 @@ export const quizResultSchemaLegacy = z.object({
 export type QuizResultLegacy = z.infer<typeof quizResultSchemaLegacy>;
 
 // API request schemas
+export const MAX_SOURCE_TEXT_CHARS = 200_000;
+export const MAX_SOURCE_IMAGES = 5;
+export const MAX_SOURCE_IMAGE_CHARS = 14_000_000;
+export const MAX_SOURCE_IMAGES_TOTAL_CHARS = 28_000_000;
+
 export const generateQuizRequestSchema = z.object({
-  text: z.string().min(1, "Text is required"),
+  text: z.string().min(1, "Text is required").max(MAX_SOURCE_TEXT_CHARS, "Text is too large"),
   sourceType: z.enum(["material", "prompt"]).default("material"),
   questionCount: z.number().min(3).max(20).default(10),
-  questionTypes: z.array(z.enum(["multiple_choice", "true_false", "short_answer"])).min(1),
+  questionTypes: z
+    .array(z.enum(["multiple_choice", "true_false", "short_answer"]))
+    .min(1)
+    .max(3)
+    .refine((types) => new Set(types).size === types.length, "Question types must be unique"),
   difficulty: z.enum(["easy", "medium", "hard"]).default("medium"),
-  documentImages: z.array(z.string()).max(5, "A maximum of 5 images is allowed").optional(),
+  sourceImageUrl: z.string().max(MAX_SOURCE_IMAGE_CHARS, "Source image is too large").nullable().optional(),
+  documentImages: z.array(z.string().max(MAX_SOURCE_IMAGE_CHARS, "Each source image is too large")).max(MAX_SOURCE_IMAGES, `A maximum of ${MAX_SOURCE_IMAGES} images is allowed`).optional(),
   isImageOnly: z.boolean().optional(),
 }).superRefine((data, ctx) => {
   const textLength = data.text.trim().length;
+  const totalImageChars =
+    (data.sourceImageUrl?.length || 0) +
+    (data.documentImages || []).reduce((sum, image) => sum + image.length, 0);
+  const totalImageCount = (data.sourceImageUrl ? 1 : 0) + (data.documentImages?.length || 0);
+
+  if (totalImageCount > MAX_SOURCE_IMAGES) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `A maximum of ${MAX_SOURCE_IMAGES} images is allowed`,
+      path: ["documentImages"],
+    });
+  }
+
+  if (totalImageChars > MAX_SOURCE_IMAGES_TOTAL_CHARS) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "The combined source images are too large",
+      path: ["documentImages"],
+    });
+  }
 
   if (data.sourceType === "prompt") {
     if (textLength < 3) {
@@ -321,7 +394,7 @@ export const generateQuizRequestSchema = z.object({
         path: ["text"],
       });
     }
-    if (data.isImageOnly || (data.documentImages?.length || 0) > 0) {
+    if (data.isImageOnly || data.sourceImageUrl || (data.documentImages?.length || 0) > 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Prompt-based quizzes cannot include source images",
@@ -343,24 +416,26 @@ export const generateQuizRequestSchema = z.object({
 export type GenerateQuizRequest = z.infer<typeof generateQuizRequestSchema>;
 
 export const submitQuizRequestSchema = z.object({
-  quizId: z.string(),
-  answers: z.record(z.string(), z.string()),
-  timeTaken: z.number().optional(),
+  quizId: z.string().min(1).max(100),
+  answers: z
+    .record(z.string(), z.string().max(4_000, "An answer is too long"))
+    .refine((answers) => Object.keys(answers).length <= 100, "Too many answers"),
+  timeTaken: z.number().int().min(0).max(7 * 24 * 60 * 60).optional(),
 });
 
 export type SubmitQuizRequest = z.infer<typeof submitQuizRequestSchema>;
 
 // Auth request schemas
 export const registerSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  email: z.string().email("Invalid email address").max(320, "Email is too long"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(128, "Password is too long"),
 });
 
 export type RegisterRequest = z.infer<typeof registerSchema>;
 
 export const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email("Invalid email address").max(320, "Email is too long"),
+  password: z.string().min(1, "Password is required").max(128, "Password is too long"),
 });
 
 export type LoginRequest = z.infer<typeof loginSchema>;

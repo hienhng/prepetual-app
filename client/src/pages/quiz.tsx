@@ -1,22 +1,87 @@
-import { useLocation } from "wouter";
-import { ArrowLeft, FileText } from "lucide-react";
+import { useLocation, useSearch } from "wouter";
+import { AlertCircle, ArrowLeft, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QuizPlayer } from "@/components/quiz-player";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuizNavigationGuard } from "@/lib/quiz-navigation-guard";
 import { useLanguage } from "@/lib/language-context";
 
 export default function Quiz() {
   const [, setLocation] = useLocation();
-  const { currentQuiz, userAnswers } = useQuiz();
+  const search = useSearch();
+  const {
+    currentQuiz,
+    userAnswers,
+    savedProgresses,
+    setCurrentQuiz,
+    loadSavedProgress,
+  } = useQuiz();
   const { user } = useAuth();
   const { t } = useLanguage();
   const { navigateWithGuard } = useQuizNavigationGuard();
+  const quizId = new URLSearchParams(search).get("id");
+  const [hasLoadError, setHasLoadError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const restoredProgressIdRef = useRef<string | null>(null);
+  const savedProgress = quizId
+    ? savedProgresses.find((progress) => progress.quizId === quizId)
+    : undefined;
 
   useEffect(() => {
+    if (!quizId) {
+      setHasLoadError(false);
+      return;
+    }
+
+    if (savedProgress && restoredProgressIdRef.current !== quizId) {
+      restoredProgressIdRef.current = quizId;
+      setHasLoadError(false);
+      loadSavedProgress(quizId);
+      return;
+    }
+
+    if (currentQuiz?.id === quizId) {
+      setHasLoadError(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setHasLoadError(false);
+
+    const loadQuiz = async () => {
+      try {
+        const response = await fetch(`/api/quiz/${encodeURIComponent(quizId)}`, {
+          credentials: "include",
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("Failed to fetch quiz details");
+
+        const fullQuiz = await response.json();
+        if (controller.signal.aborted) return;
+
+        setCurrentQuiz({
+          ...fullQuiz,
+          createdAt: typeof fullQuiz.createdAt === "string"
+            ? fullQuiz.createdAt
+            : fullQuiz.createdAt.toISOString(),
+        } as any);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        console.error("Failed to load quiz details:", error);
+        setHasLoadError(true);
+      }
+    };
+
+    loadQuiz();
+    return () => controller.abort();
+  }, [currentQuiz?.id, loadAttempt, quizId, savedProgress]);
+
+  useEffect(() => {
+    if (quizId) return;
+
     // Only redirect if we're sure there's no quiz after a short delay
     // to allow the context to initialize/restore from session storage
     const timer = setTimeout(() => {
@@ -26,7 +91,7 @@ export default function Quiz() {
     }, 100);
     
     return () => clearTimeout(timer);
-  }, [currentQuiz, setLocation, user]);
+  }, [currentQuiz, quizId, setLocation, user]);
 
   // Handle browser back button and beforeunload
   useEffect(() => {
@@ -46,6 +111,38 @@ export default function Quiz() {
   const handleBackClick = () => {
     navigateWithGuard(user ? "/dashboard" : "/");
   };
+
+  if (quizId && currentQuiz?.id !== quizId) {
+    if (hasLoadError) {
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center px-4">
+          <div className="w-full max-w-md rounded-2xl border bg-card p-8 text-center shadow-sm">
+            <AlertCircle className="mx-auto mb-4 h-10 w-10 text-destructive" />
+            <h1 className="text-xl font-semibold">{t("quiz.loadErrorTitle")}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">{t("quiz.loadError")}</p>
+            <div className="mt-6 flex justify-center gap-3">
+              <Button variant="outline" onClick={() => setLocation(user ? "/dashboard" : "/")}>
+                {t("common.back")}
+              </Button>
+              <Button onClick={() => setLoadAttempt((attempt) => attempt + 1)}>
+                {t("common.retry")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        className="min-h-screen bg-background flex flex-col items-center justify-center gap-4"
+        data-testid="quiz-loading-screen"
+      >
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-sm font-medium text-muted-foreground">{t("quiz.loading")}</p>
+      </div>
+    );
+  }
 
   if (!currentQuiz) {
     return null;

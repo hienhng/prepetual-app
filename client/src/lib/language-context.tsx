@@ -575,7 +575,7 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       recentQuizzes: "Recent Quizzes",
       moreQuizzesToExplore: "{count} more quizzes to explore",
       quizzesAvailable: "{count} quizzes available",
-      play: "Play",
+      play: "Take",
       takeQuiz: "Take Quiz",
       study: "Study",
       curated: "Curated",
@@ -801,6 +801,9 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
     },
     quiz: {
       back: "Back",
+      loading: "Loading your quiz...",
+      loadErrorTitle: "Quiz unavailable",
+      loadError: "The quiz could not be loaded. Please try again.",
     },
     quizGenerator: {
       yourStudyMaterial: "Your Study Material",
@@ -1752,6 +1755,9 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
     },
     quiz: {
       back: "Quay lại",
+      loading: "Đang tải bài quiz của bạn...",
+      loadErrorTitle: "Không thể mở bài quiz",
+      loadError: "Không thể tải bài quiz. Vui lòng thử lại.",
     },
     quizGenerator: {
       yourStudyMaterial: "Tài liệu học tập của bạn",

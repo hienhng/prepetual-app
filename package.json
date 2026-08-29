@@ -9,7 +9,7 @@
     "build": "tsx script/build.ts",
     "start": "dotenv -e .env -- cross-env NODE_ENV=production node dist/index.cjs",
     "check": "tsc",
-    "db:push": "dotenv -e .env -- drizzle-kit push"
+    "db:push": "dotenv -e .env -- tsx script/enable-pgvector.ts && dotenv -e .env -- drizzle-kit push"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
@@ -57,7 +57,7 @@
     "@types/memoizee": "^0.4.12",
     "@types/multer": "^2.0.0",
     "@types/nodemailer": "^7.0.4",
-    "axios": "^1.13.5",
+    "axios": "^1.20.0",
     "bcryptjs": "^3.0.3",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
@@ -66,12 +66,12 @@
     "connect-pg-simple": "^10.0.0",
     "crypto-random-string": "^5.0.0",
     "date-fns": "^3.6.0",
-    "drizzle-orm": "^0.39.3",
+    "drizzle-orm": "^0.45.2",
     "drizzle-zod": "^0.7.0",
     "embla-carousel-react": "^8.6.0",
-    "express": "^4.21.2",
+    "express": "^4.22.2",
     "express-session": "^1.18.1",
-    "fast-xml-parser": "^5.3.4",
+    "fast-xml-parser": "^5.11.1",
     "framer-motion": "^11.13.1",
     "google-auth-library": "^10.5.0",
     "html2canvas": "^1.4.1",
@@ -82,10 +82,10 @@
     "lucide-react": "^0.453.0",
     "memoizee": "^0.4.17",
     "memorystore": "^1.6.7",
-    "multer": "^2.0.2",
+    "multer": "^2.3.0",
     "next-themes": "^0.4.6",
-    "nodemailer": "^7.0.11",
-    "officeparser": "^6.0.2",
+    "nodemailer": "^9.0.6",
+    "officeparser": "^7.8.0",
     "openai": "^6.10.0",
     "openid-client": "^6.8.1",
     "p-limit": "^7.2.0",
@@ -93,7 +93,7 @@
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "pdf-parse": "^1.1.1",
-    "pdfjs-dist": "^5.6.205",
+    "pdfjs-dist": "^6.2.108",
     "pg": "^8.16.3",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
@@ -109,7 +109,7 @@
     "tw-animate-css": "^1.2.5",
     "vaul": "^1.1.2",
     "wouter": "^3.3.5",
-    "ws": "^8.18.0",
+    "ws": "^8.21.3",
     "youtube-transcript-api": "^3.0.6",
     "youtube-transcript-plus": "^1.1.2",
     "zod": "^3.24.2",
@@ -133,13 +133,21 @@
     "autoprefixer": "^10.4.20",
     "cross-env": "^10.1.0",
     "dotenv-cli": "^11.0.0",
-    "drizzle-kit": "^0.31.4",
+    "drizzle-kit": "0.31.10",
     "esbuild": "^0.25.0",
-    "postcss": "^8.4.47",
+    "postcss": "^8.5.26",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.21.0",
     "typescript": "5.6.3",
     "vite": "^5.4.20"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "overrides": {
+    "officeparser": {
+      "pdfjs-dist": "6.2.108"
+    }
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"

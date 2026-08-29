@@ -106,6 +106,7 @@ export async function extractTextFromPDFWithOCR(buffer: Buffer, opts: PdfExtract
   const loadingTask = pdfjs.getDocument({
     data: new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength),
     disableWorker: true,
+    isEvalSupported: false,
     // In Node/serverless, font loading via URL can be flaky (especially on Windows).
     // We disable font-face embedding and rely on PDF.js built-in fallbacks.
     disableFontFace: true,
@@ -152,7 +153,7 @@ export async function extractTextFromPDFWithOCR(buffer: Buffer, opts: PdfExtract
   }
 
   try { await doc.cleanup?.(); } catch {}
-  try { await doc.destroy?.(); } catch {}
+  try { await loadingTask.destroy(); } catch {}
 
   return { text: normalizeText(pageTexts.join("\n\n")), pagesProcessed: pagesToProcess, pagesOcred };
 }
@@ -168,6 +169,7 @@ export async function renderPdfPagesAsDataUrls(buffer: Buffer, opts: PdfRenderOp
   const loadingTask = pdfjs.getDocument({
     data: new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength),
     disableWorker: true,
+    isEvalSupported: false,
     disableFontFace: true,
     useSystemFonts: true,
   } as any);
@@ -190,7 +192,7 @@ export async function renderPdfPagesAsDataUrls(buffer: Buffer, opts: PdfRenderOp
   }
 
   try { await doc.cleanup?.(); } catch {}
-  try { await doc.destroy?.(); } catch {}
+  try { await loadingTask.destroy(); } catch {}
 
   return urls;
 }

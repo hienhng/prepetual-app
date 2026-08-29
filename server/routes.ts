@@ -7,15 +7,7 @@ import { setupAuth, isAuthenticated, populateUser } from "./auth.js";
 import { sendContactEmail, sendBugReportEmail } from "./email.js";
 import multer from "multer";
 import { ocrImageBuffer, terminateOCRWorker } from "./ocr.js";
-// Dynamic import for officeparser to prevent hidden pdfjs-dist dependency issues
-let parseOffice: any = null;
-async function getOfficeParser() {
-  if (!parseOffice) {
-    const mod = await import("officeparser");
-    parseOffice = mod.parseOffice || mod.default?.parseOffice || mod.default || mod;
-  }
-  return parseOffice;
-}
+import { extractTextFromOfficeDocument } from "./office-extract.js";
 import { detectQuizSettingsFromPrompt, generateQuizQuestions, generateStudyMaterialFromPrompt, importExistingQuiz, quizChatResponse, classifyImages, extractTextFromImagesWithVision, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
 import { IMAGE_ANALYSIS_SOURCE_MARKER, generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
 import type { Question, DifficultyLevel } from "@shared/schema";
@@ -23,7 +15,23 @@ import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-
 import { extractTextFromPDFWithOCR } from "./pdf-extract.js";
 import { fetchSupadataTranscript, SupadataTranscriptError } from "./supadata.js";
 import { setPublicFeedCacheHeaders } from "./public-feed-cache.js";
+import { canManageQuiz, canReadQuiz, canReadQuizResult } from "./quiz-access.js";
 import { POSITION_INDEPENDENT_EXPLANATION_RULE } from "./explanation-guidance.js";
+import { KATEX_FORMATTING_RULES } from "./math-format.js";
+import { deleteRagSource, indexRagSource, planQuizRetrievalQueries, retrieveRagContext } from "./rag.js";
+import {
+  MAX_AI_GRADED_SHORT_ANSWERS_PER_SUBMISSION,
+  MAX_UPLOAD_TOTAL_BYTES,
+  generateExplanationRequestSchema,
+  generateLectureRequestSchema,
+  gradeShortAnswerRequestSchema,
+  importQuizRequestSchema,
+  quizChatRequestSchema,
+  reviseQuizRequestSchema,
+  summarizeTextRequestSchema,
+} from "./ai-input.js";
+import { createRateLimitMiddleware, readPositiveIntegerEnv } from "./rate-limit.js";
+import { postgresRateLimitStore } from "./postgres-rate-limit-store.js";
 import crypto from "crypto";
 import { fetchTranscript } from "youtube-transcript-plus";
 import TranscriptClient from "youtube-transcript-api";  // type: ignore
@@ -39,7 +47,7 @@ const openaiClient = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
-const textModel = process.env.AI_QUIZ_MODEL || "llama-3.3-70b-versatile";
+const textModel = process.env.AI_QUIZ_MODEL || "openai/gpt-oss-120b";
 
 const ollamaClient = new OpenAI({
   baseURL: process.env.OLLAMA_BASE_URL || "http://localhost:11434/v1",
@@ -48,6 +56,54 @@ const ollamaClient = new OpenAI({
 
 const MAX_AUDIO_SIZE_MB = 20; // Max 20MB audio file
 const MAX_DOWNLOAD_TIMEOUT_MS = 60000; // 60 second timeout for downloads
+const PROVIDER_RATE_LIMIT_WINDOW_MS = readPositiveIntegerEnv(
+  "PROVIDER_RATE_LIMIT_WINDOW_MS",
+  10 * 60 * 1000,
+);
+
+const sourceProcessingRateLimit = createRateLimitMiddleware({
+  scope: "source-processing",
+  limit: readPositiveIntegerEnv("SOURCE_PROCESSING_RATE_LIMIT", 12),
+  windowMs: PROVIDER_RATE_LIMIT_WINDOW_MS,
+  store: postgresRateLimitStore,
+});
+
+const aiGenerationRateLimit = createRateLimitMiddleware({
+  scope: "ai-generation",
+  limit: readPositiveIntegerEnv("AI_GENERATION_RATE_LIMIT", 6),
+  windowMs: PROVIDER_RATE_LIMIT_WINDOW_MS,
+  store: postgresRateLimitStore,
+});
+
+const aiSummaryRateLimit = createRateLimitMiddleware({
+  scope: "ai-summary",
+  limit: readPositiveIntegerEnv("AI_SUMMARY_RATE_LIMIT", 12),
+  windowMs: PROVIDER_RATE_LIMIT_WINDOW_MS,
+  store: postgresRateLimitStore,
+});
+
+const quizSubmissionRateLimit = createRateLimitMiddleware({
+  scope: "quiz-submission",
+  limit: readPositiveIntegerEnv("QUIZ_SUBMISSION_RATE_LIMIT", 6),
+  windowMs: PROVIDER_RATE_LIMIT_WINDOW_MS,
+  store: postgresRateLimitStore,
+});
+
+const interactiveAiRateLimit = createRateLimitMiddleware({
+  scope: "interactive-ai",
+  limit: readPositiveIntegerEnv("INTERACTIVE_AI_RATE_LIMIT", 60),
+  windowMs: PROVIDER_RATE_LIMIT_WINDOW_MS,
+  store: postgresRateLimitStore,
+});
+
+const contactRateLimit = createRateLimitMiddleware({
+  scope: "contact-email",
+  limit: readPositiveIntegerEnv("CONTACT_RATE_LIMIT", 5),
+  windowMs: readPositiveIntegerEnv("AUTH_EMAIL_RATE_LIMIT_WINDOW_MS", 60 * 60 * 1000),
+  store: postgresRateLimitStore,
+  limitMessage: "Too many messages. Please wait before trying again.",
+  unavailableMessage: "Contact form controls are temporarily unavailable. Please try again shortly.",
+});
 
 type TranscriptSegment = { text: string };
 
@@ -202,6 +258,8 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 10 * 1024 * 1024,
+    files: 10,
+    parts: 12,
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = [
@@ -240,18 +298,6 @@ async function extractTextFromImage(buffer: Buffer): Promise<string> {
   } catch (error) {
     console.error("OCR error:", error);
     throw new Error("Failed to extract text from image");
-  }
-}
-
-async function extractTextFromOfficeDocument(buffer: Buffer): Promise<string> {
-  try {
-    const parser = await getOfficeParser();
-    const result = await parser(buffer);
-    const text = typeof result === 'string' ? result : String(result);
-    return text.trim();
-  } catch (error) {
-    console.error("Office document extraction error:", error);
-    throw new Error("Failed to extract text from document");
   }
 }
 
@@ -315,6 +361,50 @@ function markInternalImageAnalysisText(text: string): string {
   return `${IMAGE_ANALYSIS_SOURCE_MARKER}\n${text}`;
 }
 
+function appendIllustrationDescriptions(
+  sourceText: string,
+  classifications: Array<{ hasIllustrations: boolean; description?: string }>,
+): string {
+  const descriptions = classifications
+    .filter((classification) => classification.hasIllustrations && classification.description?.trim())
+    .map((classification, index) => `Illustration ${index + 1}: ${classification.description!.trim()}`);
+  if (descriptions.length === 0) return sourceText;
+  return `${sourceText}\n\nVISUAL SOURCE DESCRIPTIONS:\n${descriptions.join("\n")}`;
+}
+
+async function prepareQuizRag(params: {
+  userId: string;
+  text: string;
+  sourceRequest?: string;
+  questionCount: number;
+  questionTypes: Question["type"][];
+  difficulty: DifficultyLevel;
+  onProgress?: (step: string, progress: number, message: string) => void;
+}) {
+  params.onProgress?.("indexing", 40, "Indexing source material for semantic search...");
+  const indexed = await indexRagSource({ userId: params.userId, text: params.text });
+
+  try {
+    params.onProgress?.("retrieving", 48, "Searching the source for relevant evidence...");
+    const queries = await planQuizRetrievalQueries({
+      documentMap: indexed.documentMap,
+      sourceRequest: params.sourceRequest,
+      questionCount: params.questionCount,
+      questionTypes: params.questionTypes,
+      difficulty: params.difficulty,
+    });
+    const retrieved = await retrieveRagContext({
+      sourceId: indexed.sourceId,
+      ownerUserId: params.userId,
+      queries,
+    });
+    return { sourceId: indexed.sourceId, retrieved };
+  } catch (error) {
+    await deleteRagSource({ sourceId: indexed.sourceId, userId: params.userId });
+    throw error;
+  }
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -334,12 +424,15 @@ export async function registerRoutes(
   });
 
   // YouTube transcript extraction endpoint
-  app.post("/api/youtube-transcript", async (req, res) => {
+  app.post("/api/youtube-transcript", isAuthenticated, sourceProcessingRateLimit, async (req: any, res) => {
     try {
       const { url } = req.body;
 
       if (!url || typeof url !== "string") {
         return res.status(400).json({ message: "YouTube URL is required" });
+      }
+      if (url.length > 2_048) {
+        return res.status(400).json({ message: "YouTube URL is too long" });
       }
 
       const videoId = extractYouTubeVideoId(url);
@@ -492,7 +585,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/extract-text", upload.single("file"), async (req, res) => {
+  app.post("/api/extract-text", isAuthenticated, sourceProcessingRateLimit, upload.single("file"), async (req: any, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
@@ -533,12 +626,16 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/upload-async", upload.array("files", 10), async (req, res) => {
+  app.post("/api/upload-async", isAuthenticated, sourceProcessingRateLimit, upload.array("files", 10), async (req: any, res) => {
     try {
       const files = req.files as Express.Multer.File[];
 
       if (!files || files.length === 0) {
         return res.status(400).json({ message: "No files uploaded" });
+      }
+      const totalUploadBytes = files.reduce((sum, file) => sum + file.size, 0);
+      if (totalUploadBytes > MAX_UPLOAD_TOTAL_BYTES) {
+        return res.status(413).json({ message: "The combined upload is too large. The maximum is 25 MB." });
       }
 
       const queuedJobs: { jobId: string; fileName: string }[] = [];
@@ -596,7 +693,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/upload-status/:jobId", async (req, res) => {
+  app.get("/api/upload-status/:jobId", isAuthenticated, async (req: any, res) => {
     try {
       const job = getJob(req.params.jobId);
 
@@ -619,7 +716,7 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/upload-job/:jobId", async (req, res) => {
+  app.delete("/api/upload-job/:jobId", isAuthenticated, async (req: any, res) => {
     try {
       deleteJob(req.params.jobId);
       res.json({ success: true });
@@ -629,7 +726,8 @@ export async function registerRoutes(
   });
 
   // SSE endpoint for quiz generation with progress updates
-  app.post("/api/generate-quiz-stream", isAuthenticated, async (req: any, res) => {
+  app.post("/api/generate-quiz-stream", isAuthenticated, aiGenerationRateLimit, async (req: any, res) => {
+    let pendingRagSource: { sourceId: string; userId: string } | undefined;
     // Set up SSE headers - disable all buffering
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache, no-transform");
@@ -659,8 +757,7 @@ export async function registerRoutes(
         return;
       }
 
-      const { text, sourceType, questionCount, questionTypes, difficulty, documentImages, isImageOnly } = validation.data;
-      const { sourceImageUrl } = req.body;
+      const { text, sourceType, questionCount, questionTypes, difficulty, sourceImageUrl, documentImages, isImageOnly } = validation.data;
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
 
@@ -737,15 +834,28 @@ export async function registerRoutes(
             console.log(`Image text extraction was sparse, passing ${textOnlyImages.length} text-only images to the vision model.`);
           }
         }
+        textForQuiz = appendIllustrationDescriptions(textForQuiz, classifications);
       }
 
       const questionProgress = sourceType === "prompt"
         ? (step: string, progress: number, message: string) =>
-            sendProgress(step, 35 + Math.round(progress * 0.6), message)
-        : sendProgress;
+            sendProgress(step, 55 + Math.round(progress * 0.4), message)
+        : (step: string, progress: number, message: string) =>
+            sendProgress(step, 55 + Math.round(progress * 0.4), message);
+
+      const rag = await prepareQuizRag({
+        userId,
+        text: textForQuiz,
+        sourceRequest: sourceType === "prompt" ? text : undefined,
+        questionCount: resolvedQuestionCount,
+        questionTypes,
+        difficulty: resolvedDifficulty,
+        onProgress: sendProgress,
+      });
+      pendingRagSource = { sourceId: rag.sourceId, userId };
 
       const { questions, title, category } = await generateQuizQuestions({
-        text: textForQuiz,
+        text: rag.retrieved.context,
         questionCount: resolvedQuestionCount,
         questionTypes,
         difficulty: resolvedDifficulty,
@@ -753,12 +863,17 @@ export async function registerRoutes(
         onProgress: questionProgress,
         isImageOnly: isImageOnly || false,
         sourceRequest: sourceType === "prompt" ? text : undefined,
+        ragGrounding: {
+          sourceId: rag.sourceId,
+          allowedChunkIds: rag.retrieved.allowedChunkIds,
+        },
       });
 
       sendProgress("saving", 98, "Saving your quiz...");
 
       const quiz = await storage.saveQuiz({
         userId,
+        ragSourceId: rag.sourceId,
         title,
         sourceText: sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForQuiz) : textForQuiz,
         sourceImageUrl: sourceImageUrl || null,
@@ -769,19 +884,26 @@ export async function registerRoutes(
         generationMode: "generate",
         isPublic: 0,
       });
+      pendingRagSource = undefined;
 
       sendProgress("complete", 100, "Quiz created successfully!");
 
       res.write(`data: ${JSON.stringify({ type: "complete", quiz: { ...quiz, createdAt: quiz.createdAt.toISOString() } })}\n\n`);
       res.end();
     } catch (error) {
+      if (pendingRagSource) {
+        await deleteRagSource(pendingRagSource).catch((cleanupError) => {
+          console.error("Failed to clean up RAG source after generation error:", cleanupError);
+        });
+      }
       console.error("Quiz generation error:", error);
       res.write(`data: ${JSON.stringify({ type: "error", message: error instanceof Error ? error.message : "Failed to generate quiz" })}\n\n`);
       res.end();
     }
   });
 
-  app.post("/api/generate-quiz", isAuthenticated, async (req: any, res) => {
+  app.post("/api/generate-quiz", isAuthenticated, aiGenerationRateLimit, async (req: any, res) => {
+    let pendingRagSource: { sourceId: string; userId: string } | undefined;
     try {
       const validation = generateQuizRequestSchema.safeParse(req.body);
 
@@ -791,8 +913,7 @@ export async function registerRoutes(
         });
       }
 
-      const { text, sourceType, questionCount, questionTypes, difficulty, documentImages, isImageOnly } = validation.data;
-      const { sourceImageUrl } = req.body;
+      const { text, sourceType, questionCount, questionTypes, difficulty, sourceImageUrl, documentImages, isImageOnly } = validation.data;
       const userId = req.user.claims.sub;
 
       // Classify images to separate text-only from illustrations
@@ -847,19 +968,35 @@ export async function registerRoutes(
         } else if (illustrationImages.length > 0) {
           imagesForQuestions = illustrationImages;
         }
+        textForQuiz = appendIllustrationDescriptions(textForQuiz, classifications);
       }
 
-      const { questions, title, category } = await generateQuizQuestions({
+      const rag = await prepareQuizRag({
+        userId,
         text: textForQuiz,
+        sourceRequest: sourceType === "prompt" ? text : undefined,
+        questionCount: resolvedQuestionCount,
+        questionTypes,
+        difficulty: resolvedDifficulty,
+      });
+      pendingRagSource = { sourceId: rag.sourceId, userId };
+
+      const { questions, title, category } = await generateQuizQuestions({
+        text: rag.retrieved.context,
         questionCount: resolvedQuestionCount,
         questionTypes,
         difficulty: resolvedDifficulty,
         documentImages: imagesForQuestions,
         sourceRequest: sourceType === "prompt" ? text : undefined,
+        ragGrounding: {
+          sourceId: rag.sourceId,
+          allowedChunkIds: rag.retrieved.allowedChunkIds,
+        },
       });
 
       const quiz = await storage.saveQuiz({
         userId,
+        ragSourceId: rag.sourceId,
         title,
         sourceText: sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForQuiz) : textForQuiz,
         sourceImageUrl: sourceImageUrl || null,
@@ -870,12 +1007,18 @@ export async function registerRoutes(
         generationMode: "generate",
         isPublic: 0,
       });
+      pendingRagSource = undefined;
 
       res.json({
         ...quiz,
         createdAt: quiz.createdAt.toISOString(),
       });
     } catch (error) {
+      if (pendingRagSource) {
+        await deleteRagSource(pendingRagSource).catch((cleanupError) => {
+          console.error("Failed to clean up RAG source after generation error:", cleanupError);
+        });
+      }
       console.error("Quiz generation error:", error);
       res.status(500).json({
         message: error instanceof Error ? error.message : "Failed to generate quiz",
@@ -883,16 +1026,17 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/import-quiz", isAuthenticated, async (req: any, res) => {
+  app.post("/api/import-quiz", isAuthenticated, aiGenerationRateLimit, async (req: any, res) => {
     try {
-      const { text, sourceImageUrl, documentImages } = req.body;
-      const userId = req.user.claims.sub;
-
-      if (!text || typeof text !== "string") {
+      const validation = importQuizRequestSchema.safeParse(req.body);
+      if (!validation.success) {
         return res.status(400).json({
-          message: "Text content is required",
+          message: validation.error.errors[0]?.message || "Invalid request",
         });
       }
+
+      const { text, sourceImageUrl, documentImages } = validation.data;
+      const userId = req.user.claims.sub;
 
       // For image-only uploads, use Qwen transcription with local OCR fallback.
       let textForImport = text;
@@ -946,17 +1090,15 @@ export async function registerRoutes(
   });
 
   // Summarize text endpoint
-  app.post("/api/summarize-text", async (req, res) => {
+  app.post("/api/summarize-text", aiSummaryRateLimit, async (req, res) => {
     try {
-      const { text } = req.body;
-
-      if (!text || typeof text !== "string") {
-        return res.status(400).json({ message: "Text is required" });
+      const validation = summarizeTextRequestSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({
+          message: validation.error.errors[0]?.message || "Invalid request",
+        });
       }
-
-      if (text.length < 100) {
-        return res.status(400).json({ message: "Text is too short to summarize" });
-      }
+      const { text } = validation.data;
 
       const completion = await openaiClient.chat.completions.create({
         model: textModel,
@@ -968,13 +1110,7 @@ Keep the summary focused on the main concepts, definitions, formulas, and import
 If the text is in a language other than English, keep the summary in that same language.
 Format with bullet points for easy reading.
 
-MATHEMATICAL CONTENT & LATEX (CRITICAL):
-- For ALL mathematical expressions, formulas, equations, variables (even single letters like x, y), or numeric notations with symbols, you MUST use LaTeX formatting.
-- ALWAYS wrap LaTeX in delimiters: $...$ for inline or $$...$$ for display mode.
-- DO NOT use unicode superscripts (like ², ³) or subscripts. ALWAYS use LaTeX (like $x^2$, $x_i$).
-- DO NOT use unicode symbols like √, π, ±, ∞. ALWAYS use LaTeX (like $\sqrt{}$, $\pi$, $\pm$, $\infty$).
-- DO NOT use ^ or _ without wrapping them in $...$ delimiters.
-- Ensure all LaTeX is syntactically correct for KaTeX.
+${KATEX_FORMATTING_RULES}
 
 IMPORTANT NOTE:
   If the material is a sheet of problems or a quiz, do NOT provide the full solutions or direct answers to the problems. Your role is STRICTLY to extract and explain the underlying concepts, formulas, and definitions needed to solve them, without solving the problems themselves.`
@@ -999,7 +1135,7 @@ IMPORTANT NOTE:
     }
   });
 
-  app.post("/api/submit-quiz", async (req: any, res) => {
+  app.post("/api/submit-quiz", quizSubmissionRateLimit, async (req: any, res) => {
     try {
       const validation = submitQuizRequestSchema.safeParse(req.body);
 
@@ -1015,11 +1151,15 @@ IMPORTANT NOTE:
       if (!quiz) {
         return res.status(404).json({ message: "Quiz not found" });
       }
+      if (!canReadQuiz(quiz, req.user?.claims?.sub)) {
+        return res.status(403).json({ message: "You do not have access to this quiz" });
+      }
 
       let correctAnswers = 0;
       const wrongQuestionIds: string[] = [];
       const questions = quiz.questions as Question[];
       const quizSourceText = (quiz as any).sourceText || "";
+      let aiGradedShortAnswerCount = 0;
 
       const gradePromises = questions.map(async (question) => {
         const userAnswer = answers[question.id];
@@ -1028,6 +1168,13 @@ IMPORTANT NOTE:
         }
 
         if (question.type === "short_answer") {
+          if (aiGradedShortAnswerCount >= MAX_AI_GRADED_SHORT_ANSWERS_PER_SUBMISSION) {
+            return {
+              questionId: question.id,
+              correct: userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim(),
+            };
+          }
+          aiGradedShortAnswerCount++;
           try {
             const sourceContext = quizSourceText
               ? `\nOriginal study material:\n---\n${quizSourceText.slice(0, 3000)}\n---`
@@ -1106,11 +1253,14 @@ IMPORTANT NOTE:
     }
   });
 
-  app.get("/api/quiz/:id", async (req, res) => {
+  app.get("/api/quiz/:id", async (req: any, res) => {
     try {
       const quiz = await storage.getQuiz(req.params.id);
       if (!quiz) {
         return res.status(404).json({ message: "Quiz not found" });
+      }
+      if (!canReadQuiz(quiz, req.user?.claims?.sub)) {
+        return res.status(403).json({ message: "You do not have access to this quiz" });
       }
       res.json({
         ...quiz,
@@ -1263,15 +1413,24 @@ IMPORTANT NOTE:
     }
   });
 
-  app.post("/api/quiz/:id/generate-lecture", async (req, res) => {
+  app.post("/api/quiz/:id/generate-lecture", isAuthenticated, aiGenerationRateLimit, async (req: any, res) => {
     try {
       const { id } = req.params;
       const quiz = await storage.getQuiz(id);
       if (!quiz) {
         return res.status(404).json({ message: "Quiz not found" });
       }
+      if (!canManageQuiz(quiz, req.user.claims.sub)) {
+        return res.status(403).json({ message: "Not authorized to generate a lecture for this quiz" });
+      }
 
-      const topicCount = Number(req.body?.topicCount) || 4;
+      const validation = generateLectureRequestSchema.safeParse(req.body || {});
+      if (!validation.success) {
+        return res.status(400).json({
+          message: validation.error.errors[0]?.message || "Invalid request",
+        });
+      }
+      const { topicCount } = validation.data;
 
       // If there is no extracted sourceText but there are uploaded images, try to OCR them
       let effectiveSourceText = quiz.sourceText || "";
@@ -1319,7 +1478,7 @@ IMPORTANT NOTE:
       const lecture = await generateLectureFromMaterial({
         sourceText: effectiveSourceText || quiz.sourceText,
         imageUrls: imageUrls,
-        topicCount: Math.max(2, Math.min(5, topicCount)),
+        topicCount,
         title: quiz.title,
         difficulty: quiz.difficulty || "medium",
       });
@@ -1335,9 +1494,17 @@ IMPORTANT NOTE:
     }
   });
 
-  app.put("/api/quiz/:id", async (req, res) => {
+  app.put("/api/quiz/:id", isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
+      const existingQuiz = await storage.getQuiz(id);
+      if (!existingQuiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      if (!canManageQuiz(existingQuiz, req.user.claims.sub)) {
+        return res.status(403).json({ message: "Not authorized to update this quiz" });
+      }
+
       const { title, questions, isPublic, category, folderId, lecture } = req.body;
       const updates: any = {};
       if (title !== undefined) updates.title = title;
@@ -1381,7 +1548,7 @@ IMPORTANT NOTE:
     }
   });
 
-  app.post("/api/quiz/:id/ai-revise", isAuthenticated, async (req: any, res) => {
+  app.post("/api/quiz/:id/ai-revise", isAuthenticated, aiGenerationRateLimit, async (req: any, res) => {
     try {
       const { id } = req.params;
       const userId = req.user.claims.sub;
@@ -1389,12 +1556,19 @@ IMPORTANT NOTE:
       if (!quiz) {
         return res.status(404).json({ message: "Quiz not found" });
       }
-      if (quiz.userId && quiz.userId !== userId) {
+      if (!canManageQuiz(quiz, userId)) {
         return res.status(403).json({ message: "Not authorized to revise this quiz" });
       }
 
+      const validation = reviseQuizRequestSchema.safeParse(req.body || {});
+      if (!validation.success) {
+        return res.status(400).json({
+          message: validation.error.errors[0]?.message || "Invalid request",
+        });
+      }
+
       const mode = quiz.generationMode === "import" ? "answers_only" : "full";
-      const { questionIndex, userCorrectAnswer } = req.body;
+      const { questionIndex, userCorrectAnswer } = validation.data;
       const allQuestions = quiz.questions as Question[];
 
       if (questionIndex !== undefined && typeof questionIndex === "number") {
@@ -1436,8 +1610,15 @@ IMPORTANT NOTE:
     }
   });
 
-  app.delete("/api/quiz/:id", async (req, res) => {
+  app.delete("/api/quiz/:id", isAuthenticated, async (req: any, res) => {
     try {
+      const quiz = await storage.getQuiz(req.params.id);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      if (!canManageQuiz(quiz, req.user.claims.sub)) {
+        return res.status(403).json({ message: "Not authorized to delete this quiz" });
+      }
       await storage.deleteQuiz(req.params.id);
       res.json({ success: true });
     } catch (error) {
@@ -1528,8 +1709,15 @@ IMPORTANT NOTE:
     }
   });
 
-  app.get("/api/quiz/:id/results", async (req, res) => {
+  app.get("/api/quiz/:id/results", isAuthenticated, async (req: any, res) => {
     try {
+      const quiz = await storage.getQuiz(req.params.id);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      if (!canManageQuiz(quiz, req.user.claims.sub)) {
+        return res.status(403).json({ message: "Not authorized to view results for this quiz" });
+      }
       const results = await storage.getQuizResultsByQuizId(req.params.id);
       res.json(results.map(r => ({
         ...r,
@@ -1550,6 +1738,9 @@ IMPORTANT NOTE:
       if (!quiz) {
         return res.status(404).json({ message: "Quiz not found" });
       }
+      if (!canReadQuizResult(quiz, result, req.user.claims.sub)) {
+        return res.status(403).json({ message: "Not authorized to view this result" });
+      }
       res.json({
         result: {
           ...result,
@@ -1562,11 +1753,14 @@ IMPORTANT NOTE:
     }
   });
 
-  app.get("/api/share/:id", async (req, res) => {
+  app.get("/api/share/:id", async (req: any, res) => {
     try {
       const quiz = await storage.getQuiz(req.params.id);
       if (!quiz) {
         return res.status(404).json({ message: "Quiz not found" });
+      }
+      if (!canReadQuiz(quiz, req.user?.claims?.sub)) {
+        return res.status(403).json({ message: "You do not have access to this quiz" });
       }
       res.json({
         ...quiz,
@@ -1666,8 +1860,15 @@ IMPORTANT NOTE:
   });
 
   // Comments endpoints
-  app.get("/api/quiz/:id/comments", async (req, res) => {
+  app.get("/api/quiz/:id/comments", async (req: any, res) => {
     try {
+      const quiz = await storage.getQuiz(req.params.id);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      if (!canReadQuiz(quiz, req.user?.claims?.sub)) {
+        return res.status(403).json({ message: "You do not have access to this quiz" });
+      }
       const comments = await storage.getCommentsByQuizId(req.params.id);
       res.json(comments.map(c => ({
         ...c,
@@ -1682,6 +1883,14 @@ IMPORTANT NOTE:
     try {
       const userId = req.user.claims.sub;
       const { content } = req.body;
+
+      const quiz = await storage.getQuiz(req.params.id);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      if (!canReadQuiz(quiz, userId)) {
+        return res.status(403).json({ message: "You do not have access to this quiz" });
+      }
 
       if (!content || content.trim().length === 0) {
         return res.status(400).json({ message: "Comment content is required" });
@@ -1756,10 +1965,18 @@ IMPORTANT NOTE:
   });
 
   // Smart Review endpoint for quizzes with many attempts
-  app.post("/api/quiz/:id/smart-review", isAuthenticated, async (req: any, res) => {
+  app.post("/api/quiz/:id/smart-review", isAuthenticated, aiGenerationRateLimit, async (req: any, res) => {
     try {
       const { id } = req.params;
       const userId = req.user.claims.sub;
+
+      const quiz = await storage.getQuiz(id);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      if (!canReadQuiz(quiz, userId)) {
+        return res.status(403).json({ message: "You do not have access to this quiz" });
+      }
 
       // 1. Get all results for this user and quiz
       const allResults = await storage.getQuizResultsByQuizId(id);
@@ -1778,12 +1995,6 @@ IMPORTANT NOTE:
           errorCounts[qId] = (errorCounts[qId] || 0) + 1;
         });
       });
-
-      // 3. Get original quiz
-      const quiz = await storage.getQuiz(id);
-      if (!quiz) {
-        return res.status(404).json({ message: "Quiz not found" });
-      }
 
       const allQuestions = quiz.questions as Question[];
       
@@ -1839,6 +2050,13 @@ IMPORTANT NOTE:
   // Votes endpoints
   app.get("/api/quiz/:id/votes", async (req: any, res) => {
     try {
+      const quiz = await storage.getQuiz(req.params.id);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      if (!canReadQuiz(quiz, req.user?.claims?.sub)) {
+        return res.status(403).json({ message: "You do not have access to this quiz" });
+      }
       const votes = await storage.getVotesByQuizId(req.params.id);
 
       // Get user's vote if authenticated
@@ -1857,6 +2075,14 @@ IMPORTANT NOTE:
     try {
       const userId = req.user.claims.sub;
       const { voteType } = req.body;
+
+      const quiz = await storage.getQuiz(req.params.id);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      if (!canReadQuiz(quiz, userId)) {
+        return res.status(403).json({ message: "You do not have access to this quiz" });
+      }
 
       if (voteType !== 1 && voteType !== -1) {
         return res.status(400).json({ message: "Vote type must be 1 (upvote) or -1 (downvote)" });
@@ -1889,9 +2115,10 @@ IMPORTANT NOTE:
       const userId = req.user.claims.sub;
       const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
       const progresses = await storage.getQuizProgressByUserId(userId);
+      const accessibleProgresses = progresses.filter(({ quiz }) => canReadQuiz(quiz, userId));
 
       // Sort by savedAt descending (most recent first)
-      const sortedProgresses = [...progresses].sort((a, b) =>
+      const sortedProgresses = [...accessibleProgresses].sort((a, b) =>
         new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime()
       );
 
@@ -1911,6 +2138,14 @@ IMPORTANT NOTE:
 
       if (!quizId || !answers) {
         return res.status(400).json({ message: "quizId and answers are required" });
+      }
+
+      const quiz = await storage.getQuiz(quizId);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+      if (!canReadQuiz(quiz, userId)) {
+        return res.status(403).json({ message: "You do not have access to this quiz" });
       }
 
       const saved = await storage.saveQuizProgress({
@@ -1943,7 +2178,7 @@ IMPORTANT NOTE:
     }
   });
 
-  app.post("/api/contact", async (req, res) => {
+  app.post("/api/contact", contactRateLimit, async (req, res) => {
     try {
       const { name, email, subject, message } = req.body;
 
@@ -1962,13 +2197,15 @@ IMPORTANT NOTE:
     }
   });
 
-  app.post("/api/grade-short-answer", async (req, res) => {
+  app.post("/api/grade-short-answer", interactiveAiRateLimit, async (req, res) => {
     try {
-      const { question, correctAnswer, userAnswer, sourceText, category } = req.body;
-
-      if (!question || !userAnswer) {
-        return res.status(400).json({ message: "Missing required fields" });
+      const validation = gradeShortAnswerRequestSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({
+          message: validation.error.errors[0]?.message || "Invalid request",
+        });
       }
+      const { question, correctAnswer, userAnswer, sourceText, category } = validation.data;
 
       const requestId = crypto.randomUUID();
 
@@ -1980,9 +2217,7 @@ IMPORTANT NOTE:
         ? `\nA suggested answer was: "${correctAnswer}" — but do NOT treat this as the only correct answer. Use the study material and your knowledge to determine if the student's answer is valid.`
         : "";
 
-      const mathFormattingRules = category === "Math"
-        ? `\n\nThis is a Math quiz. In the explanation, format EVERY mathematical expression, formula, equation, variable, and symbolic numeric notation as KaTeX-compatible LaTeX. Always wrap inline math in $...$ and display math in $$...$$. Apply this even to single variables and expressions copied from the question or answers. Never emit bare LaTeX, bare ^ or _, or Unicode math symbols.`
-        : "";
+      const mathFormattingRules = `\n\n${KATEX_FORMATTING_RULES}`;
 
       const stripCodeFences = (s: string) => {
         const trimmed = (s ?? "").trim();
@@ -2030,7 +2265,7 @@ IMPORTANT NOTE:
         for (let attempt = 1; attempt <= 3; attempt++) {
           try {
             return await openaiClient.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
+        model: textModel,
         messages: [
           {
             role: "system",
@@ -2071,7 +2306,7 @@ If the question and study material are in a non-English language, respond with t
             // Some OpenAI-compatible providers don't support `response_format`.
             if (status === 400 && msg.includes("response_format")) {
               return await openaiClient.chat.completions.create({
-                model: "llama-3.3-70b-versatile",
+                model: textModel,
                 messages: [
                   {
                     role: "system",
@@ -2138,21 +2373,21 @@ If the question and study material are in a non-English language, respond with t
     }
   });
 
-  app.post("/api/generate-explanation", async (req, res) => {
+  app.post("/api/generate-explanation", interactiveAiRateLimit, async (req, res) => {
     try {
-      const { question, options, correctAnswer, selectedAnswer, isCorrect, sourceText, brief, category } = req.body;
-
-      if (!question || !correctAnswer || !selectedAnswer) {
-        return res.status(400).json({ message: "Missing required fields" });
+      const validation = generateExplanationRequestSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({
+          message: validation.error.errors[0]?.message || "Invalid request",
+        });
       }
+      const { question, options, correctAnswer, selectedAnswer, isCorrect, sourceText, brief, category } = validation.data;
 
       const sourceContext = sourceText
         ? `\n\nOriginal study material:\n---\n${sourceText.slice(0, 3000)}\n---`
         : "";
 
-      const mathFormattingRules = category === "Math"
-        ? `\n\nThis is a Math quiz. In every explanation field, format EVERY mathematical expression, formula, equation, variable, and symbolic numeric notation as KaTeX-compatible LaTeX. Always wrap inline math in $...$ and display math in $$...$$. Apply this even to single variables and expressions copied from the question or answers. Never emit bare LaTeX, bare ^ or _, or Unicode math symbols.`
-        : "";
+      const mathFormattingRules = `\n\n${KATEX_FORMATTING_RULES}`;
 
       const instructions = brief
         ? `Return JSON with an "explanation" only. Explain why the student's answer is correct or incorrect in exactly 10 to 15 words. Be direct, use the question's language, and do not add a heading, label, or extra text.`
@@ -2170,7 +2405,7 @@ Always return JSON:
 }`;
 
       const response = await openaiClient.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
+        model: textModel,
         messages: [
           {
             role: "system",
@@ -2204,22 +2439,62 @@ ${POSITION_INDEPENDENT_EXPLANATION_RULE}${mathFormattingRules}`
     }
   });
 
-  app.post("/api/quiz-chat", async (req, res) => {
+  app.post("/api/quiz-chat", interactiveAiRateLimit, async (req: any, res) => {
     try {
-      const { quizTitle, questions, currentQuestionIndex, userMessage, chatHistory, sourceMaterial, userPreferences } = req.body;
+      const validation = quizChatRequestSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({
+          message: validation.error.errors[0]?.message || "Invalid request",
+        });
+      }
+      const { quizId, currentQuestionIndex, userMessage, chatHistory } = validation.data;
 
-      if (!quizTitle || !questions || currentQuestionIndex === undefined || !userMessage) {
-        return res.status(400).json({ message: "Missing required fields" });
+      const quiz = await storage.getQuiz(String(quizId));
+      if (!quiz) return res.status(404).json({ message: "Quiz not found" });
+
+      const requesterId = req.user?.claims?.sub;
+      if (!canReadQuiz(quiz, requesterId)) {
+        return res.status(403).json({ message: "You do not have access to this quiz" });
+      }
+      if (!quiz.ragSourceId || !quiz.userId) {
+        return res.status(409).json({
+          message: "This quiz does not have a RAG index. Regenerate it to use grounded chat.",
+        });
+      }
+      if (quiz.questions.length === 0) {
+        return res.status(409).json({ message: "This quiz does not contain any questions" });
       }
 
+      const safeIndex = Math.max(0, Math.min(Number(currentQuestionIndex) || 0, quiz.questions.length - 1));
+      const currentQuestion = quiz.questions[safeIndex];
+      const retrieval = await retrieveRagContext({
+        sourceId: quiz.ragSourceId,
+        ownerUserId: quiz.userId,
+        queries: [
+          userMessage.trim(),
+          currentQuestion?.question || quiz.title,
+          `${quiz.title}: ${userMessage.trim()}`,
+        ],
+        maxChunks: 6,
+        maxChars: 8_000,
+      });
+
+      const chatUser = requesterId ? await storage.getUser(requesterId) : undefined;
+
       const response = await quizChatResponse({
-        quizTitle,
-        questions,
-        currentQuestionIndex,
-        userMessage,
-        chatHistory: chatHistory || [],
-        sourceMaterial,
-        userPreferences,
+        quizTitle: quiz.title,
+        questions: quiz.questions,
+        currentQuestionIndex: safeIndex,
+        userMessage: userMessage.trim(),
+        chatHistory,
+        sourceMaterial: retrieval.context,
+        isRagGrounded: true,
+        userPreferences: chatUser ? {
+          persona: chatUser.persona,
+          subjectInclination: chatUser.subjectInclination,
+          feedbackStyle: chatUser.feedbackStyle,
+          aiPartnership: chatUser.aiPartnership,
+        } : undefined,
       });
 
       res.json({ response });

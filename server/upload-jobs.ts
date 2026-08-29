@@ -1,13 +1,5 @@
-// Dynamic import for officeparser to prevent hidden pdfjs-dist dependency issues
-let parseOffice: any = null;
-async function getOfficeParser() {
-  if (!parseOffice) {
-    const mod = await import("officeparser");
-    parseOffice = mod.parseOffice || mod.default?.parseOffice || mod.default || mod;
-  }
-  return parseOffice;
-}
 import JSZip from "jszip";
+import { extractTextFromOfficeDocument } from "./office-extract.js";
 import { extractTextFromPDFWithOCR, renderPdfPagesAsDataUrls } from "./pdf-extract.js";
 
 export interface UploadJob {
@@ -62,20 +54,6 @@ export function cleanupBuffer(id: string) {
 export function deleteJob(id: string) {
   jobs.delete(id);
   jobBuffers.delete(id);
-}
-
-async function extractTextFromOfficeDocument(buffer: Buffer): Promise<string> {
-  try {
-    const parser = await getOfficeParser();
-    const result = await parser(buffer);
-    const text = typeof result === 'string' ? result : (result.toText ? result.toText() : String(result));
-    console.log("Office parser text length:", text.length);
-    console.log("Office parser text preview:", text.substring(0, 200));
-    return text.trim();
-  } catch (error) {
-    console.error("Office parser error:", error);
-    throw new Error("Failed to parse Office document: " + (error instanceof Error ? error.message : "Unknown error"));
-  }
 }
 
 async function extractImagesFromOfficeDocument(buffer: Buffer): Promise<string[]> {

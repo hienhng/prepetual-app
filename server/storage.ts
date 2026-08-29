@@ -10,6 +10,7 @@ import {
   bugReports,
   verificationTokens,
   folders,
+  ragSources,
   type User, 
   type UpsertUser, 
   type Quiz, 
@@ -202,7 +203,9 @@ export class DatabaseStorage implements IStorage {
 
   async saveQuiz(quiz: InsertQuiz & { id?: string }): Promise<Quiz> {
     const [savedQuiz] = await db.insert(quizzes).values({
+      id: quiz.id,
       userId: quiz.userId,
+      ragSourceId: quiz.ragSourceId,
       title: quiz.title,
       sourceText: quiz.sourceText,
       sourceImageUrl: quiz.sourceImageUrl,
@@ -235,6 +238,7 @@ export class DatabaseStorage implements IStorage {
       id: quizzes.id,
       userId: quizzes.userId,
       folderId: quizzes.folderId,
+      ragSourceId: quizzes.ragSourceId,
       title: quizzes.title,
       sourceImageUrl: quizzes.sourceImageUrl,
       difficulty: quizzes.difficulty,
@@ -300,6 +304,7 @@ export class DatabaseStorage implements IStorage {
     if (updates.category !== undefined) updateData.category = updates.category;
     if (updates.isPublic !== undefined) updateData.isPublic = updates.isPublic;
     if (updates.folderId !== undefined) updateData.folderId = updates.folderId;
+    if (updates.ragSourceId !== undefined) updateData.ragSourceId = updates.ragSourceId;
     if (updates.generationMode !== undefined) updateData.generationMode = updates.generationMode;
     
     const [updated] = await db.update(quizzes)
@@ -310,10 +315,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteQuiz(id: string): Promise<boolean> {
-    // Delete quiz results first
-    await db.delete(quizResults).where(eq(quizResults.quizId, id));
-    // Then delete the quiz
-    await db.delete(quizzes).where(eq(quizzes.id, id));
+    await db.transaction(async (transaction) => {
+      const [quiz] = await transaction.select({ ragSourceId: quizzes.ragSourceId })
+        .from(quizzes)
+        .where(eq(quizzes.id, id))
+        .limit(1);
+      await transaction.delete(quizResults).where(eq(quizResults.quizId, id));
+      await transaction.delete(quizzes).where(eq(quizzes.id, id));
+      // Each generated quiz owns one source; deleting it cascades to all vectors.
+      if (quiz?.ragSourceId) {
+        await transaction.delete(ragSources).where(eq(ragSources.id, quiz.ragSourceId));
+      }
+    });
     return true;
   }
 
@@ -633,6 +646,7 @@ export class DatabaseStorage implements IStorage {
           difficulty: quizzes.difficulty,
           category: quizzes.category,
           generationMode: quizzes.generationMode,
+          isPublic: quizzes.isPublic,
           sourceImageUrl: quizzes.sourceImageUrl,
           sourceImages: quizzes.sourceImages,
           sourceText: quizzes.sourceText,

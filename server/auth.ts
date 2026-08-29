@@ -1,4 +1,4 @@
-import type { Express, RequestHandler } from "express";
+import type { Express, Request, RequestHandler } from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import bcrypt from "bcryptjs";
@@ -6,11 +6,26 @@ import cryptoRandomString from "crypto-random-string";
 import { OAuth2Client } from "google-auth-library";
 import { storage } from "./storage.js";
 import { sendVerificationEmail, sendPasswordResetEmail } from "./email.js";
-import { users, registerSchema, loginSchema } from "../shared/schema.js";
+import { users, verificationTokens, registerSchema, loginSchema } from "../shared/schema.js";
 import { db } from "./db.js";
-import { eq } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
+import {
+  buildPasswordResetUrl,
+  destroyRequestSession,
+  establishAuthenticatedSession,
+  generateVerificationCode,
+  getEmailRateLimitSubject,
+  getResetTokenRateLimitSubject,
+  getSessionRateLimitSubject,
+  getTrustedAppBaseUrl,
+  validateAuthConfiguration,
+} from "./auth-security.js";
+import { createRateLimitMiddleware, readPositiveIntegerEnv } from "./rate-limit.js";
+import { postgresRateLimitStore } from "./postgres-rate-limit-store.js";
 
 const PgSession = connectPgSimple(session);
+
+class InvalidPasswordResetTokenError extends Error {}
 
 declare module "express-session" {
   interface SessionData {
@@ -19,18 +34,51 @@ declare module "express-session" {
 }
 
 export function setupAuth(app: Express): void {
+  const isProduction = process.env.NODE_ENV === "production";
+  const sessionSecret = validateAuthConfiguration(process.env);
+  const authWindowMs = readPositiveIntegerEnv("AUTH_RATE_LIMIT_WINDOW_MS", 15 * 60 * 1000);
+  const emailWindowMs = readPositiveIntegerEnv("AUTH_EMAIL_RATE_LIMIT_WINDOW_MS", 60 * 60 * 1000);
+  const createAuthLimiter = (
+    scope: string,
+    envName: string,
+    fallback: number,
+    windowMs: number,
+    subject?: (req: Request) => string,
+  ) => createRateLimitMiddleware({
+    scope,
+    limit: readPositiveIntegerEnv(envName, fallback),
+    windowMs,
+    store: postgresRateLimitStore,
+    subject,
+    limitMessage: "Too many attempts. Please wait before trying again.",
+    unavailableMessage: "Authentication controls are temporarily unavailable. Please try again shortly.",
+  });
+
+  const registerRateLimit = createAuthLimiter("auth-register-ip", "AUTH_REGISTER_RATE_LIMIT", 5, emailWindowMs);
+  const loginIpRateLimit = createAuthLimiter("auth-login-ip", "AUTH_LOGIN_IP_RATE_LIMIT", 30, authWindowMs);
+  const loginAccountRateLimit = createAuthLimiter("auth-login-account", "AUTH_LOGIN_ACCOUNT_RATE_LIMIT", 10, authWindowMs, getEmailRateLimitSubject);
+  const verifyRateLimit = createAuthLimiter("auth-verify", "AUTH_VERIFY_RATE_LIMIT", 10, authWindowMs, getSessionRateLimitSubject);
+  const forgotIpRateLimit = createAuthLimiter("auth-forgot-ip", "AUTH_FORGOT_IP_RATE_LIMIT", 10, emailWindowMs);
+  const forgotAccountRateLimit = createAuthLimiter("auth-forgot-account", "AUTH_FORGOT_ACCOUNT_RATE_LIMIT", 3, emailWindowMs, getEmailRateLimitSubject);
+  const resetIpRateLimit = createAuthLimiter("auth-reset-ip", "AUTH_RESET_IP_RATE_LIMIT", 10, authWindowMs);
+  const resetTokenRateLimit = createAuthLimiter("auth-reset-token", "AUTH_RESET_TOKEN_RATE_LIMIT", 5, authWindowMs, getResetTokenRateLimitSubject);
+  const googleRateLimit = createAuthLimiter("auth-google-ip", "AUTH_GOOGLE_RATE_LIMIT", 30, authWindowMs);
+  const resendIpRateLimit = createAuthLimiter("auth-resend-ip", "AUTH_RESEND_IP_RATE_LIMIT", 10, emailWindowMs);
+  const resendAccountRateLimit = createAuthLimiter("auth-resend-account", "AUTH_RESEND_ACCOUNT_RATE_LIMIT", 3, emailWindowMs, getEmailRateLimitSubject);
+
   const sessionSettings: session.SessionOptions = {
     store: new PgSession({
       conString: process.env.DATABASE_URL,
       tableName: "sessions",
       createTableIfMissing: true,
     }),
-    secret: process.env.SESSION_SECRET!,
+    secret: sessionSecret,
+    proxy: isProduction,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production" && process.env.VERCEL === "1",
+      secure: isProduction,
       maxAge: 30 * 24 * 60 * 60 * 1000,
       sameSite: "lax",
     },
@@ -39,7 +87,7 @@ export function setupAuth(app: Express): void {
   app.set("trust proxy", 1);
   app.use(session(sessionSettings));
 
-  app.post("/api/auth/register", async (req, res) => {
+  app.post("/api/auth/register", registerRateLimit, async (req, res) => {
     try {
       const validation = registerSchema.safeParse(req.body);
       if (!validation.success) {
@@ -67,7 +115,7 @@ export function setupAuth(app: Express): void {
       let finalUsername = username;
       let counter = 1;
       while (await isUsernameTaken(finalUsername)) {
-        finalUsername = `${username}${Math.floor(Math.random() * 10000)}`;
+        finalUsername = `${username}${cryptoRandomString({ length: 4, type: "numeric" })}`;
         counter++;
         if (counter > 5) {
           finalUsername = `${username}_${cryptoRandomString({ length: 4, type: "distinguishable" })}`;
@@ -86,13 +134,13 @@ export function setupAuth(app: Express): void {
       });
 
       // Create 6-digit verification code and send email
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const code = generateVerificationCode();
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
       await storage.deleteUserVerificationTokens(user.id, "email_verification");
       await storage.createVerificationToken(user.id, code, "email_verification", expiresAt);
-      await sendVerificationEmail(email, code, username);
+      await sendVerificationEmail(email, code, user.username || undefined);
 
-      req.session.userId = user.id;
+      await establishAuthenticatedSession(req, user.id);
 
       res.json({
         message: "Registration successful. Please check your email to verify your account.",
@@ -109,7 +157,7 @@ export function setupAuth(app: Express): void {
     }
   });
 
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", loginIpRateLimit, loginAccountRateLimit, async (req, res) => {
     try {
       const validation = loginSchema.safeParse(req.body);
       if (!validation.success) {
@@ -126,9 +174,7 @@ export function setupAuth(app: Express): void {
       }
 
       if (!user.passwordHash) {
-        return res.status(401).json({
-          message: "This account uses Google sign-in. Please use Google to sign in.",
-        });
+        return res.status(401).json({ message: "Invalid email or password" });
       }
 
       const isValid = await bcrypt.compare(password, user.passwordHash);
@@ -136,7 +182,7 @@ export function setupAuth(app: Express): void {
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
-      req.session.userId = user.id;
+      await establishAuthenticatedSession(req, user.id);
 
       res.json({
         user: {
@@ -158,19 +204,19 @@ export function setupAuth(app: Express): void {
       if (err) {
         return res.status(500).json({ message: "Logout failed" });
       }
-      res.clearCookie("connect.sid");
+      res.clearCookie("connect.sid", { path: "/" });
       res.json({ message: "Logged out successfully" });
     });
   });
 
-  app.post("/api/auth/verify-email", async (req, res) => {
+  app.post("/api/auth/verify-email", verifyRateLimit, async (req, res) => {
     try {
       if (!req.session.userId) {
         return res.status(401).json({ message: "Authentication required" });
       }
 
       const { code } = req.body;
-      if (!code || typeof code !== "string") {
+      if (typeof code !== "string" || !/^\d{6}$/.test(code)) {
         return res.status(400).json({ message: "Invalid code" });
       }
 
@@ -194,25 +240,34 @@ export function setupAuth(app: Express): void {
     }
   });
 
-  app.post("/api/auth/forgot-password", async (req, res) => {
+  app.post("/api/auth/forgot-password", forgotIpRateLimit, forgotAccountRateLimit, async (req, res) => {
     try {
       const { email } = req.body;
-      if (!email) {
-        return res.status(400).json({ message: "Email is required" });
+      const emailValidation = registerSchema.shape.email.safeParse(email);
+      if (!emailValidation.success) {
+        return res.status(400).json({ message: "A valid email is required" });
       }
 
-      const user = await storage.getUserByEmail(email);
+      let appBaseUrl: string;
+      try {
+        appBaseUrl = getTrustedAppBaseUrl(process.env.APP_URL, process.env.NODE_ENV);
+      } catch (configurationError) {
+        console.error("Password reset configuration error:", configurationError);
+        return res.status(503).json({ message: "Password reset is temporarily unavailable" });
+      }
+
+      const validatedEmail = emailValidation.data;
+      const user = await storage.getUserByEmail(validatedEmail);
       if (user && user.passwordHash) {
         const token = cryptoRandomString({ length: 48, type: "url-safe" });
         const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
         await storage.deleteUserVerificationTokens(user.id, "password_reset");
         await storage.createVerificationToken(user.id, token, "password_reset", expiresAt);
 
-        const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get("host")}`;
-        const resetLink = `${baseUrl}/reset-password?token=${token}`;
+        const resetLink = buildPasswordResetUrl(appBaseUrl, token);
 
         try {
-          await sendPasswordResetEmail(email, resetLink, user.username || undefined);
+          await sendPasswordResetEmail(validatedEmail, resetLink, user.username || undefined);
         } catch (emailError) {
           console.error("Failed to send password reset email:", emailError);
         }
@@ -225,25 +280,57 @@ export function setupAuth(app: Express): void {
     }
   });
 
-  app.post("/api/auth/reset-password", async (req, res) => {
+  app.post("/api/auth/reset-password", resetIpRateLimit, resetTokenRateLimit, async (req, res) => {
     try {
       const { token, password } = req.body;
-      if (!token || !password) {
+      if (typeof token !== "string" || typeof password !== "string") {
         return res.status(400).json({ message: "Token and password are required" });
       }
 
       if (password.length < 8) {
         return res.status(400).json({ message: "Password must be at least 8 characters" });
       }
-
-      const verificationToken = await storage.getVerificationToken(token);
-      if (!verificationToken || verificationToken.type !== "password_reset") {
+      if (password.length > 128) {
+        return res.status(400).json({ message: "Password is too long" });
+      }
+      if (!/^[A-Za-z0-9_-]{32,64}$/.test(token)) {
         return res.status(400).json({ message: "Invalid or expired token" });
       }
 
       const passwordHash = await bcrypt.hash(password, 12);
-      await storage.updateUser(verificationToken.userId, { passwordHash });
-      await storage.deleteVerificationToken(token);
+      try {
+        await db.transaction(async (tx) => {
+          const [consumedToken] = await tx
+            .delete(verificationTokens)
+            .where(and(
+              eq(verificationTokens.token, token),
+              eq(verificationTokens.type, "password_reset"),
+              gt(verificationTokens.expiresAt, new Date()),
+            ))
+            .returning({ userId: verificationTokens.userId });
+
+          if (!consumedToken) {
+            throw new InvalidPasswordResetTokenError();
+          }
+
+          await tx
+            .update(users)
+            .set({ passwordHash, updatedAt: new Date() })
+            .where(eq(users.id, consumedToken.userId));
+          await tx.execute(sql`
+            DELETE FROM sessions
+            WHERE sess ->> 'userId' = ${consumedToken.userId}
+          `);
+        });
+      } catch (error) {
+        if (error instanceof InvalidPasswordResetTokenError) {
+          return res.status(400).json({ message: "Invalid or expired token" });
+        }
+        throw error;
+      }
+
+      await destroyRequestSession(req);
+      res.clearCookie("connect.sid", { path: "/" });
 
       res.json({ message: "Password reset successfully" });
     } catch (error) {
@@ -252,10 +339,10 @@ export function setupAuth(app: Express): void {
     }
   });
 
-  app.post("/api/auth/google", async (req, res) => {
+  app.post("/api/auth/google", googleRateLimit, async (req, res) => {
     try {
       const { credential } = req.body;
-      if (!credential) {
+      if (typeof credential !== "string" || credential.length < 1 || credential.length > 20_000) {
         return res.status(400).json({ message: "Google credential is required" });
       }
 
@@ -301,7 +388,7 @@ export function setupAuth(app: Express): void {
       }
 
       if (user) {
-        req.session.userId = user.id;
+        await establishAuthenticatedSession(req, user.id);
         res.json({
           user: {
             id: user.id,
@@ -348,36 +435,34 @@ export function setupAuth(app: Express): void {
     }
   });
 
-  app.post("/api/auth/resend-verification", async (req, res) => {
+  app.post("/api/auth/resend-verification", resendIpRateLimit, resendAccountRateLimit, async (req, res) => {
     try {
       const { email } = req.body;
-      if (!email) {
-        return res.status(400).json({ message: "Email is required" });
+      const emailValidation = registerSchema.shape.email.safeParse(email);
+      if (!emailValidation.success) {
+        return res.status(400).json({ message: "A valid email is required" });
       }
 
-      const user = await storage.getUserByEmail(email);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
+      const genericResponse = {
+        message: "If that account requires verification, a code has been sent.",
+      };
+      const validatedEmail = emailValidation.data;
+      const user = await storage.getUserByEmail(validatedEmail);
 
-      if (user.emailVerified) {
-        return res.status(400).json({ message: "Email is already verified" });
+      if (!user || user.emailVerified) {
+        return res.json(genericResponse);
       }
 
       try {
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const code = generateVerificationCode();
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
         await storage.deleteUserVerificationTokens(user.id, "email_verification");
         await storage.createVerificationToken(user.id, code, "email_verification", expiresAt);
-        await sendVerificationEmail(email, code, user.username || undefined);
-        res.json({ message: "Verification code sent successfully" });
-      } catch (emailError: any) {
+        await sendVerificationEmail(validatedEmail, code, user.username || undefined);
+      } catch (emailError) {
         console.error("Failed to send verification email:", emailError);
-        res.status(500).json({ 
-          message: "Failed to send verification email. Please try again later.",
-          debug: emailError?.message || "Unknown error"
-        });
       }
+      res.json(genericResponse);
     } catch (error) {
       console.error("Resend verification error:", error);
       res.status(500).json({ message: "Failed to resend verification email" });
