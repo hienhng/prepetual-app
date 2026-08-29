@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { useQuiz } from "@/lib/quiz-context";
+import { composeSourceMaterialText, useQuiz } from "@/lib/quiz-context";
 import { useUpload } from "@/lib/upload-context";
 import { motion, AnimatePresence } from "framer-motion";
 import { QuizGenerationDialog } from "@/components/quiz-generation-dialog";
@@ -49,20 +49,25 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
   const [generationNotice, setGenerationNotice] = useState("");
   const [mode, setMode] = useState<QuizMode>("generate");
 
-  const isPromptBased = sourceMaterial.type === "prompt";
   const isOfficeWithImages = sourceMaterial?.isOfficeWithImages || false;
   const documentImages = sourceMaterial?.documentImages || [];
+  const sourcePrompt = sourceMaterial.prompt?.trim()
+    || (sourceMaterial.type === "prompt" ? extractedText?.trim() || "" : "");
+  const materialText = composeSourceMaterialText(sourceMaterial, extractedText);
+  const hasQuizPrompt = sourcePrompt.length > 0;
+  const hasSourceImages = documentImages.length > 0 || Boolean(sourceMaterial.imageDataUrl);
+  const isPromptBased = hasQuizPrompt && !materialText && !hasSourceImages;
+  const previewText = materialText || sourcePrompt;
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
-  const autoGenerationStartedRef = useRef(false);
   const [questionCount, setQuestionCount] = useState<number>(10);
   const [questionTypes, setQuestionTypes] = useState<Array<"multiple_choice" | "true_false" | "short_answer">>(["multiple_choice", "true_false"]);
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
 
   useEffect(() => {
-    if (isPromptBased && mode !== "generate") {
+    if (hasQuizPrompt && mode !== "generate") {
       setMode("generate");
     }
-  }, [isPromptBased, mode]);
+  }, [hasQuizPrompt, mode]);
 
   const showGenerationFailure = (title: string, error: unknown, fallback: string) => {
     const message = error instanceof Error && error.message.trim() ? error.message : fallback;
@@ -164,7 +169,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
   };
 
   const generateQuiz = async () => {
-    if (!extractedText) return;
+    if (!materialText && !sourcePrompt && !hasSourceImages) return;
 
     setGenerationNotice("");
 
@@ -190,7 +195,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
         const response = await fetch("/api/import-quiz", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: extractedText, sourceImageUrl, documentImages: documentImages.length > 0 ? documentImages : undefined }),
+          body: JSON.stringify({ text: materialText || extractedText, sourceImageUrl, documentImages: documentImages.length > 0 ? documentImages : undefined }),
         });
 
         if (!response.ok) {
@@ -232,10 +237,10 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
     // Use streaming endpoint for generate mode
     try {
       const sourceImageUrl = sourceMaterial.type === "image" ? sourceMaterial.imageDataUrl : null;
-      const isImageOnly = sourceMaterial.isImageOnly === true;
+      const isImageOnly = !materialText && hasSourceImages;
       const body = {
-        text: extractedText,
-        sourceType: isPromptBased ? "prompt" : "material",
+        materialText: materialText || undefined,
+        prompt: sourcePrompt || undefined,
         questionCount: Number(questionCount),
         questionTypes: questionTypes,
         difficulty,
@@ -357,24 +362,8 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
     }
   };
 
-  useEffect(() => {
-    if (
-      !isPromptBased ||
-      !sourceMaterial.autoGenerate ||
-      !extractedText ||
-      isLoading ||
-      autoGenerationStartedRef.current
-    ) {
-      return;
-    }
-
-    autoGenerationStartedRef.current = true;
-    setSourceMaterial({ ...sourceMaterial, autoGenerate: false });
-    void generateQuiz();
-  }, [isPromptBased, sourceMaterial.autoGenerate, extractedText, isLoading]);
-
-  const truncatedText = extractedText?.substring(0, 300) || "";
-  const hasMoreText = (extractedText?.length || 0) > 300;
+  const truncatedText = previewText.substring(0, 300);
+  const hasMoreText = previewText.length > 300;
 
   // Check if we have images to display (from document images or single image upload)
   const singleImageUrl = sourceMaterial?.imageDataUrl;
@@ -384,7 +373,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   const removeImage = (index: number, imageUrl: string) => {
-    if (allImages.length === 1 && sourceMaterial.isImageOnly) {
+    if (allImages.length === 1 && sourceMaterial.isImageOnly && !sourcePrompt) {
       setError("Keep at least one image to generate a quiz from image-only material.");
       return;
     }
@@ -550,18 +539,18 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg text-foreground mb-0.5">
-                    {isPromptBased ? "Your Quiz Prompt" : "Your Study Material"}
+                    {isPromptBased ? "Your Quiz Prompt" : hasQuizPrompt ? "Your Combined Quiz Sources" : "Your Study Material"}
                   </h3>
                   <p className="text-sm text-muted-foreground">
                     {isPromptBased
                       ? "AI will use this request to choose the topic and focus"
-                      : `${extractedText?.length.toLocaleString()} characters ready for quiz generation`}
+                      : `${materialText.length.toLocaleString()} material characters${hasQuizPrompt ? " plus your quiz prompt" : ""} ready for generation`}
                   </p>
                 </div>
               </div>
               <div className="bg-background/40 dark:bg-background/20 rounded-2xl p-4 border border-border/50 backdrop-blur-sm shadow-inner max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/20">
                 <p className={`text-sm text-foreground/80 leading-relaxed font-medium whitespace-pre-wrap ${!showFullText ? "line-clamp-4" : ""}`}>
-                  {showFullText ? extractedText : truncatedText}
+                  {showFullText ? previewText : truncatedText}
                   {!showFullText && hasMoreText && "..."}
                 </p>
                 {hasMoreText && (
@@ -624,7 +613,9 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                 <p className="text-sm font-medium text-muted-foreground leading-snug">
                   {isPromptBased
                     ? "Prepetual creates original questions that follow your topic and focus."
-                    : "Prepetual creates original questions based on your specific notes."}
+                    : hasQuizPrompt
+                      ? "Prepetual grounds questions in every source and follows your requested focus."
+                      : "Prepetual creates original questions based on your specific notes."}
                 </p>
               </div>
               <div className="flex-shrink-0">
@@ -637,7 +628,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
           </Card>
         </motion.div>
 
-        {!isPromptBased && (
+        {!hasQuizPrompt && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

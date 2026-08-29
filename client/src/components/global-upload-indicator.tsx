@@ -1,5 +1,5 @@
 import { useUpload } from "@/lib/upload-context";
-import { useQuiz } from "@/lib/quiz-context";
+import { composeSourceMaterialText, useQuiz } from "@/lib/quiz-context";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, CheckCircle, XCircle, Loader2, Files } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,29 +36,24 @@ export function GlobalUploadIndicator() {
       const combinedImages = getCombinedDocumentImages();
       const hasImages = hasOfficeWithImages();
       const isImageOnly = hasImageOnlyUploads();
+      const nextMaterial = {
+        ...sourceMaterial,
+        text: null,
+        uploadedText: isImageOnly ? null : combinedText,
+        imageDataUrl: null,
+        isOfficeWithImages: hasImages || combinedImages.length > 0,
+        documentImages: combinedImages,
+      };
+      const combinedMaterialText = composeSourceMaterialText(nextMaterial);
+      const prompt = nextMaterial.prompt?.trim() || "";
 
-      if (isImageOnly) {
-        // For image-only uploads (PNG/JPG), set special source material
-        setSourceMaterial({
-          type: "image",
-          text: null,
-          imageDataUrl: null,
-          isOfficeWithImages: true,
-          documentImages: combinedImages,
-          isImageOnly: true,
-        });
-        setExtractedText("[Images uploaded - AI will analyze visually]");
-      } else {
-        setSourceMaterial({
-          type: "document",
-          text: combinedText,
-          imageDataUrl: null,
-          isOfficeWithImages: hasImages,
-          documentImages: combinedImages,
-          isImageOnly: false,
-        });
-        setExtractedText(combinedText);
-      }
+      setSourceMaterial({
+        ...nextMaterial,
+        type: combinedMaterialText ? "document" : combinedImages.length > 0 ? "image" : prompt ? "prompt" : null,
+        text: combinedMaterialText || prompt || null,
+        isImageOnly: combinedImages.length > 0 && !combinedMaterialText,
+      });
+      setExtractedText(combinedMaterialText || prompt || (combinedImages.length > 0 ? "[Images uploaded - AI will analyze visually]" : ""));
     }
   }, [isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, hasImageOnlyUploads, setSourceMaterial, setExtractedText]);
 

@@ -28,6 +28,7 @@ import {
   getQuizGenerationErrorPayload,
   getQuizRagBudget,
 } from "./quiz-generation-policy.js";
+import { resolveQuizGenerationSources } from "./quiz-sources.js";
 import {
   MAX_AI_GRADED_SHORT_ANSWERS_PER_SUBMISSION,
   MAX_UPLOAD_TOTAL_BYTES,
@@ -771,29 +772,30 @@ export async function registerRoutes(
         return;
       }
 
-      const { text, sourceType, questionCount, questionTypes, difficulty, sourceImageUrl, documentImages, isImageOnly } = validation.data;
+      const { questionCount, questionTypes, difficulty, sourceImageUrl, documentImages, isImageOnly } = validation.data;
+      const sources = resolveQuizGenerationSources(validation.data);
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
 
       // Classify images to separate text-only from illustrations
       // For image-only uploads, we still need images for the AI to analyze even if they're text-only
       let imagesForQuestions: string[] | undefined;
-      let textForQuiz = text;
+      let textForQuiz = sources.materialText || (sources.hasImages ? "[Images uploaded - AI will analyze visually]" : "");
       let resolvedQuestionCount = questionCount;
       let resolvedDifficulty = difficulty as DifficultyLevel;
       let sourceUsesVisionTranscription = false;
-      const imageOnlyFlag = isImageOnly || false;
+      const imageOnlyFlag = isImageOnly || (!sources.materialText && sources.hasImages);
 
-      if (sourceType === "prompt") {
+      if (sources.promptOnly) {
         const detectedSettings = await detectQuizSettingsFromPrompt({
-          prompt: text,
+          prompt: sources.prompt,
           onProgress: sendProgress,
         });
         resolvedQuestionCount = detectedSettings.questionCount;
         resolvedDifficulty = detectedSettings.difficulty;
 
         textForQuiz = await generateStudyMaterialFromPrompt({
-          prompt: text,
+          prompt: sources.prompt,
           questionCount: resolvedQuestionCount,
           questionTypes,
           difficulty: resolvedDifficulty,
@@ -822,11 +824,11 @@ export async function registerRoutes(
           const imageTextExtraction = await extractTextFromTextOnlyImages(textOnlyImages, sendProgress);
           if (imageTextExtraction.text) {
             // Append extracted image text to existing text (or replace placeholder)
-            if (text === "[Images uploaded - AI will analyze visually]" || text.length < 50) {
+            if (textForQuiz === "[Images uploaded - AI will analyze visually]" || textForQuiz.length < 50) {
               textForQuiz = imageTextExtraction.text;
               sourceUsesVisionTranscription = imageTextExtraction.source === "vision";
             } else {
-              textForQuiz = text + "\n\n" + imageTextExtraction.text;
+              textForQuiz = textForQuiz + "\n\n" + imageTextExtraction.text;
             }
             console.log(`Extracted ${imageTextExtraction.text.length} characters from text-only images via ${imageTextExtraction.source}`);
           }
@@ -837,7 +839,7 @@ export async function registerRoutes(
         if (illustrationImages.length > 0) {
           imagesForQuestions = illustrationImages;
           console.log(`Passing ${illustrationImages.length} illustration images for visual analysis`);
-        } else if (isImageOnly && textOnlyImages.length > 0) {
+        } else if (imageOnlyFlag && textOnlyImages.length > 0) {
           // In image-only mode, check whether transcription/OCR found enough content.
           if (textForQuiz && textForQuiz.length > 100) {
             console.log(`Successfully extracted ${textForQuiz.length} characters from text-only images. Dropping images from vision prompt.`);
@@ -851,16 +853,13 @@ export async function registerRoutes(
         textForQuiz = appendIllustrationDescriptions(textForQuiz, classifications);
       }
 
-      const questionProgress = sourceType === "prompt"
-        ? (step: string, progress: number, message: string) =>
-            sendProgress(step, 55 + Math.round(progress * 0.4), message)
-        : (step: string, progress: number, message: string) =>
-            sendProgress(step, 55 + Math.round(progress * 0.4), message);
+      const questionProgress = (step: string, progress: number, message: string) =>
+        sendProgress(step, 55 + Math.round(progress * 0.4), message);
 
       const rag = await prepareQuizRag({
         userId,
         text: textForQuiz,
-        sourceRequest: sourceType === "prompt" ? text : undefined,
+        sourceRequest: sources.prompt || undefined,
         questionCount: resolvedQuestionCount,
         questionTypes,
         difficulty: resolvedDifficulty,
@@ -875,8 +874,8 @@ export async function registerRoutes(
         difficulty: resolvedDifficulty,
         documentImages: imagesForQuestions,
         onProgress: questionProgress,
-        isImageOnly: isImageOnly || false,
-        sourceRequest: sourceType === "prompt" ? text : undefined,
+        isImageOnly: imageOnlyFlag,
+        sourceRequest: sources.prompt || undefined,
         ragGrounding: {
           sourceId: rag.sourceId,
           allowedChunkIds: rag.retrieved.allowedChunkIds,
@@ -930,24 +929,25 @@ export async function registerRoutes(
         });
       }
 
-      const { text, sourceType, questionCount, questionTypes, difficulty, sourceImageUrl, documentImages, isImageOnly } = validation.data;
+      const { questionCount, questionTypes, difficulty, sourceImageUrl, documentImages, isImageOnly } = validation.data;
+      const sources = resolveQuizGenerationSources(validation.data);
       const userId = req.user.claims.sub;
 
       // Classify images to separate text-only from illustrations
       let imagesForQuestions: string[] | undefined;
-      let textForQuiz = text;
+      let textForQuiz = sources.materialText || (sources.hasImages ? "[Images uploaded - AI will analyze visually]" : "");
       let resolvedQuestionCount = questionCount;
       let resolvedDifficulty = difficulty as DifficultyLevel;
       let sourceUsesVisionTranscription = false;
-      const imageOnlyFlag = isImageOnly || false;
+      const imageOnlyFlag = isImageOnly || (!sources.materialText && sources.hasImages);
 
-      if (sourceType === "prompt") {
-        const detectedSettings = await detectQuizSettingsFromPrompt({ prompt: text });
+      if (sources.promptOnly) {
+        const detectedSettings = await detectQuizSettingsFromPrompt({ prompt: sources.prompt });
         resolvedQuestionCount = detectedSettings.questionCount;
         resolvedDifficulty = detectedSettings.difficulty;
 
         textForQuiz = await generateStudyMaterialFromPrompt({
-          prompt: text,
+          prompt: sources.prompt,
           questionCount: resolvedQuestionCount,
           questionTypes,
           difficulty: resolvedDifficulty,
@@ -968,18 +968,18 @@ export async function registerRoutes(
           const imageTextExtraction = await extractTextFromTextOnlyImages(textOnlyImages);
           if (imageTextExtraction.text) {
             // Append extracted image text to existing text (or replace placeholder)
-            if (text === "[Images uploaded - AI will analyze visually]" || text.length < 50) {
+            if (textForQuiz === "[Images uploaded - AI will analyze visually]" || textForQuiz.length < 50) {
               textForQuiz = imageTextExtraction.text;
               sourceUsesVisionTranscription = imageTextExtraction.source === "vision";
             } else {
-              textForQuiz = text + "\n\n" + imageTextExtraction.text;
+              textForQuiz = textForQuiz + "\n\n" + imageTextExtraction.text;
             }
             console.log(`Extracted ${imageTextExtraction.text.length} characters from text-only images via ${imageTextExtraction.source}`);
           }
         }
 
         // For image-only uploads: if all images are text-only, still pass them for AI analysis
-        if (isImageOnly && illustrationImages.length === 0) {
+        if (imageOnlyFlag && illustrationImages.length === 0) {
           imagesForQuestions = documentImages;
           console.log(`Image-only mode: passing all ${documentImages.length} images for AI analysis`);
         } else if (illustrationImages.length > 0) {
@@ -991,7 +991,7 @@ export async function registerRoutes(
       const rag = await prepareQuizRag({
         userId,
         text: textForQuiz,
-        sourceRequest: sourceType === "prompt" ? text : undefined,
+        sourceRequest: sources.prompt || undefined,
         questionCount: resolvedQuestionCount,
         questionTypes,
         difficulty: resolvedDifficulty,
@@ -1004,7 +1004,8 @@ export async function registerRoutes(
         questionTypes,
         difficulty: resolvedDifficulty,
         documentImages: imagesForQuestions,
-        sourceRequest: sourceType === "prompt" ? text : undefined,
+        isImageOnly: imageOnlyFlag,
+        sourceRequest: sources.prompt || undefined,
         ragGrounding: {
           sourceId: rag.sourceId,
           allowedChunkIds: rag.retrieved.allowedChunkIds,

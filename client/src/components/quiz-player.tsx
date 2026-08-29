@@ -149,6 +149,7 @@ export function QuizPlayer() {
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const [showMaterialViewer, setShowMaterialViewer] = useState(false);
   const [materialPanelWidth, setMaterialPanelWidth] = useState(45);
+  const [showRevisionScreen, setShowRevisionScreen] = useState(false);
   const { toast } = useToast();
   
   const wrongAnswerIds = useRef<Set<string>>(new Set());
@@ -611,6 +612,27 @@ export function QuizPlayer() {
     if (isGrading) return;
     if (currentIndex < allQuestions.length - 1) {
       const nextQuestion = allQuestions[currentIndex + 1];
+      
+      // Check if trying to move from original to retry questions
+      const currentIsOriginal = !currentQuestion?.isRetry;
+      const nextIsRetry = nextQuestion.isRetry;
+      
+      if (currentIsOriginal && nextIsRetry && !allOriginalChecked) {
+        // Can't proceed to retry questions until all original questions are answered
+        toast({
+          title: t('quizPlayer.completeAllFirst'),
+          description: t('quizPlayer.completeAllQuestionsBeforeRetry'),
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Show revision screen when entering retry section
+      if (currentIsOriginal && nextIsRetry && allOriginalChecked && !showRevisionScreen) {
+        setShowRevisionScreen(true);
+        return;
+      }
+      
       setCurrentIndex(currentIndex + 1);
       if (nextQuestion.isRetry) {
         setShortAnswerInput(retryAnswers[nextQuestion.id] || "");
@@ -622,6 +644,16 @@ export function QuizPlayer() {
 
   const goToPrevious = () => {
     if (isGrading) return;
+    
+    // Prevent going back from retry questions to original questions
+    if (isRetryQuestion) {
+      const prevQuestion = allQuestions[currentIndex - 1];
+      if (!prevQuestion.isRetry) {
+        // Can't go back from retry to original
+        return;
+      }
+    }
+    
     if (currentIndex > 0) {
       const prevQuestion = allQuestions[currentIndex - 1];
       setCurrentIndex(currentIndex - 1);
@@ -635,6 +667,19 @@ export function QuizPlayer() {
 
   const goToQuestion = (index: number) => {
     if (isGrading) return;
+    
+    const targetQuestion = allQuestions[index];
+    
+    // Disable question jumping in retry section
+    if (isRetryQuestion || (targetQuestion?.isRetry)) {
+      toast({
+        title: t('quizPlayer.linearModeTitle'),
+        description: t('quizPlayer.linearModeDesc'),
+        variant: "default",
+      });
+      return;
+    }
+    
     setCurrentIndex(index);
     setShowQuestionNav(false);
     const question = allQuestions[index];
@@ -1327,13 +1372,19 @@ export function QuizPlayer() {
                   const wasCorrect = isAnswered && isCorrectAnswer(userAnswers[q.id], { ...q, isRetry: false, originalId: q.id });
                   const isCurrent = currentQuestion?.originalId === q.id && !currentQuestion?.isRetry;
                   const isCurrentRetry = currentQuestion?.originalId === q.id && currentQuestion?.isRetry;
+                  const needsRetry = wrongAnswerIds.current.has(q.id);
                   
                   return (
                     <button
                       key={q.id}
                       onClick={() => goToQuestion(i)}
+                      disabled={isRetryQuestion}
                       className={`
                         w-10 h-10 rounded-lg font-semibold text-sm transition-all
+                        ${isRetryQuestion 
+                          ? "opacity-50 cursor-not-allowed" 
+                          : "cursor-pointer hover:scale-105"
+                        }
                         ${isCurrent 
                           ? "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2" 
                           : isCurrentRetry
@@ -1344,8 +1395,10 @@ export function QuizPlayer() {
                                 ? "bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/50"
                                 : "bg-muted hover:bg-muted/80"
                         }
+                        ${needsRetry && isAnswered ? "ring-1 ring-orange-500 ring-offset-0" : ""}
                       `}
                       data-testid={`nav-question-${i}`}
+                      title={isRetryQuestion ? t('quizPlayer.linearModeDesc') : ""}
                     >
                       {i + 1}
                     </button>
@@ -1353,6 +1406,108 @@ export function QuizPlayer() {
                 })}
               </div>
             </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  };
+
+  const renderRevisionScreen = () => {
+    const retryQuestionCount = wrongAnswerIds.current.size;
+    
+    return (
+      <AnimatePresence>
+        {showRevisionScreen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+            onClick={() => setShowRevisionScreen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-background border-2 border-border rounded-3xl shadow-2xl max-w-md w-full overflow-hidden"
+            >
+              <div className="p-8 text-center space-y-6">
+                {/* Icon */}
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="w-16 h-16 mx-auto bg-orange-500/20 rounded-full flex items-center justify-center"
+                >
+                  <RotateCcw className="h-8 w-8 text-orange-500" />
+                </motion.div>
+
+                {/* Heading */}
+                <div className="space-y-2">
+                  <h2 className="text-3xl font-black text-foreground">
+                    {t('quizPlayer.timeToReview')}
+                  </h2>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {t('quizPlayer.reviewExplanation')}
+                  </p>
+                </div>
+
+                {/* Stats */}
+                <div className="bg-muted/40 rounded-2xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground text-sm font-medium">
+                      {t('quizPlayer.questionsToReview')}
+                    </span>
+                    <Badge className="bg-orange-500 text-white text-lg px-3 py-1 rounded-full">
+                      {retryQuestionCount}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground text-sm font-medium">
+                      {t('quizPlayer.completedQuestions')}
+                    </span>
+                    <Badge className="bg-green-500 text-white text-lg px-3 py-1 rounded-full">
+                      {checkedQuestions.size}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Tips */}
+                <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-4 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <Lightbulb className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                    <p className="text-xs text-muted-foreground text-left">
+                      {t('quizPlayer.revisionTip')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowRevisionScreen(false)}
+                    className="flex-1 rounded-xl font-semibold h-11"
+                  >
+                    {t('common.back')}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowRevisionScreen(false);
+                      setCurrentIndex(currentIndex + 1);
+                      const nextQuestion = allQuestions[currentIndex + 1];
+                      if (nextQuestion.isRetry) {
+                        setShortAnswerInput(retryAnswers[nextQuestion.id] || "");
+                      }
+                    }}
+                    className="flex-1 rounded-xl font-semibold h-11 bg-orange-500 hover:bg-orange-500/90 text-white border-orange-800 shadow-orange-800"
+                  >
+                    {t('quizPlayer.startRevision')}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1430,7 +1585,7 @@ export function QuizPlayer() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   {isRetryQuestion && (
-                    <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400 text-xs font-semibold">
+                    <Badge variant="outline" className="border-orange-500 text-white bg-orange-500 text-xs font-semibold">
                       <RotateCcw className="h-3 w-3 mr-1" />
                       {t('common.retry')}
                     </Badge>
@@ -1516,7 +1671,7 @@ export function QuizPlayer() {
               >
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-4 flex-wrap">
-                    {isRetryQuestion ? (
+                    {/* {isRetryQuestion ? (
                       <Badge variant="outline" className="border-orange-500 text-orange-600 dark:text-orange-400">
                         <RotateCcw className="h-3 w-3 mr-1" />
                         {t('quizPlayer.giveItAnotherTry')}
@@ -1525,7 +1680,7 @@ export function QuizPlayer() {
                       <Badge variant="outline" className="font-semibold">
                         {t('quizPlayer.questionNumber', { number: displayQuestionNum })}
                       </Badge>
-                    )}
+                    )} */}
                     {getQuestionTypeBadge(currentQuestion.type)}
                     
                     <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
@@ -1643,7 +1798,7 @@ export function QuizPlayer() {
             <Button
               variant="outline"
               onClick={goToPrevious}
-              disabled={currentIndex === 0 || isGrading}
+              disabled={currentIndex === 0 || isGrading || (isRetryQuestion && (currentIndex === 0 || !allQuestions[currentIndex - 1]?.isRetry))}
               size="icon"
               className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-11 sm:w-auto sm:px-4 shrink-0"
               data-testid="button-previous"
@@ -1725,6 +1880,8 @@ export function QuizPlayer() {
         isOpen={showChatbot}
         onClose={() => setShowChatbot(false)}
       />
+
+      {renderRevisionScreen()}
     </>
   );
 }

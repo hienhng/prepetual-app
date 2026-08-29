@@ -186,12 +186,15 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   }, [activeJobs, saveJobs]);
 
   const clearJobs = useCallback(async () => {
-    for (const job of activeJobs) {
+    const jobsToDelete = activeJobs;
+    // Clear client state first so completed-job effects cannot restore a source
+    // while the best-effort server cleanup requests are still in flight.
+    saveJobs([]);
+    for (const job of jobsToDelete) {
       try {
         await fetch(`/api/upload-job/${job.jobId}`, { method: "DELETE" });
       } catch {}
     }
-    saveJobs([]);
   }, [activeJobs, saveJobs]);
 
   const removeJob = useCallback(async (jobId: string) => {

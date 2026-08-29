@@ -148,9 +148,19 @@ export function QuizGenerationDialog({
                 </h2>
 
                 {/* Percentage */}
-                <p className="text-2xl font-bold text-foreground tabular-nums mb-2">
+                <p className="text-2xl font-bold text-foreground tabular-nums mb-4">
                   {roundedProgress}%
                 </p>
+
+                {/* Progress Bar */}
+                <div className="w-full bg-border/60 rounded-full h-2 mb-4 overflow-hidden">
+                  <motion.div
+                    className="h-full bg-primary rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${roundedProgress}%` }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                  />
+                </div>
 
                 {/* Step message */}
                 {/* <AnimatePresence mode="wait">

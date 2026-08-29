@@ -20,14 +20,37 @@ const safeSessionStorageSet = (key: string, value: string) => {
 
 export type SourceMaterialType = "pdf" | "image" | "document" | "prompt" | null;
 
-interface SourceMaterial {
+export interface SourceMaterial {
   type: SourceMaterialType;
   text: string | null;
   imageDataUrl: string | null;
+  uploadedText?: string | null;
+  manualText?: string | null;
+  youtubeTranscript?: string | null;
+  youtubeUrl?: string | null;
+  prompt?: string | null;
   isOfficeWithImages?: boolean;
   documentImages?: string[];
   isImageOnly?: boolean;
   autoGenerate?: boolean;
+}
+
+export function composeSourceMaterialText(material: SourceMaterial, legacyText?: string | null): string {
+  const labelledParts = [
+    material.uploadedText?.trim()
+      ? `UPLOADED MATERIAL:\n${material.uploadedText.trim()}`
+      : "",
+    material.manualText?.trim()
+      ? `PASTED MATERIAL:\n${material.manualText.trim()}`
+      : "",
+    material.youtubeTranscript?.trim()
+      ? `YOUTUBE TRANSCRIPT${material.youtubeUrl?.trim() ? ` (${material.youtubeUrl.trim()})` : ""}:\n${material.youtubeTranscript.trim()}`
+      : "",
+  ].filter(Boolean);
+
+  if (labelledParts.length > 0) return labelledParts.join("\n\n");
+  if (material.type !== "prompt") return material.text?.trim() || legacyText?.trim() || "";
+  return "";
 }
 
 export interface SavedQuizProgress {

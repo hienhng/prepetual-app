@@ -344,7 +344,11 @@ export const MAX_SOURCE_IMAGE_CHARS = 14_000_000;
 export const MAX_SOURCE_IMAGES_TOTAL_CHARS = 28_000_000;
 
 export const generateQuizRequestSchema = z.object({
-  text: z.string().min(1, "Text is required").max(MAX_SOURCE_TEXT_CHARS, "Text is too large"),
+  // `text` and `sourceType` are retained for older clients. New clients send
+  // materialText and prompt independently so both can be used in one quiz.
+  text: z.string().max(MAX_SOURCE_TEXT_CHARS, "Text is too large").optional(),
+  materialText: z.string().max(MAX_SOURCE_TEXT_CHARS, "Study material is too large").optional(),
+  prompt: z.string().max(1000, "Prompt must be 1000 characters or fewer").optional(),
   sourceType: z.enum(["material", "prompt"]).default("material"),
   questionCount: z.number().min(3).max(20).default(10),
   questionTypes: z
@@ -357,7 +361,9 @@ export const generateQuizRequestSchema = z.object({
   documentImages: z.array(z.string().max(MAX_SOURCE_IMAGE_CHARS, "Each source image is too large")).max(MAX_SOURCE_IMAGES, `A maximum of ${MAX_SOURCE_IMAGES} images is allowed`).optional(),
   isImageOnly: z.boolean().optional(),
 }).superRefine((data, ctx) => {
-  const textLength = data.text.trim().length;
+  const legacyText = data.text?.trim() || "";
+  const materialText = data.materialText?.trim() || (data.sourceType === "material" ? legacyText : "");
+  const prompt = data.prompt?.trim() || (data.sourceType === "prompt" ? legacyText : "");
   const totalImageChars =
     (data.sourceImageUrl?.length || 0) +
     (data.documentImages || []).reduce((sum, image) => sum + image.length, 0);
@@ -379,36 +385,27 @@ export const generateQuizRequestSchema = z.object({
     });
   }
 
-  if (data.sourceType === "prompt") {
-    if (textLength < 3) {
+  if (!materialText && !prompt && totalImageCount === 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Add at least one study material, image, YouTube transcript, or prompt",
+      path: ["materialText"],
+    });
+  }
+
+  if (prompt && prompt.length < 3) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Prompt must be at least 3 characters",
-        path: ["text"],
+        path: ["prompt"],
       });
-    }
-    if (textLength > 1000) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Prompt must be 1000 characters or fewer",
-        path: ["text"],
-      });
-    }
-    if (data.isImageOnly || data.sourceImageUrl || (data.documentImages?.length || 0) > 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Prompt-based quizzes cannot include source images",
-        path: ["documentImages"],
-      });
-    }
-    return;
   }
 
-  if (!data.isImageOnly && data.text.length < 50) {
+  if (materialText && !data.isImageOnly && materialText.length < 50) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Text must be at least 50 characters (unless using image-only mode)",
-      path: ["text"],
+      path: ["materialText"],
     });
   }
 });
