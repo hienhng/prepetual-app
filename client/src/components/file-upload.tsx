@@ -201,21 +201,6 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
                 ? `Processing ${processingJobs.length} of ${activeJobs.length} files`
                 : "Extracting available text and preserving visuals"}
             </p>
-
-            <div className="w-full max-w-xs space-y-3">
-              <div className="h-3 bg-muted/50 rounded-full overflow-hidden border border-border/50 p-0.5">
-                <motion.div
-                  className="h-full bg-gradient-to-r from-primary via-violet-500 to-primary rounded-full shadow-[0_0_10px_rgba(var(--primary),0.5)]"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${overallProgress}%` }}
-                  transition={{ duration: 0.5, ease: "easeOut" }}
-                />
-              </div>
-              <div className="flex justify-between items-center px-1">
-                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Progress</span>
-                <span className="text-xs font-black text-primary">{overallProgress}%</span>
-              </div>
-            </div>
           </motion.div>
         ) : pendingFiles.length > 0 ? (
           <motion.div
