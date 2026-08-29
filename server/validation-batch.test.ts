@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { runValidationBatchWithIsolation } from "./validation-batch.js";
+import {
+  runValidationBatchWithIsolation,
+  runValidationBatchesWithIsolation,
+} from "./validation-batch.js";
 
 test("isolates a permanently failing item without rejecting its batch-mates", async () => {
   const calls: number[][] = [];
@@ -35,4 +38,30 @@ test("preserves normal per-question rejections without splitting a successful ba
 
   assert.equal(calls, 1);
   assert.deepEqual([...rejected], [2]);
+});
+
+test("processes top-level batches concurrently with a hard limit", async () => {
+  let active = 0;
+  let maxActive = 0;
+  const rejected = await runValidationBatchesWithIsolation(
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    {
+      batchSize: 5,
+      concurrency: 2,
+      logPrefix: "[TEST]",
+      action: "Auditing",
+      log: () => undefined,
+      warn: () => undefined,
+    },
+    async (batch) => {
+      active += 1;
+      maxActive = Math.max(maxActive, active);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      active -= 1;
+      return new Set(batch.filter((item) => item % 5 === 0));
+    },
+  );
+
+  assert.equal(maxActive, 2);
+  assert.deepEqual([...rejected], [5, 10]);
 });

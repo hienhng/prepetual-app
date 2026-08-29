@@ -1,4 +1,7 @@
+import pLimit from "p-limit";
+
 type BatchWarning = (...values: unknown[]) => void;
+type BatchLog = (message: string) => void;
 
 /**
  * Retries a failed validator batch in smaller groups so one malformed model
@@ -45,4 +48,51 @@ export async function runValidationBatchWithIsolation<T>(
     rightRejected.forEach((item) => rejected.add(item));
     return rejected;
   }
+}
+
+export async function runValidationBatchesWithIsolation<T>(
+  items: T[],
+  options: {
+    batchSize: number;
+    concurrency: number;
+    logPrefix: string;
+    action: string;
+    log?: BatchLog;
+    warn?: BatchWarning;
+  },
+  validateBatch: (batch: T[], batchLogPrefix: string) => Promise<Set<T>>,
+): Promise<Set<T>> {
+  if (items.length === 0) return new Set<T>();
+
+  const batchSize = Math.max(1, Math.floor(options.batchSize));
+  const concurrency = Math.max(1, Math.floor(options.concurrency));
+  const batchCount = Math.ceil(items.length / batchSize);
+  const limit = pLimit(concurrency);
+  const log = options.log ?? console.log;
+  const warn = options.warn ?? console.warn;
+
+  const results = await Promise.all(
+    Array.from({ length: batchCount }, (_, batchIndex) => {
+      const start = batchIndex * batchSize;
+      const batch = items.slice(start, start + batchSize);
+      return limit(async () => {
+        log(
+          `${options.logPrefix} ${options.action} batch ${batchIndex + 1}/${batchCount} ` +
+          `(questions ${start + 1}-${start + batch.length} of ${items.length}).`,
+        );
+        return runValidationBatchWithIsolation(
+          batch,
+          `${options.logPrefix} BATCH ${batchIndex + 1}/${batchCount}`,
+          validateBatch,
+          warn,
+        );
+      });
+    }),
+  );
+
+  const rejected = new Set<T>();
+  for (const batchRejected of results) {
+    batchRejected.forEach((item) => rejected.add(item));
+  }
+  return rejected;
 }

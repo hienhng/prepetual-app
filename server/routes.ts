@@ -19,11 +19,15 @@ import { canManageQuiz, canReadQuiz, canReadQuizResult } from "./quiz-access.js"
 import { POSITION_INDEPENDENT_EXPLANATION_RULE } from "./explanation-guidance.js";
 import { KATEX_FORMATTING_RULES } from "./math-format.js";
 import {
+  inspectAiJsonCompletion,
   isJsonResponseFormatError,
-  parseAiJsonObject,
   recoverFailedGenerationJson,
 } from "./ai-json-response.js";
 import { deleteRagSource, indexRagSource, planQuizRetrievalQueries, retrieveRagContext } from "./rag.js";
+import {
+  getQuizGenerationErrorPayload,
+  getQuizRagBudget,
+} from "./quiz-generation-policy.js";
 import {
   MAX_AI_GRADED_SHORT_ANSWERS_PER_SUBMISSION,
   MAX_UPLOAD_TOTAL_BYTES,
@@ -53,6 +57,10 @@ const openaiClient = new OpenAI({
 });
 
 const textModel = process.env.AI_QUIZ_MODEL || "openai/gpt-oss-120b";
+const SHORT_ANSWER_GRADING_MAX_TOKENS = 1_200;
+const SHORT_ANSWER_GRADING_RETRY_MAX_TOKENS = 2_000;
+const EXPLANATION_MAX_TOKENS = 1_200;
+const EXPLANATION_RETRY_MAX_TOKENS = 2_000;
 
 const ollamaClient = new OpenAI({
   baseURL: process.env.OLLAMA_BASE_URL || "http://localhost:11434/v1",
@@ -402,6 +410,7 @@ async function prepareQuizRag(params: {
       sourceId: indexed.sourceId,
       ownerUserId: params.userId,
       queries,
+      ...getQuizRagBudget(params.questionCount),
     });
     return { sourceId: indexed.sourceId, retrieved };
   } catch (error) {
@@ -902,7 +911,10 @@ export async function registerRoutes(
         });
       }
       console.error("Quiz generation error:", error);
-      res.write(`data: ${JSON.stringify({ type: "error", message: error instanceof Error ? error.message : "Failed to generate quiz" })}\n\n`);
+      res.write(`data: ${JSON.stringify({
+        type: "error",
+        ...getQuizGenerationErrorPayload(error),
+      })}\n\n`);
       res.end();
     }
   });
@@ -1025,9 +1037,7 @@ export async function registerRoutes(
         });
       }
       console.error("Quiz generation error:", error);
-      res.status(500).json({
-        message: error instanceof Error ? error.message : "Failed to generate quiz",
-      });
+      res.status(500).json(getQuizGenerationErrorPayload(error));
     }
   });
 
@@ -2203,6 +2213,8 @@ IMPORTANT NOTE:
   });
 
   app.post("/api/grade-short-answer", interactiveAiRateLimit, async (req, res) => {
+    const requestId = crypto.randomUUID();
+
     try {
       const validation = gradeShortAnswerRequestSchema.safeParse(req.body);
       if (!validation.success) {
@@ -2211,8 +2223,6 @@ IMPORTANT NOTE:
         });
       }
       const { question, correctAnswer, userAnswer, sourceText, category } = validation.data;
-
-      const requestId = crypto.randomUUID();
 
       const sourceContext = sourceText
         ? `\n\nOriginal study material the question was generated from:\n---\n${sourceText.slice(0, 3000)}\n---`
@@ -2223,28 +2233,6 @@ IMPORTANT NOTE:
         : "";
 
       const mathFormattingRules = `\n\n${KATEX_FORMATTING_RULES}`;
-
-      const stripCodeFences = (s: string) => {
-        const trimmed = (s ?? "").trim();
-        if (!trimmed) return "";
-        return trimmed.replace(/^```[a-zA-Z0-9_-]*\s*/m, "").replace(/```$/m, "").trim();
-      };
-
-      const parseJsonObject = (raw: string) => {
-        const cleaned = stripCodeFences(raw);
-        if (!cleaned) throw new Error("Empty AI grading response");
-
-        try {
-          return JSON.parse(cleaned);
-        } catch {
-          const first = cleaned.indexOf("{");
-          const last = cleaned.lastIndexOf("}");
-          if (first === -1 || last === -1 || last <= first) {
-            throw new Error("AI grading response was not valid JSON");
-          }
-          return JSON.parse(cleaned.slice(first, last + 1));
-        }
-      };
 
       const isTransientAIError = (err: any) => {
         const msg = (err?.message || String(err)).toLowerCase();
@@ -2266,15 +2254,10 @@ IMPORTANT NOTE:
 
       const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-      const response = await (async () => {
-        for (let attempt = 1; attempt <= 3; attempt++) {
-          try {
-            return await openaiClient.chat.completions.create({
-        model: textModel,
-        messages: [
-          {
-            role: "system",
-            content: `You are a strict but fair exam grader. You grade short answer responses by evaluating the student's answer against the question and the original study material.${sourceContext}
+      const gradingMessages = [
+        {
+          role: "system" as const,
+          content: `You are a strict but fair exam grader. You grade short answer responses by evaluating the student's answer against the question and the original study material.${sourceContext}
 
 Your job is to determine whether the student's answer is correct based on the study material and the question — NOT by comparing to a fixed predetermined answer. The correct answer should come from your understanding of the material.${referenceHint}
 
@@ -2285,96 +2268,164 @@ Rules:
 - Accept minor spelling mistakes if the intent is clearly correct
 - Be strict about factual accuracy — wrong facts = incorrect
 - Partial credit: if the answer is partially correct but missing key details, mark as "partial"
-
-Respond in JSON format:
-{
-  "isCorrect": true | false,
-  "isPartial": false,
-  "explanation": "Brief explanation of why the answer is correct/incorrect/partial. For correct answers, affirm what makes it right. For incorrect answers, explain what the correct answer should be based on the material and why theirs was wrong."
-}
-
-If the question and study material are in a non-English language, respond with the explanation in that same language.${mathFormattingRules}`
-          },
-          {
-            role: "user",
-            content: `Question: ${question}\nStudent's Answer: ${userAnswer}`
-          }
-        ],
-        temperature: 0.1,
-        max_tokens: 300,
-        response_format: { type: "json_object" },
-            });
-          } catch (err: any) {
-            const msg = (err?.message || String(err)).toLowerCase();
-            const status = err?.status ?? err?.response?.status;
-
-            // Some OpenAI-compatible providers don't support `response_format`.
-            if (status === 400 && msg.includes("response_format")) {
-              return await openaiClient.chat.completions.create({
-                model: textModel,
-                messages: [
-                  {
-                    role: "system",
-                    content: `You are a strict but fair exam grader. You grade short answer responses by evaluating the student's answer against the question and the original study material.${sourceContext}
-
-Your job is to determine whether the student's answer is correct based on the study material and the question â€” NOT by comparing to a fixed predetermined answer. The correct answer should come from your understanding of the material.${referenceHint}
-
-Rules:
-- Determine correctness based on the study material and question context
-- Accept answers that demonstrate correct understanding even if worded differently
-- Accept reasonable synonyms, abbreviations, or alternate phrasings
-- Accept minor spelling mistakes if the intent is clearly correct
-- Be strict about factual accuracy â€” wrong facts = incorrect
-- Partial credit: if the answer is partially correct but missing key details, mark as "partial"
-- The explanation should be said in the perspective of a tutor talking to the student. Use the pronoun "you" and "your" to talk to the user. The explanation should be 2-3 sentences long.
+- Explain the result as a tutor speaking directly to the student using "you" and "your"
 
 Respond in JSON format:
 {
   "isCorrect": true | false,
   "isPartial": true | false,
-  "explanation": "Brief explanation of why the answer is correct/incorrect/partial. For correct answers, affirm what makes it right. For incorrect answers, explain what the correct answer should be based on the material and why theirs was wrong."
+  "explanation": "A concise explanation of why the answer is correct, incorrect, or partial."
 }
 
-If the question and study material are in a non-English language, respond with the explanation in that same language.${mathFormattingRules}`
-                  },
-                  {
-                    role: "user",
-                    content: `Question: ${question}\nStudent's Answer: ${userAnswer}`
-                  }
-                ],
-                temperature: 0.1,
-                max_tokens: 300,
-              });
-            }
+If the question and study material are in a non-English language, respond with the explanation in that same language.${mathFormattingRules}`,
+        },
+        {
+          role: "user" as const,
+          content: `Question: ${question}\nStudent's Answer: ${userAnswer}`,
+        },
+      ];
 
-            console.error(`[grade-short-answer:${requestId}] AI call failed (attempt ${attempt}):`, err);
+      const gradingCompletionRequest = {
+        model: textModel,
+        messages: gradingMessages,
+        temperature: 0.1,
+      };
+
+      const requestCompletion = async (request: any, label: string) => {
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            return await openaiClient.chat.completions.create(request);
+          } catch (err: any) {
+            const status = err?.status ?? err?.response?.status;
+            console.warn(`[grade-short-answer:${requestId}] ${label} request failed`, {
+              attempt,
+              status,
+              code: err?.code ?? err?.error?.code,
+              message: err?.message || String(err),
+            });
             if (!isTransientAIError(err) || attempt === 3) throw err;
             await sleep(400 * attempt);
           }
         }
 
         throw new Error("AI grading failed after retries");
-      })();
+      };
 
-      const content = response.choices[0]?.message?.content || "";
-      let result: any;
-      try {
-        result = parseJsonObject(content);
-      } catch (parseError: any) {
-        console.error(`[grade-short-answer:${requestId}] Failed to parse AI JSON:`, {
-          error: parseError?.message || parseError,
-          contentPreview: String(content).slice(0, 500),
+      const inspectGradingCompletion = (
+        response: unknown,
+        attempt: string,
+        maxTokens: number,
+      ) => {
+        const inspection = inspectAiJsonCompletion(response);
+        const candidate = inspection.result;
+        const hasRequiredFields = candidate !== null &&
+          typeof candidate.isCorrect === "boolean" &&
+          typeof candidate.isPartial === "boolean" &&
+          typeof candidate.explanation === "string" &&
+          candidate.explanation.trim().length > 0;
+        const retryReason = inspection.retryReason ||
+          (hasRequiredFields ? null : "missing grading fields");
+
+        console.info(`[grade-short-answer:${requestId}] ${attempt} completion`, {
+          finishReason: inspection.finishReason,
+          contentLength: inspection.contentLength,
+          maxTokens,
+          retryReason,
         });
+
+        return {
+          result: hasRequiredFields ? candidate : null,
+          retryReason,
+        };
+      };
+
+      let result: Record<string, unknown> | null = null;
+      let needsPlainModeRetry = false;
+
+      try {
+        const response = await requestCompletion(
+          {
+            ...gradingCompletionRequest,
+            max_tokens: SHORT_ANSWER_GRADING_MAX_TOKENS,
+            response_format: { type: "json_object" },
+          },
+          "JSON-mode",
+        );
+        const inspection = inspectGradingCompletion(
+          response,
+          "JSON-mode",
+          SHORT_ANSWER_GRADING_MAX_TOKENS,
+        );
+        result = inspection.result;
+        needsPlainModeRetry = result === null;
+      } catch (error) {
+        const recoveredResult = recoverFailedGenerationJson(error);
+        const recoveredHasRequiredFields = recoveredResult !== null &&
+          typeof recoveredResult.isCorrect === "boolean" &&
+          typeof recoveredResult.isPartial === "boolean" &&
+          typeof recoveredResult.explanation === "string" &&
+          recoveredResult.explanation.trim().length > 0;
+        result = recoveredHasRequiredFields ? recoveredResult : null;
+
+        if (!result) {
+          if (!isJsonResponseFormatError(error)) throw error;
+          console.warn(
+            `[grade-short-answer:${requestId}] Provider rejected JSON mode; retrying without response_format`,
+          );
+          needsPlainModeRetry = true;
+        }
+      }
+
+      if (!result && needsPlainModeRetry) {
+        const retryBudgets = [
+          SHORT_ANSWER_GRADING_MAX_TOKENS,
+          SHORT_ANSWER_GRADING_RETRY_MAX_TOKENS,
+        ];
+        for (let index = 0; index < retryBudgets.length && !result; index++) {
+          const maxTokens = retryBudgets[index];
+          const response = await requestCompletion(
+            { ...gradingCompletionRequest, max_tokens: maxTokens },
+            `plain-mode attempt ${index + 1}/${retryBudgets.length}`,
+          );
+          const inspection = inspectGradingCompletion(
+            response,
+            `plain-mode attempt ${index + 1}/${retryBudgets.length}`,
+            maxTokens,
+          );
+          result = inspection.result;
+
+          if (!result && index + 1 < retryBudgets.length) {
+            console.warn(
+              `[grade-short-answer:${requestId}] Plain-mode response had ${inspection.retryReason}; retrying with a larger budget`,
+            );
+          }
+        }
+      }
+
+      if (!result) {
+        console.error(
+          `[grade-short-answer:${requestId}] AI grading remained empty, truncated, or invalid after retries`,
+        );
         return res.status(502).json({ message: "Failed to parse AI grading response" });
       }
+
       res.json({
-        isCorrect: result?.isCorrect === true,
-        isPartial: result?.isPartial === true,
-        explanation: typeof result?.explanation === "string" ? result.explanation : "",
+        isCorrect: result.isCorrect === true,
+        isPartial: result.isPartial === true,
+        explanation: result.explanation,
       });
     } catch (error: any) {
-      console.error("AI grading error:", error);
-      res.status(500).json({ message: error.message || "Failed to grade answer" });
+      const status = error?.status ?? error?.response?.status;
+      console.error("AI grading error:", {
+        requestId,
+        status,
+        code: error?.code ?? error?.error?.code,
+        message: error?.message || String(error),
+      });
+      if (status === 429) {
+        return res.status(429).json({ message: "The AI provider is busy. Please try again shortly." });
+      }
+      res.status(502).json({ message: "The AI grading service is temporarily unavailable" });
     }
   });
 
@@ -2430,22 +2481,53 @@ ${POSITION_INDEPENDENT_EXPLANATION_RULE}${mathFormattingRules}`
         model: textModel,
         messages,
         temperature: 0.1,
-        // Reasoning models count their hidden reasoning against this budget.
-        // A very small cap can leave no room for the requested JSON payload.
-        max_tokens: brief ? 320 : 350,
       };
 
       let result: Record<string, unknown> | null = null;
-      let content = "";
+      let needsPlainModeRetry = false;
+
+      const hasExplanationText = (value: Record<string, unknown> | null) =>
+        value !== null && [value.explanation, value.wrongExplanation].some(
+          (field) => typeof field === "string" && field.trim().length > 0,
+        );
+
+      const inspectCompletion = (
+        response: unknown,
+        attempt: string,
+        maxTokens: number,
+      ) => {
+        const inspection = inspectAiJsonCompletion(response);
+        console.info(`[generate-explanation:${requestId}] ${attempt} completion`, {
+          finishReason: inspection.finishReason,
+          contentLength: inspection.contentLength,
+          maxTokens,
+          retryReason: inspection.retryReason,
+        });
+        return inspection;
+      };
 
       try {
         const response = await openaiClient.chat.completions.create({
           ...completionRequest,
+          // gpt-oss reasoning tokens share this budget with the visible JSON.
+          max_tokens: EXPLANATION_MAX_TOKENS,
           response_format: { type: "json_object" },
         });
-        content = response.choices[0]?.message?.content || "";
+        const inspection = inspectCompletion(
+          response,
+          "JSON-mode",
+          EXPLANATION_MAX_TOKENS,
+        );
+        result = hasExplanationText(inspection.result) ? inspection.result : null;
+        needsPlainModeRetry = result === null;
+        if (inspection.result && !result) {
+          console.warn(
+            `[generate-explanation:${requestId}] JSON-mode response omitted explanation fields; retrying in plain mode`,
+          );
+        }
       } catch (error) {
-        result = recoverFailedGenerationJson(error);
+        const recoveredResult = recoverFailedGenerationJson(error);
+        result = hasExplanationText(recoveredResult) ? recoveredResult : null;
 
         if (!result) {
           if (!isJsonResponseFormatError(error)) throw error;
@@ -2453,21 +2535,43 @@ ${POSITION_INDEPENDENT_EXPLANATION_RULE}${mathFormattingRules}`
           console.warn(
             `[generate-explanation:${requestId}] Provider rejected JSON mode; retrying without response_format`,
           );
-          const fallbackResponse = await openaiClient.chat.completions.create(completionRequest);
-          content = fallbackResponse.choices[0]?.message?.content || "";
+          needsPlainModeRetry = true;
+        } else {
+          console.info(
+            `[generate-explanation:${requestId}] Recovered JSON from the provider's failed generation`,
+          );
+        }
+      }
+
+      if (!result && needsPlainModeRetry) {
+        const retryBudgets = [EXPLANATION_MAX_TOKENS, EXPLANATION_RETRY_MAX_TOKENS];
+        for (let index = 0; index < retryBudgets.length && !result; index++) {
+          const maxTokens = retryBudgets[index];
+          const fallbackResponse = await openaiClient.chat.completions.create({
+            ...completionRequest,
+            max_tokens: maxTokens,
+          });
+          const inspection = inspectCompletion(
+            fallbackResponse,
+            `plain-mode attempt ${index + 1}/${retryBudgets.length}`,
+            maxTokens,
+          );
+          result = hasExplanationText(inspection.result) ? inspection.result : null;
+
+          if (!result && index + 1 < retryBudgets.length) {
+            const retryReason = inspection.retryReason || "missing explanation fields";
+            console.warn(
+              `[generate-explanation:${requestId}] Plain-mode response had ${retryReason}; retrying with a larger budget`,
+            );
+          }
         }
       }
 
       if (!result) {
-        try {
-          result = parseAiJsonObject(content);
-        } catch (parseError: any) {
-          console.error(`[generate-explanation:${requestId}] Failed to parse AI JSON:`, {
-            error: parseError?.message || parseError,
-            contentPreview: String(content).slice(0, 500),
-          });
-          return res.status(502).json({ message: "Failed to parse AI explanation response" });
-        }
+        console.error(
+          `[generate-explanation:${requestId}] AI explanation remained empty, truncated, or invalid after retries`,
+        );
+        return res.status(502).json({ message: "Failed to parse AI explanation response" });
       }
 
       const explanation = typeof result.explanation === "string"

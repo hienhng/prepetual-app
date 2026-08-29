@@ -25,7 +25,24 @@ import {
 import { POSITION_INDEPENDENT_EXPLANATION_RULE } from "./explanation-guidance.js";
 import { KATEX_FORMATTING_RULES, getKatexFormattingIssue } from "./math-format.js";
 import { normalizeSourceChunkIds } from "./rag-core.js";
-import { runValidationBatchWithIsolation } from "./validation-batch.js";
+import { runValidationBatchesWithIsolation } from "./validation-batch.js";
+import {
+  isJsonResponseFormatError,
+  parseAiJsonObject,
+  recoverFailedGenerationJson,
+} from "./ai-json-response.js";
+import {
+  QuizGenerationError,
+  QUIZ_MODEL_REQUEST_TIMEOUT_MS,
+  QUIZ_TOP_UP_ATTEMPTS,
+  QUIZ_VALIDATION_BATCH_SIZE,
+  QUIZ_VALIDATION_CONCURRENCY,
+  getInitialQuizCandidateCount,
+  getQuizGenerationContext,
+  getQuizQuestionDeficit,
+  getQuizTopUpCandidateCount,
+  needsQuizAnswerCompletion,
+} from "./quiz-generation-policy.js";
 
 const openai = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
@@ -58,6 +75,31 @@ function isRateLimitError(error: any): boolean {
     errorMsg.toLowerCase().includes("quota") ||
     errorMsg.toLowerCase().includes("rate limit")
   );
+}
+
+function isRetryableAiError(error: any): boolean {
+  const originalError = error?.error ?? error;
+  const status = Number(originalError?.status ?? originalError?.statusCode);
+  const message = String(originalError?.message ?? originalError).toLowerCase();
+  return (
+    isRateLimitError(originalError) ||
+    status === 408 ||
+    status === 409 ||
+    status >= 500 ||
+    message.includes("timeout") ||
+    message.includes("timed out") ||
+    message.includes("fetch failed") ||
+    message.includes("econnreset") ||
+    message.includes("network")
+  );
+}
+
+function quizModelRequestOptions(timeout = QUIZ_MODEL_REQUEST_TIMEOUT_MS) {
+  return {
+    signal: AbortSignal.timeout(timeout),
+    timeout,
+    maxRetries: 0,
+  };
 }
 
 export type ProgressCallback = (step: string, progress: number, message: string) => void;
@@ -277,26 +319,55 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
       image_url: { url: imageUrl, detail: "low" as const }
     }));
 
-    const response = await pRetry(
+    const parsed = await pRetry(
       async () => {
-        const completion = await openai.chat.completions.create({
+        const request = {
           model: visionModel,
           messages: [{
-            role: "user",
+            role: "user" as const,
             content: [
-              { type: "text", text: classificationPrompt },
-              ...imageContent
-            ]
+              { type: "text" as const, text: classificationPrompt },
+              ...imageContent,
+            ],
           }],
-          response_format: { type: "json_object" },
           max_tokens: 2048,
-        });
+        };
 
-        const content = completion.choices[0]?.message?.content;
-        if (!content) {
-          throw new Error("Empty response from AI for image classification");
+        let content = "";
+        try {
+          const completion = await openai.chat.completions.create(
+            {
+              ...request,
+              response_format: { type: "json_object" },
+            },
+            quizModelRequestOptions(),
+          );
+          content = completion.choices[0]?.message?.content || "";
+        } catch (error) {
+          const recovered = recoverFailedGenerationJson(error);
+          if (recovered) {
+            console.warn("Recovered image classification from the provider's failed JSON generation.");
+            return recovered;
+          }
+          if (!isJsonResponseFormatError(error)) throw error;
+
+          console.warn("Image-classification JSON mode was rejected; retrying without response_format.");
         }
-        return content;
+
+        if (content) {
+          try {
+            return parseAiJsonObject(content);
+          } catch {
+            console.warn("Image-classification JSON was malformed; retrying in plain response mode.");
+          }
+        }
+
+        const fallbackCompletion = await openai.chat.completions.create(
+          request,
+          quizModelRequestOptions(),
+        );
+        const fallbackContent = fallbackCompletion.choices[0]?.message?.content || "";
+        return parseAiJsonObject(fallbackContent);
       },
       {
         retries: 2,
@@ -304,16 +375,21 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
         maxTimeout: 10000,
         onFailedAttempt: (error: any) => {
           console.log(`Image classification retry (attempt ${error.attemptNumber}): ${error.message || error}`);
-          if (!isRateLimitError(error)) {
+          const originalError = error?.error ?? error;
+          const message = String(originalError?.message || originalError).toLowerCase();
+          const isMalformedResponse =
+            originalError instanceof SyntaxError ||
+            message.includes("ai response was empty") ||
+            message.includes("ai response was not a json object");
+          if (!isRetryableAiError(error) && !isMalformedResponse) {
             throw error;
           }
         },
       }
     );
 
-    const parsed = JSON.parse(response);
-
-    if (!parsed.images || !Array.isArray(parsed.images)) {
+    const parsedImages = parsed.images;
+    if (!Array.isArray(parsedImages)) {
       // Fallback behavior depends on mode:
       // - Image-only mode: treat as text-only (conservative, won't embed but will analyze)
       // - Mixed mode: treat as illustrations (include all, fallback to previous behavior)
@@ -324,7 +400,7 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     // Only classify the images that can be sent in one vision request.
     const classifiedUrls = imageUrls.slice(0, maxVisionImages);
     const results: ImageClassification[] = classifiedUrls.map((url, index) => {
-      const classification = parsed.images.find((img: any) => img.index === index);
+      const classification = parsedImages.find((img: any) => img.index === index);
       // Default for missing classifications depends on mode:
       // - Image-only mode: default to text-only (conservative)
       // - Mixed mode: default to illustrations (include, safe fallback)
@@ -344,7 +420,10 @@ Respond with ONLY valid JSON, no markdown or additional text.`;
     return results;
   } catch (error) {
     // Fallback behavior depends on mode (same as invalid response)
-    console.error("Error classifying images:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(
+      `Image classification unavailable; defaulting to ${isImageOnlyMode ? "text-only" : "illustrations"}: ${message}`,
+    );
     return imageUrls.slice(0, maxVisionImages).map(url => ({ url, hasIllustrations: !isImageOnlyMode }));
   }
 }
@@ -472,8 +551,6 @@ type AnswerVerificationContext = {
   allowedSourceChunkIds?: string[];
 };
 
-const AI_VALIDATION_BATCH_SIZE = 5;
-
 async function aiValidateLanguageConsistencyBatch(
   questions: any[],
   logPrefix: string = "[AI LANGUAGE VERIFY]",
@@ -482,7 +559,7 @@ async function aiValidateLanguageConsistencyBatch(
   const inconsistentQuestions = new Set<any>();
   if (questions.length === 0) return inconsistentQuestions;
 
-  const sourceExcerpt = context.sourceText?.trim().substring(0, 12_000) || "";
+  const sourceExcerpt = getQuizGenerationContext(context.sourceText);
   const hasSourceImages = (context.documentImages?.length || 0) > 0;
 
   // Without either source text or source images there is no reliable language
@@ -535,13 +612,16 @@ Include exactly one evaluation for every generated item.`;
 
     const response = await pRetry(
       async () => {
-        const result = await openai.chat.completions.create({
-          model: imageContent.length > 0 ? visionModel : (process.env.AI_VALIDATION_MODEL || quizModel),
-          messages,
-          response_format: { type: "json_object" },
-          temperature: 0,
-          max_tokens: 2000,
-        });
+        const result = await openai.chat.completions.create(
+          {
+            model: imageContent.length > 0 ? visionModel : (process.env.AI_VALIDATION_MODEL || quizModel),
+            messages,
+            response_format: { type: "json_object" },
+            temperature: 0,
+            max_tokens: 2000,
+          },
+          quizModelRequestOptions(),
+        );
         const content = result.choices[0]?.message?.content;
         if (!content) throw new Error("Empty language-consistency response");
         return content;
@@ -593,29 +673,20 @@ async function aiValidateLanguageConsistency(
   logPrefix: string = "[AI LANGUAGE VERIFY]",
   context: AnswerVerificationContext = {},
 ): Promise<Set<any>> {
-  const rejectedQuestions = new Set<any>();
-
-  for (let start = 0; start < questions.length; start += AI_VALIDATION_BATCH_SIZE) {
-    const batch = questions.slice(start, start + AI_VALIDATION_BATCH_SIZE);
-    const batchNumber = Math.floor(start / AI_VALIDATION_BATCH_SIZE) + 1;
-    const batchCount = Math.ceil(questions.length / AI_VALIDATION_BATCH_SIZE);
-    console.log(
-      `${logPrefix} Auditing batch ${batchNumber}/${batchCount} ` +
-      `(questions ${start + 1}-${start + batch.length} of ${questions.length}).`,
-    );
-    const batchRejected = await runValidationBatchWithIsolation(
-      batch,
-      `${logPrefix} BATCH ${batchNumber}/${batchCount}`,
-      (isolatedBatch, isolatedLogPrefix) => aiValidateLanguageConsistencyBatch(
+  return runValidationBatchesWithIsolation(
+    questions,
+    {
+      batchSize: QUIZ_VALIDATION_BATCH_SIZE,
+      concurrency: QUIZ_VALIDATION_CONCURRENCY,
+      logPrefix,
+      action: "Auditing",
+    },
+    (isolatedBatch, isolatedLogPrefix) => aiValidateLanguageConsistencyBatch(
         isolatedBatch,
         isolatedLogPrefix,
         context,
-      ),
-    );
-    batchRejected.forEach((question) => rejectedQuestions.add(question));
-  }
-
-  return rejectedQuestions;
+    ),
+  );
 }
 
 async function aiVerifyAnswersBatch(
@@ -635,7 +706,7 @@ async function aiVerifyAnswersBatch(
       options: q.type === "true_false" ? ["True", "False"] : q.options,
       sourceChunkIds: q.sourceChunkIds,
     }));
-    const sourceExcerpt = context.sourceText?.trim().substring(0, 12_000) || "";
+    const sourceExcerpt = getQuizGenerationContext(context.sourceText);
 
     const verificationPrompt = `You are a strict, independent quiz answer auditor. The answer key and prior explanations have intentionally NOT been provided. Solve every question from scratch ${context.requireSourceGrounding ? "using only the cited retrieved source chunks" : "using the source material and established knowledge"}.
 
@@ -645,6 +716,7 @@ STEP-BY-STEP PROCESS FOR EACH QUESTION:
 3. Decide separately whether EACH option satisfies the stem
 4. The question is valid only when EXACTLY ONE option satisfies the stem
 5. Only after solution is complete, return the zero-based index of the correct option and a self-contained learner-facing explanation in the question's language. Mathematical explanations must preserve the sequential work; non-mathematical explanations should remain concise.
+6. Confirm that the question, options, answer, and explanation use the same instructional language and terminology pattern as the source material. Proper names, formulas, code, and the schema values "True" and "False" do not count as a language mismatch.
 
 ${POSITION_INDEPENDENT_EXPLANATION_RULE}
 
@@ -681,9 +753,10 @@ ${sourceExcerpt ? `${context.requireSourceGrounding ? "RETRIEVED SOURCE EVIDENCE
 ${context.requireSourceGrounding ? "For each item, verify that its sourceChunkIds exist verbatim in the retrieved evidence and that those cited chunks directly support both the stem and the correct option. Mark it unverifiable if not." : ""}
 
 Respond with ONLY one JSON object in this format:
-{"verifications":[{"index":0,"solution":"For math: sequential derivation and final cross-check. Otherwise: concise decisive fact.","statementIsTrue":null,"satisfyingOptionIndexes":[1],"isUnambiguous":true,"correctOptionIndex":1,"explanation":"Learner-facing explanation retaining the mathematical work"}]}
+{"verifications":[{"index":0,"solution":"For math: sequential derivation and final cross-check. Otherwise: concise decisive fact.","statementIsTrue":null,"satisfyingOptionIndexes":[1],"isUnambiguous":true,"isLanguageConsistent":true,"correctOptionIndex":1,"explanation":"Learner-facing explanation retaining the mathematical work"}]}
 The field order is mandatory: solution MUST be emitted before satisfyingOptionIndexes and correctOptionIndex so the answer cannot be chosen before the work is written.
 For true/false items statementIsTrue must be a boolean; for other item types use null.
+isLanguageConsistent must be a boolean for every item.
 Use null for correctOptionIndex when ambiguous or unverifiable. Include exactly one result per input question.`;
 
     const verifyResponse = await pRetry(
@@ -695,16 +768,25 @@ Use null for correctOptionIndex when ambiguous or unverifiable. Include exactly 
         const messages: any[] = imageContent.length > 0
           ? [{ role: "user", content: [{ type: "text", text: verificationPrompt }, ...imageContent] }]
           : [{ role: "user", content: verificationPrompt }];
-        const result = await openai.chat.completions.create({
-          model: imageContent.length > 0 ? visionModel : (process.env.AI_VALIDATION_MODEL || quizModel),
-          messages,
-          response_format: { type: "json_object" },
-          temperature: 0,
-          max_tokens: 4000,
-        });
+        const result = await openai.chat.completions.create(
+          {
+            model: imageContent.length > 0 ? visionModel : (process.env.AI_VALIDATION_MODEL || quizModel),
+            messages,
+            response_format: { type: "json_object" },
+            temperature: 0,
+            max_tokens: 6000,
+          },
+          quizModelRequestOptions(),
+        );
         return result.choices[0]?.message?.content || "";
       },
-      { retries: 2, minTimeout: 1000 }
+      {
+        retries: 1,
+        minTimeout: 1000,
+        onFailedAttempt: (error: any) => {
+          if (!isRetryableAiError(error)) throw error;
+        },
+      }
     );
 
     const cleanVerify = verifyResponse.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
@@ -723,6 +805,13 @@ Use null for correctOptionIndex when ambiguous or unverifiable. Include exactly 
             const solution = typeof v.solution === "string" ? v.solution.trim() : "";
             if (!solution) {
               ambiguousQuestions.add(q);
+              continue;
+            }
+            if (v.isLanguageConsistent !== true) {
+              ambiguousQuestions.add(q);
+              console.warn(
+                `${logPrefix} Rejecting language-inconsistent question "${String(q.question).substring(0, 60)}..."`,
+              );
               continue;
             }
             const options = q.type === "true_false"
@@ -806,29 +895,20 @@ async function aiVerifyAnswers(
   logPrefix: string = "[AI VERIFY]",
   context: AnswerVerificationContext = {},
 ): Promise<Set<any>> {
-  const rejectedQuestions = new Set<any>();
-
-  for (let start = 0; start < objectiveQuestions.length; start += AI_VALIDATION_BATCH_SIZE) {
-    const batch = objectiveQuestions.slice(start, start + AI_VALIDATION_BATCH_SIZE);
-    const batchNumber = Math.floor(start / AI_VALIDATION_BATCH_SIZE) + 1;
-    const batchCount = Math.ceil(objectiveQuestions.length / AI_VALIDATION_BATCH_SIZE);
-    console.log(
-      `${logPrefix} Auditing batch ${batchNumber}/${batchCount} ` +
-      `(questions ${start + 1}-${start + batch.length} of ${objectiveQuestions.length}).`,
-    );
-    const batchRejected = await runValidationBatchWithIsolation(
-      batch,
-      `${logPrefix} BATCH ${batchNumber}/${batchCount}`,
-      (isolatedBatch, isolatedLogPrefix) => aiVerifyAnswersBatch(
-        isolatedBatch,
-        isolatedLogPrefix,
-        context,
-      ),
-    );
-    batchRejected.forEach((question) => rejectedQuestions.add(question));
-  }
-
-  return rejectedQuestions;
+  return runValidationBatchesWithIsolation(
+    objectiveQuestions,
+    {
+      batchSize: QUIZ_VALIDATION_BATCH_SIZE,
+      concurrency: QUIZ_VALIDATION_CONCURRENCY,
+      logPrefix,
+      action: "Auditing",
+    },
+    (isolatedBatch, isolatedLogPrefix) => aiVerifyAnswersBatch(
+      isolatedBatch,
+      isolatedLogPrefix,
+      context,
+    ),
+  );
 }
 
 async function aiSolveAndCompleteDraftsBatch(
@@ -858,7 +938,7 @@ async function aiSolveAndCompleteDraftsBatch(
   });
   if (solvableDrafts.length === 0) return rejectedQuestions;
 
-  const sourceExcerpt = context.sourceText?.trim().substring(0, 12_000) || "";
+  const sourceExcerpt = getQuizGenerationContext(context.sourceText);
   const sourceLabel = context.sourceKind === "user_request" ? "USER QUIZ REQUEST" : "SOURCE MATERIAL";
   const generationGuidance = context.generationGuidance?.trim() || "";
   const draftItems = solvableDrafts.map((q: any, index: number) => ({
@@ -926,18 +1006,27 @@ Include exactly one result for every draft.`;
 
     const solveResponse = await pRetry(
       async () => {
-        const result = await openai.chat.completions.create({
-          model: imageContent.length > 0 ? visionModel : (process.env.AI_VALIDATION_MODEL || quizModel),
-          messages,
-          response_format: { type: "json_object" },
-          temperature: 0,
-          max_tokens: 8192,
-        });
+        const result = await openai.chat.completions.create(
+          {
+            model: imageContent.length > 0 ? visionModel : (process.env.AI_VALIDATION_MODEL || quizModel),
+            messages,
+            response_format: { type: "json_object" },
+            temperature: 0,
+            max_tokens: 8192,
+          },
+          quizModelRequestOptions(),
+        );
         const content = result.choices[0]?.message?.content;
         if (!content) throw new Error("Empty solve-and-complete response");
         return content;
       },
-      { retries: 2, minTimeout: 1000 },
+      {
+        retries: 1,
+        minTimeout: 1000,
+        onFailedAttempt: (error: any) => {
+          if (!isRetryableAiError(error)) throw error;
+        },
+      },
     );
 
     const cleanResponse = solveResponse.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
@@ -1065,29 +1154,20 @@ async function aiSolveAndCompleteDrafts(
   logPrefix: string,
   context: AnswerVerificationContext,
 ): Promise<Set<any>> {
-  const rejectedQuestions = new Set<any>();
-
-  for (let start = 0; start < draftQuestions.length; start += AI_VALIDATION_BATCH_SIZE) {
-    const batch = draftQuestions.slice(start, start + AI_VALIDATION_BATCH_SIZE);
-    const batchNumber = Math.floor(start / AI_VALIDATION_BATCH_SIZE) + 1;
-    const batchCount = Math.ceil(draftQuestions.length / AI_VALIDATION_BATCH_SIZE);
-    console.log(
-      `${logPrefix} Solving batch ${batchNumber}/${batchCount} ` +
-      `(questions ${start + 1}-${start + batch.length} of ${draftQuestions.length}).`,
-    );
-    const batchRejected = await runValidationBatchWithIsolation(
-      batch,
-      `${logPrefix} BATCH ${batchNumber}/${batchCount}`,
-      (isolatedBatch, isolatedLogPrefix) => aiSolveAndCompleteDraftsBatch(
-        isolatedBatch,
-        isolatedLogPrefix,
-        context,
-      ),
-    );
-    batchRejected.forEach((question) => rejectedQuestions.add(question));
-  }
-
-  return rejectedQuestions;
+  return runValidationBatchesWithIsolation(
+    draftQuestions,
+    {
+      batchSize: QUIZ_VALIDATION_BATCH_SIZE,
+      concurrency: QUIZ_VALIDATION_CONCURRENCY,
+      logPrefix,
+      action: "Solving",
+    },
+    (isolatedBatch, isolatedLogPrefix) => aiSolveAndCompleteDraftsBatch(
+      isolatedBatch,
+      isolatedLogPrefix,
+      context,
+    ),
+  );
 }
 
 interface QuizGenerationParams {
@@ -1138,16 +1218,19 @@ export async function detectQuizSettingsFromPrompt({
   try {
     const candidate = await pRetry(
       async () => {
-        const completion = await openai.chat.completions.create({
-          model: quizModel,
-          messages: [
-            { role: "system", content: buildPromptSettingsDetectionInstructions() },
-            { role: "user", content: trimmedPrompt },
-          ],
-          response_format: { type: "json_object" },
-          temperature: 0,
-          max_tokens: 150,
-        });
+        const completion = await openai.chat.completions.create(
+          {
+            model: quizModel,
+            messages: [
+              { role: "system", content: buildPromptSettingsDetectionInstructions() },
+              { role: "user", content: trimmedPrompt },
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0,
+            max_tokens: 150,
+          },
+          quizModelRequestOptions(),
+        );
 
         const content = completion.choices[0]?.message?.content;
         if (!content) throw new Error("Empty prompt-settings response");
@@ -1204,16 +1287,19 @@ export async function generateStudyMaterialFromPrompt({
   try {
     material = await pRetry(
       async () => {
-        const completion = await openai.chat.completions.create({
-          model: quizModel,
-          messages: [
-            { role: "system", content: systemInstructions },
-            { role: "user", content: trimmedPrompt },
-          ],
-          response_format: { type: "json_object" },
-          temperature: 0.35,
-          max_tokens: 6000,
-        });
+        const completion = await openai.chat.completions.create(
+          {
+            model: quizModel,
+            messages: [
+              { role: "system", content: systemInstructions },
+              { role: "user", content: trimmedPrompt },
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0.35,
+            max_tokens: 6000,
+          },
+          quizModelRequestOptions(),
+        );
 
         const content = completion.choices[0]?.message?.content;
         if (!content) throw new Error("Empty source-material response");
@@ -1253,8 +1339,7 @@ export async function generateQuizQuestions(
 
   // Step 1: Reading material
   onProgress?.("reading", 10, isPromptBased ? "Reading your quiz prompt..." : "Reading your study material...");
-  const truncatedText =
-    text.length > 15000 ? text.substring(0, 15000) + "..." : text;
+  const truncatedText = getQuizGenerationContext(text);
 
   const assessmentProfile = sourceRequest
     ? getAssessmentPracticeProfile(sourceRequest)
@@ -1268,21 +1353,19 @@ export async function generateQuizQuestions(
     .map((type) => {
       switch (type) {
         case "multiple_choice":
-          return "Multiple-choice question stems";
+          return "Complete multiple-choice questions";
         case "true_false":
-          return "True/False questions";
+          return "Complete True/False questions";
         case "short_answer":
-          return "Short-answer question stems whose answers are brief (1-3 words)";
+          return "Complete short-answer questions whose answers are brief (1-3 words)";
       }
     })
     .join(", ");
   const allowedQuestionTypeValues = effectiveQuestionTypes.map((type) => `"${type}"`).join(" | ");
   const exampleQuestionTypeValue = JSON.stringify(effectiveQuestionTypes[0]);
-  // The first model response contains drafts, not guaranteed final questions.
-  // Ask for a small surplus up front so one ordinary quality rejection does not
-  // force another full generation round-trip.
-  const initialCandidateBuffer = Math.min(4, Math.max(2, Math.ceil(questionCount * 0.25)));
-  const initialCandidateCount = questionCount + initialCandidateBuffer;
+  // The initial call generates the requested quiz in full. Recovery candidates
+  // are requested only after the accepted count proves to be short.
+  const initialCandidateCount = getInitialQuizCandidateCount(questionCount);
   
 
   const persona = userPreferences?.persona || "General";
@@ -1296,20 +1379,22 @@ export async function generateQuizQuestions(
   };
 
   const categoryList = QUIZ_CATEGORIES.join(", ");
-const draftPhaseInstructions = `DRAFTING PHASE (HIGHEST PRIORITY):
-- This first pass creates question stems. Do NOT generate options, explanations, hints, or answer keys, except for the required private True/False planning fields below.
-- NEVER append or embed answer choices in question. For example, do not place "A) ... B) ... C) ... D) ..." after a passage or stem. The later solving pass creates the separate options array.
+const draftPhaseInstructions = `COMPLETE INITIAL GENERATION (HIGHEST PRIORITY):
+- Generate each complete quiz question in this first response, including its answer, options when applicable, and learner-facing explanation. Do not leave these fields for a later pass.
+- Solve every question before choosing correctAnswer or creating distractors. For mathematical questions, solution must show the givens, formula or rule, substitution, sequential calculations, units, and an independent cross-check. For factual questions, solution may be the concise decisive fact.
+- NEVER append or embed answer choices in question. For example, do not place "A) ... B) ... C) ... D) ..." after a passage or stem. Put choices only in the separate options array.
 - SOURCE CONTENT ONLY: test the concepts, facts, reasoning, and skills taught by the source. Never ask about the source artifact itself—no page numbers, question numbers, section locations, filenames, upload details, or counts of pages/questions.
 ${KATEX_FORMATTING_RULES}
 - READING-COMPREHENSION ACCESSIBILITY: In every reading-comprehension question, make the directions, each passage paragraph, and the actual question distinct text blocks separated by blank lines.
 - REQUIRED JSON string pattern: "Directions\\n\\nPassage paragraph 1\\n\\nPassage paragraph 2\\n\\nActual question?"
 - Immediately before the actual question there MUST be "\\n\\n". A single "\\n", a space, or adjacent Markdown such as "**passage**\\n**question**" is invalid. Markdown or bold boundaries do not count as line breaks. Preserve this structure even when the text is bold.
 - Make every stem self-contained, precise, ${isPromptBased ? "aligned with the user's requested scope and reliable established knowledge" : "source-grounded"}, and objectively answerable.
-- For multiple-choice drafts, write a stem for which a later independent solver can produce exactly one correct answer and three clearly wrong distractors.
-- For short-answer drafts, ensure at least one standard concise answer exists.
-- A separate independent pass will solve each accepted stem first and only then construct its options.
+- For multiple-choice questions, create exactly four concise, distinct options. correctAnswer must match exactly one option character-for-character. Do not use bare labels, placeholders, "All of the above", or "None of the above".
+- For true/false questions, options must be ["True", "False"] and correctAnswer must exactly equal targetTruthValue.
+- For short-answer questions, use an empty options array and a standard concise correctAnswer (normally 1-3 words).
+- explanation must be self-contained, agree with correctAnswer, and use the question's language.
 ${requireSourceGrounding ? `- RETRIEVED-EVIDENCE ONLY: every tested fact must be directly supported by one or more SOURCE_CHUNK blocks above. Do not use outside or established knowledge to add facts, fill gaps, or repair the source.
-- For every question, include sourceChunkIds containing 1-4 exact id values copied from the supporting SOURCE_CHUNK blocks. Never invent an id. If the retrieved evidence is insufficient, generate fewer candidates instead of guessing.` : ""}
+- For every question, include sourceChunkIds containing 1-4 exact id values copied from the supporting SOURCE_CHUNK blocks. Never invent an id. If the retrieved evidence is insufficient, generate fewer complete questions instead of guessing.` : ""}
 
 TRUE/FALSE FACT-FIRST SEQUENCE (MANDATORY):
 For every true_false item, perform these steps in order. Never draft the statement first and assign its truth value afterward.
@@ -1332,7 +1417,11 @@ OUTPUT FORMAT (JSON):
       "targetTruthValue": "True or False; required for true_false only; omit otherwise",
       "question": "Question stem only",
       "sourceChunkIds": ["exact-retrieved-chunk-id"],
-      "imageIndex": 0
+      "imageIndex": 0,
+      "solution": "Private derivation or decisive fact established before the answer",
+      "correctAnswer": "The exact answer; for multiple choice this exactly matches one option",
+      "options": ["Four choices for multiple choice; True/False for true_false; empty for short_answer"],
+      "explanation": "Self-contained learner-facing explanation"
     }
   ]
 }
@@ -1341,8 +1430,8 @@ Omit imageIndex when the question does not depend on an attached image.
 Respond with ONLY valid JSON, no markdown or additional text.`;
   
   const prompt = `You are an expert educator and subject-matter specialist. ${isPromptBased
-    ? `Follow the user's quiz request below and generate ${initialCandidateCount} candidate ${difficulty.toUpperCase()} difficulty quiz question stems using reliable established knowledge. The system will validate them and select the best ${questionCount}. Also generate a short, descriptive title (max 6 words) and categorize the quiz.`
-    : `Based on the following content, generate ${initialCandidateCount} candidate ${difficulty.toUpperCase()} difficulty quiz question stems. The system will validate them and select the best ${questionCount} to help students study and learn the material. Also, generate a short, descriptive title (max 6 words) for this quiz and categorize it.`}
+    ? `Follow the user's quiz request below and generate all ${initialCandidateCount} complete ${difficulty.toUpperCase()} difficulty quiz questions now using reliable established knowledge. Also generate a short, descriptive title (max 6 words) and categorize the quiz.`
+    : `Based on the following content, generate all ${initialCandidateCount} complete ${difficulty.toUpperCase()} difficulty quiz questions now. Also, generate a short, descriptive title (max 6 words) for this quiz and categorize it.`}
 
 ${requireSourceGrounding ? "RETRIEVED SOURCE EVIDENCE" : isPromptBased ? "USER QUIZ REQUEST" : "CONTENT"}:
 ${truncatedText}
@@ -1366,7 +1455,7 @@ ${isPromptBased ? `PROMPT-BASED QUIZ RULES:
 ${assessmentGuidance}
 
   REQUIREMENTS:
-1. Generate exactly ${initialCandidateCount} candidate question stems
+1. Generate exactly ${initialCandidateCount} complete quiz questions in this response
 2. ONLY use these question types: ${questionTypeDescriptions}
 3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
 4. Distribute question types roughly evenly among the selected types
@@ -1387,7 +1476,7 @@ STEM QUALITY (HIGHEST PRIORITY):
 
 ${draftPhaseInstructions}`;
 
-  const visionPrompt = hasImages ? `You are an expert educator and subject-matter specialist. Based on the following document content AND the attached images/diagrams/charts from the document, generate ${initialCandidateCount} candidate ${difficulty.toUpperCase()} difficulty quiz question stems. The system will validate them and select the best ${questionCount} to help students study and learn the material.
+  const visionPrompt = hasImages ? `You are an expert educator and subject-matter specialist. Based on the following document content AND the attached images/diagrams/charts from the document, generate all ${initialCandidateCount} complete ${difficulty.toUpperCase()} difficulty quiz questions now.
 
 IMPORTANT: Carefully analyze ALL attached images. These may contain:
 - Charts, graphs, and diagrams with important data
@@ -1412,7 +1501,7 @@ LANGUAGE HANDLING:
 - If the content is in English, write everything in English
 
  REQUIREMENTS:
- 1. Generate EXACTLY ${initialCandidateCount} candidate question stems. Do NOT generate less or more.
+ 1. Generate EXACTLY ${initialCandidateCount} complete quiz questions in this response. Do NOT generate less or more.
  2. ONLY use these question types: ${questionTypeDescriptions}
  3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
  4. Distribute question types roughly evenly among the selected types
@@ -1430,7 +1519,7 @@ LANGUAGE HANDLING:
 ${draftPhaseInstructions}` : prompt;
 
   // Special prompt for image-only uploads (no text content)
-  const imageOnlyPrompt = `You are an expert educator and subject-matter specialist. Analyze the attached images carefully and generate ${initialCandidateCount} candidate ${difficulty.toUpperCase()} difficulty quiz question stems based ENTIRELY on what you see in the images. The system will validate them and select the best ${questionCount}.
+  const imageOnlyPrompt = `You are an expert educator and subject-matter specialist. Analyze the attached images carefully and generate all ${initialCandidateCount} complete ${difficulty.toUpperCase()} difficulty quiz questions now, based ENTIRELY on what you see in the images.
 
 IMPORTANT: These are study materials uploaded as images. They may contain:
 - Study sheets, worksheets, or exam papers
@@ -1456,7 +1545,7 @@ LANGUAGE HANDLING:
 - If the content is in English, write everything in English
 
  REQUIREMENTS:
- 1. Generate exactly ${initialCandidateCount} candidate question stems
+ 1. Generate exactly ${initialCandidateCount} complete quiz questions in this response
  2. ONLY use these question types: ${questionTypeDescriptions}
  3. Do NOT generate any question type that is not listed above. If only one type is specified, ALL questions MUST be that type.
  4. Distribute question types roughly evenly among the selected types
@@ -1480,6 +1569,8 @@ ${draftPhaseInstructions}`;
 
   // Choose the right prompt based on content type
   const finalPrompt = isImageOnly ? imageOnlyPrompt : visionPrompt;
+
+  let generationStage = "initial_generation";
 
   try {
     // Step 2: Analyzing content
@@ -1524,13 +1615,16 @@ ${draftPhaseInstructions}`;
         const aiModel = hasImages ? visionModel : quizModel;
 
         while (!content && emptyRetries < maxEmptyRetries) {
-          const completion = await aiClient.chat.completions.create({
-            model: aiModel,
-            messages,
-            response_format: { type: "json_object" },
-            // Drafts contain stems only; the second pass owns solutions and options.
-            max_tokens: 6000,
-          });
+          const completion = await aiClient.chat.completions.create(
+            {
+              model: aiModel,
+              messages,
+              response_format: { type: "json_object" },
+              // The initial response contains the complete requested quiz.
+              max_tokens: 8192,
+            },
+            quizModelRequestOptions(),
+          );
 
           content = completion.choices[0]?.message?.content;
           
@@ -1577,6 +1671,7 @@ ${draftPhaseInstructions}`;
     // Step 5: Validating response
     onProgress?.("validating", 80, "Validating generated questions...");
 
+    generationStage = "parsing_initial_response";
     const parsed = JSON.parse(response);
 
     if (!parsed.questions || !Array.isArray(parsed.questions)) {
@@ -1589,13 +1684,11 @@ ${draftPhaseInstructions}`;
     // questions than the user requested.
     const rawQuestions = parsed.questions;
     console.log(
-      `Initial draft response returned ${rawQuestions.length}/${initialCandidateCount} requested candidates ` +
-      `for a ${questionCount}-question quiz.`,
+      `Initial generation returned ${rawQuestions.length}/${initialCandidateCount} requested complete questions.`,
     );
     if (rawQuestions.length < initialCandidateCount) {
       console.warn(
-        `Initial draft model under-produced candidates: returned ${rawQuestions.length}, ` +
-        `requested ${initialCandidateCount}.`,
+        `Initial generation count mismatch: returned ${rawQuestions.length}, requested ${initialCandidateCount}.`,
       );
     }
 
@@ -1629,8 +1722,15 @@ ${draftPhaseInstructions}`;
         ),
       );
       const eligibleDraftQuestions = inputRawQuestions.filter((q: any) => !rejectedDraftQuestions.has(q));
+      const incompleteDraftQuestions = eligibleDraftQuestions.filter(needsQuizAnswerCompletion);
+      if (incompleteDraftQuestions.length > 0) {
+        console.warn(
+          `${logPrefix} Initial generation left ${incompleteDraftQuestions.length}/${eligibleDraftQuestions.length} ` +
+          `eligible questions incomplete; running answer completion only for those items.`,
+        );
+      }
       const solveRejectedQuestions = await aiSolveAndCompleteDrafts(
-        eligibleDraftQuestions,
+        incompleteDraftQuestions,
         logPrefix,
         {
           sourceText: truncatedText,
@@ -1749,27 +1849,12 @@ ${draftPhaseInstructions}`;
         seenKeys.add(key);
       }
 
-      const languageRejectedQuestions = await aiValidateLanguageConsistency(
-        built,
-        `${logPrefix} LANGUAGE AUDIT`,
-        {
-          sourceText: truncatedText,
-          documentImages,
-          requireSourceGrounding,
-          allowedSourceChunkIds: [...allowedSourceChunkIds],
-        },
-      );
-      for (const q of languageRejectedQuestions) {
-        seenKeys.delete(normalizeQuestionKey(q.question));
-      }
-      const languageValidatedQuestions = built.filter(
-        (q) => !languageRejectedQuestions.has(q),
-      );
-
       // The solve/build pass is internally self-consistent, but it can still make
       // the same arithmetic or factual mistake in its answer and its explanation.
       // Audit objective questions in a separate request that never sees that key.
-      const objectiveQuestions = languageValidatedQuestions.filter(
+      // Language consistency is checked in the same audit to avoid an additional
+      // full AI pass over every candidate.
+      const objectiveQuestions = built.filter(
         (q) => q.type === "multiple_choice" || q.type === "true_false",
       );
       const auditRejectedQuestions = await aiVerifyAnswers(
@@ -1785,21 +1870,21 @@ ${draftPhaseInstructions}`;
 
       console.log(
         `${logPrefix} Validation summary: received ${inputRawQuestions.length} raw candidates; ` +
-        `${built.length} passed solve/build; ${languageRejectedQuestions.size} failed the language audit; ` +
         `${auditRejectedQuestions.size} failed the independent answer audit; ` +
-        `${languageValidatedQuestions.length - auditRejectedQuestions.size} accepted.`,
+        `${built.length - auditRejectedQuestions.size} accepted.`,
       );
 
-      if (auditRejectedQuestions.size === 0) return languageValidatedQuestions.slice(0, limit);
+      if (auditRejectedQuestions.size === 0) return built.slice(0, limit);
 
       for (const q of auditRejectedQuestions) {
         seenKeys.delete(normalizeQuestionKey(q.question));
       }
-      return languageValidatedQuestions
+      return built
         .filter((q) => !auditRejectedQuestions.has(q))
         .slice(0, limit);
     };
 
+    generationStage = "solving_and_auditing";
     onProgress?.("verifying", 85, "Solving and independently auditing answers...");
     const seenQuestionKeys = new Set<string>();
     const questions = await buildQuestionsFromRaw(rawQuestions, questionCount, seenQuestionKeys, "[SOLVE/BUILD]");
@@ -1821,18 +1906,17 @@ ${draftPhaseInstructions}`;
 
     logAcceptedQuestionNumbers("Initial pass", 1, questions.length);
 
-    if (questions.length < questionCount) {
-      const initiallyMissing = questionCount - questions.length;
-      // A top-up can legitimately add only one question after the solve and audit
-      // passes. Size the retry budget to the deficit instead of giving every quiz
-      // the same four attempts, and give each attempt its own timeout. A single
-      // cumulative signal made later attempts inherit time already spent by the
-      // earlier solve/audit calls.
-      const maxTopUpAttempts = Math.min(12, Math.max(6, initiallyMissing * 3));
+    if (getQuizQuestionDeficit(questionCount, questions.length) > 0) {
+      generationStage = "top_up";
+      const maxTopUpAttempts = QUIZ_TOP_UP_ATTEMPTS;
 
-      for (let attempt = 0; attempt < maxTopUpAttempts && questions.length < questionCount; attempt++) {
-        const missing = questionCount - questions.length;
-        const candidateCount = Math.min(6, missing + Math.min(2, missing));
+      for (
+        let attempt = 0;
+        attempt < maxTopUpAttempts && getQuizQuestionDeficit(questionCount, questions.length) > 0;
+        attempt++
+      ) {
+        const missing = getQuizQuestionDeficit(questionCount, questions.length);
+        const candidateCount = getQuizTopUpCandidateCount(missing);
         const useImages = hasImages && attempt === 0;
         const enforceJsonResponse = attempt !== 2;
         const attemptModel = useImages ? visionModel : quizModel;
@@ -1851,15 +1935,17 @@ ${draftPhaseInstructions}`;
           `Generating ${missing} remaining question${missing === 1 ? "" : "s"}...`,
         );
 
-        const topUpPrompt = `You are an expert educator. Generate EXACTLY ${candidateCount} candidate ${difficulty.toUpperCase()} quiz questions ${isPromptBased ? "that follow the USER QUIZ REQUEST using reliable established knowledge" : "based on the CONTENT below"}. The system needs ${missing} additional valid, unique questions and will select the best candidates.
+        const topUpPrompt = `You are an expert educator. Generate EXACTLY ${candidateCount} complete candidate ${difficulty.toUpperCase()} quiz questions ${isPromptBased ? "that follow the USER QUIZ REQUEST using reliable established knowledge" : "based on the CONTENT below"}. The system needs ${missing} additional valid, unique questions and will select the best candidates.
 
 IMPORTANT:
 - Do NOT repeat any of the existing questions listed.
 - Use ONLY these exact type values: ${allowedQuestionTypeValues} (${questionTypeDescriptions}).
 - Do not emit a type that is absent from that list, even if it appears in examples you have seen elsewhere.
 - Use the SAME language as the ${isPromptBased ? "USER QUIZ REQUEST, unless it explicitly requests another output language" : "CONTENT"}.
-- Return question stems only. Do NOT provide options or learner-facing explanations. For true_false items, the private factBasis and targetTruthValue planning fields below are required.
-- NEVER append or embed answer choices in question. Do not put "A) ... B) ... C) ... D) ..." after a passage or stem; the separate solving pass owns the options array.
+- Return each complete question with its solution, correctAnswer, separate options array, and learner-facing explanation in this response. For true_false items, the private factBasis and targetTruthValue planning fields below are also required.
+- Solve each question before choosing correctAnswer or writing distractors. For math, solution must include sequential work, units, and an independent cross-check; for factual questions, solution may be the concise decisive fact.
+- For multiple_choice, return exactly four distinct substantive options and make correctAnswer match exactly one option character-for-character. For true_false, use options ["True", "False"] and make correctAnswer exactly equal targetTruthValue. For short_answer, use an empty options array and a concise correctAnswer.
+- NEVER append or embed answer choices in question. Do not put "A) ... B) ... C) ... D) ..." after a passage or stem; use only the separate options array.
 - For every reading-comprehension stem, make the directions, each passage paragraph, and actual question distinct blocks. Use this JSON string pattern: "Directions\\n\\nPassage paragraph 1\\n\\nPassage paragraph 2\\n\\nActual question?" Immediately before the actual question there MUST be "\\n\\n"; a single "\\n", a space, or adjacent Markdown such as "**passage**\\n**question**" is invalid. Markdown or bold boundaries do not count as line breaks.
 - Make each stem precise, self-contained, ${isPromptBased ? "request-aligned and factually reliable" : "source-grounded"}, and objectively answerable.
 ${requireSourceGrounding ? "- Use only the retrieved SOURCE_CHUNK evidence. Include 1-4 exact supporting ids in sourceChunkIds for every candidate. Never invent an id or fill gaps with outside knowledge." : ""}
@@ -1885,13 +1971,17 @@ OUTPUT FORMAT (JSON):
       "targetTruthValue": "True or False; required for true_false only; omit otherwise",
       "question": "The question text",
       "sourceChunkIds": ["exact-retrieved-chunk-id"],
-      "imageIndex": 0
+      "imageIndex": 0,
+      "solution": "Private derivation or decisive fact established before the answer",
+      "correctAnswer": "The exact answer; for multiple choice this exactly matches one option",
+      "options": ["Four choices for multiple choice; True/False for true_false; empty for short_answer"],
+      "explanation": "Self-contained learner-facing explanation"
     }
   ]
 }`;
 
         let topUpResponse = "";
-        const topUpSignal = AbortSignal.timeout(45_000);
+        const topUpSignal = AbortSignal.timeout(QUIZ_MODEL_REQUEST_TIMEOUT_MS);
 
         try {
           topUpResponse = await pRetry(
@@ -1914,7 +2004,7 @@ OUTPUT FORMAT (JSON):
               const request: any = {
                 model: attemptModel,
                 messages,
-                max_tokens: 4096,
+                max_tokens: 8192,
               };
               if (enforceJsonResponse) {
                 request.response_format = { type: "json_object" };
@@ -1922,7 +2012,7 @@ OUTPUT FORMAT (JSON):
 
               const completion = await openai.chat.completions.create(request, {
                 signal: topUpSignal,
-                timeout: 30_000,
+                timeout: QUIZ_MODEL_REQUEST_TIMEOUT_MS,
                 maxRetries: 0,
               });
 
@@ -1991,20 +2081,39 @@ OUTPUT FORMAT (JSON):
     }
 
     if (questions.length === 0) {
-      throw new Error("AI failed to generate valid questions");
+      throw new QuizGenerationError({
+        code: "INSUFFICIENT_VALID_QUESTIONS",
+        message: `Generated 0 of ${questionCount} validated questions. Try a smaller quiz or provide more source material.`,
+        stage: generationStage,
+        requested: questionCount,
+        generated: 0,
+      });
     }
 
     if (questions.length !== questionCount) {
-      throw new Error(`Question generation count mismatch: requested ${questionCount}, generated ${questions.length}. Please try again.`);
+      throw new QuizGenerationError({
+        code: "INSUFFICIENT_VALID_QUESTIONS",
+        message: `Generated ${questions.length} of ${questionCount} validated questions before the retry limit. Try again or request fewer questions.`,
+        stage: generationStage,
+        requested: questionCount,
+        generated: questions.length,
+      });
     }
 
     // Step 6: Finalizing
+    generationStage = "finalizing";
     onProgress?.("finalizing", 95, "Finalizing your quiz...");
 
     return { questions, title, category };
   } catch (error) {
     console.error("Error generating quiz:", error);
-    throw new Error("Failed to generate quiz questions. Please try again.");
+    if (error instanceof QuizGenerationError) throw error;
+    throw new QuizGenerationError({
+      code: "GENERATION_FAILED",
+      message: `Quiz generation failed during ${generationStage.replace(/_/g, " ")}. Please try again.`,
+      stage: generationStage,
+      cause: error,
+    });
   }
 }
 

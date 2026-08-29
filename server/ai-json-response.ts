@@ -1,5 +1,13 @@
 type UnknownRecord = Record<string, unknown>;
 
+export type AiJsonCompletionInspection = {
+  finishReason: string | null;
+  contentLength: number;
+} & (
+  | { result: UnknownRecord; retryReason: null }
+  | { result: null; retryReason: "empty" | "truncated" | "invalid_json" }
+);
+
 function asRecord(value: unknown): UnknownRecord | null {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? value as UnknownRecord
@@ -30,6 +38,41 @@ export function parseAiJsonObject(raw: string): UnknownRecord {
     const lastBrace = cleaned.lastIndexOf("}");
     if (firstBrace === -1 || lastBrace <= firstBrace) throw initialError;
     return parseObject(cleaned.slice(firstBrace, lastBrace + 1));
+  }
+}
+
+/**
+ * Inspects a chat-completion response without logging its potentially sensitive
+ * content. A length-limited response is always retried even if its partial JSON
+ * happens to parse, because required fields may have been cut off.
+ */
+export function inspectAiJsonCompletion(completion: unknown): AiJsonCompletionInspection {
+  const completionRecord = asRecord(completion);
+  const choices = Array.isArray(completionRecord?.choices) ? completionRecord.choices : [];
+  const choice = asRecord(choices[0]);
+  const message = asRecord(choice?.message);
+  const finishReason = typeof choice?.finish_reason === "string"
+    ? choice.finish_reason
+    : null;
+  const content = typeof message?.content === "string" ? message.content : "";
+  const contentLength = content.length;
+
+  if (finishReason === "length") {
+    return { result: null, retryReason: "truncated", finishReason, contentLength };
+  }
+  if (!content.trim()) {
+    return { result: null, retryReason: "empty", finishReason, contentLength };
+  }
+
+  try {
+    return {
+      result: parseAiJsonObject(content),
+      retryReason: null,
+      finishReason,
+      contentLength,
+    };
+  } catch {
+    return { result: null, retryReason: "invalid_json", finishReason, contentLength };
   }
 }
 

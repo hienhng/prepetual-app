@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   getFailedGenerationPayloads,
+  inspectAiJsonCompletion,
   isJsonResponseFormatError,
   parseAiJsonObject,
   recoverFailedGenerationJson,
@@ -24,6 +25,47 @@ test("rejects empty responses and non-object JSON", () => {
   assert.throws(() => parseAiJsonObject("[1, 2]"), /object/);
 });
 
+test("inspects valid AI JSON completions without exposing response content", () => {
+  assert.deepEqual(
+    inspectAiJsonCompletion({
+      choices: [{
+        finish_reason: "stop",
+        message: { content: '{"explanation":"Correct"}' },
+      }],
+    }),
+    {
+      result: { explanation: "Correct" },
+      retryReason: null,
+      finishReason: "stop",
+      contentLength: 25,
+    },
+  );
+});
+
+test("marks empty, truncated, and malformed completions for retry", () => {
+  assert.deepEqual(
+    inspectAiJsonCompletion({
+      choices: [{ finish_reason: "stop", message: { content: "" } }],
+    }),
+    { result: null, retryReason: "empty", finishReason: "stop", contentLength: 0 },
+  );
+  assert.deepEqual(
+    inspectAiJsonCompletion({
+      choices: [{
+        finish_reason: "length",
+        message: { content: '{"explanation":"partial but parseable"}' },
+      }],
+    }),
+    { result: null, retryReason: "truncated", finishReason: "length", contentLength: 39 },
+  );
+  assert.deepEqual(
+    inspectAiJsonCompletion({
+      choices: [{ finish_reason: "stop", message: { content: "not JSON" } }],
+    }),
+    { result: null, retryReason: "invalid_json", finishReason: "stop", contentLength: 8 },
+  );
+});
+
 test("recovers JSON from nested provider failed_generation fields", () => {
   const error = {
     error: {
@@ -38,11 +80,16 @@ test("recovers JSON from nested provider failed_generation fields", () => {
 });
 
 test("recognizes provider JSON validation failures that need a plain-mode retry", () => {
-  assert.equal(isJsonResponseFormatError({
+  const providerValidationError = {
     status: 400,
     code: "json_validate_failed",
-    error: { message: "Failed to validate JSON" },
-  }), true);
+    error: {
+      message: "Failed to validate JSON. Please adjust your prompt.",
+      failed_generation: "",
+    },
+  };
+  assert.equal(isJsonResponseFormatError(providerValidationError), true);
+  assert.equal(recoverFailedGenerationJson(providerValidationError), null);
   assert.equal(isJsonResponseFormatError({
     status: 400,
     message: "response_format is not supported",
