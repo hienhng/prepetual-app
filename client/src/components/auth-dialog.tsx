@@ -44,6 +44,7 @@ declare global {
             }
           ) => void;
           prompt: () => void;
+          cancel?: () => void;
         };
       };
     };

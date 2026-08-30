@@ -57,6 +57,7 @@ import InProgressPage from "@/pages/in-progress";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth";
 import { Footer } from "@/components/footer";
+import { GoogleOneTap } from "@/components/google-one-tap";
 import { LanguageProvider, useLanguage } from "@/lib/language-context";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
@@ -371,6 +372,7 @@ function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {location === "/" && <GoogleOneTap />}
       <PublicHeader />
       <main className="flex-1">
         <PublicRouter />
