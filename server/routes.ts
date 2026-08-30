@@ -58,6 +58,7 @@ const openaiClient = new OpenAI({
 });
 
 const textModel = process.env.AI_QUIZ_MODEL || "openai/gpt-oss-120b";
+const visionModel = process.env.AI_VISION_MODEL || "qwen/qwen3.6-27b";
 const SHORT_ANSWER_GRADING_MAX_TOKENS = 1_200;
 const SHORT_ANSWER_GRADING_RETRY_MAX_TOKENS = 2_000;
 const EXPLANATION_MAX_TOKENS = 1_200;
@@ -488,7 +489,11 @@ export async function registerRoutes(
       }
 
       // Method 2: Try youtube-transcript.io API.
-      const youtubeTranscriptApiKey = process.env.YOUTUBE_TRANSCRIPT_API_KEY;
+      // YOUTUBE_TRANSCRIPT_API was used by early deployments. Keep accepting it
+      // so those installations do not silently skip the configured provider.
+      const youtubeTranscriptApiKey = (
+        process.env.YOUTUBE_TRANSCRIPT_API_KEY ?? process.env.YOUTUBE_TRANSCRIPT_API
+      )?.trim();
       if (youtubeTranscriptApiKey) {
         try {
           console.log(`[YouTube] Trying youtube-transcript.io API for ${videoId}`);
@@ -498,7 +503,8 @@ export async function registerRoutes(
               'Authorization': `Basic ${youtubeTranscriptApiKey}`,
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ ids: [videoId] })
+            body: JSON.stringify({ ids: [videoId] }),
+            signal: AbortSignal.timeout(15_000),
           });
 
           if (response.ok) {
@@ -1114,10 +1120,22 @@ export async function registerRoutes(
           message: validation.error.errors[0]?.message || "Invalid request",
         });
       }
-      const { text } = validation.data;
+      const { text, documentImages = [] } = validation.data;
+      const userContent = [
+        {
+          type: "text" as const,
+          text: text.trim()
+            ? `Summarize all of the supplied study material. Use both the source text and every attached image.\n\nSOURCE TEXT:\n${text}`
+            : "Summarize all of the supplied study-material images.",
+        },
+        ...documentImages.map((url) => ({
+          type: "image_url" as const,
+          image_url: { url, detail: "high" as const },
+        })),
+      ];
 
       const completion = await openaiClient.chat.completions.create({
-        model: textModel,
+        model: documentImages.length > 0 ? visionModel : textModel,
         messages: [
           {
             role: "system",
@@ -1133,7 +1151,7 @@ IMPORTANT NOTE:
           },
           {
             role: "user",
-            content: text
+            content: userContent
           }
         ],
         max_tokens: 800,

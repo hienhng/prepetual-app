@@ -98,6 +98,7 @@ export default function FolderPage() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] }),
         queryClient.invalidateQueries({ queryKey: ["/api/public-quizzes"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/recommendations"] }),
         queryClient.invalidateQueries({ queryKey: ["/api/folders"] })
       ]);
       toast({

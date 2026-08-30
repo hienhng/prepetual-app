@@ -48,3 +48,26 @@ test("bounds lecture and revision controls", () => {
   assert.equal(generateLectureRequestSchema.safeParse({ topicCount: 6 }).success, false);
   assert.equal(reviseQuizRequestSchema.safeParse({ userCorrectAnswer: "x".repeat(4_001) }).success, false);
 });
+
+test("accepts summary requests with text and source images", () => {
+  const result = summarizeTextRequestSchema.safeParse({
+    text: "Short extracted text can be supplemented by the original image.",
+    documentImages: ["data:image/png;base64,abc"],
+  });
+
+  assert.equal(result.success, true);
+});
+
+test("accepts image-only summary requests", () => {
+  const result = summarizeTextRequestSchema.safeParse({
+    documentImages: ["data:image/png;base64,abc"],
+  });
+
+  assert.equal(result.success, true);
+});
+
+test("rejects empty summary requests", () => {
+  const result = summarizeTextRequestSchema.safeParse({});
+
+  assert.equal(result.success, false);
+});

@@ -299,12 +299,14 @@ function QuizCard({
   quiz,
   onTake,
   onStudy,
-  index
+  index,
+  isRevising
 }: {
   quiz: Quiz;
   onTake: () => void;
   onStudy: () => void;
   index: number;
+  isRevising?: boolean;
 }) {
   const { t } = useLanguage();
   const difficultyRaw = quiz.difficulty?.toLowerCase() || "medium";
@@ -476,7 +478,7 @@ function ContinueQuizCard({
     >
       <Card
         style={{ ['--primary-3d-shadow' as any]: shadowColor }}
-        className={`overflow-hidden border ${isRevising ? 'border-violet-500/40' : colors.border} transition-all duration-300 bg-gradient-to-br ${isRevising ? 'from-violet-500/5 via-purple-500/5' : `${colors.from} ${colors.via}`} to-transparent shadow-[0_4px_0_0_var(--primary-3d-shadow)] active:translate-y-[4px] active:shadow-none` }
+        className={`overflow-hidden border ${isRevising ? 'border-violet-500/40' : colors.border} transition-all duration-300 bg-gradient-to-br ${isRevising ? 'from-violet-500/5 via-purple-500/5' : `${colors.from} ${colors.via}`} to-transparent shadow ${isRevising ? 'border-violet-500/40' : colors.border} active:translate-y-[4px] active:shadow-none` }
       >
         <CardContent className="p-4 sm:p-5">
           <div className="flex flex-col gap-4">
@@ -495,10 +497,8 @@ function ContinueQuizCard({
                     <div className="flex items-center gap-2 flex-wrap">
                       {isRevising ? (
                         <Badge className="gap-1 text-[10px] px-2 py-0.5 bg-violet-500/15 text-violet-600 dark:text-violet-400 border-violet-300 dark:border-violet-800">
-                          <motion.div
+                          <div
                             className="w-1.5 h-1.5 rounded-full bg-violet-500"
-                            animate={{ opacity: [1, 0.4, 1] }}
-                            transition={{ duration: 1.5, repeat: Infinity }}
                           />
                           {t('inProgress.revising')}
                         </Badge>
@@ -528,13 +528,13 @@ function ContinueQuizCard({
 
             {/* Progress section */}
             {isRevising ? (
-              <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-violet-500/10 dark:bg-violet-500/15 border border-violet-200/50 dark:border-violet-800/30">
+              <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-violet-500/10 dark:shadow-[0_4px_0_0_#6d28d9] dark:bg-violet-500/15 border border-violet-200/50 dark:border-violet-800/30">
                 <motion.div
                   className="w-2 h-2 rounded-full bg-violet-500"
                   animate={{ scale: [1, 1.3, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
+                  transition={{ duration: 1, repeat: Infinity }}
                 />
-                  <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
+                  <span className="text-sm font-medium text-violet-700 dark:text-violet-300"> 
                   {remaining === 1 
                     ? t('inProgress.questionLeftToReview', { count: remaining }) 
                     : t('inProgress.questionsLeftToReview', { count: remaining })}

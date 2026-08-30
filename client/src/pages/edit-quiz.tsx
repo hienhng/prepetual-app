@@ -6,7 +6,7 @@ import {
   Copy, ArrowUp, ArrowDown, Eye, EyeOff, CheckSquare, Square,
   Search, Filter, MoreHorizontal, GripVertical, Shuffle,
   ChevronLeft, ChevronRight, FileText, ListChecks, ToggleLeft,
-  ImagePlus, Image as ImageIcon, Sparkles, Loader2, Download, Bug
+  ImagePlus, Image as ImageIcon, Sparkles, Loader2, Download, Bug, Wrench
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
@@ -1279,7 +1279,7 @@ export default function EditQuizPage() {
               disabled={!reviseSelectedAnswer}
               data-testid="button-confirm-revise"
             >
-              <Sparkles className="h-4 w-4 mr-1" />
+              <Wrench className="h-4 w-4 mr-1" />
               {t('editQuiz.reviseWithAi')}
             </AlertDialogAction>
           </AlertDialogFooter>

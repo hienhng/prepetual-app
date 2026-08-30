@@ -400,12 +400,12 @@ function AppWithAuth() {
   return (
     <AuthDialogProvider navigate={setLocation}>
       <QuizProvider>
-        <QuizNavigationGuardProvider>
-          <UploadProvider>
+        <UploadProvider>
+          <QuizNavigationGuardProvider>
             <AppContent />
             <Toaster />
-          </UploadProvider>
-        </QuizNavigationGuardProvider>
+          </QuizNavigationGuardProvider>
+        </UploadProvider>
       </QuizProvider>
     </AuthDialogProvider>
   );

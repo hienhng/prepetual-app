@@ -307,7 +307,7 @@ function InProgressCard({
             <div className="flex items-center gap-2 pt-1">
               <Button
                 onClick={onContinue}
-                className={`flex-1 gap-2 h-10 border-${colors.border} text-white font-semibold transition-all hover:brightness-110 ${
+                className={`flex-1 gap-2 h-10 border-none text-white font-semibold transition-all shadow-none hover:brightness-110 ${
                   item.isRevising ? "bg-violet-500 hover:bg-violet-600" : colors.btn
                 }`}
               >

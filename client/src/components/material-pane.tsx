@@ -18,6 +18,7 @@ interface MaterialPaneProps {
 }
 
 type ViewMode = 'images' | 'text' | 'summary';
+const MATERIAL_SUMMARY_CACHE_VERSION = 'v2-images';
 
 interface MaterialState {
   viewMode: ViewMode;
@@ -268,13 +269,13 @@ const MobileView: React.FC<{
               </div>
             )}
 
-            {/* Summarize CTA section — always shown when text material exists */}
-            {hasText && (state.viewMode === 'text' || state.viewMode === 'summary' || !hasImages) && (
+            {/* Summarize CTA section */}
+            {(hasText || hasImages) && (state.viewMode === 'text' || state.viewMode === 'summary' || !hasText) && (
               <div className="px-5 py-2.5 border-b border-border/40 shrink-0 flex items-center justify-between gap-3 bg-muted/10">
                 <div className="flex items-center gap-1.5">
                   <BookCheck className="h-3.5 w-3.5 text-muted-foreground" />
                   <span className="text-xs font-medium text-muted-foreground">
-                    {state.viewMode === 'summary' ? 'Showing AI summary' : 'Extracted text'}
+                    {state.viewMode === 'summary' ? 'Showing AI summary' : hasText ? 'Extracted text' : 'Source images'}
                   </span>
                 </div>
 
@@ -477,7 +478,7 @@ const DesktopView: React.FC<{
               )}
 
               {/* Summary Buttons */}
-              {hasText && state.summary && (
+              {(hasText || hasImages) && state.summary && (
                 <div className="mt-4">
                   <Button
                     type="button"
@@ -490,7 +491,7 @@ const DesktopView: React.FC<{
                   </Button>
                 </div>
               )}
-              {hasText && !state.summary && (
+              {(hasText || hasImages) && !state.summary && (
                 <div className="mt-4">
                   <Button
                     type="button"
@@ -547,20 +548,21 @@ export const MaterialPane: React.FC<MaterialPaneProps> = ({
 
   const materialState = useMaterialState(hasImages);
   const [expandedImageUrl, setExpandedImageUrl] = useState<string | null>(null);
+  const materialIdentity = `${materialText}\u0000${materialImages.join('\u0000')}`;
 
   // Load summary from sessionStorage on mount
   useEffect(() => {
     if (!quizId) return;
-    const stored = sessionStorage.getItem(`material_summary_${quizId}`);
+    const stored = sessionStorage.getItem(`material_summary_${MATERIAL_SUMMARY_CACHE_VERSION}_${quizId}`);
     if (stored) {
       materialState.setSummary(stored);
     }
-  }, [quizId, materialState]);
+  }, [quizId, materialState.setSummary]);
 
   // Save summary to sessionStorage when it changes
   useEffect(() => {
     if (!quizId) return;
-    const key = `material_summary_${quizId}`;
+    const key = `material_summary_${MATERIAL_SUMMARY_CACHE_VERSION}_${quizId}`;
     try {
       if (materialState.state.summary) {
         sessionStorage.setItem(key, materialState.state.summary);
@@ -576,11 +578,11 @@ export const MaterialPane: React.FC<MaterialPaneProps> = ({
   useEffect(() => {
     materialState.resetState();
     materialState.setError(null);
-  }, [materialImages, materialText]);
+  }, [materialIdentity, materialState.resetState, materialState.setError]);
 
   const handleSummarize = async () => {
-    if (!materialText.trim()) {
-      materialState.setError('No study material text is available to summarize.');
+    if (!materialText.trim() && materialImages.length === 0) {
+      materialState.setError('No study material is available to summarize.');
       return;
     }
 
@@ -588,7 +590,10 @@ export const MaterialPane: React.FC<MaterialPaneProps> = ({
     materialState.setIsSummarizing(true);
 
     try {
-      const response = await apiRequest('POST', '/api/summarize-text', { text: materialText });
+      const response = await apiRequest('POST', '/api/summarize-text', {
+        text: materialText,
+        documentImages: materialImages,
+      });
       const data = await response.json();
       materialState.setSummary(data.summary || '');
       materialState.setViewMode('summary');

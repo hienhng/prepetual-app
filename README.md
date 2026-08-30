@@ -112,6 +112,7 @@ Visit the app in the browser and you’ll see the home page with a hero section,
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | ❌       | Google OAuth credentials                     |
 | `GMAIL_USER` & `GMAIL_APP_PASSWORD`         | ✅       | Email sender for notifications               |
 | `YOUTUBE_TRANSCRIPT_API_KEY`                | ❌       | Enables reliable YouTube transcript fetching |
+| `YOUTUBE_TRANSCRIPT_API`                    | ❌       | Deprecated alias for `YOUTUBE_TRANSCRIPT_API_KEY` |
 | `SUPADATA_API_KEY`                          | ❌       | Supadata API key for production YouTube transcripts |
 
 ---
@@ -243,6 +244,7 @@ See `.env.example` for the full list. Common ones:
 | `GMAIL_USER`                      | Yes      | Sender account for email features                                                   |
 | `GMAIL_APP_PASSWORD`              | Yes      | App password for `GMAIL_USER`                                                       |
 | `YOUTUBE_TRANSCRIPT_API_KEY`      | No       | Enables the most reliable transcript fetch method (uses an external transcript API) |
+| `YOUTUBE_TRANSCRIPT_API`          | No       | Deprecated alias for `YOUTUBE_TRANSCRIPT_API_KEY`                                  |
 | `SUPADATA_API_KEY`                | No       | Supadata key for reliable production transcript fetching (100 free credits/month)    |
 
 ## Useful scripts

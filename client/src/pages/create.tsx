@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import {
@@ -75,13 +75,14 @@ function getRandomPromptIndex(total: number, currentIndex: number = -1) {
 }
 
 type ActiveModal = "upload" | "manual" | "youtube" | null;
+const RESET_CREATE_SESSION_KEY = "reset_create_session_after_generation";
 
 export default function Create() {
   const [, setLocation] = useLocation();
   const {
     extractedText, setExtractedText,
     sourceMaterial, setSourceMaterial,
-    setCurrentQuiz,
+    resetQuiz,
     setIsLoading, isLoading,
     setLoadingMessage,
     setProcessingProgress,
@@ -91,7 +92,6 @@ export default function Create() {
   const { t, tArray, language } = useLanguage();
   const { activeJobs, clearJobs } = useUpload();
   const examplePrompts = tArray('create.examplePrompts');
-  const [isReady, setIsReady] = useState(false);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [isSourcesPanelOpen, setIsSourcesPanelOpen] = useState(false);
   const [isSettingsPanelOpen, setIsSettingsPanelOpen] = useState(false);
@@ -104,6 +104,9 @@ export default function Create() {
   const [youtubeUrl, setYoutubeUrl] = useState(sourceMaterial.youtubeUrl || "");
   const [isLoadingYoutube, setIsLoadingYoutube] = useState(false);
   const [youtubeError, setYoutubeError] = useState<string | null>(null);
+  const resetOnMountRef = useRef(
+    typeof window !== "undefined" && sessionStorage.getItem(RESET_CREATE_SESSION_KEY) === "1",
+  );
   // Track if a modal was opened from within the side panel (prevents disruptive panel toggle)
   const [modalFromPanel, setModalFromPanel] = useState(false);
 
@@ -113,15 +116,30 @@ export default function Create() {
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
   const [questionTypes, setQuestionTypes] = useState<Array<"multiple_choice" | "true_false" | "short_answer">>(["multiple_choice", "true_false"]);
 
+  useEffect(() => {
+    if (!resetOnMountRef.current) return;
+    resetOnMountRef.current = false;
+    sessionStorage.removeItem(RESET_CREATE_SESSION_KEY);
+    resetQuiz();
+    void clearJobs();
+    setQuizPrompt("");
+    setManualText("");
+    setYoutubeUrl("");
+    setYoutubeError(null);
+    setIsSourcesPanelOpen(false);
+    setIsSettingsPanelOpen(false);
+  }, []);
+
   const samplePrompt = t('create.samplePrompt');
-  const materialText = composeSourceMaterialText(sourceMaterial, extractedText);
+  const materialText = composeSourceMaterialText(sourceMaterial);
   const hasUploadedSource = Boolean(sourceMaterial.uploadedText?.trim() || sourceMaterial.documentImages?.length || sourceMaterial.imageDataUrl);
   const hasManualSource = Boolean(sourceMaterial.manualText?.trim());
   const hasYoutubeSource = Boolean(sourceMaterial.youtubeTranscript?.trim());
-  const hasPromptSource = Boolean(sourceMaterial.prompt?.trim() || sourceMaterial.type === "prompt");
+  const hasPromptSource = Boolean(sourceMaterial.prompt?.trim());
   const hasInvalidPromptDraft = quizPrompt.trim().length > 0 && quizPrompt.trim().length < 3;
 
   const totalSourcesCount = [hasUploadedSource, hasManualSource, hasYoutubeSource, hasPromptSource].filter(Boolean).length;
+  const isReady = totalSourcesCount > 0 && !resetOnMountRef.current;
 
   const toggleQuestionType = (type: "multiple_choice" | "true_false" | "short_answer") => {
     setQuestionTypes((prev) => {
@@ -175,21 +193,13 @@ export default function Create() {
   }, [animatedPrompt, examplePromptIndex, examplePrompts, isDeletingExample, quizPrompt]);
 
   useEffect(() => {
-    setIsReady(Boolean(materialText || sourceMaterial.prompt?.trim() || sourceMaterial.type === "prompt" || sourceMaterial.documentImages?.length || sourceMaterial.imageDataUrl));
-  }, [materialText, sourceMaterial.prompt, sourceMaterial.type, sourceMaterial.documentImages, sourceMaterial.imageDataUrl]);
+    if (isReady) return;
+    setIsSourcesPanelOpen(false);
+    setIsSettingsPanelOpen(false);
+  }, [isReady]);
 
   const getEditableSourceMaterial = (): SourceMaterial => {
-    const hasStructuredText = Boolean(
-      sourceMaterial.uploadedText?.trim()
-      || sourceMaterial.manualText?.trim()
-      || sourceMaterial.youtubeTranscript?.trim(),
-    );
-    if (hasStructuredText || sourceMaterial.type === "prompt" || sourceMaterial.isImageOnly) return sourceMaterial;
-
-    const legacyMaterialText = composeSourceMaterialText(sourceMaterial, extractedText);
-    return legacyMaterialText
-      ? { ...sourceMaterial, uploadedText: legacyMaterialText }
-      : sourceMaterial;
+    return sourceMaterial;
   };
 
   const syncSources = (nextMaterial: SourceMaterial) => {
@@ -356,17 +366,19 @@ export default function Create() {
         ...getEditableSourceMaterial(),
         prompt: quizPrompt.trim(),
       });
+      setIsSourcesPanelOpen(true);
+      return;
     }
-    setIsSourcesPanelOpen(true);
+    if (isReady) setIsSourcesPanelOpen(true);
   };
 
   const handleStartGeneration = async () => {
-    const sourcePrompt = sourceMaterial.prompt?.trim() || (sourceMaterial.type === "prompt" ? extractedText?.trim() || "" : "");
-    const materialText = composeSourceMaterialText(sourceMaterial, extractedText);
+    const sourcePrompt = sourceMaterial.prompt?.trim() || "";
+    const materialText = composeSourceMaterialText(sourceMaterial);
     const documentImages = sourceMaterial?.documentImages || [];
     const hasSourceImages = documentImages.length > 0 || Boolean(sourceMaterial.imageDataUrl);
 
-    if (!materialText && !sourcePrompt && !hasSourceImages) {
+    if (!isReady || (!materialText && !sourcePrompt && !hasSourceImages)) {
       toast({
         title: "No source material",
         description: "Please add study materials or a prompt before generating a quiz.",
@@ -388,7 +400,7 @@ export default function Create() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            text: materialText || extractedText,
+            text: materialText,
             sourceImageUrl,
             documentImages: documentImages.length > 0 ? documentImages : undefined
           }),
@@ -399,22 +411,15 @@ export default function Create() {
           throw new Error(errText || "Failed to import quiz");
         }
 
-        const quiz = await response.json();
+        await response.json();
         setProcessingProgress(100);
         setCurrentGenerationStep("complete");
         setLoadingMessage("Quiz imported successfully!");
         await new Promise(r => setTimeout(r, 500));
 
-        setCurrentQuiz(quiz);
-        clearJobs();
-        setExtractedText("");
-        setSourceMaterial({
-          type: sourceMaterial.type,
-          text: null,
-          imageDataUrl: sourceMaterial.imageDataUrl,
-          isOfficeWithImages: sourceMaterial.isOfficeWithImages,
-          documentImages: documentImages
-        });
+        sessionStorage.setItem(RESET_CREATE_SESSION_KEY, "1");
+        await clearJobs();
+        resetQuiz();
         await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
         setLocation("/history");
       } catch (err) {
@@ -485,16 +490,9 @@ export default function Create() {
           setLoadingMessage("Quiz created successfully!");
           await new Promise(r => setTimeout(r, 800));
 
-          setCurrentQuiz(data.quiz);
-          clearJobs();
-          setExtractedText("");
-          setSourceMaterial({
-            type: sourceMaterial.type,
-            text: data.quiz.sourceText || null,
-            imageDataUrl: sourceMaterial.imageDataUrl,
-            isOfficeWithImages: sourceMaterial.isOfficeWithImages,
-            documentImages: documentImages
-          });
+          sessionStorage.setItem(RESET_CREATE_SESSION_KEY, "1");
+          await clearJobs();
+          resetQuiz();
           await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
           setLocation("/history");
         } else if (data.type === "error") {
@@ -537,7 +535,6 @@ export default function Create() {
     setExtractedText("");
     setSourceMaterial({ type: null, text: null, imageDataUrl: null, isOfficeWithImages: false, documentImages: [], uploadedText: null, manualText: null, youtubeTranscript: null, youtubeUrl: null, prompt: null });
     clearJobs();
-    setIsReady(false);
     setQuizPrompt("");
     setManualText("");
     setYoutubeUrl("");
@@ -937,7 +934,7 @@ export default function Create() {
         </Dialog>
 
         {/* Right-Side Overlapping Panel (`Sheet`) with QUIZ CONFIGURATION SETTINGS */}
-        <Sheet open={isSourcesPanelOpen} onOpenChange={setIsSourcesPanelOpen}>
+        <Sheet open={isSourcesPanelOpen && isReady} onOpenChange={(open) => setIsSourcesPanelOpen(open && isReady)}>
           <SheetContent side="right" className="w-full sm:max-w-md md:max-w-lg p-0 flex flex-col h-full bg-background/95 backdrop-blur-2xl border-l border-border/60 shadow-2xl overflow-hidden">
             {/* Header */}
             <div className="shrink-0 p-6 pb-4 border-b border-border/50 bg-muted/20">
@@ -1106,6 +1103,7 @@ export default function Create() {
               </Button>
               <Button
                 onClick={() => {
+                  if (!isReady) return;
                   setIsSourcesPanelOpen(false);
                   setIsSettingsPanelOpen(true);
                 }}
@@ -1120,7 +1118,7 @@ export default function Create() {
         </Sheet>
 
         {/* Settings Panel - Quiz Configuration */}
-        <Sheet open={isSettingsPanelOpen} onOpenChange={setIsSettingsPanelOpen}>
+        <Sheet open={isSettingsPanelOpen && isReady} onOpenChange={(open) => setIsSettingsPanelOpen(open && isReady)}>
           <SheetContent className="flex flex-col overflow-hidden !max-w-none w-1/3" side="right">
             <SheetHeader>
               <SheetTitle className="text-2xl font-black">Quiz Settings</SheetTitle>
@@ -1313,6 +1311,7 @@ export default function Create() {
               </Button>
               <Button
                 onClick={handleStartGeneration}
+                disabled={!isReady}
                 className="gap-2 rounded-xl font-black bg-primary hover:bg-primary/90 text-primary-foreground h-11 px-5"
               >
                 Start Generating Quiz
@@ -1351,4 +1350,3 @@ export default function Create() {
     </div>
   );
 }
-

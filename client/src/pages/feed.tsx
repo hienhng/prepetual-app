@@ -6,7 +6,7 @@ import {
   Search, Play, Users, BookOpen, 
   Sparkles, Clock, Target, Zap, 
   Lightbulb, TrendingUp, CheckCircle2, BadgeCheck,
-  Star, Compass, LayoutGrid, GraduationCap, FileHeart, CirclePlus, Share2
+  Star, Compass, LayoutGrid, GraduationCap, FileHeart, CirclePlus, Share2, FilePen, Files
 } from "lucide-react";
 import { getCategoryIcon, getCategoryGradient, getCategoryLabel, getCategoryTranslationKey, categoryConfig } from "@/lib/category-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -487,99 +487,88 @@ export default function Feed() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-8 max-w-7xl">
+      <div className="container mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-10"
+          className="relative mb-5 overflow-hidden rounded-3xl border border-border/60 bg-card/70 px-5 py-6 shadow-sm sm:px-8 sm:py-8"
         >
-          <h1 className="text-3xl font-bold text-foreground mb-2">{t('feed.discover')}</h1>
-          <p className="text-muted-foreground">
-            {t('feed.exploreCommunity')}
-          </p>
-        </motion.div>
+          <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-primary/15 blur-3xl" />
+          <div className="pointer-events-none absolute bottom-0 right-1/3 h-24 w-24 rounded-full bg-violet-500/10 blur-2xl" />
+          <div className="relative grid gap-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div>
+              <h1 className="text-3xl font-bold tracking-[-0.04em] text-foreground sm:text-4xl">{t('feed.discover')}</h1>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
+                {t('feed.exploreCommunity')}
+              </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="mb-8"
-        >
-          <div className="relative max-w-xl">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              placeholder={t('feed.searchQuizzes')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 h-12 text-base bg-muted/50 border-0 rounded-xl focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all"
-              data-testid="input-search-quizzes"
-            />
+              <div className="relative mt-6 max-w-2xl">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder={t('feed.searchQuizzes')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-[52px] rounded-2xl border-border/60 bg-background/85 pl-12 pr-4 text-base shadow-sm transition-all focus:bg-background focus:ring-2 focus:ring-primary/20"
+                  data-testid="input-search-quizzes"
+                />
+              </div>
+            </div>
+
+            {stats.totalQuizzes > 0 && (
+              <div className="grid grid-cols-3 gap-2 lg:w-[360px]">
+                <div className="rounded-2xl border border-border/50 bg-background/70 p-3 sm:p-4">
+                  <Files className="mb-3 h-4 w-4 text-primary" />
+                  <p className="text-xl font-bold tracking-tight">{stats.totalQuizzes}</p>
+                  <p className="mt-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground">{t('feed.totalQuizzes')}</p>
+                </div>
+                <div className="rounded-2xl border border-border/50 bg-background/70 p-3 sm:p-4">
+                  <FilePen className="mb-3 h-4 w-4 text-amber-500" />
+                  <p className="text-xl font-bold tracking-tight">{stats.totalQuestions}</p>
+                  <p className="mt-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground">{t('feed.totalQuestions')}</p>
+                </div>
+                <div className="rounded-2xl border border-border/50 bg-background/70 p-3 sm:p-4">
+                  <Users className="mb-3 h-4 w-4 text-violet-500" />
+                  <p className="text-xl font-bold tracking-tight">{stats.totalContributors}</p>
+                  <p className="mt-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground">{t('feed.totalCreators')}</p>
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex flex-wrap gap-2 mb-10"
+          transition={{ delay: 0.05 }}
+          className="mb-10 overflow-hidden rounded-2xl border border-border/60 bg-card/45 p-2"
         >
-          {["all", ...QUIZ_CATEGORIES].map((categoryId) => {
-            const config = categoryConfig[categoryId];
-            if (!config) return null;
-            const Icon = config.icon;
-            const isActive = selectedCategory === categoryId;
-            const count = categoryCounts[categoryId] || 0;
-            
-            return (
-              <motion.div
-                key={categoryId}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.97 }}
-              >
+          <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
+            {["all", ...QUIZ_CATEGORIES].map((categoryId) => {
+              const config = categoryConfig[categoryId];
+              if (!config) return null;
+              const Icon = config.icon;
+              const isActive = selectedCategory === categoryId;
+              const count = categoryCounts[categoryId] || 0;
+
+              return (
                 <Button
-                  variant={isActive ? "default" : "outline"}
+                  key={categoryId}
+                  variant="ghost"
                   onClick={() => setSelectedCategory(categoryId)}
-                  className={`gap-2 rounded-full transition-all ${
-                    isActive 
-                      ? "shadow-md" 
-                      : "bg-background hover:bg-muted"
+                  className={`h-10 shrink-0 gap-2 rounded-xl px-3.5 font-semibold transition-all ${
+                    isActive
+                      ? "bg-primary text-black hover:bg-primary/90"
+                      : "text-muted-foreground hover:bg-background hover:text-foreground"
                   }`}
                   data-testid={`button-category-${categoryId}`}
                 >
                   <Icon className="h-4 w-4" />
                   {categoryId === "all" ? t('history.allSubjects') : t(getCategoryTranslationKey(categoryId))}
-                  {count > 0 && (
-                    <span className={`text-xs ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                      {count}
-                    </span>
-                  )}
                 </Button>
-              </motion.div>
-            );
-          })}
+              );
+            })}
+          </div>
         </motion.div>
-
-        {stats.totalQuizzes > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.15 }}
-            className="flex items-center gap-8 mb-10 text-sm text-muted-foreground"
-          >
-            <div className="flex items-center gap-2">
-              <Target className="h-4 w-4" />
-              <span><strong className="text-foreground">{stats.totalQuizzes}</strong> {t('feed.totalQuizzes')}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4" />
-              <span><strong className="text-foreground">{stats.totalQuestions}</strong> {t('feed.totalQuestions')}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span><strong className="text-foreground">{stats.totalContributors}</strong> {t('feed.totalCreators')}</span>
-            </div>
-          </motion.div>
-        )}
 
         {user && recommendations?.hasData && recommendations.recommendations.length > 0 && (
           <motion.section

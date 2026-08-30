@@ -1,5 +1,5 @@
 export const PUBLIC_FEED_CACHE_CONTROL =
-  "public, max-age=60, s-maxage=60, stale-while-revalidate=300";
+  "no-store";
 
 type CacheableResponse = {
   set(field: string, value: string): unknown;

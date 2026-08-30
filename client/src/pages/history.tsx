@@ -8,7 +8,6 @@ import { getCategoryIcon, getCategoryTranslationKey } from "@/lib/category-icons
 import { QUIZ_CATEGORIES } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -117,6 +116,7 @@ export default function HistoryPage() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] }),
         queryClient.invalidateQueries({ queryKey: ["/api/public-quizzes"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/recommendations"] }),
         queryClient.invalidateQueries({ queryKey: ["/api/folders"] })
       ]);
       toast({
@@ -308,27 +308,27 @@ export default function HistoryPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-5xl">
-        <div className="space-y-6">
-          {/* Title + button row */}
-          <div className="flex items-end justify-between gap-4 flex-wrap">
-            <div className="space-y-2">
-              <Skeleton className="h-8 w-36" />
-              <Skeleton className="h-4 w-48" />
+      <div className="container mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
+        <div className="space-y-5">
+          <div className="overflow-hidden rounded-3xl border border-border/60 bg-card/70 p-5 sm:p-7">
+            <div className="flex items-start justify-between gap-6">
+              <div className="space-y-3">
+                <Skeleton className="h-5 w-24 rounded-full" />
+                <Skeleton className="h-9 w-52" />
+                <Skeleton className="h-4 w-72 max-w-full" />
+              </div>
+              <Skeleton className="h-10 w-32 rounded-xl" />
             </div>
-            <Skeleton className="h-9 w-32 rounded-lg" />
+            <div className="mt-7 grid grid-cols-3 gap-2 sm:max-w-lg sm:gap-3">
+              {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-20 rounded-2xl" />)}
+            </div>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-6 border-b border-border pb-0">
-            <Skeleton className="h-8 w-20" />
-            <Skeleton className="h-8 w-20" />
-          </div>
+          <Skeleton className="h-12 w-full rounded-2xl" />
 
-          {/* Search + filter */}
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <Skeleton className="h-11 flex-1 w-full rounded-lg" />
-            <Skeleton className="h-11 w-full sm:w-44 rounded-lg" />
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Skeleton className="h-11 w-full flex-1 rounded-xl" />
+            <Skeleton className="h-11 w-full rounded-xl sm:w-44" />
           </div>
 
           {/* Quiz rows */}
@@ -357,66 +357,86 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-5xl">
+    <div className="container mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="space-y-6"
+        className="space-y-5"
       >
-        <div className="flex items-end justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" data-testid="text-page-title">{t('history.title')}</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {quizzes && quizzes.length > 0
-                ? t(quizzes.length === 1 ? 'history.savedQuiz' : 'history.savedQuizzes', { count: quizzes.length })
-                : t('history.noQuizzesSaved')}
-            </p>
+        <section className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/75 px-5 py-6 shadow-sm sm:px-7 sm:py-7">
+          <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-primary/15 blur-3xl" />
+          <div className="pointer-events-none absolute bottom-0 right-28 h-24 w-24 rounded-full bg-violet-500/10 blur-2xl" />
+          <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div className="max-w-xl">
+              <h1 className="text-3xl font-bold tracking-[-0.035em] sm:text-4xl" data-testid="text-page-title">{t('history.title')}</h1>
+              <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+                {t('history.libraryIntro')}
+              </p>
+            </div>
+            <Button
+              className="h-10 self-start rounded-xl px-4 font-bold shadow-sm"
+              data-testid="button-new-quiz"
+              onClick={() => setLocation("/create")}
+            >
+              <CirclePlus className="mr-2 h-4 w-4" />
+              {t('history.createQuiz')}
+            </Button>
           </div>
-          <Button
-            size="sm"
-            data-testid="button-new-quiz"
-            onClick={() => setLocation("/create")}
-          >
-            <CirclePlus className="h-4 w-4 mr-1.5" />
-            {t('history.createQuiz')}
-          </Button>
-        </div>
+
+          <div className="relative mt-7 grid grid-cols-3 gap-2 sm:max-w-lg sm:gap-3">
+            <div className="rounded-2xl border border-border/50 bg-background/65 p-3 sm:p-4">
+              <FileText className="mb-3 h-4 w-4 text-primary" />
+              <p className="text-xl font-bold tracking-tight sm:text-2xl">{quizzes?.length || 0}</p>
+              <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">{t('history.quizzes')}</p>
+            </div>
+            <div className="rounded-2xl border border-border/50 bg-background/65 p-3 sm:p-4">
+              <Folder className="mb-3 h-4 w-4 text-violet-500" />
+              <p className="text-xl font-bold tracking-tight sm:text-2xl">{folders.length}</p>
+              <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">{t('history.folders')}</p>
+            </div>
+            <div className="rounded-2xl border border-border/50 bg-background/65 p-3 sm:p-4">
+              <LayoutGrid className="mb-3 h-4 w-4 text-emerald-500" />
+              <p className="text-xl font-bold tracking-tight sm:text-2xl">{availableCategories.length}</p>
+              <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">{t('history.allSubjects')}</p>
+            </div>
+          </div>
+        </section>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-transparent p-0 h-auto gap-4 rounded-none border-b border-border justify-start" data-testid="tabs-archive">
+          <TabsList className="grid h-12 w-full grid-cols-2 rounded-2xl border border-border/60 bg-muted/30 p-1" data-testid="tabs-archive">
             <TabsTrigger
               value="quizzes"
-              className="gap-1.5 rounded-none bg-transparent px-0 pb-2.5 pt-0 shadow-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground text-muted-foreground"
+              className="gap-2 rounded-xl font-bold text-muted-foreground shadow-none data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
               data-testid="tab-quizzes"
             >
               <FileText className="h-3.5 w-3.5" />
               {t('history.quizzes')}
+              <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px]">{quizzes?.length || 0}</span>
             </TabsTrigger>
             <TabsTrigger
               value="folders"
-              className="gap-1.5 rounded-none bg-transparent px-0 pb-2.5 pt-0 shadow-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground text-muted-foreground"
+              className="gap-2 rounded-xl font-bold text-muted-foreground shadow-none data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
               data-testid="tab-folders"
             >
               <Folder className="h-3.5 w-3.5" />
               {t('history.folders')}
-              {folders.length > 0 && (
-                <Badge variant="secondary" className="ml-0.5 text-[10px] px-1.5 py-0">{folders.length}</Badge>
-              )}
+              <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px]">{folders.length}</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="quizzes" className="mt-5 space-y-4">
             {!quizzes || quizzes.length === 0 ? (
-              <div className="py-16 text-center">
-                <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                  <FileText className="h-6 w-6 text-muted-foreground" />
+              <div className="rounded-3xl border border-dashed border-border/70 bg-card/35 px-6 py-16 text-center">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10">
+                  <FileText className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-base font-semibold mb-1">{t('history.noQuizzesYet')}</h3>
-                <p className="text-sm text-muted-foreground mb-5">
+                <h3 className="mb-1 text-base font-semibold">{t('history.noQuizzesYet')}</h3>
+                <p className="mb-5 text-sm text-muted-foreground">
                   {t('history.createFirstQuiz')}
                 </p>
                 <Button
+                  className="rounded-xl"
                   data-testid="button-create-first-quiz"
                   onClick={() => setLocation("/create")}
                 >
@@ -425,20 +445,20 @@ export default function HistoryPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row items-center gap-3">
-                  <div className="relative flex-1 w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <div className="flex flex-col items-center gap-3 rounded-2xl border border-border/60 bg-card/45 p-2 sm:flex-row">
+                  <div className="relative w-full flex-1">
+                    <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder={t('history.searchLibrary')}
-                      className="pl-9 pr-9 h-11 bg-muted/30 border-border/50 focus:bg-background transition-all"
+                      className="h-11 border-0 bg-transparent pl-10 pr-9 shadow-none focus-visible:ring-0"
                       data-testid="input-search-quizzes"
                     />
                     {searchQuery && (
                       <button
                         onClick={() => setSearchQuery("")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                         data-testid="button-clear-search"
                       >
                         <X className="h-4 w-4" />
@@ -450,16 +470,14 @@ export default function HistoryPage() {
                       value={selectedCategory || "all"}
                       onValueChange={(val) => setSelectedCategory(val === "all" ? null : val)}
                     >
-                      <SelectTrigger className="w-full sm:w-[180px] h-11 bg-muted/30 border-border/50" data-testid="filter-categories">
+                      <SelectTrigger className="h-10 w-full rounded-xl border-border/60 bg-background sm:w-[180px]" data-testid="filter-categories">
                         <SelectValue placeholder={t('history.allSubjects')} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all" data-testid="filter-all">{t('history.allSubjects')}</SelectItem>
                         {availableCategories.map(cat => (
                           <SelectItem key={cat} value={cat} data-testid={`filter-${cat.toLowerCase().replace(/[^a-z]/g, "-")}`}>
-                            <span className="flex items-center gap-2">
-                              {cat}
-                            </span>
+                            <span className="flex items-center gap-2">{cat}</span>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -468,14 +486,14 @@ export default function HistoryPage() {
                 </div>
 
                 {filteredQuizzes.length === 0 ? (
-                  <div className="py-20 text-center border border-dashed border-border/50 rounded-2xl bg-muted/10">
+                  <div className="rounded-3xl border border-dashed border-border/60 bg-muted/10 py-20 text-center">
                     <p className="text-sm text-muted-foreground">
                       {t('history.noMatchingQuizzes')}
                     </p>
                     <Button
                       variant="ghost"
                       size="sm"
-                       className="mt-1"
+                      className="mt-1"
                       onClick={() => { setSearchQuery(""); setSelectedCategory(null); }}
                       data-testid="button-clear-filters"
                     >

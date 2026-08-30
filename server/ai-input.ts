@@ -50,12 +50,22 @@ export const importQuizRequestSchema = z
   })
   .superRefine(addTotalImageSizeIssue);
 
-export const summarizeTextRequestSchema = z.object({
-  text: z
-    .string()
-    .min(100, "Text is too short to summarize")
-    .max(MAX_SUMMARY_TEXT_CHARS, "Text is too large to summarize at once"),
-});
+export const summarizeTextRequestSchema = z
+  .object({
+    text: z.string().max(MAX_SUMMARY_TEXT_CHARS, "Text is too large to summarize at once").optional().default(""),
+    documentImages: sourceImagesSchema,
+  })
+  .superRefine((data, ctx) => {
+    addTotalImageSizeIssue(data, ctx);
+
+    if (!data.text.trim() && !data.documentImages?.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Study material text or an image is required",
+        path: ["text"],
+      });
+    }
+  });
 
 export const gradeShortAnswerRequestSchema = z.object({
   question: z.string().min(1).max(2_000),

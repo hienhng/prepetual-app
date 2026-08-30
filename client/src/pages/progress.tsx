@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { format, parseISO } from "date-fns";
 import {
   TrendingUp,
   TrendingDown,
@@ -19,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getCategoryIcon } from "@/lib/category-icons";
 import { useLanguage } from "@/lib/language-context";
 import {
@@ -197,6 +197,7 @@ const itemVariants = {
 export default function ProgressPage() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const { language, t } = useLanguage();
 
   const { data: history = [], isLoading: historyLoading } = useQuery<ResultHistoryItem[]>({
@@ -228,39 +229,20 @@ export default function ProgressPage() {
     return config;
   }, [categories]);
 
+  const activeCategory = categories.includes(selectedCategory) ? selectedCategory : categories[0];
+
   const chartData = useMemo(() => {
-    if (history.length === 0) return [];
+    if (history.length === 0 || !activeCategory) return [];
 
-    const grouped: Record<string, { date: string; dateLabel: string; entries: Record<string, number[]> }> = {};
-
-    history.forEach((item) => {
-      const dateKey = format(parseISO(item.date), "yyyy-MM-dd");
-      const dateLabel = format(parseISO(item.date), "M/d");
-
-      if (!grouped[dateKey]) {
-        grouped[dateKey] = { date: dateKey, dateLabel, entries: {} };
-      }
-
-      if (!grouped[dateKey].entries[item.category]) {
-        grouped[dateKey].entries[item.category] = [];
-      }
-
-      grouped[dateKey].entries[item.category].push(item.accuracy);
-    });
-
-    return Object.values(grouped)
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .slice(-30)
-      .map((group) => {
-        const point: Record<string, any> = { date: group.dateLabel };
-
-        for (const [category, accuracies] of Object.entries(group.entries)) {
-          point[category] = Math.round(accuracies.reduce((sum, value) => sum + value, 0) / accuracies.length);
-        }
-
-        return point;
-      });
-  }, [history]);
+    return [...history]
+      .filter((item) => item.category === activeCategory)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .map((item, index) => ({
+        attempt: index + 1,
+        accuracy: item.accuracy,
+      }))
+      .slice(-30);
+  }, [activeCategory, history]);
 
   const categoryStats = useMemo(() => {
     const stats: Record<string, { count: number; totalAccuracy: number; best: number }> = {};
@@ -422,20 +404,59 @@ export default function ProgressPage() {
                 <TabsContent value="overview" className="mt-5 space-y-6">
                   {history.length >= 2 && (
                     <Card className="border-border/50 shadow-sm">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                          <ChartLine className="h-4 w-4 text-primary" />
-                          {t("progress.accuracyOverTime")}
-                        </CardTitle>
-                        <p className="text-xs text-muted-foreground">{t("progress.accuracyOverTimeDescription")}</p>
+                      <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 pb-2">
+                        <div>
+                          <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                            <ChartLine className="h-4 w-4 text-primary" />
+                            {t("progress.accuracyOverTime")}
+                          </CardTitle>
+                          <p className="mt-1 text-xs text-muted-foreground">{t("progress.accuracyOverTimeDescription")}</p>
+                        </div>
+                        <Select value={activeCategory} onValueChange={setSelectedCategory}>
+                          <SelectTrigger className="w-full sm:w-[200px]" aria-label={t("progress.selectSubject")} data-testid="select-progress-subject">
+                            <SelectValue placeholder={t("progress.selectSubject")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((category) => {
+                              const Icon = getCategoryIcon(category);
+                              return (
+                                <SelectItem key={category} value={category}>
+                                  <span className="flex items-center gap-2">
+                                    <Icon className="h-3.5 w-3.5" />
+                                    {category}
+                                  </span>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
                       </CardHeader>
                       <CardContent className="pt-2">
                         <div className="rounded-xl border border-border/50 bg-muted/20 p-4">
                           <ChartContainer config={chartConfig} className="h-[250px] w-full md:h-[320px]">
                             <LineChart data={chartData} margin={{ top: 5, right: 10, left: -15, bottom: 5 }}>
                               <CartesianGrid strokeDasharray="3 3" className="stroke-muted/40" vertical={false} />
-                              <XAxis dataKey="date" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} width={40} />
+                              <XAxis
+                                dataKey="attempt"
+                                type="number"
+                                domain={["dataMin", "dataMax"]}
+                                allowDecimals={false}
+                                tick={{ fontSize: 11 }}
+                                tickLine={false}
+                                axisLine={false}
+                                interval="preserveStartEnd"
+                                label={{ value: t("progress.attemptAxis"), position: "insideBottom", offset: -2, fontSize: 11 }}
+                                height={36}
+                              />
+                              <YAxis
+                                domain={[0, 100]}
+                                tick={{ fontSize: 11 }}
+                                tickLine={false}
+                                axisLine={false}
+                                tickFormatter={(value) => `${value}%`}
+                                label={{ value: t("progress.accuracyAxis"), angle: -90, position: "insideLeft", fontSize: 11 }}
+                                width={52}
+                              />
                               <ChartTooltip
                                 content={
                                   <ChartTooltipContent
@@ -448,36 +469,18 @@ export default function ProgressPage() {
                                   />
                                 }
                               />
-                              {categories.map((category) => (
-                                <Line
-                                  key={category}
-                                  type="monotone"
-                                  dataKey={category}
-                                  stroke={categoryColors[category] || "hsl(var(--primary))"}
-                                  strokeWidth={2.5}
-                                  dot={{ fill: categoryColors[category] || "hsl(var(--primary))", strokeWidth: 0, r: 3 }}
-                                  activeDot={{ r: 5, strokeWidth: 0 }}
-                                  connectNulls
-                                />
-                              ))}
+                              <Line
+                                type="monotone"
+                                dataKey="accuracy"
+                                name={activeCategory}
+                                stroke={categoryColors[activeCategory] || "hsl(var(--primary))"}
+                                strokeWidth={2.5}
+                                dot={{ fill: categoryColors[activeCategory] || "hsl(var(--primary))", strokeWidth: 0, r: 3 }}
+                                activeDot={{ r: 5, strokeWidth: 0 }}
+                              />
                             </LineChart>
                           </ChartContainer>
                         </div>
-
-                        {categories.length > 1 && (
-                          <div className="mt-4 flex flex-wrap justify-center gap-2.5">
-                            {categories.map((category) => {
-                              const Icon = getCategoryIcon(category);
-                              return (
-                                <div key={category} className="flex items-center gap-1.5 rounded-full border border-border/60 px-3 py-1.5 text-xs text-muted-foreground" data-testid={`legend-${category.toLowerCase().replace(/\//g, "-")}`}>
-                                  <div className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ backgroundColor: categoryColors[category] }} />
-                                  <Icon className="h-3 w-3" />
-                                  <span>{category}</span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
                       </CardContent>
                     </Card>
                   )}

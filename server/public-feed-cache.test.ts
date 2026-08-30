@@ -6,7 +6,7 @@ import {
   setPublicFeedCacheHeaders,
 } from "./public-feed-cache.js";
 
-test("caches the public feed in browsers and Vercel's shared edge cache", () => {
+test("does not cache the public feed so visibility changes appear immediately", () => {
   const headers = new Map<string, string>();
 
   setPublicFeedCacheHeaders({
@@ -16,10 +16,5 @@ test("caches the public feed in browsers and Vercel's shared edge cache", () => 
   });
 
   assert.equal(headers.get("cache-control"), PUBLIC_FEED_CACHE_CONTROL);
-  assert.match(PUBLIC_FEED_CACHE_CONTROL, /(?:^|, )max-age=60(?:,|$)/);
-  assert.match(PUBLIC_FEED_CACHE_CONTROL, /(?:^|, )s-maxage=60(?:,|$)/);
-  assert.match(
-    PUBLIC_FEED_CACHE_CONTROL,
-    /(?:^|, )stale-while-revalidate=300(?:,|$)/,
-  );
+  assert.equal(PUBLIC_FEED_CACHE_CONTROL, "no-store");
 });

@@ -38,6 +38,7 @@ const STORAGE_KEY = "upload_jobs";
 
 export function UploadProvider({ children }: { children: ReactNode }) {
   const pollInFlightRef = useRef(false);
+  const jobsEpochRef = useRef(0);
   const [activeJobs, setActiveJobs] = useState<UploadJob[]>(() => {
     try {
       const stored = sessionStorage.getItem(STORAGE_KEY);
@@ -59,6 +60,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
 
   const pollJobStatus = useCallback(async () => {
     if (activeJobs.length === 0 || pollInFlightRef.current) return;
+    const pollEpoch = jobsEpochRef.current;
     
     const pendingJobs = activeJobs.filter(
       job => job.status === "pending" || job.status === "processing"
@@ -107,7 +109,11 @@ export function UploadProvider({ children }: { children: ReactNode }) {
         })
       );
       
-      saveJobs(updatedJobs.filter((job): job is UploadJob => job !== null));
+      // A clear/remove/new-upload action may have happened while these requests
+      // were in flight. Never let an old poll restore jobs the user already cleared.
+      if (pollEpoch === jobsEpochRef.current) {
+        saveJobs(updatedJobs.filter((job): job is UploadJob => job !== null));
+      }
     } catch (error) {
       console.error("Polling error:", error);
     } finally {
@@ -182,6 +188,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       };
     });
 
+    jobsEpochRef.current += 1;
     saveJobs([...activeJobs, ...newJobs]);
   }, [activeJobs, saveJobs]);
 
@@ -189,6 +196,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
     const jobsToDelete = activeJobs;
     // Clear client state first so completed-job effects cannot restore a source
     // while the best-effort server cleanup requests are still in flight.
+    jobsEpochRef.current += 1;
     saveJobs([]);
     for (const job of jobsToDelete) {
       try {
@@ -198,6 +206,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   }, [activeJobs, saveJobs]);
 
   const removeJob = useCallback(async (jobId: string) => {
+    jobsEpochRef.current += 1;
     try {
       await fetch(`/api/upload-job/${jobId}`, { method: "DELETE" });
     } catch {}

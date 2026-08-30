@@ -1,8 +1,9 @@
-import { createContext, useContext, useState, useCallback, useEffect, useRef, useMemo, type ReactNode, type MouseEvent } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, useMemo, type ReactNode, type MouseEvent as ReactMouseEvent } from "react";
 import { useLocation } from "wouter";
 import { useQuiz } from "@/lib/quiz-context";
+import { useUpload } from "@/lib/upload-context";
 import { useAuth } from "@/hooks/useAuth";
-import { Save, AlertTriangle } from "lucide-react";
+import { Save, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +18,7 @@ import {
 interface QuizNavigationGuardContextType {
   navigateWithGuard: (path: string) => void;
   isQuizInProgress: boolean;
-  handleLinkClick: (e: MouseEvent, path: string, callback?: () => void) => void;
+  handleLinkClick: (e: ReactMouseEvent, path: string, callback?: () => void) => void;
 }
 
 const QuizNavigationGuardContext = createContext<QuizNavigationGuardContextType | undefined>(undefined);
@@ -25,7 +26,8 @@ const QuizNavigationGuardContext = createContext<QuizNavigationGuardContextType 
 export function QuizNavigationGuardProvider({ children }: { children: ReactNode }) {
   const [, setLocation] = useLocation();
   const [location] = useLocation();
-  const { currentQuiz, hasUnsavedChanges, saveCurrentProgress, getPlayerProgress, userAnswers, checkedQuestions, playerRetryAnswers, resetQuiz } = useQuiz();
+  const { currentQuiz, sourceMaterial, setSourceMaterial, setExtractedText, saveCurrentProgress, getPlayerProgress, userAnswers, checkedQuestions, playerRetryAnswers, resetQuiz } = useQuiz();
+  const { activeJobs, clearJobs } = useUpload();
   const { user } = useAuth();
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
@@ -35,6 +37,16 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
   const isGuest = !user;
   const canPersistProgress = !!user && !!currentQuiz && currentQuiz.userId === user.id && currentQuiz.generationMode !== "review";
   const isQuizRoute = location === "/quiz";
+  const isCreateRoute = location === "/create";
+  const hasCreateMaterials = isCreateRoute && Boolean(
+    sourceMaterial.uploadedText?.trim()
+    || sourceMaterial.manualText?.trim()
+    || sourceMaterial.youtubeTranscript?.trim()
+    || sourceMaterial.prompt?.trim()
+    || sourceMaterial.imageDataUrl
+    || sourceMaterial.documentImages?.length
+    || activeJobs.length,
+  );
 
   // Show dialog if user is on quiz page with an active quiz that has any answers (only for authenticated users)
   const isQuizInProgress = !isGuest && isQuizRoute && !!currentQuiz && Object.keys(userAnswers).length > 0;
@@ -70,18 +82,19 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
 
   // Handle browser back button
   useEffect(() => {
-    if (isQuizInProgress && !hasAddedHistoryEntry.current) {
+    const shouldGuardNavigation = isQuizInProgress || hasCreateMaterials;
+    if (shouldGuardNavigation && !hasAddedHistoryEntry.current) {
       // Push an extra history entry so we can intercept back button
       window.history.pushState({ quizGuard: true }, "", window.location.href);
       hasAddedHistoryEntry.current = true;
     }
 
-    if (!isQuizInProgress) {
+    if (!shouldGuardNavigation) {
       hasAddedHistoryEntry.current = false;
     }
 
     const handlePopState = (e: PopStateEvent) => {
-      if (isQuizInProgress) {
+      if (shouldGuardNavigation) {
         // Re-push the history entry to prevent navigation
         window.history.pushState({ quizGuard: true }, "", window.location.href);
         // Show the dialog
@@ -92,26 +105,89 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [isQuizInProgress]);
+  }, [isQuizInProgress, hasCreateMaterials]);
+
+  useEffect(() => {
+    if (!hasCreateMaterials) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    const handleDocumentNavigation = (event: globalThis.MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target instanceof Element ? event.target.closest("a[href]") : null;
+      if (!(target instanceof HTMLAnchorElement) || target.target === "_blank" || target.hasAttribute("download")) return;
+
+      const destination = new URL(target.href, window.location.href);
+      if (destination.origin !== window.location.origin || destination.pathname === "/create") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      setPendingPath(`${destination.pathname}${destination.search}${destination.hash}`);
+      setShowExitDialog(true);
+    };
+    const handlePageHide = () => {
+      sessionStorage.removeItem("source_material");
+      sessionStorage.removeItem("extracted_text");
+      sessionStorage.removeItem("upload_jobs");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("pagehide", handlePageHide);
+    document.addEventListener("click", handleDocumentNavigation, true);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("pagehide", handlePageHide);
+      document.removeEventListener("click", handleDocumentNavigation, true);
+    };
+  }, [hasCreateMaterials]);
 
   const navigateWithGuard = useCallback((path: string) => {
-    if (isQuizInProgress && path !== "/quiz" && path !== "/quiz-results") {
+    if ((isQuizInProgress && path !== "/quiz" && path !== "/quiz-results") || (hasCreateMaterials && path !== "/create")) {
       setPendingPath(path);
       setShowExitDialog(true);
     } else {
       setLocation(path);
     }
-  }, [isQuizInProgress, setLocation]);
+  }, [isQuizInProgress, hasCreateMaterials, setLocation]);
 
-  const handleLinkClick = useCallback((e: MouseEvent, path: string, callback?: () => void) => {
-    if (isQuizInProgress && path !== "/quiz" && path !== "/quiz-results") {
+  const handleLinkClick = useCallback((e: ReactMouseEvent, path: string, callback?: () => void) => {
+    if ((isQuizInProgress && path !== "/quiz" && path !== "/quiz-results") || (hasCreateMaterials && path !== "/create")) {
       e.preventDefault();
       setPendingPath(path);
       setShowExitDialog(true);
     } else {
       callback?.();
     }
-  }, [isQuizInProgress]);
+  }, [isQuizInProgress, hasCreateMaterials]);
+
+  const clearCreateMaterials = useCallback(async () => {
+    setSourceMaterial({
+      type: null,
+      text: null,
+      imageDataUrl: null,
+      uploadedText: null,
+      manualText: null,
+      youtubeTranscript: null,
+      youtubeUrl: null,
+      prompt: null,
+      isOfficeWithImages: false,
+      documentImages: [],
+      isImageOnly: false,
+      autoGenerate: false,
+    });
+    setExtractedText("");
+    await clearJobs();
+  }, [clearJobs, setExtractedText, setSourceMaterial]);
+
+  const handleDiscardCreateAndExit = async () => {
+    const destination = pendingPath;
+    setShowExitDialog(false);
+    setPendingPath(null);
+    await clearCreateMaterials();
+    if (destination) setLocation(destination);
+  };
 
   const handleSaveAndExit = () => {
     // Pass explicit player progress to ensure revision state is saved correctly
@@ -152,13 +228,15 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
     <QuizNavigationGuardContext.Provider value={{ navigateWithGuard, isQuizInProgress, handleLinkClick }}>
       {children}
       <AlertDialog open={showExitDialog} onOpenChange={(open) => !open && handleCancel()}>
-        <AlertDialogContent data-testid={isReviewSession ? "dialog-review-exit" : isInRevisionMode ? "dialog-revision-exit-warning" : "dialog-quiz-exit"}>
+        <AlertDialogContent data-testid={hasCreateMaterials ? "dialog-create-exit" : isReviewSession ? "dialog-review-exit" : isInRevisionMode ? "dialog-revision-exit-warning" : "dialog-quiz-exit"}>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              {isReviewSession ? "Discard Review Session?" : !canPersistProgress ? "Leave Quiz?" : isInRevisionMode ? "Save Revision Progress?" : "Leave Quiz?"}
+              {hasCreateMaterials ? "Leave Create page?" : isReviewSession ? "Discard Review Session?" : !canPersistProgress ? "Leave Quiz?" : isInRevisionMode ? "Save Revision Progress?" : "Leave Quiz?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {isReviewSession 
+              {hasCreateMaterials
+                ? "Leaving this page will remove every added material, uploaded file, pasted note, video transcript, and prompt."
+                : isReviewSession 
                 ? "Your review session progress will not be saved. Are you sure you want to exit?"
                 : !canPersistProgress
                   ? "This quiz does not save progress. Are you sure you want to leave?"
@@ -170,10 +248,19 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel onClick={handleCancel} data-testid="button-cancel-nav-exit">
-              {isReviewSession || !canPersistProgress ? "Continue Quiz" : isInRevisionMode ? "Keep Revising" : "Continue Quiz"}
+              {hasCreateMaterials ? "Stay on Create" : isReviewSession || !canPersistProgress ? "Continue Quiz" : isInRevisionMode ? "Keep Revising" : "Continue Quiz"}
             </AlertDialogCancel>
             
-            {isReviewSession || !canPersistProgress ? (
+            {hasCreateMaterials ? (
+              <AlertDialogAction
+                onClick={handleDiscardCreateAndExit}
+                className="gap-2 bg-destructive text-destructive-foreground border-destructive/10 shadow-destructive/70 hover:bg-destructive/90"
+                data-testid="button-discard-create"
+              >
+                <Trash2 className="h-4 w-4" />
+                Discard & Leave
+              </AlertDialogAction>
+            ) : isReviewSession || !canPersistProgress ? (
               <AlertDialogAction
                 onClick={handleDiscardExit}
                 className="bg-destructive text-destructive-foreground border-destructive/10 shadow-destructive/70 hover:bg-destructive/90"

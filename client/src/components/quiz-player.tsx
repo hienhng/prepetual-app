@@ -617,16 +617,6 @@ export function QuizPlayer() {
       const currentIsOriginal = !currentQuestion?.isRetry;
       const nextIsRetry = nextQuestion.isRetry;
       
-      if (currentIsOriginal && nextIsRetry && !allOriginalChecked) {
-        // Can't proceed to retry questions until all original questions are answered
-        toast({
-          title: t('quizPlayer.completeAllFirst'),
-          description: t('quizPlayer.completeAllQuestionsBeforeRetry'),
-          variant: "destructive",
-        });
-        return;
-      }
-      
       // Show revision screen when entering retry section
       if (currentIsOriginal && nextIsRetry && allOriginalChecked && !showRevisionScreen) {
         setShowRevisionScreen(true);
@@ -1516,9 +1506,25 @@ export function QuizPlayer() {
 
   const allOriginalChecked = checkedQuestions.size === originalQuestionCount;
 
-  const materialImages = ((currentQuiz as any)?.sourceImages as string[]) || (sourceMaterial?.documentImages as string[]) || [];
-  const singleSourceImage = ((currentQuiz as any)?.sourceImageUrl as string | undefined) || (sourceMaterial?.imageDataUrl as string | undefined);
-  const allMaterialImages = singleSourceImage ? [singleSourceImage, ...materialImages] : materialImages;
+  const allMaterialImages = useMemo(() => {
+    const quizMaterialImages = ((currentQuiz as any)?.sourceImages as string[] | undefined) || [];
+    const contextMaterialImages = (sourceMaterial?.documentImages as string[] | undefined) || [];
+    const singleSourceImages = [
+      (currentQuiz as any)?.sourceImageUrl as string | undefined,
+      sourceMaterial?.imageDataUrl as string | undefined,
+    ].filter((image): image is string => Boolean(image));
+
+    return Array.from(new Set([
+      ...singleSourceImages,
+      ...quizMaterialImages,
+      ...contextMaterialImages,
+    ]));
+  }, [
+    (currentQuiz as any)?.sourceImageUrl,
+    (currentQuiz as any)?.sourceImages,
+    sourceMaterial?.imageDataUrl,
+    sourceMaterial?.documentImages,
+  ]);
   const hasMaterialImages = allMaterialImages.length > 0;
 
   const rawText = (currentQuiz as any)?.sourceText || sourceMaterial?.text || "";
@@ -1635,7 +1641,10 @@ export function QuizPlayer() {
                       {showTimer ? (
                         <EyeOff className="absolute inset-0 h-4 w-4 text-orange-500 opacity-0 transition-opacity duration-300 group-hover/timer:opacity-100" />
                       ) : (
-                        <Eye className="absolute inset-0 h-4 w-4 text-orange-500 opacity-0 transition-opacity duration-300 group-hover/timer:opacity-100" />
+                        <span>
+                          <Eye className="absolute inset-0 h-4 w-4 text-orange-500 opacity-0 transition-opacity duration-300 group-hover/timer:opacity-100"/>
+                            View timer
+                        </span>
                       )}
                     </div>
                     {showTimer && (
@@ -1848,6 +1857,7 @@ export function QuizPlayer() {
               ) : (
                 <Button
                   onClick={goToNext}
+                  disabled={!currentQuestion?.isRetry && allQuestions[currentIndex + 1]?.isRetry && !allOriginalChecked}
                   className="gap-1 sm:gap-2 rounded-lg sm:rounded-xl flex-1 max-w-[140px] sm:max-w-none sm:min-w-[160px] font-semibold h-9 sm:h-11 text-sm sm:text-base px-3 sm:px-4"
                   data-testid="button-next"
                 >
@@ -1860,7 +1870,7 @@ export function QuizPlayer() {
             <Button
               variant="outline"
               onClick={goToNext}
-              disabled={currentIndex >= allQuestions.length - 1 || isGrading}
+              disabled={currentIndex >= allQuestions.length - 1 || isGrading || (!currentQuestion?.isRetry && allQuestions[currentIndex + 1]?.isRetry && !allOriginalChecked)}
               size="icon"
               className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-11 sm:w-auto sm:px-4 shrink-0"
               data-testid="button-skip"
