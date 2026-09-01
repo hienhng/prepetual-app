@@ -494,7 +494,7 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       title: "Create a Practice Quiz",
       subtitle: "How would you like to create your quiz today?",
       aiQuizMaker: "AI Quiz Maker",
-      aiSubtitle: "Combine any sources you have—documents, pasted notes, YouTube, and a prompt—into one quiz.",
+      aiSubtitle: "Describe what you want to learn, or bring your own material.",
       aiPromptPlaceholder: "Create a hard 10-question quiz about photosynthesis...",
       trySamplePrompt: "Try a sample prompt",
       samplePrompt: "Create a 10-question quiz in hard difficulty about the causes of World War I for a high-school student, focusing on alliances and the events that triggered the conflict.",

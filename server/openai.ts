@@ -1387,6 +1387,8 @@ const draftPhaseInstructions = `COMPLETE INITIAL GENERATION (HIGHEST PRIORITY):
 - Solve every question before choosing correctAnswer or creating distractors. For mathematical questions, solution must show the givens, formula or rule, substitution, sequential calculations, units, and an independent cross-check. For factual questions, solution may be the concise decisive fact.
 - NEVER append or embed answer choices in question. For example, do not place "A) ... B) ... C) ... D) ..." after a passage or stem. Put choices only in the separate options array.
 - SOURCE CONTENT ONLY: test the concepts, facts, reasoning, and skills taught by the source. Never ask about the source artifact itself—no page numbers, question numbers, section locations, filenames, upload details, or counts of pages/questions.
+- CLOSED-BOOK QUESTIONS ONLY: the learner must be able to answer from the question field and its options alone, without opening, viewing, or remembering the uploaded material. Never write stems such as "According to the material," "In the image/diagram/table above," or "What is the depth/answer/value?" when the required passage, figure, labels, measurements, data, formula, or other givens exist only in the source.
+- Copy or concisely restate every stimulus and fact needed to solve the item inside the question field. Convert useful information from source images, diagrams, charts, and tables into a complete textual description or inline data in the stem. If the necessary context cannot be reproduced clearly and compactly, test a different concept.
 ${KATEX_FORMATTING_RULES}
 - READING-COMPREHENSION ACCESSIBILITY: In every reading-comprehension question, make the directions, each passage paragraph, and the actual question distinct text blocks separated by blank lines.
 - REQUIRED JSON string pattern: "Directions\\n\\nPassage paragraph 1\\n\\nPassage paragraph 2\\n\\nActual question?"
@@ -1955,6 +1957,7 @@ IMPORTANT:
 - Solve each question before choosing correctAnswer or writing distractors. For math, solution must include sequential work, units, and an independent cross-check; for factual questions, solution may be the concise decisive fact.
 - For multiple_choice, return exactly four distinct substantive options and make correctAnswer match exactly one option character-for-character. For true_false, use options ["True", "False"] and make correctAnswer exactly equal targetTruthValue. For short_answer, use an empty options array and a concise correctAnswer.
 - NEVER append or embed answer choices in question. Do not put "A) ... B) ... C) ... D) ..." after a passage or stem; use only the separate options array.
+- CLOSED-BOOK QUESTIONS ONLY: each candidate must be answerable from its question field and options alone. The learner will not have the source material, image, diagram, chart, or table open. Include every necessary passage, label, measurement, data point, formula, and condition in the stem; never refer to "the material," "the image/diagram/table above," or ask for a value whose givens appear only in the source. If necessary context cannot be restated clearly and compactly, generate a different question.
 - For every reading-comprehension stem, make the directions, each passage paragraph, and actual question distinct blocks. Use this JSON string pattern: "Directions\\n\\nPassage paragraph 1\\n\\nPassage paragraph 2\\n\\nActual question?" Immediately before the actual question there MUST be "\\n\\n"; a single "\\n", a space, or adjacent Markdown such as "**passage**\\n**question**" is invalid. Markdown or bold boundaries do not count as line breaks.
 - Make each stem precise, self-contained, ${isPromptBased ? "request-aligned and factually reliable" : "source-grounded"}, and objectively answerable.
 ${requireSourceGrounding ? "- Use only the retrieved SOURCE_CHUNK evidence. Include 1-4 exact supporting ids in sourceChunkIds for every candidate. Never invent an id or fill gaps with outside knowledge." : ""}
@@ -3064,6 +3067,7 @@ REQUIREMENTS:
 7. Produce stems only. Do NOT solve them or generate options, answers, or explanations.
 8. Make each stem self-contained and precise enough to have exactly one objective answer.
 9. Test subject knowledge only. Never ask where something appears in the source, which page contains a question, question/section numbers, filenames, or document/page/question counts.
+10. Treat this as a closed-book quiz: the learner must not need to view the source material. Include every passage, figure detail, label, measurement, data point, formula, and condition needed to answer inside the stem; never refer to an unseen material, image, diagram, chart, or table.
 
 ${KATEX_FORMATTING_RULES}
 

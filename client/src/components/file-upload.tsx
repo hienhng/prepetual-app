@@ -6,13 +6,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useUpload } from "@/lib/upload-context";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 interface FileUploadProps {
   onTextExtracted: (text: string, isOfficeWithImages?: boolean, documentImages?: string[], isImageOnly?: boolean) => void;
 }
 
+function isSizeRelatedError(errorMessage: string): boolean {
+  const sizeLimitPatterns = [
+    /too\s*large/i,
+    /size\s*limit/i,
+    /exceeds/i,
+    /maximum.*\d+\s*(mb|gb|bytes?)/i,
+    /combined.*upload/i,
+    /25\s*MB/i,
+    /10\s*MB/i,
+  ];
+  return sizeLimitPatterns.some(pattern => pattern.test(errorMessage));
+}
+
 export function FileUpload({ onTextExtracted }: FileUploadProps) {
   const { activeJobs, startUpload, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, hasImageOnlyUploads } = useUpload();
+  const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const uploadInitiatedRef = useRef(false);
@@ -47,11 +62,21 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
 
     const firstError = errorJobs[0];
     if (firstError) {
-      setError(firstError.error || "An error occurred while processing files");
+      const errorMessage = firstError.error || "An error occurred while processing files";
+      setError(errorMessage);
+      
+      // Show toast for size-related errors
+      if (isSizeRelatedError(errorMessage)) {
+        toast({
+          title: "File Size Limit Exceeded",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     } else if (activeJobs.length > 0) {
       setError(null);
     }
-  }, [activeJobs, isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasImageOnlyUploads, onTextExtracted, errorJobs]);
+  }, [activeJobs, isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasImageOnlyUploads, onTextExtracted, errorJobs, toast]);
 
   const processFiles = useCallback(async (files: File[]) => {
     setError(null);
@@ -62,11 +87,28 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
       await startUpload(files);
     } catch (err) {
       uploadInitiatedRef.current = false;
-      setError(err instanceof Error ? err.message : "An error occurred while uploading files");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred while uploading files";
+      setError(errorMessage);
+      
+      // Show toast for size-related errors with clear messaging
+      if (isSizeRelatedError(errorMessage)) {
+        toast({
+          title: "File Size Limit Exceeded",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } else {
+        // Show toast for other upload errors
+        toast({
+          title: "Upload Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsUploading(false);
     }
-  }, [startUpload]);
+  }, [startUpload, toast]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
