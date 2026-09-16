@@ -1,3 +1,5 @@
+import { usePromptQuizSettings } from "@/hooks/use-prompt-quiz-settings";
+import { QuizGenerationResumeDialog, type PausedGeneration } from "@/components/quiz-generation-resume-dialog";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -79,6 +81,7 @@ const RESET_CREATE_SESSION_KEY = "reset_create_session_after_generation";
 
 export default function Create() {
   const [, setLocation] = useLocation();
+  const [pausedGeneration, setPausedGeneration] = useState<PausedGeneration | null>(null);
   const {
     extractedText, setExtractedText,
     sourceMaterial, setSourceMaterial,
@@ -112,8 +115,9 @@ export default function Create() {
 
   // Quiz Configuration Settings State
   const [quizMode, setQuizMode] = useState<"generate" | "import">("generate");
-  const [questionCount, setQuestionCount] = useState<number>(10);
-  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
+  // Sending commits the prompt to sourceMaterial and starts analysis immediately.
+  // Keep it running across panels; unsent draft edits must not trigger requests.
+  const { questionCount, setQuestionCount, difficulty, setDifficulty, isDetectingSettings, settingsError, retrySettings } = usePromptQuizSettings(sourceMaterial.prompt || "", quizMode === "generate");
   const [questionTypes, setQuestionTypes] = useState<Array<"multiple_choice" | "true_false" | "short_answer">>(["multiple_choice", "true_false"]);
 
   useEffect(() => {
@@ -289,6 +293,7 @@ export default function Create() {
   const handlePromptSubmit = () => {
     const prompt = quizPrompt.trim();
     if (prompt.length < 3 || prompt.length > 1000) return;
+    if (settingsError) retrySettings();
 
     syncSources({
       ...getEditableSourceMaterial(),
@@ -373,6 +378,7 @@ export default function Create() {
   };
 
   const handleStartGeneration = async () => {
+    if (isDetectingSettings) return;
     const sourcePrompt = sourceMaterial.prompt?.trim() || "";
     const materialText = composeSourceMaterialText(sourceMaterial);
     const documentImages = sourceMaterial?.documentImages || [];
@@ -478,17 +484,18 @@ export default function Create() {
           setProcessingProgress(data.progress);
           setCurrentGenerationStep(data.step);
           setLoadingMessage(data.message);
+        } else if (data.type === "paused") {
+          generationCompleted = true;
+          setPausedGeneration(data.draft);
         } else if (data.type === "complete") {
           generationCompleted = true;
           setProcessingProgress(98);
           setCurrentGenerationStep("saving");
           setLoadingMessage("Saving your quiz...");
-          await new Promise(r => setTimeout(r, 500));
 
           setProcessingProgress(100);
           setCurrentGenerationStep("complete");
           setLoadingMessage("Quiz created successfully!");
-          await new Promise(r => setTimeout(r, 800));
 
           sessionStorage.setItem(RESET_CREATE_SESSION_KEY, "1");
           await clearJobs();
@@ -1160,6 +1167,8 @@ export default function Create() {
                 </div>
               </div>
 
+              {settingsError && <div role="alert" className="text-sm text-destructive">{settingsError} <Button variant="outline" size="sm" onClick={retrySettings}>Retry prompt settings</Button></div>}
+              {isDetectingSettings && <p role="status" className="text-sm text-muted-foreground">Reading count and difficulty from your prompt…</p>}
               {/* Quiz Options - Only show in Smart Practice mode */}
               {quizMode === "generate" && (
                 <div className="space-y-5 rounded-2xl border border-border/60 bg-background/50 p-4">
@@ -1311,10 +1320,10 @@ export default function Create() {
               </Button>
               <Button
                 onClick={handleStartGeneration}
-                disabled={!isReady}
+                disabled={!isReady || isDetectingSettings}
                 className="gap-2 rounded-xl font-black bg-primary hover:bg-primary/90 text-primary-foreground h-11 px-5"
               >
-                Start Generating Quiz
+                {isDetectingSettings ? "Reading prompt settings…" : "Start Generating Quiz"}
               </Button>
             </div>
           </SheetContent>
@@ -1344,6 +1353,19 @@ export default function Create() {
           </AlertDialogContent>
         </AlertDialog>
 
+        <QuizGenerationResumeDialog
+          draft={pausedGeneration}
+          blocked={isLoading}
+          onDraft={setPausedGeneration}
+          onComplete={async () => {
+            setPausedGeneration(null);
+            sessionStorage.setItem(RESET_CREATE_SESSION_KEY, "1");
+            await clearJobs();
+            resetQuiz();
+            await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
+            setLocation("/history");
+          }}
+        />
         {/* Headless Quiz Generator for SSE Progress Dialog Overlay */}
         <QuizGenerator headless={true} />
       </div>

@@ -206,6 +206,21 @@ export const insertQuizSchema = createInsertSchema(quizzes).omit({
 export type InsertQuiz = z.infer<typeof insertQuizSchema>;
 export type Quiz = typeof quizzes.$inferSelect;
 
+// Private generation checkpoints; these are not playable or public quizzes.
+export const quizGenerationDrafts = pgTable("quiz_generation_drafts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  payload: jsonb("payload"),
+  questions: jsonb("questions").notNull().$type<Question[]>().default([]),
+  title: text("title").notNull().default("Quiz in progress"),
+  category: text("category").notNull().default("Others/General"),
+  requested: integer("requested").notNull(),
+  status: text("status").notNull().$type<"running" | "paused" | "complete">(),
+  runToken: varchar("run_token").notNull(),
+  leaseUntil: timestamp("lease_until").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [index("quiz_generation_drafts_user_idx").on(table.userId)]);
+
 // Quiz results table
 export const quizResults = pgTable("quiz_results", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

@@ -65,3 +65,21 @@ test("processes top-level batches concurrently with a hard limit", async () => {
   assert.equal(maxActive, 2);
   assert.deepEqual([...rejected], [5, 10]);
 });
+
+test("reports completed items once per finished batch with four concurrent batches", async () => {
+  let active = 0;
+  let peak = 0;
+  const progress: number[] = [];
+  await runValidationBatchesWithIsolation(Array.from({ length: 20 }, (_, i) => i), {
+    batchSize: 5, concurrency: 4, logPrefix: "[TEST]", action: "Auditing",
+    log: () => undefined,
+    onCompleted: (completed, total) => { assert.equal(total, 20); progress.push(completed); },
+  }, async () => {
+    peak = Math.max(peak, ++active);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    active--;
+    return new Set<number>();
+  });
+  assert.equal(peak, 4);
+  assert.deepEqual(progress, [5, 10, 15, 20]);
+});

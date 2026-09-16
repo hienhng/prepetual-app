@@ -9,6 +9,7 @@
     "build": "tsx script/build.ts",
     "start": "dotenv -e .env -- cross-env NODE_ENV=production node dist/index.cjs",
     "check": "tsc",
+    "db:generation-drafts": "dotenv -e .env -- tsx script/migrate-generation-drafts.ts",
     "db:push": "dotenv -e .env -- tsx script/enable-pgvector.ts && dotenv -e .env -- drizzle-kit push"
   },
   "dependencies": {

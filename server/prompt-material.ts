@@ -7,96 +7,7 @@ export interface PromptMaterialInstructionsParams {
   assessmentGuidance?: string;
 }
 
-export interface PromptQuizSettings {
-  questionCount: number;
-  difficulty: DifficultyLevel;
-  questionCountCapped?: boolean;
-}
-
-interface PromptQuizSettingsCandidate {
-  questionCount?: unknown;
-  questionCountSpecified?: unknown;
-  difficulty?: unknown;
-  difficultySpecified?: unknown;
-}
-
-const DEFAULT_QUESTION_COUNT = 10;
-const MIN_QUESTION_COUNT = 3;
-const MAX_QUESTION_COUNT = 20;
-const DEFAULT_DIFFICULTY: DifficultyLevel = "medium";
-
-const findExplicitQuestionCount = (prompt: string): number | null => {
-  const patterns = [
-    /\b(\d+)\s*[- ]?\s*(?:questions?|items?)\b/i,
-    /\b(?:questions?|items?)\s*(?:count\s*)?(?:of\s*)?[:=]?\s*(\d+)\b/i,
-    /\b(\d+)\s*câu\s*hỏi\b/iu,
-    /\bsố\s*(?:lượng\s*)?câu\s*hỏi\s*[:=]?\s*(\d+)\b/iu,
-  ];
-
-  for (const pattern of patterns) {
-    const match = prompt.match(pattern);
-    const value = match ? Number(match[1]) : NaN;
-    if (Number.isSafeInteger(value)) return value;
-  }
-
-  return null;
-};
-
-const findExplicitDifficulty = (prompt: string): DifficultyLevel | null => {
-  const englishPatterns = [
-    /\b(?:difficulty|level)\s*(?:of\s*)?[:=-]?\s*(easy|medium|hard)\b/i,
-    /\b(easy|medium|hard)[ -]difficulty\b/i,
-    /\b(?:make|set)\s+(?:it|the quiz)\s+(?:to\s+)?(easy|medium|hard)\b/i,
-  ];
-
-  for (const pattern of englishPatterns) {
-    const match = prompt.match(pattern);
-    if (match) return match[1].toLowerCase() as DifficultyLevel;
-  }
-
-  const vietnameseMatch = prompt.match(/(?:độ\s*khó|mức\s*độ)\s*[:=-]?\s*(dễ|trung\s*bình|khó)/iu);
-  if (!vietnameseMatch) return null;
-
-  const value = vietnameseMatch[1].toLocaleLowerCase("vi").replace(/\s+/g, " ");
-  if (value === "dễ") return "easy";
-  if (value === "khó") return "hard";
-  return "medium";
-};
-
-export function resolvePromptQuizSettings(
-  prompt: string,
-  candidate: PromptQuizSettingsCandidate = {},
-): PromptQuizSettings {
-  const explicitQuestionCount = findExplicitQuestionCount(prompt);
-  const candidateQuestionCount = Number(candidate.questionCount);
-  const requestedQuestionCount = explicitQuestionCount ?? (
-    candidate.questionCountSpecified === true &&
-    Number.isSafeInteger(candidateQuestionCount)
-      ? candidateQuestionCount
-      : null
-  );
-  const questionCountCapped = requestedQuestionCount !== null && requestedQuestionCount > MAX_QUESTION_COUNT;
-  const questionCount = requestedQuestionCount !== null && requestedQuestionCount >= MIN_QUESTION_COUNT
-    ? Math.min(requestedQuestionCount, MAX_QUESTION_COUNT)
-    : DEFAULT_QUESTION_COUNT;
-
-  const explicitDifficulty = findExplicitDifficulty(prompt);
-  const candidateDifficulty = typeof candidate.difficulty === "string"
-    ? candidate.difficulty.toLowerCase()
-    : "";
-  const difficulty = explicitDifficulty ?? (
-    candidate.difficultySpecified === true &&
-    (candidateDifficulty === "easy" || candidateDifficulty === "medium" || candidateDifficulty === "hard")
-      ? candidateDifficulty as DifficultyLevel
-      : DEFAULT_DIFFICULTY
-  );
-
-  return {
-    questionCount,
-    difficulty,
-    ...(questionCountCapped ? { questionCountCapped: true } : {}),
-  };
-}
+export { resolvePromptQuizSettings } from "../shared/prompt-quiz-settings.js";
 
 export function buildPromptSettingsDetectionInstructions(): string {
   return `You extract quiz-generation settings from a user's request.
@@ -107,6 +18,8 @@ Determine only these two settings:
 
 RULES:
 - A question count is specified only when a number or number word describes how many quiz questions/items to create.
+- Understand arbitrary phrasing, number words, translations, and explicit totals (for example, "five on forces and seven on motion" means 12 questions).
+- When the user corrects an earlier count or difficulty, use their final requested value.
 - Do not treat years, grade levels, ages, chapter numbers, model numbers, or numbers in the quiz subject (for example, "World War 2") as a question count.
 - Extract an explicitly requested question count even when it is above 20; the application will cap it at 20.
 - If no question count is explicitly specified, use 10 and set questionCountSpecified to false.

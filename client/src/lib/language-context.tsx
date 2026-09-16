@@ -324,9 +324,9 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
         getStarted: "Get Started",
         itsFree: "—it's free",
         howItWorks: "How it works",
-        freeForever: "Free forever",
-        noCreditCard: "No credit card",
-        fileFormats: "PDF, Word, Images",
+        freeForever: "Upload",
+        noCreditCard: "Practice",
+        fileFormats: "Improve",
       },
       stats: {
         freeForever: "Free Forever",

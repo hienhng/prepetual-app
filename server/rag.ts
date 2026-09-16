@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 import { and, eq } from "drizzle-orm";
 import { cosineDistance } from "drizzle-orm/sql/functions/vector";
@@ -127,17 +127,41 @@ async function createEmbeddings(inputs: string[]): Promise<{ vectors: number[][]
 export async function indexRagSource(params: {
   userId: string;
   text: string;
+  sourceId?: string;
+  chunkIds?: string[];
 }): Promise<IndexedRagSource> {
   const chunks = chunkSourceText(params.text);
   if (chunks.length === 0 || chunks.reduce((sum, chunk) => sum + chunk.content.length, 0) < 50) {
     throw new Error("The source does not contain enough extractable text for dense retrieval.");
   }
 
-  const { vectors, model } = await createEmbeddings(chunks.map((chunk) => chunk.content));
   const contentHash = createHash("sha256").update(params.text).digest("hex");
+  const model = getEmbeddingConfig().model;
+  const [cached] = await db.select({ id: ragSources.id }).from(ragSources).where(and(
+    eq(ragSources.userId, params.userId),
+    eq(ragSources.contentHash, contentHash),
+    eq(ragSources.embeddingModel, model),
+    eq(ragSources.embeddingDimensions, RAG_EMBEDDING_DIMENSIONS),
+    eq(ragSources.chunkCount, chunks.length),
+  )).limit(1);
+  const cachedChunks = cached ? await db.select({
+    content: ragSourceChunks.content,
+    embedding: ragSourceChunks.embedding,
+  }).from(ragSourceChunks).where(eq(ragSourceChunks.sourceId, cached.id))
+    .orderBy(ragSourceChunks.chunkIndex) : [];
+  // Validate chunk content too, so a chunker change invalidates old embeddings.
+  const cacheHit = cachedChunks.length === chunks.length &&
+    cachedChunks.every((chunk, i) => chunk.content === chunks[i].content);
+  const vectors = cacheHit ? cachedChunks.map((chunk) => chunk.embedding) :
+    (await createEmbeddings(chunks.map((chunk) => chunk.content))).vectors;
+  console.info("[RAG INDEX]", { cacheHit, chunks: chunks.length });
+  if (params.chunkIds && params.chunkIds.length !== chunks.length) {
+    throw new Error("Prepared source chunk count changed before indexing.");
+  }
 
   const sourceId = await db.transaction(async (transaction) => {
     const [source] = await transaction.insert(ragSources).values({
+      id: params.sourceId || randomUUID(),
       userId: params.userId,
       contentHash,
       embeddingModel: model,
@@ -146,6 +170,7 @@ export async function indexRagSource(params: {
     }).returning({ id: ragSources.id });
 
     const rows = chunks.map((chunk, index) => ({
+      id: params.chunkIds?.[index] || randomUUID(),
       sourceId: source.id,
       chunkIndex: chunk.chunkIndex,
       content: chunk.content,

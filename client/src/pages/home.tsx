@@ -41,7 +41,9 @@ import {
   CircleDot,
   Shield,
   ListCheck,
-  Pause
+  Pause,
+  Pencil,
+  BookOpenCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -2805,47 +2807,13 @@ export default function Home() {
                         .getElementById("how-it-works")
                         ?.scrollIntoView({ behavior: "smooth" })
                     }
-                    className="gap-2 w-full sm:w-auto h-13 text-base font-medium text-muted-foreground hover:text-foreground transition-all duration-300 group-hover:bg-primary/5"
+                    className="gap-2 w-full sm:w-auto h-13 text-base font-medium text-muted-foreground/200 hover:text-foreground transition-all duration-300 group-hover:bg-primary/5"
                     data-testid="button-hero-learn-more"
                   >
                     <ArrowDown className="h-4 w-4 group-hover:translate-y-1 transition-transform" />
                     {t("home.hero.howItWorks")}
                   </Button>
                 </motion.div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-                {[
-                  { icon: CheckCircle2, text: t("home.hero.freeForever") },
-                  { icon: CheckCircle2, text: t("home.hero.noCreditCard") },
-                  { icon: CheckCircle2, text: t("home.hero.fileFormats") },
-                ].map((item, i) => (
-                  <motion.div
-                    key={item.text}
-                    className="flex items-center gap-1.5 text-sm text-muted-foreground"
-                    initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    transition={{
-                      delay: 0.85 + i * 0.1,
-                      duration: 0.5,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
-                  >
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{
-                        delay: 0.95 + i * 0.1,
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 15,
-                      }}
-                    >
-                      <item.icon className="h-4 w-4 text-primary flex-shrink-0" />
-                    </motion.div>
-                    <span>{item.text}</span>
-                  </motion.div>
-                ))}
               </div>
             </div>
           </div>

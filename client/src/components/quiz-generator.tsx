@@ -1,3 +1,5 @@
+import { usePromptQuizSettings } from "@/hooks/use-prompt-quiz-settings";
+import { QuizGenerationResumeDialog, type PausedGeneration } from "./quiz-generation-resume-dialog";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, Import, FileQuestionIcon, ArrowRight, BookText, Gauge, CheckSquare, ToggleLeft, MessageSquare, X } from "lucide-react";
@@ -33,6 +35,7 @@ async function getResponseErrorMessage(response: Response, fallback: string): Pr
 
 export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
   const [, setLocation] = useLocation();
+  const [pausedGeneration, setPausedGeneration] = useState<PausedGeneration | null>(null);
   const {
     extractedText, setExtractedText,
     sourceMaterial, setSourceMaterial,
@@ -59,9 +62,8 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
   const isPromptBased = hasQuizPrompt && !materialText && !hasSourceImages;
   const previewText = materialText || sourcePrompt;
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
-  const [questionCount, setQuestionCount] = useState<number>(10);
   const [questionTypes, setQuestionTypes] = useState<Array<"multiple_choice" | "true_false" | "short_answer">>(["multiple_choice", "true_false"]);
-  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
+  const { questionCount, setQuestionCount, difficulty, setDifficulty, isDetectingSettings, settingsError, retrySettings } = usePromptQuizSettings(sourcePrompt, !headless && mode === "generate");
 
   useEffect(() => {
     if (hasQuizPrompt && mode !== "generate") {
@@ -152,7 +154,6 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
 
     const messages: Record<string, string> = {
       starting: "Starting quiz generation...",
-      analyzing_prompt: "Analyzing your quiz request...",
       creating_material: "Creating study material for your quiz...",
       material_ready: "Study material created. Generating questions from it...",
       reading: "Reading your study material...",
@@ -169,6 +170,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
   };
 
   const generateQuiz = async () => {
+    if (isDetectingSettings) return;
     if (!materialText && !sourcePrompt && !hasSourceImages) return;
 
     setGenerationNotice("");
@@ -290,6 +292,9 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
           if (data.step === "question_count_capped") {
             setGenerationNotice(data.message);
           }
+        } else if (data.type === "paused") {
+          generationCompleted = true;
+          setPausedGeneration(data.draft);
         } else if (data.type === "complete") {
           generationCompleted = true;
 
@@ -298,15 +303,13 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
           setCurrentGenerationStep("saving");
           setLoadingMessage("Saving your quiz...");
 
-          // Brief pause to show saving state
-          await new Promise(resolve => setTimeout(resolve, 500));
+
 
           setProcessingProgress(100);
           setCurrentGenerationStep("complete");
           setLoadingMessage("Quiz created successfully!");
 
-          // Another brief pause before redirect
-          await new Promise(resolve => setTimeout(resolve, 800));
+
 
           setCurrentQuiz(data.quiz);
           clearJob();
@@ -424,6 +427,16 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
+      <QuizGenerationResumeDialog draft={pausedGeneration} blocked={isLoading} onDraft={setPausedGeneration}
+        onComplete={async (quiz) => {
+          setPausedGeneration(null);
+          setCurrentQuiz(quiz);
+          clearJob();
+          setExtractedText("");
+          setSourceMaterial({ ...sourceMaterial, text: quiz.sourceText || null });
+          await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
+          setLocation("/history");
+        }} />
       {/* Expanded Image Modal */}
       <AnimatePresence>
         {expandedImage && (
@@ -685,6 +698,8 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <CardTitle className="text-xl font-black">Quiz Options</CardTitle>
+                  {isDetectingSettings && <p role="status">Reading count and difficulty from your prompt…</p>}
+                  {settingsError && <div role="alert">{settingsError} <Button variant="outline" size="sm" onClick={retrySettings}>Retry prompt settings</Button></div>}
                   <p className="text-sm text-muted-foreground max-w-2xl">
                     Control the number of questions, difficulty, and quiz format before generating.
                   </p>
@@ -811,7 +826,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
 
           <Button
             onClick={generateQuiz}
-            disabled={isLoading}
+            disabled={isLoading || isDetectingSettings}
             size="xl"
             className="w-full gap-3 h-16 text-xl font-black rounded-2xl  shadow-primary/200  transition-all group overflow-hidden relative"
             data-testid="button-generate-quiz"
@@ -880,7 +895,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
 
           <Button
             onClick={generateQuiz}
-            disabled={isLoading}
+            disabled={isLoading || isDetectingSettings}
             size="xl"
             className="w-full gap-3 h-16 text-xl font-black rounded-2xl shadow-xl shadow-amber-500/20 hover:shadow-amber-500/30 transition-all bg-amber-500 hover:bg-amber-600 group"
             data-testid="button-import-quiz"

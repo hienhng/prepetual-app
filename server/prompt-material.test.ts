@@ -52,6 +52,30 @@ test("uses explicit prompt settings when present", () => {
   );
 });
 
+test("validates any model-extracted count within the slider range", () => {
+  for (let count = 3; count <= 20; count++) {
+    assert.deepEqual(resolvePromptQuizSettings("", {
+      questionCount: count, questionCountSpecified: true,
+      difficulty: "hard", difficultySpecified: true,
+    }), { questionCount: count, difficulty: "hard" });
+  }
+});
+
+test("prefills count and difficulty from descriptive question requests", () => {
+  assert.deepEqual(
+    resolvePromptQuizSettings("Make me 15 difficult questions focusing on Newton's laws and conceptual reasoning"),
+    { questionCount: 15, difficulty: "hard" },
+  );
+  assert.deepEqual(
+    resolvePromptQuizSettings("Make 8 easy questions about World War 2"),
+    { questionCount: 8, difficulty: "easy" },
+  );
+  assert.deepEqual(
+    resolvePromptQuizSettings("Create a quiz about hard water and World War 2"),
+    { questionCount: 10, difficulty: "medium" },
+  );
+});
+
 test("uses ten medium questions when prompt settings are absent", () => {
   assert.deepEqual(
     resolvePromptQuizSettings("Create a quiz about biology."),

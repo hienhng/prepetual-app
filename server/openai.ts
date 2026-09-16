@@ -1,3 +1,5 @@
+import { resolvePromptQuizSettings } from "../shared/prompt-quiz-settings.js";
+import { createGenerationTiming } from "./generation-timing.js";
 import OpenAI from "openai";
 import pLimit from "p-limit"; // Force reload: 2026-04-28 14:06
 import pRetry from "p-retry";
@@ -19,8 +21,6 @@ import {
 import {
   buildPromptMaterialSystemInstructions,
   buildPromptSettingsDetectionInstructions,
-  resolvePromptQuizSettings,
-  type PromptQuizSettings,
 } from "./prompt-material.js";
 import { POSITION_INDEPENDENT_EXPLANATION_RULE } from "./explanation-guidance.js";
 import { KATEX_FORMATTING_RULES, getKatexFormattingIssue } from "./math-format.js";
@@ -42,6 +42,7 @@ import {
   getQuizQuestionDeficit,
   getQuizTopUpCandidateCount,
   needsQuizAnswerCompletion,
+  normalizeQuizCandidate,
 } from "./quiz-generation-policy.js";
 
 const openai = new OpenAI({
@@ -549,6 +550,7 @@ type AnswerVerificationContext = {
   generationGuidance?: string;
   requireSourceGrounding?: boolean;
   allowedSourceChunkIds?: string[];
+  onAuditCompleted?: (completed: number, total: number) => void;
 };
 
 async function aiValidateLanguageConsistencyBatch(
@@ -748,7 +750,7 @@ CRITICAL NUMERIC/UNIT RULES:
 Questions to verify:
 ${JSON.stringify(verificationItems, null, 2)}
 
-${sourceExcerpt ? `${context.requireSourceGrounding ? "RETRIEVED SOURCE EVIDENCE (exclusive authority; do not correct, supplement, or reinterpret it using outside knowledge)" : "SOURCE MATERIAL (use as evidence, but correct obvious source typos using established knowledge)"}:\n${sourceExcerpt}` : context.requireSourceGrounding ? "No retrieved evidence is available. Mark every item unverifiable." : "No source text is available. Use established knowledge and reject anything you cannot verify confidently."}
+${sourceExcerpt ? `${context.requireSourceGrounding ? "RETRIEVED SOURCE EVIDENCE (exclusive authority; do not correct, supplement, or reinterpret it using outside knowledge)" : context.sourceKind === "user_request" ? "USER REQUEST (scope and language guidance only, not factual evidence; verify using established knowledge)" : "SOURCE MATERIAL (use as evidence, but correct obvious source typos using established knowledge)"}:\n${sourceExcerpt}` : context.requireSourceGrounding ? "No retrieved evidence is available. Mark every item unverifiable." : "No source text is available. Use established knowledge and reject anything you cannot verify confidently."}
 
 ${context.requireSourceGrounding ? "For each item, verify that its sourceChunkIds exist verbatim in the retrieved evidence and that those cited chunks directly support both the stem and the correct option. Mark it unverifiable if not." : ""}
 
@@ -898,10 +900,12 @@ async function aiVerifyAnswers(
   return runValidationBatchesWithIsolation(
     objectiveQuestions,
     {
-      batchSize: QUIZ_VALIDATION_BATCH_SIZE,
+      // Keep a small surplus within the same four parallel audit requests.
+      batchSize: Math.min(6, Math.max(QUIZ_VALIDATION_BATCH_SIZE, Math.ceil(objectiveQuestions.length / QUIZ_VALIDATION_CONCURRENCY))),
       concurrency: QUIZ_VALIDATION_CONCURRENCY,
       logPrefix,
       action: "Auditing",
+      onCompleted: context.onAuditCompleted,
     },
     (isolatedBatch, isolatedLogPrefix) => aiVerifyAnswersBatch(
       isolatedBatch,
@@ -1170,7 +1174,11 @@ async function aiSolveAndCompleteDrafts(
   );
 }
 
-interface QuizGenerationParams {
+export type QuizGenerationCheckpoint = { questions: Question[]; title: string; category: QuizCategory };
+
+export interface QuizGenerationParams {
+  resumeState?: QuizGenerationCheckpoint;
+  onCheckpoint?: (checkpoint: QuizGenerationCheckpoint) => Promise<void>;
   text: string;
   questionCount: number;
   questionTypes: QuestionType[];
@@ -1203,65 +1211,22 @@ interface PromptStudyMaterialParams {
   onProgress?: ProgressCallback;
 }
 
-interface PromptSettingsDetectionParams {
-  prompt: string;
-  onProgress?: ProgressCallback;
-}
-
-export async function detectQuizSettingsFromPrompt({
-  prompt,
-  onProgress,
-}: PromptSettingsDetectionParams): Promise<PromptQuizSettings> {
-  const trimmedPrompt = prompt.trim();
-  onProgress?.("analyzing_prompt", 10, "Detecting question count and difficulty...");
-
-  try {
-    const candidate = await pRetry(
-      async () => {
-        const completion = await openai.chat.completions.create(
-          {
-            model: quizModel,
-            messages: [
-              { role: "system", content: buildPromptSettingsDetectionInstructions() },
-              { role: "user", content: trimmedPrompt },
-            ],
-            response_format: { type: "json_object" },
-            temperature: 0,
-            max_tokens: 150,
-          },
-          quizModelRequestOptions(),
-        );
-
-        const content = completion.choices[0]?.message?.content;
-        if (!content) throw new Error("Empty prompt-settings response");
-        return JSON.parse(extractJsonObject(content));
-      },
-      { retries: 2, minTimeout: 500, maxTimeout: 3000 },
-    );
-
-    const settings = resolvePromptQuizSettings(trimmedPrompt, candidate);
-    const settingsMessage = settings.questionCountCapped
-      ? "Maximum is 20 questions. Generating 20 questions instead."
-      : `Detected ${settings.questionCount} questions at ${settings.difficulty} difficulty.`;
-    onProgress?.(
-      settings.questionCountCapped ? "question_count_capped" : "prompt_settings_ready",
-      15,
-      settingsMessage,
-    );
-    return settings;
-  } catch (error) {
-    console.warn("Prompt settings detection failed; using validated defaults/fallbacks:", error);
-    const settings = resolvePromptQuizSettings(trimmedPrompt);
-    const settingsMessage = settings.questionCountCapped
-      ? "Maximum is 20 questions. Generating 20 questions instead."
-      : `Using ${settings.questionCount} questions at ${settings.difficulty} difficulty.`;
-    onProgress?.(
-      settings.questionCountCapped ? "question_count_capped" : "prompt_settings_ready",
-      15,
-      settingsMessage,
-    );
-    return settings;
-  }
+// Settings are interpreted when the user sends the prompt, before generation.
+export async function detectQuizSettingsFromPrompt(prompt: string) {
+  const completion = await openai.chat.completions.create({
+    model: quizModel,
+    messages: [
+      { role: "system", content: buildPromptSettingsDetectionInstructions() },
+      { role: "user", content: prompt },
+    ],
+    response_format: { type: "json_object" },
+    temperature: 0,
+    max_tokens: 150,
+  }, quizModelRequestOptions());
+  const content = completion.choices[0]?.message?.content;
+  if (!content) throw new Error("Empty settings response");
+  // Validate the semantic result without allowing regex matches to override it.
+  return resolvePromptQuizSettings("", JSON.parse(extractJsonObject(content)));
 }
 
 export async function generateStudyMaterialFromPrompt({
@@ -1325,7 +1290,13 @@ export async function generateStudyMaterialFromPrompt({
 export async function generateQuizQuestions(
   params: QuizGenerationParams,
 ): Promise<{ questions: Question[]; title: string; category: QuizCategory }> {
-  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress, isImageOnly = false, isPromptBased = false, sourceRequest, userPreferences, ragGrounding } = params;
+  const { text, questionCount, questionTypes, difficulty = "medium", documentImages = [], onProgress: reportProgress, isImageOnly = false, isPromptBased = false, sourceRequest, userPreferences, ragGrounding } = params;
+  const timing = createGenerationTiming();
+  const counts = { initialRequests: 0, topUpRequests: 0, completionCandidates: 0, auditedCandidates: 0, rejectedCandidates: 0 };
+  const onProgress = (step: string, progress: number, message: string) => {
+    timing.mark(step);
+    reportProgress?.(step, progress, message);
+  };
   const hasImages = documentImages.length > 0;
   const allowedSourceChunkIds = new Set(ragGrounding?.allowedChunkIds || []);
   const requireSourceGrounding = Boolean(ragGrounding);
@@ -1349,7 +1320,7 @@ export async function generateQuizQuestions(
   const effectiveQuestionTypes = applyAssessmentQuestionTypePreference(questionTypes, assessmentProfile);
   const assessmentGuidance = assessmentProfile?.guidance || "";
   const sourceRequestGuidance = sourceRequest?.trim()
-    ? `USER'S QUIZ REQUEST (use this to guide scope, audience, emphasis, and output language; it is not factual evidence):\n${sourceRequest.trim()}\n\n- Follow this request wherever it does not conflict with the configured question count, question types, difficulty, grounding, or output rules.\n- Ground every factual claim in the retrieved source evidence. Do not treat the request itself as evidence.`
+    ? `USER'S QUIZ REQUEST (use this to guide scope, audience, emphasis, and output language; it is not factual evidence):\n${sourceRequest.trim()}\n\n- Follow this request wherever it does not conflict with the configured question count, question types, difficulty, grounding, or output rules.\n${isPromptBased ? "- Use reliable established knowledge; the request specifies scope, not factual evidence." : "- Ground every factual claim in the source evidence. Do not treat the request itself as evidence."}`
     : "";
 
   const questionTypeDescriptions = effectiveQuestionTypes
@@ -1386,7 +1357,7 @@ const draftPhaseInstructions = `COMPLETE INITIAL GENERATION (HIGHEST PRIORITY):
 - Generate each complete quiz question in this first response, including its answer, options when applicable, and learner-facing explanation. Do not leave these fields for a later pass.
 - Solve every question before choosing correctAnswer or creating distractors. For mathematical questions, solution must show the givens, formula or rule, substitution, sequential calculations, units, and an independent cross-check. For factual questions, solution may be the concise decisive fact.
 - NEVER append or embed answer choices in question. For example, do not place "A) ... B) ... C) ... D) ..." after a passage or stem. Put choices only in the separate options array.
-- SOURCE CONTENT ONLY: test the concepts, facts, reasoning, and skills taught by the source. Never ask about the source artifact itself—no page numbers, question numbers, section locations, filenames, upload details, or counts of pages/questions.
+- ${isPromptBased ? "REQUESTED SCOPE ONLY: test the concepts and skills requested using reliable established knowledge." : "SOURCE CONTENT ONLY: test the concepts, facts, reasoning, and skills taught by the source."} Never ask about the source artifact itself—no page numbers, question numbers, section locations, filenames, upload details, or counts of pages/questions.
 - CLOSED-BOOK QUESTIONS ONLY: the learner must be able to answer from the question field and its options alone, without opening, viewing, or remembering the uploaded material. Never write stems such as "According to the material," "In the image/diagram/table above," or "What is the depth/answer/value?" when the required passage, figure, labels, measurements, data, formula, or other givens exist only in the source.
 - Copy or concisely restate every stimulus and fact needed to solve the item inside the question field. Convert useful information from source images, diagrams, charts, and tables into a complete textual description or inline data in the stem. If the necessary context cannot be reproduced clearly and compactly, test a different concept.
 ${KATEX_FORMATTING_RULES}
@@ -1586,12 +1557,11 @@ ${draftPhaseInstructions}`;
   try {
     // Step 2: Analyzing content
     onProgress?.("analyzing", 25, isPromptBased ? "Planning your requested quiz..." : "Analyzing content structure...");
-    await new Promise(resolve => setTimeout(resolve, 300));
 
     // Step 3: Preparing AI request
     onProgress?.("preparing", 35, hasImages ? "Processing visual content..." : "Preparing quiz generation...");
 
-    const response = await pRetry(
+    const response = params.resumeState ? JSON.stringify({ ...params.resumeState, questions: [] }) : await pRetry(
       async () => {
         let messages: any[];
 
@@ -1626,13 +1596,14 @@ ${draftPhaseInstructions}`;
         const aiModel = hasImages ? visionModel : quizModel;
 
         while (!content && emptyRetries < maxEmptyRetries) {
+          counts.initialRequests++;
           const completion = await aiClient.chat.completions.create(
             {
               model: aiModel,
               messages,
               response_format: { type: "json_object" },
               // The initial response contains the complete requested quiz.
-              max_tokens: 8192,
+              max_tokens: 10_240,
             },
             quizModelRequestOptions(),
           );
@@ -1693,11 +1664,11 @@ ${draftPhaseInstructions}`;
     // The AI sometimes returns extra questions and some early ones can be malformed or wrong-type.
     // If we slice first, we can accidentally throw away valid extras and end up returning fewer
     // questions than the user requested.
-    const rawQuestions = parsed.questions;
+    const rawQuestions = parsed.questions.map(normalizeQuizCandidate);
     console.log(
       `Initial generation returned ${rawQuestions.length}/${initialCandidateCount} requested complete questions.`,
     );
-    if (rawQuestions.length < initialCandidateCount) {
+    if (!params.resumeState && rawQuestions.length < initialCandidateCount) {
       console.warn(
         `Initial generation count mismatch: returned ${rawQuestions.length}, requested ${initialCandidateCount}.`,
       );
@@ -1740,6 +1711,7 @@ ${draftPhaseInstructions}`;
           `eligible questions incomplete; running answer completion only for those items.`,
         );
       }
+      counts.completionCandidates += incompleteDraftQuestions.length;
       const solveRejectedQuestions = await aiSolveAndCompleteDrafts(
         incompleteDraftQuestions,
         logPrefix,
@@ -1868,6 +1840,7 @@ ${draftPhaseInstructions}`;
       const objectiveQuestions = built.filter(
         (q) => q.type === "multiple_choice" || q.type === "true_false",
       );
+      counts.auditedCandidates += objectiveQuestions.length;
       const auditRejectedQuestions = await aiVerifyAnswers(
         objectiveQuestions,
         `${logPrefix} INDEPENDENT AUDIT`,
@@ -1876,6 +1849,9 @@ ${draftPhaseInstructions}`;
           documentImages,
           requireSourceGrounding,
           allowedSourceChunkIds: [...allowedSourceChunkIds],
+          sourceKind: isPromptBased ? "user_request" : "material",
+          onAuditCompleted: (completed, total) => onProgress("verifying", 85,
+            `Checked ${completed} of ${total} candidate questions...`),
         },
       );
 
@@ -1885,6 +1861,7 @@ ${draftPhaseInstructions}`;
         `${built.length - auditRejectedQuestions.size} accepted.`,
       );
 
+      counts.rejectedCandidates += inputRawQuestions.length - built.length + auditRejectedQuestions.size;
       if (auditRejectedQuestions.size === 0) return built.slice(0, limit);
 
       for (const q of auditRejectedQuestions) {
@@ -1897,8 +1874,13 @@ ${draftPhaseInstructions}`;
 
     generationStage = "solving_and_auditing";
     onProgress?.("verifying", 85, "Solving and independently auditing answers...");
-    const seenQuestionKeys = new Set<string>();
-    const questions = await buildQuestionsFromRaw(rawQuestions, questionCount, seenQuestionKeys, "[SOLVE/BUILD]");
+    // Saved questions have already passed validation; never regenerate or shuffle them.
+    const questions = [...(params.resumeState?.questions || [])];
+    const seenQuestionKeys = new Set(questions.map((q) => normalizeQuestionKey(q.question)));
+    if (!params.resumeState) {
+      questions.push(...await buildQuestionsFromRaw(rawQuestions, questionCount, seenQuestionKeys, "[SOLVE/BUILD]"));
+    }
+    await params.onCheckpoint?.({ questions, title, category });
     const logAcceptedQuestionNumbers = (
       source: string,
       firstQuestionNumber: number,
@@ -2022,6 +2004,7 @@ OUTPUT FORMAT (JSON):
                 request.response_format = { type: "json_object" };
               }
 
+              counts.topUpRequests++;
               const completion = await openai.chat.completions.create(request, {
                 signal: topUpSignal,
                 timeout: QUIZ_MODEL_REQUEST_TIMEOUT_MS,
@@ -2060,7 +2043,7 @@ OUTPUT FORMAT (JSON):
         let topUpRaw: any[] = [];
         try {
           const topUpParsed = JSON.parse(extractJsonObject(topUpResponse));
-          topUpRaw = Array.isArray(topUpParsed?.questions) ? topUpParsed.questions : [];
+          topUpRaw = Array.isArray(topUpParsed?.questions) ? topUpParsed.questions.map(normalizeQuizCandidate) : [];
         } catch (parseError) {
           const message = parseError instanceof Error ? parseError.message : String(parseError);
           console.warn(`Top-up attempt ${attempt + 1} returned invalid JSON: ${message}`);
@@ -2080,6 +2063,7 @@ OUTPUT FORMAT (JSON):
         );
         const firstGeneratedQuestionNumber = questions.length + 1;
         questions.push(...extra);
+        await params.onCheckpoint?.({ questions, title, category });
         logAcceptedQuestionNumbers(
           `Top-up attempt ${attempt + 1}`,
           firstGeneratedQuestionNumber,
@@ -2112,6 +2096,7 @@ OUTPUT FORMAT (JSON):
       });
     }
 
+    console.info("[QUIZ COUNTS]", { requestId: timing.requestId, requested: questionCount, initialCandidates: rawQuestions.length, accepted: questions.length });
     // Step 6: Finalizing
     generationStage = "finalizing";
     onProgress?.("finalizing", 95, "Finalizing your quiz...");
@@ -2126,6 +2111,9 @@ OUTPUT FORMAT (JSON):
       stage: generationStage,
       cause: error,
     });
+  } finally {
+    console.info("[QUIZ COUNTS]", { requestId: timing.requestId, ...counts });
+    timing.finish();
   }
 }
 

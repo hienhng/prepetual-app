@@ -1,5 +1,9 @@
+import { normalizeMultipleChoiceAnswerSet } from "./quiz-quality.js";
+
 export const QUIZ_VALIDATION_BATCH_SIZE = 5;
-export const QUIZ_VALIDATION_CONCURRENCY = 2;
+// Override downward for providers with tighter request limits.
+export const QUIZ_VALIDATION_CONCURRENCY = Math.min(4, Math.max(1,
+  Math.floor(Number(process.env.QUIZ_VALIDATION_CONCURRENCY) || 4)));
 export const QUIZ_MODEL_REQUEST_TIMEOUT_MS = 45_000;
 export const QUIZ_GENERATION_CONTEXT_MAX_CHARS = 30_000;
 export const QUIZ_TOP_UP_ATTEMPTS = 3;
@@ -18,7 +22,9 @@ export function getQuizRagBudget(questionCount: number): QuizRagBudget {
 }
 
 export function getInitialQuizCandidateCount(questionCount: number): number {
-  return Math.max(3, Math.min(20, Math.floor(questionCount)));
+  const count = Math.max(3, Math.min(20, Math.floor(questionCount)));
+  // A small reserve avoids a second generation round after an audit rejection.
+  return count + Math.min(2, Math.ceil(count * 0.1));
 }
 
 export function needsQuizAnswerCompletion(candidate: unknown): boolean {
@@ -41,6 +47,26 @@ export function needsQuizAnswerCompletion(candidate: unknown): boolean {
   return question.type !== "short_answer";
 }
 
+/** Repair presentation only; factual correctness still requires the independent audit. */
+export function normalizeQuizCandidate(candidate: any): any {
+  if (!candidate || typeof candidate !== "object") return candidate;
+  const result = { ...candidate };
+  for (const field of ["question", "correctAnswer", "explanation"]) {
+    if (typeof result[field] === "string") result[field] = result[field].trim();
+  }
+  if (result.type === "true_false" && typeof result.correctAnswer === "string") {
+    if (/^true$/i.test(result.correctAnswer)) result.correctAnswer = "True";
+    if (/^false$/i.test(result.correctAnswer)) result.correctAnswer = "False";
+  }
+  if (result.type === "multiple_choice" && Array.isArray(result.options) &&
+      result.options.every((option: unknown) => typeof option === "string") &&
+      typeof result.correctAnswer === "string") {
+    const normalized = normalizeMultipleChoiceAnswerSet(result.options, result.correctAnswer);
+    if (normalized) Object.assign(result, normalized);
+  }
+  return result;
+}
+
 export function getQuizQuestionDeficit(requestedCount: number, generatedCount: number): number {
   const requested = Math.max(0, Math.floor(requestedCount));
   const generated = Math.max(0, Math.floor(generatedCount));
@@ -49,7 +75,7 @@ export function getQuizQuestionDeficit(requestedCount: number, generatedCount: n
 
 export function getQuizTopUpCandidateCount(missingQuestionCount: number): number {
   const missing = Math.max(1, Math.floor(missingQuestionCount));
-  return Math.min(8, Math.max(4, missing * 2));
+  return Math.min(8, missing + 1);
 }
 
 export function getQuizGenerationContext(sourceText: string | undefined): string {

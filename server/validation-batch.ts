@@ -59,6 +59,7 @@ export async function runValidationBatchesWithIsolation<T>(
     action: string;
     log?: BatchLog;
     warn?: BatchWarning;
+    onCompleted?: (completed: number, total: number) => void;
   },
   validateBatch: (batch: T[], batchLogPrefix: string) => Promise<Set<T>>,
 ): Promise<Set<T>> {
@@ -70,6 +71,7 @@ export async function runValidationBatchesWithIsolation<T>(
   const limit = pLimit(concurrency);
   const log = options.log ?? console.log;
   const warn = options.warn ?? console.warn;
+  let completed = 0;
 
   const results = await Promise.all(
     Array.from({ length: batchCount }, (_, batchIndex) => {
@@ -80,12 +82,15 @@ export async function runValidationBatchesWithIsolation<T>(
           `${options.logPrefix} ${options.action} batch ${batchIndex + 1}/${batchCount} ` +
           `(questions ${start + 1}-${start + batch.length} of ${items.length}).`,
         );
-        return runValidationBatchWithIsolation(
+        const result = await runValidationBatchWithIsolation(
           batch,
           `${options.logPrefix} BATCH ${batchIndex + 1}/${batchCount}`,
           validateBatch,
           warn,
         );
+        completed += batch.length;
+        options.onCompleted?.(completed, items.length);
+        return result;
       });
     }),
   );

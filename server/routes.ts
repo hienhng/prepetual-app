@@ -1,14 +1,17 @@
+import { createGenerationDraft, runGenerationDraft, claimGenerationDraft, listGenerationDrafts } from "./quiz-generation-drafts.js";
 import type { Express } from "express";
 import { Router } from "express"; // Force reload: 2026-04-28 14:06
 import { createServer, type Server } from "http";
 
+import { createGenerationTiming } from "./generation-timing.js";
+import { prepareQuizSource } from "./quiz-source-preparation.js";
 import { storage } from "./storage.js";
 import { setupAuth, isAuthenticated, populateUser } from "./auth.js";
 import { sendContactEmail, sendBugReportEmail } from "./email.js";
 import multer from "multer";
 import { ocrImageBuffer, terminateOCRWorker } from "./ocr.js";
 import { extractTextFromOfficeDocument } from "./office-extract.js";
-import { detectQuizSettingsFromPrompt, generateQuizQuestions, generateStudyMaterialFromPrompt, importExistingQuiz, quizChatResponse, classifyImages, extractTextFromImagesWithVision, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
+import { detectQuizSettingsFromPrompt, importExistingQuiz, quizChatResponse, classifyImages, extractTextFromImagesWithVision, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
 import { IMAGE_ANALYSIS_SOURCE_MARKER, generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs.js";
@@ -26,7 +29,6 @@ import {
 import { deleteRagSource, indexRagSource, planQuizRetrievalQueries, retrieveRagContext } from "./rag.js";
 import {
   getQuizGenerationErrorPayload,
-  getQuizRagBudget,
 } from "./quiz-generation-policy.js";
 import { resolveQuizGenerationSources } from "./quiz-sources.js";
 import {
@@ -86,6 +88,13 @@ const sourceProcessingRateLimit = createRateLimitMiddleware({
 const aiGenerationRateLimit = createRateLimitMiddleware({
   scope: "ai-generation",
   limit: readPositiveIntegerEnv("AI_GENERATION_RATE_LIMIT", 6),
+  windowMs: PROVIDER_RATE_LIMIT_WINDOW_MS,
+  store: postgresRateLimitStore,
+});
+
+const promptSettingsRateLimit = createRateLimitMiddleware({
+  scope: "quiz-prompt-settings",
+  limit: readPositiveIntegerEnv("PROMPT_SETTINGS_RATE_LIMIT", 30),
   windowMs: PROVIDER_RATE_LIMIT_WINDOW_MS,
   store: postgresRateLimitStore,
 });
@@ -396,29 +405,7 @@ async function prepareQuizRag(params: {
   difficulty: DifficultyLevel;
   onProgress?: (step: string, progress: number, message: string) => void;
 }) {
-  params.onProgress?.("indexing", 40, "Indexing source material for semantic search...");
-  const indexed = await indexRagSource({ userId: params.userId, text: params.text });
-
-  try {
-    params.onProgress?.("retrieving", 48, "Searching the source for relevant evidence...");
-    const queries = await planQuizRetrievalQueries({
-      documentMap: indexed.documentMap,
-      sourceRequest: params.sourceRequest,
-      questionCount: params.questionCount,
-      questionTypes: params.questionTypes,
-      difficulty: params.difficulty,
-    });
-    const retrieved = await retrieveRagContext({
-      sourceId: indexed.sourceId,
-      ownerUserId: params.userId,
-      queries,
-      ...getQuizRagBudget(params.questionCount),
-    });
-    return { sourceId: indexed.sourceId, retrieved };
-  } catch (error) {
-    await deleteRagSource({ sourceId: indexed.sourceId, userId: params.userId });
-    throw error;
-  }
+  return prepareQuizSource(params, { indexRagSource, planQuizRetrievalQueries, retrieveRagContext, deleteRagSource });
 }
 
 export async function registerRoutes(
@@ -746,8 +733,40 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/quiz-generation-drafts", isAuthenticated, async (req: any, res) => {
+    try { res.json(await listGenerationDrafts(req.user.claims.sub)); }
+    catch (error) { console.error(error); res.status(500).json({ message: "Could not load saved generation progress." }); }
+  });
+
+  app.post("/api/quiz-generation-drafts/:id/resume", isAuthenticated, aiGenerationRateLimit, async (req: any, res) => {
+    try {
+      const draft = await claimGenerationDraft(req.user.claims.sub, String(req.params.id));
+      if (!draft) return res.status(409).json({ message: "This draft is unavailable, completed, or already generating. Refresh your saved progress." });
+      res.json(await runGenerationDraft(draft));
+    } catch (error) {
+      console.error("Resume generation failed", error);
+      res.status(500).json({ message: "Could not resume right now. Your saved progress is retained." });
+    }
+  });
+
+  app.post("/api/quiz-prompt-settings", isAuthenticated, promptSettingsRateLimit, async (req: any, res) => {
+    const prompt = req.body?.prompt;
+    if (typeof prompt !== "string" || !prompt.trim() || prompt.length > 1000) {
+      return res.status(400).json({ message: "Provide a quiz prompt of up to 1000 characters." });
+    }
+    try {
+      res.json(await detectQuizSettingsFromPrompt(prompt.trim()));
+    } catch (error) {
+      console.error("Prompt settings detection failed", error);
+      res.status(502).json({ message: "Could not read prompt settings. Set the count and difficulty manually." });
+    }
+  });
+
   // SSE endpoint for quiz generation with progress updates
   app.post("/api/generate-quiz-stream", isAuthenticated, aiGenerationRateLimit, async (req: any, res) => {
+    const timing = createGenerationTiming();
+    res.once("finish", () => timing.finish());
+    let pendingReady: Promise<{ ok: true } | { ok: false; error: unknown }> | undefined;
     let pendingRagSource: { sourceId: string; userId: string } | undefined;
     // Set up SSE headers - disable all buffering
     res.setHeader("Content-Type", "text/event-stream");
@@ -757,6 +776,7 @@ export async function registerRoutes(
     res.flushHeaders();
 
     const sendProgress = (step: string, progress: number, message: string) => {
+      timing.mark(step);
       const data = `data: ${JSON.stringify({ type: "progress", step, progress, message })}\n\n`;
       console.log(`[SSE] Sending progress: ${step} - ${progress}%`);
       res.write(data);
@@ -787,26 +807,13 @@ export async function registerRoutes(
       // For image-only uploads, we still need images for the AI to analyze even if they're text-only
       let imagesForQuestions: string[] | undefined;
       let textForQuiz = sources.materialText || (sources.hasImages ? "[Images uploaded - AI will analyze visually]" : "");
-      let resolvedQuestionCount = questionCount;
-      let resolvedDifficulty = difficulty as DifficultyLevel;
+      const resolvedQuestionCount = questionCount;
+      const resolvedDifficulty = difficulty as DifficultyLevel;
       let sourceUsesVisionTranscription = false;
       const imageOnlyFlag = isImageOnly || (!sources.materialText && sources.hasImages);
 
       if (sources.promptOnly) {
-        const detectedSettings = await detectQuizSettingsFromPrompt({
-          prompt: sources.prompt,
-          onProgress: sendProgress,
-        });
-        resolvedQuestionCount = detectedSettings.questionCount;
-        resolvedDifficulty = detectedSettings.difficulty;
-
-        textForQuiz = await generateStudyMaterialFromPrompt({
-          prompt: sources.prompt,
-          questionCount: resolvedQuestionCount,
-          questionTypes,
-          difficulty: resolvedDifficulty,
-          onProgress: sendProgress,
-        });
+        textForQuiz = sources.prompt;
       }
 
       if (documentImages && documentImages.length > 0) {
@@ -862,7 +869,8 @@ export async function registerRoutes(
       const questionProgress = (step: string, progress: number, message: string) =>
         sendProgress(step, 55 + Math.round(progress * 0.4), message);
 
-      const rag = await prepareQuizRag({
+      timing.mark("source_preparation");
+      const rag = sources.promptOnly ? undefined : await prepareQuizRag({
         userId,
         text: textForQuiz,
         sourceRequest: sources.prompt || undefined,
@@ -871,45 +879,52 @@ export async function registerRoutes(
         difficulty: resolvedDifficulty,
         onProgress: sendProgress,
       });
-      pendingRagSource = { sourceId: rag.sourceId, userId };
+      pendingRagSource = rag ? { sourceId: rag.sourceId, userId } : undefined;
+      pendingReady = rag?.ready;
+      timing.mark("generation");
 
-      const { questions, title, category } = await generateQuizQuestions({
-        text: rag.retrieved.context,
+      const generation = {
+        text: rag?.retrieved.context || textForQuiz,
+        isPromptBased: sources.promptOnly,
         questionCount: resolvedQuestionCount,
         questionTypes,
         difficulty: resolvedDifficulty,
         documentImages: imagesForQuestions,
-        onProgress: questionProgress,
         isImageOnly: imageOnlyFlag,
         sourceRequest: sources.prompt || undefined,
-        ragGrounding: {
+        ragGrounding: rag ? {
           sourceId: rag.sourceId,
           allowedChunkIds: rag.retrieved.allowedChunkIds,
-        },
-      });
+        } : undefined,
+      };
 
-      sendProgress("saving", 98, "Saving your quiz...");
-
-      const quiz = await storage.saveQuiz({
+      const quizBase = {
         userId,
-        ragSourceId: rag.sourceId,
-        title,
-        sourceText: sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForQuiz) : textForQuiz,
+        ragSourceId: rag?.sourceId || null,
+        sourceText: sources.promptOnly ? "" : sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForQuiz) : textForQuiz,
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: documentImages || null,
-        questions: questions as Question[],
         difficulty: resolvedDifficulty,
-        category,
-        generationMode: "generate",
+        generationMode: "generate" as const,
         isPublic: 0,
-      });
+      };
+      const draft = await createGenerationDraft(userId, { generation, quiz: quizBase, indexingText: textForQuiz });
+      // The persisted draft now owns the source, including on a paused run.
       pendingRagSource = undefined;
+      const result = await runGenerationDraft(draft, questionProgress, pendingReady);
+      if (result.type === "paused") {
+        res.write(`data: ${JSON.stringify(result)}\n\n`);
+        res.end();
+        return;
+      }
+      const quiz = result.quiz;
 
       sendProgress("complete", 100, "Quiz created successfully!");
 
       res.write(`data: ${JSON.stringify({ type: "complete", quiz: { ...quiz, createdAt: quiz.createdAt.toISOString() } })}\n\n`);
       res.end();
     } catch (error) {
+      await pendingReady;
       if (pendingRagSource) {
         await deleteRagSource(pendingRagSource).catch((cleanupError) => {
           console.error("Failed to clean up RAG source after generation error:", cleanupError);
@@ -925,6 +940,9 @@ export async function registerRoutes(
   });
 
   app.post("/api/generate-quiz", isAuthenticated, aiGenerationRateLimit, async (req: any, res) => {
+    const timing = createGenerationTiming();
+    res.once("finish", () => timing.finish());
+    let pendingReady: Promise<{ ok: true } | { ok: false; error: unknown }> | undefined;
     let pendingRagSource: { sourceId: string; userId: string } | undefined;
     try {
       const validation = generateQuizRequestSchema.safeParse(req.body);
@@ -942,22 +960,13 @@ export async function registerRoutes(
       // Classify images to separate text-only from illustrations
       let imagesForQuestions: string[] | undefined;
       let textForQuiz = sources.materialText || (sources.hasImages ? "[Images uploaded - AI will analyze visually]" : "");
-      let resolvedQuestionCount = questionCount;
-      let resolvedDifficulty = difficulty as DifficultyLevel;
+      const resolvedQuestionCount = questionCount;
+      const resolvedDifficulty = difficulty as DifficultyLevel;
       let sourceUsesVisionTranscription = false;
       const imageOnlyFlag = isImageOnly || (!sources.materialText && sources.hasImages);
 
       if (sources.promptOnly) {
-        const detectedSettings = await detectQuizSettingsFromPrompt({ prompt: sources.prompt });
-        resolvedQuestionCount = detectedSettings.questionCount;
-        resolvedDifficulty = detectedSettings.difficulty;
-
-        textForQuiz = await generateStudyMaterialFromPrompt({
-          prompt: sources.prompt,
-          questionCount: resolvedQuestionCount,
-          questionTypes,
-          difficulty: resolvedDifficulty,
-        });
+        textForQuiz = sources.prompt;
       }
 
       if (documentImages && documentImages.length > 0) {
@@ -994,7 +1003,8 @@ export async function registerRoutes(
         textForQuiz = appendIllustrationDescriptions(textForQuiz, classifications);
       }
 
-      const rag = await prepareQuizRag({
+      timing.mark("source_preparation");
+      const rag = sources.promptOnly ? undefined : await prepareQuizRag({
         userId,
         text: textForQuiz,
         sourceRequest: sources.prompt || undefined,
@@ -1002,42 +1012,51 @@ export async function registerRoutes(
         questionTypes,
         difficulty: resolvedDifficulty,
       });
-      pendingRagSource = { sourceId: rag.sourceId, userId };
+      pendingRagSource = rag ? { sourceId: rag.sourceId, userId } : undefined;
+      pendingReady = rag?.ready;
+      timing.mark("generation");
 
-      const { questions, title, category } = await generateQuizQuestions({
-        text: rag.retrieved.context,
+      const generation = {
+        text: rag?.retrieved.context || textForQuiz,
+        isPromptBased: sources.promptOnly,
         questionCount: resolvedQuestionCount,
         questionTypes,
         difficulty: resolvedDifficulty,
         documentImages: imagesForQuestions,
         isImageOnly: imageOnlyFlag,
         sourceRequest: sources.prompt || undefined,
-        ragGrounding: {
+        ragGrounding: rag ? {
           sourceId: rag.sourceId,
           allowedChunkIds: rag.retrieved.allowedChunkIds,
-        },
-      });
+        } : undefined,
+      };
 
-      const quiz = await storage.saveQuiz({
+      const quizBase = {
         userId,
-        ragSourceId: rag.sourceId,
-        title,
-        sourceText: sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForQuiz) : textForQuiz,
+        ragSourceId: rag?.sourceId || null,
+        sourceText: sources.promptOnly ? "" : sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForQuiz) : textForQuiz,
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: documentImages || null,
-        questions: questions as Question[],
         difficulty: resolvedDifficulty,
-        category,
-        generationMode: "generate",
+        generationMode: "generate" as const,
         isPublic: 0,
-      });
+      };
+      const draft = await createGenerationDraft(userId, { generation, quiz: quizBase, indexingText: textForQuiz });
+      // The persisted draft now owns the source, including on a paused run.
       pendingRagSource = undefined;
+      const result = await runGenerationDraft(draft, undefined, pendingReady);
+      if (result.type === "paused") {
+        res.json(result);
+        return;
+      }
+      const quiz = result.quiz;
 
       res.json({
         ...quiz,
         createdAt: quiz.createdAt.toISOString(),
       });
     } catch (error) {
+      await pendingReady;
       if (pendingRagSource) {
         await deleteRagSource(pendingRagSource).catch((cleanupError) => {
           console.error("Failed to clean up RAG source after generation error:", cleanupError);
@@ -2636,7 +2655,7 @@ ${POSITION_INDEPENDENT_EXPLANATION_RULE}${mathFormattingRules}`
       if (!canReadQuiz(quiz, requesterId)) {
         return res.status(403).json({ message: "You do not have access to this quiz" });
       }
-      if (!quiz.ragSourceId || !quiz.userId) {
+      if ((!quiz.ragSourceId || !quiz.userId) && !(quiz.generationMode === "generate" && !quiz.sourceText)) {
         return res.status(409).json({
           message: "This quiz does not have a RAG index. Regenerate it to use grounded chat.",
         });
@@ -2647,7 +2666,7 @@ ${POSITION_INDEPENDENT_EXPLANATION_RULE}${mathFormattingRules}`
 
       const safeIndex = Math.max(0, Math.min(Number(currentQuestionIndex) || 0, quiz.questions.length - 1));
       const currentQuestion = quiz.questions[safeIndex];
-      const retrieval = await retrieveRagContext({
+      const retrieval = quiz.ragSourceId && quiz.userId ? await retrieveRagContext({
         sourceId: quiz.ragSourceId,
         ownerUserId: quiz.userId,
         queries: [
@@ -2657,7 +2676,7 @@ ${POSITION_INDEPENDENT_EXPLANATION_RULE}${mathFormattingRules}`
         ],
         maxChunks: 6,
         maxChars: 8_000,
-      });
+      }) : undefined;
 
       const chatUser = requesterId ? await storage.getUser(requesterId) : undefined;
 
@@ -2667,8 +2686,8 @@ ${POSITION_INDEPENDENT_EXPLANATION_RULE}${mathFormattingRules}`
         currentQuestionIndex: safeIndex,
         userMessage: userMessage.trim(),
         chatHistory,
-        sourceMaterial: retrieval.context,
-        isRagGrounded: true,
+        sourceMaterial: retrieval?.context,
+        isRagGrounded: Boolean(retrieval),
         userPreferences: chatUser ? {
           persona: chatUser.persona,
           subjectInclination: chatUser.subjectInclination,
