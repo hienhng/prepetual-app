@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Funnel+Display:wght@300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Funnel+Display:wght@300..800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -109,7 +109,7 @@ select:-webkit-autofill:active {
   --chart-3: 142 76% 36%;
   --chart-4: 28 100% 50%;
   --chart-5: 340 82% 52%;
-  --font-sans: 'DM Sans', sans-serif;
+  --font-sans: 'Space Grotesk', sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
   --radius: .5rem;
@@ -124,7 +124,7 @@ select:-webkit-autofill:active {
   --shadow-sm: 0px 2px 0px 0px hsl(240 6% 10% / 0.00), 0px 1px 2px -1px hsl(240 6% 10% / 0.00);
   --shadow: 0px 2px 0px 0px hsl(240 6% 10% / 0.00), 0px 1px 2px -1px hsl(240 6% 10% / 0.00);
   --shadow-md: 0px 2px 0px 0px hsl(240 6% 10% / 0.00), 0px 2px 4px -1px hsl(240 6% 10% / 0.00);
-  --shadow-lg: 0px 2px 0px 0px hsl(240 6% 10% / 0.00), 0px 4px 6px -1px hsl(240 6% 10% / 0.00);
+  --font-sans: 'Space Grotesk', sans-serif;
   --shadow-xl: 0px 2px 0px 0px hsl(240 6% 10% / 0.00), 0px 8px 10px -1px hsl(240 6% 10% / 0.00);
   --shadow-2xl: 0px 2px 0px 0px hsl(240 6% 10% / 0.00);
   --tracking-normal: 0em;
@@ -162,6 +162,12 @@ select:-webkit-autofill:active {
 .custom-highlight::selection {
   background-color: #fbd22d;
   color: white;
+}
+
+.hero-neon-text {
+  filter:
+    drop-shadow(0 0 2px hsl(48 96% 70% / 0.85))
+    drop-shadow(0 0 7px hsl(48 96% 53% / 0.5));
 }
 
 .dark {
@@ -263,6 +269,7 @@ select:-webkit-autofill:active {
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Space Grotesk', sans-serif;
   }
   @keyframes tilt {
     0%, 50%, 100% {

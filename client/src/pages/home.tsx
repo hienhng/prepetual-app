@@ -845,7 +845,11 @@ function AIQuizzesText() {
         el,
         {
           y: [0, -6, 0],
-          filter: ["brightness(1)", "brightness(1.4)", "brightness(1)"],
+          filter: [
+            "drop-shadow(0 0 2px hsl(48 96% 70% / 0.85)) drop-shadow(0 0 7px hsl(48 96% 53% / 0.5)) brightness(1)",
+            "drop-shadow(0 0 5px hsl(48 96% 80% / 1)) drop-shadow(0 0 16px hsl(48 96% 53% / 0.95)) brightness(1.25)",
+            "drop-shadow(0 0 2px hsl(48 96% 70% / 0.85)) drop-shadow(0 0 7px hsl(48 96% 53% / 0.5)) brightness(1)",
+          ],
         },
         {
           delay: i * 0.04,
@@ -868,8 +872,8 @@ function AIQuizzesText() {
             ref={(el) => {
               charRefs.current[i] = el;
             }}
-            className="inline-block bg-gradient-to-r from-primary via-yellow-300 to-primary bg-clip-text text-transparent bg-[length:200%_100%] custom-highlight"
-            style={{ fontFamily: "'Zen Dots', cursive" }}
+            className="hero-neon-text inline-block bg-gradient-to-r from-primary via-yellow-300 to-primary bg-clip-text text-transparent bg-[length:200%_100%] custom-highlight"
+            style={{ fontFamily: "'Dela Gothic One', sans-serif" }}
             initial={{ opacity: 0, y: 30, rotateX: -90 }}
             animate={{
               opacity: 1,
