@@ -876,25 +876,39 @@ function AIQuizzesText() {
             style={{ fontFamily: "'Dela Gothic One', sans-serif" }}
             initial={{ opacity: 0, y: 30, rotateX: -90 }}
             animate={{
-              opacity: 1,
-              y: 0,
-              rotateX: 0,
+              opacity: [0, 1, 1, 1],
+              y: [30, 0, -12, 0],
+              rotateX: [-90, 0, 0, 0],
+              filter: [
+                "drop-shadow(0 0 0 rgba(250, 204, 21, 0)) brightness(0.8)",
+                "drop-shadow(0 0 10px rgba(250, 204, 21, 0.9)) drop-shadow(0 0 22px rgba(250, 204, 21, 0.7)) brightness(1.45)",
+                "drop-shadow(0 0 8px rgba(250, 204, 21, 0.8)) drop-shadow(0 0 18px rgba(250, 204, 21, 0.5)) brightness(1.2)",
+                "drop-shadow(0 0 5px rgba(250, 204, 21, 0.6)) drop-shadow(0 0 12px rgba(250, 204, 21, 0.3)) brightness(1)",
+              ],
               backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
             }}
             transition={{
               opacity: {
-                delay: 0.45 + i * 0.04,
-                duration: 0.5,
+                delay: 0.5 + i * 0.04,
+                duration: 0.7,
+                times: [0, 0.3, 0.8, 1],
                 ease: [0.16, 1, 0.3, 1],
               },
               y: {
                 delay: 0.45 + i * 0.04,
-                duration: 0.5,
+                duration: 0.8,
+                times: [0, 0.45, 0.72, 1],
                 ease: [0.16, 1, 0.3, 1],
               },
               rotateX: {
                 delay: 0.45 + i * 0.04,
-                duration: 0.5,
+                duration: 0.6,
+                ease: [0.16, 1, 0.3, 1],
+              },
+              filter: {
+                delay: 0.45 + i * 0.04,
+                duration: 0.8,
+                times: [0, 0.38, 0.7, 1],
                 ease: [0.16, 1, 0.3, 1],
               },
               backgroundPosition: {
@@ -910,27 +924,32 @@ function AIQuizzesText() {
         ))}
         <motion.span
           className="absolute -inset-x-8 -inset-y-4 blur-2xl pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0.5, 0.3, 0.4] }}
-          transition={{ delay: 0.9, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: [0, 0.7, 1, 0.25], scale: [0.8, 1.15, 1.5, 1.08] }}
+          transition={{
+            delay: 0.82,
+            duration: 0.72,
+            times: [0, 0.28, 0.58, 1],
+            ease: [0.16, 1, 0.3, 1],
+          }}
           style={{
             background:
-              "radial-gradient(ellipse at center, hsl(48 96% 53% / 0.18) 0%, transparent 70%)",
+              "radial-gradient(ellipse at center, hsl(48 96% 53% / 0.22) 0%, transparent 70%)",
           }}
         />
         <motion.span
           className="absolute -inset-x-10 -inset-y-6 blur-3xl pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0.15, 0.35, 0.15] }}
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{ opacity: [0, 0.45, 0.9, 0.18], scale: [0.7, 1.2, 1.7, 1.12] }}
           transition={{
-            delay: 1.2,
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut",
+            delay: 0.9,
+            duration: 0.9,
+            times: [0, 0.24, 0.62, 1],
+            ease: [0.16, 1, 0.3, 1],
           }}
           style={{
             background:
-              "radial-gradient(ellipse at center, hsl(48 96% 53% / 0.12) 0%, transparent 70%)",
+              "radial-gradient(ellipse at center, hsl(48 96% 53% / 0.18) 0%, transparent 70%)",
           }}
         />
       </span>
