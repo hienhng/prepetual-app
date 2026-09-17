@@ -1306,9 +1306,9 @@ export default function Dashboard() {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return t('dashboard.welcomeBack'); // Adjusting slightly as dictionary has welcomeBack
-    if (hour < 17) return t('dashboard.welcomeBack'); 
-    return t('dashboard.welcomeBack');
+    if (hour < 12) return t('dashboard.goodMorning'); // Adjusting slightly as dictionary has welcomeBack
+    if (hour < 17) return t('dashboard.goodAfternoon'); 
+    return t('dashboard.goodEvening');
   };
 
 
@@ -1328,7 +1328,7 @@ export default function Dashboard() {
               <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
                 {getGreeting()}, <span className="text-primary">{user?.username || t('common.user')}</span>
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mt-1">
                 {hasQuizzes
                   ? t('dashboard.continueWhereLeftOff')
                   : t('dashboard.createFirstQuiz')

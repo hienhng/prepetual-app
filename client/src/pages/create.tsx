@@ -93,7 +93,7 @@ export default function Create() {
   } = useQuiz();
   const { toast } = useToast();
   const { t, tArray, language } = useLanguage();
-  const { activeJobs, clearJobs } = useUpload();
+  const { activeJobs, clearJobs, removeJob } = useUpload();
   const examplePrompts = tArray('create.examplePrompts');
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [isSourcesPanelOpen, setIsSourcesPanelOpen] = useState(false);
@@ -549,6 +549,24 @@ export default function Create() {
     setIsSourcesPanelOpen(false);
   };
 
+  const handleRemoveUpload = (jobId: string) => {
+    const remainingJobs = activeJobs.filter(job => job.jobId !== jobId && job.status === "completed");
+    const images = remainingJobs.flatMap(job => [
+      ...(job.documentImages || []),
+      ...(job.isImageOnly && job.imageDataUrl ? [job.imageDataUrl] : []),
+    ]);
+    const isImageOnly = remainingJobs.length > 0 && remainingJobs.every(job => job.isImageOnly);
+
+    removeJob(jobId);
+    syncSources({
+      ...getEditableSourceMaterial(),
+      uploadedText: isImageOnly ? null : remainingJobs.map(job => job.text).filter(Boolean).join("\n\n---\n\n") || null,
+      imageDataUrl: null,
+      documentImages: images,
+      isOfficeWithImages: images.length > 0 || remainingJobs.some(job => job.isOfficeWithImages),
+    });
+  };
+
   const handleRemoveSource = (source: "upload" | "manual" | "youtube" | "prompt") => {
     const next = { ...getEditableSourceMaterial() };
     if (source === "upload") {
@@ -676,7 +694,10 @@ export default function Create() {
           className="space-y-8"
         >
           <motion.div variants={itemVariants} className="text-center space-y-3 pb-2">
-            <h1 className="font-brand text-4xl font-black tracking-tight text-foreground md:text-6xl">
+            <h1
+              className="text-4xl font-black tracking-tight text-foreground md:text-6xl"
+              style={{ fontFamily: "'Zalando Sans Expanded', sans-serif" }}
+            >
               {t('create.title')}
             </h1>
             <p className="mx-auto max-w-xl text-base font-medium text-muted-foreground md:text-lg">
@@ -989,7 +1010,8 @@ export default function Create() {
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                onClick={() => handleRemoveSource("upload")}
+                                onClick={() => handleRemoveUpload(job.jobId)}
+                                aria-label={`Remove ${job.fileName}`}
                                 className="h-7 w-7 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
                               >
                                 <X className="h-3.5 w-3.5" />

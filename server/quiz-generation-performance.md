@@ -1,6 +1,6 @@
 # Quiz generation performance
 
-- Prompt-only requests detect settings, generate directly, and audit answers. They store no synthetic source material. Chat for these quizzes uses the questions and general knowledge; document quizzes retain evidence-grounded chat.
+- Prompt-only requests create study material first, then generate and audit questions grounded in that material. The generated notes and their index are saved with the quiz and its resumable draft, supporting the material viewer and evidence-grounded chat. This adds a material-generation model call before question generation. Older prompt quizzes without saved material continue to use questions and general knowledge for chat.
 - Sources whose complete formatted context fits within 14,000 characters bypass query planning and retrieval. Their index is built alongside generation using the same citation IDs. Saving waits for indexing to succeed.
 - Larger sources index and plan retrieval queries concurrently. Retrieval waits for the index.
 - Embeddings are reused only for the same user, exact source hash, model, dimensions, and chunk content. Each quiz receives its own index copy, preserving existing deletion behavior. No database migration is needed.

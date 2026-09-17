@@ -1643,7 +1643,6 @@ export function QuizPlayer() {
                       ) : (
                         <span>
                           <Eye className="absolute inset-0 h-4 w-4 text-orange-500 opacity-0 transition-opacity duration-300 group-hover/timer:opacity-100"/>
-                            View timer
                         </span>
                       )}
                     </div>

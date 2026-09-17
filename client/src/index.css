@@ -170,6 +170,13 @@ select:-webkit-autofill:active {
     drop-shadow(0 0 7px hsl(48 96% 53% / 0.5));
 }
 
+.hero-neon-text-container {
+  overflow: visible;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+  line-height: 0;
+}
+
 .dark {
   --button-outline: rgba(255,255,255, .10);
   --badge-outline: rgba(255,255,255, .05);

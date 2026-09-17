@@ -11,7 +11,7 @@ import { sendContactEmail, sendBugReportEmail } from "./email.js";
 import multer from "multer";
 import { ocrImageBuffer, terminateOCRWorker } from "./ocr.js";
 import { extractTextFromOfficeDocument } from "./office-extract.js";
-import { detectQuizSettingsFromPrompt, importExistingQuiz, quizChatResponse, classifyImages, extractTextFromImagesWithVision, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
+import { generateStudyMaterialFromPrompt, detectQuizSettingsFromPrompt, importExistingQuiz, quizChatResponse, classifyImages, extractTextFromImagesWithVision, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
 import { IMAGE_ANALYSIS_SOURCE_MARKER, generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs.js";
@@ -813,7 +813,13 @@ export async function registerRoutes(
       const imageOnlyFlag = isImageOnly || (!sources.materialText && sources.hasImages);
 
       if (sources.promptOnly) {
-        textForQuiz = sources.prompt;
+        textForQuiz = await generateStudyMaterialFromPrompt({
+          prompt: sources.prompt,
+          questionCount: resolvedQuestionCount,
+          questionTypes,
+          difficulty: resolvedDifficulty,
+          onProgress: sendProgress,
+        });
       }
 
       if (documentImages && documentImages.length > 0) {
@@ -870,7 +876,7 @@ export async function registerRoutes(
         sendProgress(step, 55 + Math.round(progress * 0.4), message);
 
       timing.mark("source_preparation");
-      const rag = sources.promptOnly ? undefined : await prepareQuizRag({
+      const rag = await prepareQuizRag({
         userId,
         text: textForQuiz,
         sourceRequest: sources.prompt || undefined,
@@ -885,7 +891,7 @@ export async function registerRoutes(
 
       const generation = {
         text: rag?.retrieved.context || textForQuiz,
-        isPromptBased: sources.promptOnly,
+        isPromptBased: false,
         questionCount: resolvedQuestionCount,
         questionTypes,
         difficulty: resolvedDifficulty,
@@ -901,7 +907,7 @@ export async function registerRoutes(
       const quizBase = {
         userId,
         ragSourceId: rag?.sourceId || null,
-        sourceText: sources.promptOnly ? "" : sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForQuiz) : textForQuiz,
+        sourceText: sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForQuiz) : textForQuiz,
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: documentImages || null,
         difficulty: resolvedDifficulty,
@@ -966,7 +972,13 @@ export async function registerRoutes(
       const imageOnlyFlag = isImageOnly || (!sources.materialText && sources.hasImages);
 
       if (sources.promptOnly) {
-        textForQuiz = sources.prompt;
+        textForQuiz = await generateStudyMaterialFromPrompt({
+          prompt: sources.prompt,
+          questionCount: resolvedQuestionCount,
+          questionTypes,
+          difficulty: resolvedDifficulty,
+          onProgress: undefined,
+        });
       }
 
       if (documentImages && documentImages.length > 0) {
@@ -1004,7 +1016,7 @@ export async function registerRoutes(
       }
 
       timing.mark("source_preparation");
-      const rag = sources.promptOnly ? undefined : await prepareQuizRag({
+      const rag = await prepareQuizRag({
         userId,
         text: textForQuiz,
         sourceRequest: sources.prompt || undefined,
@@ -1018,7 +1030,7 @@ export async function registerRoutes(
 
       const generation = {
         text: rag?.retrieved.context || textForQuiz,
-        isPromptBased: sources.promptOnly,
+        isPromptBased: false,
         questionCount: resolvedQuestionCount,
         questionTypes,
         difficulty: resolvedDifficulty,
@@ -1034,7 +1046,7 @@ export async function registerRoutes(
       const quizBase = {
         userId,
         ragSourceId: rag?.sourceId || null,
-        sourceText: sources.promptOnly ? "" : sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForQuiz) : textForQuiz,
+        sourceText: sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForQuiz) : textForQuiz,
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: documentImages || null,
         difficulty: resolvedDifficulty,

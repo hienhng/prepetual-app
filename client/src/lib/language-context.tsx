@@ -424,8 +424,8 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
         },
       },
       cta: {
-        badge: "Start your journey today",
-        title1: "Master your materials.",
+        badge: "Make every quiz count",
+        title1: "From materials to practice.",
         title2: "Elevate your performance.",
         desc: "Join thousands of students who have transformed how they study with AI-powered personalized practice.",
         getStartedFree: "Get Started Free",
@@ -444,6 +444,9 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
     },
     dashboard: {
       welcomeBack: "Welcome back",
+      goodMorning: "Good morning",
+      goodAfternoon: "Good afternoon",
+      goodEvening:"Good evening",
       learningDashboard: "Your Learning Dashboard",
       continueWhereLeftOff: "Ready to ace your next exam?",
       createFirstQuiz: "Let's create your first quiz and start learning.",
@@ -1284,7 +1287,7 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
     home: {
       hero: {
         makeYourMaterials: "Để tài liệu của bạn",
-        talkBack: "biết lên tiếng",
+        talkBack: "trả lời bạn",
         subtitle: "Hãy để mọi định nghĩa phản hồi bạn. Luôn kết nối với những gì bạn học.",
         getStarted: "Bắt đầu ngay",
         itsFree: "—miễn phí",
@@ -1347,8 +1350,8 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       },
       parsing: {
         badge: "Nhập câu hỏi của riêng bạn",
-        title: "Tìm tiếng nói trong chính tài liệu của bạn",
-        titleEmphasis: "tiếng nói",
+        title: "Từ tài liệu, mở lối thấu hiểu.",
+        titleEmphasis: "mở lối",
         subtitle: "Tải lên bất kỳ bài kiểm tra hay bảng bài tập nào. Chúng tôi trích xuất thông minh từng câu hỏi, từng chữ một.",
         original: "Tài liệu gốc",
         interactive: "Quiz tương tác",
@@ -1390,7 +1393,7 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       },
       cta: {
         badge: "Bắt đầu hành trình của bạn ngay hôm nay",
-        title1: "Nắm vững tài liệu của bạn.",
+        title1: "Biến tài liệu thành bài luyện.",
         title2: "Nâng cao thành tích học tập.",
         desc: "Tham gia cùng hàng ngàn học sinh đã thay đổi cách học với các bài thực hành cá nhân hóa từ AI.",
         getStartedFree: "Bắt đầu miễn phí",
@@ -1430,8 +1433,11 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
     },
     dashboard: {
       welcomeBack: "Chào mừng bạn trở lại",
+      goodMorning: "Chào ngày mới",
+      goodAfternoon: "Chào buổi chiều",
+      goodEvening:"Tối rồi",
       learningDashboard: "Bảng điều khiển học tập",
-      continueWhereLeftOff: "Tiếp tục nơi bạn đã dừng lại hoặc tạo nội dung mới.",
+      continueWhereLeftOff: "Một bài luyện mới đang chờ bạn.",
       createFirstQuiz: "Hãy tạo bài quiz đầu tiên và bắt đầu học thôi.",
       continueLearning: "Tiếp tục học tập",
       viewAllInProgress: "Xem tất cả đang làm",

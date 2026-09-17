@@ -864,7 +864,7 @@ function AIQuizzesText() {
   };
 
   return (
-    <span className="relative inline-block">
+    <span className="hero-neon-text-container relative inline-block">
       <span className="relative cursor-default" onMouseEnter={triggerWave}>
         {chars.map((char, i) => (
           <motion.span
@@ -872,7 +872,7 @@ function AIQuizzesText() {
             ref={(el) => {
               charRefs.current[i] = el;
             }}
-            className="hero-neon-text inline-block bg-gradient-to-r from-primary via-yellow-300 to-primary bg-clip-text text-transparent bg-[length:200%_100%] custom-highlight"
+            className="hero-neon-text inline-block leading-[1.3] bg-gradient-to-r from-primary via-yellow-300 to-primary bg-clip-text text-transparent bg-[length:200%_100%] custom-highlight"
             style={{ fontFamily: "'Dela Gothic One', sans-serif" }}
             initial={{ opacity: 0, y: 30, rotateX: -90 }}
             animate={{
@@ -3136,7 +3136,6 @@ export default function Home() {
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
             >
               {t("home.cta.title1")} <br className="hidden md:block" />
-              <span className="text-primary custom-highlight"><em>{t("home.cta.title2").split(" ")[0]}</em></span> {t("home.cta.title2").split(" ").slice(1).join(" ")}
             </motion.h2>
 
             <motion.p

@@ -207,10 +207,10 @@ export function UploadProvider({ children }: { children: ReactNode }) {
 
   const removeJob = useCallback(async (jobId: string) => {
     jobsEpochRef.current += 1;
+    saveJobs(activeJobs.filter(job => job.jobId !== jobId));
     try {
       await fetch(`/api/upload-job/${jobId}`, { method: "DELETE" });
     } catch {}
-    saveJobs(activeJobs.filter(job => job.jobId !== jobId));
   }, [activeJobs, saveJobs]);
 
   const getCombinedText = useCallback(() => {

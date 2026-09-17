@@ -671,9 +671,6 @@ export default function About() {
 
                 <RevealOnScroll delay={0.25}>
                   <div className="flex flex-wrap gap-2">
-                    {[t('about.companionTag1'), t('about.companionTag2'), t('about.companionTag3'), t('about.companionTag4')].map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
-                    ))}
                   </div>
                 </RevealOnScroll>
               </div>
