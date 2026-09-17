@@ -994,6 +994,7 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       save: "Lưu",
       saving: "Đang lưu...",
       cancel: "Hủy",
+      preview:"Xem trước",
       settings: "Cài đặt",
       contactUs: "Liên hệ",
       helpCenter: "Trung tâm trợ giúp",
@@ -1429,7 +1430,8 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       answerOptionsReorder: "Thay đổi thứ tự đáp án",
       shownAfterAnswering: "hiển thị sau khi trả lời",
       shownAfterAnsweringShort: "{count}",
-      exportPdf: "Xuất file PDF"
+      exportPdf: "Xuất file PDF",
+      questionsShuffled:"Đã trộn câu hỏi"
     },
     dashboard: {
       welcomeBack: "Chào mừng bạn trở lại",

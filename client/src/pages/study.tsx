@@ -11,7 +11,7 @@ import AskPipIcon from "@/components/ui/ask-pip-icon";
 import { useQuiz } from "@/lib/quiz-context";
 import { useLanguage } from "@/lib/language-context";
 import { apiRequest } from "@/lib/queryClient";
-import { MathText } from "@/components/formatted-text";
+import { MarkdownText } from "@/components/formatted-text";
 import type { GeneratedLecture, LectureSlide, LectureStep, Quiz } from "@shared/schema";
 import { useTheme } from "./settings";
 
@@ -484,13 +484,9 @@ export default function StudyPage() {
                 {currentLecture?.subtitle ? (
                   <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-primary/70">{currentLecture.subtitle}</p>
                 ) : null}
-                <div className="space-y-4">
-                  {currentLecture?.body.map((line, index) => (
-                    <div key={`${currentLecture.title}-${index}`} className="text-base leading-7 text-foreground/90">
-                      <MathText content={line} className="block" />
-                    </div>
-                  ))}
-                </div>
+                {currentLecture?.body.length ? (
+                  <MarkdownText content={currentLecture.body.join("\n\n")} />
+                ) : null}
 
                 {currentLecture?.kind === "quiz" && (
                   <div className="mt-8 flex justify-center">

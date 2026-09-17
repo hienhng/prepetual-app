@@ -1,4 +1,3 @@
-import { resolvePromptQuizSettings } from "../shared/prompt-quiz-settings.js";
 import { createGenerationTiming } from "./generation-timing.js";
 import OpenAI from "openai";
 import pLimit from "p-limit"; // Force reload: 2026-04-28 14:06
@@ -21,6 +20,7 @@ import {
 import {
   buildPromptMaterialSystemInstructions,
   buildPromptSettingsDetectionInstructions,
+  validateDetectedPromptSettings,
 } from "./prompt-material.js";
 import { POSITION_INDEPENDENT_EXPLANATION_RULE } from "./explanation-guidance.js";
 import { KATEX_FORMATTING_RULES, getKatexFormattingIssue } from "./math-format.js";
@@ -28,6 +28,7 @@ import { normalizeSourceChunkIds } from "./rag-core.js";
 import { runValidationBatchesWithIsolation } from "./validation-batch.js";
 import {
   isJsonResponseFormatError,
+  inspectAiJsonCompletion,
   parseAiJsonObject,
   recoverFailedGenerationJson,
 } from "./ai-json-response.js";
@@ -1213,20 +1214,32 @@ interface PromptStudyMaterialParams {
 
 // Settings are interpreted when the user sends the prompt, before generation.
 export async function detectQuizSettingsFromPrompt(prompt: string) {
-  const completion = await openai.chat.completions.create({
-    model: quizModel,
-    messages: [
-      { role: "system", content: buildPromptSettingsDetectionInstructions() },
-      { role: "user", content: prompt },
-    ],
-    response_format: { type: "json_object" },
-    temperature: 0,
-    max_tokens: 150,
-  }, quizModelRequestOptions());
-  const content = completion.choices[0]?.message?.content;
-  if (!content) throw new Error("Empty settings response");
-  // Validate the semantic result without allowing regex matches to override it.
-  return resolvePromptQuizSettings("", JSON.parse(extractJsonObject(content)));
+  let useJsonMode = true;
+  return pRetry(async () => {
+    try {
+      const completion = await openai.chat.completions.create({
+        model: quizModel,
+        messages: [
+          { role: "system", content: buildPromptSettingsDetectionInstructions() },
+          { role: "user", content: prompt },
+        ],
+        ...(useJsonMode ? { response_format: { type: "json_object" as const } } : {}),
+        temperature: 0,
+        // Leave room for reasoning and non-English tokenization before the JSON output.
+        max_tokens: 1024,
+      }, quizModelRequestOptions());
+      const inspected = inspectAiJsonCompletion(completion);
+      if (!inspected.result) throw new Error(`Prompt settings response ${inspected.retryReason}`);
+      return validateDetectedPromptSettings(inspected.result);
+    } catch (error) {
+      const recovered = recoverFailedGenerationJson(error);
+      if (recovered) {
+        try { return validateDetectedPromptSettings(recovered); } catch { /* Retry invalid output. */ }
+      }
+      if (isJsonResponseFormatError(error)) useJsonMode = false;
+      throw error;
+    }
+  }, { retries: 2, minTimeout: 300, maxTimeout: 1000 });
 }
 
 export async function generateStudyMaterialFromPrompt({
@@ -2811,8 +2824,9 @@ STYLE:
 - Still keep it tight: no rambling, no repeating the same point across paragraphs.
 - Go deep enough that a student could understand the topic from these slides alone, without needing the original material.
 - Make sure to use LaTeX format wherever needed, with syntax supported by KaTeX.
+- You may use Markdown inside body strings when it improves clarity: **bold** for key terms, *italics* for emphasis, lists for grouped points, links when the material supplies a useful URL, blockquotes, tables, and inline or fenced code where relevant. Do not add formatting merely for decoration.
 
-Return valid JSON only, no markdown, no preamble, in exactly this structure:
+Return valid JSON only, with no surrounding Markdown code fence or preamble, in exactly this structure (Markdown inside JSON string values is allowed):
 {
   "title": "string",
   "intro": { "title": "string", "subtitle": "string", "body": ["paragraph", "paragraph", ...] },

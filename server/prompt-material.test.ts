@@ -5,6 +5,7 @@ import {
   buildPromptMaterialSystemInstructions,
   buildPromptSettingsDetectionInstructions,
   resolvePromptQuizSettings,
+  validateDetectedPromptSettings,
 } from "./prompt-material.js";
 
 test("builds a source-first material instruction for prompt quizzes", () => {
@@ -41,8 +42,8 @@ test("builds focused model instructions for detecting prompt settings", () => {
   assert.match(instructions, /cap it at 20/);
   assert.match(instructions, /use 10/);
   assert.match(instructions, /use "medium"/);
-  assert.match(instructions, /questionCountSpecified/);
-  assert.match(instructions, /difficultySpecified/);
+  assert.match(instructions, /ANY language/);
+  assert.match(instructions, /omitted accents/);
 });
 
 test("uses explicit prompt settings when present", () => {
@@ -140,4 +141,13 @@ test("does not use model values marked as unspecified", () => {
     }),
     { questionCount: 10, difficulty: "medium" },
   );
+});
+
+test("rejects malformed multilingual model output instead of silently defaulting", () => {
+  for (const candidate of [{}, { questionCount: 15, difficulty: "khó" },
+    { questionCount: "十五", difficulty: "hard" }, { questionCount: 15 }]) {
+    assert.throws(() => validateDetectedPromptSettings(candidate));
+  }
+  assert.deepEqual(validateDetectedPromptSettings({ questionCount: 15, difficulty: "hard" }),
+    { questionCount: 15, difficulty: "hard" });
 });
