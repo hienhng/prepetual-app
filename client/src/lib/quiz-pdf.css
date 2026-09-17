@@ -14,7 +14,14 @@
 }
 .quiz-pdf *, .quiz-pdf *::before, .quiz-pdf *::after { box-sizing: border-box; }
 .quiz-pdf .pdf-header { padding: 0 0 24px; }
-.quiz-pdf .pdf-brand { color: #64748b; font-size: 10px; font-weight: 700; letter-spacing: 2px; margin-bottom: 12px; }
+.quiz-pdf .pdf-brand { display: flex; align-items: center; gap: 9px; color: #172033; font-family: "Funnel Display PDF", "Funnel Display", sans-serif; font-size: 22px; line-height: 32px; font-weight: 700; letter-spacing: -0.5px; }
+/* Small optical adjustment; font baselines are corrected during capture. */
+.quiz-pdf .pdf-brand > span { position: relative; top: -0.2em; }
+.quiz-pdf .pdf-header > .pdf-brand { margin-bottom: 18px; }
+.quiz-pdf .pdf-brand .pdf-brand-logo { width: 32px; height: 32px; max-height: none; margin: 0; border-radius: 50%; object-fit: cover; flex: none; }
+.quiz-pdf.pdf-footer-brand { width: 132px; }
+.quiz-pdf.pdf-footer-brand .pdf-brand { gap: 6px; font-size: 16px; line-height: 22px; letter-spacing: -0.3px; }
+.quiz-pdf.pdf-footer-brand .pdf-brand-logo { width: 22px; height: 22px; }
 .quiz-pdf .pdf-header h1 { font-size: 30px; line-height: 1.25; font-weight: 700; margin: 0 0 12px; }
 .quiz-pdf .pdf-header > p { color: #64748b; font-size: 12px; margin: 0; }
 .quiz-pdf .pdf-question { border-top: 1px solid #dce1e8; padding: 18px 0 22px; }
@@ -44,3 +51,11 @@
 .quiz-pdf .katex-display { margin: 12px 0; overflow: visible; }
 .quiz-pdf .katex { overflow-wrap: normal; }
 .quiz-pdf .pdf-answer-space > div { height: 28px; border-bottom: 1px solid #cbd5e1; }
+/* Funnel Display Bold, subset to the wordmark for reliable, compact exports. */
+@font-face {
+  font-family: "Funnel Display PDF";
+  src: url("../assets/fonts/funnel-display-brand-bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+}

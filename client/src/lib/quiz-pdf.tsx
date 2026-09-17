@@ -7,6 +7,7 @@ import rehypeKatex from "rehype-katex";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import type { Question } from "@shared/schema";
+import logoImage from "@assets/image_1765894870887.png";
 import { paginateQuiz, quizPdfFilename, type PdfBlock } from "./quiz-pdf-layout";
 import "katex/dist/katex.min.css";
 import "./quiz-pdf.css";
@@ -20,6 +21,13 @@ interface QuizPdfInput {
 const CONTENT_WIDTH = 680;
 const MARGIN_MM = 15;
 const FOOTER_MM = 8;
+
+function PdfBrand() {
+  return <div className="pdf-brand">
+    <img className="pdf-brand-logo" src={logoImage} alt="Prepetual logo" />
+    <span>prepetual</span>
+  </div>;
+}
 
 function RichText({ text }: { text: string }) {
   // Accept the same LaTeX delimiters as the quiz preview. Raw HTML is never executed.
@@ -35,7 +43,7 @@ function RichText({ text }: { text: string }) {
 function QuizDocument({ title, category, questions }: QuizPdfInput) {
   return <>
     <header className="pdf-header">
-      <div className="pdf-brand">PREPETUAL / QUIZ</div>
+      <PdfBrand />
       <h1>{title.trim() || "Quiz"}</h1>
       <p>{category} <span aria-hidden="true"> · </span> {questions.length} questions</p>
     </header>
@@ -110,9 +118,29 @@ export async function createQuizPdf(input: QuizPdfInput): Promise<jsPDF> {
   container.setAttribute("aria-hidden", "true");
   container.style.width = `${CONTENT_WIDTH}px`;
   container.innerHTML = renderToStaticMarkup(<QuizDocument {...input} />);
+  const footer = document.createElement("div");
+  footer.className = "quiz-pdf pdf-footer-brand";
+  footer.setAttribute("aria-hidden", "true");
+  footer.innerHTML = renderToStaticMarkup(<PdfBrand />);
+  // html2canvas 1.x measures font baselines using a 1px inline GIF in the
+  // live document. Tailwind's img { display: block } moves that probe onto
+  // another line, giving different vertical errors for Arial and KaTeX.
+  // Restore only that probe's display while exporting, including cloned DOMs.
+  const fontMeasurementStyle = document.createElement("style");
+  fontMeasurementStyle.textContent = `
+    body > div > img[src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"] {
+      display: inline !important;
+    }
+  `;
+  document.head.appendChild(fontMeasurementStyle);
   document.body.appendChild(container);
+  document.body.appendChild(footer);
   try {
-    await waitForImages(container);
+    await Promise.all([
+      waitForImages(container),
+      waitForImages(footer),
+      document.fonts.load('700 22px "Funnel Display PDF"', "prepetual"),
+    ]);
     // Force layout so KaTeX's locally bundled fonts are requested before awaiting them.
     container.getBoundingClientRect();
     await document.fonts.ready;
@@ -127,6 +155,15 @@ export async function createQuizPdf(input: QuizPdfInput): Promise<jsPDF> {
     const mmPerPixel = contentWidthMm / CONTENT_WIDTH;
     const contentHeight = Math.floor((pageHeight - MARGIN_MM * 2 - FOOTER_MM) / mmPerPixel);
     const pages = paginateQuiz(Math.ceil(container.getBoundingClientRect().height), contentHeight, measureBlocks(container, contentHeight));
+    // Capture once and reuse the same PDF image resource on every page.
+    const footerCanvas = await html2canvas(footer, {
+      backgroundColor: "#ffffff", scale: 2, useCORS: true, logging: false,
+      windowWidth: 1024, scrollX: 0, scrollY: 0,
+    });
+    const footerImage = footerCanvas.toDataURL("image/png");
+    const footerWidth = footer.offsetWidth * mmPerPixel;
+    const footerHeight = footer.offsetHeight * mmPerPixel;
+    footerCanvas.width = footerCanvas.height = 0;
     for (const [index, page] of pages.entries()) {
       const canvas = await html2canvas(container, {
         backgroundColor: "#ffffff", scale: 1.8, useCORS: true, logging: false,
@@ -142,12 +179,15 @@ export async function createQuizPdf(input: QuizPdfInput): Promise<jsPDF> {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8);
       doc.setTextColor(100, 116, 139);
-      doc.text("Prepetual", MARGIN_MM, pageHeight - 11);
+      doc.addImage(footerImage, "PNG", MARGIN_MM, pageHeight - 15,
+        footerWidth, footerHeight, "prepetual-footer-brand", "FAST");
       doc.text(`${index + 1} / ${pages.length}`, pageWidth - MARGIN_MM, pageHeight - 11, { align: "right" });
     }
     return doc;
   } finally {
     container.remove();
+    footer.remove();
+    fontMeasurementStyle.remove();
   }
 }
 

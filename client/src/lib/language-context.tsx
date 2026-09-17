@@ -1018,7 +1018,7 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       },
       exactly: "chính xác",
       retry: "Thử lại",
-      correct: "Chính xác",
+      correct: "chính xác",
       incorrect: "Chưa chính xác",
       total: "Tổng",
       time: "Thời gian",
@@ -1026,6 +1026,7 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       continue: "Tiếp tục",
       back: "Quay lại",
       next: "Kế tiếp",
+      category: "Chủ đề",
       
     },
     publicHeader: {
@@ -1422,6 +1423,8 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       selectAll: "Chọn tất cả",
       expandAll: "Mở rộng tất cả",
       collapse: "Thu gọn",
+      selectedCount: "Đã chọn {count}",
+      cannotBeEdited:"chính xác",
       shuffle: "Trộn câu hỏi",
       questionImageOptional: "Thêm hình ảnh (tùy chọn)",
       clickToAddImage: "Nhấn để thêm",
@@ -1484,9 +1487,9 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
       title: "Tạo bài Quiz thực hành",
       subtitle: "Hôm nay bạn muốn tạo bài quiz bằng cách nào?",
       aiQuizMaker: "Trình tạo Quiz AI",
-      aiSubtitle: "Kết hợp tài liệu, ghi chú đã dán, YouTube và lời nhắc vào cùng một bài quiz.",
+      aiSubtitle: "Kết hợp tài liệu, ghi chú đã dán, YouTube và prompt vào cùng một bài quiz.",
       aiPromptPlaceholder: "Ví dụ: Tạo bài quiz 10 câu mức độ khó về quá trình quang hợp...",
-      trySamplePrompt: "Thử một lời nhắc mẫu",
+      trySamplePrompt: "Thử một prompt mẫu",
       samplePrompt: "Tạo bài quiz 10 câu với độ khó: khó về nguyên nhân của Thế chiến thứ nhất cho học sinh trung học, tập trung vào các liên minh và sự kiện châm ngòi xung đột.",
       examplePrompts: [
         "Tạo bài quiz khó gồm 10 câu về quá trình quang hợp cho học sinh trung học...",

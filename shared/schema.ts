@@ -69,12 +69,12 @@ export const IMAGE_ANALYSIS_DISPLAY_TEXT = "Images analyzed visually";
 
 // Quiz categories - AI will assign one of these based on content
 export const QUIZ_CATEGORIES = [
-  "Math",
-  "English", 
-  "Science",
-  "Social Studies",
-  "Global Languages",
-  "Others/General",
+  "categories.math",
+  "categories.english", 
+  "categories.science",
+  "categories.socialStudies",
+  "categories.globalLanguages",
+  "categories.general",
 ] as const;
 
 export type QuizCategory = typeof QUIZ_CATEGORIES[number];

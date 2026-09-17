@@ -4,7 +4,7 @@ import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Play, BookOpen, Share2, Trash2, FileText, Loader2, Edit2, CirclePlus, Globe, GlobeLock, Target, Calculator, Languages, FlaskConical, Landmark, LayoutGrid, FolderPlus, Folder, MoreVertical, Pencil, Sparkles, Search, X, Pin, PinOff, BookText, Globe2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCategoryIcon, getCategoryTranslationKey } from "@/lib/category-icons";
+import { getCategoryIcon, getCategoryStorageKey, getCategoryTranslationKey } from "@/lib/category-icons";
 import { QUIZ_CATEGORIES } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,15 @@ import { useLanguage } from "@/lib/language-context";
 import type { Quiz, Folder as FolderType } from "@shared/schema";
 
 type QuizWithAttempts = Quiz & { attemptCount?: number };
+
+const categoryColorClasses: Record<string, string> = {
+  "common.categories.math": "text-blue-600 bg-blue-500/10 border-blue-200/50",
+  "common.categories.science": "text-emerald-600 bg-emerald-500/10 border-emerald-200/50",
+  "common.categories.english": "text-violet-600 bg-violet-500/10 border-violet-200/50",
+  "common.categories.globalLanguages": "text-violet-600 bg-violet-500/10 border-violet-200/50",
+  "common.categories.socialStudies": "text-indigo-600 bg-indigo-500/10 border-indigo-200/50",
+  "common.categories.general": "text-slate-600 bg-slate-500/10 border-slate-200/50",
+};
 
 export default function HistoryPage() {
   const [, setLocation] = useLocation();
@@ -292,7 +301,7 @@ export default function HistoryPage() {
       if (!titleMatch) return false;
     }
     if (selectedCategory) {
-      const cat = quiz.category || t('quizGenerator.general');
+      const cat = getCategoryStorageKey(quiz.category);
       if (cat !== selectedCategory) return false;
     }
     return true;
@@ -304,7 +313,7 @@ export default function HistoryPage() {
     return 0;
   });
 
-  const availableCategories = Array.from(new Set((quizzes || []).map(q => q.category || t('quizGenerator.general')))).sort();
+  const availableCategories = Array.from(new Set((quizzes || []).map(q => getCategoryStorageKey(q.category)))).sort();
 
   if (isLoading) {
     return (
@@ -477,7 +486,7 @@ export default function HistoryPage() {
                         <SelectItem value="all" data-testid="filter-all">{t('history.allSubjects')}</SelectItem>
                         {availableCategories.map(cat => (
                           <SelectItem key={cat} value={cat} data-testid={`filter-${cat.toLowerCase().replace(/[^a-z]/g, "-")}`}>
-                            <span className="flex items-center gap-2">{cat}</span>
+                            <span className="flex items-center gap-2">{t(getCategoryTranslationKey(cat))}</span>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -506,12 +515,7 @@ export default function HistoryPage() {
                       const catKey = getCategoryTranslationKey(quiz.category);
                       const catLabel = t(catKey);
                       const catOrig = quiz.category || "General";
-                      const colorClass =
-                        catOrig === "Math" ? "text-blue-600 bg-blue-500/10 border-blue-200/50" :
-                          catOrig === "Science" ? "text-emerald-600 bg-emerald-500/10 border-emerald-200/50" :
-                            catOrig === "English" || catOrig === "Global Languages" ? "text-violet-600 bg-violet-500/10 border-violet-200/50" :
-                              catOrig === "Social Studies" ? "text-indigo-600 bg-indigo-500/10 border-indigo-200/50" :
-                                "text-slate-600 bg-slate-500/10 border-slate-200/50";
+                      const colorClass = categoryColorClasses[catKey] ?? categoryColorClasses["common.categories.general"];
 
                       return (
                         <motion.div

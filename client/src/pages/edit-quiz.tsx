@@ -40,7 +40,7 @@ import { useQuiz } from "@/lib/quiz-context";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { type Question, type QuestionType, QUIZ_CATEGORIES, type QuizCategory } from "@shared/schema";
-import { getCategoryIcon } from "@/lib/category-icons";
+import { getCategoryIcon, getCategoryStorageKey, getCategoryTranslationKey } from "@/lib/category-icons";
 import { useLanguage } from "@/lib/language-context";
 
 type ViewMode = "edit" | "preview";
@@ -57,7 +57,7 @@ export default function EditQuizPage() {
     (currentQuiz?.questions as Question[]) || []
   );
   const [category, setCategory] = useState<QuizCategory>(
-    (currentQuiz as any)?.category || "Others/General"
+    getCategoryStorageKey((currentQuiz as any)?.category) as QuizCategory
   );
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -76,7 +76,7 @@ export default function EditQuizPage() {
     if (currentQuiz) {
       setTitle(currentQuiz.title || "");
       setQuestions((currentQuiz.questions as Question[]) || []);
-      setCategory((currentQuiz as any).category || "Others/General");
+      setCategory(getCategoryStorageKey((currentQuiz as any).category) as QuizCategory);
     }
   }, [currentQuiz?.id]);
 
@@ -467,7 +467,7 @@ export default function EditQuizPage() {
                             <SelectItem key={cat} value={cat} data-testid={`select-item-${cat.toLowerCase().replace(/[^a-z]/g, "-")}`}>
                               <div className="flex items-center gap-2">
                                 <Icon className="h-4 w-4" />
-                                {cat}
+                                {t(getCategoryTranslationKey(cat))}
                               </div>
                             </SelectItem>
                           );
