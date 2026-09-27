@@ -1,3 +1,4 @@
+import { formatAnswer, selectionAnswersMatch } from "@shared/selection-answer";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Check, X, ChevronDown, ChevronUp, RotateCcw, ArrowRight, LucideMessageCircleQuestion, Lock, UserPlus, Lightbulb, Clock } from "lucide-react";
@@ -251,7 +252,7 @@ export function QuizResults() {
               const userAnswer = userAnswers[question.id];
               const isCorrect = quizResult.wrongQuestionIds
                 ? !quizResult.wrongQuestionIds.includes(question.id)
-                : userAnswer?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
+                : question.type === "selection" ? selectionAnswersMatch(userAnswer, question.correctAnswer) : userAnswer?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
               const isExpanded = expandedQuestions.has(question.id);
 
               return (
@@ -316,14 +317,14 @@ export function QuizResults() {
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t('quizResults.yourAnswer')}</p>
                           <p className={`text-sm font-medium ${isCorrect ? "text-success" : "text-destructive"}`}>
-                            <MathText content={userAnswer || t('quizResults.noAnswerProvided')} />
+                            <MathText content={formatAnswer(userAnswer, question.type) || t('quizResults.noAnswerProvided')} />
                           </p>
                         </div>
                         {!isCorrect && question.type !== "short_answer" && (
                           <div>
                             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t('quizResults.correctAnswer')}</p>
                             <p className="text-sm font-medium text-success">
-                              <MathText content={question.correctAnswer} />
+                              <MathText content={formatAnswer(question.correctAnswer, question.type)} />
                             </p>
                           </div>
                         )}

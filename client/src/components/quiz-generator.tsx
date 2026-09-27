@@ -16,6 +16,7 @@ import { useUpload } from "@/lib/upload-context";
 import { motion, AnimatePresence } from "framer-motion";
 import { QuizGenerationDialog } from "@/components/quiz-generation-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { describeQuizImport, getPendingImportQuestions } from "@shared/import-review";
 
 type QuizMode = "generate" | "import";
 const MAX_SOURCE_IMAGES = 5;
@@ -62,7 +63,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
   const isPromptBased = hasQuizPrompt && !materialText && !hasSourceImages;
   const previewText = materialText || sourcePrompt;
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
-  const [questionTypes, setQuestionTypes] = useState<Array<"multiple_choice" | "true_false" | "short_answer">>(["multiple_choice", "true_false"]);
+  const [questionTypes, setQuestionTypes] = useState<Array<"multiple_choice" | "selection" | "true_false" | "short_answer">>(["multiple_choice", "true_false"]);
   const { questionCount, setQuestionCount, difficulty, setDifficulty, isDetectingSettings, settingsError, retrySettings } = usePromptQuizSettings(sourcePrompt, !headless && mode === "generate");
 
   useEffect(() => {
@@ -81,7 +82,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
     });
   };
 
-  const toggleQuestionType = (type: "multiple_choice" | "true_false" | "short_answer") => {
+  const toggleQuestionType = (type: "multiple_choice" | "selection" | "true_false" | "short_answer") => {
     setQuestionTypes((prev) => {
       if (prev.includes(type)) {
         if (prev.length === 1) return prev;
@@ -190,7 +191,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
     setCurrentGenerationStep("reading");
 
     if (mode === "import") {
-      setLoadingMessage("AI is parsing your questions and finding answers...");
+      setLoadingMessage("AI is selecting multiple-choice questions and finding answers...");
       // Use non-streaming endpoint for import mode
       try {
         const sourceImageUrl = sourceMaterial.type === "image" ? sourceMaterial.imageDataUrl : null;
@@ -205,11 +206,13 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
         }
 
         const quiz = await response.json();
+        const pendingCount = getPendingImportQuestions(quiz.questions).length;
 
         // Show completion
         setProcessingProgress(100);
         setCurrentGenerationStep("complete");
-        setLoadingMessage("Quiz imported successfully!");
+        setLoadingMessage(`Imported ${quiz.questions.length} multiple-choice questions!`);
+        toast({ title: "Exam imported", description: describeQuizImport(quiz.questions, quiz.importSummary) });
         await new Promise(resolve => setTimeout(resolve, 500));
 
         setCurrentQuiz(quiz);
@@ -224,7 +227,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
           documentImages: documentImages
         });
         await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
-        setLocation("/history");
+        setLocation(pendingCount ? "/edit-quiz" : "/history");
       } catch (err) {
         showGenerationFailure("Quiz import failed", err, "An error occurred while importing the quiz");
       } finally {
@@ -769,6 +772,10 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                     </div>
                   </div>
 
+<label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer ${questionTypes.includes("selection") ? "border-primary bg-primary/5" : "border-border/50"}`}>
+                        <Checkbox checked={questionTypes.includes("selection")} onCheckedChange={() => toggleQuestionType("selection")} data-testid="option-selection" />
+                        <span><span className="text-sm font-semibold">Selection</span><span className="block text-xs text-muted-foreground">Multiple correct answers</span></span>
+                      </label>
                   <div
                     className={`flex items-center gap-3 p-4 rounded-md border-2 cursor-pointer transition-all ${questionTypes.includes("true_false") ? "border-primary bg-primary/5" : "border-muted hover:border-muted-foreground/30"}`}
                     onClick={() => toggleQuestionType("true_false")}
@@ -853,7 +860,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                 <div className="space-y-1">
                   <h3 className="font-black text-2xl tracking-tight text-foreground">Smart Import</h3>
                   <p className="text-muted-foreground font-medium leading-relaxed">
-                    Already have a test? Prepetual will scan it, recognize the questions, and verify the correct answers for you.
+                    Import multiple-choice questions from an existing test. True/false and short-answer questions are skipped; uncertain answers are flagged for review.
                   </p>
                 </div>
               </div>

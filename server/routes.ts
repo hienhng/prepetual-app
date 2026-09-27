@@ -1,9 +1,14 @@
+import { selectionAnswersMatch } from "../shared/selection-answer.js";
+import { validatedQuestionSchema } from "../shared/schema.js";
 import { createGenerationDraft, runGenerationDraft, claimGenerationDraft, listGenerationDrafts } from "./quiz-generation-drafts.js";
 import type { Express } from "express";
 import { Router } from "express"; // Force reload: 2026-04-28 14:06
 import { createServer, type Server } from "http";
 
 import { createGenerationTiming } from "./generation-timing.js";
+import { QuizImportError } from "./quiz-import.js";
+import { confirmImportedQuestion, getPendingImportQuestions } from "../shared/import-review.js";
+import { transcribeExamImage } from "./openai.js";
 import { prepareQuizSource } from "./quiz-source-preparation.js";
 import { storage } from "./storage.js";
 import { setupAuth, isAuthenticated, populateUser } from "./auth.js";
@@ -309,7 +314,9 @@ const upload = multer({
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   const result = await extractTextFromPDFWithOCR(buffer, {
     sparseTextThresholdChars: 60,
-    maxPages: 10,
+    maxPages: 100,
+    requireComplete: true,
+    transcribePage: transcribeExamImage,
     renderScale: 1.4,
     maxRenderPixels: 2_500_000,
   });
@@ -1091,18 +1098,15 @@ export async function registerRoutes(
       const { text, sourceImageUrl, documentImages } = validation.data;
       const userId = req.user.claims.sub;
 
-      // For image-only uploads, use Qwen transcription with local OCR fallback.
+      // Read every image before counting questions. Never accept a partial transcript.
       let textForImport = text;
       let sourceUsesVisionTranscription = false;
-      if (documentImages && Array.isArray(documentImages) && documentImages.length > 0) {
+      const importImages = [...new Set([...(documentImages || []), ...(sourceImageUrl ? [sourceImageUrl] : [])])];
+      if (importImages.length > 0) {
         if (text === "[Images uploaded - AI will analyze visually]" || text.length < 50) {
-          console.log(`Import: Extracting text from ${documentImages.length} images...`);
-          const imageTextExtraction = await extractTextFromTextOnlyImages(documentImages);
-          if (imageTextExtraction.text && imageTextExtraction.text.length > 50) {
-            textForImport = imageTextExtraction.text;
-            sourceUsesVisionTranscription = imageTextExtraction.source === "vision";
-            console.log(`Import: Extracted ${imageTextExtraction.text.length} characters via ${imageTextExtraction.source}`);
-          }
+          const transcripts = await Promise.all(importImages.map(transcribeExamImage));
+          textForImport = transcripts.join("\n\n");
+          sourceUsesVisionTranscription = true;
         }
       }
 
@@ -1112,9 +1116,9 @@ export async function registerRoutes(
         });
       }
 
-      const { questions, title, category } = await importExistingQuiz({
+      const { questions, title, category, importSummary } = await importExistingQuiz({
         text: textForImport,
-        documentImages: Array.isArray(documentImages) ? documentImages : undefined,
+        documentImages: importImages,
       });
 
       const quiz = await storage.saveQuiz({
@@ -1132,12 +1136,14 @@ export async function registerRoutes(
 
       res.json({
         ...quiz,
+        importSummary,
         createdAt: quiz.createdAt.toISOString(),
       });
     } catch (error) {
       console.error("Quiz import error:", error);
-      res.status(500).json({
+      res.status(error instanceof QuizImportError ? 422 : 500).json({
         message: error instanceof Error ? error.message : "Failed to import quiz",
+        ...(error instanceof QuizImportError ? { code: "IMPORT_INCOMPLETE", expected: error.expected, imported: error.imported } : {}),
       });
     }
   });
@@ -1223,6 +1229,9 @@ IMPORTANT NOTE:
       let correctAnswers = 0;
       const wrongQuestionIds: string[] = [];
       const questions = quiz.questions as Question[];
+      if (getPendingImportQuestions(questions).length) {
+        return res.status(409).json({ message: "Review and confirm the flagged imported questions before starting a scored quiz.", code: "IMPORT_REVIEW_REQUIRED" });
+      }
       const quizSourceText = (quiz as any).sourceText || "";
       let aiGradedShortAnswerCount = 0;
 
@@ -1279,7 +1288,7 @@ IMPORTANT NOTE:
 
         return {
           questionId: question.id,
-          correct: userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim()
+          correct: question.type === "selection" ? selectionAnswersMatch(userAnswer, question.correctAnswer) : userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim()
         };
       });
 
@@ -1572,10 +1581,29 @@ IMPORTANT NOTE:
 
       const { title, questions, isPublic, category, folderId, lecture } = req.body;
       const updates: any = {};
+      if (questions !== undefined) {
+        const validation = validatedQuestionSchema.array().safeParse(questions);
+        if (!validation.success) return res.status(400).json({ message: validation.error.issues[0].message });
+      }
+      if (Array.isArray(questions)) {
+        const pendingIds = new Set(getPendingImportQuestions(existingQuiz.questions as Question[]).map((question) => question.id));
+        try {
+          for (const question of questions) {
+            if (pendingIds.has(question.id) && !question.importReview) confirmImportedQuestion(question);
+          }
+        } catch (error) {
+          return res.status(400).json({ message: error instanceof Error ? error.message : "Invalid imported answer" });
+        }
+      }
+      const pendingImports = getPendingImportQuestions(Array.isArray(questions) ? questions : existingQuiz.questions as Question[]);
+      if (isPublic && pendingImports.length) {
+        return res.status(409).json({ message: "Confirm the flagged imported questions before publishing this quiz.", code: "IMPORT_REVIEW_REQUIRED" });
+      }
       if (title !== undefined) updates.title = title;
       if (questions !== undefined) updates.questions = questions;
       if (category !== undefined) updates.category = category;
       if (isPublic !== undefined) updates.isPublic = isPublic ? 1 : 0;
+      if (pendingImports.length) updates.isPublic = 0;
       if (folderId !== undefined) updates.folderId = folderId;
       if (lecture !== undefined) updates.lecture = lecture;
 
@@ -2517,7 +2545,7 @@ Always return JSON:
           role: "system" as const,
           content: `You are an expert tutor explaining a quiz question to a student.${sourceContext}
 
-The student answered a multiple choice or true/false question.
+The student answered a multiple choice, selection (select all correct options), or true/false question. A selection answer is correct only if every correct option and no incorrect option is selected.
 ${instructions}
 
 ${POSITION_INDEPENDENT_EXPLANATION_RULE}${mathFormattingRules}`

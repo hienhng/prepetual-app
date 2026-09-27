@@ -1,7 +1,9 @@
+import { encodeSelectionAnswer, parseSelectionAnswer, isValidSelectionQuestion, selectionAnswersMatch, formatAnswer } from "../shared/selection-answer.js";
 import { createGenerationTiming } from "./generation-timing.js";
 import OpenAI from "openai";
 import pLimit from "p-limit"; // Force reload: 2026-04-28 14:06
 import pRetry from "p-retry";
+import { importQuizDocument } from "./quiz-import.js";
 import type { Question, QuestionType, DifficultyLevel, QuizCategory, GeneratedLecture, LectureSlide, LectureTopic, LectureStep } from "../shared/schema.js";
 import { QUIZ_CATEGORIES } from "../shared/schema.js";
 import { randomUUID } from "crypto";
@@ -717,7 +719,7 @@ STEP-BY-STEP PROCESS FOR EACH QUESTION:
 1. Read the question carefully
 2. Solve it yourself from scratch. For every mathematical problem, write the full derivation in solution before selecting an answer: identify the givens, state the formula or rule, substitute values, perform one algebraic/arithmetic transformation per step, carry units through each step, and simplify only at the end.
 3. Decide separately whether EACH option satisfies the stem
-4. The question is valid only when EXACTLY ONE option satisfies the stem
+4. For multiple_choice and true_false, EXACTLY ONE option must satisfy the stem. For selection, at least TWO options must satisfy the stem; return every correct index in satisfyingOptionIndexes and use null for correctOptionIndex.
 5. Only after solution is complete, return the zero-based index of the correct option and a self-contained learner-facing explanation in the question's language. Mathematical explanations must preserve the sequential work; non-mathematical explanations should remain concise.
 6. Confirm that the question, options, answer, and explanation use the same instructional language and terminology pattern as the source material. Proper names, formulas, code, and the schema values "True" and "False" do not count as a language mismatch.
 
@@ -728,9 +730,9 @@ ${KATEX_FORMATTING_RULES}
 For true/false questions, options are always ["True", "False"]. Evaluate whether the statement itself is true, return that conclusion separately in statementIsTrue, and then choose index 0 when it is true or index 1 when it is false. Do not confuse a false statement with the user's choice of False being incorrect.
 
 AMBIGUITY RULES:
-- Reject a question when zero, two, three, or four options could reasonably be correct
+- For multiple_choice and true_false, reject a question when zero or multiple options could reasonably be correct. For selection, require at least two correct options and reject ambiguous or unverifiable options.
 - Reject questions about the source artifact's layout or administrative metadata, including page numbers, question numbers, section locations, filenames, and counts of pages/questions. Assess the subject matter, not where it appears in the source.
-- Reject broad property/category stems when multiple options share the property (for example, "Which stores energy?" when a battery, food, and a stretched rubber band all store energy)
+- For single-answer questions, reject broad property/category stems when multiple options share the property (for example, "Which stores energy?" when a battery, food, and a stretched rubber band all store energy)
 - Reject questions that depend on an unstated context, convention, degree, or interpretation
 - "Best" or "most" does not repair ambiguity unless the stem states a clear comparison criterion
 - Reject answer sets containing bare labels or placeholders instead of substantive answers (for example, ["A", "B", "C", "D"] or ["Option 1", "Option 2", "Option 3", "Option 4"])
@@ -826,14 +828,16 @@ Use null for correctOptionIndex when ambiguous or unverifiable. Include exactly 
                 )
               : [];
 
-            if (v.isUnambiguous !== true || satisfyingIndexes.length !== 1 || !Number.isInteger(v.correctOptionIndex)) {
+            if (v.isUnambiguous !== true || (q.type === "selection"
+              ? satisfyingIndexes.length < 2 || satisfyingIndexes.length !== v.satisfyingOptionIndexes?.length || new Set(satisfyingIndexes).size !== satisfyingIndexes.length
+              : satisfyingIndexes.length !== 1 || !Number.isInteger(v.correctOptionIndex))) {
               ambiguousQuestions.add(q);
               console.warn(`${logPrefix} Rejecting ambiguous/unverifiable question "${String(q.question).substring(0, 60)}..."; satisfying option indexes: ${satisfyingIndexes.join(", ") || "none"}`);
               continue;
             }
 
             const verifiedIndex = v.correctOptionIndex;
-            if (verifiedIndex !== satisfyingIndexes[0] || verifiedIndex < 0 || verifiedIndex >= options.length) {
+            if (q.type !== "selection" && (verifiedIndex !== satisfyingIndexes[0] || verifiedIndex < 0 || verifiedIndex >= options.length)) {
               ambiguousQuestions.add(q);
               continue;
             }
@@ -847,12 +851,12 @@ Use null for correctOptionIndex when ambiguous or unverifiable. Include exactly 
               );
               continue;
             }
-            const verifiedAnswer = options[verifiedIndex];
+            const verifiedAnswer = q.type === "selection" ? encodeSelectionAnswer(satisfyingIndexes.map((index: number) => options[index])) : options[verifiedIndex];
             const markedCorrect = String(q.correctAnswer).trim();
             const auditedExplanation = typeof v.explanation === "string" && v.explanation.trim()
               ? v.explanation.trim()
               : solution;
-            const katexIssue = [verifiedAnswer, auditedExplanation]
+            const katexIssue = [formatAnswer(verifiedAnswer, q.type), auditedExplanation]
               .map(getKatexFormattingIssue)
               .find((issue): issue is string => issue !== null);
             if (katexIssue) {
@@ -924,7 +928,7 @@ async function aiSolveAndCompleteDraftsBatch(
   const rejectedQuestions = new Set<any>();
   if (draftQuestions.length === 0) return rejectedQuestions;
 
-  const validTypes = new Set(["multiple_choice", "true_false", "short_answer"]);
+  const validTypes = new Set(["multiple_choice", "selection", "true_false", "short_answer"]);
   const solvableDrafts = draftQuestions.filter((q: any) => {
     const hasTrueFalsePlan = q?.type !== "true_false" || (
       typeof q?.factBasis === "string" &&
@@ -964,15 +968,16 @@ For EACH draft, follow this exact order:
 3. Cross-check every mathematical result using substitution, an inverse operation, estimation, dimensional analysis, or another independent method. Include this check in solution.
 4. Write the canonical correct answer only after the derivation and cross-check are complete, and BEFORE creating any distractors.
 5. Only after fixing the answer, create the answer options.
-6. Check every option independently against the stem and keep the draft only if exactly one option is correct.
+6. Check every option independently against the stem. For selection, 1-4 option of the options must be correct. For other objective types, exactly one option must be correct.
 
 QUESTION-TYPE RULES:
+- selection: create four distinct substantive options with at least two correct options and at least one incorrect option. Ask the learner to select ALL correct answers in the question language. Return correctAnswer as a JSON array of exact correct option texts, and optionVerdicts as booleans identifying every correct option.
 - multiple_choice: create exactly four concise, distinct, meaningful answer options. Include correctAnswer exactly once, character-for-character. Distractors must be plausible but definitively wrong—not synonyms, equivalent values, overlapping categories, or lightly reworded versions. Never use "All of the above" or "None of the above". Never return bare choice labels (such as "A", "B", "C", "D"), generic placeholders (such as "Option 1"), or a prefixed label without actual answer text.
 - true_false: first verify factBasis independently, then evaluate the final statement. The statement must be a direct, mutually exclusive expression of factBasis: an accurate expression when targetTruthValue is "True", or a definite contradiction when it is "False". Reject unsupported, merely uncertain, partially true, or unrelated false statements. correctAnswer must exactly equal targetTruthValue and must be the English schema value "True" or "False"; options must be ["True", "False"]. The explanation remains in the question's language.
 - short_answer: give the most standard concise answer. Return an empty options array.
 
 OUTPUT ORDER IS REQUIRED:
-Within every result object, emit fields in this order: index, isValid, solution, correctAnswer, options, optionVerdicts, explanation. solution must appear before correctAnswer and options. For mathematical problems, solution must contain the complete sequential derivation and cross-check, not merely a summary or final formula. For factual problems, solution may be the concise decisive fact. After creating options, optionVerdicts must evaluate each option against the exact stem in matching array order. Exactly one verdict must be true, and it must belong to correctAnswer. For short-answer questions, both arrays are empty. The learner-facing explanation must agree with the solution and answer and retain the mathematical steps when applicable.
+Within every result object, emit fields in this order: index, isValid, solution, correctAnswer, options, optionVerdicts, explanation. solution must appear before correctAnswer and options. For mathematical problems, solution must contain the complete sequential derivation and cross-check, not merely a summary or final formula. For factual problems, solution may be the concise decisive fact. After creating options, optionVerdicts must evaluate each option against the exact stem in matching array order. For multiple_choice and true_false, exactly one verdict must be true and belong to correctAnswer. For selection, at least two verdicts must be true and exactly match the correctAnswer array. For short-answer questions, both arrays are empty. The learner-facing explanation must agree with the solution and answer and retain the mathematical steps when applicable.
 
 ${POSITION_INDEPENDENT_EXPLANATION_RULE}
 
@@ -1047,7 +1052,7 @@ Include exactly one result for every draft.`;
       if (!q) continue;
 
       const solution = typeof result.solution === "string" ? result.solution.trim() : "";
-      let correctAnswer = typeof result.correctAnswer === "string" ? result.correctAnswer.trim() : "";
+      let correctAnswer = q.type === "selection" ? encodeSelectionAnswer(parseSelectionAnswer(result.correctAnswer)) : typeof result.correctAnswer === "string" ? result.correctAnswer.trim() : "";
       const explanation = typeof result.explanation === "string" ? result.explanation.trim() : "";
       let rawOptions = Array.isArray(result.options)
         ? result.options.map((option: any) => String(option).trim())
@@ -1059,7 +1064,7 @@ Include exactly one result for every draft.`;
         continue;
       }
 
-      const katexIssue = [q.question, correctAnswer, explanation, ...rawOptions]
+      const katexIssue = [q.question, formatAnswer(correctAnswer, q.type), explanation, ...rawOptions]
         .map(getKatexFormattingIssue)
         .find((issue): issue is string => issue !== null);
       if (katexIssue) {
@@ -1070,7 +1075,18 @@ Include exactly one result for every draft.`;
         continue;
       }
 
-      if (q.type === "multiple_choice") {
+      if (q.type === "selection") {
+        const verdictAnswers = rawOptions.filter((_: string, index: number) => optionVerdicts[index] === true);
+        if (!isValidSelectionQuestion({ options: rawOptions, correctAnswer }) || rawOptions.length !== 4 ||
+            getMultipleChoiceOptionQualityIssue(rawOptions) || optionVerdicts.length !== rawOptions.length ||
+            optionVerdicts.some((verdict: unknown) => typeof verdict !== "boolean") ||
+            !selectionAnswersMatch(encodeSelectionAnswer(verdictAnswers), correctAnswer)) {
+          rejectedQuestions.add(q);
+          continue;
+        }
+        q.options = rawOptions;
+        q.correctAnswer = correctAnswer;
+      } else if (q.type === "multiple_choice") {
         const normalizedAnswerSet = normalizeMultipleChoiceAnswerSet(rawOptions, correctAnswer);
         if (!normalizedAnswerSet) {
           rejectedQuestions.add(q);
@@ -1339,6 +1355,8 @@ export async function generateQuizQuestions(
   const questionTypeDescriptions = effectiveQuestionTypes
     .map((type) => {
       switch (type) {
+        case "selection":
+          return "Selection questions: select all correct options; at least two correct answers";
         case "multiple_choice":
           return "Complete multiple-choice questions";
         case "true_false":
@@ -1378,6 +1396,7 @@ ${KATEX_FORMATTING_RULES}
 - REQUIRED JSON string pattern: "Directions\\n\\nPassage paragraph 1\\n\\nPassage paragraph 2\\n\\nActual question?"
 - Immediately before the actual question there MUST be "\\n\\n". A single "\\n", a space, or adjacent Markdown such as "**passage**\\n**question**" is invalid. Markdown or bold boundaries do not count as line breaks. Preserve this structure even when the text is bold.
 - Make every stem self-contained, precise, ${isPromptBased ? "aligned with the user's requested scope and reliable established knowledge" : "source-grounded"}, and objectively answerable.
+- For selection questions, create four distinct substantive options with at least two correct answers and at least one incorrect option. Ask to select ALL correct answers in the question language. Return correctAnswer as a JSON array containing every exact correct option text.
 - For multiple-choice questions, create exactly four concise, distinct options. correctAnswer must match exactly one option character-for-character. Do not use bare labels, placeholders, "All of the above", or "None of the above".
 - For true/false questions, options must be ["True", "False"] and correctAnswer must exactly equal targetTruthValue.
 - For short-answer questions, use an empty options array and a standard concise correctAnswer (normally 1-3 words).
@@ -1401,7 +1420,7 @@ OUTPUT FORMAT (JSON):
   "category": "One of: ${categoryList}",
   "questions": [
     {
-      "type": "multiple_choice" | "true_false" | "short_answer",
+      "type": "multiple_choice" | "selection" | "true_false" | "short_answer",
       "factBasis": "Required for true_false only; omit otherwise",
       "targetTruthValue": "True or False; required for true_false only; omit otherwise",
       "question": "Question stem only",
@@ -1688,8 +1707,8 @@ ${draftPhaseInstructions}`;
     }
 
     const title = parsed.title?.trim() || "Untitled Quiz";
-    const rawCategory = parsed.category?.trim() || "Others/General";
-    const category: QuizCategory = QUIZ_CATEGORIES.find(c => c.toLowerCase() === rawCategory.toLowerCase()) || "Others/General";
+    const rawCategory = parsed.category?.trim() || "categories.general";
+    const category: QuizCategory = QUIZ_CATEGORIES.find(c => c.toLowerCase() === rawCategory.toLowerCase()) || "categories.general";
     const normalizeQuestionKey = (value: unknown) =>
       String(value ?? "")
         .trim()
@@ -1756,7 +1775,7 @@ ${draftPhaseInstructions}`;
         if (!key || seenKeys.has(key)) continue;
 
         let options =
-          q.type === "multiple_choice" && Array.isArray(q.options)
+          (q.type === "multiple_choice" || q.type === "selection") && Array.isArray(q.options)
             ? q.options.map((o: any) => String(o).trim())
             : undefined;
 
@@ -1765,9 +1784,11 @@ ${draftPhaseInstructions}`;
         if (options) {
           options = options.map(maybeFixShiftedDigitSymbols);
         }
-        correctAnswer = maybeFixShiftedDigitSymbols(correctAnswer);
+        correctAnswer = q.type === "selection" ? encodeSelectionAnswer(parseSelectionAnswer(correctAnswer).map(maybeFixShiftedDigitSymbols)) : maybeFixShiftedDigitSymbols(correctAnswer);
 
-        if (q.type === "multiple_choice") {
+        if (q.type === "selection") {
+          if (!isValidSelectionQuestion({ options, correctAnswer }) || options?.length !== 4 || getMultipleChoiceOptionQualityIssue(options)) continue;
+        } else if (q.type === "multiple_choice") {
           if (!options || options.length !== 4) {
             console.warn(`Skipping multiple-choice question without exactly four options: "${String(q.question).substring(0, 60)}..."`);
             continue;
@@ -1805,7 +1826,7 @@ ${draftPhaseInstructions}`;
 
         // Labels were removed only after resolving the answer against the
         // original choices, so shuffling cannot detach a label from its text.
-        if (q.type === "multiple_choice" && options && options.length > 0) {
+        if ((q.type === "multiple_choice" || q.type === "selection") && options && options.length > 0) {
           for (let i = options.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [options[i], options[j]] = [options[j], options[i]];
@@ -1851,7 +1872,7 @@ ${draftPhaseInstructions}`;
       // Language consistency is checked in the same audit to avoid an additional
       // full AI pass over every candidate.
       const objectiveQuestions = built.filter(
-        (q) => q.type === "multiple_choice" || q.type === "true_false",
+        (q) => q.type === "multiple_choice" || q.type === "selection" || q.type === "true_false",
       );
       counts.auditedCandidates += objectiveQuestions.length;
       const auditRejectedQuestions = await aiVerifyAnswers(
@@ -1950,6 +1971,7 @@ IMPORTANT:
 - Use the SAME language as the ${isPromptBased ? "USER QUIZ REQUEST, unless it explicitly requests another output language" : "CONTENT"}.
 - Return each complete question with its solution, correctAnswer, separate options array, and learner-facing explanation in this response. For true_false items, the private factBasis and targetTruthValue planning fields below are also required.
 - Solve each question before choosing correctAnswer or writing distractors. For math, solution must include sequential work, units, and an independent cross-check; for factual questions, solution may be the concise decisive fact.
+- For selection, return four distinct substantive options, at least two correct options and at least one incorrect option. Ask to select ALL correct answers in the question language. correctAnswer must be a JSON array of the exact correct option texts.
 - For multiple_choice, return exactly four distinct substantive options and make correctAnswer match exactly one option character-for-character. For true_false, use options ["True", "False"] and make correctAnswer exactly equal targetTruthValue. For short_answer, use an empty options array and a concise correctAnswer.
 - NEVER append or embed answer choices in question. Do not put "A) ... B) ... C) ... D) ..." after a passage or stem; use only the separate options array.
 - CLOSED-BOOK QUESTIONS ONLY: each candidate must be answerable from its question field and options alone. The learner will not have the source material, image, diagram, chart, or table open. Include every necessary passage, label, measurement, data point, formula, and condition in the stem; never refer to "the material," "the image/diagram/table above," or ask for a value whose givens appear only in the source. If necessary context cannot be restated clearly and compactly, generate a different question.
@@ -2135,339 +2157,56 @@ interface ImportQuizParams {
   documentImages?: string[];
 }
 
+// Source import must never accept a length-limited or recovered partial transcript.
+export async function transcribeExamImage(imageUrl: string): Promise<string> {
+  const response = await pRetry(() => openai.chat.completions.create({
+    model: visionModel,
+    messages: [{ role: "user", content: [
+      { type: "text", text: "Transcribe ALL readable text on this exam page exactly, including every question number, option, passage, table and answer key. Preserve line breaks, wording and language. Do not solve, summarize or omit questions. Return only plain text." },
+      { type: "image_url", image_url: { url: imageUrl, detail: "high" } },
+    ] }],
+    temperature: 0,
+    max_tokens: 12_000,
+  }, quizModelRequestOptions()), {
+    retries: 1,
+    minTimeout: 1000,
+    shouldRetry: ({ error }) => isRetryableAiError(error),
+  });
+  const choice = response.choices[0];
+  if (choice?.finish_reason !== "stop" || !choice.message.content?.trim()) {
+    throw new Error("Could not transcribe the complete exam image. Please provide a clearer image or split the page into smaller images.");
+  }
+  return normalizeVisionTextResponse(choice.message.content);
+}
+
 export async function importExistingQuiz(
   params: ImportQuizParams,
-): Promise<{ questions: Question[]; title: string; category: QuizCategory }> {
-  const { text, documentImages = [] } = params;
-
-  const hasImages = documentImages.length > 0;
-  const categoryList = QUIZ_CATEGORIES.join(", ");
-  const truncatedText =
-    text.length > 8000 ? text.substring(0, 8000) + "..." : text;
-
-  const prompt = `You are an expert educator and subject-matter specialist. The following text appears to be from an existing exam, quiz, or worksheet that already contains questions with answer options.
-
-Your task is to:
-1. Parse and extract ALL existing questions from the content
-2. Identify the correct answer for each question using your knowledge
-3. Generate a short, descriptive title (max 6 words) for this quiz.
-4. Assign exactly ONE category from: ${categoryList}
-   - Math, English, Science, Social Studies, Global Languages, Others/General
-
-CONTENT:
-${truncatedText}
-
-LANGUAGE HANDLING:
-- Detect the primary language of the content above (English, Vietnamese, or other)
-- Preserve the original language of the questions and options
-- Write the QUIZ TITLE in the SAME language as the content
-
-FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
-- Every correct answer MUST be verifiably, objectively correct based on established academic knowledge
-- For every mathematical problem, write solution BEFORE correctAnswer. In solution: identify the givens, state the formula or rule, substitute values, perform one transformation per sequential step, carry units, and independently cross-check the result. Only then set correctAnswer to the matching option.
-- NEVER mark a wrong answer as correct. If uncertain, use the most defensible and commonly accepted answer
-
-IMPORTANT INSTRUCTIONS:
-- Extract questions EXACTLY as they appear (preserving the original wording)
-- For multiple choice, preserve all answer options as they appear (e.g., a, b, c, d or A, B, C, D)
-- Use your expert knowledge to determine the correct answer with high confidence - DO NOT guess
-- AUTOMATICALLY DETECT QUESTION TYPE based on the options:
-  * If options are exactly "True" and "False" (or similar like "T/F", "Đúng/Sai") → use "true_false" type
-  * If there are NO options provided (open-ended question) → use "short_answer" type
-  * Otherwise (multiple options A, B, C, D etc.) → use "multiple_choice" type
-
-OUTPUT FORMAT (JSON):
-{
-  "title": "A short descriptive title for the quiz",
-  "category": "One of: ${categoryList}",
-  "questions": [
-    {
-      "type": "multiple_choice OR true_false OR short_answer",
-      "question": "The exact question text as it appears",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // For multiple_choice/true_false only. Extract exactly as they appear, but REMOVE any prefixes like "A) ", "1. ", "a. ", etc. For short_answer, omit this field or use empty array.
-      "solution": "For math: full sequential derivation and cross-check; otherwise: concise decisive fact",
-      "correctAnswer": "The exact full text of the correct option (without any prefix)"
-    }
-  ]
-}
-
-Respond with ONLY valid JSON, no markdown or additional text.`;
-
-  const visionPrompt = hasImages ? `You are an expert educator and subject-matter specialist. The following content appears to be from an existing exam, quiz, or worksheet that already contains questions with answer options. The content includes IMAGES that may contain questions, diagrams, or visual content that are part of the quiz.
-
-Your task is to:
-1. Parse and extract ALL existing questions from BOTH the text content AND the attached images
-2. Questions may appear in the images - extract those too
-3. Identify the correct answer for each question using your knowledge
-4. Generate a short, descriptive title (max 6 words) for this quiz.
-5. Assign exactly ONE category from: ${categoryList}
-   - Math, English, Science, Social Studies, Global Languages, Others/General
-
-TEXT CONTENT:
-${truncatedText}
-
-LANGUAGE HANDLING:
-- Detect the primary language of the content (English, Vietnamese, or other)
-- Preserve the original language of the questions and options
-- Write the QUIZ TITLE in the SAME language as the content
-
-FACTUAL ACCURACY AND SELF-CONSISTENCY (HIGHEST PRIORITY - FOLLOW STRICTLY):
-- Every correct answer MUST be verifiably, objectively correct based on established academic knowledge
-- For every mathematical problem, write solution BEFORE correctAnswer. In solution: identify the givens, state the formula or rule, substitute values, perform one transformation per sequential step, carry units, and independently cross-check the result. Only then set correctAnswer to the matching option.
-- NEVER mark a wrong answer as correct. If uncertain, use the most defensible and commonly accepted answer
-
-IMPORTANT INSTRUCTIONS:
-- Extract questions EXACTLY as they appear (from both text and images)
-- For multiple choice, preserve all answer options as they appear
-- Use your expert knowledge to determine the correct answer with high confidence - DO NOT guess
-- AUTOMATICALLY DETECT QUESTION TYPE based on the options:
-  * If options are exactly "True" and "False" (or similar like "T/F", "Đúng/Sai") → use "true_false" type
-  * If there are NO options provided (open-ended question) → use "short_answer" type
-  * Otherwise (multiple options A, B, C, D etc.) → use "multiple_choice" type
-
-OUTPUT FORMAT (JSON):
-{
-  "title": "A short descriptive title for the quiz",
-  "category": "One of: ${categoryList}",
-  "questions": [
-    {
-      "type": "multiple_choice OR true_false OR short_answer",
-      "question": "The exact question text as it appears",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"], // For multiple_choice/true_false only. Extract exactly as they appear, but REMOVE any prefixes. For short_answer, omit this field or use empty array.
-      "solution": "For math: full sequential derivation and cross-check; otherwise: concise decisive fact",
-      "correctAnswer": "The exact full text of the correct option (without any prefix)"
-    }
-  ]
-}
-
-Respond with ONLY valid JSON, no markdown or additional text.` : prompt;
-
-  try {
-    const response = await pRetry(
-      async () => {
-        let messages: any[];
-
-        if (hasImages) {
-          const imageContent = documentImages.slice(0, maxVisionImages).map(imageUrl => ({
-            type: "image_url" as const,
-            image_url: { url: imageUrl, detail: "high" as const }
-          }));
-
-          messages = [{
-            role: "user",
-            content: [
-              { type: "text", text: visionPrompt },
-              ...imageContent
-            ]
-          }];
-
-          console.log(`Importing quiz with ${imageContent.length} images using vision model`);
-        } else {
-          messages = [{ role: "user", content: prompt }];
-        }
-
-        const aiClient = openai;
-        const aiModel = hasImages ? visionModel : quizModel;
-
-        const completion = await aiClient.chat.completions.create({
-          model: aiModel,
-          messages,
-          response_format: { type: "json_object" },
-          max_tokens: 8192,
-        });
-
-        const content = completion.choices[0]?.message?.content;
-        if (!content) {
-          throw new Error("No response from AI");
-        }
-
-        return content;
-      },
-      {
-        retries: 5,
-        minTimeout: 2000,
-        maxTimeout: 60000,
-        factor: 2,
-        onFailedAttempt: (error) => {
-          if (!isRateLimitError(error)) {
-            throw error;
-          }
-        },
-      },
-    );
-
-    const parsed = JSON.parse(response);
-
-    console.log("AI import response:", JSON.stringify(parsed, null, 2));
-
-    if (!parsed.questions || !Array.isArray(parsed.questions)) {
-      throw new Error(
-        "No quiz questions detected in this document. Please upload a document that contains multiple choice questions.",
-      );
-    }
-
-    if (parsed.questions.length === 0) {
-      throw new Error(
-        "No quiz questions detected in this document. Please upload a document that contains multiple choice questions.",
-      );
-    }
-
-    const title = parsed.title?.trim() || "Imported Quiz";
-    const rawCategory = parsed.category?.trim() || "Others/General";
-    const category: QuizCategory = QUIZ_CATEGORIES.find(c => c.toLowerCase() === rawCategory.toLowerCase()) || "Others/General";
-    const questions: Question[] = [];
-
-    const importMcQuestions = parsed.questions.filter((q: any) =>
-      q.correctAnswer && Array.isArray(q.options) && q.options.length > 0
-    );
-    const rejectedImportQuestions = await aiVerifyAnswers(importMcQuestions, "[IMPORT AI VERIFY]", {
-      sourceText: truncatedText,
-      documentImages,
+): Promise<Awaited<ReturnType<typeof importQuizDocument>>> {
+  const images = [...new Set(params.documentImages || [])];
+  return importQuizDocument(params.text, async (prompt) => {
+    const content: any = images.length
+      ? [{ type: "text", text: prompt }, ...images.map((url) => ({
+          type: "image_url", image_url: { url, detail: "high" },
+        }))]
+      : prompt;
+    const completion = await pRetry(() => openai.chat.completions.create({
+      model: images.length ? visionModel : quizModel,
+      messages: [{ role: "user", content }],
+      response_format: { type: "json_object" },
+      temperature: 0,
+      max_tokens: 8192,
+    }, quizModelRequestOptions()), {
+      retries: 1,
+      minTimeout: 1000,
+      shouldRetry: ({ error }) => isRetryableAiError(error),
     });
-
-    for (const q of parsed.questions) {
-      if (rejectedImportQuestions.has(q)) continue;
-      if (!q.question || !q.correctAnswer) {
-        console.warn(
-          "Skipping malformed question (missing question or answer):",
-          q,
-        );
-        continue;
-      }
-
-      let options =
-        Array.isArray(q.options) && q.options.length > 0
-          ? q.options.map((o: any) => String(o).trim())
-          : undefined;
-
-      // Auto-detect question type based on options
-      let questionType: QuestionType = "multiple_choice";
-
-      if (!options || options.length === 0) {
-        // No options = short answer
-        questionType = "short_answer";
-        options = undefined;
-      } else if (options.length === 2) {
-        // Check if it's true/false
-        const normalizedOptions = options.map((o: string) => o.toLowerCase().trim());
-        const trueFalsePatterns = [
-          ["true", "false"],
-          ["false", "true"],
-          ["t", "f"],
-          ["f", "t"],
-          ["yes", "no"],
-          ["no", "yes"],
-          ["đúng", "sai"],
-          ["sai", "đúng"],
-        ];
-        const isTrueFalse = trueFalsePatterns.some(pattern =>
-          (normalizedOptions[0] === pattern[0] && normalizedOptions[1] === pattern[1]) ||
-          (normalizedOptions.includes(pattern[0]) && normalizedOptions.includes(pattern[1]))
-        );
-        if (isTrueFalse) {
-          questionType = "true_false";
-          // Normalize options to "True" and "False"
-          options = ["True", "False"];
-        } else if (q.type === "true_false") {
-          // Preserve the detected type when option labels are localized or
-          // otherwise outside the small auto-detection list.
-          questionType = "true_false";
-          options = ["True", "False"];
-        }
-      } else if (q.type && ["multiple_choice", "true_false", "short_answer"].includes(q.type)) {
-        // Use AI-detected type if valid
-        questionType = q.type as QuestionType;
-      }
-
-      let correctAnswer = String(q.correctAnswer).trim();
-
-      // Normalize correct answer for true/false questions
-      if (questionType === "true_false") {
-        const lowerAnswer = correctAnswer.toLowerCase();
-        if (["true", "t", "yes", "đúng"].includes(lowerAnswer)) {
-          correctAnswer = "True";
-        } else if (["false", "f", "no", "sai"].includes(lowerAnswer)) {
-          correctAnswer = "False";
-        }
-      }
-
-      // Normalize localized true/false answers (including Vietnamese) without
-      // relying on the encoding of the model response.
-      if (questionType === "true_false") {
-        const normalizedAnswer = correctAnswer
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/\u0111/g, "d");
-        if (["true", "t", "yes", "dung"].includes(normalizedAnswer)) {
-          correctAnswer = "True";
-        } else if (["false", "f", "no", "sai"].includes(normalizedAnswer)) {
-          correctAnswer = "False";
-        }
-      }
-
-      if (questionType === "multiple_choice" && options) {
-        const normalizedAnswerSet = normalizeMultipleChoiceAnswerSet(options, correctAnswer);
-        if (!normalizedAnswerSet) {
-          console.warn(
-            `Skipping imported multiple-choice question whose answer cannot be mapped uniquely to an option: "${String(q.question).substring(0, 60)}..."`,
-          );
-          continue;
-        }
-        options = normalizedAnswerSet.options;
-        correctAnswer = normalizedAnswerSet.correctAnswer;
-      }
-
-      // Shuffle only after labels and the answer have been resolved together.
-      if (questionType === "multiple_choice" && options && options.length > 0) {
-        for (let i = options.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [options[i], options[j]] = [options[j], options[i]];
-        }
-      }
-
-      // Process wrongAnswerExplanations for imported quizzes
-      let wrongAnswerExplanations: Record<string, string> | undefined;
-      if (questionType === "multiple_choice" && q.wrongAnswerExplanations && typeof q.wrongAnswerExplanations === "object") {
-        wrongAnswerExplanations = {};
-        for (const [key, value] of Object.entries(q.wrongAnswerExplanations)) {
-          if (value && typeof value === "string") {
-            wrongAnswerExplanations[String(key).trim()] = String(value).trim();
-          }
-        }
-      }
-
-      const question: Question = {
-        id: randomUUID(),
-        type: questionType,
-        question: String(q.question).trim(),
-        options,
-        correctAnswer,
-        explanation: q.explanation ? String(q.explanation).trim() : undefined,
-        wrongAnswerExplanations,
-      };
-
-      questions.push(question);
+    const inspected = inspectAiJsonCompletion(completion);
+    if (!inspected.result) {
+      console.warn("[QUIZ IMPORT RESPONSE]", { reason: inspected.retryReason, finishReason: inspected.finishReason, contentLength: inspected.contentLength });
+      throw new Error(`Import response ${inspected.retryReason}`);
     }
-
-    if (questions.length === 0) {
-      throw new Error(
-        "No quiz questions detected in this document. Make sure you're uploading an exam paper or worksheet with multiple choice questions.",
-      );
-    }
-
-    return {
-      questions,
-      title,
-      category,
-    };
-  } catch (error: any) {
-    console.error("Error importing quiz:", error);
-    if (error.message && error.message.includes("No quiz questions")) {
-      throw error;
-    }
-    throw new Error("Failed to import quiz questions. Please try again.");
-  }
+    return inspected.result;
+  });
 }
 
 export interface QuizChatParams {
@@ -2700,6 +2439,9 @@ ${sourceText ? `\nSource material (for context): ${sourceText.substring(0, 2000)
 Independently solve this and determine which option is actually correct. Show your full reasoning. Write in the SAME language as the question above.`;
             }
 
+            if (q.type === "selection") {
+              systemPrompt += "\nThis is a selection question. Multiple options are correct. Determine every correct option, returning correctAnswer as a JSON array of exact option texts with at least two entries. Any supplied user answer is the full set, encoded as a JSON array. Explain all correct options and only mark unselected incorrect options as wrong.";
+            }
             const completion = await openai.chat.completions.create({
               model: quizModel,
               messages: [
@@ -2720,13 +2462,14 @@ Independently solve this and determine which option is actually correct. Show yo
               throw new Error("Invalid AI response: missing explanation");
             }
 
-            const finalAnswer = userCorrectAnswer || parsed.correctAnswer;
+            const finalAnswer = q.type === "selection" ? encodeSelectionAnswer(parseSelectionAnswer(userCorrectAnswer || parsed.correctAnswer)) : userCorrectAnswer || parsed.correctAnswer;
+            if (q.type === "selection" && !isValidSelectionQuestion({ options: q.options, correctAnswer: finalAnswer })) throw new Error("Invalid selection answer set");
             if (!finalAnswer) {
               throw new Error("Invalid AI response: missing correctAnswer");
             }
 
             let resolvedAnswer = finalAnswer;
-            if (!userCorrectAnswer && q.options && !q.options.includes(resolvedAnswer)) {
+            if (q.type !== "selection" && !userCorrectAnswer && q.options && !q.options.includes(resolvedAnswer)) {
               console.log(`[AI REVISE] Q${idx + 1}: AI picked answer not in options, finding closest match`);
               const match = q.options.find(opt =>
                 opt.toLowerCase().includes(resolvedAnswer.toLowerCase()) ||
@@ -3126,7 +2869,7 @@ Respond with ONLY valid JSON.`;
     const solvedObjectiveQuestions = newQuestionDrafts.filter(
       (q: any) =>
         !rejectedQuestions.has(q) &&
-        (q?.type === "multiple_choice" || q?.type === "true_false"),
+        (q?.type === "multiple_choice" || q?.type === "selection" || q?.type === "true_false"),
     );
     const auditRejectedQuestions = await aiVerifyAnswers(
       solvedObjectiveQuestions,

@@ -50,13 +50,14 @@ function QuizDocument({ title, category, questions }: QuizPdfInput) {
     {questions.map((question, index) => {
       const options = question.type === "true_false"
         ? (question.options?.length ? question.options : ["True", "False"])
-        : question.type === "multiple_choice" ? question.options || [] : [];
+        : (question.type === "multiple_choice" || question.type === "selection") ? question.options || [] : [];
       return <section className="pdf-question" key={`${question.id}-${index}`}>
         <div className="pdf-question-label">QUESTION {index + 1} <span>{question.type.replaceAll("_", " ")}</span></div>
         <div className="pdf-prompt"><RichText text={question.question} /></div>
         {question.imageUrl && <img className="pdf-question-image" src={question.imageUrl} crossOrigin="anonymous" alt={`Question ${index + 1} image`} />}
+        {question.type === "selection" && <p>Select all correct answers.</p>}
         {options.map((option, optionIndex) => <div className="pdf-option" key={optionIndex}>
-          <span className="pdf-option-label">{String.fromCharCode(65 + optionIndex)}.</span>
+          <span className="pdf-option-label">{question.type === "selection" ? "☐" : `${String.fromCharCode(65 + optionIndex)}.`}</span>
           <RichText text={option.replace(/^\s*[A-Z][.)]\s+/i, "")} />
         </div>)}
         {question.type === "short_answer" && <div className="pdf-answer-space"><div /><div /><div /></div>}

@@ -1,6 +1,7 @@
+import { parseSelectionAnswer, encodeSelectionAnswer, selectionAnswersMatch, isCorrectOption, formatAnswer } from "@shared/selection-answer";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, BookCheck, Lock, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, FileText, ChevronLeft, ChevronRight, Image, Flag, AlertTriangle, Clock, Eye, EyeOff, MessageCircleQuestion } from "lucide-react";
+import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, Bookmark, BookCheck, Lock, CircleCheck, CircleCheckBig, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, FileText, ChevronLeft, ChevronRight, Image, Flag, AlertTriangle, Clock, Eye, EyeOff, MessageCircleQuestion, Square, SquareCheck, Circle, } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,6 +93,7 @@ const answersMatch = (
   type: Question["type"],
 ) => {
   if (!answer || !correctAnswer) return false;
+  if (type === "selection") return selectionAnswersMatch(answer, correctAnswer);
 
   if (type === "true_false") {
     const normalizedAnswer = normalizeTrueFalseAnswer(answer);
@@ -140,6 +142,7 @@ export function QuizPlayer() {
   const [feedbackMessages, setFeedbackMessages] = useState<Record<string, { message: string; streakAtTime: number }>>({}); 
   const [showQuestionNav, setShowQuestionNav] = useState(false);
   const [showChatbot, setShowChatbot] = useState(false);
+  const [bookmarkedQuestions, setBookmarkedQuestions] = useState<string[]>([]);
   const [isGrading, setIsGrading] = useState(false);
   const [aiGradingResults, setAiGradingResults] = useState<Record<string, { isCorrect: boolean; isPartial: boolean; explanation: string; wrongExplanation?: string }>>({});
   const [isGeneratingExplanation, setIsGeneratingExplanation] = useState<Record<string, boolean>>({});
@@ -169,8 +172,39 @@ export function QuizPlayer() {
   const [sessionTime, setSessionTime] = useState(0);
   const [showTimer, setShowTimer] = useState(true);
   const isFinished = !!quizResult;
-  
+  const quizBookmarkStorageKey = currentQuiz ? `quiz-bookmarks-${currentQuiz.id}` : "";
   const isGuest = !user;
+
+  useEffect(() => {
+    if (!currentQuiz) return;
+
+    try {
+      const stored = sessionStorage.getItem(quizBookmarkStorageKey);
+      if (!stored) {
+        setBookmarkedQuestions([]);
+        return;
+      }
+
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        setBookmarkedQuestions(parsed.filter((value): value is string => typeof value === "string"));
+      } else {
+        setBookmarkedQuestions([]);
+      }
+    } catch {
+      setBookmarkedQuestions([]);
+    }
+  }, [currentQuiz?.id, quizBookmarkStorageKey]);
+
+  useEffect(() => {
+    if (!currentQuiz) return;
+
+    try {
+      sessionStorage.setItem(quizBookmarkStorageKey, JSON.stringify(bookmarkedQuestions));
+    } catch {
+      // Ignore storage quota issues and keep the in-memory state intact.
+    }
+  }, [currentQuiz?.id, quizBookmarkStorageKey, bookmarkedQuestions]);
 
   if (!currentQuiz) {
     return null;
@@ -332,6 +366,10 @@ export function QuizPlayer() {
 
   const handleSelectAnswer = (answer: string) => {
     if (isChecked) return;
+    if (currentQuestion.type === "selection") {
+      const selected = parseSelectionAnswer(selectedAnswer);
+      answer = encodeSelectionAnswer(selected.includes(answer) ? selected.filter(option => option !== answer) : [...selected, answer]);
+    }
     if (currentQuestion.isRetry) {
       setRetryAnswers(prev => ({ ...prev, [currentQuestion.id]: answer }));
     } else {
@@ -402,8 +440,8 @@ export function QuizPlayer() {
       keysToExpand.push(`${qSnap.id}-short-answer`);
     } else if (qSnap.options && qSnap.explanation && (!isGuest || qSnap.isRetry)) {
       qSnap.options.forEach((opt, idx) => {
-        const isCorrectOpt = opt.toLowerCase().trim() === qSnap.correctAnswer.toLowerCase().trim();
-        const isSelectedWrong = opt === answerToCheck && !correct;
+        const isCorrectOpt = isCorrectOption(opt, qSnap);
+        const isSelectedWrong = (qSnap.type === "selection" ? parseSelectionAnswer(answerToCheck).includes(opt) : opt === answerToCheck) && !correct;
         if (isCorrectOpt || isSelectedWrong) {
           keysToExpand.push(`${qSnap.id}-${idx}`);
         }
@@ -425,10 +463,10 @@ export function QuizPlayer() {
         if (qSnap.type === "true_false") {
           optionText = key.includes("-tf-True") ? "True" : "False";
           isCorrectOpt = answersMatch(optionText, qSnap.correctAnswer, qSnap.type);
-        } else if (qSnap.type === "multiple_choice") {
+        } else if ((qSnap.type === "multiple_choice" || qSnap.type === "selection")) {
           const optIdx = parseInt(key.split("-").pop() || "0");
           optionText = qSnap.options?.[optIdx] || "";
-          isCorrectOpt = optionText.toLowerCase().trim() === qSnap.correctAnswer.toLowerCase().trim();
+          isCorrectOpt = isCorrectOption(optionText, qSnap);
         }
 
         if (optionText) {
@@ -560,8 +598,8 @@ export function QuizPlayer() {
         body: JSON.stringify({
           question: qSnap.question,
           options: qSnap.options,
-          correctAnswer: qSnap.correctAnswer,
-          selectedAnswer: ansToCheck,
+          correctAnswer: formatAnswer(qSnap.correctAnswer, qSnap.type),
+          selectedAnswer: formatAnswer(ansToCheck, qSnap.type),
           isCorrect: isCorrectAnswer(ansToCheck, qSnap),
           sourceText: sourceMaterial?.text || (currentQuiz as any)?.sourceText || "",
           category: currentQuiz.category,
@@ -797,6 +835,8 @@ export function QuizPlayer() {
 
   const getQuestionTypeBadge = (type: Question["type"]) => {
     switch (type) {
+      case "selection":
+        return <Badge variant="secondary" className="text-xs">{t("quizGenerator.selection")}</Badge>;
       case "multiple_choice":
         return <Badge variant="secondary" className="text-xs">{t('quizGenerator.multipleChoice')}</Badge>;
       case "true_false":
@@ -889,6 +929,21 @@ export function QuizPlayer() {
       }
       return next;
     });
+  };
+
+  const isCurrentQuestionBookmarked = currentQuestion
+    ? bookmarkedQuestions.includes(currentQuestion.isRetry ? currentQuestion.originalId : currentQuestion.id)
+    : false;
+
+  const toggleQuestionBookmark = () => {
+    if (!currentQuestion) return;
+
+    const bookmarkKey = currentQuestion.isRetry ? currentQuestion.originalId : currentQuestion.id;
+    setBookmarkedQuestions(prev =>
+      prev.includes(bookmarkKey)
+        ? prev.filter(id => id !== bookmarkKey)
+        : [...prev, bookmarkKey]
+    );
   };
 
   const renderAnswerOptions = () => {
@@ -1164,9 +1219,10 @@ export function QuizPlayer() {
     
     return (
       <div className="space-y-3">
+        {currentQuestion.type === "selection" && <p className="text-sm text-muted-foreground">{t("quizGenerator.selectionHint")}</p>}
         {currentQuestion.options?.map((option, index) => {
-          const isSelected = selectedAnswer === option;
-          const isCorrectOpt = option.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
+          const isSelected = currentQuestion.type === "selection" ? parseSelectionAnswer(selectedAnswer).includes(option) : selectedAnswer === option;
+          const isCorrectOpt = isCorrectOption(option, currentQuestion);
           
           const gradeKey = currentQuestion.isRetry ? currentQuestion.id : currentQuestion.originalId;
           const aiExplanation = aiGradingResults[gradeKey];
@@ -1203,6 +1259,8 @@ export function QuizPlayer() {
                 onPointerLeave={() => setPressedKey(null)}
                 onPointerCancel={() => setPressedKey(null)}
                 disabled={isChecked}
+                role={currentQuestion.type === "selection" ? "checkbox" : undefined}
+                aria-checked={currentQuestion.type === "selection" ? isSelected : undefined}
                 data-testid={`option-${index}`}
                 style={{ 
                   transform: pressedKey === explanationKey ? 'translateY(4px)' : undefined,
@@ -1236,22 +1294,31 @@ export function QuizPlayer() {
                 <div className="flex items-center gap-4">
                   <div className={`
                     w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0 transition-all duration-300
-                    ${isChecked && isCorrectOpt
-                      ? "bg-green-500 text-white shadow-lg shadow-green-500/40 scale-110"
-                      : isChecked && isSelected && !isCorrectOpt
-                        ? "bg-red-500 text-white shadow-lg shadow-red-500/40"
-                        : isSelected
-                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
-                          : "bg-muted text-muted-foreground"
+                    ${
+                      isChecked && isCorrectOpt && isSelected
+                        ? "bg-green-500 text-white shadow-lg shadow-green-500/40 scale-110"
+                        : isChecked && isCorrectOpt && !isSelected
+                          ? "bg-green-600 dark:bg-green-900 text-white"
+                          : isChecked && isSelected && !isCorrectOpt
+                            ? "bg-red-500 text-white shadow-lg shadow-red-500/40"
+                            : isSelected
+                              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
+                              : "bg-muted text-muted-foreground"
                     }
                   `}>
-                    {optionLabels[index]}
+                    {currentQuestion.type === "selection" ? (
+                      isChecked && isSelected && !isCorrectOpt
+                        ? <X aria-hidden="true" className="h-6 w-6" strokeWidth={2.5} />
+                        : isSelected
+                          ? <CircleCheck aria-hidden="true" className="h-6 w-6" strokeWidth={2} />
+                          : <Circle aria-hidden="true" className="h-6 w-6" strokeWidth={2.5} />
+                    ) : optionLabels[index]}
                   </div>
                   <span className={`text-sm sm:text-base flex-1 font-bold transition-colors ${isChecked && isCorrectOpt ? "text-green-700 dark:text-green-400" : isChecked && isSelected && !isCorrectOpt ? "text-red-700 dark:text-red-400" : "font-medium"}`}>
                     <MathText content={option} />
                   </span>
                   <AnimatePresence>
-                    {isChecked && isCorrectOpt && (
+                    {isSelected && isChecked && isCorrectOpt && (
                       <motion.div
                         initial={{ scale: 0, rotate: -180 }}
                         animate={{ scale: 1, rotate: 0 }}
@@ -1363,6 +1430,7 @@ export function QuizPlayer() {
                   const isCurrent = currentQuestion?.originalId === q.id && !currentQuestion?.isRetry;
                   const isCurrentRetry = currentQuestion?.originalId === q.id && currentQuestion?.isRetry;
                   const needsRetry = wrongAnswerIds.current.has(q.id);
+                  const isBookmarkedQuestion = bookmarkedQuestions.includes(q.id);
                   
                   return (
                     <button
@@ -1370,7 +1438,7 @@ export function QuizPlayer() {
                       onClick={() => goToQuestion(i)}
                       disabled={isRetryQuestion}
                       className={`
-                        w-10 h-10 rounded-lg font-semibold text-sm transition-all
+                        relative w-10 h-10 rounded-lg font-semibold text-sm transition-all
                         ${isRetryQuestion 
                           ? "opacity-50 cursor-not-allowed" 
                           : "cursor-pointer hover:scale-105"
@@ -1388,9 +1456,13 @@ export function QuizPlayer() {
                         ${needsRetry && isAnswered ? "ring-1 ring-orange-500 ring-offset-0" : ""}
                       `}
                       data-testid={`nav-question-${i}`}
-                      title={isRetryQuestion ? t('quizPlayer.linearModeDesc') : ""}
+                      title={isRetryQuestion ? t('quizPlayer.linearModeDesc') : isBookmarkedQuestion ? "Bookmarked question" : ""}
                     >
-                      {i + 1}
+                      <span className="relative z-10">{i + 1}</span>
+                      {isBookmarkedQuestion && (
+                        <Bookmark className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center text-amber-500 fill-current shadow-sm"/>
+        
+                      )}
                     </button>
                   );
                 })}
@@ -1690,6 +1762,19 @@ export function QuizPlayer() {
                       </Badge>
                     )} */}
                     {getQuestionTypeBadge(currentQuestion.type)}
+                    <button
+                      type="button"
+                      onClick={toggleQuestionBookmark}
+                      aria-label={isCurrentQuestionBookmarked ? "Remove bookmark" : "Bookmark question"}
+                      title={isCurrentQuestionBookmarked ? "Remove bookmark" : "Bookmark question"}
+                      className={`inline-flex h-6 w-6 items-center justify-center rounded-full transition-colors ${
+                        isCurrentQuestionBookmarked
+                          ? "text-amber-400 dark:text-amber-400"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      <Bookmark className={`h-4.5 w-4.5 ${isCurrentQuestionBookmarked ? "fill-current" : ""}`} />
+                    </button>
                     
                     <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
                       <DialogTrigger asChild>

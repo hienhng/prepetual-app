@@ -7,7 +7,7 @@ import {
   FileText, Image, Sparkles, ArrowRight,
   CheckCircle2, Loader2, X, Wand2,
   Type, Youtube, Link, AlertCircle, FileUp, Zap, Layers, Eye, Trash2, SendHorizontal,
-  Gauge, CheckSquare, ToggleLeft, MessageSquare, Import
+  Gauge, CheckSquare, ToggleLeft, MessageSquare, Import, ListCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,6 +24,7 @@ import { useUpload } from "@/lib/upload-context";
 import { useLanguage } from "@/lib/language-context";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+import { describeQuizImport, getPendingImportQuestions } from "@shared/import-review";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,7 +86,7 @@ export default function Create() {
   const {
     extractedText, setExtractedText,
     sourceMaterial, setSourceMaterial,
-    resetQuiz,
+    resetQuiz, setCurrentQuiz,
     setIsLoading, isLoading,
     setLoadingMessage,
     setProcessingProgress,
@@ -118,7 +119,7 @@ export default function Create() {
   // Sending commits the prompt to sourceMaterial and starts analysis immediately.
   // Keep it running across panels; unsent draft edits must not trigger requests.
   const { questionCount, setQuestionCount, difficulty, setDifficulty, isDetectingSettings, settingsError, retrySettings } = usePromptQuizSettings(sourceMaterial.prompt || "", quizMode === "generate");
-  const [questionTypes, setQuestionTypes] = useState<Array<"multiple_choice" | "true_false" | "short_answer">>(["multiple_choice", "true_false"]);
+  const [questionTypes, setQuestionTypes] = useState<Array<"multiple_choice" | "selection" | "true_false" | "short_answer">>(["multiple_choice", "true_false"]);
 
   useEffect(() => {
     if (!resetOnMountRef.current) return;
@@ -145,7 +146,7 @@ export default function Create() {
   const totalSourcesCount = [hasUploadedSource, hasManualSource, hasYoutubeSource, hasPromptSource].filter(Boolean).length;
   const isReady = totalSourcesCount > 0 && !resetOnMountRef.current;
 
-  const toggleQuestionType = (type: "multiple_choice" | "true_false" | "short_answer") => {
+  const toggleQuestionType = (type: "multiple_choice" | "selection" | "true_false" | "short_answer") => {
     setQuestionTypes((prev) => {
       if (prev.includes(type)) {
         if (prev.length === 1) return prev;
@@ -399,7 +400,7 @@ export default function Create() {
     setCurrentGenerationStep("reading");
 
     if (quizMode === "import") {
-      setLoadingMessage("AI is parsing your questions and finding answers...");
+      setLoadingMessage("AI is selecting multiple-choice questions and finding answers...");
       try {
         const sourceImageUrl = sourceMaterial.type === "image" ? sourceMaterial.imageDataUrl : null;
         const response = await fetch("/api/import-quiz", {
@@ -413,21 +414,24 @@ export default function Create() {
         });
 
         if (!response.ok) {
-          const errText = await response.text();
-          throw new Error(errText || "Failed to import quiz");
+          const error = await response.json().catch(() => null);
+          throw new Error(error?.message || "Failed to import quiz");
         }
 
-        await response.json();
+        const importedQuiz = await response.json();
+        const pendingCount = getPendingImportQuestions(importedQuiz.questions).length;
         setProcessingProgress(100);
         setCurrentGenerationStep("complete");
-        setLoadingMessage("Quiz imported successfully!");
+        setLoadingMessage(`Imported ${importedQuiz.questions.length} multiple-choice questions!`);
+        toast({ title: "Exam imported", description: describeQuizImport(importedQuiz.questions, importedQuiz.importSummary) });
         await new Promise(r => setTimeout(r, 500));
 
         sessionStorage.setItem(RESET_CREATE_SESSION_KEY, "1");
         await clearJobs();
         resetQuiz();
         await queryClient.resetQueries({ queryKey: ["/api/quizzes"] });
-        setLocation("/history");
+        if (pendingCount) setCurrentQuiz(importedQuiz);
+        setLocation(pendingCount ? "/edit-quiz" : "/history");
       } catch (err) {
         toast({
           title: "Quiz import failed",
@@ -1183,7 +1187,7 @@ export default function Create() {
                         </div>
                         <span className="text-xs font-black text-foreground">Import Exam</span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground leading-tight">Scan existing exam & identify correct answers.</p>
+                      <p className="text-[11px] text-muted-foreground leading-tight">Import multiple-choice questions from an existing exam.</p>
                     </div>
                   )}
                 </div>
@@ -1257,6 +1261,17 @@ export default function Create() {
                       </div>
 
                       <div
+                        onClick={() => toggleQuestionType("selection")}
+                        className={`flex items-center justify-between p-2.5 rounded-xl border-2 cursor-pointer transition-all ${questionTypes.includes("selection") ? "border-primary bg-primary/5" : "border-border/50 hover:border-muted-foreground/30"}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Checkbox checked={questionTypes.includes("selection")} className="pointer-events-none" />
+                          <ListCheck className="w-4 h-4 text-green-500" />
+                          <span className="text-xs font-bold">Selection</span>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground font-medium">Multi-selection</span>
+                      </div>
+                      <div
                         onClick={() => toggleQuestionType("true_false")}
                         className={`flex items-center justify-between p-2.5 rounded-xl border-2 cursor-pointer transition-all ${questionTypes.includes("true_false") ? "border-primary bg-primary/5" : "border-border/50 hover:border-muted-foreground/30"}`}
                       >
@@ -1293,7 +1308,7 @@ export default function Create() {
                       <div className="space-y-2">
                         <h3 className="text-sm font-bold text-foreground">How Import Mode Works</h3>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                          Upload or paste an existing exam or quiz document. Our AI will parse the questions and automatically identify the correct answers from your materials.
+                          Upload or paste an existing exam. Only multiple-choice questions are imported; true/false and short-answer questions are skipped. Questions with uncertain answers are flagged for review.
                         </p>
                       </div>
                     </div>

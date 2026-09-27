@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/button";
 import { useUpload } from "@/lib/upload-context";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface FileUploadProps {
   onTextExtracted: (text: string, isOfficeWithImages?: boolean, documentImages?: string[], isImageOnly?: boolean) => void;
+  requireAuth?: boolean;
+  onRequireAuth?: () => void;
 }
 
 function isSizeRelatedError(errorMessage: string): boolean {
@@ -25,9 +28,10 @@ function isSizeRelatedError(errorMessage: string): boolean {
   return sizeLimitPatterns.some(pattern => pattern.test(errorMessage));
 }
 
-export function FileUpload({ onTextExtracted }: FileUploadProps) {
+export function FileUpload({ onTextExtracted, requireAuth = false, onRequireAuth }: FileUploadProps) {
   const { activeJobs, startUpload, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, hasImageOnlyUploads } = useUpload();
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const uploadInitiatedRef = useRef(false);
@@ -117,7 +121,13 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
   }, [processFiles]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
+    onDrop: (acceptedFiles) => {
+      if (requireAuth && !isAuthenticated) {
+        onRequireAuth?.();
+        return;
+      }
+      onDrop(acceptedFiles);
+    },
     accept: {
       "application/pdf": [".pdf"],
       "image/jpeg": [".jpg", ".jpeg"],
@@ -131,7 +141,10 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
     },
     maxFiles: 10,
     disabled: isLoading,
+    noClick: false,
   });
+
+  const rootProps = getRootProps();
 
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -174,7 +187,17 @@ export function FileUpload({ onTextExtracted }: FileUploadProps) {
             exit={{ opacity: 0, y: -15 }}
           >
             <Card
-              {...getRootProps()}
+              {...rootProps}
+              onClick={(event) => {
+                if (requireAuth && !isAuthenticated) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onRequireAuth?.();
+                  return;
+                }
+
+                rootProps.onClick?.(event);
+              }}
               className={`
                 relative p-12 sm:p-20 border-2 border-dashed rounded-[2.5rem] cursor-pointer transition-all duration-500 overflow-hidden group
                 ${isDragActive

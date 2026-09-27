@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { jsPDF } from "jspdf";
 
 import { extractTextFromPDFWithOCR } from "./pdf-extract.js";
 
@@ -40,4 +41,41 @@ test("extracts text from an untrusted PDF with evaluation disabled", async () =>
 
   assert.equal(result.pagesProcessed, 1);
   assert.match(result.text, /PDF security smoke test/);
+});
+
+test("reads every page past the former 10-page limit and retains question line breaks", async () => {
+  const pdf = new jsPDF();
+  for (let page = 1; page <= 12; page++) {
+    if (page > 1) pdf.addPage();
+    pdf.text([`${page}. Original question on page ${page}?`, "A. First option", "B. Second option", "C. Third option", "D. Fourth option"], 20, 20);
+  }
+  const buffer = Buffer.from(pdf.output("arraybuffer"));
+  const result = await extractTextFromPDFWithOCR(buffer, { performOcr: false, requireComplete: true });
+  assert.equal(result.pagesProcessed, 12);
+  assert.equal(result.totalPages, 12);
+  assert.match(result.text, /12\. Original question on page 12/);
+  assert.match(result.text, /\?\s*\n\s*A\. First option/);
+  await assert.rejects(extractTextFromPDFWithOCR(buffer, { maxPages: 10, requireComplete: true }), /12 pages/);
+});
+
+test("transcribes every sparse page, including sparse pages mixed with selectable text", async () => {
+  const pdf = new jsPDF();
+  pdf.text("A selectable exam page with enough text to avoid OCR. Question 1 has four possible answers.", 20, 20);
+  pdf.addPage();
+  pdf.text("Scanned page", 20, 20);
+  let calls = 0;
+  const result = await extractTextFromPDFWithOCR(Buffer.from(pdf.output("arraybuffer")), {
+    requireComplete: true,
+    transcribePage: async (image) => { calls++; assert.match(image, /^data:image\/png;base64,/); return "2. Recovered original question\nA. First option\nB. Second option"; },
+  });
+  assert.equal(calls, 1);
+  assert.deepEqual(result.pagesOcred, [2]);
+  assert.match(result.text, /2\. Recovered original question/);
+});
+
+test("reports unreadable pages instead of silently importing the remaining pages", async () => {
+  await assert.rejects(extractTextFromPDFWithOCR(createSinglePagePdf("Unreadable page"), {
+    requireComplete: true,
+    transcribePage: async () => { throw new Error("Provider failed"); },
+  }), /Could not read PDF page 1/);
 });

@@ -1,6 +1,7 @@
 import JSZip from "jszip";
 import { extractTextFromOfficeDocument } from "./office-extract.js";
-import { extractTextFromPDFWithOCR, renderPdfPagesAsDataUrls } from "./pdf-extract.js";
+import { extractTextFromPDFWithOCR } from "./pdf-extract.js";
+import { transcribeExamImage } from "./openai.js";
 
 export interface UploadJob {
   id: string;
@@ -154,10 +155,12 @@ export async function processJob(id: string) {
       updateJob(id, { progress: 20, message: "Extracting text from PDF..." });
       const result = await extractTextFromPDFWithOCR(buffer, {
         sparseTextThresholdChars: 60,
-        maxPages: 10,
+        maxPages: 100,
         renderScale: 1.4,
         maxRenderPixels: 2_500_000,
-        performOcr: false,
+        performOcr: true,
+        requireComplete: true,
+        transcribePage: transcribeExamImage,
       });
       extractedText = result.text;
     } else if (fileType.startsWith("image/")) {
@@ -199,33 +202,6 @@ export async function processJob(id: string) {
       });
     } else {
       if (!extractedText || extractedText.length < 50) {
-        // Optional PDF vision fallback: if text is still too sparse after OCR, attach a few rendered pages
-        // for downstream vision/question generation without changing client shape.
-        if (fileType === "application/pdf") {
-          updateJob(id, { progress: 90, message: "Preparing PDF pages for visual analysis..." });
-          const pageImages = await renderPdfPagesAsDataUrls(buffer, {
-            maxPages: 3,
-            renderScale: 1.2,
-            maxRenderPixels: 2_000_000,
-            format: "jpeg",
-            jpegQuality: 70,
-          });
-
-          if (pageImages.length > 0) {
-            updateJob(id, {
-              status: "completed",
-              progress: 100,
-              message: "Document ready for visual analysis!",
-              text: extractedText || "",
-              isOfficeWithImages: true,
-              documentImages: pageImages,
-              isImageOnly: true,
-            });
-            cleanupBuffer(id);
-            return;
-          }
-        }
-
         throw new Error("Not enough text could be extracted from this document. Please try a different file with more readable content.");
       }
 

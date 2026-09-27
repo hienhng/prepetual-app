@@ -165,18 +165,19 @@ function PublicHeader() {
   const { t } = useLanguage();
 
   return (
-    <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[96%] max-w-6xl transition-all duration-300">
-      <div className="bg-background/40 backdrop-blur-lg border border-border/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.08)] rounded-full px-5 sm:px-8 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-3 group" data-testid="link-logo">
+    <header className="fixed top-4 left-1/2 -translate-x-1/2 z-20 w-[96%] max-w-6xl transition-all duration-300">
+      <div className="bg-background/50 backdrop-blur-xl border border-border/20 shadow-[0_2px_12px_0_rgba(0,0,0,0.03)] rounded-full px-5 sm:px-8 h-14 flex items-center justify-between gap-4">
+        <Link href="/" className="flex items-center gap-3 group select-none" data-testid="link-logo">
           <div className="relative">
             <img
               src={logoImage}
               alt="Prepetual Logo"
+              draggable={false}
               className="w-9 h-9 rounded-full object-cover  transition-transform duration-500"
             />
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </div>
-          <span className="pb-1 text-2xl font-brand font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text hidden sm:inline tracking-tight custom-highlight">
+          <span className="pb-1.5 text-2xl font-brand font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text hidden sm:inline tracking-tight custom-highlight">
             prepetual
           </span>
         </Link>

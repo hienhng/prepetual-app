@@ -14,7 +14,7 @@ test("resume preserves accepted questions and only requests missing candidates",
     { id: "saved-one", type: "multiple_choice", question: "What is the capital of France?", options: ["Paris", "Rome", "Madrid", "Berlin"], correctAnswer: "Paris", explanation: "Paris is the capital of France." },
     { id: "saved-two", type: "multiple_choice", question: "What is the capital of Italy?", options: ["Rome", "Paris", "Madrid", "Berlin"], correctAnswer: "Rome", explanation: "Rome is the capital of Italy." },
   ];
-  const resumeState = { questions: seeds, title: "European capitals", category: "Others/General" as const };
+  const resumeState = { questions: seeds, title: "European capitals", category: "categories.general" as const };
   const params = { text: "European capitals", questionCount: 3, questionTypes: ["multiple_choice" as const], isPromptBased: true, resumeState };
   const response = (value: unknown) => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(value) }, finish_reason: "stop" }] }), { headers: { "Content-Type": "application/json" } });
   try {

@@ -11,13 +11,14 @@ export function Footer() {
     <footer className="border-t bg-background/95">
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 select-none">
             <img
               src={logoImage}
               alt="Prepetual Logo"
+              draggable={false}
               className="h-8 w-8 rounded-full object-cover"
             />
-            <span className="text-lg font-brand text-foreground">prepetual</span>
+            <span className="pb-1.5 text-lg font-brand text-foreground">prepetual</span>
           </div>
 
           <nav className="flex flex-wrap gap-x-6 gap-y-2">

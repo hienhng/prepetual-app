@@ -44,11 +44,16 @@ function addTotalImageSizeIssue(
 
 export const importQuizRequestSchema = z
   .object({
-    text: z.string().min(1, "Text content is required").max(MAX_SOURCE_TEXT_CHARS, "Text content is too large"),
+    text: z.string().max(MAX_SOURCE_TEXT_CHARS, "Text content is too large").default(""),
     sourceImageUrl: z.string().max(MAX_SOURCE_IMAGE_CHARS, "Source image is too large").nullable().optional(),
     documentImages: sourceImagesSchema,
   })
-  .superRefine(addTotalImageSizeIssue);
+  .superRefine((data, ctx) => {
+    addTotalImageSizeIssue(data, ctx);
+    if (!data.text.trim() && !data.sourceImageUrl && !data.documentImages?.length) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Add an exam document, text, or image to import", path: ["text"] });
+    }
+  });
 
 export const summarizeTextRequestSchema = z
   .object({

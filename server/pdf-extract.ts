@@ -9,12 +9,15 @@ export interface PdfExtractOptions {
   renderScale?: number;
   maxRenderPixels?: number;
   performOcr?: boolean;
+  requireComplete?: boolean;
+  transcribePage?: (imageUrl: string) => Promise<string>;
 }
 
 export interface PdfExtractResult {
   text: string;
   pagesProcessed: number;
   pagesOcred: number[];
+  totalPages: number;
 }
 
 export interface PdfRenderOptions {
@@ -49,6 +52,7 @@ async function extractSelectableTextFromPage(page: any): Promise<string> {
   for (const item of textContent.items ?? []) {
     const str = (item?.str ?? "").toString();
     if (str) parts.push(str);
+    if (item?.hasEOL) parts.push("\n");
   }
   return normalizeText(parts.join(" "));
 }
@@ -97,14 +101,15 @@ async function renderPdfPageToImageBuffer(
 
 export async function extractTextFromPDFWithOCR(buffer: Buffer, opts: PdfExtractOptions = {}): Promise<PdfExtractResult> {
   const sparseTextThresholdChars = opts.sparseTextThresholdChars ?? 60;
-  const maxPages = opts.maxPages ?? 10;
+  const maxPages = opts.maxPages ?? 100;
   const renderScale = opts.renderScale ?? 1.4;
   const maxRenderPixels = opts.maxRenderPixels ?? 2_500_000;
   const performOcr = opts.performOcr ?? true;
 
   const pdfjs = await loadPdfJs();
   const loadingTask = pdfjs.getDocument({
-    data: new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength),
+    // PDF.js can transfer/detach its input; retain the caller's upload buffer.
+    data: Uint8Array.from(buffer),
     disableWorker: true,
     isEvalSupported: false,
     // In Node/serverless, font loading via URL can be flaky (especially on Windows).
@@ -114,6 +119,10 @@ export async function extractTextFromPDFWithOCR(buffer: Buffer, opts: PdfExtract
   } as any);
 
   const doc = await loadingTask.promise;
+  if (opts.requireComplete && doc.numPages > maxPages) {
+    await loadingTask.destroy();
+    throw new Error(`This PDF has ${doc.numPages} pages. Please split it into files of at most ${maxPages} pages; no pages were silently omitted.`);
+  }
   const pagesToProcess = Math.min(doc.numPages || 0, maxPages);
 
   const pageTexts: string[] = [];
@@ -133,14 +142,23 @@ export async function extractTextFromPDFWithOCR(buffer: Buffer, opts: PdfExtract
           jpegQuality: 80,
         });
 
-        const ocrText = normalizeText(await ocrImageBuffer(imageBuffer, { languages: "eng+vie" }));
+        const ocrText = normalizeText(opts.transcribePage
+          ? await opts.transcribePage(`data:image/png;base64,${imageBuffer.toString("base64")}`)
+          : await ocrImageBuffer(imageBuffer, { languages: "eng+vie" }));
         if (ocrText) {
           pagesOcred.push(pageNumber);
-          pageText = selectableText ? normalizeText(`${selectableText}\n\n${ocrText}`) : ocrText;
+          // Full-page transcription already includes headers/selectable text.
+          pageText = ocrText;
+        } else if (opts.requireComplete) {
+          throw new Error("No readable text returned");
         }
       } catch (error) {
+        if (opts.requireComplete) {
+          try { page.cleanup?.(); } catch {}
+          await loadingTask.destroy();
+          throw new Error(`Could not read PDF page ${pageNumber}. Please provide a readable copy or remove it if it is blank; no partial document was imported.`);
+        }
         // Rendering/OCR is best-effort; keep selectable text (if any) and continue.
-        // The async upload path may still provide a "visual analysis" fallback if total text is sparse.
         pageText = selectableText;
       }
     }
@@ -155,7 +173,7 @@ export async function extractTextFromPDFWithOCR(buffer: Buffer, opts: PdfExtract
   try { await doc.cleanup?.(); } catch {}
   try { await loadingTask.destroy(); } catch {}
 
-  return { text: normalizeText(pageTexts.join("\n\n")), pagesProcessed: pagesToProcess, pagesOcred };
+  return { text: normalizeText(pageTexts.join("\n\n")), pagesProcessed: pagesToProcess, pagesOcred, totalPages: doc.numPages };
 }
 
 export async function renderPdfPagesAsDataUrls(buffer: Buffer, opts: PdfRenderOptions = {}): Promise<string[]> {
@@ -167,7 +185,7 @@ export async function renderPdfPagesAsDataUrls(buffer: Buffer, opts: PdfRenderOp
 
   const pdfjs = await loadPdfJs();
   const loadingTask = pdfjs.getDocument({
-    data: new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength),
+    data: Uint8Array.from(buffer),
     disableWorker: true,
     isEvalSupported: false,
     disableFontFace: true,

@@ -1,3 +1,4 @@
+import { encodeSelectionAnswer, parseSelectionAnswer, isValidSelectionQuestion } from "../shared/selection-answer.js";
 import { normalizeMultipleChoiceAnswerSet } from "./quiz-quality.js";
 
 export const QUIZ_VALIDATION_BATCH_SIZE = 5;
@@ -36,6 +37,7 @@ export function needsQuizAnswerCompletion(candidate: unknown): boolean {
   const explanation = typeof question.explanation === "string"
     ? question.explanation.trim()
     : "";
+  if (question.type === "selection") return !explanation || !isValidSelectionQuestion({ options: Array.isArray(question.options) ? question.options : [], correctAnswer: encodeSelectionAnswer(parseSelectionAnswer(question.correctAnswer)) });
   if (!correctAnswer || !explanation) return true;
 
   if (question.type === "multiple_choice") {
@@ -51,6 +53,10 @@ export function needsQuizAnswerCompletion(candidate: unknown): boolean {
 export function normalizeQuizCandidate(candidate: any): any {
   if (!candidate || typeof candidate !== "object") return candidate;
   const result = { ...candidate };
+  if (result.type === "selection") {
+    result.correctAnswer = encodeSelectionAnswer(parseSelectionAnswer(result.correctAnswer).map(answer => answer.trim()));
+    if (Array.isArray(result.options)) result.options = result.options.map((option: unknown) => typeof option === "string" ? option.trim() : option);
+  }
   for (const field of ["question", "correctAnswer", "explanation"]) {
     if (typeof result[field] === "string") result[field] = result[field].trim();
   }

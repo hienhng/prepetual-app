@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useQuizNavigationGuard } from "@/lib/quiz-navigation-guard";
 import { useLanguage } from "@/lib/language-context";
+import { getPendingImportQuestions } from "@shared/import-review";
 
 export default function Quiz() {
   const [, setLocation] = useLocation();
@@ -146,6 +147,18 @@ export default function Quiz() {
 
   if (!currentQuiz) {
     return null;
+  }
+
+  const pendingImports = getPendingImportQuestions(currentQuiz.questions);
+  if (pendingImports.length) {
+    return (
+      <div className="container mx-auto max-w-xl px-4 py-16 text-center" data-testid="import-review-required">
+        <AlertCircle className="mx-auto mb-4 h-10 w-10 text-amber-600" />
+        <h1 className="text-xl font-semibold">Review imported questions</h1>
+        <p className="my-4 text-muted-foreground">All {currentQuiz.questions.length} questions are saved. Confirm the {pendingImports.length} flagged questions and their answers before starting a scored quiz.</p>
+        {currentQuiz.userId === user?.id && <Button onClick={() => setLocation("/edit-quiz")}>Review questions</Button>}
+      </div>
+    );
   }
 
   return (

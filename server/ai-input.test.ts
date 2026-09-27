@@ -28,6 +28,12 @@ test("rejects oversized individual and combined import images", () => {
   assert.equal(importQuizRequestSchema.safeParse({ text: "valid text", documentImages: [third, third, third] }).success, false);
 });
 
+test("accepts image-only imports but rejects an entirely empty import", () => {
+  assert.equal(importQuizRequestSchema.safeParse({ text: "", documentImages: ["data:image/png;base64,abc"] }).success, true);
+  assert.equal(importQuizRequestSchema.safeParse({ sourceImageUrl: "data:image/png;base64,abc" }).success, true);
+  assert.equal(importQuizRequestSchema.safeParse({ text: "  " }).success, false);
+});
+
 test("bounds interactive AI prompts and chat history", () => {
   assert.equal(generateExplanationRequestSchema.safeParse({
     question: "q",

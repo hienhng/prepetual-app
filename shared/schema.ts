@@ -1,3 +1,4 @@
+import { isValidSelectionQuestion } from "./selection-answer.js";
 import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, integer, jsonb, timestamp, index, uniqueIndex, boolean, vector } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
@@ -58,7 +59,7 @@ export const verificationTokens = pgTable("verification_tokens", {
 export type VerificationToken = typeof verificationTokens.$inferSelect;
 
 // Question types
-export type QuestionType = "multiple_choice" | "true_false" | "short_answer";
+export type QuestionType = "multiple_choice" | "selection" | "true_false" | "short_answer";
 export type DifficultyLevel = "easy" | "medium" | "hard";
 
 // Prefix stored with an internal Qwen image transcription. The transcription
@@ -82,7 +83,7 @@ export type QuizCategory = typeof QUIZ_CATEGORIES[number];
 // Question schema for validation
 export const questionSchema = z.object({
   id: z.string(),
-  type: z.enum(["multiple_choice", "true_false", "short_answer"]),
+  type: z.enum(["multiple_choice", "selection", "true_false", "short_answer"]),
   question: z.string(),
   options: z.array(z.string()).optional(),
   correctAnswer: z.string(),
@@ -90,7 +91,19 @@ export const questionSchema = z.object({
   wrongAnswerExplanations: z.record(z.string(), z.string()).optional(),
   imageUrl: z.string().optional(),
   sourceChunkIds: z.array(z.string()).optional(),
+  // Imported source questions are retained even when parsing/answer verification
+  // needs human review. These items must not be graded until confirmed.
+  importReview: z.object({
+    sourceLabel: z.string(),
+    sourceText: z.string(),
+    reason: z.string(),
+  }).optional(),
 });
+
+export const validatedQuestionSchema = questionSchema.refine(
+  question => question.type !== "selection" || isValidSelectionQuestion(question),
+  { message: "Selection questions need distinct, nonempty options and at least two correct options.", path: ["correctAnswer"] },
+);
 
 export type Question = z.infer<typeof questionSchema>;
 
@@ -367,9 +380,9 @@ export const generateQuizRequestSchema = z.object({
   sourceType: z.enum(["material", "prompt"]).default("material"),
   questionCount: z.number().min(3).max(20).default(10),
   questionTypes: z
-    .array(z.enum(["multiple_choice", "true_false", "short_answer"]))
+    .array(z.enum(["multiple_choice", "selection", "true_false", "short_answer"]))
     .min(1)
-    .max(3)
+    .max(4)
     .refine((types) => new Set(types).size === types.length, "Question types must be unique"),
   difficulty: z.enum(["easy", "medium", "hard"]).default("medium"),
   sourceImageUrl: z.string().max(MAX_SOURCE_IMAGE_CHARS, "Source image is too large").nullable().optional(),

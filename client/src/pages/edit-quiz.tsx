@@ -1,3 +1,4 @@
+import { parseSelectionAnswer, encodeSelectionAnswer, isValidSelectionQuestion, isCorrectOption } from "@shared/selection-answer";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -42,9 +43,10 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { type Question, type QuestionType, QUIZ_CATEGORIES, type QuizCategory } from "@shared/schema";
 import { getCategoryIcon, getCategoryStorageKey, getCategoryTranslationKey } from "@/lib/category-icons";
 import { useLanguage } from "@/lib/language-context";
+import { confirmImportedQuestion, getPendingImportQuestions } from "@shared/import-review";
 
 type ViewMode = "edit" | "preview";
-type QuestionFilter = "all" | "multiple_choice" | "true_false" | "short_answer";
+type QuestionFilter = "all" | "selection" | "multiple_choice" | "true_false" | "short_answer" | "needs_review";
 
 export default function EditQuizPage() {
   const [, setLocation] = useLocation();
@@ -71,6 +73,7 @@ export default function EditQuizPage() {
   const [reviseSelectedAnswer, setReviseSelectedAnswer] = useState<string>("");
   const [previewIndex, setPreviewIndex] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
+  const pendingImportCount = getPendingImportQuestions(questions).length;
 
   useEffect(() => {
     if (currentQuiz) {
@@ -81,7 +84,7 @@ export default function EditQuizPage() {
   }, [currentQuiz?.id]);
 
   const questionStats = useMemo(() => {
-    const stats = { multiple_choice: 0, true_false: 0, short_answer: 0 };
+    const stats = { selection: 0, multiple_choice: 0, true_false: 0, short_answer: 0 };
     questions.forEach(q => {
       if (q.type in stats) stats[q.type as keyof typeof stats]++;
     });
@@ -91,7 +94,7 @@ export default function EditQuizPage() {
   const filteredQuestions = useMemo(() => {
     return questions.filter((q, idx) => {
       const matchesSearch = q.question.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesType = typeFilter === "all" || q.type === typeFilter;
+      const matchesType = typeFilter === "needs_review" ? Boolean(q.importReview) : typeFilter === "all" || q.type === typeFilter;
       return matchesSearch && matchesType;
     });
   }, [questions, searchQuery, typeFilter]);
@@ -143,14 +146,26 @@ export default function EditQuizPage() {
     }
   };
   const handleQuestionChange = (index: number, field: keyof Question, value: any) => {
-    const updated = [...questions];
-    updated[index] = { ...updated[index], [field]: value };
-    setQuestions(updated);
+    setQuestions((previous) => previous.map((question, questionIndex) => questionIndex === index ? { ...question, [field]: value } : question));
+  };
+
+  const confirmImportReview = (index: number) => {
+    try {
+      const confirmed = confirmImportedQuestion(questions[index]);
+      setQuestions((previous) => previous.map((question, questionIndex) => questionIndex === index ? confirmed : question));
+      toast({ title: "Question confirmed", description: "Save your changes when you finish reviewing." });
+    } catch (error) {
+      toast({ title: "Review needed", description: error instanceof Error ? error.message : "Check this question's answer.", variant: "destructive" });
+    }
   };
 
   const handleOptionChange = (questionIndex: number, optionIndex: number, value: string) => {
     const updated = [...questions];
     const options = [...(updated[questionIndex].options || [])];
+    if (updated[questionIndex].type === "selection") {
+      const correct = parseSelectionAnswer(updated[questionIndex].correctAnswer);
+      updated[questionIndex] = { ...updated[questionIndex], correctAnswer: encodeSelectionAnswer(correct.map(option => option === options[optionIndex] ? value : option)) };
+    }
     options[optionIndex] = value;
     updated[questionIndex] = { ...updated[questionIndex], options };
     setQuestions(updated);
@@ -167,6 +182,9 @@ export default function EditQuizPage() {
   const removeOption = (questionIndex: number, optionIndex: number) => {
     const updated = [...questions];
     const options = [...(updated[questionIndex].options || [])];
+    if (updated[questionIndex].type === "selection") {
+      updated[questionIndex] = { ...updated[questionIndex], correctAnswer: encodeSelectionAnswer(parseSelectionAnswer(updated[questionIndex].correctAnswer).filter(option => option !== options[optionIndex])) };
+    }
     options.splice(optionIndex, 1);
     updated[questionIndex] = { ...updated[questionIndex], options };
     setQuestions(updated);
@@ -177,12 +195,12 @@ export default function EditQuizPage() {
       id: `new-${Date.now()}`,
       type,
       question: type === "true_false" ? "New true/false statement" : "New question",
-      options: type === "multiple_choice" 
+      options: (type === "multiple_choice" || type === "selection") 
         ? ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"]
         : type === "true_false" 
         ? ["True", "False"]
         : undefined,
-      correctAnswer: type === "multiple_choice" 
+      correctAnswer: type === "selection" ? encodeSelectionAnswer(["A) Option 1", "B) Option 2"]) : type === "multiple_choice" 
         ? "A) Option 1" 
         : type === "true_false"
         ? "True"
@@ -310,6 +328,10 @@ export default function EditQuizPage() {
   };
 
   const handleSave = async (): Promise<boolean> => {
+    if (questions.some(question => question.type === "selection" && !isValidSelectionQuestion(question))) {
+      toast({ title: t("common.error"), description: t("quizGenerator.selectionValidation"), variant: "destructive" });
+      return false;
+    }
     setIsSaving(true);
     try {
       const response = await apiRequest("PUT", `/api/quiz/${currentQuiz.id}`, {
@@ -359,6 +381,10 @@ export default function EditQuizPage() {
   };
 
   const handleStartQuiz = async () => {
+    if (pendingImportCount) {
+      toast({ title: "Review imported questions", description: `Confirm the ${pendingImportCount} flagged questions before starting.`, variant: "destructive" });
+      return;
+    }
     const saved = await handleSave();
     if (saved) {
       setCurrentQuiz({
@@ -373,6 +399,7 @@ export default function EditQuizPage() {
 
   const getTypeBadgeVariant = (type: QuestionType) => {
     switch (type) {
+      case "selection": return "default";
       case "multiple_choice": return "default";
       case "true_false": return "secondary";
       case "short_answer": return "outline";
@@ -382,6 +409,7 @@ export default function EditQuizPage() {
 
   const getTypeLabel = (type: QuestionType) => {
     switch (type) {
+      case "selection": return t("quizGenerator.selection");
       case "multiple_choice": return "MC";
       case "true_false": return "T/F";
       case "short_answer": return "SA";
@@ -420,11 +448,27 @@ export default function EditQuizPage() {
               {isExporting ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Download className="h-4 w-4 mr-1" />}
               {t('editQuiz.exportPdf')}
             </Button>
-            <Button size="sm" onClick={handleStartQuiz} data-testid="button-start-edited">
+            <Button size="sm" onClick={handleStartQuiz} disabled={pendingImportCount > 0} data-testid="button-start-edited">
               {t('editQuiz.startQuiz')}
             </Button>
           </div>
         </div>
+
+        {pendingImportCount > 0 && (
+          <div role="status" className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 space-y-2" data-testid="import-review-summary">
+            <p className="font-semibold">All {questions.length} questions are saved. {pendingImportCount} need review.</p>
+            <p className="text-sm text-muted-foreground">Check the original text, question layout, and correct answer for each flagged item. Unconfirmed answers will not be scored or published.</p>
+            <Button variant="outline" size="sm" onClick={() => { setTypeFilter("needs_review"); setSearchQuery(""); setExpandedIndex(-1); setViewMode("edit"); }}>Show flagged questions</Button>
+            {(currentQuiz.sourceImages?.length || currentQuiz.sourceImageUrl) && (
+              <details className="text-sm">
+                <summary className="cursor-pointer font-medium">View source images and diagrams</summary>
+                <div className="mt-3 space-y-3">
+                  {Array.from(new Set([...(currentQuiz.sourceImages || []), ...(currentQuiz.sourceImageUrl ? [currentQuiz.sourceImageUrl] : [])])).map((image, index) => <img key={index} src={image} alt={`Original source ${index + 1}`} className="max-w-full rounded-lg border" />)}
+                </div>
+              </details>
+            )}
+          </div>
+        )}
 
         <AnimatePresence mode="wait">
           {viewMode === "edit" ? (
@@ -483,6 +527,7 @@ export default function EditQuizPage() {
                   <ListChecks className="h-3 w-3" />
                   {t('editQuiz.totalQuestionsCount', { count: questions.length })}
                 </Badge>
+                {questionStats.selection > 0 && <Badge variant="default">{t("quizGenerator.selection")}: {questionStats.selection}</Badge>}
                 {questionStats.multiple_choice > 0 && (
                   <Badge variant="default" className="gap-1">MC: {questionStats.multiple_choice}</Badge>
                 )}
@@ -512,6 +557,8 @@ export default function EditQuizPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">{t('editQuiz.allTypes')}</SelectItem>
+                    <SelectItem value="needs_review">Needs review ({pendingImportCount})</SelectItem>
+                    <SelectItem value="selection">{t("quizGenerator.selection")}</SelectItem>
                     <SelectItem value="multiple_choice">{t('quizGenerator.multipleChoice')}</SelectItem>
                     <SelectItem value="true_false">{t('quizGenerator.trueFalse')}</SelectItem>
                     <SelectItem value="short_answer">{t('quizGenerator.shortAnswer')}</SelectItem>
@@ -570,6 +617,7 @@ export default function EditQuizPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => addQuestion("selection")}><CheckSquare className="h-4 w-4 mr-2" />{t("quizGenerator.selection")}</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => addQuestion("multiple_choice")}>
                         <ListChecks className="h-4 w-4 mr-2" />
                         {t('quizGenerator.multipleChoice')}
@@ -620,6 +668,7 @@ export default function EditQuizPage() {
                               <Badge variant={getTypeBadgeVariant(question.type)} className="shrink-0">
                                 {getTypeLabel(question.type)}
                               </Badge>
+                              {question.importReview && <Badge variant="outline" className="shrink-0 border-amber-500 text-amber-700 dark:text-amber-300">Needs review</Badge>}
                               <span className="text-sm text-muted-foreground shrink-0">
                                 {isRevising === index ? <Loader2 className="h-3.5 w-3.5 animate-spin inline" /> : t('quizPlayer.questionNumberShort', { number: index + 1 })}
                               </span>
@@ -706,6 +755,25 @@ export default function EditQuizPage() {
                               transition={{ duration: 0.2 }}
                             >
                               <CardContent className="space-y-4 pt-0 px-4 pb-4">
+                                {question.importReview && (
+                                  <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 space-y-3">
+                                    <p className="text-sm font-medium">{question.importReview.sourceLabel}: {question.importReview.reason}</p>
+                                    <details>
+                                      <summary className="cursor-pointer text-sm font-medium">Original source text</summary>
+                                      <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-words text-sm">{question.importReview.sourceText}</pre>
+                                    </details>
+                                    <Label htmlFor={`review-answer-${index}`}>Confirm the correct answer</Label>
+                                    {question.type === "short_answer" ? (
+                                      <Input id={`review-answer-${index}`} value={question.correctAnswer} onChange={(event) => handleQuestionChange(index, "correctAnswer", event.target.value)} placeholder="Enter the correct answer" />
+                                    ) : (
+                                      <select id={`review-answer-${index}`} className="w-full rounded-md border bg-background p-2 text-sm" value={question.correctAnswer} onChange={(event) => handleQuestionChange(index, "correctAnswer", event.target.value)}>
+                                        <option value="">Select the correct option</option>
+                                        {question.options?.map((option, optionIndex) => <option key={optionIndex} value={option}>{String.fromCharCode(65 + optionIndex)}. {option}</option>)}
+                                      </select>
+                                    )}
+                                    <Button size="sm" variant="outline" onClick={() => confirmImportReview(index)} data-testid={`confirm-import-${index}`}>Confirm question and answer</Button>
+                                  </div>
+                                )}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   <div className="space-y-2">
                                     <Label className="text-xs text-muted-foreground">{t('editQuiz.questionType')}</Label>
@@ -713,7 +781,13 @@ export default function EditQuizPage() {
                                       value={question.type}
                                       onValueChange={(value: QuestionType) => {
                                         handleQuestionChange(index, "type", value);
-                                        if (value === "true_false") {
+                                        if (value === "selection") {
+                                          const options = question.options?.length && question.type === "multiple_choice" ? question.options : ["Option 1", "Option 2", "Option 3", "Option 4"];
+                                          handleQuestionChange(index, "options", options);
+                                          handleQuestionChange(index, "correctAnswer", encodeSelectionAnswer(options.slice(0, 2)));
+                                        } else if (question.type === "selection" && value === "multiple_choice") {
+                                          handleQuestionChange(index, "correctAnswer", parseSelectionAnswer(question.correctAnswer)[0] || question.options?.[0] || "");
+                                        } else if (value === "true_false") {
                                           handleQuestionChange(index, "options", ["True", "False"]);
                                           handleQuestionChange(index, "correctAnswer", "True");
                                         } else if (value === "multiple_choice" && (!question.options || question.options.length < 2)) {
@@ -721,6 +795,7 @@ export default function EditQuizPage() {
                                           handleQuestionChange(index, "correctAnswer", "A) Option 1");
                                         } else if (value === "short_answer") {
                                           handleQuestionChange(index, "options", undefined);
+                                          if (question.type === "selection") handleQuestionChange(index, "correctAnswer", parseSelectionAnswer(question.correctAnswer)[0] || "");
                                         }
                                       }}
                                     >
@@ -728,14 +803,15 @@ export default function EditQuizPage() {
                                         <SelectValue />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="multiple_choice">{t('quizGenerator.multipleChoice')}</SelectItem>
+                                        <SelectItem value="selection">{t("quizGenerator.selection")}</SelectItem>
+                    <SelectItem value="multiple_choice">{t('quizGenerator.multipleChoice')}</SelectItem>
                                         <SelectItem value="true_false">{t('quizGenerator.trueFalse')}</SelectItem>
                                         <SelectItem value="short_answer">{t('quizGenerator.shortAnswer')}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
                                   
-                                  {question.type !== "multiple_choice" && (
+                                  {question.type !== "multiple_choice" && question.type !== "selection" && !question.importReview && (
                                     <div className="space-y-2">
                                       <Label className="text-xs text-muted-foreground">{t('quizResults.correctAnswer')}</Label>
                                       <div 
@@ -802,14 +878,18 @@ export default function EditQuizPage() {
                                   )}
                                 </div>
 
-                                {question.type === "multiple_choice" && (
+                                {(question.type === "multiple_choice" || question.type === "selection") && (
                                   <div className="space-y-2">
-                                    <Label className="text-xs text-muted-foreground">{t('editQuiz.answerOptionsReorder')}</Label>
+                                    <Label className="text-xs text-muted-foreground">{question.type === "selection" ? t("quizGenerator.selectionHint") : t('editQuiz.answerOptionsReorder')}</Label>
                                     <div className="space-y-2">
                                       {question.options?.map((option, optIndex) => (
                                         <div key={optIndex} className="flex gap-2 items-center group">
+                                          {question.type === "selection" && <Checkbox aria-label={"Correct option " + (optIndex + 1)} checked={isCorrectOption(option, question)} onCheckedChange={checked => {
+                                            const correct = parseSelectionAnswer(question.correctAnswer);
+                                            handleQuestionChange(index, "correctAnswer", encodeSelectionAnswer(checked ? [...correct, option] : correct.filter(answer => answer !== option)));
+                                          }} />}
                                           <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium shrink-0 ${
-                                            option === question.correctAnswer 
+                                            isCorrectOption(option, question) 
                                               ? "bg-green-500/20 text-green-600 dark:text-green-400 ring-1 ring-green-500" 
                                               : "bg-muted text-muted-foreground"
                                           }`}>
@@ -817,18 +897,19 @@ export default function EditQuizPage() {
                                           </div>
                                           <div 
                                             className={`flex-1 px-3 py-2 rounded-md border text-sm ${
-                                              option === question.correctAnswer 
+                                              isCorrectOption(option, question) 
                                                 ? "bg-green-500/10 border-green-500/30" 
                                                 : "bg-muted/50 border-border"
                                             }`}
                                             data-testid={`text-option-${index}-${optIndex}`}
                                           >
-                                            <MathText content={option} />
-                                            {option === question.correctAnswer && (
+                                            {(question.importReview || question.type === "selection") ? <Input aria-label={`Question ${index + 1} option ${optIndex + 1}`} value={option} onChange={(event) => handleOptionChange(index, optIndex, event.target.value)} /> : <MathText content={option} />}
+                                            {isCorrectOption(option, question) && (
                                               <span className="ml-2 text-xs text-green-600 dark:text-green-400">({t('common.correct')})</span>
                                             )}
                                           </div>
                                           <div className="flex gap-1">
+                                            {(question.importReview || question.type === "selection") && <Button size="icon" variant="ghost" aria-label="Remove option" onClick={() => removeOption(index, optIndex)}><Trash2 className="h-4 w-4" /></Button>}
                                             <Button
                                               size="icon"
                                               variant="ghost"
@@ -864,6 +945,7 @@ export default function EditQuizPage() {
                                           </div>
                                         </div>
                                       ))}
+                                      {(question.importReview || question.type === "selection") && <Button size="sm" variant="outline" onClick={() => addOption(index)}>Add option</Button>}
                                     </div>
                                   </div>
                                 )}
@@ -964,19 +1046,19 @@ export default function EditQuizPage() {
                           </div>
                         )}
                         
-                        {questions[previewIndex].type === "multiple_choice" && (
+                        {(questions[previewIndex].type === "multiple_choice" || questions[previewIndex].type === "selection") && (
                           <div className="space-y-2 ml-8">
                             {questions[previewIndex].options?.map((option, i) => (
                               <div
                                 key={i}
                                 className={`p-3 rounded-lg border ${
-                                  option === questions[previewIndex].correctAnswer
+                                  isCorrectOption(option, questions[previewIndex])
                                     ? "border-green-500 bg-green-500/10"
                                     : "border-border"
                                 }`}
                               >
                                 <MathText content={option} />
-                                {option === questions[previewIndex].correctAnswer && (
+                                {isCorrectOption(option, questions[previewIndex]) && (
                                   <Badge variant="outline" className="ml-2 text-green-600">{t('common.correct')}</Badge>
                                 )}
                               </div>
@@ -990,13 +1072,13 @@ export default function EditQuizPage() {
                               <div
                                 key={option}
                                 className={`p-3 rounded-lg border ${
-                                  option === questions[previewIndex].correctAnswer
+                                  isCorrectOption(option, questions[previewIndex])
                                     ? "border-green-500 bg-green-500/10"
                                     : "border-border"
                                 }`}
                               >
                                 {option}
-                                {option === questions[previewIndex].correctAnswer && (
+                                {isCorrectOption(option, questions[previewIndex]) && (
                                   <Badge variant="outline" className="ml-2 text-green-600">{t('common.correct')}</Badge>
                                 )}
                               </div>
@@ -1084,6 +1166,17 @@ export default function EditQuizPage() {
                         placeholder={t('editQuiz.typeCorrectAnswer')}
                         data-testid="input-revise-answer"
                       />
+                    ) : questions[reviseDialogIndex]?.type === "selection" ? (
+                      <div className="space-y-2">
+                        <p>{t("quizGenerator.selectionHint")}</p>
+                        {questions[reviseDialogIndex].options?.map((option, i) => <label key={i} className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer">
+                          <Checkbox checked={parseSelectionAnswer(reviseSelectedAnswer).includes(option)} onCheckedChange={checked => {
+                            const correct = parseSelectionAnswer(reviseSelectedAnswer);
+                            setReviseSelectedAnswer(encodeSelectionAnswer(checked ? [...correct, option] : correct.filter(answer => answer !== option)));
+                          }} />
+                          <MathText content={option} />
+                        </label>)}
+                      </div>
                     ) : (
                       <RadioGroup
                         value={reviseSelectedAnswer}
@@ -1115,7 +1208,7 @@ export default function EditQuizPage() {
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmAiRevise}
-              disabled={!reviseSelectedAnswer}
+              disabled={!reviseSelectedAnswer || (reviseDialogIndex !== null && questions[reviseDialogIndex]?.type === "selection" && parseSelectionAnswer(reviseSelectedAnswer).length < 2)}
               data-testid="button-confirm-revise"
             >
               <Wrench className="h-4 w-4 mr-1" />

@@ -312,12 +312,13 @@ export function AppSidebar() {
           {isCollapsed ? (
             <button
               onClick={toggleSidebar}
-              className="hidden md:flex items-center justify-center w-8 h-8 rounded-md cursor-pointer transition-all relative group/logo"
+              className="hidden md:flex items-center justify-center w-8 h-8 rounded-md cursor-pointer transition-all relative group/logo select-none"
               data-testid="sidebar-expand-toggle"
             >
               <img 
                 src={logoImage} 
                 alt="Expand Sidebar" 
+                draggable={false}
                 className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0 group-hover/logo:opacity-0 transition-opacity"
               />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/logo:opacity-100 transition-opacity bg-sidebar-accent rounded-md">
@@ -325,10 +326,11 @@ export function AppSidebar() {
               </div>
             </button>
           ) : (
-            <Link href="/dashboard" className="flex items-center gap-2" onClick={(e) => handleNavClick(e, "/dashboard")}>
+            <Link href="/dashboard" className="flex items-center gap-2 select-none" onClick={(e) => handleNavClick(e, "/dashboard")}>
               <img 
                 src={logoImage} 
                 alt="Prepetual Logo" 
+                draggable={false}
                 className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0"
               />
               <span className="pb-1 text-xl font-brand text-foreground whitespace-nowrap hidden sm:inline">prepetual</span>

@@ -873,14 +873,14 @@ function AIQuizzesText() {
               charRefs.current[i] = el;
             }}
             className="hero-neon-text inline-block leading-[1.3] bg-gradient-to-r from-primary via-yellow-300 to-primary bg-clip-text text-transparent bg-[length:200%_100%] custom-highlight"
-            style={{ fontFamily: "'Dela Gothic One', sans-serif" }}
+            style={{ fontFamily: "'Dela Gothic One', 'Segoe UI', sans-serif", fontWeight: 500, letterSpacing: "-0.01em" }}
             initial={{ opacity: 0, y: 30, rotateX: -90 }}
             animate={{
               opacity: [0, 1, 1, 1],
               y: [30, 0, -12, 0],
               rotateX: [-90, 0, 0, 0],
               filter: [
-                "drop-shadow(0 0 0 rgba(250, 204, 21, 0)) brightness(0.8)",
+                "drop-shadow(0 0 0 rgba(250, 204, 21, 0)) brightness(0.5)",
                 "drop-shadow(0 0 10px rgba(250, 204, 21, 0.9)) drop-shadow(0 0 22px rgba(250, 204, 21, 0.7)) brightness(1.45)",
                 "drop-shadow(0 0 8px rgba(250, 204, 21, 0.8)) drop-shadow(0 0 18px rgba(250, 204, 21, 0.5)) brightness(1.2)",
                 "drop-shadow(0 0 5px rgba(250, 204, 21, 0.6)) drop-shadow(0 0 12px rgba(250, 204, 21, 0.3)) brightness(1)",
@@ -2966,7 +2966,11 @@ export default function Home() {
                     <p className="text-muted-foreground text-sm">{t("home.features.dropNotes")}</p>
                   </div>
                   <div className="flex-1">
-                    <FileUpload onTextExtracted={handleTextExtracted} />
+                    <FileUpload
+                      onTextExtracted={handleTextExtracted}
+                      requireAuth={!isAuthenticated}
+                      onRequireAuth={openLoginDialog}
+                    />
                   </div>
                   {extractedText && (
                     <motion.div
