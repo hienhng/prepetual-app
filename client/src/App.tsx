@@ -366,6 +366,7 @@ function PublicLayout() {
   const [location] = useLocation();
   const showFooter = location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
   const isAuthPage = location === "/auth";
+  const hidePublicHeader = location === "/quiz" || location.startsWith("/share/");
 
   if (isAuthPage) {
     return <PublicRouter />;
@@ -374,7 +375,7 @@ function PublicLayout() {
   return (
     <div className="min-h-screen flex flex-col">
       {location === "/" && <GoogleOneTap />}
-      <PublicHeader />
+      {!hidePublicHeader && <PublicHeader />}
       <main className="flex-1">
         <PublicRouter />
       </main>
