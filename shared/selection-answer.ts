@@ -11,28 +11,32 @@ export function parseSelectionAnswer(value: unknown): string[] {
 }
 
 export function encodeSelectionAnswer(options: string[]): string {
-  return options.length ? JSON.stringify(options) : "";
+  return JSON.stringify(options);
 }
 
 export function selectionAnswersMatch(answer: unknown, correctAnswer: unknown): boolean {
   const selected = parseSelectionAnswer(answer);
   const correct = parseSelectionAnswer(correctAnswer);
-  return correct.length >= 2 && selected.length === correct.length &&
+  // An explicit [] is a submitted "none" answer; missing/invalid input is not.
+  const isArrayAnswer = (value: unknown) => {
+    try { const parsed = typeof value === "string" ? JSON.parse(value) : value; return Array.isArray(parsed) && parsed.every(item => typeof item === "string" && item.trim()); } catch { return false; }
+  };
+  return isArrayAnswer(answer) && isArrayAnswer(correctAnswer) && selected.length === correct.length &&
     new Set(selected).size === selected.length && new Set(correct).size === correct.length &&
     correct.every(option => selected.includes(option));
 }
 
-export function isValidSelectionQuestion(question: { options?: string[]; correctAnswer: string }): boolean {
+export function isValidSelectionQuestion(question: { options?: string[]; correctAnswer: string; selectionMode?: "truth_statements" }): boolean {
   const options = question.options || [];
   const correct = parseSelectionAnswer(question.correctAnswer);
   return options.length >= 2 && options.every(option => Boolean(option.trim())) &&
     new Set(options.map(option => option.trim().toLowerCase())).size === options.length &&
-    correct.length >= 2 && new Set(correct).size === correct.length &&
+    (question.selectionMode === "truth_statements" ? selectionAnswersMatch(question.correctAnswer, question.correctAnswer) : correct.length >= 2) && new Set(correct).size === correct.length &&
     correct.every(option => options.includes(option));
 }
 
 export function formatAnswer(answer: string | undefined, type: string): string {
-  return type === "selection" ? parseSelectionAnswer(answer).join("; ") : answer || "";
+  return type === "selection" ? (answer === "[]" ? "None" : parseSelectionAnswer(answer).join("; ")) : answer || "";
 }
 
 export function isCorrectOption(option: string, question: { type: string; correctAnswer: string }): boolean {

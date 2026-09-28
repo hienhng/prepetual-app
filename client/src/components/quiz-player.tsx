@@ -130,7 +130,7 @@ export function QuizPlayer() {
     timeTaken,
     quizResult,
   } = useQuiz();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const sidebarContext = useSidebarOptional();
   const sidebarState = sidebarContext?.state ?? "expanded";
@@ -1220,6 +1220,11 @@ export function QuizPlayer() {
     return (
       <div className="space-y-3">
         {currentQuestion.type === "selection" && <p className="text-sm text-muted-foreground">{t("quizGenerator.selectionHint")}</p>}
+        {currentQuestion.type === "selection" && currentQuestion.selectionMode === "truth_statements" && (
+          <Button variant={selectedAnswer === "[]" ? "secondary" : "outline"} disabled={isChecked} onClick={() => commitShortAnswer("[]")} aria-pressed={selectedAnswer === "[]"}>
+            {language === "vi" ? "Không có phát biểu nào đúng" : "No statements are true"}
+          </Button>
+        )}
         {currentQuestion.options?.map((option, index) => {
           const isSelected = currentQuestion.type === "selection" ? parseSelectionAnswer(selectedAnswer).includes(option) : selectedAnswer === option;
           const isCorrectOpt = isCorrectOption(option, currentQuestion);
@@ -1282,9 +1287,9 @@ export function QuizPlayer() {
                   ${!isChecked ? "cursor-pointer" : "cursor-default"}
                   transition-[transform,box-shadow] duration-75
                   ${isChecked && isCorrectOpt 
-                    ? "bg-green-500/15 border-2 border-green-500 border-b-0 shadow-none ring-1 ring-green-500/20" 
+                    ? `bg-green-500/15 border-2 border-green-500 ${hasExplanation ? "border-b-0" : ""} shadow-none ring-1 ring-green-500/20` 
                     : isChecked && isSelected && !isCorrectOpt
-                      ? "bg-red-500/15 border-2 border-red-500 border-b-0 shadow-md shadow-red-500/10"
+                    ? `bg-red-500/15 border-2 border-red-500 ${hasExplanation ? "border-b-0" : ""} shadow-md shadow-red-500/10`
                       : isSelected
                         ? "bg-primary/10 border-2 border-primary"
                         : "bg-card border-2 border-border"

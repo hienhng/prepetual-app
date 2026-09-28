@@ -87,6 +87,8 @@ export const questionSchema = z.object({
   question: z.string(),
   options: z.array(z.string()).optional(),
   correctAnswer: z.string(),
+  // Grouped true/false statements use selection, including zero or one true statement.
+  selectionMode: z.literal("truth_statements").optional(),
   explanation: z.string().optional(),
   wrongAnswerExplanations: z.record(z.string(), z.string()).optional(),
   imageUrl: z.string().optional(),
@@ -97,11 +99,12 @@ export const questionSchema = z.object({
     sourceLabel: z.string(),
     sourceText: z.string(),
     reason: z.string(),
+    stage: z.enum(["inventory", "classification", "structure", "answer"]).optional(),
   }).optional(),
 });
 
 export const validatedQuestionSchema = questionSchema.refine(
-  question => question.type !== "selection" || isValidSelectionQuestion(question),
+  question => Boolean(question.importReview) || question.type !== "selection" || isValidSelectionQuestion(question),
   { message: "Selection questions need distinct, nonempty options and at least two correct options.", path: ["correctAnswer"] },
 );
 

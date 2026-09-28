@@ -211,7 +211,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
         // Show completion
         setProcessingProgress(100);
         setCurrentGenerationStep("complete");
-        setLoadingMessage(`Imported ${quiz.questions.length} multiple-choice questions!`);
+        setLoadingMessage(`Imported ${quiz.questions.length} questions!`);
         toast({ title: "Exam imported", description: describeQuizImport(quiz.questions, quiz.importSummary) });
         await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -860,7 +860,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                 <div className="space-y-1">
                   <h3 className="font-black text-2xl tracking-tight text-foreground">Smart Import</h3>
                   <p className="text-muted-foreground font-medium leading-relaxed">
-                    Import multiple-choice questions from an existing test. True/false and short-answer questions are skipped; uncertain answers are flagged for review.
+                    Import multiple-choice, selection, true/false, and short-answer questions from an existing test. Grouped true/false statements become selection questions; uncertain layouts or answers are flagged for review.
                   </p>
                 </div>
               </div>

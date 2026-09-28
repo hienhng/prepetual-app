@@ -3,19 +3,28 @@ import test from "node:test";
 import { importQuizDocument, inventoryNumberedQuestions, inventoryUnnumberedQuestions, QuizImportError, parseImportedSourceItem, type ImportModelRequest } from "./quiz-import.js";
 import { confirmImportedQuestion, describeQuizImport, getPendingImportQuestions } from "../shared/import-review.js";
 import { questionSchema } from "../shared/schema.js";
+import { parseSelectionAnswer } from "../shared/selection-answer.js";
 
 const stem = (i: number) => `Which statement is correct for item ${i}? ${"Consider the information given in this original exam. ".repeat(5)}`.trim();
 const exam = (count: number) => Array.from({ length: count }, (_, i) => `${i + 1}. ${stem(i + 1)}\nA. First answer\nB. Second answer\nC. All of the above\nD. None of the above`).join("\n\n");
-type AuditItem = { sourceId: string; question: string; options: string[]; context: string };
+type AuditItem = { sourceId: string; type: string; question: string; options: string[]; context: string };
 const classificationResponse = (prompt: string, typeForId = (_id: string) => "multiple_choice") => ({
   classifications: JSON.parse(prompt.split("\nSOURCE ITEMS:\n")[1]).map((item: any) => ({ sourceId: item.sourceId, type: typeForId(item.sourceId) })),
 });
 function fakeModel(transform?: (items: AuditItem[], answers: any[]) => any[]): ImportModelRequest {
   return async (prompt) => {
     if (prompt.startsWith("Classify")) return classificationResponse(prompt);
+    if (prompt.startsWith("Copy")) {
+      const items = JSON.parse(prompt.split("ASSIGNED SOURCE ITEMS:\n")[1]);
+      return { questions: items.map((item: any) => {
+        const headings = item.blocks.filter((block: any) => /^(?:SECTION|PHẦN)/u.test(block.text));
+        const options = item.type === "short_answer" ? [] : item.blocks.filter((block: any) => /^[A-Da-d][).]/u.test(block.text));
+        return { sourceId: item.id, stemBlockIds: item.blocks.filter((block: any) => block.text.trim() && !headings.includes(block) && !options.includes(block)).map((block: any) => block.id), optionBlockIds: options.map((block: any) => [block.id]), ignoredBlocks: headings.map((block: any) => ({ blockIds: [block.id], reason: "heading" })) };
+      }) };
+    }
     assert.ok(prompt.includes("\nITEMS:\n"), "Standard source choices should not need LLM extraction");
     const items: AuditItem[] = JSON.parse(prompt.split("\nITEMS:\n")[1]);
-    const answers = items.map((item) => ({ sourceId: item.sourceId, correctOptionIndex: 1, verified: true, solution: "Independent solution.", explanation: "Independent explanation." }));
+    const answers = items.map((item) => ({ sourceId: item.sourceId, correctOptionIndex: 1, correctOptionIndexes: [0, 2], correctAnswer: item.type === "true_false" ? "False" : item.type === "short_answer" ? "42" : "", verified: true, solution: "Independent solution.", explanation: "Independent explanation." }));
     return { title: "Original exam", category: "categories.general", answers: transform ? transform(items, answers) : answers };
   };
 }
@@ -152,7 +161,7 @@ test("shared passages returned by the answer pass must match the source", async 
   assert.equal(getPendingImportQuestions(bad.questions).length, 2);
 });
 
-test("mixed exam skips binary true/false, lettered truth judgments, and short answers before parsing or solving", async () => {
+test("mixed exam retains every source format and groups truth statements as selection", async () => {
   const source = [
     "PHẦN I. Chọn một đáp án đúng.",
     "Câu 1. Which statement is false?\nA. 2 > 1\nB. 1 > 2\nC. 3 > 1\nD. 4 > 1",
@@ -172,28 +181,27 @@ test("mixed exam skips binary true/false, lettered truth judgments, and short an
       const items = JSON.parse(prompt.split("\nSOURCE ITEMS:\n")[1]);
       assert.match(items.find((item: any) => item.sourceId === "source-3").context, /Trắc nghiệm đúng sai/);
       assert.match(items.find((item: any) => item.sourceId === "source-4").context, /Trả lời ngắn/);
-      return classificationResponse(prompt, (id) => ["source-2", "source-3"].includes(id) ? "true_false" : id === "source-4" ? "short_answer" : "multiple_choice");
-    }
-    // The first MC has a subsequent section's text attached, so use exact quote extraction.
-    if (prompt.startsWith("Copy")) {
-      const items = JSON.parse(prompt.split("ASSIGNED SOURCE ITEMS:\n")[1]);
-      assert.ok(items.every((item: any) => ["source-1", "source-5"].includes(item.id)));
-      return { questions: items.map((item: any) => ({ sourceId: item.id, question: item.text.split("\n")[0], options: item.text.split("\n").slice(1, 5).filter((line: string) => /^[A-D]\./.test(line)) })) };
+      return classificationResponse(prompt, (id) => id === "source-2" ? "true_false" : id === "source-3" ? "selection" : id === "source-4" ? "short_answer" : "multiple_choice");
     }
     return delegate(prompt);
   });
-  assert.deepEqual(audited, ["source-1", "source-5"]);
-  assert.deepEqual(result.questions.map((q) => q.question), ["Which statement is false?", "What is 2 + 2?"]);
-  assert.ok(result.questions.every((q) => q.type === "multiple_choice" && !q.importReview));
-  assert.deepEqual(result.importSummary, { sourceQuestionCount: 5, multipleChoiceCount: 2, skippedTrueFalse: 2, skippedShortAnswer: 1 });
-  assert.match(describeQuizImport(result.questions, result.importSummary), /2 multiple-choice.*Skipped 2 true\/false and 1 short-answer/);
+  assert.deepEqual([...new Set(audited)].sort(), ["source-1", "source-2", "source-3", "source-4", "source-5"]);
+  assert.deepEqual(result.questions.map(q => q.type), ["multiple_choice", "true_false", "selection", "short_answer", "multiple_choice"]);
+  assert.deepEqual(parseSelectionAnswer(result.questions[2].correctAnswer), ["2 > 1", "3 > 1"]);
+  assert.equal(result.questions[3].correctAnswer, "42");
+  assert.equal(result.questions[4].question, "What is 2 + 2?");
+  assert.deepEqual(result.importSummary, { sourceQuestionCount: 5, multipleChoiceCount: 2, selectionCount: 1, trueFalseCount: 1, shortAnswerCount: 1, unresolvedTypeCount: 0 });
+  assert.match(describeQuizImport(result.questions, result.importSummary), /5 questions imported/);
 });
 
-test("a document containing only excluded types reports no multiple-choice questions and does not solve anything", async () => {
-  await assert.rejects(importQuizDocument("1. True or false: 2 > 1?\n2. Calculate 6 × 7.", async (prompt) => {
-    assert.ok(prompt.startsWith("Classify"));
-    return classificationResponse(prompt, (id) => id === "source-1" ? "true_false" : "short_answer");
-  }), /No multiple-choice questions found\. Skipped 1 true\/false and 1 short-answer/);
+test("an exam containing only true/false and short answers imports without invented alternatives", async () => {
+  const delegate = fakeModel();
+  const result = await importQuizDocument("1. True or false: 2 > 1?\n2. Calculate 6 × 7.", async prompt => prompt.startsWith("Classify") ? classificationResponse(prompt, id => id === "source-1" ? "true_false" : "short_answer") : delegate(prompt));
+  assert.deepEqual(result.questions.map(q => q.type), ["true_false", "short_answer"]);
+  assert.deepEqual(result.questions[0].options, ["True", "False"]);
+  assert.equal(result.questions[1].options, undefined);
+  assert.equal(result.questions[1].correctAnswer, "42");
+  assert.equal(getPendingImportQuestions(result.questions).length, 0);
 });
 
 test("retries missing or duplicate classifications by source identity without silently dropping questions", async () => {
@@ -210,18 +218,21 @@ test("retries missing or duplicate classifications by source identity without si
   assert.equal(result.questions.length, 3);
 });
 
-test("unreadable source types fail explicitly instead of importing non-MC or silently skipping them", async () => {
-  await assert.rejects(importQuizDocument(exam(2), async (prompt) => {
+test("unknown source types retain original text for explicit classification review", async () => {
+  const result = await importQuizDocument(exam(2), async (prompt) => {
     assert.ok(prompt.startsWith("Classify"));
     return classificationResponse(prompt, () => "unknown");
-  }), /Could not determine the source question type.*No quiz was saved/);
+  });
+  assert.equal(result.questions.length, 2);
+  assert.ok(result.questions.every(q => q.importReview?.stage === "classification" && q.correctAnswer === ""));
 });
 
-test("explicit English and Vietnamese truth-value choices are excluded even if the classifier calls them MC", async () => {
+test("explicit English and Vietnamese truth-value choices become true/false even if classified as MC", async () => {
   const result = await importQuizDocument("1. The Earth is flat.\nA. True\nB. False\n2. Trái đất phẳng.\nA. Sai\nB. Đúng\n3. Can you choose?\nA. Yes\nB. No", fakeModel());
-  assert.equal(result.questions.length, 1);
-  assert.deepEqual(result.questions[0].options, ["Yes", "No"]);
-  assert.equal(result.importSummary.skippedTrueFalse, 2);
+  assert.equal(result.questions.length, 3);
+  assert.deepEqual(result.questions[2].options, ["Yes", "No"]);
+  assert.equal(result.importSummary.trueFalseCount, 2);
+  assert.deepEqual(result.questions.slice(0, 2).map(q => q.correctAnswer), ["False", "False"]);
 });
 
 test("numbering gaps in the supplied exam layout do not trigger model line inventory", async () => {
@@ -234,9 +245,10 @@ test("numbering gaps in the supplied exam layout do not trigger model line inven
     if (prompt.startsWith("Classify")) return classificationResponse(prompt, (id) => ["source-5", "source-7", "source-8"].includes(id) ? "true_false" : "multiple_choice");
     return delegate(prompt);
   });
-  assert.equal(result.questions.length, 33);
-  assert.deepEqual(result.importSummary, { sourceQuestionCount: 36, multipleChoiceCount: 33, skippedTrueFalse: 3, skippedShortAnswer: 0 });
-  assert.deepEqual(result.questions.map((q) => q.question), numbers.filter((n) => ![5, 7, 8].includes(n)).map(stem));
+  assert.equal(result.questions.length, 36);
+  assert.equal(result.importSummary.selectionCount, 3);
+  assert.equal(result.importSummary.multipleChoiceCount, 33);
+  assert.deepEqual(result.questions.filter(q => q.type === "multiple_choice").map(q => q.question), numbers.filter(n => ![5, 7, 8].includes(n)).map(stem));
 });
 
 test("explicit headings with nested numbered statements or a single question retain source boundaries", () => {
@@ -270,7 +282,8 @@ test("line inventory widens boundary context and ignores valid questions owned b
     }
     return { complete: true, questions: [{ startLine: start, endLine: start + 2 }, ...(start > 1 ? [{ startLine: start - 5, endLine: start - 3 }] : [])] };
   });
-  assert.equal(result.length, attempts.size);
+  assert.equal(result.filter(item => !item.reviewReason).length, attempts.size);
+  assert.ok(result.some(item => item.reviewReason), "Unassigned lines must be retained for coverage review");
   assert.equal(attempts.get(1), 2);
 });
 
@@ -282,12 +295,13 @@ test("failed inventory windows recover through smaller assignments", async () =>
     if (end - start > 20) return { complete: false, questions: [] };
     return { complete: true, questions: [{ startLine: start, endLine: start + 2 }] };
   });
-  assert.deepEqual(result.map((q) => q.id), ["line-1", "line-21"]);
+  assert.deepEqual(result.filter(item => !item.reviewReason).map(q => q.id), ["line-1", "line-21"]);
+  assert.ok(result.some(item => item.reviewReason));
 });
 
 test("provider failures are not mislabeled as unreadable source lines or source types", async () => {
   const unavailable: ImportModelRequest = async () => { throw Object.assign(new Error("Provider unavailable"), { status: 503 }); };
-  for (const operation of [() => inventoryUnnumberedQuestions("Readable source", unavailable), () => importQuizDocument(exam(2), unavailable)]) {
-    await assert.rejects(operation, (error: unknown) => error instanceof Error && !(error instanceof QuizImportError) && /AI service.*HTTP 503/.test(error.message));
-  }
+  await assert.rejects(() => inventoryUnnumberedQuestions("Readable source", unavailable), (error: unknown) => error instanceof Error && !(error instanceof QuizImportError) && /AI service.*HTTP 503/.test(error.message));
+  const result = await importQuizDocument(exam(2), unavailable);
+  assert.ok(result.questions.every(q => q.importReview?.stage === "classification"));
 });

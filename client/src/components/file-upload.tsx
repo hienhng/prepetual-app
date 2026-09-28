@@ -22,6 +22,7 @@ function isSizeRelatedError(errorMessage: string): boolean {
     /exceeds/i,
     /maximum.*\d+\s*(mb|gb|bytes?)/i,
     /combined.*upload/i,
+    /50\s*MB/i,
     /25\s*MB/i,
     /10\s*MB/i,
   ];
@@ -116,9 +117,16 @@ export function FileUpload({ onTextExtracted, requireAuth = false, onRequireAuth
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
+      const totalBytes = acceptedFiles.reduce((total, file) => total + file.size, 0);
+      if (totalBytes > 50 * 1024 * 1024) {
+        const message = "The combined upload must be 50 MB or smaller.";
+        setError(message);
+        toast({ title: "File Size Limit Exceeded", description: message, variant: "destructive" });
+        return;
+      }
       processFiles(acceptedFiles);
     }
-  }, [processFiles]);
+  }, [processFiles, toast]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
@@ -140,6 +148,14 @@ export function FileUpload({ onTextExtracted, requireAuth = false, onRequireAuth
       "application/vnd.ms-excel": [".xls"],
     },
     maxFiles: 10,
+    maxSize: 50 * 1024 * 1024,
+    onDropRejected: (rejections) => {
+      if (rejections.some(({ errors }) => errors.some(({ code }) => code === "file-too-large"))) {
+        const message = "Each file must be 50 MB or smaller.";
+        setError(message);
+        toast({ title: "File Size Limit Exceeded", description: message, variant: "destructive" });
+      }
+    },
     disabled: isLoading,
     noClick: false,
   });

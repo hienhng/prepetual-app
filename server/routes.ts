@@ -77,6 +77,11 @@ const ollamaClient = new OpenAI({
 });
 
 const MAX_AUDIO_SIZE_MB = 20; // Max 20MB audio file
+const MAX_UPLOAD_FILE_BYTES = 50 * 1024 * 1024;
+const profileImageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 const MAX_DOWNLOAD_TIMEOUT_MS = 60000; // 60 second timeout for downloads
 const PROVIDER_RATE_LIMIT_WINDOW_MS = readPositiveIntegerEnv(
   "PROVIDER_RATE_LIMIT_WINDOW_MS",
@@ -286,7 +291,7 @@ async function transcribeYouTubeAudio(videoId: string): Promise<string> {
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024,
+    fileSize: MAX_UPLOAD_FILE_BYTES,
     files: 10,
     parts: 12,
   },
@@ -650,7 +655,7 @@ export async function registerRoutes(
       }
       const totalUploadBytes = files.reduce((sum, file) => sum + file.size, 0);
       if (totalUploadBytes > MAX_UPLOAD_TOTAL_BYTES) {
-        return res.status(413).json({ message: "The combined upload is too large. The maximum is 25 MB." });
+        return res.status(413).json({ message: "The combined upload is too large. The maximum is 50 MB." });
       }
 
       const queuedJobs: { jobId: string; fileName: string }[] = [];
@@ -1469,7 +1474,7 @@ IMPORTANT NOTE:
     }
   });
 
-  app.post("/api/user/upload-profile-image", isAuthenticated, upload.single("file"), async (req: any, res) => {
+  app.post("/api/user/upload-profile-image", isAuthenticated, profileImageUpload.single("file"), async (req: any, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });

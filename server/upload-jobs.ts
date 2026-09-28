@@ -57,6 +57,18 @@ export function deleteJob(id: string) {
   jobBuffers.delete(id);
 }
 
+// officeparser does not expose per-page or per-section progress. Advance through
+// its known extraction phase while it works, then let the next real phase update
+// take over. This keeps long Office parses from appearing frozen at 15%.
+function startExtractionProgressTicker(id: string, message: string, start: number, end: number) {
+  let progress = start;
+  const timer = setInterval(() => {
+    progress = Math.min(end, progress + 1);
+    updateJob(id, { progress, message });
+  }, 1000);
+  return () => clearInterval(timer);
+}
+
 async function extractImagesFromOfficeDocument(buffer: Buffer): Promise<string[]> {
   try {
     const zip = await JSZip.loadAsync(buffer);
@@ -161,14 +173,26 @@ export async function processJob(id: string) {
         performOcr: true,
         requireComplete: true,
         transcribePage: transcribeExamImage,
+        onProgress: (completedPages, totalPages) => {
+          const progress = totalPages > 0
+            ? 20 + Math.round((completedPages / totalPages) * 55)
+            : 75;
+          updateJob(id, { progress, message: `Extracting text from PDF (page ${completedPages} of ${totalPages})...` });
+        },
       });
       extractedText = result.text;
     } else if (fileType.startsWith("image/")) {
       isImageFile = true;
       updateJob(id, { progress: 45, message: "Preparing image for quiz generation..." });
     } else if (isOfficeDocument(fileType)) {
-      updateJob(id, { progress: 15, message: "Extracting text from document..." });
-      extractedText = await extractTextFromOfficeDocument(buffer);
+      const message = "Extracting text from document...";
+      updateJob(id, { progress: 15, message });
+      const stopProgressTicker = startExtractionProgressTicker(id, message, 15, 39);
+      try {
+        extractedText = await extractTextFromOfficeDocument(buffer);
+      } finally {
+        stopProgressTicker();
+      }
       
       updateJob(id, { progress: 40, message: "Scanning for images and graphics..." });
       documentImages = await extractImagesFromOfficeDocument(buffer);

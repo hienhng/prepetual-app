@@ -2441,6 +2441,7 @@ Independently solve this and determine which option is actually correct. Show yo
 
             if (q.type === "selection") {
               systemPrompt += "\nThis is a selection question. Multiple options are correct. Determine every correct option, returning correctAnswer as a JSON array of exact option texts with at least two entries. Any supplied user answer is the full set, encoded as a JSON array. Explain all correct options and only mark unselected incorrect options as wrong.";
+              if (q.selectionMode === "truth_statements") systemPrompt += "\nThis imported question contains grouped true/false statements. Select all TRUE statements. The answer set may contain zero, one, or several entries; this overrides the two-entry minimum. Preserve every original statement.";
             }
             const completion = await openai.chat.completions.create({
               model: quizModel,
@@ -2463,7 +2464,7 @@ Independently solve this and determine which option is actually correct. Show yo
             }
 
             const finalAnswer = q.type === "selection" ? encodeSelectionAnswer(parseSelectionAnswer(userCorrectAnswer || parsed.correctAnswer)) : userCorrectAnswer || parsed.correctAnswer;
-            if (q.type === "selection" && !isValidSelectionQuestion({ options: q.options, correctAnswer: finalAnswer })) throw new Error("Invalid selection answer set");
+            if (q.type === "selection" && !isValidSelectionQuestion({ ...q, correctAnswer: finalAnswer })) throw new Error("Invalid selection answer set");
             if (!finalAnswer) {
               throw new Error("Invalid AI response: missing correctAnswer");
             }

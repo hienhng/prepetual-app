@@ -3,6 +3,7 @@ import test from "node:test";
 import { jsPDF } from "jspdf";
 
 import { extractTextFromPDFWithOCR } from "./pdf-extract.js";
+import { assessPdfText, buildPdfTextBlocks } from "./pdf-layout.js";
 
 function createSinglePagePdf(text: string): Buffer {
   const stream = `BT\n/F1 12 Tf\n72 120 Td\n(${text}) Tj\nET`;
@@ -78,4 +79,44 @@ test("reports unreadable pages instead of silently importing the remaining pages
     requireComplete: true,
     transcribePage: async () => { throw new Error("Provider failed"); },
   }), /Could not read PDF page 1/);
+});
+
+test("blank separator pages are skipped without requesting transcription or rejecting the document", async () => {
+  const pdf = new jsPDF();
+  pdf.text("A readable exam page with sufficient selectable text to avoid unnecessary transcription.", 20, 20);
+  pdf.addPage();
+  const result = await extractTextFromPDFWithOCR(Buffer.from(pdf.output("arraybuffer")), {
+    requireComplete: true, transcribePage: async () => { throw new Error("Blank page must not reach provider"); },
+  });
+  assert.equal(result.pages[1].blank, true);
+  assert.equal(result.pagesProcessed, 2);
+  assert.equal(result.pagesOcred.length, 0);
+});
+
+test("PDF layout preserves columns and coordinates instead of interleaving options", async () => {
+  const pdf = new jsPDF();
+  for (let row = 0; row < 4; row++) {
+    pdf.text(["1. Left question?", "A. Left one", "B. Left two", "C. Left three"][row], 15, 40 + row * 8);
+    pdf.text(["2. Right question?", "A. Right one", "B. Right two", "C. Right three"][row], 115, 40 + row * 8);
+  }
+  const result = await extractTextFromPDFWithOCR(Buffer.from(pdf.output("arraybuffer")), { performOcr: false });
+  assert.ok(result.text.indexOf("C. Left three") < result.text.indexOf("2. Right question"));
+  assert.equal(result.pages[0].blocks.length, 8);
+  assert.ok(result.pages[0].blocks.every(block => block.width > 0 && block.height > 0 && block.source === "selectable"));
+});
+
+test("OCR quality checks detect corrupt text and a readable header over a scanned page", () => {
+  const blocks = buildPdfTextBlocks([{ str: "Readable running header ".repeat(4), width: 250, height: 12, transform: [1, 0, 0, 1, 20, 750] }], 1, 612);
+  assert.ok(assessPdfText(blocks[0].text, true, blocks, 612 * 792).includes("image_with_limited_text"));
+  assert.ok(assessPdfText("Bad \uFFFD\uFFFD\uFFFD characters ".repeat(10), false, blocks, 612 * 792).includes("corrupt_text"));
+  assert.deepEqual(assessPdfText("Readable document content. ".repeat(10), false, blocks, 612 * 792), []);
+});
+
+test("layout keeps raised exponents with their baseline instead of moving them before the question", () => {
+  const blocks = buildPdfTextBlocks([
+    { str: "20 cm", width: 30, height: 12, transform: [1, 0, 0, 1, 30, 200] },
+    { str: "3", width: 4, height: 7, transform: [1, 0, 0, 1, 60, 205] },
+    { str: "B. Next option", width: 70, height: 12, transform: [1, 0, 0, 1, 30, 180] },
+  ], 1, 612);
+  assert.deepEqual(blocks.map(block => block.text), ["20 cm3", "B. Next option"]);
 });

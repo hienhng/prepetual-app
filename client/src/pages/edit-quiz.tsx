@@ -294,6 +294,25 @@ export default function EditQuizPage() {
     toast({ title: t('editQuiz.questionsShuffled') });
   };
 
+  const shuffleOptions = () => {
+    setQuestions(previous => previous.map(question => {
+      if ((question.type !== "multiple_choice" && question.type !== "selection") || !question.options || question.options.length < 2) {
+        return question;
+      }
+
+      const options = [...question.options];
+      for (let index = options.length - 1; index > 0; index--) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [options[index], options[swapIndex]] = [options[swapIndex], options[index]];
+      }
+      if (options.every((option, index) => option === question.options?.[index])) {
+        options.push(options.shift()!);
+      }
+      return { ...question, options };
+    }));
+    toast({ title: t('editQuiz.optionsShuffled') });
+  };
+
   const expandAll = () => {
     setExpandedIndex(-1);
   };
@@ -328,7 +347,7 @@ export default function EditQuizPage() {
   };
 
   const handleSave = async (): Promise<boolean> => {
-    if (questions.some(question => question.type === "selection" && !isValidSelectionQuestion(question))) {
+    if (questions.some(question => !question.importReview && question.type === "selection" && !isValidSelectionQuestion(question))) {
       toast({ title: t("common.error"), description: t("quizGenerator.selectionValidation"), variant: "destructive" });
       return false;
     }
@@ -608,6 +627,16 @@ export default function EditQuizPage() {
                     <Shuffle className="h-4 w-4 mr-1" />
                     {t('editQuiz.shuffle')}
                   </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={shuffleOptions}
+                    disabled={!questions.some(question => (question.type === "multiple_choice" || question.type === "selection") && (question.options?.length || 0) > 1)}
+                    data-testid="button-shuffle-options"
+                  >
+                    <Shuffle className="h-4 w-4 mr-1" />
+                    {t('editQuiz.shuffleOptions')}
+                  </Button>
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -765,6 +794,11 @@ export default function EditQuizPage() {
                                     <Label htmlFor={`review-answer-${index}`}>Confirm the correct answer</Label>
                                     {question.type === "short_answer" ? (
                                       <Input id={`review-answer-${index}`} value={question.correctAnswer} onChange={(event) => handleQuestionChange(index, "correctAnswer", event.target.value)} placeholder="Enter the correct answer" />
+                                    ) : question.type === "selection" ? (
+                                      <div className="space-y-2">
+                                        <p className="text-sm">Select every correct option below. For grouped true/false statements, select the true statements.</p>
+                                        {question.selectionMode === "truth_statements" && <Button size="sm" variant="outline" onClick={() => handleQuestionChange(index, "correctAnswer", "[]")}>No statements are true</Button>}
+                                      </div>
                                     ) : (
                                       <select id={`review-answer-${index}`} className="w-full rounded-md border bg-background p-2 text-sm" value={question.correctAnswer} onChange={(event) => handleQuestionChange(index, "correctAnswer", event.target.value)}>
                                         <option value="">Select the correct option</option>
@@ -782,9 +816,9 @@ export default function EditQuizPage() {
                                       onValueChange={(value: QuestionType) => {
                                         handleQuestionChange(index, "type", value);
                                         if (value === "selection") {
-                                          const options = question.options?.length && question.type === "multiple_choice" ? question.options : ["Option 1", "Option 2", "Option 3", "Option 4"];
+                                          const options = question.options?.length ? question.options : question.importReview ? [] : ["Option 1", "Option 2", "Option 3", "Option 4"];
                                           handleQuestionChange(index, "options", options);
-                                          handleQuestionChange(index, "correctAnswer", encodeSelectionAnswer(options.slice(0, 2)));
+                                          handleQuestionChange(index, "correctAnswer", question.importReview ? "" : encodeSelectionAnswer(options.slice(0, 2)));
                                         } else if (question.type === "selection" && value === "multiple_choice") {
                                           handleQuestionChange(index, "correctAnswer", parseSelectionAnswer(question.correctAnswer)[0] || question.options?.[0] || "");
                                         } else if (value === "true_false") {
@@ -809,6 +843,10 @@ export default function EditQuizPage() {
                                         <SelectItem value="short_answer">{t('quizGenerator.shortAnswer')}</SelectItem>
                                       </SelectContent>
                                     </Select>
+                                    {question.type === "selection" && <label className="flex items-center gap-2 text-xs">
+                                      <Checkbox checked={question.selectionMode === "truth_statements"} onCheckedChange={checked => handleQuestionChange(index, "selectionMode", checked ? "truth_statements" : undefined)} />
+                                      Grouped true/false statements (any number may be true)
+                                    </label>}
                                   </div>
                                   
                                   {question.type !== "multiple_choice" && question.type !== "selection" && !question.importReview && (
@@ -1169,6 +1207,7 @@ export default function EditQuizPage() {
                     ) : questions[reviseDialogIndex]?.type === "selection" ? (
                       <div className="space-y-2">
                         <p>{t("quizGenerator.selectionHint")}</p>
+                        {questions[reviseDialogIndex].selectionMode === "truth_statements" && <Button variant="outline" onClick={() => setReviseSelectedAnswer("[]")}>No statements are true</Button>}
                         {questions[reviseDialogIndex].options?.map((option, i) => <label key={i} className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer">
                           <Checkbox checked={parseSelectionAnswer(reviseSelectedAnswer).includes(option)} onCheckedChange={checked => {
                             const correct = parseSelectionAnswer(reviseSelectedAnswer);
@@ -1208,7 +1247,7 @@ export default function EditQuizPage() {
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmAiRevise}
-              disabled={!reviseSelectedAnswer || (reviseDialogIndex !== null && questions[reviseDialogIndex]?.type === "selection" && parseSelectionAnswer(reviseSelectedAnswer).length < 2)}
+              disabled={!reviseSelectedAnswer || (reviseDialogIndex !== null && questions[reviseDialogIndex]?.type === "selection" && !isValidSelectionQuestion({ ...questions[reviseDialogIndex], correctAnswer: reviseSelectedAnswer }))}
               data-testid="button-confirm-revise"
             >
               <Wrench className="h-4 w-4 mr-1" />

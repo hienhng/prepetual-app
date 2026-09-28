@@ -422,7 +422,7 @@ export default function Create() {
         const pendingCount = getPendingImportQuestions(importedQuiz.questions).length;
         setProcessingProgress(100);
         setCurrentGenerationStep("complete");
-        setLoadingMessage(`Imported ${importedQuiz.questions.length} multiple-choice questions!`);
+        setLoadingMessage(`Imported ${importedQuiz.questions.length} questions!`);
         toast({ title: "Exam imported", description: describeQuizImport(importedQuiz.questions, importedQuiz.importSummary) });
         await new Promise(r => setTimeout(r, 500));
 
@@ -1187,7 +1187,7 @@ export default function Create() {
                         </div>
                         <span className="text-xs font-black text-foreground">Import Exam</span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground leading-tight">Import multiple-choice questions from an existing exam.</p>
+                      <p className="text-[11px] text-muted-foreground leading-tight">Import questions in their original exam formats.</p>
                     </div>
                   )}
                 </div>
@@ -1308,7 +1308,7 @@ export default function Create() {
                       <div className="space-y-2">
                         <h3 className="text-sm font-bold text-foreground">How Import Mode Works</h3>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                          Upload or paste an existing exam. Only multiple-choice questions are imported; true/false and short-answer questions are skipped. Questions with uncertain answers are flagged for review.
+                          Upload or paste an existing exam. Import multiple-choice, selection, true/false, and short-answer questions. Grouped true/false statements become selection questions. Uncertain layouts or answers are flagged for review.
                         </p>
                       </div>
                     </div>
