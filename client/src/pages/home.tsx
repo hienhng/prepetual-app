@@ -1049,7 +1049,7 @@ function BeforeAfterSlider() {
   return (
     <div className="relative w-full">
       <motion.div
-        className="relative w-full h-[340px] sm:h-[400px] md:h-[440px] lg:h-[480px] overflow-hidden select-none touch-none"
+        className="relative w-full h-[clamp(18rem,42svh,30rem)] overflow-hidden select-none touch-none"
         ref={containerRef}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -2511,57 +2511,6 @@ function StatsSection() {
     { value: "5+", label: t("home.stats.fileFormats"), icon: FileText },
     { value: "∞", label: t("home.stats.unlimitedQuizzes"), icon: Layers },
   ];
-
-  return (
-    <div className="flex flex-wrap justify-center gap-12 md:gap-20 max-w-3xl mx-auto">
-      {stats.map((stat, index) => (
-        <motion.div
-          key={stat.label}
-          initial={{ opacity: 0, scale: 0.7, filter: "blur(8px)" }}
-          whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          viewport={{ once: true }}
-          transition={{
-            delay: index * 0.12,
-            duration: 0.6,
-            ease: [0.16, 1, 0.3, 1],
-          }}
-          className="text-center"
-        >
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <motion.div
-              initial={{ rotate: -180, scale: 0 }}
-              whileInView={{ rotate: 0, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{
-                delay: 0.1 + index * 0.12,
-                type: "spring",
-                stiffness: 200,
-                damping: 12,
-              }}
-            >
-              <stat.icon className="w-5 h-5 text-primary" />
-            </motion.div>
-            <span className="text-3xl md:text-4xl font-bold text-foreground">
-              <AnimatedCounter value={stat.value} />
-            </span>
-          </div>
-          <motion.div
-            className="text-sm text-muted-foreground"
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{
-              delay: 0.2 + index * 0.12,
-              duration: 0.5,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-          >
-            {stat.label}
-          </motion.div>
-        </motion.div>
-      ))}
-    </div>
-  );
 }
 
 export default function Home() {
@@ -2615,7 +2564,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <section ref={heroRef} className="relative min-h-[100dvh] pb-8 md:pb-16 overflow-hidden">
+      <section ref={heroRef} className="relative pb-[clamp(1.5rem,5vh,3rem)] overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
             className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/8 blur-[120px]"
@@ -2658,7 +2607,7 @@ export default function Home() {
 
         <div className="container relative mx-auto px-4 sm:px-6 max-w-5xl">
           <div className="flex flex-col items-center">
-            <div className="text-center max-w-4xl mx-auto -mt-24 sm:-mt-28 md:-mt-34 lg:-mt-40 relative z-10">
+            <div className="text-center max-w-4xl mx-auto -mt-[clamp(4rem,12svh,7rem)] relative z-10">
               <motion.div
                 className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
                 initial={{ opacity: 0 }}
@@ -2720,8 +2669,8 @@ export default function Home() {
                 </motion.div> */}
 
               <h1
-                className="font-bold text-foreground mb-5 leading-[1.1] tracking-tight relative text-center w-full"
-                style={{ fontSize: "clamp(2.5rem, 6vw, 6rem)" }}
+                className="font-bold sm:font-extrabold lg:font-black text-foreground mb-5 leading-[1.1] tracking-tight relative text-center w-full"
+                style={{ fontSize: "clamp(2.5rem, min(8vw, 12svh), 7.5rem)" }}
               >
                 <span className="overflow-hidden inline-flex justify-center flex-wrap w-full">
                   {t("home.hero.makeYourMaterials").split(" ").map((word, i) => (
@@ -2745,7 +2694,8 @@ export default function Home() {
               </h1>
 
               <motion.p
-                className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto mb-7 leading-relaxed"
+                className="text-muted-foreground max-w-lg mx-auto mb-7 leading-relaxed"
+                style={{ fontSize: "clamp(1rem, min(2vw, 2.4svh), 1.4rem)" }}
                 initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 transition={{
@@ -2790,7 +2740,7 @@ export default function Home() {
                     <Button
                       size="lg"
                       onClick={handleGetStarted}
-                      className="gap-2.5 px-8 text-base h-13 w-full sm:w-auto shadow-lg shadow-primary/20 font-semibold relative overflow-hidden transition-shadow duration-300 group-hover/btn:shadow-primary/40"
+                      className="gap-2.5 px-[clamp(1.25rem,2.5vw,2.25rem)] text-[clamp(0.9rem,min(1.4vw,1.8svh),1.125rem)] h-[clamp(2.75rem,5.5svh,3.75rem)] w-full sm:w-auto shadow-lg shadow-primary/20 font-semibold relative overflow-hidden transition-shadow duration-300 group-hover/btn:shadow-primary/40"
                       data-testid="button-hero-get-started"
                     >
                       <span className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
@@ -2830,7 +2780,7 @@ export default function Home() {
                         .getElementById("how-it-works")
                         ?.scrollIntoView({ behavior: "smooth" })
                     }
-                    className="gap-2 w-full sm:w-auto h-13 text-base font-medium text-muted-foreground/200 hover:text-foreground transition-all duration-300 group-hover:bg-primary/5"
+                    className="gap-2 px-[clamp(0.875rem,2vw,1.5rem)] w-full sm:w-auto h-[clamp(2.75rem,5.5svh,3.75rem)] text-[clamp(0.9rem,min(1.4vw,1.8svh),1.125rem)] font-medium text-muted-foreground/200 hover:text-foreground transition-all duration-300 group-hover:bg-primary/5"
                     data-testid="button-hero-learn-more"
                   >
                     <ArrowDown className="h-4 w-4 group-hover:translate-y-1 transition-transform" />
@@ -2842,9 +2792,9 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="py-16 md:py-20 border-y border-border/50">
+      <section className="py-16 md:py-20">
         <div className="container mx-auto px-4 sm:px-6">
-          <StatsSection />
+          
         </div>
       </section>
 

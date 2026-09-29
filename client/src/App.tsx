@@ -11,17 +11,18 @@ import { AuthDialogProvider, useAuthDialog } from "@/lib/auth-context";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useAuth } from "@/hooks/useAuth";
-import { LogIn, LogOut, User, Menu, Settings as SettingsIcon, HelpCircle, Mail } from "lucide-react";
+import { LogOut, Menu, Settings as SettingsIcon } from "lucide-react";
 import logoImage from "@assets/image_1765894870887.png";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { VerificationPrompt } from "@/components/verification-prompt";
@@ -163,21 +164,22 @@ function PublicHeader() {
   const { isLoading } = useAuth();
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
   const { t } = useLanguage();
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
   return (
-    <header className="fixed top-4 left-1/2 -translate-x-1/2 z-20 w-[96%] max-w-6xl transition-all duration-300">
-      <div className="bg-background/50 backdrop-blur-xl border border-border/20 shadow-[0_2px_12px_0_rgba(0,0,0,0.03)] rounded-full px-5 sm:px-8 h-14 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-3 group select-none" data-testid="link-logo">
+    <header className="fixed top-[clamp(0.5rem,1.4svh,1rem)] left-1/2 -translate-x-1/2 z-20 w-[96%] max-w-6xl transition-all duration-300">
+      <div className="bg-background/50 backdrop-blur-xl border border-border/20 shadow-[0_2px_12px_0_rgba(0,0,0,0.03)] rounded-full px-[clamp(0.75rem,2vw,2rem)] py-[clamp(0.25rem,0.7svh,0.5rem)] min-h-[clamp(2.75rem,5svh,3.5rem)] flex items-center justify-between gap-[clamp(0.5rem,1.5vw,1rem)]">
+        <Link href="/" className="flex items-center gap-[clamp(0.5rem,1vw,0.75rem)] group select-none" data-testid="link-logo">
           <div className="relative">
             <img
               src={logoImage}
               alt="Prepetual Logo"
               draggable={false}
-              className="w-9 h-9 rounded-full object-cover  transition-transform duration-500"
+              className="w-[clamp(1.75rem,3vw,2.25rem)] h-[clamp(1.75rem,3vw,2.25rem)] rounded-full object-cover transition-transform duration-500"
             />
             <div className="absolute inset-0 rounded-full bg-primary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </div>
-          <span className="pb-1.5 text-2xl font-brand font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text hidden sm:inline tracking-tight custom-highlight">
+          <span className="pb-1 text-[clamp(1rem,1.8vw,1.5rem)] font-brand font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text tracking-tight custom-highlight">
             prepetual
           </span>
         </Link>
@@ -185,12 +187,13 @@ function PublicHeader() {
           <LanguageToggle />
           <ThemeToggle />
           {!isLoading && (
-            <div className="flex items-center gap-2 sm:gap-4 border-l border-border/40 pl-3 sm:pl-6 ml-1 sm:ml-2">
+            <>
+              <div className="hidden md:flex items-center gap-2 sm:gap-4 border-l border-border/40 pl-3 sm:pl-6 ml-1 sm:ml-2">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={openLoginDialog}
-                className="rounded-full text-sm font-semibold hover:bg-foreground/5 hover:text-primary transition-all duration-100 px-8 py-2"
+                className="rounded-full text-[clamp(0.7rem,0.9vw,0.875rem)] font-semibold hover:bg-foreground/5 hover:text-primary transition-all duration-100 px-[clamp(0.5rem,1.5vw,1.25rem)] py-2"
                 data-testid="button-login"
               >
                 {t("publicHeader.login")}
@@ -199,12 +202,55 @@ function PublicHeader() {
                 variant="default"
                 size="lg"
                 onClick={openSignUpDialog}
-                className="rounded-full text-sm font-bold shadow-[0_4px_12px_rgba(var(--primary),0.2)] px-8 bg-primary hover:bg-primary/90 text-primary-foreground border-none transition-all duration-300 hover:scale-[1.03] active:scale-95"
+                className="rounded-full text-[clamp(0.7rem,0.9vw,0.875rem)] font-bold shadow-[0_4px_12px_rgba(var(--primary),0.2)] px-[clamp(0.75rem,1.8vw,1.5rem)] bg-primary hover:bg-primary/90 text-primary-foreground border-none transition-all duration-300 hover:scale-[1.03] active:scale-95"
                 data-testid="button-signup"
               >
                 {t("publicHeader.signup")}
               </Button>
-            </div>
+              </div>
+              <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden rounded-full" aria-label={t("sidebar.menu")} data-testid="button-public-menu-mobile">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[min(88vw,24rem)] sm:max-w-sm flex flex-col">
+                  <SheetHeader className="text-left">
+                    <SheetTitle>{t("sidebar.menu")}</SheetTitle>
+                    <SheetDescription>{t("footer.about")} · Prepetual</SheetDescription>
+                  </SheetHeader>
+                  <nav className="flex flex-col gap-1 mt-6" aria-label={t("sidebar.menu")}>
+                    {[
+                      ["/about", t("footer.about")],
+                      ["/blog", t("footer.blog")],
+                      ["/faq", t("footer.faq")],
+                      ["/help", t("common.helpCenter")],
+                      ["/contact", t("footer.contact")],
+                      ["/privacy", t("footer.privacy")],
+                      ["/terms", t("footer.terms")],
+                    ].map(([href, label]) => (
+                      <SheetClose asChild key={href}>
+                        <Link href={href} className="rounded-lg px-3 py-3 text-sm font-medium hover:bg-muted transition-colors" data-testid={`mobile-menu-${href.slice(1)}`}>
+                          {label}
+                        </Link>
+                      </SheetClose>
+                    ))}
+                  </nav>
+                  <div className="mt-auto border-t pt-5 flex flex-col gap-2">
+                    <SheetClose asChild>
+                      <Button variant="outline" className="w-full" onClick={openLoginDialog} data-testid="button-login-mobile">
+                        {t("publicHeader.login")}
+                      </Button>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Button className="w-full" onClick={openSignUpDialog} data-testid="button-signup-mobile">
+                        {t("publicHeader.signup")}
+                      </Button>
+                    </SheetClose>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </>
           )}
         </div>
       </div>
@@ -216,16 +262,7 @@ function AuthenticatedHeader() {
   const { user } = useAuth();
   const [location] = useLocation();
   const { t } = useLanguage();
-
-  const getInitials = () => {
-    if (user?.username) {
-      return user.username[0].toUpperCase();
-    }
-    if (user?.email) {
-      return user.email[0].toUpperCase();
-    }
-    return t("common.user").charAt(0);
-  };
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
   const getPageTitle = () => {
     switch (location) {
@@ -258,50 +295,58 @@ function AuthenticatedHeader() {
       <div className="flex items-center gap-2">
         <LanguageToggle />
         <ThemeToggle />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full" data-testid="button-user-menu-mobile">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.username || "User"} className="object-cover" />
-                <AvatarFallback>{getInitials()}</AvatarFallback>
-              </Avatar>
+        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full" aria-label={t("sidebar.menu")} data-testid="button-user-menu-mobile">
+              <Menu className="h-5 w-5" />
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href="/settings" data-testid="link-settings-mobile">
-                <SettingsIcon className="h-4 w-4 mr-2" />
-                {t("common.settings")}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/help" data-testid="sidebar-help">
-                <HelpCircle className="h-4 w-4 mr-2" />
-                {t("sidebar.helpCenter")}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/contact" data-testid="sidebar-contact">
-                <Mail className="h-4 w-4 mr-2" />
-                {t("sidebar.contactUs")}
-              </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem
-              onClick={async () => {
-                await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-                queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-                window.location.href = "/";
-              }}
-              data-testid="button-logout-mobile"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              {t("common.signOut")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[min(88vw,24rem)] sm:max-w-sm flex flex-col">
+            <SheetHeader className="text-left">
+              <SheetTitle>{t("sidebar.menu")}</SheetTitle>
+              <SheetDescription>{user?.username || user?.email || t("common.user")}</SheetDescription>
+            </SheetHeader>
+            <nav className="flex flex-col gap-1 mt-6" aria-label={t("sidebar.menu")}>
+              <SheetClose asChild>
+                <Link href="/settings" className="rounded-lg px-3 py-3 text-sm font-medium hover:bg-muted transition-colors" data-testid="link-settings-mobile">
+                  <SettingsIcon className="h-4 w-4 inline mr-2" />{t("common.settings")}
+                </Link>
+              </SheetClose>
+              {[
+                ["/about", t("footer.about")],
+                ["/blog", t("footer.blog")],
+                ["/faq", t("footer.faq")],
+                ["/help", t("common.helpCenter")],
+                ["/contact", t("footer.contact")],
+                ["/privacy", t("footer.privacy")],
+                ["/terms", t("footer.terms")],
+              ].map(([href, label]) => (
+                <SheetClose asChild key={href}>
+                  <Link href={href} className="rounded-lg px-3 py-3 text-sm font-medium hover:bg-muted transition-colors" data-testid={`mobile-menu-${href.slice(1)}`}>
+                    {label}
+                  </Link>
+                </SheetClose>
+              ))}
+            </nav>
+            <div className="mt-auto border-t pt-5">
+              <SheetClose asChild>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={async () => {
+                    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+                    queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+                    window.location.href = "/";
+                  }}
+                  data-testid="button-logout-mobile"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  {t("common.signOut")}
+                </Button>
+              </SheetClose>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   );

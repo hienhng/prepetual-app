@@ -1300,7 +1300,7 @@ const dictionaries: Record<AppLanguage, Record<string, DictionaryValue>> = {
     ],
     home: {
       hero: {
-        makeYourMaterials: "Để tài liệu của bạn",
+        makeYourMaterials: "Để tài liệu",
         talkBack: "trả lời bạn",
         subtitle: "Hãy để mọi định nghĩa phản hồi bạn. Luôn kết nối với những gì bạn học.",
         getStarted: "Bắt đầu ngay",

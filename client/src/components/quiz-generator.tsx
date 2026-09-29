@@ -1,6 +1,6 @@
 import { usePromptQuizSettings } from "@/hooks/use-prompt-quiz-settings";
 import { QuizGenerationResumeDialog, type PausedGeneration } from "./quiz-generation-resume-dialog";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Sparkles, FileText, ChevronDown, ChevronUp, Loader2, Import, FileQuestionIcon, ArrowRight, BookText, Gauge, CheckSquare, ToggleLeft, MessageSquare, X } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
@@ -62,7 +62,6 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
   const hasSourceImages = documentImages.length > 0 || Boolean(sourceMaterial.imageDataUrl);
   const isPromptBased = hasQuizPrompt && !materialText && !hasSourceImages;
   const previewText = materialText || sourcePrompt;
-  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
   const [questionTypes, setQuestionTypes] = useState<Array<"multiple_choice" | "selection" | "true_false" | "short_answer">>(["multiple_choice", "true_false"]);
   const { questionCount, setQuestionCount, difficulty, setDifficulty, isDetectingSettings, settingsError, retrySettings } = usePromptQuizSettings(sourcePrompt, !headless && mode === "generate");
 
@@ -92,83 +91,24 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
     });
   };
 
-  // Simulated progress for import mode only (no SSE).
-  // Generate mode gets real progress from SSE events.
+  // Show steady, simulated progress while either request is running. Backend
+  // progress events can arrive in large jumps, so they should not drive the bar.
   useEffect(() => {
-    if (!isLoading || mode !== "import") return;
+    if (!isLoading) return;
 
-    const steps = [
-      { threshold: 10, step: "starting" },
-      { threshold: 25, step: "scanning" },
-      { threshold: 45, step: "parsing" },
-      { threshold: 65, step: "identifying" },
-      { threshold: 80, step: "validating" },
-      { threshold: 90, step: "finalizing" },
-    ];
-
-    const totalDuration = 3000;
-    const maxProgress = 90;
+    const maxProgress = 92;
     const startTime = Date.now();
-    let currentStepIndex = 0;
 
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
-      const t = Math.min(elapsed / totalDuration, 1);
-      const eased = t * (2 - t);
-      const progress = Math.min(eased * maxProgress, maxProgress);
-
-      setProcessingProgress(progress);
-
-      while (currentStepIndex < steps.length && progress >= steps[currentStepIndex].threshold) {
-        const step = steps[currentStepIndex].step;
-        setCurrentGenerationStep(step);
-        setLoadingMessage(getStepMessage(step, true));
-        currentStepIndex++;
-      }
-
-      if (progress >= maxProgress) clearInterval(interval);
-    }, 50);
-
-    timeoutsRef.current.push(interval as unknown as NodeJS.Timeout);
+      const progress = maxProgress * (1 - Math.exp(-elapsed / 12000));
+      setProcessingProgress(Math.min(progress, maxProgress));
+    }, 100);
 
     return () => {
       clearInterval(interval);
-      timeoutsRef.current.forEach(t => clearTimeout(t));
-      timeoutsRef.current = [];
     };
-  }, [isLoading, mode]);
-
-  const getStepMessage = (step: string, isImportMode: boolean = false): string => {
-    if (isImportMode) {
-      const importMessages: Record<string, string> = {
-        starting: "Starting quiz import...",
-        scanning: "Scanning your document...",
-        parsing: "Parsing questions and options...",
-        identifying: "AI is identifying correct answers...",
-        validating: "Validating parsed questions...",
-        finalizing: "Finalizing your quiz...",
-        saving: "Saving your quiz...",
-        complete: "Quiz imported successfully!",
-      };
-      return importMessages[step] || "Processing...";
-    }
-
-    const messages: Record<string, string> = {
-      starting: "Starting quiz generation...",
-      creating_material: "Creating study material for your quiz...",
-      material_ready: "Study material created. Generating questions from it...",
-      reading: "Reading your study material...",
-      analyzing: "Analyzing content structure...",
-      preparing: "Preparing quiz generation...",
-      generating: "AI is generating questions...",
-      processing: "Processing AI response...",
-      validating: "Validating generated questions...",
-      finalizing: "Finalizing your quiz...",
-      saving: "Saving your quiz...",
-      complete: "Quiz created successfully!",
-    };
-    return messages[step] || "Processing...";
-  };
+  }, [isLoading, setProcessingProgress]);
 
   const generateQuiz = async () => {
     if (isDetectingSettings) return;
@@ -289,7 +229,6 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
 
         if (data.type === "progress") {
           console.log("[SSE] Progress update:", data.step, data.progress);
-          setProcessingProgress(data.progress);
           setCurrentGenerationStep(data.step);
           setLoadingMessage(data.message);
           if (data.step === "question_count_capped") {

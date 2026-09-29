@@ -8,7 +8,7 @@ import {
   Lightbulb, TrendingUp, CheckCircle2, BadgeCheck,
   Star, Compass, LayoutGrid, GraduationCap, FileHeart, CirclePlus, Share2, FilePen, Files
 } from "lucide-react";
-import { getCategoryIcon, getCategoryGradient, getCategoryLabel, getCategoryTranslationKey, categoryConfig } from "@/lib/category-icons";
+import { getCategoryIcon, getCategoryGradient, getCategoryLabel, getCategoryStorageKey, getCategoryTranslationKey } from "@/lib/category-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFire } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "@/hooks/useAuth";
@@ -409,8 +409,8 @@ export default function Feed() {
       const matchesSearch = searchQuery === "" || 
         quiz.title.toLowerCase().includes(searchQuery.toLowerCase());
       
-      const matchesCategory = selectedCategory === "all" || 
-        quiz.category === selectedCategory;
+      const matchesCategory = selectedCategory === "all" ||
+        getCategoryStorageKey(quiz.category) === selectedCategory;
       
       return matchesSearch && matchesCategory;
     }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -420,7 +420,7 @@ export default function Feed() {
     if (!quizzes) return {};
     const counts: Record<string, number> = { all: quizzes.length };
     for (const cat of QUIZ_CATEGORIES) {
-      counts[cat] = quizzes.filter(q => q.category === cat).length;
+      counts[cat] = quizzes.filter(q => getCategoryStorageKey(q.category) === cat).length;
     }
     return counts;
   }, [quizzes]);
@@ -544,9 +544,7 @@ export default function Feed() {
         >
           <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
             {["all", ...QUIZ_CATEGORIES].map((categoryId) => {
-              const config = categoryConfig[categoryId];
-              if (!config) return null;
-              const Icon = config.icon;
+              const Icon = getCategoryIcon(categoryId);
               const isActive = selectedCategory === categoryId;
               const count = categoryCounts[categoryId] || 0;
 
