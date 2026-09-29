@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MAX_CHAT_MESSAGE_CHARS, MAX_CHAT_HISTORY_CHARS, MAX_CHAT_HISTORY_MESSAGES } from "../shared/quiz-chat.js";
 
 import {
   MAX_SOURCE_IMAGE_CHARS,
@@ -103,13 +104,13 @@ export const reviseQuizRequestSchema = z.object({
 export const quizChatRequestSchema = z.object({
   quizId: z.string().min(1).max(100),
   currentQuestionIndex: z.number().int().min(0).max(1_000),
-  userMessage: z.string().trim().min(1).max(2_000),
+  userMessage: z.string().trim().min(1).max(MAX_CHAT_MESSAGE_CHARS),
   chatHistory: z
     .array(z.object({
       role: z.enum(["user", "assistant"]),
-      content: z.string().max(4_000),
+      content: z.string().max(MAX_CHAT_HISTORY_CHARS),
     }))
-    .max(20)
+    .max(MAX_CHAT_HISTORY_MESSAGES)
     .optional()
     .default([]),
 });

@@ -1152,7 +1152,7 @@ export default function Create() {
 
         {/* Settings Panel - Quiz Configuration */}
         <Sheet open={isSettingsPanelOpen && isReady} onOpenChange={(open) => setIsSettingsPanelOpen(open && isReady)}>
-          <SheetContent className="flex flex-col overflow-hidden !max-w-none w-1/3" side="right">
+          <SheetContent className="flex w-full flex-col overflow-hidden !max-w-none sm:w-[32rem] lg:w-1/3" side="right">
             <SheetHeader>
               <SheetTitle className="text-2xl font-black">Quiz Settings</SheetTitle>
               <SheetDescription>Configure your quiz generation preferences</SheetDescription>
@@ -1162,7 +1162,7 @@ export default function Create() {
               {/* Practice Mode Options */}
               <div className="space-y-3">
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Practice Mode</span>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div
                     onClick={() => setQuizMode("generate")}
                     className={`cursor-pointer rounded-2xl border-2 p-3.5 transition-all ${quizMode === "generate" ? "border-violet-500 bg-violet-500/10 shadow-sm" : "border-border/60 bg-background/50 hover:border-violet-300"}`}
@@ -1237,7 +1237,7 @@ export default function Create() {
                           onClick={() => setDifficulty(lvl)}
                           className="capitalize font-bold text-xs h-9 rounded-xl gap-1"
                         >
-                          <Gauge className="w-3.5 h-3.5" />
+                          <Gauge className="hidden h-3.5 w-3.5 sm:block" />
                           {lvl}
                         </Button>
                       ))}
@@ -1344,21 +1344,21 @@ export default function Create() {
             </div>
 
             {/* Footer */}
-            <div className="shrink-0 p-6 pt-4 border-t border-border/50 bg-transparent flex items-center justify-between gap-3">
+            <div className="shrink-0 p-6 pt-4 border-t border-border/50 bg-transparent flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
               <Button
                 variant="outline"
                 onClick={() => {
                   setIsSettingsPanelOpen(false);
                   setIsSourcesPanelOpen(true);
                 }}
-                className="rounded-xl font-bold"
+                className="w-full rounded-xl font-bold sm:w-auto"
               >
                 Back to Materials
               </Button>
               <Button
                 onClick={handleStartGeneration}
                 disabled={!isReady || isDetectingSettings}
-                className="gap-2 rounded-xl font-black bg-primary hover:bg-primary/90 text-primary-foreground h-11 px-5"
+                className="w-full gap-2 rounded-xl font-black bg-primary hover:bg-primary/90 text-primary-foreground h-11 px-5 sm:w-auto"
               >
                 {isDetectingSettings ? "Reading prompt settings…" : "Start Generating Quiz"}
               </Button>

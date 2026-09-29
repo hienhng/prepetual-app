@@ -1,5 +1,5 @@
 import { parseSelectionAnswer, encodeSelectionAnswer, selectionAnswersMatch, isCorrectOption, formatAnswer } from "@shared/selection-answer";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, Bookmark, BookCheck, Lock, CircleCheck, CircleCheckBig, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, FileText, ChevronLeft, ChevronRight, Image, Flag, AlertTriangle, Clock, Eye, EyeOff, MessageCircleQuestion, Square, SquareCheck, Circle, } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -108,7 +108,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { MaterialPane } from "@/components/material-pane";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-export function QuizPlayer() {
+export function QuizPlayer({ header }: { header?: ReactNode }) {
   const [, setLocation] = useLocation();
   const { 
     currentQuiz, 
@@ -142,6 +142,10 @@ export function QuizPlayer() {
   const [feedbackMessages, setFeedbackMessages] = useState<Record<string, { message: string; streakAtTime: number }>>({}); 
   const [showQuestionNav, setShowQuestionNav] = useState(false);
   const [showChatbot, setShowChatbot] = useState(false);
+  const chatbotPanelRef = useRef<HTMLDivElement>(null);
+  const chatbotTriggerRef = useRef<HTMLButtonElement>(null);
+  const questionNavPanelRef = useRef<HTMLDivElement>(null);
+  const questionNavTriggerRef = useRef<HTMLButtonElement>(null);
   const [bookmarkedQuestions, setBookmarkedQuestions] = useState<string[]>([]);
   const [isGrading, setIsGrading] = useState(false);
   const [aiGradingResults, setAiGradingResults] = useState<Record<string, { isCorrect: boolean; isPartial: boolean; explanation: string; wrongExplanation?: string }>>({});
@@ -174,6 +178,26 @@ export function QuizPlayer() {
   const isFinished = !!quizResult;
   const quizBookmarkStorageKey = currentQuiz ? `quiz-bookmarks-${currentQuiz.id}` : "";
   const isGuest = !user;
+
+  useEffect(() => {
+    if (!showChatbot && !showQuestionNav) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+
+      // Let each trigger handle its own toggle, including clicks on its icon.
+      if (showChatbot && !chatbotPanelRef.current?.contains(target) && !chatbotTriggerRef.current?.contains(target)) {
+        setShowChatbot(false);
+      }
+      if (showQuestionNav && !questionNavPanelRef.current?.contains(target) && !questionNavTriggerRef.current?.contains(target)) {
+        setShowQuestionNav(false);
+      }
+    };
+
+    document.addEventListener("click", handleOutsideClick, true);
+    return () => document.removeEventListener("click", handleOutsideClick, true);
+  }, [showChatbot, showQuestionNav]);
 
   useEffect(() => {
     if (!currentQuiz) return;
@@ -1426,7 +1450,7 @@ export function QuizPlayer() {
             exit={{ opacity: 0, y: 20 }}
             className="fixed inset-x-0 bottom-20 sm:bottom-24 z-40 px-4"
           >
-            <Card className="mx-auto max-w-lg p-4 shadow-xl border-2">
+            <Card ref={questionNavPanelRef} id="quiz-question-navigation" className="mx-auto max-w-lg p-4 shadow-xl border-2">
               <p className="text-sm font-medium text-muted-foreground mb-3">{t('quizPlayer.jumpToQuestion')}</p>
               <div className="flex flex-wrap gap-2">
                 {originalQuestions.map((q, i) => {
@@ -1625,7 +1649,7 @@ export function QuizPlayer() {
       if (event.key !== "Enter" || event.repeat || event.isComposing) return;
 
       const target = event.target as HTMLElement | null;
-      if (target?.closest("textarea, [contenteditable=\"true\"]")) return;
+      if (target?.closest("input, textarea, select, button, [contenteditable=\"true\"]")) return;
 
       if (canCheck) {
         event.preventDefault();
@@ -1650,7 +1674,11 @@ export function QuizPlayer() {
 
   return (
     <>
-      <div className="flex w-full min-h-[calc(100vh-4rem)] overflow-x-hidden relative">
+      <div className="flex w-full flex-col lg:flex-row items-start" data-testid="quiz-workspace">
+      <div className="w-full flex-1 min-w-0 pb-24">
+      <div className="container mx-auto px-4 pt-8">
+      {header}
+      <div className={`flex w-full flex-1 min-w-0 relative ${showMaterialViewer && !isMobile ? "min-h-[60vh]" : ""}`} data-testid="quiz-player-pane">
         <MaterialPane
           materialImages={allMaterialImages}
           materialText={materialText}
@@ -1663,7 +1691,7 @@ export function QuizPlayer() {
         />
 
         <div className="flex-1 min-w-0">
-          <div className="w-full mx-auto pb-32 sm:pb-28 max-w-3xl px-4">
+          <div className="w-full mx-auto max-w-3xl px-4">
             <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 py-4 -mx-4 px-4 sm:mx-0 sm:px-0">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -1674,7 +1702,10 @@ export function QuizPlayer() {
                     </Badge>
                   )}
                   <button
+                    ref={questionNavTriggerRef}
                     onClick={() => setShowQuestionNav(!showQuestionNav)}
+                    aria-expanded={showQuestionNav}
+                    aria-controls="quiz-question-navigation"
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors"
                     data-testid="button-question-nav"
                   >
@@ -1684,7 +1715,10 @@ export function QuizPlayer() {
                   <Button
                       variant={showMaterialViewer ? "secondary" : "outline"}
                       size="sm"
-                      onClick={() => setShowMaterialViewer(!showMaterialViewer)}
+                      onClick={() => {
+                        setShowChatbot(false);
+                        setShowMaterialViewer(!showMaterialViewer);
+                      }}
                       className="gap-1.5 rounded-full h-8"
                       data-testid="button-view-material"
                     >
@@ -1883,10 +1917,26 @@ export function QuizPlayer() {
 
       </div>
 
+      </div>
+      </div>
+
+      <div ref={chatbotPanelRef} className={showChatbot ? "contents lg:block lg:w-96 lg:shrink-0" : "contents"}>
+      <QuizChatbot
+        quizId={currentQuiz.id}
+        quizTitle={currentQuiz.title}
+        questions={currentQuiz.questions}
+        currentQuestionIndex={Math.min(currentIndex, currentQuiz.questions.length - 1)}
+        isOpen={showChatbot}
+        onClose={() => setShowChatbot(false)}
+        presentation="sidebar"
+      />
+      </div>
+      </div>
+
       {renderQuestionNav()}
 
       <div 
-        className="fixed bottom-0 right-0 left-0 z-30 bg-background/95 backdrop-blur-md border-t transition-[left] duration-300 ease-in-out"
+        className={`fixed bottom-0 right-0 left-0 ${showChatbot ? "lg:right-96" : ""} z-30 bg-background/95 backdrop-blur-md border-t transition-[left] duration-300 ease-in-out`}
         style={{ 
           left: !sidebarContext || isMobile ? 0 : sidebarState === 'collapsed' ? 'var(--sidebar-width-icon)' : 'var(--sidebar-width)' 
         }}
@@ -1907,8 +1957,14 @@ export function QuizPlayer() {
 
             <div className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-center">
               <Button
+                ref={chatbotTriggerRef}
                 variant="outline"
-                onClick={() => setShowChatbot(true)}
+                onClick={() => {
+                  setShowMaterialViewer(false);
+                  setShowChatbot((open) => !open);
+                }}
+                aria-expanded={showChatbot}
+                aria-controls="quiz-chatbot"
                 className="rounded-full h-9 sm:h-11 px-3 sm:px-4 shrink-0 bg-primary/20 backdrop-blur-sm border-primary hover:bg-primary/15 gap-2 font-semibold transition-all group shadow-primary/70"
                 data-testid="button-ask-pip"
               >
@@ -1970,15 +2026,6 @@ export function QuizPlayer() {
           </div>
         </div>
       </div>
-
-      <QuizChatbot
-        quizId={currentQuiz.id}
-        quizTitle={currentQuiz.title}
-        questions={currentQuiz.questions}
-        currentQuestionIndex={Math.min(currentIndex, currentQuiz.questions.length - 1)}
-        isOpen={showChatbot}
-        onClose={() => setShowChatbot(false)}
-      />
 
       {renderRevisionScreen()}
     </>

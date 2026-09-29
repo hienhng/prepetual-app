@@ -41,7 +41,6 @@ import {
   CircleDot,
   Shield,
   ListCheck,
-  Pause,
   Pencil,
   BookOpenCheck,
 } from "lucide-react";
@@ -1167,8 +1166,7 @@ function BeforeAfterSlider() {
 function HowItWorksGallery() {
   const { t } = useLanguage();
   const [activeStep, setActiveStep] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   const stages = [
     {
@@ -1180,7 +1178,7 @@ function HowItWorksGallery() {
       gradient: "from-amber-400 to-yellow-500",
       glowColor: "rgba(251, 191, 36, 0.25)",
       bg: "bg-amber-400/5",
-      accent: "text-amber-500",
+      accent: "text-amber-700 dark:text-amber-400",
       content: (
         <div className="space-y-4 w-full max-w-sm mx-auto">
           <motion.div
@@ -1226,7 +1224,7 @@ function HowItWorksGallery() {
       gradient: "from-cyan-400 to-blue-500",
       glowColor: "rgba(34, 211, 238, 0.2)",
       bg: "bg-cyan-400/5",
-      accent: "text-cyan-500",
+      accent: "text-cyan-700 dark:text-cyan-400",
       content: (
         <div className="w-full max-w-sm mx-auto space-y-6">
           <div className="space-y-4">
@@ -1276,7 +1274,7 @@ function HowItWorksGallery() {
       gradient: "from-violet-400 to-purple-500",
       glowColor: "rgba(167, 139, 250, 0.2)",
       bg: "bg-violet-400/5",
-      accent: "text-violet-500",
+      accent: "text-violet-700 dark:text-violet-400",
       content: (
         <div className="w-full max-w-sm mx-auto space-y-4">
           {[
@@ -1320,7 +1318,7 @@ function HowItWorksGallery() {
       gradient: "from-emerald-400 to-green-500",
       glowColor: "rgba(52, 211, 153, 0.2)",
       bg: "bg-emerald-400/5",
-      accent: "text-emerald-500",
+      accent: "text-emerald-700 dark:text-emerald-400",
       content: (
         <div className="w-full max-w-sm mx-auto space-y-6">
           <motion.div
@@ -1373,203 +1371,84 @@ function HowItWorksGallery() {
     },
   ];
 
-  useEffect(() => {
-    if (isAutoPlaying) {
-      autoPlayRef.current = setInterval(() => {
-        setActiveStep((prev) => (prev + 1) % stages.length);
-      }, 5000);
-    }
-    return () => {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-    };
-  }, [isAutoPlaying, stages.length]);
-
-  const orbitRadius = 280;
-  const rotationAngle = activeStep * (360 / stages.length);
+  const stage = stages[activeStep];
+  const previousStep = (activeStep - 1 + stages.length) % stages.length;
+  const nextStep = (activeStep + 1) % stages.length;
 
   return (
-    <div className="w-full relative py-20 overflow-hidden">
-      {/* ── Desktop: Orbit Animation ── */}
-      <div className="hidden lg:flex flex-col items-center justify-center min-h-[700px] relative">
-        
-        {/* Central Display Area */}
-        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-          <div className="relative w-full max-w-7xl flex items-center justify-between px-20">
-            {/* Left side: Text Content */}
-            <div className="w-[400px] pointer-events-auto">
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6" role="region" aria-roledescription="carousel" aria-label={t("home.howItWorks.title")}>
+      <div className="overflow-hidden rounded-[2rem] border border-border/70 bg-card/80 shadow-[0_24px_70px_-40px_rgba(0,0,0,0.35)]">
+        <div className="grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+          <div className="flex flex-col justify-center px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-14">
+            <div className="mb-7 flex items-center gap-4">
+              <div className={cn("flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg", stage.gradient)}>
+                <stage.icon className="h-7 w-7 text-white" aria-hidden="true" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                  {String(activeStep + 1).padStart(2, "0")} / {String(stages.length).padStart(2, "0")}
+                </span>
+                <span className={cn("text-sm font-semibold", stage.accent)}>{stage.title}</span>
+              </div>
+            </div>
+            <div aria-live="polite" aria-atomic="true" className="min-h-[148px] sm:min-h-[160px]">
               <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeStep}
-                  initial={{ opacity: 0, x: -50, filter: "blur(10px)" }}
-                  animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, x: -30, filter: "blur(10px)" }}
-                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className="space-y-8"
-                >
-                  <div className="space-y-4">
-                    <div className={cn(
-                      "inline-flex items-center gap-3 px-5 py-2 rounded-2xl text-xs font-bold tracking-widest uppercase border border-current/30 bg-white/5",
-                      stages[activeStep].accent
-                    )}>
-                      {React.createElement(stages[activeStep].icon, { className: "w-4 h-4" })}
-                      {stages[activeStep].title}
-                    </div>
-                    <h3 className="text-7xl font-black tracking-tighter text-foreground leading-[0.9]">
-                      {stages[activeStep].label}
-                    </h3>
-                  </div>
-                  <p className="text-2xl text-muted-foreground leading-relaxed font-medium">
-                    {stages[activeStep].desc}
-                  </p>
+                <motion.div key={activeStep} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }}>
+                  <h3 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl">{stage.label}</h3>
+                  <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">{stage.desc}</p>
                 </motion.div>
               </AnimatePresence>
             </div>
-
-            {/* Right side: Illustration Frame */}
-            <div className="w-[500px] aspect-square pointer-events-auto">
-              <div className="relative w-full h-full rounded-[60px] border border-white/10 bg-white/[0.03] backdrop-blur-3xl shadow-[0_40px_100px_-20px_rgba(0,0,0,0.4)] overflow-hidden flex items-center justify-center">
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeStep}
-                    initial={{ opacity: 0, scale: 0.9, y: 30 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: -20 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="absolute inset-0 flex items-center justify-center p-12"
-                  >
-                    {stages[activeStep].content}
-                  </motion.div>
-                </AnimatePresence>
+            <div className="mt-8 flex items-center gap-3">
+              <button type="button" onClick={() => setActiveStep(previousStep)} aria-label={stages[previousStep].title} className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-background text-foreground transition-colors hover:border-primary/50 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+              </button>
+              <button type="button" onClick={() => setActiveStep(nextStep)} aria-label={stages[nextStep].title} className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-background text-foreground transition-colors hover:border-primary/50 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                <ChevronRight className="h-5 w-5" aria-hidden="true" />
+              </button>
+              <div className="ml-3 flex gap-1.5" aria-hidden="true">
+                {stages.map((item, i) => <span key={item.id} className={cn("h-1.5 rounded-full transition-all duration-300", i === activeStep ? "w-8 bg-primary" : "w-1.5 bg-border")} />)}
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Orbit System */}
-        <div className="absolute left-[63%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-[800px] h-[800px] pointer-events-none opacity-40">
-           {/* Static orbital rings */}
-           <div className="absolute inset-x-[15%] inset-y-[15%] border border-white/5 rounded-full" />
-           <div className="absolute inset-x-[0%] inset-y-[0%] border border-white/5 rounded-full" />
-           
-           {/* Rotating Container */}
-           <motion.div 
-             className="absolute inset-0"
-             animate={{ rotate: rotationAngle }}
-             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-           >
-             {stages.map((stage, i) => {
-               const angle = (i * -360) / stages.length;
-               const radian = (angle * Math.PI) / 180;
-               const x = Math.cos(radian) * orbitRadius;
-               const y = Math.sin(radian) * orbitRadius;
-               
-               return (
-                 <motion.button
-                   key={stage.id}
-                   className="absolute pointer-events-auto"
-                   style={{
-                     left: `calc(50% + ${x}px)`,
-                     top: `calc(50% + ${y}px)`,
-                     x: "-50%",
-                     y: "-50%",
-                   }}
-                   onClick={() => {
-                     setActiveStep(i);
-                     setIsAutoPlaying(false);
-                   }}
-                 >
-                   {/* Satellite Icon Container */}
-                   <motion.div
-                     className={cn(
-                       "w-24 h-24 rounded-3xl backdrop-blur-2xl flex items-center justify-center border-2 transition-all duration-700",
-                       activeStep === i 
-                         ? "bg-white/10 border-white/20 scale-110 shadow-[0_0_50px_-10px_rgba(255,255,255,0.1)]" 
-                         : "bg-white/5 border-white/10 grayscale hover:grayscale-0 hover:bg-white/10"
-                     )}
-                     animate={{ rotate: -rotationAngle }}
-                     transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                   >
-                     <stage.icon className={cn(
-                       "w-10 h-10 transition-colors duration-500",
-                       activeStep === i ? stage.accent : "text-white/40"
-                     )} />
-                     
-                     {/* Active Indicator Glow */}
-                     {activeStep === i && (
-                       <motion.div
-                         layoutId="active-orbit-glow"
-                         className={cn("absolute inset-0 rounded-3xl blur-xl opacity-20", stage.accent.replace('text-', 'bg-'))}
-                       />
-                     )}
-                     
-                     {/* Label on outer ring */}
-                     <span className={cn(
-                       "absolute -bottom-10 whitespace-nowrap text-xs font-bold tracking-widest uppercase transition-opacity duration-700",
-                       activeStep === i ? "opacity-100 text-primary" : "opacity-0"
-                     )}>
-                       {stage.label}
-                     </span>
-                   </motion.div>
-                 </motion.button>
-               );
-             })}
-           </motion.div>
-        </div>
-
-        {/* Manual Navigation Controls */}
-        <div className="absolute bottom-10 flex items-center gap-8 z-20">
-          <div className="flex gap-3">
-            {stages.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  setActiveStep(i);
-                  setIsAutoPlaying(false);
-                }}
-                className={cn(
-                  "h-1.5 transition-all duration-700 rounded-full",
-                  activeStep === i ? "w-12 bg-primary" : "w-2 bg-foreground/20 hover:bg-foreground/40"
-                )}
-              />
-            ))}
+          <div
+            className={cn("relative flex min-h-[360px] items-center justify-center overflow-hidden border-t border-border/60 p-6 sm:min-h-[420px] sm:p-10 lg:min-h-[500px] lg:border-l lg:border-t-0", stage.bg)}
+            onTouchStart={(event) => { touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }}
+            onTouchEnd={(event) => {
+              if (!touchStart.current) return;
+              const deltaX = event.changedTouches[0].clientX - touchStart.current.x;
+              const deltaY = event.changedTouches[0].clientY - touchStart.current.y;
+              touchStart.current = null;
+              if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                setActiveStep(deltaX < 0 ? nextStep : previousStep);
+              }
+            }}
+            onTouchCancel={() => { touchStart.current = null; }}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={stage.title}
+          >
+            <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(circle at 50% 45%, " + stage.glowColor + ", transparent 65%)" }} />
+            <AnimatePresence mode="wait">
+              <motion.div key={activeStep} initial={{ opacity: 0, scale: 0.96, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: -12 }} transition={{ duration: 0.3 }} className="relative z-10 flex w-full items-center justify-center">
+                {stage.content}
+              </motion.div>
+            </AnimatePresence>
           </div>
-          <button
-            onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-            className="text-foreground/40 hover:text-foreground transition-colors"
-          >
-            {isAutoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-          </button>
         </div>
-      </div>
 
-      {/* ── Mobile/Tablet: Simplified Sequential Reveal ── */}
-      <div className="lg:hidden space-y-16 py-12 px-6">
-        {stages.map((stage, i) => (
-          <motion.div
-            key={stage.id}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-10"
-          >
-            <div className="space-y-5 text-center">
-              <div className={cn(
-                "w-16 h-16 rounded-[24px] flex items-center justify-center mx-auto shadow-2xl",
-                "bg-gradient-to-br",
-                stage.gradient
-              )}>
-                <stage.icon className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-3xl font-bold tracking-tight">{stage.label}</h3>
-              <p className="text-muted-foreground leading-relaxed max-w-md mx-auto">{stage.desc}</p>
-            </div>
-            <div className="p-10 rounded-[48px] border border-border/60 bg-card/60 backdrop-blur-sm shadow-2xl overflow-hidden flex items-center justify-center">
-              {stage.content}
-            </div>
-          </motion.div>
-        ))}
+        <nav className="grid grid-cols-4 gap-1.5 border-t border-border/70 bg-background/40 p-2 sm:gap-2 sm:p-3" aria-label={t("home.howItWorks.title")}>
+          {stages.map((item, i) => (
+            <button key={item.id} type="button" onClick={() => setActiveStep(i)} aria-label={item.title} aria-current={activeStep === i ? "step" : undefined} className={cn(
+              "flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl border px-1.5 py-2 text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:min-h-[64px] sm:flex-row sm:gap-3 sm:px-4 sm:text-left",
+              activeStep === i ? "border-primary/40 bg-primary/10 text-foreground shadow-sm" : "border-transparent text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
+            )}>
+              <item.icon className={cn("h-5 w-5 shrink-0", activeStep === i ? item.accent : "")} aria-hidden="true" />
+              <span className="text-[11px] font-semibold leading-tight sm:text-sm">{item.label}</span>
+            </button>
+          ))}
+        </nav>
       </div>
     </div>
   );

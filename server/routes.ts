@@ -1,3 +1,4 @@
+import { createQuizChatHandler } from "./quiz-chat.js";
 import { selectionAnswersMatch } from "../shared/selection-answer.js";
 import { validatedQuestionSchema } from "../shared/schema.js";
 import { createGenerationDraft, runGenerationDraft, claimGenerationDraft, listGenerationDrafts } from "./quiz-generation-drafts.js";
@@ -43,7 +44,6 @@ import {
   generateLectureRequestSchema,
   gradeShortAnswerRequestSchema,
   importQuizRequestSchema,
-  quizChatRequestSchema,
   reviseQuizRequestSchema,
   summarizeTextRequestSchema,
 } from "./ai-input.js";
@@ -2683,70 +2683,11 @@ ${POSITION_INDEPENDENT_EXPLANATION_RULE}${mathFormattingRules}`
     }
   });
 
-  app.post("/api/quiz-chat", interactiveAiRateLimit, async (req: any, res) => {
-    try {
-      const validation = quizChatRequestSchema.safeParse(req.body);
-      if (!validation.success) {
-        return res.status(400).json({
-          message: validation.error.errors[0]?.message || "Invalid request",
-        });
-      }
-      const { quizId, currentQuestionIndex, userMessage, chatHistory } = validation.data;
-
-      const quiz = await storage.getQuiz(String(quizId));
-      if (!quiz) return res.status(404).json({ message: "Quiz not found" });
-
-      const requesterId = req.user?.claims?.sub;
-      if (!canReadQuiz(quiz, requesterId)) {
-        return res.status(403).json({ message: "You do not have access to this quiz" });
-      }
-      if ((!quiz.ragSourceId || !quiz.userId) && !(quiz.generationMode === "generate" && !quiz.sourceText)) {
-        return res.status(409).json({
-          message: "This quiz does not have a RAG index. Regenerate it to use grounded chat.",
-        });
-      }
-      if (quiz.questions.length === 0) {
-        return res.status(409).json({ message: "This quiz does not contain any questions" });
-      }
-
-      const safeIndex = Math.max(0, Math.min(Number(currentQuestionIndex) || 0, quiz.questions.length - 1));
-      const currentQuestion = quiz.questions[safeIndex];
-      const retrieval = quiz.ragSourceId && quiz.userId ? await retrieveRagContext({
-        sourceId: quiz.ragSourceId,
-        ownerUserId: quiz.userId,
-        queries: [
-          userMessage.trim(),
-          currentQuestion?.question || quiz.title,
-          `${quiz.title}: ${userMessage.trim()}`,
-        ],
-        maxChunks: 6,
-        maxChars: 8_000,
-      }) : undefined;
-
-      const chatUser = requesterId ? await storage.getUser(requesterId) : undefined;
-
-      const response = await quizChatResponse({
-        quizTitle: quiz.title,
-        questions: quiz.questions,
-        currentQuestionIndex: safeIndex,
-        userMessage: userMessage.trim(),
-        chatHistory,
-        sourceMaterial: retrieval?.context,
-        isRagGrounded: Boolean(retrieval),
-        userPreferences: chatUser ? {
-          persona: chatUser.persona,
-          subjectInclination: chatUser.subjectInclination,
-          feedbackStyle: chatUser.feedbackStyle,
-          aiPartnership: chatUser.aiPartnership,
-        } : undefined,
-      });
-
-      res.json({ response });
-    } catch (error: any) {
-      console.error("Quiz chat error:", error);
-      res.status(500).json({ message: error.message || "Failed to get AI response" });
-    }
-  });
+  app.post("/api/quiz-chat", interactiveAiRateLimit, createQuizChatHandler({
+    storage,
+    retrieveRagContext,
+    quizChatResponse,
+  }));
 
   return httpServer;
 }

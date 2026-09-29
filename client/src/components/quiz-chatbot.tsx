@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Send, Loader2, Search, Copy, Clock, X, HelpCircle, Lightbulb, BookOpen, RefreshCw, MessageCircleQuestion, LayoutGrid, ChevronDown, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiRequest } from "@/lib/queryClient";
@@ -9,6 +10,7 @@ import { MathText } from "@/components/formatted-text";
 import { useAuth } from "@/hooks/useAuth";
 import AskPipIcon from "@/components/ui/ask-pip-icon";
 import type { Question } from "@shared/schema";
+import { MAX_CHAT_MESSAGE_CHARS, prepareChatHistory } from "@shared/quiz-chat";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ChatMessage {
@@ -16,6 +18,7 @@ interface ChatMessage {
   content: string;
   timestamp: number;
   id: string;
+  isError?: boolean;
 }
 
 interface QuizChatbotProps {
@@ -26,6 +29,7 @@ interface QuizChatbotProps {
   suggestedQuestions?: string[];
   isOpen: boolean;
   onClose: () => void;
+  presentation?: "floating" | "sidebar";
 }
 
 type ConversationMode = "general" | "explain" | "hint" | "quiz";
@@ -174,7 +178,7 @@ function TutorAvatar({ isAnimating = false, isSuccess = false, large = false }: 
   );
 }
 
-export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex, suggestedQuestions, isOpen, onClose }: QuizChatbotProps) {
+export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex, suggestedQuestions, isOpen, onClose, presentation = "floating" }: QuizChatbotProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -183,13 +187,26 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
   const [showSearch, setShowSearch] = useState(false);
   const [showCues, setShowCues] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isCompactScreen, setIsCompactScreen] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches
+  );
   // word-by-word generation animation
   const [animatingId, setAnimatingId] = useState<string | null>(null);
   const [revealedText, setRevealedText] = useState("");
   const animationRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestRef = useRef(0);
+  const sendingRef = useRef(false);
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 1023px)");
+    const updateScreen = () => setIsCompactScreen(media.matches);
+    updateScreen();
+    media.addEventListener("change", updateScreen);
+    return () => media.removeEventListener("change", updateScreen);
+  }, []);
 
   const defaultSuggestedCues = [
     { icon: HelpCircle, label: "Explain the concept behind this question" },
@@ -214,7 +231,7 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, revealedText, isOpen]);
 
   useEffect(() => {
     if (isOpen && inputRef.current && !showSearch) {
@@ -222,15 +239,29 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
     }
   }, [isOpen, showSearch]);
 
-  // Cleanup animation timer on unmount
+  // A different quiz starts a new conversation; ignore any previous request.
   useEffect(() => {
+    requestRef.current++;
+    sendingRef.current = false;
+    setMessages([]);
+    setInputValue("");
+    setIsLoading(false);
+    setAnimatingId(null);
+    setRevealedText("");
+    setSearchQuery("");
     return () => {
+      requestRef.current++;
       if (animationRef.current) clearTimeout(animationRef.current);
     };
-  }, []);
+  }, [quizId]);
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+    if (!inputValue.trim() || sendingRef.current) return;
+
+    sendingRef.current = true;
+    const requestId = ++requestRef.current;
+    if (animationRef.current) clearTimeout(animationRef.current);
+    setAnimatingId(null);
 
     const userMessage = inputValue.trim();
     setInputValue("");
@@ -249,12 +280,14 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
         quizId,
         currentQuestionIndex,
         userMessage,
-        chatHistory: messages,
-        mode: conversationMode,
-        userPreferences: user,
+        chatHistory: prepareChatHistory(messages),
       });
 
       const data = await response.json();
+      if (requestId !== requestRef.current) return;
+      if (typeof data.response !== "string" || !data.response.trim()) {
+        throw new Error("Prepal returned an empty response. Please try again.");
+      }
       const assistantId = `msg-${Date.now()}`;
       const fullText: string = data.response;
 
@@ -282,22 +315,27 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
       };
       animationRef.current = setTimeout(revealNext, 28);
     } catch (error: any) {
+      if (requestId !== requestRef.current) return;
       setMessages((prev) => [
         ...prev,
         { 
           role: "assistant", 
-          content: "Sorry, something went wrong. Please try again.", 
+          content: error instanceof Error ? error.message : "Prepal could not respond. Please try again.",
+          isError: true,
           timestamp: Date.now(),
           id: `msg-${Date.now()}`
         },
       ]);
     } finally {
-      setIsLoading(false);
+      if (requestId === requestRef.current) {
+        sendingRef.current = false;
+        setIsLoading(false);
+      }
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -311,33 +349,39 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
 
   if (!isOpen) return null;
 
+  const isSidebar = presentation === "sidebar";
+  const isBottomSheet = isSidebar && isCompactScreen;
+
   return (
     <motion.div 
-      layout
-      layoutId="quiz-chatbot"
-      initial={{ opacity: 0, scale: 0.85, y: 40 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.85, y: 40 }}
+      id="quiz-chatbot"
+      role={isSidebar ? "complementary" : undefined}
+      aria-label="Prepal AI chat"
+      data-testid="quiz-chatbot"
+      initial={isBottomSheet ? { opacity: 1, x: 0, y: "100%" } : isSidebar ? { opacity: 0, x: 20, y: 0 } : { opacity: 0, scale: 0.85, y: 40 }}
+      animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+      exit={isBottomSheet ? { opacity: 1, x: 0, y: "100%" } : isSidebar ? { opacity: 0, x: 20, y: 0 } : { opacity: 0, scale: 0.85, y: 40 }}
       transition={{ type: "spring", stiffness: 400, damping: 25, mass: 1 }}
-      style={{
+      style={isSidebar ? undefined : {
         position: "fixed",
         bottom: isExpanded ? "5vh" : "6rem",
         right: isExpanded ? "5vw" : "1rem",
-        width: isExpanded ? "90vw" : "24rem",
-        height: isExpanded ? "88vh" : "600px",
+        width: isExpanded ? "90vw" : "min(24rem, calc(100vw - 2rem))",
+        height: isExpanded ? "88dvh" : "min(600px, calc(100dvh - 7rem))",
         maxWidth: isExpanded ? "1200px" : undefined,
         zIndex: 50,
       }}
-      className="rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden"
+      className={`${isSidebar ? "fixed bottom-0 inset-x-0 z-40 w-full min-w-0 h-[85dvh] rounded-t-2xl border-t shadow-xl lg:top-0 lg:left-auto lg:w-96 lg:h-dvh lg:rounded-none lg:border-t-0 lg:border-l lg:shadow-none" : "rounded-2xl shadow-2xl border"} bg-background border-border flex flex-col overflow-hidden`}
     >
       {/* Header */}
-      <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <AskPipIcon size={32} className="rounded-lg" />
+      <div className="shrink-0 px-5 py-4 border-b border-border/70">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl">
+              <AskPipIcon size={28} />
+            </div>
             <div className="text-left">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white">Prepal AI</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Your Study Companion</p>
+              <h2 className="text-sm font-semibold tracking-tight text-foreground">Prepal AI</h2>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -347,10 +391,12 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
               onClick={() => setShowSearch(!showSearch)}
               className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors"
               title="Search messages"
+              aria-label="Search messages"
+              aria-expanded={showSearch}
             >
               <Search className="w-4 h-4" />
             </motion.button>
-            <motion.button
+            {!isSidebar && <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsExpanded((v) => !v)}
@@ -358,13 +404,14 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
               title={isExpanded ? "Collapse" : "Expand"}
             >
               {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-            </motion.button>
+            </motion.button>}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={onClose}
               className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors"
               title="Close"
+              aria-label="Close chat panel"
             >
               <X className="w-4 h-4" />
             </motion.button>
@@ -378,50 +425,63 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-3"
+              className="pt-3"
             >
               <Input
                 placeholder="Search messages..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-8 text-sm border-slate-300 dark:border-slate-600 rounded-full px-3 focus-visible:ring-0 focus-visible:border-slate-400"
+                aria-label="Search messages"
+                className="h-9 text-sm border-border rounded-xl bg-muted/40 px-3"
               />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
+      {isSidebar && (
+        <div className="shrink-0 flex items-center gap-2 border-b border-border/60 bg-muted/30 px-5 py-3">
+          <BookOpen className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground" title={quizTitle}>{quizTitle}</span>
+          <span className="shrink-0 rounded-md border border-border/70 bg-background px-2 py-1 text-[10px] font-medium text-muted-foreground">
+            Question {currentQuestionIndex + 1}
+          </span>
+        </div>
+      )}
+
       {/* Messages Area */}
-      <ScrollArea className="flex-1 p-4 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/50">
-        {filteredMessages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full gap-4 px-2">
-            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
-              <MessageCircleQuestion className="w-5 h-5 text-primary" />
+      <ScrollArea className="flex-1 min-h-0 px-5 py-6">
+        {filteredMessages.length === 0 && searchQuery.trim() ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">No messages match your search.</p>
+        ) : filteredMessages.length === 0 ? (
+          <div className="flex flex-col items-start gap-6 pt-7 pb-4">
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center">
+              <AskPipIcon size={38} />
             </div>
-            <div className="text-center">
-              <p className="text-sm font-medium text-slate-900 dark:text-white">Ask me anything</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                About this quiz, the topic, or study strategies
+            <div>
+              <p className="text-2xl font-semibold tracking-tight text-foreground">Let’s work through it.</p>
+              <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                A little stuck? Ask for a hint, unpack a concept, or try a new approach.
               </p>
             </div>
             <div className="w-full space-y-2">
-              <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                Try asking
+              <p className="pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                A place to start
               </p>
               {suggestedCues.map(({ icon: Icon, label }) => (
                 <button
                   key={label}
                   onClick={() => handleCueClick(label)}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-left transition-colors text-sm text-slate-700 dark:text-slate-300"
+                  className="group w-full flex items-start gap-3 px-3.5 py-3.5 rounded-xl border border-border/70 bg-card hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-left transition-colors text-[13px] leading-relaxed text-foreground"
                 >
-                  <Icon className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                  <Icon className="mt-0.5 w-4 h-4 text-muted-foreground group-hover:text-primary flex-shrink-0 transition-colors" />
                   {label}
                 </button>
               ))}
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-6">
             <AnimatePresence initial={false}>
               {filteredMessages.map((message, index) => (
                 <motion.div
@@ -439,13 +499,13 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
                   )}
                   
                   <div
-                    className={`group max-w-[75%] rounded-lg px-3 py-2 text-sm ${
+                    className={`group min-w-0 max-w-[85%] rounded-2xl px-3.5 py-3 text-sm ${
                       message.role === "user"
-                        ? "bg-slate-900 dark:bg-slate-700 text-white"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                        ? "rounded-tr-sm bg-primary/10 text-foreground"
+                        : "rounded-tl-sm bg-muted/50 text-foreground"
                     }`}
                   >
-                    <div className="whitespace-pre-wrap leading-relaxed [&_.katex-display]:my-1 [&_.katex]:text-[0.9em]">
+                    <div className="whitespace-pre-wrap break-words leading-relaxed [&_.katex-display]:my-1 [&_.katex-display]:overflow-x-auto [&_.katex]:text-[0.9em]">
                       {message.role === "assistant" && animatingId === message.id ? (
                         <span>
                           {revealedText}
@@ -509,11 +569,12 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="border-t border-slate-200/60 dark:border-slate-800/80"
+            className="shrink-0 border-t border-border/60"
           >
             <button
               onClick={() => setShowCues(!showCues)}
-              className="w-full px-4 py-1.5 flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+              className="w-full px-5 py-3 flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              aria-expanded={showCues}
             >
               <LayoutGrid className="w-3 h-3" />
               Suggested questions
@@ -535,7 +596,7 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
                     <button
                       key={label}
                       onClick={() => handleCueClick(label)}
-                      className="px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 text-[11px] text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition-colors whitespace-nowrap"
+                      className="max-w-full px-3 py-2 rounded-xl border border-border text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-left"
                     >
                       {label}
                     </button>
@@ -549,27 +610,31 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
 
       {/* Input Area */}
       <motion.div 
-        className="p-3 border-t border-slate-200/60 dark:border-slate-800/80 bg-white dark:bg-slate-900"
+        className="shrink-0 p-4 bg-background"
         initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="flex gap-2 items-center">
-          <Input
+        <div className="flex gap-2 items-end rounded-2xl border border-border bg-muted/30 p-2 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-colors">
+          <Textarea
             ref={inputRef}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Ask Prepal AI anything..."
-            className="flex-1 h-10 text-sm rounded-full border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 focus-visible:ring-0 focus-visible:border-slate-300 dark:focus-visible:border-slate-700 transition-all duration-300 px-4"
-            disabled={isLoading || showSearch}
+            onKeyDown={handleKeyPress}
+            maxLength={MAX_CHAT_MESSAGE_CHARS}
+            placeholder="Ask a question…"
+            aria-label="Message Prepal AI"
+            rows={3}
+            className="min-w-0 flex-1 min-h-[84px] max-h-40 resize-none border-0 bg-transparent px-2 py-2 text-sm leading-relaxed shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            disabled={isLoading}
           />
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0">
             <Button
               size="icon"
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
-              className="h-10 w-10 rounded-full bg-primary hover:bg-primary dark:bg-primary  dark:hover:bg-primary text-white shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center"
+              aria-label="Send message"
+              className="h-9 w-9 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-none transition-colors"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -579,6 +644,7 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
             </Button>
           </motion.div>
         </div>
+        <p className="mt-2.5 text-center text-[10px] text-muted-foreground">Enter to send · Shift + Enter for a new line</p>
       </motion.div>
     </motion.div>
   );

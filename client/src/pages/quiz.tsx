@@ -163,7 +163,7 @@ export default function Quiz() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <QuizPlayer header={
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -187,8 +187,7 @@ export default function Quiz() {
           </div>
         </motion.div>
 
-        <QuizPlayer />
-      </div>
+      } />
     </div>
   );
 }
