@@ -356,17 +356,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveQuizResult(result: InsertQuizResult): Promise<QuizResult> {
-    const [savedResult] = await db.insert(quizResults).values({
-      quizId: result.quizId,
-      userId: result.userId,
-      answers: result.answers as Record<string, string>,
-      score: result.score,
-      totalQuestions: result.totalQuestions,
-      correctAnswers: result.correctAnswers,
-      wrongQuestionIds: (result.wrongQuestionIds || []) as string[],
-      timeTaken: result.timeTaken || 0,
-    } as any).returning();
-    return savedResult;
+    return db.transaction(async (transaction) => {
+      const [savedResult] = await transaction.insert(quizResults).values({
+        quizId: result.quizId,
+        userId: result.userId,
+        answers: result.answers as Record<string, string>,
+        score: result.score,
+        totalQuestions: result.totalQuestions,
+        correctAnswers: result.correctAnswers,
+        wrongQuestionIds: (result.wrongQuestionIds || []) as string[],
+        timeTaken: result.timeTaken || 0,
+      } as any).returning();
+
+      // A completed attempt must never remain resumable. Commit both changes together.
+      if (result.userId) {
+        await transaction.delete(quizProgress).where(and(
+          eq(quizProgress.userId, result.userId),
+          eq(quizProgress.quizId, result.quizId),
+        ));
+      }
+      return savedResult;
+    });
   }
 
   async getQuizResult(quizId: string): Promise<QuizResult | undefined> {

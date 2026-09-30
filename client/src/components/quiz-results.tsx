@@ -14,7 +14,7 @@ import { MathText } from "@/components/formatted-text";
 
 export function QuizResults() {
   const [, setLocation] = useLocation();
-  const { currentQuiz, quizResult, userAnswers, clearUserAnswers, revisedQuestionsCount, removeSavedProgress } = useQuiz();
+  const { currentQuiz, quizResult, clearUserAnswers, revisedQuestionsCount } = useQuiz();
   const isReviewSession = currentQuiz?.generationMode === 'review';
   const { user } = useAuth();
   const { t } = useLanguage();
@@ -75,11 +75,6 @@ export function QuizResults() {
   };
 
   const handleContinue = () => {
-    // Clear saved progress from API when leaving results
-    if (currentQuiz?.id) {
-      removeSavedProgress(currentQuiz.id);
-    }
-    
     // Check if we should show revision summary (weekly revisions > 5)
     const WEEKLY_REVISIONS_KEY = "prepetual_weekly_revisions";
     let shouldShowRevision = false;
@@ -249,7 +244,7 @@ export function QuizResults() {
           </CardHeader>
           <CardContent className="space-y-3">
             {currentQuiz.questions.map((question, index) => {
-              const userAnswer = userAnswers[question.id];
+              const userAnswer = quizResult.answers[question.id];
               const isCorrect = quizResult.wrongQuestionIds
                 ? !quizResult.wrongQuestionIds.includes(question.id)
                 : question.type === "selection" ? selectionAnswersMatch(userAnswer, question.correctAnswer) : userAnswer?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();

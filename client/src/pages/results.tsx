@@ -60,7 +60,7 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
   const [isOpen, setIsOpen] = useState(false);
   const [isGeneratingReview, setIsGeneratingReview] = useState(false);
   const [, setLocation] = useLocation();
-  const { setCurrentQuiz, setQuizResult, setUserAnswer, clearUserAnswers } = useQuiz();
+  const { setCurrentQuiz, setQuizResult } = useQuiz();
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -99,16 +99,6 @@ function QuizAttemptGroup({ group, index }: { group: GroupedQuiz; index: number 
       const data = await resp.json();
       if (data && data.quiz && data.result) {
         setCurrentQuiz(data.quiz);
-        // clear any existing answers then populate with stored answers
-        clearUserAnswers();
-        const answers: Record<string, string> = data.result.answers || {};
-        Object.entries(answers).forEach(([qId, ans]) => {
-          try {
-            setUserAnswer(qId, ans as string);
-          } catch {
-            // ignore per-question failures
-          }
-        });
         setQuizResult({
           ...data.result,
           completedAt: data.result.completedAt,

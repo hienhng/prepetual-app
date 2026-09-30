@@ -115,6 +115,7 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
     userAnswers, 
     setUserAnswer, 
     setQuizResult, 
+    completeQuiz,
     sourceMaterial, 
     setRevisedQuestionsCount, 
     setRetryCorrectCount, 
@@ -811,7 +812,7 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
 
       const result = await response.json();
       
-      setQuizResult(result);
+      await completeQuiz(result);
       setLocation("/quiz-results");
     } catch (error) {
       console.error("Error submitting quiz:", error);
