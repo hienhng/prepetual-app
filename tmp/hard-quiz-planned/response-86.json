@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-376bc5af-6348-43fb-9249-0c441f92a8ce",
+  "object": "chat.completion",
+  "created": 1791009734,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Bài tập vật lý nâng cao\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P39\",\"type\":\"selection\",\"recordIds\":[\"F14\"],\"intent\":\"Select all statements that are correct about the pressure in the hydraulic cylinder and the work done by the gas when a 24 kg student sits on the chair (total mass 30 kg) causing a 12 cm displacement, using the given piston area and atmospheric pressure.\",\"reasoningSteps\":[\"Compute total downward force: (24 kg+6 kg)·g = 300 N.\",\"Determine pressure increase in the cylinder: Δp = F/area = 300 N / (30 cm² = 3·10⁻³ m²) = 1·10⁵ Pa, then total absolute pressure = p₀+Δp = 2·10⁵ Pa.\"]},{\"id\":\"P40\",\"type\":\"true_false\",\"recordIds\":[\"F5\"],\"intent\":\"True/False: When the temperature of the gas in the tire rises from 27 °C to 54 °C while the volume stays constant, the pressure becomes 5.45 atm.\",\"reasoningSteps\":[\"Convert temperatures to Kelvin: T₁=27 °C+273=300 K, T₂=54 °C+273=327 K.\",\"Apply P₁/T₁ = P₂/T₂ → P₂ = P₁·T₂/T₁ = 5 atm·327/300 ≈ 5.45 atm.\"]},{\"id\":\"P41\",\"type\":\"selection\",\"recordIds\":[\"F12\"],\"intent\":\"Select all statements that correctly describe the magnitude and sign of the work done by the gas when the piston moves from 30 cm to 35 cm in a cylinder of diameter 20 cm at constant pressure 102 kPa.\",\"reasoningSteps\":[\"Calculate piston cross‑sectional area: A = π·(d/2)² = π·(0.20 m/2)² ≈ 3.14·10⁻² m².\",\"Find volume change ΔV = A·Δh = 3.14·10⁻² m²·0.05 m ≈ 1.57·10⁻³ m³, then work W = P·ΔV = 1.02·10⁵ Pa·1.57·10⁻³ m³ ≈ 1.60·10² J (positive).\"]},{\"id\":\"P42\",\"type\":\"true_false\",\"recordIds\":[\"F20\"],\"intent\":\"True/False: Raising the pressure in a constant‑volume container from 4 atm to 4.5 atm increases the gas temperature from 70 °C to 113.6 °C.\",\"reasoningSteps\":[\"Convert initial temperature to Kelvin: T₁ = 70 °C+273 = 343 K.\",\"Use P₁/T₁ = P₂/T₂ → T₂ = T₁·P₂/P₁ = 343 K·4.5/4 = 386.6 K, which corresponds to 386.6 K‑273 = 113.6 °C.\"]},{\"id\":\"P43\",\"type\":\"short_answer\",\"recordIds\":[\"F11\"],\"intent\":\"Calculate the amount of heat rejected (Q₂) by the refrigerator when its coefficient of performance is 3 and the compressor does 180 kJ of work per cycle.\",\"reasoningSteps\":[\"Compute heat absorbed from the cold space: Q₁ = COP·A = 3·180 kJ = 540 kJ.\",\"Apply energy balance Q₂ = Q₁ + A to obtain Q₂ = 540 kJ + 180 kJ = 720 kJ.\"]}]}",
+        "reasoning": "We need to produce JSON with title, category, plans array for slots P39-P43. Must use only reviewed source records. Each plan must identify source recordIds, intended task, reasoningSteps (at least two steps). Must be hard: at least two dependent reasoning steps, not trivial. Types: selection, true_false, short_answer. Must avoid accepted questions. Must not generate actual question content, just plan metadata. Provide intent description with conditions etc. Must not include answer. Use up to 3 records per plan, up to 4 source chunks. Provide reasoning steps.\n\nWe need to craft tasks using source records.\n\nSlots:\n\nP39 selection\nP40 true_false True\nP41 selection\nP42 true_false True\nP43 short_answer\n\nWe need distinct tasks, each using source records.\n\nLet's think of selection tasks: multiple correct options? selection type likely means select all that apply (multiple correct). Must have at least two reasoning steps.\n\nPotential sources:\n\n- F14 hydraulic chair equilibrium: can ask to select statements that are correct about pressures, forces, etc. Need at least two steps: compute pressure in cylinder using weight and area, then compare to statements.\n\n- F5 ideal gas pressure change with temperature constant volume: compute new pressure using P/T ratio, then evaluate statements.\n\n- F20 ideal gas temperature change constant volume: compute temperature from pressure ratio.\n\n- F12 work done by gas: compute work using ΔV and pressure.\n\n- F13 Charles law experiment: compute constant V/T, maybe derive expected volume at a temperature.\n\n- F17 pressure-temperature measurement: compute expected pressure from temperature using ideal gas law, then evaluate.\n\n- F11 refrigerator COP: compute Q2 using COP and work.\n\nWe need selection tasks: maybe from F14 and F5.\n\nTrue_false tasks: need statement that is true, derived.\n\nShort_answer: need derived numeric answer.\n\nLet's design:\n\nP39 selection: Use F14 (hydraulic chair). Provide scenario: compute pressure in cylinder when student sits, then select which statements are correct among list (we will not list options, just plan). Intent: \"Select all statements that are correct regarding the pressure in the cylinder and the work done by the gas.\" Reasoning steps: 1) Compute total weight = (student + seat) * g = (24+6)kg*10 = 300 N. 2) Pressure increase = weight/area = 300 N / (30 cm^2 = 30e-4 m^2 = 3e-3 m^2) = 100,000 Pa = 1e5 Pa. Add atmospheric pressure => total pressure = 2e5 Pa. Use this to evaluate statements.\n\nWe need source recordIds: F14. Maybe also need atmospheric pressure given in F14. That's enough.\n\nP40 true_false True: Use F5 ideal gas pressure change. Statement: \"When the temperature of the gas in the tire is raised from 27°C to 54°C while volume remains constant, the pressure increases to 5.45 atm.\" Need to compute: Convert to Kelvin: T1=300K, T2=327K. P2 = P1 * T2/T1 =5*327/300 =5.45 atm approx. So true. Reasoning steps: convert temps to K, apply P/T ratio.\n\nSource record: F5.\n\nP41 selection: Use F12 work done. Compute work done by gas: ΔV = A*Δh. Area = π*(0.2m/2)^2 = π*0.01^2? Wait diameter 20 cm =0.2 m radius 0.1 m, area = π*0.01 =0.0314 m^2. Δh =0.05 m. ΔV=0.00157 m^3. Pressure =102 kPa =102,000 Pa. Work = P*ΔV = 102,000*0.00157 ≈160 J. Positive work done by gas (expansion). So selection: choose statements that correctly describe sign and magnitude, etc. Reasoning steps: compute area, compute ΔV, compute work.\n\nSource record: F12.\n\nP42 true_false True: Use F20 temperature change. Statement: \"If the pressure in the constant‑volume container rises from 4 atm to 4.5 atm, the temperature rises to 77.5 °C.\" Compute: T1 = 70°C = 343 K. P2/P1 = 4.5/4 =1.125 => T2 = 1.125*343 =386.6 K => °C =113.6°C? Wait 386.6K -273 =113.6°C. Not 77.5°C. So need true statement. Let's compute correctly: maybe statement: \"The temperature becomes 113.6 °C.\" That's true. Provide that.\n\nReasoning steps: convert initial temp to K, apply P/T ratio, convert back.\n\nSource: F20.\n\nP43 short_answer: Use F11 refrigerator COP. Need derived result: compute Q2 (heat rejected) given COP=3 and work A=180 kJ. Q1 = COP*A =540 kJ. Q2 = Q1 + A =720 kJ. So short answer: \"720 kJ\". Provide plan: compute Q1 then Q2.\n\nSource: F11.\n\nAll tasks are hard with at least two steps.\n\nNow produce JSON with title, category, plans list.\n\nMake sure JSON compact (no spaces? but okay). Provide arrays.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.371898074,
+    "prompt_tokens": 10325,
+    "prompt_time": 0.713339369,
+    "completion_tokens": 1975,
+    "completion_time": 5.49700357,
+    "total_tokens": 12300,
+    "total_time": 6.210342939,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1152
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_4140daa9c2",
+  "x_groq": {
+    "id": "req_01m407z9tgesybqn8wp9em0wzh",
+    "seed": 364884340
+  },
+  "service_tier": "on_demand"
+}

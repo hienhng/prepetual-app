@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-09d315d3-e743-4e6c-a3df-fa1c73d4f92d",
+  "object": "chat.completion",
+  "created": 1791015798,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"reviews\":[{\"id\":\"F1\",\"accurate\":true,\"complete\":true,\"noUnresolvedData\":true,\"notDistractorFacts\":true,\"reason\":\"All givens, conditions, relationships and evidence exactly match the source text; no missing or contradictory data.\"},{\"id\":\"F2\",\"accurate\":true,\"complete\":true,\"noUnresolvedData\":true,\"notDistractorFacts\":true,\"reason\":\"All parameters, constraints, and relationships are faithfully reproduced from the source; no inconsistencies or extraneous facts are present.\"}]}",
+        "reasoning": "We need to produce JSON reviews for each record (F1 and F2). Must verify each record's data against original evidence. Check for accuracy, completeness, no unresolved data, not distractor facts. Provide reason.\n\nWe must ensure JSON compact, valid.\n\nWe need to assess each record: Are the givens correct as per source? Check values: For F1, mass of water 0,40 kg (comma decimal). Source text: \"0,40 kg\". That's correct. initial temperature 80°C correct. heat capacity of container 150 J/K correct. initial temp container 20°C correct. mass of ice 0,10 kg correct. initial temp ice -10°C correct. total energy loss 10000 J correct. specific heat water 4200 J/(kg·K) correct. specific heat ice 2100 correct. latent heat 334000 correct. melting temp 0°C correct. evaporation none correct.\n\nConditions: \"Năng lượng nước và bình tỏa ra bằng năng lượng đá nhận cộng tổn thất.\" matches source. \"Nếu năng lượng sẵn có không đủ để đá tan hết, cân bằng có thể còn cả nước và đá ở 0 độ C.\" matches source. Good.\n\nRelationships list matches source.\n\nThus record seems accurate, complete, no unresolved data, not distractor facts. So review true.\n\nF2: Check givens: Mode A heat extracted per cycle 540 kJ correct. electrical work 180 kJ correct. cycle time 60 s correct. Mode B heat extracted 600 kJ correct. electrical work 240 kJ correct. cycle time 40 s correct. heat rejected to surroundings \"Q_c + W\" matches source: \"Nhiệt thải ra ngoài bằng nhiệt lấy từ ngăn lạnh cộng công điện.\" So expression correct. COP definition \"Q_c / W\" correct. required total heat extraction 2160 kJ correct. maximum total operation time 200 s correct. maximum electrical energy budget 800 kJ correct. partial cycles allowed yes correct. switching time ignored correct.\n\nConditions list matches source. Relationships list matches source.\n\nThus accurate, complete, no unresolved, not distractor.\n\nThus both reviews true.\n\nProvide JSON with array of two objects.\n\nNeed fields: id, accurate, complete, noUnresolvedData, notDistractorFacts, reason.\n\nProvide specific assessment reason.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.370783767,
+    "prompt_tokens": 2337,
+    "prompt_time": 0.127907976,
+    "completion_tokens": 607,
+    "completion_time": 1.28694738,
+    "total_tokens": 2944,
+    "total_time": 1.414855356,
+    "completion_tokens_details": {
+      "reasoning_tokens": 486
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_0708ac49a5",
+  "x_groq": {
+    "id": "req_01m40drgb1etdsy2ebgmwntxxx",
+    "seed": 1934949413
+  },
+  "service_tier": "on_demand"
+}

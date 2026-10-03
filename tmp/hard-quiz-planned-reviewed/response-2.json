@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-cb3eb6e4-d716-4580-92a2-ec41756c9f37",
+  "object": "chat.completion",
+  "created": 1791010715,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"records\":[{\"topic\":\"Condensation on glass when exhaling\",\"kind\":\"problem\",\"blockIds\":[\"B3\"],\"givens\":[],\"conditions\":[\"warm, humid breath contacts a cooler glass surface\"],\"relationships\":[\"Condensation occurs when water vapor is cooled below its dew point, causing a phase change from gas to liquid and formation of droplets (gas‑liquid transition)\",\"Surface tension causes the condensed water to collect as small droplets that scatter light and appear as a mist\"]},{\"topic\":\"Balloon deformation and re‑expansion in hot water\",\"kind\":\"problem\",\"blockIds\":[\"B4\"],\"givens\":[],\"conditions\":[\"a partially collapsed rubber balloon is placed in a cup of hot water\"],\"relationships\":[\"According to the ideal‑gas law (PV=nRT), increasing the temperature of the gas inside the balloon raises its pressure if the volume is constrained, causing the balloon to expand when the rubber can stretch\",\"Charles’s law (V∝T at constant pressure) describes the increase in volume of the gas as its temperature rises, leading to the balloon re‑inflating\",\"The internal energy of an ideal gas is proportional to its temperature, so heating the gas increases its internal energy\"]}],\"excluded\":[{\"blockId\":\"B1\",\"reason\":\"administrative heading and exam instructions, no problem data\"},{\"blockId\":\"B2\",\"reason\":\"list of question numbers without content\"}]}",
+        "reasoning": "We need to extract up to eight useful concept/problem records from source blocks. The source blocks are mostly exam instructions and multiple-choice questions. We need to produce records describing coherent problem or concept, retaining givens, conditions, relationships. For MCQ, we can treat as concept description? The question describes phenomenon: condensation on window, and balloon deformation due to temperature. These are conceptual physics questions. We can create records for each.\n\nWe must not generate answers or explanations. Just record the problem description, givens (if any), conditions, relationships (like condensation is due to cooling of vapor, etc). But we must not guess missing data. We can list relationships that are standard laws applicable: e.g., condensation occurs when vapor reaches dew point; ideal gas law for balloon? But we need to ensure they are \"applicable established law\". That's okay.\n\nWe need to include blockIds referencing each record. For each record, include givens array; if there are no numeric givens, we can have empty givens? The schema expects givens list; could be empty. Provide conditions as textual condition.\n\nLet's create two records:\n\nRecord 1: Phenomenon of water droplets on window when breath hits glass. Topic: Condensation. Kind: problem. BlockIds: [\"B3\"]. Givens: none numeric. Could include given: \"breath (warm, humid air) contacting cold glass\". But not explicit in text. Might not include givens. Could leave givens empty array.\n\nConditions: \"warm moist air from breath contacts cooler glass surface\". Relationships: \"Condensation occurs when water vapor cools below its dew point, forming liquid droplets (phase change from gas to liquid)\". Also \"Surface tension leads to droplet formation\".\n\nRecord 2: Balloon deformation in hot water. Topic: Gas behavior in balloon. Kind: problem. BlockIds: [\"B4\"]. Givens: none numeric. Conditions: \"balloon initially deformed (móp) due to cooling, then placed in hot water causing expansion\". Relationships: \"Ideal gas law (PV=nRT) indicates internal pressure increases with temperature if volume can change; also Charles's law (V∝T) for constant pressure\". Also \"Internal energy of ideal gas proportional to temperature\".\n\nWe also need excluded list: maybe none. All blocks used are B3 and B4. B1 and B2 are just headings and numbering, not useful. Could list them as excluded with reason \"non‑problem content / only administrative text\". So include B1 and B2 excluded.\n\nReturn JSON compact format (no whitespace). Ensure valid JSON.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.356320939,
+    "prompt_tokens": 976,
+    "prompt_time": 0.046085734,
+    "completion_tokens": 828,
+    "completion_time": 1.756386244,
+    "total_tokens": 1804,
+    "total_time": 1.802471978,
+    "prompt_tokens_details": {
+      "cached_tokens": 256
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 536
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_77b12279f9",
+  "x_groq": {
+    "id": "req_01m408xc4yeyrt8sv5m2qmc4ww",
+    "seed": 401097640
+  },
+  "service_tier": "on_demand"
+}

@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-20862fa9-51b5-4ccb-8e7a-504ec7ddad4d",
+  "object": "chat.completion",
+  "created": 1791003538,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"reason\":\"The item matches the source language and register.\"}]}",
+        "reasoning": "We need to output JSON with evaluations array. There's one item index 0, type title, question \"Vật lý 12 Đề 3 - Khó\". The resolved QUIZ OUTPUT LANGUAGE is Vietnamese. The item is in Vietnamese. So sourceLanguage is Vietnamese, itemLanguage Vietnamese, isConsistent true, reason appropriate.\n\nWe must ensure JSON compact, no extra spaces? \"compact JSON formatting\". Provide exactly as required.\n\nThus output: {\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"reason\":\"The item matches the source language and register.\"}]}"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.358620153,
+    "prompt_tokens": 644,
+    "prompt_time": 0.084270048,
+    "completion_tokens": 180,
+    "completion_time": 0.378445197,
+    "total_tokens": 824,
+    "total_time": 0.462715245,
+    "completion_tokens_details": {
+      "reasoning_tokens": 131
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_96d96a151c",
+  "x_groq": {
+    "id": "req_01m4022cbqejf9j9bs2rm5gpar",
+    "seed": 61846870
+  },
+  "service_tier": "on_demand"
+}

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { and, eq, lt, ne, or, desc, sql } from "drizzle-orm";
 import { db } from "./db.js";
 import { quizzes, ragSources, quizGenerationDrafts as drafts, type QuizCategory } from "../shared/schema.js";
-import { generateQuizQuestions, type QuizGenerationParams } from "./openai.js";
+import { generateQuizQuestions, resolveQuizOutputLanguage, type QuizGenerationParams } from "./openai.js";
 import { indexRagSource } from "./rag.js";
 
 type Payload = {
@@ -48,6 +48,18 @@ export async function runGenerationDraft(draft: Draft, onProgress?: QuizGenerati
   }, 30_000);
   heartbeat.unref();
   try {
+    // Upgrade legacy drafts once and persist the decision before any model work.
+    if (!payload.generation.targetLanguage) {
+      payload.generation.targetLanguage = await resolveQuizOutputLanguage({
+        prompt: payload.generation.sourceRequest || (payload.generation.isPromptBased ? payload.generation.text : undefined),
+        materialText: payload.generation.isPromptBased ? undefined : payload.indexingText || payload.generation.text,
+        promptOnly: payload.generation.isPromptBased,
+        documentImages: payload.generation.documentImages,
+      });
+      const [saved] = await db.update(drafts).set({ payload }).where(ownsRun(draft)).returning();
+      if (!saved) throw new Error("This draft is being resumed by another request.");
+      draft = saved;
+    }
     if (!ready && payload.generation.ragGrounding) {
       const grounding = payload.generation.ragGrounding;
       const [source] = await db.select({ id: ragSources.id }).from(ragSources)

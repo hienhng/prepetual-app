@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-a4818adb-fd7f-4ad9-bf55-69804f78f7db",
+  "object": "chat.completion",
+  "created": 1791016037,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"evaluations\": [\n    {\n      \"index\": 0,\n      \"sourceLanguage\": \"Vietnamese\",\n      \"itemLanguage\": \"Vietnamese\",\n      \"isConsistent\": true,\n      \"answerCorrect\": true,\n      \"explanationConsistent\": true,\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"Giải quyết yêu cầu đòi hỏi thiết lập hệ bất phương trình gồm ràng buộc nhiệt, thời gian, công và COP, suy ra bất phương trình y ≤ 3x từ điều kiện COP ≥ 2.6, rồi tìm nghiệm thỏa mãn (x=7/3, y=3/2). Đây không chỉ là thay thế số mà còn yêu cầu suy luận ngược, kết hợp nhiều bất phương trình và chấp nhận chu kỳ phân số, do đó đáp ứng mức độ khó \\\"hard\\\".\",\n      \"reason\": \"All criteria passed.\"\n    }\n  ]\n}",
+        "reasoning": "We need to evaluate the single item.\n\nFirst, language consistency: question, options, explanation are Vietnamese with LaTeX. So isConsistent true.\n\nNow answer correctness: Need to solve the problem.\n\nGiven: Mode A: heat extracted Q_A = 540 kJ, electrical work W_A = 180 kJ, time t_A = 60 s. Mode B: Q_B = 600 kJ, W_B = 240 kJ, t_B = 40 s.\n\nConstraints: total heat extracted >= 2160 kJ, total time <= 200 s, total electrical work <= 800 kJ, COP >= 2.6. COP defined as total heat extracted / total electrical work.\n\nAlso they added constraint y <= 3x? Wait explanation includes inequality y ≤ 3x. Where does that come from? Not in problem statement. The problem statement didn't mention that. The explanation includes that inequality but not justified. Might be derived from COP >= 2.6? Let's compute COP condition: (540x+600y)/(180x+240y) >= 2.6.\n\nCompute numerator/denominator >= 2.6 => 540x+600y >= 2.6*(180x+240y) = 468x + 624y. Rearranged: (540-468)x + (600-624)y >=0 => 72x -24y >=0 => 3x - y >=0 => y <= 3x. Yes that's the derived inequality. So it's correct.\n\nNow we need to see if solution x=7/3, y=3/2 satisfies constraints.\n\nCompute:\n\nx = 7/3 ≈ 2.333..., y = 1.5.\n\nHeat: 540*7/3 = 540*2.333... = 1260? Let's compute: 540 * 7/3 = (540/3)*7 = 180*7 = 1260 kJ. Wait that's only from A. B: 600*1.5 = 900 kJ. Total = 1260+900 = 2160 kJ exactly meets requirement.\n\nTime: 60*7/3 = 60*2.333... = 140 s. B: 40*1.5 = 60 s. Total = 200 s exactly meets.\n\nWork: 180*7/3 = 180*2.333... = 420 kJ. B: 240*1.5 = 360 kJ. Total = 780 kJ <=800.\n\nCOP = 2160/780 = 2.769..., >=2.6.\n\nThus answer correct.\n\nExplanation consistency: explanation matches.\n\nNow selfContained: All needed data provided in stem: values for each mode, constraints. Yes.\n\nsourceSupported: The source chunk synthetic-physics-3 contains the same data. The explanation uses that. So source supports.\n\nhardReasoning: Need to solve linear inequalities with fractional cycles, derive COP inequality, find feasible solution. This is a linear programming problem; not routine substitution? It requires deriving inequality, solving system, maybe using reasoning. For hard difficulty, they require non-routine dependent inference, inverse constraints, etc. This seems moderate but could be considered hard because need to handle fractional cycles and combine constraints. I'd say hardReasoning true.\n\ncredibleDistractors: Options include plausible wrong answers: option 1 says impossible, option 3 says possible but COP only 2.5, option 4 says only A works but exceeds work. These are plausible misconceptions. So true.\n\nNow need to produce JSON with fields: index, sourceLanguage, itemLanguage, isConsistent, answerCorrect, explanationConsistent, selfContained, sourceSupported, hardReasoning, credibleDistractors, reasoningJustification, reason.\n\nReasoningJustification: Provide brief assessment.\n\nReason: If all passed, state \"All criteria passed.\"\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.371200729,
+    "prompt_tokens": 2992,
+    "prompt_time": 0.134188411,
+    "completion_tokens": 1043,
+    "completion_time": 2.181672894,
+    "total_tokens": 4035,
+    "total_time": 2.315861305,
+    "completion_tokens_details": {
+      "reasoning_tokens": 813
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_4140daa9c2",
+  "x_groq": {
+    "id": "req_01m40dzrbqeyer1fge8sme41e3",
+    "seed": 1323999541
+  },
+  "service_tier": "on_demand"
+}

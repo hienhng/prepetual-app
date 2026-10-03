@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-23e33969-8e84-443c-ab70-c0d4198ee5b8",
+  "object": "chat.completion",
+  "created": 1791009458,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"records\": [\n    {\n      \"topic\": \"Condensation of steam on a cold surface\",\n      \"kind\": \"problem\",\n      \"blockIds\": [\"B3\"],\n      \"givens\": [],\n      \"conditions\": [\"steam (water vapor) contacts a cold window glass\"],\n      \"relationships\": [\"condensation is the phase change from vapor to liquid when the temperature drops below the dew point\"]\n    },\n    {\n      \"topic\": \"Expansion of gas inside a balloon when heated in hot water\",\n      \"kind\": \"problem\",\n      \"blockIds\": [\"B4\"],\n      \"givens\": [],\n      \"conditions\": [\"a deflated balloon is placed in a cup of hot water and later returns to its original shape\"],\n      \"relationships\": [\"Ideal gas law (PV = nRT) and Charles's law (V ∝ T at constant pressure) describe the increase in gas volume as temperature rises\"]\n    }\n  ],\n  \"excluded\": [\n    {\n      \"blockId\": \"B1\",\n      \"reason\": \"exam header without substantive problem data\"\n    },\n    {\n      \"blockId\": \"B2\",\n      \"reason\": \"list of question numbers only, no content\"\n    }\n  ]\n}",
+        "reasoning": "We need to extract up to eight useful concept/problem/visual records from these source blocks. Each record must have topic, kind, blockIds, givens (if any), conditions, relationships. The source blocks are mostly exam instructions and multiple-choice questions. There are no numeric givens. So likely we have records describing concepts: condensation, gas behavior in heated water (ideal gas law). We need to list them as records. No quotes, no UUIDs, no answers. Just description of problem/concept.\n\nWe must not produce wrongAnswerExplanations. Just records.\n\nWe need to include blockIds referencing each record. For each record, we need givens array; if none, can be empty? The schema expects givens list; we can provide empty array.\n\nConditions: maybe \"when steam contacts cold glass\" etc.\n\nRelationships: applicable law like \"condensation is phase change from vapor to liquid\" or \"ideal gas law (PV=nRT)\". Provide as strings.\n\nWe also need excluded list for any blocks that are not usable. B2 is just numbers list, not useful. So we can put excluded with reason.\n\nWe have B1 (exam header) not a problem. Could be excluded. B3 is a multiple-choice question about condensation. That's a concept record. B4 is about gas inside ball heated in water, concept of gas expansion due to temperature increase (ideal gas law). Also includes visual illustration.\n\nThus we can produce two records.\n\nTopic: Phase change condensation. Kind: problem (multiple-choice). BlockIds: [\"B3\"]. Givens: none. Conditions: \"steam contacting window glass\". Relationships: \"condensation (gas to liquid)\". Could also mention \"latent heat release\".\n\nSecond record: Gas behavior in heated water (balloon). Topic: Gas expansion due to temperature increase. Kind: problem. BlockIds: [\"B4\"]. Givens: none. Conditions: \"balloon submerged in hot water\". Relationships: \"Ideal gas law (PV=nRT) indicates pressure constant, volume increases with temperature\". Also \"Charles's law\".\n\nReturn JSON compact.\n\nMake sure JSON is valid, no trailing commas.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.365723528,
+    "prompt_tokens": 964,
+    "prompt_time": 0.045120855,
+    "completion_tokens": 704,
+    "completion_time": 1.476127582,
+    "total_tokens": 1668,
+    "total_time": 1.5212484370000001,
+    "completion_tokens_details": {
+      "reasoning_tokens": 442
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_c652c0ffaa",
+  "x_groq": {
+    "id": "req_01m407q0mxe32atyfcan8prma3",
+    "seed": 853687659
+  },
+  "service_tier": "on_demand"
+}

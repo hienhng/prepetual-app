@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from "react";
+import { decodeUploadedFileName } from "@shared/upload-filename";
 
 interface UploadJob {
   jobId: string;
   fileName: string;
   fileType: string;
+  fileSize?: number;
   status: "pending" | "processing" | "completed" | "error";
   progress: number;
   message: string;
@@ -13,6 +15,7 @@ interface UploadJob {
   isOfficeWithImages?: boolean;
   documentImages?: string[];
   isImageOnly?: boolean;
+  accepted?: boolean;
 }
 
 interface UploadContextType {
@@ -20,6 +23,8 @@ interface UploadContextType {
   startUpload: (files: File[]) => Promise<void>;
   clearJobs: () => void;
   removeJob: (jobId: string) => void;
+  acceptJobs: (jobIds: string[]) => void;
+  discardPendingUploads: () => void;
   pollJobStatus: () => Promise<void>;
   getCombinedText: () => string;
   getCombinedDocumentImages: () => string[];
@@ -43,7 +48,12 @@ export function UploadProvider({ children }: { children: ReactNode }) {
     try {
       const stored = sessionStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const jobs: UploadJob[] = JSON.parse(stored);
+        const restoredJobs = jobs.map(job => ({
+          ...job,
+          fileName: decodeUploadedFileName(job.fileName),
+        }));
+        return restoredJobs;
       }
     } catch {}
     return [];
@@ -173,8 +183,10 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       const isImage = file.type.startsWith("image/");
       return {
         jobId: jobData.jobId,
-        fileName: jobData.fileName || file.name,
+        // File.name is already Unicode; multipart header decoding can corrupt it.
+        fileName: file.name,
         fileType: file.type,
+        fileSize: file.size,
         status: jobData.status,
         progress: jobData.progress ?? 5,
         message: jobData.message,
@@ -183,6 +195,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
         isOfficeWithImages: jobData.isOfficeWithImages || false,
         documentImages: jobData.documentImages || [],
         isImageOnly: jobData.isImageOnly || false,
+        accepted: false,
         // Store image data URL for preview
         imageDataUrl: isImage ? imageDataUrls.get(file.name) : undefined,
       };
@@ -211,6 +224,24 @@ export function UploadProvider({ children }: { children: ReactNode }) {
     try {
       await fetch(`/api/upload-job/${jobId}`, { method: "DELETE" });
     } catch {}
+  }, [activeJobs, saveJobs]);
+
+  const acceptJobs = useCallback((jobIds: string[]) => {
+    jobsEpochRef.current += 1;
+    saveJobs(activeJobs.map(job => jobIds.includes(job.jobId) && job.status === "completed"
+      ? { ...job, accepted: true }
+      : job));
+  }, [activeJobs, saveJobs]);
+
+  const discardPendingUploads = useCallback(async () => {
+    const pendingUploads = activeJobs.filter(job => job.accepted === false);
+    jobsEpochRef.current += 1;
+    saveJobs(activeJobs.filter(job => job.accepted !== false));
+    await Promise.all(pendingUploads.map(async job => {
+      try {
+        await fetch(`/api/upload-job/${job.jobId}`, { method: "DELETE" });
+      } catch {}
+    }));
   }, [activeJobs, saveJobs]);
 
   const getCombinedText = useCallback(() => {
@@ -271,6 +302,8 @@ export function UploadProvider({ children }: { children: ReactNode }) {
       startUpload, 
       clearJobs, 
       removeJob,
+      acceptJobs,
+      discardPendingUploads,
       pollJobStatus, 
       getCombinedText,
       getCombinedDocumentImages,

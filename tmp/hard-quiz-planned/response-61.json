@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-756c811d-f272-47a0-bff2-7a7660b6a602",
+  "object": "chat.completion",
+  "created": 1791009589,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"title\":\"Bộ câu hỏi vật lý nhiệt động lực học nâng cao\",\n  \"category\":\"categories.science\",\n  \"plans\":[\n    {\n      \"id\":\"P28\",\n      \"type\":\"true_false\",\n      \"recordIds\":[\"F5\"],\n      \"intent\":\"Xác định áp suất mới của khí trong lốp khi nhiệt độ tăng từ 27 °C lên 54 °C, giữ thể tích không đổi, và khẳng định rằng áp suất tăng lên 5,45 atm.\",\n      \"reasoningSteps\":[\n        \"Chuyển đổi nhiệt độ sang Kelvin: T1=27+273=300 K, T2=54+273=327 K.\",\n        \"Áp dụng định luật khí lý tưởng ở thể tích không đổi: P1/T1 = P2/T2 → P2 = P1·T2/T1 = 5 atm·327/300 ≈ 5,45 atm.\"\n      ]\n    },\n    {\n      \"id\":\"P29\",\n      \"type\":\"short_answer\",\n      \"recordIds\":[\"F12\"],\n      \"intent\":\"Tính công thực hiện bởi khí khi piston di chuyển lên 5 cm trong xilanh có đường kính 20 cm và áp suất không đổi 102 kPa.\",\n      \"reasoningSteps\":[\n        \"Tính diện tích mặt cắt của xilanh: A = π·(d/2)^2 = π·(0.20 m/2)^2 = π·0.01 m² ≈ 0,0314 m².\",\n        \"Tính thay đổi thể tích: ΔV = A·Δh = 0,0314 m²·0,05 m ≈ 1,57×10⁻³ m³.\",\n        \"Công thực hiện: W = P·ΔV = 102 000 Pa·1,57×10⁻³ m³ ≈ 1,60×10² J.\"\n      ]\n    },\n    {\n      \"id\":\"P30\",\n      \"type\":\"multiple_choice\",\n      \"recordIds\":[\"F14\"],\n      \"intent\":\"Xác định áp suất tuyệt đối trong xi lanh khi một học sinh 24 kg ngồi lên ghế, biết tổng khối lượng ghế + xi lanh là 6 kg, diện tích piston 30 cm², độ hạ 12 cm và áp suất khí quyển 1,0×10⁵ Pa; lựa chọn đáp án đúng trong bốn lựa chọn.\",\n      \"reasoningSteps\":[\n        \"Tính tổng lực trọng lượng: F = (24 kg + 6 kg)·g = 30 kg·10 m/s² = 300 N.\",\n        \"Chuyển đổi diện tích piston sang mét vuông: S = 30 cm² = 30×10⁻⁴ m² = 0,003 m².\",\n        \"Tính tăng áp suất do trọng lượng: Δp = F/S = 300 N / 0,003 m² = 1,0×10⁵ Pa.\",\n        \"Áp suất tuyệt đối trong xi lanh: p = p₀ + Δp = 1,0×10⁵ Pa + 1,0×10⁵ Pa = 2,0×10⁵ Pa.\"\n      ]\n    }\n  ]\n}",
+        "reasoning": "We need to produce JSON with title, category, plans for slots P28 true_false True, P29 short_answer, P30 multiple_choice. Use only reviewed source records. Must not use accepted question. Must be hard, with at least two reasoning steps. Use up to 3 records per plan, max 4 source chunks.\n\nWe need to pick source records that can support tasks.\n\nWe have many physics thermodynamics problems. For true_false, need a statement that is true based on derived conclusion. Use maybe F5 (ideal gas law pressure change with temperature constant volume). Could ask: If temperature doubles, pressure doubles. Provide specific numbers.\n\nWe need targetTruthValue True. Provide statement: \"Khi nhiệt độ của khí trong lốp tăng từ 27°C lên 54°C, áp suất tăng lên 5.45 atm.\" Need to compute using ideal gas law. Let's compute: Convert to Kelvin: T1 = 27+273=300 K, T2 = 54+273=327 K. P1=5 atm. P2 = P1 * T2/T1 =5*327/300=5*1.09=5.45 atm approx. So statement true. Provide reasoning steps: convert to K, apply P/T constant.\n\nFor short_answer, need derived result not just recall. Could use F12 (work done by gas). Ask to compute magnitude of work done (positive) given data. Must compute: diameter 20 cm => radius 10 cm =0.1 m. Area = π r^2 = π*0.01 =0.0314159 m^2. Δh = 5 cm =0.05 m. ΔV = A*Δh =0.0314159*0.05=0.0015708 m^3. Pressure =102 kPa =102,000 Pa. Work = P*ΔV =102,000*0.0015708 ≈160.22 J. So answer about 160 J. Provide short answer: 1.6×10^2 J. Need reasoning steps: compute area, volume change, multiply.\n\nFor multiple_choice, need a hard question with distractors. Use maybe F14 (hydraulic chair) to ask about pressure in cylinder when student sits, requiring equilibrium calculations. Need at least two steps: compute force weight, pressure increase, add atmospheric. Provide options with plausible errors.\n\nLet's compute: total mass seat+ cylinder =6 kg, student 24 kg, total weight = (6+24)*g =30*10=300 N. Displacement 12 cm =0.12 m. Piston area S =30 cm^2 =30*1e-4 m^2 =0.003 m^2. Pressure increase Δp = Force / Area =300 /0.003 =100,000 Pa =1e5 Pa. Atmospheric pressure p0=1e5 Pa. So absolute pressure inside cylinder = p0 + Δp =2e5 Pa =2×10^5 Pa. That's 2.0×10^5 Pa. Options: correct 2.0×10^5 Pa. Distractors: maybe 1.2×10^5 Pa (mistake forgetting weight of seat), 1.5×10^5 Pa (partial), 2.5×10^5 Pa (overestimate). Provide four options.\n\nNeed to ensure source records: use F14 for data. Also maybe need g value given. It's in F14. So plan uses record F14 only.\n\nNow construct JSON with title, category \"categories.science\". Plans list with id, type, recordIds, intent, reasoningSteps.\n\nMake sure reasoningSteps list strings.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.341224286,
+    "prompt_tokens": 10073,
+    "prompt_time": 0.458658282,
+    "completion_tokens": 1514,
+    "completion_time": 3.197838739,
+    "total_tokens": 11587,
+    "total_time": 3.656497021,
+    "completion_tokens_details": {
+      "reasoning_tokens": 772
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_5082008e34",
+  "x_groq": {
+    "id": "req_01m407ty8te48bp0hqr9904a93",
+    "seed": 1601467772
+  },
+  "service_tier": "on_demand"
+}

@@ -1,0 +1,302 @@
+(Page 1)
+Vật lý 12
+Th.S Trần Văn Quang; 0979468229
+ĐỀ SỐ 3: THI THỬ GIỮA HK1
+Họ và tên học sinh :………………………………………………….Lớp: …………....
+PHẦN I: CÂU TRẮC NGHIỆM NHIỀU PHƯƠNG ÁN LỰA CHỌN
+Thí sinh trả lời từ câu 1 đến câu 18. Mỗi câu hỏi thí sinh chỉ chọn 1 phương án.
+1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18.
+
+Câu 1: Khi hà hơi vào mặt kính cửa sổ sẽ xuất hiện những giọt nước li ti làm mờ kính. Đây là hiện tượng
+A. đông đặc.
+B. bay hơi.
+C. ngưng kết.
+D. ngưng tụ.
+
+Câu 2: Hiện tượng quả bóng bàn bị móp (hình a) (nhưng chưa bị thủng) khi thả vào cốc nước nóng sẽ phồng trở lại (hình b) là do
+A. nội năng của chất khí bên trong quả bóng tăng lên.
+B. nội năng của chất khí bên trong quả bóng giảm xuống.
+C. nội năng của chất khí bên trong quả bóng không thay đổi.
+D. nội năng của chất khí bên trong quả bóng bị mất đi.
+[Hình minh họa Câu 2: Hai ảnh chụp. Ảnh (a): một quả bóng bàn màu trắng, bề mặt nhẵn, đặt trên nền xám. Ảnh (b): một cốc thủy tinh trong suốt có quai, bên trong chứa một quả bóng bàn màu trắng; một mũi tên màu đỏ chỉ từ dưới lên vào cốc.]
+
+Câu 3: Một gia đình đang chuẩn bị bữa ăn ngoài trời vào mùa hè. Họ muốn làm tan và đun nóng 4 kg nước đá từ 0°C để có nước 25°C cho thức uống của mình. Bạn hãy tính xem cần bao nhiêu nhiệt lượng để chuyển nước đá này thành nước ở 25°C. Biết rằng nhiệt nóng chảy riêng của nước đá là 34.10^5 J/kg và nhiệt dung riêng của nước là 4180 J/kg.K?
+A. 1694 kJ.
+B. 1896 kJ.
+C. 2123 kJ.
+D. 14018 kJ.
+
+Câu 4: Một bệnh viện cần khử trùng dụng cụ y tế bằng hơi nước. Họ đã sử dụng nồi hơi để làm nóng nước từ nhiệt độ phòng 25°C đến khi nước chuyển hoàn toàn thành hơi ở 100°C. Biết rằng mỗi lần khử trùng, bệnh viện cần đun sôi 10 kg nước. Nhiệt hóa hơi riêng của nước ở 100°C là 2,26.10^6 J/kg và nhiệt dung riêng của nước là 4200 J/kg.K. Nhiệt lượng cần thiết để làm cho 10 kg nước ở 25°C chuyển hoàn toàn thành hơi nước ở 100°C
+A. 25750 kJ.
+B. 3150 kJ.
+C. 22600 kJ.
+D. 169500 kJ.
+[Hình minh họa Câu 4: Ảnh chụp một nữ y tá mặc áo blouse xanh, đội mũ và đeo khẩu trang, đang đứng trước một nồi hấp khử trùng (autoclave) màu trắng, tay cầm khay dụng cụ đưa vào khoang mở của máy.]
+
+Câu 5: Trường hợp nội năng của vật bị biến đổi không phải do truyền nhiệt là
+A. khi trời lạnh, ta xoa hai bàn tay vào nhau cho ấm lên.
+B. mưa làm cho không khí mát mẻ.
+C. thau nước để nắng khi nóng lên.
+D. cho cơm nóng vào chén thì bưng chén cũng thấy nóng.
+
+Câu 6: Một chiếc lốp ô tô chứa không khí ở áp suất 5 atm, nhiệt độ 27°C. Khi xe chạy, nhiệt độ của khí trong lốp tăng lên đến 54°C, coi thể tích lốp xe không thay đổi, áp suất không khí trong lốp khi đó là
+A. 10 atm.
+B. 5,45 atm.
+C. 4,55 atm.
+D. 10,45 atm.
+
+Câu 7: Một bình kín có thể tích 12 lít, chứa nitrogen ở áp suất 80 atm có nhiệt độ 17°C, xem nitrogen là khí lí tưởng. Biết khối lượng mol của nitrogen là 28 g/mol. Khối lượng nitrogen trong bình xấp xỉ bằng
+A. 1,13 kg.
+B. 1,13 g.
+C. 0,113 g.
+D. 0,113 kg.
+
+Câu 8: Để thuận tiện rút thuốc từ lọ thuốc kín y tá thường sử dụng ống tiêm để bơm một lượng nhỏ khí vào lọ thuốc như hình vẽ, một chai thuốc có thể tích 0,9 ml và chứa 0,5 ml thuốc, áp suất của khí trong lọ là 10^5 Pa. Một lượng khí trong ống tiêm có tiết diện 0,3 cm^2 dài 0,4 cm và áp suất 10^5 Pa được y tá bơm vào lọ thuốc. Biết nhiệt độ bên trong và bên ngoài lọ thuốc bằng nhau và không thay đổi. Áp suất của lượng khí mới trong lọ thuốc là
+A. 7,7.10^4 Pa.
+B. 1,3.10^5 Pa.
+C. 3,0.10^4 Pa.
+D. 1,5.10^5 Pa.
+[Hình minh họa Câu 8: Sơ đồ vẽ một ống tiêm (syringe) đứng thẳng, thân ống có vạch chia, pittông ở phía dưới, đầu kim hướng lên trên cắm vào một lọ/chai thuốc nhỏ chứa chất lỏng (có vạch mức chất lỏng bên trong), nắp lọ có lỗ để kim xuyên qua.]
+
+Trường THPT Lương Thế Vinh – Hà Nội
+Trang 1- Mã đề 188
+
+(Page 2)
+Vật Lý 12
+Th.S TrầnVăn Quang; 0979468229
+
+Câu 9: Hình ben phải là đò thỉ mò tả sụ bién đỗi trạtn thài của 1 mol khi lí tươ ng trong hê toạ đọ (V; T). Đò thỉ của sụ bién đỗi trạtn thài tron trong hê toạ đọ (p, T) tươ ng ứpng vói hinh
+
+[Đồ thỉ toạ đọ (V; T) – hinh ben phai]
+- Trục tung V, trục hoành T, gốc O.
+- Điểm 1 (nôi, nằmtren đườ ng nét đứt tu O), 2 (trên phả i), 3 (dướ i phả i).
+- Đườ ng nè t: 1–2 (chéo lên phả i), 2–3 (thẳng đứ ng xuông), 3–1 (nằ m ngang sang trá i); đườ ng nét đứt O–1.
+
+[Đò thỉ a)]
+- Trục tung p, trục hoành T, gốc O.
+- Điểm 1 (trên trá i), 3 (dướ i trâ i), 2 (dướ i phả i).
+- Đườ ng nè t: 1–2 (đườ ng cong lồi xuông phả i), 3–2 (nằ m ngang), 1–3 (thẳng đứ ng).
+
+[Đò thỉ b)]
+- Trục tung p, trục hoành T, gốc O.
+- Điểm 3 (giữa trá i), 2 (trên phả i), 1 (dướ i phả i).
+- Đườ ng nè t: 2–3 (chéo xuông trâ i), 3–1 (nằ m ngang), 1–2 (thẳng đứ ng); đườ ng nét đứt O–3.
+
+[Đò thỉ c)]
+- Trục tung p, trục hoành T, gốc O.
+- Điểm 3 (trên trá i), 1 (dướ i trâ i), 2 (dướ i phả i).
+- Đườ ng nè t: 1–3 (đườ ng cong lồi lê n trâ i), 3–2 (chéo xuông phả i), 1–2 (nằ m ngang).
+
+[Đò thỉ d)]
+- Trục tung p, trục hoành T, gốc O.
+- Điểm 3 (trên trâ i), 1 (dướ i trâ i), 2 (dướ i phả i).
+- Đườ ng nè t: 1–2 (nằ m ngang), 2–3 (thẳng đứ ng lê n), 3–1 (đườ ng cong lồi).
+
+A. Hinh d.
+B. Hinh c.
+C. Hinh a.
+D. Hinh b.
+
+Câu 10: Hinh ben mô tả mối liên hẹ giửa hai thang do nhiêt đọ X và Y. Khi nhiêt đọ là 68°Y sê tươ ng ứpng vói nhiêt đọ tren thang đọ X là bào nhiêu?
+
+[Đò thỉ Câu 10]
+- Trục tung (°Y), trục hoành (°X), gốc 0.
+- Trục tung có các giâ tri 32 và 212 (212 có đườ ng nét ngang). Trục hoành có các giâ tri 0 và 100 (100 có đườ ng nét đứ ng).
+- Đườ ng thẳng đi qua điểm (0; 32) và (100; 212), kéo dài lê n phả i.
+
+A. 28°X.
+B. 20°X.
+C. 42°X.
+D. 30°X.
+
+Câu 11: Một ngườ i thợ sửa xe phât hiên tren mot số bô phâ n bằ ng kim loạ i nhôm của chiê c xe bi hỏ ng. Đê hàn mot thảnh nhôm bi gâý, ngườ i dó dung mot mó hàn có công suât 1,7 kW. Muôn hàn kin, cânlam nong chây 20 g nhôm ỏ chỏ gâý. Biêt nhiêt đọ ban dau cua thảnh nhôm là 25°C; nhiêt đọ nong chây, nhiêt dung riê ng và nhiêt nong chây riê ng cua nhôm lăn lựt là 660°C, 880 J/kg.K và 4.10^5 J/kg. Thơi giân tù lúcb đâù hàn đên lúct thảnh nhôm nong chây hoản toản là 20 s. Hiêu suât cua quâ trinh hàn này là
+A. 53,5%.
+B. 56,4%.
+C. 63,5%.
+D. 76,4%.
+
+Câu 12: Môt lựong khi lí tươ ng xac đinh ỏ trạtn thài có á suât p1, the tich V1, nhiêt đọ T1 thuc hiên mot quâ trinh bién đỗi trạtn thài đên trạtn thài có á suât p2, the tich V2, nhiêt đọ T2. Phuong trinh thuc dung?
+A. p1V1 = p2V2.
+B. V1/T1 = V2/T2.
+C. p1/T1 = p2/T2.
+D. (p1V1)/T1 = (p2V2)/T2.
+
+Câu 13: Môt hoc sinh thuc hiên thí nghiêm do nhiêt dung riê ng cua nươc vói sô đâ bô tri thí nghiêm nhur hinh vè. Tông dó, binh nhiêt lựong kè chừa 150 g nươc có nhiêt đọ ban đâù là 62°C. Sô chi vôn kè và ampe kè lăn lựt là 1,6 V và 2,5 A. Sau khoăng thơi giân 8 phút 50 giâý thi thây nhiêt đọ cua nươc tăng lê n 65,5°C. Bô qua nhiêt lựong ma binh nhiêt lựong kè và dũa khuyêý thu vào. N hiêt dung riê ng cua nươc trong thí nghiêm này xấp xĩ bàng
+
+[Sô đâ thí nghiêm – Câu 13]
+- Môt mạch hinh chù nhât, nè t tiê p: pin (dấu + và −), công tă c K, ampe kè A (hinh tròn), và dây đườ ng nong (dây zíc zắc mầu đỏ) nhúng trong côm.
+- Vôn kè V (hinh tròn) nè t song song vói dây đườ ng nong.
+- Côm chừa chât lỏ ng; nhiêt kè (°C) đươ c đút vào chât lỏ ng bên câ nh dây nong.
+
+A. 4032 J/kg.K.
+B. 4083 J/kg.K.
+C. 4038 J/kg.K.
+D. 4023 J/kg.K.
+
+Câu 14:Trong công nghiêp ngườ i ta dung công nghiêp Laze đê khoan, cât mot tẩm thép. Biêt trong 2 giâý chum tia Laze sinh ra nâng lự trung binh là 40 J. Coi chum tia Laze có dang hinh trư có đừong kính d = 1,2 mm và bẻ dày tẩm thép cân khoan là h. Biêt tẩm thép có nhiêt đọ trươc khi khao an là t1 = 35°C, khôi lựong riê ng cua tẩm thép là ρ = 7800 kg/m^3, nhiêt dung riê ng cua tẩm thép là c = 440 J/(kg.K), nhiêt nong chây riê ng cua tẩm thép là λ = 270 kJ/kg, nhiêt đọ nong chây cua thép là t = 1535°C. Thơi giân khoan thung tẩm thép là 1,845 s. Giâ tri cua h là
+
+[Hinh anh – Câu 14]
+- Môt hinh chup hiê n đầ u khoan Laze hinh trô n (kim loạ i, có mui phún) nằ m phia tren môt tẩm kim loạ i mầu tói; có tia lỏ a mầu cam sâ ng ỏ chổ tia chiê u xuông bằ ng tẩm.
+
+A. 3,0 mm.
+B. 4,5 mm.
+C. 3,5 mm.
+D. 9,0 mm.
+
+Trườ ng THPT Lươ ng Thế Vinh – Ha Nôi
+Trang 2 - Mã đê 188
+
+(Page 3)
+Vật lý 12
+Th.S Trần Văn Quang; 0979468229
+
+Câu 15: Một phương pháp điều trị được đề xuất cho người bị đột quỵ là ngâm mình trong bồn nước đá tại 0°C để hạ nhiệt độ cơ thể, ngăn ngừa tổn thương não. Trong một loạt thử nghiệm, bệnh nhân được làm mát cho đến khi nhiệt độ bên trong của họ đạt tới nhiệt độ 32°C. Nhiệt dung riêng của cơ thể người là 3480 J/kg.K và nhiệt nóng chảy riêng của nước đá là 334.10³ J/kg, xem như nhiệt độ bình thường của cơ thể người là 37°C. Để điều trị cho một bệnh nhân nặng 70,0 kg, lượng đá tối thiểu ở 0°C bạn cần cho vào bồn tắm là bao nhiêu để nhiệt độ của nó duy trì ở 0°C?
+A. 3,6 kg.
+B. 7,3 kg.
+C. 5,2 kg.
+D. 4,2 kg.
+
+Câu 16: Đưa 1 g nước đá được ở 0°C được vào một nhiệt lượng kế chứa 1 g nước ở 40°C. Bỏ qua nhiệt dung của nhiệt lượng kế. Biết nhiệt nóng chảy riêng của nước đá là 3,36.10⁵ J/kg và nhiệt dung riêng của nước là 4200 J/kg.K. Trạng thái cân bằng của hệ gồm
+A. 1,5 g nước và 0,5 g nước đá.
+B. 1,4 g nước và 0,8 g nước đá.
+C. 0,75 g nước và 1,25 g nước đá.
+D. 1,25 g nước và 0,75 g nước đá.
+
+Câu 17: Khi tủ lạnh bắt đầu một chu trình hoạt động, môi chất làm lạnh đi qua van tiết lưu, bay hơi và hấp thụ nhiệt lượng Q₁ từ buồng mát. Sau đó, môi chất được máy nén nén lại, nhận công A, ngưng tụ và tỏa nhiệt lượng Q₂ ra ngoài qua dàn nóng. Kết thúc quá trình, môi chất trở lại trạng thái ban đầu để chuẩn bị cho chu trình kế tiếp. Hệ số làm lạnh của tủ lạnh COP là tỉ số Q₁/A. Một tủ lạnh loại vừa có hệ số làm lạnh COP = 3. Trong một chu trình, môi chất làm lạnh nhận công A=180kJ từ máy nén, nhiệt lượng Q₂ mà môi chất làm lạnh thải ra môi trường ở dàn nóng là
+A. 720 kJ.
+B. 180 kJ.
+C. 360 kJ.
+D. 540 kJ.
+
+Câu 18: Một khối khí lí tưởng được chứa trong xilanh với pit-tông có thể chuyển động lên xuống theo phương thẳng đứng. Đường kính xilanh là 20 cm, áp suất khí là 102 kPa và ban đầu pit-tông cách đáy xilanh 30 cm như hình vẽ. Sau đó, khối khí được đốt nóng và đẩy pit-tông lên độ cao 35 cm so với đáy. Giả thiết áp suất của khối khí thay đổi không đáng kể, công của khối khí trong quá trình dịch chuyển pit-tông là
+A. – 0,16 J.
+B. –160 J.
+C. 0,16 J.
+D. 160 J.
+[Hình vẽ: xilanh đứng chứa khí, pit-tông có hai vị trí được đánh dấu "Vị trí ban đầu" (30 cm) và "Vị trí sau" (35 cm) so với đáy; các nhãn: Pit tông, Vị trí sau, Vị trí ban đầu, Khí, Xi lanh; kích thước ghi 35cm, 30cm, 20cm.]
+
+PHẦN II: CÂU TRẮC NGHIỆM ĐÚNG – SAI.
+Câu 1: Một học sinh đã sử dụng bộ thí nghiệm (hình dưới) để tìm hiểu về mối liên hệ giữa nhiệt độ và thể tích của một lượng khí xác định khi giữ áp suất của khí không đổi. Trình tự thí nghiệm:
+- Đọc giá trị nhiệt độ và thể tích của khí trong xilanh lúc đầu (xilanh chứa khí và nhiệt độ phòng).
+- Đổ nước nóng vào hộp chứa cho ngập hoàn toàn xilanh.
+- Dịch pít-tông từ từ sao cho số chỉ áp kế không thay đổi.
+- Đọc giá trị của nhiệt độ và thể tích phần chứa khí trong xilanh;
+- Lặp lại các thao tác và ghi lại kết quả thí nghiệm vào bảng bên.
+[Hình vẽ bộ thí nghiệm: Áp kế, Xi lanh, Pit tông, Tay quay, Cảm biến nhiệt độ, Hộp chứa nước nóng.]
+
+Bảng:
+Lần đo | Nhiệt độ của khí trong xilang t(°C) | Thể tích khí trong xilanh V(cm³)
+1 | 60 | 85
+2 | 55 | 83
+3 | 48 | 80
+4 | 42 | 79
+5 | 39 | 78
+
+Trường THPT Lương Thế Vinh – Hà Nội
+Trang 3- Mã đề 188
+
+(Page 4)
+Vật lý 12
+Th.S Trần Văn Quang; 📞 0979468229
+
+Nhận định | Đ/S
+a. Học sinh này đã sử dụng phương pháp thực nghiệm trong nghiên cứu Vật lý. |
+b. Với kết quả thu được ở bảng bên, công thức liên hệ thể tích theo nhiệt độ là V/T = 0,250 trong đó V đo bằng cm³, T đo bằng °K. |
+c. Thể tích lượng khí trong xi lanh khi ở nhiệt độ phòng 25°C là 68 cm³. |
+d. Thí nghiệm này đã kiểm chứng định luật Charles. |
+
+Câu 2: Như trong hình, một chiếc ghế nâng hạ bằng khí thông qua chuyển động lên xuống của xi lanh nối với mặt ghế, thanh nén khí cố định trên đế bịt kín một lượng khí trong xi lanh. Bỏ qua ma sát giữa thanh nén và xi lanh. Tổng khối lượng của mặt ghế và xi lanh là 6 kg, tiết diện của thanh nén là S = 30cm². Một học sinh nặng 24 kg ngồi lên ghế (hai chân để lơ lửng không chạm mặt sàn) thì ghế hạ xuống 12cm khi ổn định. Coi nhiệt độ của khí trong xi lanh không đổi, áp suất khí quyển là p₀ = 10⁵ Pa. Lấy g = 10m/s².
+
+[Hình minh họa Câu 2: Một ghế gồm mặt ghế hình elip nằm ngang ở trên, gắn với một thanh nén (dạng piston) đi xuống vào một xi lanh hình trụ đứng. Các nhãn: "Mặt ghế" chỉ mặt ghế; "Xi lanh" chỉ thân xi lanh; "Thanh nén" chỉ thanh piston.]
+
+Nhận định | Đ/S
+a. Quá trình ghế hạ xuống, khí trong xi lanh thực hiện công. |
+b. Khi ghế để trống, áp suất khí trong xi lanh là 1,2.10⁵ Pa. |
+c. Khi học sinh ngồi trên ghế, áp suất khí trong xi lanh là 2.10⁵ Pa. |
+d. Khi ghế để trống, cột khí trong xi lanh dài là 20 cm. |
+
+Câu 3: Một nhà máy điều chế khí oxygen và sau đó san sang các bình có dung tích 5000 lít. Khí oxygen được bơm vào các bình ở điều kiện tiêu chuẩn (0°C, 1 atm). Sau 30 phút bơm thu được một bình chứa khí ở nhiệt độ 24°C và áp suất 1,1 atm. Biết ở điều kiện tiêu chuẩn, khối lượng riêng của khí oxygen là 1,43 kg/m³. Coi quá trình bơm diễn ra đều đặn và liên tục. Lấy hằng số khí lí tưởng R = 0,082 atm.lít/mol.K.
+
+[Hình minh họa Câu 3: Hàng các bình khí oxygen màu xanh dương có van và ống dẫn, xếp thành dãy trong nhà xưởng.]
+
+Nhận định | Đ/S
+a. Khối lượng khí oxygen đã bơm vào bình là 7,3 kg. |
+b. Trong quá trình bơm thể tích khí trong bình tăng dần. |
+c. Khối lượng riêng của khí trong bình sau 30 phút bơm là 1,45 kg/m³. (Kết quả làm tròn đến hai chữ số sau dấu thập phân). |
+d. Khối lượng khí bơm vào bình sau mỗi giây là 4g. (Kết quả làm tròn đến phần nguyên). |
+
+Câu 4: Một nhóm học sinh tiến hành thí nghiệm đo sự phụ thuộc của áp suất khí p vào nhiệt độ tuyệt đối T của một lượng khí xác định. Thí nghiệm được bố trí như hình vẽ: Bình chứa không khí A có thể tích 3,5 lít được đặt trong bình chứa nước B, bình được đậy kín và cắm vào bởi nhiệt kế T và ống dẫn khí có thể tích rất nhỏ so với thể tích của bình, ống dẫn khí được dẫn tới nhánh bên trái của một áp kế thủy ngân (phía trên của nhánh bên phải có lỗ thông với bên ngoài). Nhiệt độ nước trong bình B được nung nóng bởi bếp điện R và áp suất khí được đo bởi hai nhánh chứa thủy ngân hình chữ U. Cho áp suất khí quyển p₀ = 760mmHg, khối lượng mol của không khí là 29 g/mol. Thay đổi nhiệt độ nước trong bình B, tiến hành đo nhiệt độ t trên nhiệt kế và chênh lệch độ cao Δh của mực thủy ngân trên hai nhánh chữ U, thu được kết quả theo bảng dưới:
+
+Lần đo | 1 | 2 | 3 | 4 | 5
+t (°C) | 25 | 32 | 40 | 50 | 62
+Δh (mm) | 152 | 159 | 184 | 218 | 256
+
+[Hình minh họa Câu 4: Bình cầu A chứa khí đặt trong bình chứa B (chứa nước). Trên nắp bình A có nhiệt kế N và một ống dẫn khí đi lên rồi uốn sang phải nối vào nhánh trái của áp kế thủy ngân hình chữ U. Trong bình B có bếp điện R với các nhãn "~220V" và "6V". Nhánh phải của áp kế thông với khí quyển. Bên cạnh áp kế có một thước đo thẳng đứng với các vạch chia 0, 5, 10, 15, 20, 25, 30.]
+
+Trường THPT Lương Thế Vinh – Hà Nội
+Trang 4- Mã đề 188
+
+(Page 5)
+Vật lý 12
+Th.S Trần Văn Quang; 0979468229
+
+Nhận định | Đ/S
+a. Vì thể tích ống dẫn khí rất nhỏ nên có thể coi thể tích khí không đổi.
+b. Áp suất khí trong bình tại nhiệt độ 25°C là 152 mmHg.
+c. Tỉ số P/T trung bình sau các lần đo ở trên là 3,0mmHg/K.
+d. Khối lượng không khí trong bình A là 4 gam (đã làm tròn). Lấy R = 62,36mmHg·l/mol.K.
+
+PHẦN III: CÂU HỎI TRẢ LỜI NGẮN:
+
+Sử dụng thông tin sau cho Câu 1 và Câu 2. Khi Oxy rất cần thiết để duy trì cuộc sống, nó gây xúc tác với các chất dinh dưỡng, tạo ra nhiệt lượng cần thiết cho sự hoạt động sống. Ở người bình thường (khỏe mạnh), Oxy dễ dàng đi qua từ phổi vào hồng cầu (máu) và được bơm bởi tim mạch cho tất cả các bộ phận khác trong cơ thể.
+
+Thông số kỹ thuật | Bình Oxy 40 lít | Bình Oxy 8 lít | Bình Oxy 5 lít
+Trọng lượng (kg) | 48-60 | 11,2 | 6,8
+Dung tích bình (m³) | 6 | 1,2 | 0,75
+Chiều cao (m) | 1,33 | 0,55 | 0,45
+Đường kính bình (mm) | 219 | 145 | 120
+
+Bình Oxy dùng cho cá nhân thở tại nhà là loại bình chứa khi Oxy được sản xuất tại xưởng với hệ thống tách lọc không khí theo phương pháp chưng cất phân đoạn, độ tinh khiết 99,8% Oxy, được nén trong các loại bình 5 lít, 8 lít, 40 lít ở áp suất quy định.
+
+Câu 1. Vỏ bình thép chứa Oxy ở 70°C ở áp suất 4 atm. Nếu áp suất của khí trong bình là 4,5 atm thì nhiệt độ của khí trong bình bằng bao nhiêu °C?
+Đáp án: [ ] [ ] [ ] [ ]
+
+Câu 2. Người ta bơm khí Oxy ở điều kiện tiêu chuẩn vào bình thép có thể tích 8 lít. Sau 2 phút bình chứa đầy khí ở nhiệt độ 24°C và áp suất 765 mmHg. Biết khối lượng riêng khí Oxy ở điều kiện tiêu chuẩn là 1,43 kg/m³ và coi quá trình bơm diễn ra một cách đều đặn. Khối lượng khí bơm vào bình sau mỗi giây bằng bao nhiêu g? (Kết quả làm tròn đến chữ số hàng phần trăm)
+Đáp án: [ ] [ ] [ ] [ ]
+
+Câu 3. Cảm biến lốp ô tô là thiết bị điện tử được thiết kế để giám sát các thông số bên trong lốp xe. Ô tô Mazda CX8 của thầy Quang được trang bị bộ cảm biến gồm bốn cảm biến và một màn hình hiển thị. Khi ô tô đang đứng yên, màn hình hiện thị chỉ các thông số như hình bên. Để các thông số của lốp trước bên phải giống với các lốp còn lại, thầy Quang bơm thêm không khí vào lốp này. Coi thể tích lốp không thay đổi. Số mol khí bơm thêm so với số mol khí ban đầu trong lốp bằng bao nhiêu %? (Kết quả làm tròn đến chữ số hàng phần trăm)
+Đáp án: [ ] [ ] [ ] [ ]
+
+[Hình minh họa cho Câu 3: sơ đồ nhìn từ trên xuống của một chiếc ô tô (màu trắng, nóc kính màu đen), có bốn lốp được chú thích áp suất (Bar) và nhiệt độ (°C) ở bốn góc:
+- Lốp trước bên trái: 2,5Bar, 30°C
+- Lốp trước bên phải: 2,3Bar, 28°C
+- Lốp sau bên trái: 2,5Bar, 30°C
+- Lốp sau bên phải: 2,5Bar, 30°C]
+
+Trường THPT Lương Thế Vinh – Hà Nội
+Trang 5- Mã đề 188
+
+(Page 6)
+Vật lý 12
+Th.S Trần Văn Quang; 0979468229
+
+Câu 4. Trong vật lý và kỹ thuật, lưu lượng thể tích (còn được gọi là tốc độ dòng thể tích, tốc độ dòng chảy, hoặc tốc độ khối) là thể tích chất lỏng trôi qua trong một đơn vị thời gian thường ký hiệu v. Đơn vị của v trong hệ SI là mét khối trên giây (m³/s). Một nhà máy điện hạt nhân có công suất của lò phản ứng là 3400 MW với hiệu suất 33%. Gọi phần nhiệt hao phí của nhà máy điện hạt nhân là nhiệt thải. Để xử lý nhiệt thải này, người ta bơm liên tục nước qua hệ thống làm mát với tốc độ dòng chảy là v (m³/s). Biết khối lượng riêng của nước là 1000 kg/m³; nhiệt dung riêng của nước là 4200 J/kg.K và nước sau khi ra khỏi hệ thống thì tăng thêm 12°C. Tính v? (kết quả làm tròn đến hàng phần mười)
+
+Đáp án: [ ] [ ] [ ] [ ]
+
+Câu 5. Hai bình cầu kín có thể tích V₁ và V₂, được nối với nhau bằng một ống có khóa, chứa hai chất khí không tác dụng hóa học với nhau, ở cùng nhiệt độ. Áp suất khí trong bình V₁ là p₁ = 2,5.10⁵ N/m² và áp suất khí trong bình V₂ là p₂ = 10⁶ N/m². Mở khóa nhẹ nhàng để hai bình thông với nhau sao cho nhiệt độ luôn không đổi. Khi cân bằng được thiết lập, áp suất ở hai bình là p = 5.10⁵ N/m². Tỉ số thể tích của hai bình cầu V₁/V₂ bằng bao nhiêu?
+
+Đáp án: [ ] [ ] [ ] [ ]
+
+[Diagram for Câu 5: Two spherical flasks connected by a short horizontal tube with a valve (stopcock) in the middle. The left sphere is labeled "Bình 1" and contains sparsely scattered small crescent/moon-shaped particles. The right sphere is labeled "Bình 2" and contains densely packed small filled circles (dots). No axes, scales, or numerical coordinates are shown.]
+
+Câu 6. Một bình kín hình trụ đặt thẳng đứng được chia làm hai phần bằng một pit-tông nặng cách nhiệt, ngăn trên chứa 1 mol, ngăn dưới chứa 3 mol của cùng một chất khí. Nếu nhiệt độ ở hai ngăn đều bằng T = 400K thì áp suất ở ngăn dưới gấp đôi áp suất ở ngăn trên. Nhiệt độ ngăn trên không đổi, ngăn dưới có nhiệt độ là bao nhiêu K thì thể tích hai ngăn bằng nhau?
+
+Đáp án: [ ] [ ] [ ] [ ]
+
+[Diagram for Câu 6: A vertical rectangle (cylinder) divided by a horizontal line (piston) into two compartments. The upper compartment is labeled "Ngăn 1" and the lower compartment is labeled "Ngăn 2". No dimensions, scales, or numerical values are shown.]
+
+--------HẾT--------
+
+Trường THPT Lương Thế Vinh – Hà Nội
+Trang 6- Mã đề 188

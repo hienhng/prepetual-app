@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-1c1f5d0d-f5b4-4d9b-8546-8a10e8cccbb1",
+  "object": "chat.completion",
+  "created": 1791009732,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Bộ câu hỏi vật lý nâng cao\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P44\",\"type\":\"multiple_choice\",\"recordIds\":[\"F13\"],\"intent\":\"Tính thể tích khí ở nhiệt độ cho trước dựa trên định luật Charles (V/T = hằng số)\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ từ °C sang K (T_K = T_°C+273)\",\"Nhân hằng số V/T với T_K để tính thể tích V\"]},{\"id\":\"P45\",\"type\":\"selection\",\"recordIds\":[\"F14\"],\"intent\":\"Xác định các khẳng định đúng về áp suất trong xi lanh của ghế thủy lực khi có hoặc không có học sinh ngồi trên ghế\",\"reasoningSteps\":[\"Tính tổng lực trọng lượng tác dụng lên piston (trọng lượng ghế+xi lanh hoặc cộng thêm học sinh)\",\"Dùng công thức Δp = F/A và cộng áp suất khí quyển để tìm áp suất tuyệt đối trong xi lanh\"]},{\"id\":\"P46\",\"type\":\"true_false\",\"recordIds\":[\"F20\"],\"intent\":\"Xác định nhiệt độ cuối cùng của khí trong bình khi áp suất tăng từ 4 atm lên 4,5 atm ở thể tích không đổi\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ ban đầu 70 °C sang Kelvin (T₁=343 K)\",\"Áp dụng tỉ lệ P₁/T₁ = P₂/T₂ để tính T₂, rồi chuyển lại sang °C (khoảng 114 °C)\"]}]}",
+        "reasoning": "We need to output JSON with title, category, plans for slots P44 (multiple_choice), P45 (selection), P46 (true_false true). Must use only reviewed source records. Each plan must list recordIds used, intent, reasoningSteps.\n\nWe must create hard questions: each requires at least two reasoning steps. Use up to 3 records per plan, max 4 source chunks.\n\nWe need to avoid accepted questions list. Also avoid copying directly.\n\nWe need to produce plans, not the actual questions. So just plan metadata.\n\nWe need to ensure each plan uses source records and reasoning steps.\n\nLet's design:\n\nP44 multiple_choice: Use source F5 (ideal gas law pressure change with temperature) and maybe F20 (pressure-temperature). Could create a reverse problem: given final pressure and initial temperature, find final temperature, but with twist: ask which of the following temperatures is correct given certain conditions. Need at least two steps: convert Celsius to Kelvin, apply P/T ratio.\n\nRecordIds: [\"F5\",\"F20\"] maybe but need only needed. Use F5 for initial pressure 5 atm at 27°C, final temperature 54°C unknown pressure? Actually F5 gives initial pressure 5 atm at 27°C, final temperature 54°C, ask what is final pressure? That's straightforward one step. To make harder, combine with another condition: suppose volume is constant and gas initially at 5 atm, 27°C, then heated to 54°C, but also some gas leaks reducing moles by 10%. Find final pressure. That adds second step: adjust moles.\n\nBut source doesn't give leak info. Can't invent. Must not invent empirical values. So need to use only given givens. Could use F5 and F6 maybe combine mass calculation? Might be messy.\n\nAlternative: Use F12 (work done by gas) and F5 combine to compute work given pressure change? Not directly.\n\nMaybe use F13 (Charles law constant) to compute expected volume at a temperature, then ask which volume is correct given measurement errors.\n\nLet's design P44: Use F13 (V/T constant =0.250 cm³/K). Provide temperature 30°C (303 K) and ask volume. Need convert Celsius to Kelvin, then V = constant * T. That's two steps. Use only F13.\n\nMultiple choice options: one correct, others from common errors: forgetting to convert to Kelvin, using Celsius directly, using wrong constant, rounding errors.\n\nRecordIds: [\"F13\"].\n\nReasoning steps: 1) Convert temperature to Kelvin (T_K = T_C + 273). 2) Multiply by V/T constant to get volume.\n\nIntent: Determine volume of gas at given temperature using Charles's law.\n\nOk.\n\nP45 selection (multiple correct): Use F14 (hydraulic chair). Ask which statements are correct about pressures and forces. Provide statements a-d. Need select all correct. Use source to compute pressure in cylinder when loaded. Use hydrostatic equilibrium: pressure difference = weight/area. Compute weight = (student mass + seat mass?) Actually total mass of seat+ cylinder =6 kg, student 24 kg, total load =30 kg. Force = mg = 30*10=300 N. Area =30 cm² =30*1e-4 m² =0.003 m². Pressure increase = 300/0.003=100,000 Pa =1e5 Pa. Atmospheric pressure 1e5 Pa, so absolute pressure =2e5 Pa. So statements: a) \"Quá trình ghế hạ xuống, khí trong xi lanh thực hiện công.\" When seat moves down, gas expands? Actually piston moves down compressing gas, gas does negative work? The gas is compressed, work done on gas, not by gas. So statement a is false. b) \"Khi ghế để trống, áp suất khí trong xi lanh là 1,2·10⁵ Pa.\" When empty, only weight of seat+ cylinder 6 kg? Force =6*10=60 N, pressure increase =60/0.003=20,000 Pa, absolute =1.2e5 Pa. That's true. c) \"Khi học sinh ngồi trên ghế, áp suất khí trong xi lanh là 2·10⁵ Pa.\" We computed 2e5 Pa, true. d) \"Khi ghế để trống, cột khí trong xi lanh dài là 20 cm.\" Not given; cannot deduce, likely false. So correct statements are b and c. Selection type expects multiple correct options. Provide selection of correct statements.\n\nReasoning steps: 1) Compute total load weight, 2) Compute pressure increase using area, add atmospheric.\n\nRecordIds: [\"F14\"].\n\nP46 true_false true: Use F20 (ideal gas temperature change at constant volume). Provide scenario: A steel cylinder contains oxygen at 4 atm and 70°C. If pressure rises to 4.5 atm while volume constant, the temperature becomes 80°C. Need to compute using P/T ratio: T2 = P2 * T1 / P1. Convert T1 to Kelvin: 70°C = 343 K. T2 = 4.5/4 * 343 = 1.125*343 = 386.6 K = 113.6°C. That's not 80°C. So need a true statement. Could instead assert that temperature becomes about 113.6°C. So statement: \"Nhiệt độ của khí trong bình sẽ là khoảng 114°C.\" That's true. Provide true_false with targetTruthValue True.\n\nReasoning steps: 1) Convert initial temperature to Kelvin. 2) Apply P/T proportionality to find final temperature, convert back to Celsius.\n\nRecordIds: [\"F20\"].\n\nMake sure each plan uses at most 3 records, we are fine.\n\nNow produce JSON compact.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.361703361,
+    "prompt_tokens": 10300,
+    "prompt_time": 0.541569855,
+    "completion_tokens": 1571,
+    "completion_time": 3.287477812,
+    "total_tokens": 11871,
+    "total_time": 3.829047667,
+    "completion_tokens_details": {
+      "reasoning_tokens": 1224
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_77b12279f9",
+  "x_groq": {
+    "id": "req_01m407za00erdtn2s56f7t7epn",
+    "seed": 86913046
+  },
+  "service_tier": "on_demand"
+}

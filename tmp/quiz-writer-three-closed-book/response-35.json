@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-7b576168-fa51-40ee-b8e1-e3fa251b5ad8",
+  "object": "chat.completion",
+  "created": 1791017827,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"reviews\":[{\"id\":\"P11\",\"selfContained\":true,\"sourceSupported\":true,\"hardReasoning\":true,\"credibleDistractors\":true,\"reasoningJustification\":\"Needs to formulate weighted‑average COP ≥2.5 together with time ≤200 s and energy ≤800 kJ, then solve a system of linear inequalities for fractional cycle counts; this multi‑constraint optimization goes beyond simple substitution.\",\"reason\":\"Feasibility requires interacting constraints (COP, time, energy) and solving for x_A, x_B.\"},{\"id\":\"P12\",\"selfContained\":true,\"sourceSupported\":true,\"hardReasoning\":true,\"credibleDistractors\":true,\"reasoningJustification\":\"Adds a hypothetical 20 % increase in B‑mode work and a stricter COP ≥2.8, forcing a tighter weighted‑average COP inequality plus the original time and energy limits; solving the resulting coupled inequalities is a non‑routine inference.\",\"reason\":\"Stricter COP and altered work make the feasibility check a complex multi‑constraint problem.\"}]}",
+        "reasoning": "We need to output JSON with reviews for each plan (P11 and P12). For each, assess selfContained, sourceSupported, hardReasoning, credibleDistractors, reasoningJustification, and maybe reason field. Also need evidence array if source grounding enabled and no server-provided sourceEvidence. We have sourceEvidence in records (the evidence field). The instruction: \"When source grounding is enabled and no server-provided sourceEvidence is supplied, also return evidence:[...]. Include at least one relevant quote for EVERY cited chunk\". Here we have sourceEvidence provided in the record's evidence array. So we should not regenerate quotes, but we still need to include evidence? It says: \"When server-provided sourceEvidence is supplied, independently assess those actual passages but do not regenerate their quotes.\" So we should not include evidence field in output? It says return evidence only when no server-provided sourceEvidence is supplied. Since we have sourceEvidence, we should not include evidence in output. So output just reviews array.\n\nNow evaluate each plan.\n\nPlan P11: The question intends to ask whether can achieve heat load 2160 kJ within time 200 s and electrical budget 800 kJ while maintaining average COP >=2.5, given COP per mode from data. Need to combine constraints. SelfContained? The stem would need to include all givens: heat per cycle, work per cycle, times, total heat required, max time, max energy, COP definition. Those are all in source. If the question includes them, selfContained true. Since we are reviewing plan, we assume they will include all. So selfContained = true.\n\nSourceSupported: The source provides the givens and relationships. The plan requires using COP formula and linear scaling. Those are supported. So sourceSupported = true.\n\nHardReasoning: Need to set up inequalities with variables x_A, x_B (possibly fractional cycles) and also average COP constraint which is a ratio of weighted sums. This is more than routine substitution; involves interacting constraints and solving linear inequalities with ratio constraint. That qualifies as hard reasoning. So hardReasoning = true.\n\nCredibleDistractors: For multiple choice, need plausible distractors. The plan hasn't listed options, but we can assess if they can be created. Since the plan intends to ask to determine feasibility and possibly max heat if not feasible, multiple choice could have options like \"Yes, feasible\", \"No, max heat 1800 kJ\", etc. Plausible misconceptions could be ignoring COP constraint, or using only time constraint, etc. So credibleDistractors can be true. So credibleDistractors = true.\n\nProvide reasoningJustification: brief.\n\nPlan P12: Similar but with increased work for mode B and higher COP requirement 2.8. Need to evaluate same criteria.\n\nSelfContained: same givens plus new work value 288 kJ for B, COP requirement 2.8. The plan includes that. So true.\n\nSourceSupported: The source originally gave work per cycle for B as 240 kJ. The plan modifies it to 288 kJ (20% increase) as a hypothetical. The instruction: \"All comparisons that change the budget must be explicitly identified as hypothetical.\" The plan states that. This is allowed as a hypothetical change, not a recorded observation. So source supports original values; the hypothetical is allowed. So sourceSupported = true because the needed facts (original values) are present, and the hypothetical is clearly indicated. So true.\n\nHardReasoning: Similar but now COP constraint tighter, and changed work, making feasibility more complex. Still requires solving inequalities with ratio constraint. That's hard. So true.\n\nCredibleDistractors: same reasoning. So true.\n\nNow produce JSON.\n\nNeed fields: id, selfContained, sourceSupported, hardReasoning, credibleDistractors, reasoningJustification, reason? The spec: Return JSON {\"reviews\":[{\"id\":\"assigned plan id\",\"selfContained\":true,\"sourceSupported\":true,\"hardReasoning\":true,\"reasoningJustification\":\"actual dependent inference beyond routine substitution\",\"reason\":\"specific feasibility/difficulty assessment\"}]}. It includes reason field optional? It says include reason:\"specific feasibility/difficulty assessment\". We'll include reason summarizing.\n\nWe'll not include credibleDistractors? The spec earlier says return selfContained, sourceSupported, hardReasoning, credibleDistractors as booleans and reasoningJustification as brief assessment. But the example JSON includes only reasoningJustification and reason, not credibleDistractors. There's inconsistency. The instruction: \"Return selfContained, sourceSupported, hardReasoning, credibleDistractors as booleans and reasoningJustification as a brief assessment for each item.\" So we must include credibleDistractors boolean. The example omitted it but we follow instruction.\n\nThus each review object: id, selfContained, sourceSupported, hardReasoning, credibleDistractors, reasoningJustification, reason.\n\nNow craft reasoningJustification: e.g., \"Requires setting up weighted‑average COP constraint together with time and energy inequalities and solving for feasible fractions of cycles, which is a non‑routine multi‑constraint optimization.\"\n\nReason field: brief.\n\nNow produce JSON compact (no whitespace)."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.059778528,
+    "prompt_tokens": 3007,
+    "prompt_time": 0.129239041,
+    "completion_tokens": 1275,
+    "completion_time": 2.683479592,
+    "total_tokens": 4282,
+    "total_time": 2.8127186330000002,
+    "completion_tokens_details": {
+      "reasoning_tokens": 1052
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_60e4b492db",
+  "x_groq": {
+    "id": "req_01m40fpckyettrggspdbphvjvx",
+    "seed": 464162322
+  },
+  "service_tier": "on_demand"
+}

@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-c8925c37-cc63-4618-b36e-e37e2a4990e5",
+  "object": "chat.completion",
+  "created": 1791015813,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Kế hoạch Lý luận Khó: Nhiệt lượng học và Làm lạnh\"}",
+        "reasoning": "We need to output JSON with key \"title\" and value being the title translated into Vietnamese, preserving its topic. Original title: \"Calorimetry and Refrigeration Hard Reasoning Plans\". Translate to Vietnamese: \"Kế hoạch Lý luận Khó về Nhiệt lượng học và Lạnh\". Might be \"Kế hoạch Lý luận Khó: Nhiệt lượng học và Lạnh\". Ensure proper translation: \"Calorimetry\" = \"Nhiệt lượng học\". \"Refrigeration\" = \"Làm lạnh\" or \"Lạnh\". \"Hard Reasoning Plans\" = \"Kế hoạch Lý luận Khó\". So final title: \"Kế hoạch Lý luận Khó: Nhiệt lượng học và Làm lạnh\". Use compact JSON."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.418008959,
+    "prompt_tokens": 256,
+    "prompt_time": 0.011725805,
+    "completion_tokens": 197,
+    "completion_time": 0.403672478,
+    "total_tokens": 453,
+    "total_time": 0.415398283,
+    "completion_tokens_details": {
+      "reasoning_tokens": 163
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_8655ddce88",
+  "x_groq": {
+    "id": "req_01m40drz81epqb938h3rpntxea",
+    "seed": 1772435702
+  },
+  "service_tier": "on_demand"
+}

@@ -1,0 +1,14 @@
+{
+  "model": "openai/gpt-oss-120b",
+  "messages": [
+    {
+      "role": "user",
+      "content": "QUIZ OUTPUT LANGUAGE: Vietnamese (vi).\n- Write the title, instructional question stems, natural-language options, answers, and all learner-facing explanations in this language.\n- This resolved output language overrides the language of source evidence, examples, existing questions, and model instructions. Do not infer a different output language.\n- Preserve proper names, formulas, code, technical terms, source quotations, and foreign-language passages or answers required by language-learning tasks. Write the surrounding instructions and explanations in Vietnamese.\n- JSON keys, type/category enum values, and the canonical true_false values \"True\" and \"False\" remain unchanged.\nRewrite this quiz title in the output language. Preserve its topic. Return ONLY JSON {\"title\":\"...\"}.\nOriginal title: \"Calorimetry and Refrigeration Hard Reasoning Plans\""
+    }
+  ],
+  "response_format": {
+    "type": "json_object"
+  },
+  "temperature": 0,
+  "max_tokens": 1000
+}

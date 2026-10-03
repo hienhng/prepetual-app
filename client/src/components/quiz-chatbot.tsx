@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/language-context";
 import { useState, useRef, useEffect } from "react";
 import { Send, Loader2, Search, Copy, Clock, X, HelpCircle, Lightbulb, BookOpen, RefreshCw, MessageCircleQuestion, LayoutGrid, ChevronDown, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,7 @@ function formatTime(timestamp: number): string {
 }
 
 function MessageActions({ content, messageId }: { content: string; messageId: string }) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   
   const handleCopy = () => {
@@ -73,7 +75,7 @@ function MessageActions({ content, messageId }: { content: string; messageId: st
         whileTap={{ scale: 0.95 }}
         onClick={handleCopy}
         className="w-6 h-6 rounded-full flex items-center justify-center bg-slate-50 dark:bg-slate-800 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 border border-slate-200/30 dark:border-slate-700/30 text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-200 transition-colors"
-        title="Copy"
+        title={t("common.copy")}
       >
         <Copy className={`w-3 h-3 ${copied ? "text-green-500 hover:text-green-600" : ""}`} />
       </motion.button>
@@ -97,6 +99,7 @@ function TypingIndicator() {
 }
 
 function EmptyState() {
+  const { t } = useLanguage();
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -112,10 +115,10 @@ function EmptyState() {
         <AskPipIcon size={64} className="rounded-lg" />
       </motion.div>
       <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-        Welcome to Prepal AI
+        {t("chatbot.welcome")}
       </h3>
       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-[200px]">
-        Ask me anything about this quiz and I'll help you master the material!
+        {t("chatbot.welcomeDescription")}
       </p>
     </motion.div>
   );
@@ -179,6 +182,7 @@ function TutorAvatar({ isAnimating = false, isSuccess = false, large = false }: 
 }
 
 export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex, suggestedQuestions, isOpen, onClose, presentation = "floating" }: QuizChatbotProps) {
+  const { t } = useLanguage();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -356,7 +360,7 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
     <motion.div 
       id="quiz-chatbot"
       role={isSidebar ? "complementary" : undefined}
-      aria-label="Prepal AI chat"
+      aria-label={t("chatbot.chatLabel")}
       data-testid="quiz-chatbot"
       initial={isBottomSheet ? { opacity: 1, x: 0, y: "100%" } : isSidebar ? { opacity: 0, x: 20, y: 0 } : { opacity: 0, scale: 0.85, y: 40 }}
       animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
@@ -381,7 +385,7 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
               <AskPipIcon size={28} />
             </div>
             <div className="text-left">
-              <h2 className="text-sm font-semibold tracking-tight text-foreground">Prepal AI</h2>
+              <h2 className="text-sm font-semibold tracking-tight text-foreground">{t("quizPlayer.askPip")}</h2>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -390,8 +394,8 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowSearch(!showSearch)}
               className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors"
-              title="Search messages"
-              aria-label="Search messages"
+              title={t("chatbot.search")}
+              aria-label={t("chatbot.search")}
               aria-expanded={showSearch}
             >
               <Search className="w-4 h-4" />
@@ -401,7 +405,7 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsExpanded((v) => !v)}
               className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors"
-              title={isExpanded ? "Collapse" : "Expand"}
+                  title={isExpanded ? t("quizGenerator.collapse") : t('common.expand')}
             >
               {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </motion.button>}
@@ -410,8 +414,8 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
               whileTap={{ scale: 0.95 }}
               onClick={onClose}
               className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors"
-              title="Close"
-              aria-label="Close chat panel"
+              title={t("common.close")}
+              aria-label={t("chatbot.closePanel")}
             >
               <X className="w-4 h-4" />
             </motion.button>
@@ -428,10 +432,10 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
               className="pt-3"
             >
               <Input
-                placeholder="Search messages..."
+                placeholder={t("chatbot.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                aria-label="Search messages"
+                aria-label={t("chatbot.search")}
                 className="h-9 text-sm border-border rounded-xl bg-muted/40 px-3"
               />
             </motion.div>
@@ -444,7 +448,7 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
           <BookOpen className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground" title={quizTitle}>{quizTitle}</span>
           <span className="shrink-0 rounded-md border border-border/70 bg-background px-2 py-1 text-[10px] font-medium text-muted-foreground">
-            Question {currentQuestionIndex + 1}
+            {t("study.question")} {currentQuestionIndex + 1}
           </span>
         </div>
       )}
@@ -452,21 +456,21 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
       {/* Messages Area */}
       <ScrollArea className="flex-1 min-h-0 px-5 py-6">
         {filteredMessages.length === 0 && searchQuery.trim() ? (
-          <p className="py-10 text-center text-sm text-muted-foreground">No messages match your search.</p>
+          <p className="py-10 text-center text-sm text-muted-foreground">{t("chatbot.noResults")}</p>
         ) : filteredMessages.length === 0 ? (
           <div className="flex flex-col items-start gap-6 pt-7 pb-4">
             <div className="w-14 h-14 rounded-2xl flex items-center justify-center">
               <AskPipIcon size={38} />
             </div>
             <div>
-              <p className="text-2xl font-semibold tracking-tight text-foreground">Let’s work through it.</p>
+              <p className="text-2xl font-semibold tracking-tight text-foreground">{t("chatbot.workThrough")}</p>
               <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                A little stuck? Ask for a hint, unpack a concept, or try a new approach.
+                {t("chatbot.hintDescription")}
               </p>
             </div>
             <div className="w-full space-y-2">
               <p className="pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                A place to start
+                {t("chatbot.start")}
               </p>
               {suggestedCues.map(({ icon: Icon, label }) => (
                 <button
@@ -532,7 +536,7 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
                   
                   {message.role === "user" && (
                     <Avatar className="w-6 h-6 flex-shrink-0 border border-slate-200 dark:border-slate-800">
-                      <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.username || "User"} className="object-cover" />
+                      <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.username || t("common.user")} className="object-cover" />
                       <AvatarFallback className="text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-350 font-semibold">
                         {user?.username ? user.username.substring(0, 2).toUpperCase() : "U"}
                       </AvatarFallback>
@@ -577,7 +581,7 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
               aria-expanded={showCues}
             >
               <LayoutGrid className="w-3 h-3" />
-              Suggested questions
+              {t("chatbot.suggestedQuestions")}
               <ChevronDown
                 className={`w-3 h-3 ml-auto transition-transform duration-200 ${showCues ? "rotate-180" : ""}`}
               />
@@ -622,8 +626,8 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyPress}
             maxLength={MAX_CHAT_MESSAGE_CHARS}
-            placeholder="Ask a question…"
-            aria-label="Message Prepal AI"
+            placeholder={t("chatbot.askPlaceholder")}
+            aria-label={t("chatbot.messageLabel")}
             rows={3}
             className="min-w-0 flex-1 min-h-[84px] max-h-40 resize-none border-0 bg-transparent px-2 py-2 text-sm leading-relaxed shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             disabled={isLoading}
@@ -633,7 +637,7 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
               size="icon"
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
-              aria-label="Send message"
+              aria-label={t("chatbot.send")}
               className="h-9 w-9 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-none transition-colors"
             >
               {isLoading ? (
@@ -644,7 +648,7 @@ export function QuizChatbot({ quizId, quizTitle, questions, currentQuestionIndex
             </Button>
           </motion.div>
         </div>
-        <p className="mt-2.5 text-center text-[10px] text-muted-foreground">Enter to send · Shift + Enter for a new line</p>
+        <p className="mt-2.5 text-center text-[10px] text-muted-foreground">{t("chatbot.keyboardHint")}</p>
       </motion.div>
     </motion.div>
   );

@@ -1,0 +1,188 @@
+{
+  "questions": [
+    {
+      "id": "53abded8-0a83-49f1-aecf-53e64640d961",
+      "type": "true_false",
+      "question": "Nhiệt dung riêng của nước là $3000\\,\\text{J/(kg\\cdot K)}$.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "correctAnswer": "False",
+      "explanation": "Nguồn S2 ghi rõ nhiệt dung riêng của nước là $4200\\,\\mathrm{J/(kg\\cdot K)}$, không phải $3000\\,\\mathrm{J/(kg\\cdot K)}$. Do đó lựa chọn \"False\" là đáp án đúng.",
+      "wrongAnswerExplanations": {
+        "True": "Lựa chọn \"True\" khẳng định nhiệt dung riêng là $3000\\,\\mathrm{J/(kg\\cdot K)}$, trái với giá trị $4200\\,\\mathrm{J/(kg\\cdot K)}$ được nêu trong nguồn."
+      },
+      "sourceChunkIds": [
+        "65e722a3-e48b-4c1f-b285-72a413e93a14"
+      ],
+      "feedbackVerification": {
+        "version": 1,
+        "signature": "[\"true_false\",\"Nhiệt dung riêng của nước là $3000\\\\,\\\\text{J/(kg\\\\cdot K)}$.\",[\"True\",\"False\"],\"False\",null,\"Nguồn S2 ghi rõ nhiệt dung riêng của nước là $4200\\\\,\\\\mathrm{J/(kg\\\\cdot K)}$, không phải $3000\\\\,\\\\mathrm{J/(kg\\\\cdot K)}$. Do đó lựa chọn \\\"False\\\" là đáp án đúng.\",null,[\"65e722a3-e48b-4c1f-b285-72a413e93a14\"],[[\"True\",\"Lựa chọn \\\"True\\\" khẳng định nhiệt dung riêng là $3000\\\\,\\\\mathrm{J/(kg\\\\cdot K)}$, trái với giá trị $4200\\\\,\\\\mathrm{J/(kg\\\\cdot K)}$ được nêu trong nguồn.\"]]]"
+      }
+    },
+    {
+      "id": "159faa33-1995-428b-87fb-65f51dc11e31",
+      "type": "true_false",
+      "question": "COP bằng tỉ lệ giữa nhiệt lượng tỏa ra môi trường và công nén vào máy nén.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "correctAnswer": "True",
+      "explanation": "Nguồn S6 áp dụng công thức $\\text{COP}=\\dfrac{Q_{2}}{A}$, cho thấy COP được định nghĩa là tỉ lệ giữa nhiệt lượng thải ra môi trường và công nén. Do đó câu khẳng định là \"True\".",
+      "wrongAnswerExplanations": {
+        "False": "Lựa chọn \"False\" phủ nhận định nghĩa trên, trái với công thức được trình bày trong nguồn S6."
+      },
+      "sourceChunkIds": [
+        "954dba8c-7c85-4e0a-adf5-351b89f34903"
+      ],
+      "feedbackVerification": {
+        "version": 1,
+        "signature": "[\"true_false\",\"COP bằng tỉ lệ giữa nhiệt lượng tỏa ra môi trường và công nén vào máy nén.\",[\"True\",\"False\"],\"True\",null,\"Nguồn S6 áp dụng công thức $\\\\text{COP}=\\\\dfrac{Q_{2}}{A}$, cho thấy COP được định nghĩa là tỉ lệ giữa nhiệt lượng thải ra môi trường và công nén. Do đó câu khẳng định là \\\"True\\\".\",null,[\"954dba8c-7c85-4e0a-adf5-351b89f34903\"],[[\"False\",\"Lựa chọn \\\"False\\\" phủ nhận định nghĩa trên, trái với công thức được trình bày trong nguồn S6.\"]]]"
+      }
+    },
+    {
+      "id": "1136116d-ae8b-4a7d-98fb-c0659dce8320",
+      "type": "short_answer",
+      "question": "Thuật ngữ tiếng Việt cho hiện tượng khi hơi nước ngưng tụ trên bề mặt lạnh là:",
+      "correctAnswer": "ngưng tụ",
+      "explanation": "Khi hơi nước chuyển thành giọt trên kính, đó là ngưng tụ.",
+      "sourceChunkIds": [
+        "65e722a3-e48b-4c1f-b285-72a413e93a14"
+      ]
+    },
+    {
+      "id": "b6a1669c-5a93-45ae-928f-723cfd2262ad",
+      "type": "short_answer",
+      "question": "Ký hiệu nào được dùng cho nhiệt dung riêng của nước trong các công thức đề bài?",
+      "correctAnswer": "c",
+      "explanation": "Ký hiệu $c$ xuất hiện trong các biểu thức tính nhiệt lượng.",
+      "sourceChunkIds": [
+        "65e722a3-e48b-4c1f-b285-72a413e93a14"
+      ]
+    },
+    {
+      "id": "68c05ca6-60d4-49af-a392-91046f635879",
+      "type": "short_answer",
+      "question": "Đơn vị áp suất được dùng trong các bài toán khí lý tưởng ở đề là:",
+      "correctAnswer": "atm",
+      "explanation": "Đơn vị áp suất trong đề là atmosphère (atm).",
+      "sourceChunkIds": [
+        "f1f37124-5500-4030-994b-22ecb57fb018"
+      ]
+    },
+    {
+      "id": "f8d35ac5-5329-4c66-9bc6-9f4df516f665",
+      "type": "short_answer",
+      "question": "Viết tắt của \"Coefficient of Performance\" trong ngữ cảnh tủ lạnh là:",
+      "correctAnswer": "COP",
+      "explanation": "COP là viết tắt chuẩn cho hệ số làm lạnh.",
+      "sourceChunkIds": [
+        "954dba8c-7c85-4e0a-adf5-351b89f34903"
+      ]
+    },
+    {
+      "id": "bd5ddbd5-cc3a-4bd0-ae9c-11becbac7cef",
+      "type": "short_answer",
+      "question": "Một bệnh nhân nặng $70.0\\,\\text{kg}$ được ngâm trong bồn nước đá $0\\,^{\\circ}\\text{C}$ cho đến khi nhiệt độ cơ thể giảm từ $37\\,^{\\circ}\\text{C}$ xuống $32\\,^{\\circ}\\text{C}$. Nhiệt dung riêng của cơ thể người là $3480\\,\\text{J/(kg\\cdot K)}$ và nhiệt nóng chảy riêng của nước đá là $334\\times10^{3}\\,\\text{J/kg}$. Tính khối lượng tối thiểu của đá cần dùng (kg), làm tròn một chữ số thập phân.",
+      "correctAnswer": "3.6 kg",
+      "explanation": "Quá trình chỉ có trao đổi nhiệt, không có tăng nhiệt độ đá, do đó khối lượng đá bằng $Q/L \\approx 3.6\\,\\text{kg}$.",
+      "sourceChunkIds": [
+        "65e722a3-e48b-4c1f-b285-72a413e93a14"
+      ]
+    },
+    {
+      "id": "3eb6ee05-4c19-42d3-bfe6-d3caa0590575",
+      "type": "true_false",
+      "question": "Trong một chu trình tủ lạnh có $\\text{COP}=3$ và công nén $A=180\\,\\text{kJ}$, nhiệt lượng $Q_{2}$ thải ra môi trường bằng $720\\,\\text{kJ}$.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "correctAnswer": "True",
+      "explanation": "Với $\\text{COP}=3$ và công $A=180\\,\\text{kJ}$, ta có $Q_L = 540\\,\\text{kJ}$ và $Q_2 = Q_L + A = 720\\,\\text{kJ}$. Vì vậy phát biểu là đúng, nên đáp án \"True\".",
+      "wrongAnswerExplanations": {
+        "False": "Phát biểu \"False\" không đúng vì tính toán cho ra $Q_2 = 720\\,\\text{kJ}$, trùng khớp với giá trị trong đề."
+      },
+      "sourceChunkIds": [
+        "954dba8c-7c85-4e0a-adf5-351b89f34903"
+      ],
+      "feedbackVerification": {
+        "version": 1,
+        "signature": "[\"true_false\",\"Trong một chu trình tủ lạnh có $\\\\text{COP}=3$ và công nén $A=180\\\\,\\\\text{kJ}$, nhiệt lượng $Q_{2}$ thải ra môi trường bằng $720\\\\,\\\\text{kJ}$.\",[\"True\",\"False\"],\"True\",null,\"Với $\\\\text{COP}=3$ và công $A=180\\\\,\\\\text{kJ}$, ta có $Q_L = 540\\\\,\\\\text{kJ}$ và $Q_2 = Q_L + A = 720\\\\,\\\\text{kJ}$. Vì vậy phát biểu là đúng, nên đáp án \\\"True\\\".\",null,[\"954dba8c-7c85-4e0a-adf5-351b89f34903\"],[[\"False\",\"Phát biểu \\\"False\\\" không đúng vì tính toán cho ra $Q_2 = 720\\\\,\\\\text{kJ}$, trùng khớp với giá trị trong đề.\"]]]"
+      }
+    },
+    {
+      "id": "668d6997-747b-45e3-b630-061bb730c3e5",
+      "type": "selection",
+      "question": "Chọn tất cả các phát biểu đúng về mối quan hệ giữa áp suất và nhiệt độ của một khí lý tưởng khi thể tích không đổi:",
+      "options": [
+        "Thể tích phải thay đổi để áp suất thay đổi.",
+        "Tỷ số $P_{2}/P_{1}$ bằng $T_{2}/T_{1}$.",
+        "Áp suất tỉ lệ thuận với nhiệt độ tuyệt đối.",
+        "Áp suất giảm khi nhiệt độ tăng."
+      ],
+      "correctAnswer": "[\"Tỷ số $P_{2}/P_{1}$ bằng $T_{2}/T_{1}$.\",\"Áp suất tỉ lệ thuận với nhiệt độ tuyệt đối.\"]",
+      "explanation": "Với thể tích không đổi, áp suất và nhiệt độ tuyệt đối có quan hệ $P \\propto T$. Do đó, chỉ các phát biểu 2 và 3 là đúng; các phát biểu 1 và 4 là sai.",
+      "wrongAnswerExplanations": {
+        "Thể tích phải thay đổi để áp suất thay đổi.": "Phát biểu này sai vì áp suất có thể thay đổi mà không cần thay đổi thể tích khi nhiệt độ thay đổi.",
+        "Áp suất giảm khi nhiệt độ tăng.": "Phát biểu này ngược lại với định luật, vì khi nhiệt độ tăng áp suất sẽ tăng, không giảm."
+      },
+      "sourceChunkIds": [
+        "65e722a3-e48b-4c1f-b285-72a413e93a14"
+      ],
+      "feedbackVerification": {
+        "version": 1,
+        "signature": "[\"selection\",\"Chọn tất cả các phát biểu đúng về mối quan hệ giữa áp suất và nhiệt độ của một khí lý tưởng khi thể tích không đổi:\",[\"Thể tích phải thay đổi để áp suất thay đổi.\",\"Tỷ số $P_{2}/P_{1}$ bằng $T_{2}/T_{1}$.\",\"Áp suất tỉ lệ thuận với nhiệt độ tuyệt đối.\",\"Áp suất giảm khi nhiệt độ tăng.\"],\"[\\\"Tỷ số $P_{2}/P_{1}$ bằng $T_{2}/T_{1}$.\\\",\\\"Áp suất tỉ lệ thuận với nhiệt độ tuyệt đối.\\\"]\",null,\"Với thể tích không đổi, áp suất và nhiệt độ tuyệt đối có quan hệ $P \\\\propto T$. Do đó, chỉ các phát biểu 2 và 3 là đúng; các phát biểu 1 và 4 là sai.\",null,[\"65e722a3-e48b-4c1f-b285-72a413e93a14\"],[[\"Áp suất giảm khi nhiệt độ tăng.\",\"Phát biểu này ngược lại với định luật, vì khi nhiệt độ tăng áp suất sẽ tăng, không giảm.\"],[\"Thể tích phải thay đổi để áp suất thay đổi.\",\"Phát biểu này sai vì áp suất có thể thay đổi mà không cần thay đổi thể tích khi nhiệt độ thay đổi.\"]]]"
+      }
+    },
+    {
+      "id": "b751ffe1-dc01-4eb9-96bd-9db3c1ae8177",
+      "type": "short_answer",
+      "question": "Một bệnh viện đun sôi $10\\,\\text{kg}$ nước từ $25\\,^{\\circ}\\text{C}$ tới hơi nước ở $100\\,^{\\circ}\\text{C}$. Nhiệt dung riêng của nước $c=4200\\,\\text{J/(kg·K)}$, nhiệt nóng chảy riêng $L_v=2.26\\times10^{6}\\,\\text{J/kg}$. Tổng nhiệt lượng cần thiết (kJ) là bao nhiêu?",
+      "correctAnswer": "25750 kJ",
+      "explanation": "Cần tính cả nhiệt làm nóng nước tới điểm sôi và nhiệt biến đổi nước thành hơi; tổng cộng $2.575\\times10^{7}\\,\\text{J}=25\\,750\\,\\text{kJ}$.",
+      "sourceChunkIds": [
+        "65e722a3-e48b-4c1f-b285-72a413e93a14"
+      ]
+    },
+    {
+      "id": "ff050bc1-ca74-4b22-87d9-a19c3177f3a1",
+      "type": "short_answer",
+      "question": "Trong một chu trình tủ lạnh, công nén $A = 180\\,\\text{kJ}$ và nhiệt lượng thải ra môi trường $Q_{2}=720\\,\\text{kJ}$. Hệ số làm lạnh (COP) bằng bao nhiêu?",
+      "correctAnswer": "4",
+      "explanation": "Tỷ lệ giữa nhiệt lượng thải ra và công nén cho ta giá trị COP = 4.",
+      "sourceChunkIds": [
+        "954dba8c-7c85-4e0a-adf5-351b89f34903"
+      ]
+    },
+    {
+      "id": "3c77a6ac-7abf-4317-8c34-2e1b94384409",
+      "type": "multiple_choice",
+      "question": "Một người thợ hàn dùng mỏ hàn công suất $1,7\\,\\text{kW}$ để hàn $20\\,\\text{g}$ nhôm. Nhôm có khối lượng riêng $\\rho = 2,7\\,\\text{g/cm}^3$, nhiệt dung riêng $c = 880\\,\\text{J/(kg·K)}$, nhiệt nóng chảy riêng $L_f = 4,10\\times10^{5}\\,\\text{J/kg}$, và nhiệt độ tan chảy $660^{\\circ}\\text{C}$. Nếu thời gian hàn là $20\\,\\text{s}$, hiệu suất hàn là bao nhiêu?",
+      "options": [
+        "76,4%",
+        "56,4%",
+        "53,5%",
+        "63,5%"
+      ],
+      "correctAnswer": "56,4%",
+      "explanation": "Năng lượng cung cấp bởi mỏ hàn trong $20\\,\\text{s}$ là $3.40\\times10^{4}\\,\\text{J}$. Để nung nóng và làm chảy $20\\,\\text{g}$ nhôm cần $1.12\\times10^{4}\\,\\text{J}$ để tăng nhiệt độ và $8.20\\times10^{3}\\,\\text{J}$ để làm chảy, tổng cộng $1.94\\times10^{4}\\,\\text{J}$. Hiệu suất là $\\frac{1.94\\times10^{4}}{3.40\\times10^{4}}\\approx56.4\\%$, nên đáp án đúng là \"56,4%\".",
+      "wrongAnswerExplanations": {
+        "76,4%": "Lựa chọn \"76,4%\" quá cao so với tỷ lệ năng lượng hữu ích thực tế ($\\approx56.4\\%$).",
+        "53,5%": "Lựa chọn \"53,5%\" thấp hơn giá trị tính được ($56.4\\%$).",
+        "63,5%": "Lựa chọn \"63,5%\" cũng cao hơn giá trị tính được và không khớp với kết quả $56.4\\%$."
+      },
+      "sourceChunkIds": [
+        "65e722a3-e48b-4c1f-b285-72a413e93a14"
+      ],
+      "feedbackVerification": {
+        "version": 1,
+        "signature": "[\"multiple_choice\",\"Một người thợ hàn dùng mỏ hàn công suất $1,7\\\\,\\\\text{kW}$ để hàn $20\\\\,\\\\text{g}$ nhôm. Nhôm có khối lượng riêng $\\\\rho = 2,7\\\\,\\\\text{g/cm}^3$, nhiệt dung riêng $c = 880\\\\,\\\\text{J/(kg·K)}$, nhiệt nóng chảy riêng $L_f = 4,10\\\\times10^{5}\\\\,\\\\text{J/kg}$, và nhiệt độ tan chảy $660^{\\\\circ}\\\\text{C}$. Nếu thời gian hàn là $20\\\\,\\\\text{s}$, hiệu suất hàn là bao nhiêu?\",[\"76,4%\",\"56,4%\",\"53,5%\",\"63,5%\"],\"56,4%\",null,\"Năng lượng cung cấp bởi mỏ hàn trong $20\\\\,\\\\text{s}$ là $3.40\\\\times10^{4}\\\\,\\\\text{J}$. Để nung nóng và làm chảy $20\\\\,\\\\text{g}$ nhôm cần $1.12\\\\times10^{4}\\\\,\\\\text{J}$ để tăng nhiệt độ và $8.20\\\\times10^{3}\\\\,\\\\text{J}$ để làm chảy, tổng cộng $1.94\\\\times10^{4}\\\\,\\\\text{J}$. Hiệu suất là $\\\\frac{1.94\\\\times10^{4}}{3.40\\\\times10^{4}}\\\\approx56.4\\\\%$, nên đáp án đúng là \\\"56,4%\\\".\",null,[\"65e722a3-e48b-4c1f-b285-72a413e93a14\"],[[\"53,5%\",\"Lựa chọn \\\"53,5%\\\" thấp hơn giá trị tính được ($56.4\\\\%$).\"],[\"63,5%\",\"Lựa chọn \\\"63,5%\\\" cũng cao hơn giá trị tính được và không khớp với kết quả $56.4\\\\%$.\"],[\"76,4%\",\"Lựa chọn \\\"76,4%\\\" quá cao so với tỷ lệ năng lượng hữu ích thực tế ($\\\\approx56.4\\\\%$).\"]]]"
+      }
+    }
+  ],
+  "title": "Nhiệt Động Lực Học Nâng Cao",
+  "category": "categories.science"
+}

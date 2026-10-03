@@ -1,3 +1,5 @@
+import { markQuestionFeedbackPrepared } from "../shared/quiz-feedback.js";
+import { withQuestionReviewDefaults } from "./test-fixtures/quiz-review.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
@@ -13,10 +15,14 @@ test("durable drafts enforce ownership, single resume, preservation, and atomic 
   globalThis.fetch = async (_url, init) => {
     calls++;
     const prompt = JSON.parse(String(init?.body)).messages[0].content as string;
+    if (prompt.includes("language-consistency auditor")) {
+      const items = JSON.parse(prompt.split("GENERATED ITEMS:\n")[1].split("\n\n")[0]);
+      return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(withQuestionReviewDefaults({ evaluations: items.map((_: unknown, index: number) => ({ index, isConsistent: true, answerCorrect: true, explanationConsistent: true })) })) }, finish_reason: "stop" }] }), { headers: { "Content-Type": "application/json" } });
+    }
     const content = prompt.includes("independent quiz answer auditor")
-      ? { verifications: [{ index: 0, solution: "Madrid is Spain's capital.", satisfyingOptionIndexes: [0], correctOptionIndex: 0, isUnambiguous: true, isLanguageConsistent: true }] }
+      ? { verifications: [{ index: 0, solution: "Madrid is Spain's capital.", satisfyingOptionIndexes: [0], correctOptionIndex: 0, isUnambiguous: true, isLanguageConsistent: true, wrongOptionExplanations: { "1": "Paris is in France.", "2": "Rome is in Italy.", "3": "Berlin is in Germany." } }] }
       : { questions: supplyMissing ? [{ type: "multiple_choice", question: "What is the capital of Spain?", options: ["Madrid", "Paris", "Rome", "Berlin"], correctAnswer: "Madrid", explanation: "Madrid is Spain's capital." }] : [] };
-    return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(content) }, finish_reason: "stop" }] }), { headers: { "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(withQuestionReviewDefaults(content)) }, finish_reason: "stop" }] }), { headers: { "Content-Type": "application/json" } });
   };
   const { db } = await import("./db.js");
   const { users, quizzes, quizGenerationDrafts: drafts } = await import("../shared/schema.js");
@@ -24,11 +30,15 @@ test("durable drafts enforce ownership, single resume, preservation, and atomic 
   const userId = randomUUID();
   try {
     await db.insert(users).values({ id: userId, email: `draft-test-${userId}@example.invalid` });
-    const draft = await createGenerationDraft(userId, { generation: { text: "European capitals", isPromptBased: true, questionCount: 3, questionTypes: ["multiple_choice"] }, quiz: { userId, sourceText: "", generationMode: "generate" }, indexingText: "" });
+    const draft = await createGenerationDraft(userId, { generation: { targetLanguage: "en", text: "European capitals", isPromptBased: true, questionCount: 3, questionTypes: ["multiple_choice"] }, quiz: { userId, sourceText: "", generationMode: "generate" }, indexingText: "" });
     const seeds = [
       { id: "saved-one", type: "multiple_choice" as const, question: "What is the capital of France?", options: ["Paris", "Rome", "Madrid", "Berlin"], correctAnswer: "Paris", explanation: "Paris is France's capital." },
       { id: "saved-two", type: "multiple_choice" as const, question: "What is the capital of Italy?", options: ["Rome", "Paris", "Madrid", "Berlin"], correctAnswer: "Rome", explanation: "Rome is Italy's capital." },
     ];
+    for (const question of seeds) {
+      question.wrongAnswerExplanations = Object.fromEntries(question.options!.filter(option => option !== question.correctAnswer).map(option => [option, `${option} is not the capital asked for.`]));
+      Object.assign(question, markQuestionFeedbackPrepared(question));
+    }
     await db.update(drafts).set({ questions: seeds, title: "European capitals", status: "paused" }).where(eq(drafts.id, draft.id));
     assert.equal(await claimGenerationDraft("not-the-owner", draft.id), undefined);
     assert.deepEqual(await listGenerationDrafts("not-the-owner"), []);
@@ -54,7 +64,7 @@ test("durable drafts enforce ownership, single resume, preservation, and atomic 
     assert.equal(completed.quiz.id, draft.id);
     assert.equal(await claimGenerationDraft(userId, draft.id), undefined);
     assert.deepEqual(await listGenerationDrafts(userId), []);
-    assert.equal(calls, 5); // Three failed recovery calls, then generation + audit.
+    assert.equal(calls, 4); // Three unsuccessful top-ups, then one successful writer call.
   } finally {
     await db.delete(quizzes).where(eq(quizzes.userId, userId));
     await db.delete(users).where(eq(users.id, userId));

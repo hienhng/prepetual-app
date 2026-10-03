@@ -29,6 +29,7 @@ import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/language-context";
 import { MathText } from "@/components/formatted-text";
+import { fetchVerifiedQuizFeedback, QuizFeedbackError } from "@/lib/verified-quiz-feedback";
 import type { Question, Quiz } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 
@@ -82,6 +83,7 @@ interface DailyRevisionProgress {
   answers: Record<string, string>;
   checkedQuestions: string[];
   isComplete: boolean;
+  verifiedQuestions?: Record<string, Question>;
 }
 
 const DAILY_REVISION_STORAGE_PREFIX = 'prepetual:daily-revision:';
@@ -594,6 +596,9 @@ function DailyRevisionPanel({
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [checkedQuestions, setCheckedQuestions] = useState<string[]>([]);
   const [generatedExplanations, setGeneratedExplanations] = useState<Record<string, string>>({});
+  const [verifiedQuestions, setVerifiedQuestions] = useState<Record<string, Question>>({});
+  const [verificationError, setVerificationError] = useState<string | null>(null);
+  const verificationInFlight = useRef(false);
   const [generatingExplanationFor, setGeneratingExplanationFor] = useState<string | null>(null);
   const [expandedExplanationFor, setExpandedExplanationFor] = useState<string | null>(null);
   const [isReviewing, setIsReviewing] = useState(false);
@@ -617,6 +622,8 @@ function DailyRevisionPanel({
     setAnswers({});
     setCheckedQuestions([]);
     setGeneratedExplanations({});
+    setVerifiedQuestions({});
+    setVerificationError(null);
     setGeneratingExplanationFor(null);
     setExpandedExplanationFor(null);
     setIsReviewing(false);
@@ -651,8 +658,14 @@ function DailyRevisionPanel({
 
         setCurrentIndex(savedIndex);
         setAnswers(savedAnswers);
-        setCheckedQuestions(savedCheckedQuestions);
-        setIsComplete(saved.isComplete === true);
+        const restoredVerified = Object.fromEntries(Object.entries(saved.verifiedQuestions || {}).filter(([id, question]) => {
+          const source = revision.questions.find(item => item.id === id);
+          return source && question?.question === source.question && JSON.stringify(question.options) === JSON.stringify(source.options);
+        }));
+        setVerifiedQuestions(restoredVerified);
+        setGeneratedExplanations(Object.fromEntries(Object.entries(restoredVerified).map(([id, question]) => [id, question.explanation || ""])));
+        setCheckedQuestions(savedCheckedQuestions.filter(id => restoredVerified[id]));
+        setIsComplete(saved.isComplete === true && revision.questions.every(question => restoredVerified[question.id]));
       }
     } catch (error) {
       console.warn('Unable to restore daily revision progress:', error);
@@ -669,6 +682,7 @@ function DailyRevisionPanel({
       answers,
       checkedQuestions,
       isComplete,
+      verifiedQuestions,
     };
 
     try {
@@ -676,7 +690,7 @@ function DailyRevisionPanel({
     } catch (error) {
       console.warn('Unable to save daily revision progress:', error);
     }
-  }, [answers, checkedQuestions, currentIndex, hydratedStorageKey, isComplete, storageKey]);
+  }, [answers, checkedQuestions, currentIndex, hydratedStorageKey, isComplete, storageKey, verifiedQuestions]);
 
   if (isLoading) {
     return <Skeleton className="h-48 w-full rounded-2xl" />;
@@ -696,15 +710,17 @@ function DailyRevisionPanel({
     );
   }
 
-  const currentQuestion = revision.questions[currentIndex];
+  const rawQuestion = revision.questions[currentIndex];
+  const currentQuestion = verifiedQuestions[rawQuestion?.id] || rawQuestion;
   const selectedAnswer = currentQuestion ? answers[currentQuestion.id] : undefined;
   const isChecked = currentQuestion ? checkedQuestions.includes(currentQuestion.id) : false;
   const isCorrect = !!currentQuestion && selectedAnswer?.toLowerCase().trim() === currentQuestion.correctAnswer.toLowerCase().trim();
   const score = revision.questions.filter(
-    (question) => answers[question.id]?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim(),
+    (question) => answers[question.id]?.toLowerCase().trim() === (verifiedQuestions[question.id] || question).correctAnswer.toLowerCase().trim(),
   ).length;
 
   const getProgressSegmentColor = (question: Question, index: number) => {
+    question = verifiedQuestions[question.id] || question;
     if (!checkedQuestions.includes(question.id)) {
       return index === currentIndex && !isComplete
         ? 'bg-primary'
@@ -717,39 +733,24 @@ function DailyRevisionPanel({
   };
 
   const generateBriefExplanation = async () => {
-    if (!currentQuestion || !selectedAnswer || generatingExplanationFor === currentQuestion.id) return;
-
-    setExpandedExplanationFor(currentQuestion.id);
+    if (!currentQuestion || !selectedAnswer || verificationInFlight.current) return;
+    verificationInFlight.current = true;
     setGeneratingExplanationFor(currentQuestion.id);
+    setVerificationError(null);
     try {
-      const response = await fetch('/api/generate-explanation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          question: currentQuestion.question,
-          options: currentQuestion.options,
-          correctAnswer: currentQuestion.correctAnswer,
-          selectedAnswer,
-          isCorrect,
-          category: revision.quiz.category,
-          brief: true,
-        }),
-      });
-
-      if (!response.ok) throw new Error('Unable to generate explanation');
-      const result = await response.json() as { explanation?: string };
-      const explanation = result.explanation?.trim();
-      if (explanation) {
-        setGeneratedExplanations((previous) => ({ ...previous, [currentQuestion.id]: explanation }));
-      }
+      const result = await fetchVerifiedQuizFeedback(revision.quiz.id, currentQuestion, selectedAnswer);
+      setVerifiedQuestions(previous => ({ ...previous, [currentQuestion.id]: result.question }));
+      setGeneratedExplanations(previous => ({ ...previous, [currentQuestion.id]: result.explanation }));
+      setExpandedExplanationFor(currentQuestion.id);
+      return result.question;
     } catch (error) {
-      console.error('Unable to generate daily revision explanation:', error);
+      setVerificationError(t(error instanceof QuizFeedbackError && error.code === "ANSWER_REVIEW_REQUIRED"
+        ? "quizPlayer.answerNeedsReview" : "quizPlayer.answerVerificationUnavailable"));
     } finally {
+      verificationInFlight.current = false;
       setGeneratingExplanationFor(null);
     }
   };
-
   const handleWhyClick = () => {
     if (!currentQuestion) return;
 
@@ -842,7 +843,7 @@ function DailyRevisionPanel({
                     type="button"
                     disabled={isChecked}
                     aria-pressed={isSelected}
-                    onClick={() => setAnswers((previous) => ({ ...previous, [currentQuestion.id]: option }))}
+                    onClick={() => { if (!verificationInFlight.current) setAnswers((previous) => ({ ...previous, [currentQuestion.id]: option })); }}
                     className={`flex w-full items-start gap-2.5 rounded-xl border-2 p-2.5 text-left transition-colors ${
                       showCorrect
                         ? 'border-emerald-500 bg-emerald-500/10'
@@ -864,6 +865,7 @@ function DailyRevisionPanel({
               })}
             </div>
 
+            {verificationError && <p role="alert" className="mt-3 text-sm text-destructive">{verificationError}</p>}
             {isChecked && (
               <div className={`mt-3 rounded-xl border p-3 ${isCorrect ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-destructive/30 bg-destructive/10'}`}>
                 <div className="flex items-center justify-between gap-3">
@@ -913,10 +915,13 @@ function DailyRevisionPanel({
             ) : !isChecked ? (
               <Button
                 className="mt-4 w-full shrink-0 rounded-xl"
-                disabled={!selectedAnswer}
-                onClick={() => setCheckedQuestions((previous) => [...previous, currentQuestion.id])}
+                disabled={!selectedAnswer || generatingExplanationFor !== null}
+                onClick={async () => {
+                  const verified = await generateBriefExplanation();
+                  if (verified) setCheckedQuestions(previous => Array.from(new Set([...previous, verified.id])));
+                }}
               >
-                {t('dashboard.checkAnswer')}
+                {generatingExplanationFor !== null ? t('quizPlayer.grading') : t('dashboard.checkAnswer')}
               </Button>
             ) : (
               <Button

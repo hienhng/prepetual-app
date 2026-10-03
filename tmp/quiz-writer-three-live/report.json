@@ -1,0 +1,11 @@
+{
+  "mode": "One live production generation using a synthetic Vietnamese physics fixture with no personal data; excludes upload/OCR, database retrieval, HTTP/SSE and persistence",
+  "completed": false,
+  "requested": 3,
+  "accepted": 1,
+  "error": "Generated 1 of 3 validated questions before the retry limit. Try again or request fewer questions.",
+  "code": "INSUFFICIENT_VALID_QUESTIONS",
+  "stage": "top_up",
+  "totalMs": 273958,
+  "providerRequests": 34
+}

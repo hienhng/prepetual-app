@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-be2c3545-b601-48cc-a2d8-8069742e78d1",
+  "object": "chat.completion",
+  "created": 1791016946,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"reviews\": [\n    {\n      \"id\": \"P6\",\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": false,\n      \"reasoningJustification\": \"The learner must translate three linear constraints (heat, time, electrical work) into a system of inequalities, infer the hidden COP and rate‑per‑second ratios, and locate the unique feasible intersection point, which requires non‑routine linear‑programming reasoning rather than simple substitution.\",\n      \"reason\": \"Feasibility requires solving a coupled inequality system; the task goes beyond routine arithmetic and demands trade‑off analysis.\"\n    }\n  ],\n  \"evidence\": [\n    {\n      \"chunkId\": \"synthetic-physics-3\",\n      \"quote\": \"NGUỒN GIẢ LẬP: Một máy lạnh có hai chế độ đo ở cùng điều kiện: chế độ A, mỗi chu trình lấy 540 kJ từ ngăn lạnh, nhận công điện 180 kJ và mất 60 giây; chế độ B, mỗi chu trình lấy 600 kJ từ ngăn lạnh, nhận công điện 240 kJ và mất 40 giây. Nhiệt thải ra ngoài bằng nhiệt lấy từ ngăn lạnh cộng công điện. Hệ số hiệu quả COP là nhiệt lấy từ ngăn lạnh chia công điện. Tải cần lấy khỏi ngăn lạnh là 2160 kJ. Bộ điều khiển cho phép chạy một phần chu trình và giả định các dòng năng lượng không đổi trong mỗi chế độ. Tổng thời gian tối đa là 200 giây và ngân sách điện tối đa là 800 kJ.\"\n    }\n  ]\n}",
+        "reasoning": "We need to output JSON with reviews array. There's one plan id P6. Need to assess criteria.\n\nWe must check selfContained: Does the stem (question) include all needed givens? The plan description: \"Xác định liệu có thể đáp ứng yêu cầu lấy nhiệt tổng cộng 2160 kJ trong thời gian không vượt quá 200 s và ngân sách điện không vượt quá 800 kJ, và nếu có, xác định số chu trình (có thể là phân số) của chế độ A và B cần chạy. Người học phải suy ra ràng buộc ẩn về hiệu suất năng lượng (COP) và tỉ lệ nhiệt lấy được trên mỗi giây để quyết định cách phân phối chu trình sao cho vừa thỏa thời gian vừa thỏa năng lượng, sau đó lựa chọn tổ hợp duy nhất thỏa mãn cả ba ràng buộc.\"\n\nAll givens are in source: heat per cycle, work per cycle, time per cycle, total heat required, max time, max work. So selfContained true.\n\nsourceSupported: The cited chunk includes all needed numbers and relationships. Yes, relationships are given. So sourceSupported true.\n\nhardReasoning: Need to evaluate difficulty. The task: determine feasibility and find fractional numbers of cycles satisfying three constraints (heat >=2160, time <=200, work <=800). This is a linear programming feasibility with three inequalities, find intersection point. Requires solving system of inequalities, possibly using linear combination, not just routine substitution. It involves hidden COP ratio and rate per second, and deciding distribution. This is more than routine arithmetic; it's a nontrivial linear inequality solving, maybe requiring understanding of trade-offs. That qualifies as hardReasoning per guidelines (non‑routine dependent inference, interacting concepts). So hardReasoning true.\n\ncredibleDistractors: This is a selection type (multiple choice). Need to ensure distractors plausible. But we don't have actual answer options provided. The plan is for selection type. We need to assess if credibleDistractors can be satisfied. Since no options are given, we cannot evaluate. The instruction says return booleans for selfContained, sourceSupported, hardReasoning, credibleDistractors. For credibleDistractors we must assess based on plan? Since no options, we cannot guarantee credible distractors. Likely false because not provided. But maybe we assume the eventual question will have options; we need to assess if plausible. Since not given, we cannot confirm. Probably set credibleDistractors to false (cannot guarantee). However guidelines: \"For HARD multiple_choice/selection, incorrect choices must arise from plausible, distinct misconceptions...\" Since we have no options, we cannot verify. So set credibleDistractors false.\n\nWe also need evidence array because sourceEvidence not supplied. Provide at least one relevant quote for every cited chunk. There's one chunk synthetic-physics-3 with quote already. We need to include that in evidence.\n\nReturn JSON with reviews array containing id \"P6\". Include fields selfContained, sourceSupported, hardReasoning, credibleDistractors, reasoningJustification, reason? The spec: return JSON {\"reviews\":[{\"id\":\"assigned plan id\",\"selfContained\":true,\"sourceSupported\":true,\"hardReasoning\":true,\"reasoningJustification\":\"actual dependent inference beyond routine substitution\",\"reason\":\"specific feasibility/difficulty assessment\"}]}. It didn't mention credibleDistractors field in example, but earlier they said return selfContained, sourceSupported, hardReasoning, credibleDistractors as booleans and reasoningJustification. So include credibleDistractors as well. Also include evidence field at top-level? The spec: \"When source grounding is enabled and no server-provided sourceEvidence is supplied, also return evidence:[{...}]. Include at least one relevant quote for EVERY cited chunk\". Probably at same level as reviews? Might be top-level field \"evidence\". We'll include \"evidence\" array.\n\nThus final JSON compact.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.255781233,
+    "prompt_tokens": 1921,
+    "prompt_time": 0.07639174,
+    "completion_tokens": 1166,
+    "completion_time": 2.442292685,
+    "total_tokens": 3087,
+    "total_time": 2.518684425,
+    "completion_tokens_details": {
+      "reasoning_tokens": 802
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_c3da0d4bb9",
+  "x_groq": {
+    "id": "req_01m40evg3me3jrdqzh5kt1z242",
+    "seed": 1390661174
+  },
+  "service_tier": "on_demand"
+}

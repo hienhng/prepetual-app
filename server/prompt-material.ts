@@ -1,10 +1,12 @@
 import type { DifficultyLevel, QuestionType } from "../shared/schema.js";
+import { quizLanguageInstructions } from "../shared/quiz-language.js";
 
 export interface PromptMaterialInstructionsParams {
   questionCount: number;
   questionTypes: QuestionType[];
   difficulty: DifficultyLevel;
   assessmentGuidance?: string;
+  targetLanguage?: string;
 }
 
 export { resolvePromptQuizSettings } from "../shared/prompt-quiz-settings.js";
@@ -54,6 +56,7 @@ export function buildPromptMaterialSystemInstructions({
   questionTypes,
   difficulty,
   assessmentGuidance = "",
+  targetLanguage,
 }: PromptMaterialInstructionsParams): string {
   const assessmentSection = assessmentGuidance.trim()
     ? `\nASSESSMENT-SPECIFIC GUIDANCE:\n${assessmentGuidance.trim()}\n`
@@ -66,7 +69,7 @@ First analyze the user's request internally to determine its subject, intended a
 The later quiz will contain ${questionCount} ${difficulty.toUpperCase()}-difficulty questions and may use these formats: ${describeQuestionTypes(questionTypes)}. Create enough breadth, depth, examples, and precise evidence to support that quiz without referring back to the user's request.
 
 SOURCE-MATERIAL REQUIREMENTS:
-- Write the material in the language explicitly requested by the user. Otherwise use the primary language of the request.
+${targetLanguage ? quizLanguageInstructions(targetLanguage) : "- Write the material in the language explicitly requested by the user. Otherwise use the primary language of the request."}
 - Start with a concise descriptive heading, then organize the material with clear sections.
 - Include the definitions, facts, relationships, rules, examples, worked reasoning, data, or original practice stimuli needed for the requested scope and difficulty.
 - Make the material factual, internally consistent, and specific enough that every later question can be answered from it alone.

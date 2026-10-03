@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-ee909d10-0738-4777-93b7-d4311e8c668d",
+  "object": "chat.completion",
+  "created": 1791010952,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Biến đổi áp suất, ngưng tụ và phồng bóng - bài tập nâng cao\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P44\",\"type\":\"selection\",\"recordIds\":[\"F24\",\"F6\"],\"intent\":\"Xác định các giá trị nhiệt độ khả thi cho khí trong bình khi áp suất tăng từ 4 atm lên 4,5 atm ở thể tích không đổi, đồng thời loại bỏ những giá trị vượt quá giới hạn an toàn của vật liệu (không vượt 120 °C).\",\"reasoningSteps\":[\"Sử dụng định luật Gay‑Lussac (P1/T1 = P2/T2) để tính nhiệt độ cuối cùng T2 tương ứng với áp suất 4,5 atm; chuyển đổi sang độ C\",\"Kiểm tra T2 có nằm trong khoảng cho phép (≤120 °C) và chỉ chọn các giá trị đáp án thỏa mãn; các giá trị ngoài phạm vi bị loại\"]},{\"id\":\"P45\",\"type\":\"true_false\",\"recordIds\":[\"F1\"],\"intent\":\"Phát hiện mô hình sai: khẳng định rằng các giọt nước li ti xuất hiện khi hơi thở làm tăng nhiệt độ mặt kính lên trên điểm sôi của nước, dẫn đến ngưng tụ; yêu cầu người học so sánh với nguyên tắc thực tế rằng ngưng tụ xảy ra khi hơi nước được làm lạnh dưới điểm sương, không khi nhiệt độ tăng.\",\"reasoningSteps\":[\"Xác định rằng hiện tượng ngưng tụ xảy ra khi hơi nước tiếp xúc với bề mặt có nhiệt độ thấp hơn điểm sương của hơi, gây giảm nhiệt độ hơi dưới điểm sương\",\"So sánh với khẳng định trong câu hỏi (nhiệt độ tăng lên trên điểm sôi) và nhận định rằng khẳng định sai, do đó giá trị Truth là False\"]},{\"id\":\"P46\",\"type\":\"short_answer\",\"recordIds\":[\"F2\"],\"intent\":\"Chẩn đoán mô hình sai: tính tỉ lệ thể tích cuối cùng so với thể tích ban đầu của quả bóng bàn khi được đặt vào nước nóng (nhiệt độ nước 70 °C, môi trường ban đầu 20 °C), giả sử áp suất bên trong không đổi và khí lý tưởng; yêu cầu đưa ra giá trị số và đánh giá liệu giá trị này có khớp với quan sát bóng phồng lên hay không.\",\"reasoningSteps\":[\"Áp dụng định luật Charles (V∝T) với áp suất không đổi: V2/V1 = (T2)/(T1) với T tính bằng Kelvin\",\"Tính T2 = 70 °C+273 = 343 K và T1 = 20 °C+273 = 293 K, suy ra V2/V1 ≈ 343/293 ≈ 1.17; đưa ra kết quả số và so sánh với quan sát thực tế\"]}]}",
+        "reasoning": "We need to output JSON with title, category, plans array for three slots P44, P45, P46.\n\nWe must use only reviewed source records. For each slot, primaryRecordId given. Must include recordIds array with primary and possibly up to two others.\n\nWe need to create hard questions per patterns.\n\nSlot P44: selection, primaryRecordId F24, pattern \"inverse constraint and feasibility\". Need to create a selection (multiple correct? selection type likely multiple correct options? Usually selection means choose all that apply). Need to use F24 (gas pressure-temperature relationship). Possibly combine with another record to make inverse constraint: given final pressure, find temperature, but also need feasibility: maybe temperature must be within realistic range, or volume constant. Use also maybe F6 (ideal gas law pressure change with temperature) to compare. Use up to two other records.\n\nWe need to produce plan JSON with intent and reasoningSteps.\n\nSlot P45: true_false, primaryRecordId F1, pattern \"diagnose an incorrect model using a decisive comparison\", targetTruthValue False. Need to create a statement that is false, requiring diagnosing incorrect model. Use condensation on glass. Maybe statement: \"When warm humid breath contacts a cooler glass, the water vapor condenses because the glass temperature rises above the dew point.\" That's false; need comparison. Use maybe also F5 (internal energy change without heat) to compare? But maybe just F1 enough. Provide reasoning steps: compare dew point vs glass temperature.\n\nSlot P46: short_answer, primaryRecordId F2, pattern same as P45 (diagnose incorrect model). Need short answer requiring derived result, not just word. Use balloon deformation. Perhaps ask: \"Calculate the ratio of final to initial volume of the balloon if the temperature of the water is increased from 20°C to 80°C, assuming ideal gas and constant pressure, and determine whether the observed re‑inflation is consistent with this ratio.\" Need answer numeric ratio. Use F2 only maybe.\n\nBut must ensure hard: need non‑routine: maybe inverse constraint: given observed re‑inflation amount, infer temperature change and decide if plausible.\n\nLet's craft each plan.\n\nWe must output JSON compact.\n\nMake sure recordIds list includes primary and any others.\n\nProvide intent description.\n\nReasoning steps list strings.\n\nLet's draft.\n\nP44: selection. Use F24 and F6 (pressure change with temperature constant volume). Intent: Determine which of the following temperature values are feasible for the gas given initial 70°C, 4 atm, final pressure 4.5 atm, assuming constant volume, and also considering that the container cannot exceed material limit of 120°C. Options include correct feasible temperatures (e.g., 84°C) and infeasible (e.g., 200°C). Need selection of all feasible. Provide reasoning: use Gay-Lussac law to compute T2, then check against limit.\n\nP45: true_false false. Use F1. Statement: \"Khi thở vào mặt kính ấm, các giọt nước li ti xuất hiện vì hơi nước trong hơi thở đã tăng nhiệt độ lên trên điểm sôi, nên nó ngưng tụ thành hơi nước.\" That's false. Reasoning: condensation occurs when gas is cooled below dew point, not heated above boiling point.\n\nP46: short_answer. Use F2. Ask: \"Nếu nhiệt độ nước nóng là 70°C và nhiệt độ môi trường ban đầu là 20°C, tính tỉ lệ (V_final / V_initial) của bóng bàn sau khi được đặt vào nước nóng, giả sử áp suất bên trong không đổi và khí lý tưởng. Kết quả có đúng với quan sát bóng phồng lên không?\" Answer numeric ratio ~ (T2/T1) = (70+273)/(20+273)=343/293≈1.17. Provide that.\n\nMake sure short answer expects numeric value.\n\nNow produce JSON.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.359585962,
+    "prompt_tokens": 11930,
+    "prompt_time": 0.657328423,
+    "completion_tokens": 1413,
+    "completion_time": 2.9259338,
+    "total_tokens": 13343,
+    "total_time": 3.583262223,
+    "completion_tokens_details": {
+      "reasoning_tokens": 799
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_3166198c1d",
+  "x_groq": {
+    "id": "req_01m4094h7wekpax8xcmy52wkh4",
+    "seed": 295927014
+  },
+  "service_tier": "on_demand"
+}

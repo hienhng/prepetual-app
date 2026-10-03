@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-7d875113-73bb-4809-8519-7a786410c390",
+  "object": "chat.completion",
+  "created": 1791017055,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"evaluations\": [\n    {\n      \"index\": 0,\n      \"sourceLanguage\": \"Vietnamese\",\n      \"itemLanguage\": \"Vietnamese\",\n      \"isConsistent\": true,\n      \"answerCorrect\": true,\n      \"explanationConsistent\": true,\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"Yêu cầu tối đa hoá Q đòi hỏi giải hệ bất đẳng thức hai biến, xác định điểm giao của hai ràng buộc và kiểm tra các đỉnh cực biên – một bước suy luận phi‑thủ tục hơn chỉ thay thế đơn giản, đáp ứng mức độ khó yêu cầu.\",\n      \"reason\": \"All criteria passed.\"\n    },\n    {\n      \"index\": 1,\n      \"sourceLanguage\": \"Vietnamese\",\n      \"itemLanguage\": \"Vietnamese\",\n      \"isConsistent\": true,\n      \"answerCorrect\": true,\n      \"explanationConsistent\": true,\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"Câu hỏi yêu cầu đánh giá khả năng đạt tải tối thiểu dựa trên việc so sánh giá trị tối đa Q (được tính bằng lập trình tuyến tính) với yêu cầu 2160 kJ; việc nhận ra và chứng minh tồn tại nghiệm khả thi không phải là phép tính thuần đổi đơn vị mà là suy luận dựa trên ràng buộc đa biến, đáp ứng độ khó hard.\",\n      \"reason\": \"All criteria passed.\"\n    }\n  ]\n}",
+        "reasoning": "We need to evaluate two items.\n\nFirst, check language consistency: both question, answer, explanation are Vietnamese with math symbols. So isConsistent true.\n\nNow answer correctness: need to independently solve.\n\nItem 0: short answer. Problem: given time constraint 200 s, energy budget 800 kJ, each cycle A uses 60 s, 180 kJ electricity, yields 540 kJ heat from cold. B uses 40 s, 240 kJ electricity, yields 600 kJ heat. Want max Q. They solved as linear programming. Let's verify.\n\nVariables n_A, n_B can be fractional (partial cycles). Constraints:\n\n60 n_A + 40 n_B ≤ 200 → divide 20: 3 n_A + 2 n_B ≤ 10.\n\nEnergy: 180 n_A + 240 n_B ≤ 800 → divide 60: 3 n_A + 4 n_B ≤ 13.333... (800/60 = 13.3333)\n\nObjective: Q = 540 n_A + 600 n_B.\n\nFeasible region: intersection of two half-planes with n_A,n_B ≥0.\n\nFind intersection point of the two lines:\n\n3 n_A + 2 n_B =10\n3 n_A + 4 n_B =13.3333\n\nSubtract first from second: 2 n_B = 3.3333 → n_B = 1.6666665 = 5/3.\n\nPlug into first: 3 n_A + 2*(5/3)=10 → 3 n_A + 10/3 =10 → 3 n_A = 20/3 → n_A = 20/9 ≈2.2222.\n\nCheck nonnegativity ok.\n\nCompute Q: 540*(20/9)=540*2.2222=1200 (since 540/9=60, *20=1200). 600*(5/3)=600*1.6667=1000. Sum 2200 kJ.\n\nCheck other vertices: (0,0) Q=0. Intersection with axes:\n\nTime constraint: if n_A=0, n_B ≤ 200/40=5. Energy constraint: if n_A=0, n_B ≤ 800/240=3.3333. So max n_B = 3.3333 (energy). Q=600*3.3333=2000.\n\nIf n_B=0, time gives n_A ≤200/60=3.3333. Energy gives n_A ≤800/180=4.444. So max n_A =3.3333. Q=540*3.3333=1800.\n\nThus 2200 is max. So answer correct.\n\nExplanation consistent? Explanation matches solution, uses Vietnamese. So true.\n\nNow selfContained: All needed data present in source chunk: yes includes times, energies, constraints. So selfContained true.\n\nsourceSupported: The source chunk includes same numbers. Yes supports.\n\nhardReasoning: Is this hard? The problem requires linear programming with two constraints, find intersection, not routine substitution? For hard difficulty, they said routine conversion, linear substitution is routine. However they require non-routine dependent inference, inverse constraints, etc. This is a linear programming optimization, which may be considered beyond simple substitution because need to consider corner points. Might be considered moderate but maybe qualifies as hard? The instruction: \"Converting units or Celsius to Kelvin followed by substitution, a linear thermometer calibration alone, and calculating two separate heat contributions and adding them are routine even with several arithmetic steps. Naming a symbol/abbreviation/unit, recalling a definition/constant, and copying a source answer are NOT hard.\" This problem is linear programming, which is more than routine substitution. I'd argue it meets hardReasoning.\n\ncredibleDistractors: For multiple_choice item, need to evaluate.\n\nItem 1: multiple_choice. Options:\n\nA: \"Không, vì thời gian tối đa 200 s không đủ cho ít nhất 4 chu trình của chế độ A.\" (No, because time insufficient for at least 4 cycles of A). 4 cycles of A would need 4*60=240 >200, true but not needed; you could use B cycles.\n\nB: \"Không, vì bất kỳ sự kết hợp nào đều không thể cung cấp đủ nhiệt do giới hạn năng lượng.\" (No, any combination cannot provide enough heat due to energy limit). That's false because we found can achieve 2200 >2160.\n\nC: \"Có, bằng cách chạy hỗn hợp với n_A=20/9 và n_B=5/3, cho Q=2200 kJ.\" (Yes, using that mix). Correct.\n\nD: \"Có, nhưng chỉ có thể đạt được nếu sử dụng hoàn toàn chế độ A và bỏ qua chế độ B.\" (Yes, but only using all A). That's false.\n\nThus distractors are plausible misconceptions: A thinks time insufficient for 4 cycles of A (maybe think need 4 cycles to reach 2160). B thinks energy limit prevents. D thinks only A works. These are plausible. So credibleDistractors true.\n\nNow language consistency: all Vietnamese. Good.\n\nNow need to produce JSON with evaluations for each index.\n\nAlso need to include reasoningJustification: brief assessment.\n\nAlso need reason field: if any failures, else \"All criteria passed.\"\n\nAll passed.\n\nNow produce JSON.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.3675538,
+    "prompt_tokens": 3841,
+    "prompt_time": 0.195712229,
+    "completion_tokens": 1488,
+    "completion_time": 3.109578783,
+    "total_tokens": 5329,
+    "total_time": 3.305291012,
+    "completion_tokens_details": {
+      "reasoning_tokens": 1117
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_dee443f41b",
+  "x_groq": {
+    "id": "req_01m40eysgyedj9zhr6arp7vwbj",
+    "seed": 1471036654
+  },
+  "service_tier": "on_demand"
+}

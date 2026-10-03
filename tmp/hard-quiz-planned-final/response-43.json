@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-86e3efbe-a10a-48b8-8e80-76b9b757d9c6",
+  "object": "chat.completion",
+  "created": 1791009952,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Kế hoạch câu hỏi đa dạng cho đề thi vật lý\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P23\",\"type\":\"multiple_choice\",\"recordIds\":[\"F6\"],\"intent\":\"Tính áp suất cuối cùng của khí trong lốp khi nhiệt độ tăng từ 27 °C lên 54 °C, thể tích không đổi; lựa chọn đáp án đúng\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ Celsius sang Kelvin cho cả hai trạng thái\",\"Áp dụng công thức P1/T1 = P2/T2 để tính P2 và so sánh với các lựa chọn\"]},{\"id\":\"P24\",\"type\":\"selection\",\"recordIds\":[\"F14\"],\"intent\":\"Xác định các khẳng định đúng về chu trình tủ lạnh khi COP=3 và công nén A=180 kJ; chọn tất cả đáp án đúng\",\"reasoningSteps\":[\"Tính Q1 = COP·A để có nhiệt lượng hấp thụ ở buồng lạnh\",\"Tính Q2 = Q1 + A để có nhiệt lượng thải ra dàn nóng và kiểm tra từng khẳng định\"]},{\"id\":\"P25\",\"type\":\"true_false\",\"recordIds\":[\"F1\"],\"intent\":\"Khẳng định: Khi không khí ẩm tiếp xúc với kính lạnh, nước sẽ bốc hơi; xác định tính đúng/sai dựa trên hiện tượng ngưng tụ\",\"reasoningSteps\":[\"Xác định điều kiện: không khí ẩm tiếp xúc với bề mặt kính có nhiệt độ thấp hơn điểm sương\",\"Áp dụng quy tắc ngưng tụ (khí chuyển thành lỏng) để nhận thấy khẳng định là sai\"]},{\"id\":\"P26\",\"type\":\"short_answer\",\"recordIds\":[\"F3\"],\"intent\":\"Tính tổng nhiệt lượng cần thiết để tan 4 kg băng ở 0 °C và làm nước nóng lên 25 °C; đưa ra kết quả số (kJ)\",\"reasoningSteps\":[\"Tính Q_fusion = m·L_f cho quá trình tan băng\",\"Tính Q_heating = m·c·ΔT cho quá trình làm nóng nước và cộng hai giá trị lại\"]},{\"id\":\"P27\",\"type\":\"multiple_choice\",\"recordIds\":[\"F7\"],\"intent\":\"Tính khối lượng nitơ trong bình kín (V=12 L, p=80 atm, T=17 °C) và chọn đáp án đúng\",\"reasoningSteps\":[\"Sử dụng công thức n = PV/(R·T) để tính số mol nitơ (đổi nhiệt độ sang Kelvin)\",\"Nhân số mol với khối lượng mol của nitơ để có khối lượng và so sánh với các lựa chọn\"]}]}",
+        "reasoning": "We need to output JSON with title, category, plans array for slots P23-P27. Must use only reviewed source records. Must plan tasks, not generate questions. Provide intent, reasoning steps. Must ensure each plan uses up to 3 records and 4 source chunks. Must be hard: at least two reasoning steps. Provide dependent reasoning steps list.\n\nWe need to assign each slot a plan.\n\nWe have source records F1-F20 (some). We need to create plans for each slot using appropriate source(s). Must not generate actual question content, just plan.\n\nWe must ensure each plan's type matches slot type.\n\nSlots:\n\nP23 multiple_choice\nP24 selection\nP25 true_false targetTruthValue False\nP26 short_answer\nP27 multiple_choice\n\nWe need to avoid using same source as other plans? Not required but can reuse.\n\nWe need to ensure each plan uses source recordIds and intent includes conditions.\n\nWe must ensure hard: at least two reasoning steps.\n\nLet's design:\n\nP23: multiple_choice using ideal gas law pressure change (F6). Task: Given initial pressure/temp, find final pressure after temperature rise, but ask which option is correct. Reasoning steps: convert temps to Kelvin, apply P1/T1 = P2/T2, compute.\n\nUse F6 record. Reasoning steps: 1) Convert Celsius to Kelvin for both temps. 2) Apply proportionality to find P2.\n\nP24: selection (multiple correct) using refrigeration COP (F14). Task: Determine which statements are true about the cycle given COP=3 and work input 180 kJ. Need select all correct statements. Reasoning: compute Q1 = COP*A, then Q2 = Q1 + A, evaluate statements.\n\nUse F14. Reasoning steps: 1) Compute Q1 = 3*180 = 540 kJ. 2) Compute Q2 = 540+180 = 720 kJ. Then evaluate statements.\n\nP25: true_false false. Use condensation on glass (F1). Provide statement like \"Khi không khí ẩm tiếp xúc với kính lạnh, nước sẽ bốc hơi\". That's false because condensation occurs not evaporation. Need derived conclusion: condensation occurs. Reasoning steps: 1) Identify condition: humid air contacts cooler glass, temperature drops below dew point. 2) Apply relationship: condensation occurs, not evaporation. So statement false.\n\nUse F1.\n\nP26: short_answer using heat required to melt ice and warm water (F3). Ask for total heat required (in kJ). Need derived numeric answer. Reasoning steps: 1) Compute heat to melt: m*L_f. 2) Compute heat to raise temperature: m*c*ΔT. Sum.\n\nUse F3.\n\nP27: multiple_choice using ideal gas law mass of nitrogen (F7). Task: find pressure after temperature change? Actually we can ask about mass calculation. Provide multiple choice about mass. Reasoning steps: 1) Compute moles n = PV/RT (convert units). 2) Compute mass = n * molar mass.\n\nUse F7.\n\nMake sure each plan uses at most 3 records (we use one each). Provide source recordIds list.\n\nProvide intent description.\n\nNow produce JSON compact.\n\nCheck JSON validity: no trailing commas.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.335365998,
+    "prompt_tokens": 9760,
+    "prompt_time": 0.44567125,
+    "completion_tokens": 1259,
+    "completion_time": 2.627490293,
+    "total_tokens": 11019,
+    "total_time": 3.073161543,
+    "completion_tokens_details": {
+      "reasoning_tokens": 683
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_f73454f048",
+  "x_groq": {
+    "id": "req_01m408619nerxapdhmskhd9w1j",
+    "seed": 670529273
+  },
+  "service_tier": "on_demand"
+}

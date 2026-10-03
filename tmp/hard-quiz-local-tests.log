@@ -1,0 +1,1169 @@
+TAP version 13
+# Subtest: extracts text from an untrusted PDF with evaluation disabled
+ok 1 - extracts text from an untrusted PDF with evaluation disabled
+  ---
+  duration_ms: 1196.8643
+  type: 'test'
+  ...
+# Subtest: reads every page past the former 10-page limit and retains question line breaks
+ok 2 - reads every page past the former 10-page limit and retains question line breaks
+  ---
+  duration_ms: 41.4613
+  type: 'test'
+  ...
+# Subtest: transcribes every sparse page, including sparse pages mixed with selectable text
+ok 3 - transcribes every sparse page, including sparse pages mixed with selectable text
+  ---
+  duration_ms: 632.3755
+  type: 'test'
+  ...
+# Subtest: reports unreadable pages instead of silently importing the remaining pages
+ok 4 - reports unreadable pages instead of silently importing the remaining pages
+  ---
+  duration_ms: 45.9208
+  type: 'test'
+  ...
+# Subtest: blank separator pages are skipped without requesting transcription or rejecting the document
+ok 5 - blank separator pages are skipped without requesting transcription or rejecting the document
+  ---
+  duration_ms: 71.7288
+  type: 'test'
+  ...
+# Subtest: PDF layout preserves columns and coordinates instead of interleaving options
+ok 6 - PDF layout preserves columns and coordinates instead of interleaving options
+  ---
+  duration_ms: 7.9831
+  type: 'test'
+  ...
+# Subtest: OCR quality checks detect corrupt text and a readable header over a scanned page
+ok 7 - OCR quality checks detect corrupt text and a readable header over a scanned page
+  ---
+  duration_ms: 0.3564
+  type: 'test'
+  ...
+# Subtest: layout keeps raised exponents with their baseline instead of moving them before the question
+ok 8 - layout keeps raised exponents with their baseline instead of moving them before the question
+  ---
+  duration_ms: 0.1931
+  type: 'test'
+  ...
+# Subtest: submission stores the result and clears only this participant's quiz progress before commit
+ok 9 - submission stores the result and clears only this participant's quiz progress before commit
+  ---
+  duration_ms: 6.9693
+  type: 'test'
+  ...
+# Subtest: guest submissions store their result without deleting anyone's progress
+ok 10 - guest submissions store their result without deleting anyone's progress
+  ---
+  duration_ms: 0.9459
+  type: 'test'
+  ...
+# Subtest: failure to clear progress rolls back the result instead of reporting completion
+ok 11 - failure to clear progress rolls back the result instead of reporting completion
+  ---
+  duration_ms: 1.3029
+  type: 'test'
+  ...
+# Subtest: failure to store the result preserves progress
+ok 12 - failure to store the result preserves progress
+  ---
+  duration_ms: 0.8134
+  type: 'test'
+  ...
+# Subtest: repairs labels and whitespace without inventing answers or changing source input
+ok 13 - repairs labels and whitespace without inventing answers or changing source input
+  ---
+  duration_ms: 3.2837
+  type: 'test'
+  ...
+# Subtest: scales retrieval evidence while requesting the full quiz up front
+ok 14 - scales retrieval evidence while requesting the full quiz up front
+  ---
+  duration_ms: 0.3226
+  type: 'test'
+  ...
+# Subtest: bounds top-up candidate requests
+ok 15 - bounds top-up candidate requests
+  ---
+  duration_ms: 0.1895
+  type: 'test'
+  ...
+# Subtest: uses answer completion only as a fallback for incomplete initial questions
+ok 16 - uses answer completion only as a fallback for incomplete initial questions
+  ---
+  duration_ms: 0.2037
+  type: 'test'
+  ...
+# Subtest: reports a deficit only when the accepted count is short
+ok 17 - reports a deficit only when the accepted count is short
+  ---
+  duration_ms: 0.2879
+  type: 'test'
+  ...
+# Subtest: uses one consistent bounded context for generation and audits
+ok 18 - uses one consistent bounded context for generation and audits
+  ---
+  duration_ms: 0.1722
+  type: 'test'
+  ...
+# Subtest: exposes safe structured generation diagnostics
+ok 19 - exposes safe structured generation diagnostics
+  ---
+  duration_ms: 0.4029
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: '7bac833d-6de2-4013-93ef-e987e6473466',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '7bac833d-6de2-4013-93ef-e987e6473466',
+#   stage: 'reading',
+#   durationMs: 8
+# }
+# [QUIZ TIMING] {
+#   requestId: '7bac833d-6de2-4013-93ef-e987e6473466',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '7bac833d-6de2-4013-93ef-e987e6473466',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Initial generation returned 0/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '7bac833d-6de2-4013-93ef-e987e6473466',
+#   stage: 'validating',
+#   durationMs: 26
+# }
+# [RESUME LANGUAGE] Auditing batch 1/1 (questions 1-2 of 2).
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2; total is 2/3.
+# Only built 2/3 valid questions. Top-up attempt 1/3: requesting 2 candidates for 1 missing.
+# [QUIZ TIMING] {
+#   requestId: '7bac833d-6de2-4013-93ef-e987e6473466',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-1 of 1).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "What is the capital of Spain?..." — changing answer from "Madrid" to "Rome"
+# [QUIZ TIMING] {
+#   requestId: '7bac833d-6de2-4013-93ef-e987e6473466',
+#   stage: 'refining',
+#   durationMs: 9
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-1 of 1).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 2 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 1 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 3; total is 3/3.
+# Top-up attempt 1 added 1 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '7bac833d-6de2-4013-93ef-e987e6473466',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 0,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '7bac833d-6de2-4013-93ef-e987e6473466',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [QUIZ COUNTS] {
+#   requestId: '7bac833d-6de2-4013-93ef-e987e6473466',
+#   initialRequests: 0,
+#   topUpRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 1,
+#   rejectedCandidates: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '7bac833d-6de2-4013-93ef-e987e6473466',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '7bac833d-6de2-4013-93ef-e987e6473466', totalMs: 49 }
+# [QUIZ TIMING] {
+#   requestId: 'b89a1412-64f7-4802-b580-550ec31a2d38',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'b89a1412-64f7-4802-b580-550ec31a2d38',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'b89a1412-64f7-4802-b580-550ec31a2d38',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'b89a1412-64f7-4802-b580-550ec31a2d38',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Initial generation returned 0/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'b89a1412-64f7-4802-b580-550ec31a2d38',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [RESUME LANGUAGE] Auditing batch 1/1 (questions 1-2 of 2).
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2; total is 2/3.
+# Only built 2/3 valid questions. Top-up attempt 1/3: requesting 2 candidates for 1 missing.
+# [QUIZ TIMING] {
+#   requestId: 'b89a1412-64f7-4802-b580-550ec31a2d38',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# Top-up attempt 1 returned no question candidates.
+# Only built 2/3 valid questions. Top-up attempt 2/3: requesting 2 candidates for 1 missing.
+# Top-up attempt 2 returned no question candidates.
+# Only built 2/3 valid questions. Top-up attempt 3/3: requesting 2 candidates for 1 missing.
+# Top-up attempt 3 returned no question candidates.
+# Error generating quiz: QuizGenerationError: Generated 2 of 3 validated questions before the retry limit. Try again or request fewer questions.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2258:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-resume.test.ts:58:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-resume.test.ts:52:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 2
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'b89a1412-64f7-4802-b580-550ec31a2d38',
+#   initialRequests: 0,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'b89a1412-64f7-4802-b580-550ec31a2d38',
+#   stage: 'refining',
+#   durationMs: 12
+# }
+# [QUIZ TIMING] { requestId: 'b89a1412-64f7-4802-b580-550ec31a2d38', totalMs: 16 }
+# Subtest: resume preserves accepted questions and only requests missing candidates
+    # Subtest: successful resume skips initial generation, deduplicates, and checkpoints additions
+    ok 1 - successful resume skips initial generation, deduplicates, and checkpoints additions
+      ---
+      duration_ms: 53.3655
+      type: 'test'
+      ...
+    # Subtest: a second exhausted attempt preserves the prior checkpoint
+    ok 2 - a second exhausted attempt preserves the prior checkpoint
+      ---
+      duration_ms: 16.6825
+      type: 'test'
+      ...
+    1..2
+ok 20 - resume preserves accepted questions and only requests missing candidates
+  ---
+  duration_ms: 977.3697
+  type: 'test'
+  ...
+# Subtest: quiz language accepts regional tags and rejects unresolved or injected values
+ok 21 - quiz language accepts regional tags and rejects unresolved or injected values
+  ---
+  duration_ms: 24.9649
+  type: 'test'
+  ...
+# Subtest: language policy survives material creation, audits, replacements, images, and resume
+    # Subtest: manual language overrides a contrary prompt without detection
+    ok 1 - manual language overrides a contrary prompt without detection
+      ---
+      duration_ms: 0.4147
+      type: 'test'
+      ...
+    # Subtest: auto reads original accented and unaccented requests and multilingual material
+    ok 2 - auto reads original accented and unaccented requests and multilingual material
+      ---
+      duration_ms: 28.8044
+      type: 'test'
+      ...
+    # Subtest: image-only detection uses original images
+    ok 3 - image-only detection uses original images
+      ---
+      duration_ms: 0.9462
+      type: 'test'
+      ...
+# [MATERIAL LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [MATERIAL LANGUAGE] BATCH 1/1 Rejecting language-inconsistent question "English study material. English study material. English stud...": no reason supplied
+    # Subtest: unresolved detection does not silently fall back to English
+    ok 4 - unresolved detection does not silently fall back to English
+      ---
+      duration_ms: 1016.5562
+      type: 'test'
+      ...
+    # Subtest: language detection supports providers that reject JSON mode
+    ok 5 - language detection supports providers that reject JSON mode
+      ---
+      duration_ms: 3.0599
+      type: 'test'
+      ...
+# [MATERIAL LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "What is the capital in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "What is the capital in example 2?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "What is the capital in example 3?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d',
+#   stage: 'verifying',
+#   durationMs: 10
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 1, 2, 3; total is 3/3.
+# Top-up attempt 1 added 3 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d',
+#   stage: 'refining',
+#   durationMs: 6
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d',
+#   initialRequests: 1,
+#   topUpRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 0,
+#   rejectedCandidates: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: 'f7d02fc0-cd4d-49de-9346-981eea8ecf3d', totalMs: 21 }
+# [QUIZ TIMING] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 1 là gì?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 2 là gì?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 3 là gì?...": no reason supplied
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   stage: 'verifying',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   stage: 'refining',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 1, 2, 3; total is 3/3.
+# Top-up attempt 1 added 3 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   initialRequests: 1,
+#   topUpRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 6,
+#   rejectedCandidates: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: 'abfb1a6e-36c8-4de7-b8c9-650463ae9c16', totalMs: 19 }
+# [QUIZ TIMING] {
+#   requestId: '2fa96608-dfc8-4ebe-82a8-c2c364f6ed51',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '2fa96608-dfc8-4ebe-82a8-c2c364f6ed51',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '2fa96608-dfc8-4ebe-82a8-c2c364f6ed51',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '2fa96608-dfc8-4ebe-82a8-c2c364f6ed51',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '2fa96608-dfc8-4ebe-82a8-c2c364f6ed51',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '2fa96608-dfc8-4ebe-82a8-c2c364f6ed51',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation count mismatch: returned 3, requested 4.
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '2fa96608-dfc8-4ebe-82a8-c2c364f6ed51',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] Initial generation left 3/3 eligible questions incomplete; running answer completion only for those items.
+# [SOLVE/BUILD] Solving batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '2fa96608-dfc8-4ebe-82a8-c2c364f6ed51',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '2fa96608-dfc8-4ebe-82a8-c2c364f6ed51',
+#   stage: 'verifying',
+#   durationMs: 4
+# }
+# [QUIZ COUNTS] {
+#   requestId: '2fa96608-dfc8-4ebe-82a8-c2c364f6ed51',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 3,
+#   auditedCandidates: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '2fa96608-dfc8-4ebe-82a8-c2c364f6ed51',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '2fa96608-dfc8-4ebe-82a8-c2c364f6ed51', totalMs: 6 }
+# [QUIZ TIMING] {
+#   requestId: '63c14dfa-c3a9-4fdc-b020-9002538fb5e6',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '63c14dfa-c3a9-4fdc-b020-9002538fb5e6',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '63c14dfa-c3a9-4fdc-b020-9002538fb5e6',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '63c14dfa-c3a9-4fdc-b020-9002538fb5e6',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '63c14dfa-c3a9-4fdc-b020-9002538fb5e6',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '63c14dfa-c3a9-4fdc-b020-9002538fb5e6',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '63c14dfa-c3a9-4fdc-b020-9002538fb5e6',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '63c14dfa-c3a9-4fdc-b020-9002538fb5e6',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '63c14dfa-c3a9-4fdc-b020-9002538fb5e6',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [QUIZ COUNTS] {
+#   requestId: '63c14dfa-c3a9-4fdc-b020-9002538fb5e6',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '63c14dfa-c3a9-4fdc-b020-9002538fb5e6',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '63c14dfa-c3a9-4fdc-b020-9002538fb5e6', totalMs: 5 }
+# [QUIZ TIMING] {
+#   requestId: '5a9c4ef5-8a53-401a-8a85-9454de5a138a',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5a9c4ef5-8a53-401a-8a85-9454de5a138a',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5a9c4ef5-8a53-401a-8a85-9454de5a138a',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5a9c4ef5-8a53-401a-8a85-9454de5a138a',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Initial generation returned 0/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '5a9c4ef5-8a53-401a-8a85-9454de5a138a',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [RESUME LANGUAGE] Auditing batch 1/1 (questions 1-3 of 3).
+# [RESUME LANGUAGE] BATCH 1/1 Rejecting language-inconsistent question "What is the capital in example 3?...": no reason supplied
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2; total is 2/3.
+# Only built 2/3 valid questions. Top-up attempt 1/3: requesting 2 candidates for 1 missing.
+# [QUIZ TIMING] {
+#   requestId: '5a9c4ef5-8a53-401a-8a85-9454de5a138a',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-1 of 1).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 1 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 1 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 3; total is 3/3.
+# Top-up attempt 1 added 1 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '5a9c4ef5-8a53-401a-8a85-9454de5a138a',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 0,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '5a9c4ef5-8a53-401a-8a85-9454de5a138a',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [QUIZ COUNTS] {
+#   requestId: '5a9c4ef5-8a53-401a-8a85-9454de5a138a',
+#   initialRequests: 0,
+#   topUpRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5a9c4ef5-8a53-401a-8a85-9454de5a138a',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '5a9c4ef5-8a53-401a-8a85-9454de5a138a', totalMs: 4 }
+# [QUIZ TIMING] {
+#   requestId: '29f7b682-2938-41a0-aaae-cbdae82ed256',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '29f7b682-2938-41a0-aaae-cbdae82ed256',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '29f7b682-2938-41a0-aaae-cbdae82ed256',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '29f7b682-2938-41a0-aaae-cbdae82ed256',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '29f7b682-2938-41a0-aaae-cbdae82ed256',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '29f7b682-2938-41a0-aaae-cbdae82ed256',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [TITLE LANGUAGE] BATCH 1/1 Rejecting language-inconsistent question "French capitals...": no reason supplied
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '29f7b682-2938-41a0-aaae-cbdae82ed256',
+#   stage: 'validating',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '29f7b682-2938-41a0-aaae-cbdae82ed256',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '29f7b682-2938-41a0-aaae-cbdae82ed256',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [QUIZ COUNTS] {
+#   requestId: '29f7b682-2938-41a0-aaae-cbdae82ed256',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '29f7b682-2938-41a0-aaae-cbdae82ed256',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '29f7b682-2938-41a0-aaae-cbdae82ed256', totalMs: 5 }
+# [QUIZ TIMING] {
+#   requestId: '92b3ce94-8402-41ff-b747-b9400bcb624a',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '92b3ce94-8402-41ff-b747-b9400bcb624a',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '92b3ce94-8402-41ff-b747-b9400bcb624a',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '92b3ce94-8402-41ff-b747-b9400bcb624a',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '92b3ce94-8402-41ff-b747-b9400bcb624a',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '92b3ce94-8402-41ff-b747-b9400bcb624a',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation count mismatch: returned 3, requested 4.
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '92b3ce94-8402-41ff-b747-b9400bcb624a',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Batch response failed for 3 questions; retrying as groups of 2 and 1. Error: Language-consistency response omitted question indexes: 0, 1, 2
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 SPLIT 1 Batch response failed for 2 questions; retrying as groups of 1 and 1. Error: Language-consistency response omitted question indexes: 0, 1
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 1 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '92b3ce94-8402-41ff-b747-b9400bcb624a',
+#   stage: 'verifying',
+#   durationMs: 11
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Batch response failed for 3 questions; retrying as groups of 2 and 1. Error: Language-consistency response omitted question indexes: 0, 1, 2
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 SPLIT 1 Batch response failed for 2 questions; retrying as groups of 1 and 1. Error: Language-consistency response omitted question indexes: 0, 1
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 1 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Batch response failed for 3 questions; retrying as groups of 2 and 1. Error: Language-consistency response omitted question indexes: 0, 1, 2
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 SPLIT 1 Batch response failed for 2 questions; retrying as groups of 1 and 1. Error: Language-consistency response omitted question indexes: 0, 1
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 1 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Batch response failed for 3 questions; retrying as groups of 2 and 1. Error: Language-consistency response omitted question indexes: 0, 1, 2
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 SPLIT 1 Batch response failed for 2 questions; retrying as groups of 1 and 1. Error: Language-consistency response omitted question indexes: 0, 1
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 1 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:686:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at Module.generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2248:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-language.test.ts:217:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-language.test.ts:208:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Test.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '92b3ce94-8402-41ff-b747-b9400bcb624a',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 0,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '92b3ce94-8402-41ff-b747-b9400bcb624a',
+#   stage: 'refining',
+#   durationMs: 18
+# }
+# [QUIZ TIMING] { requestId: '92b3ce94-8402-41ff-b747-b9400bcb624a', totalMs: 30 }
+# [AI REVISE] Q1: AI picked answer not in options, finding closest match
+# [REVISE LANGUAGE 1] Auditing batch 1/1 (questions 1-1 of 1).
+# [REVISE LANGUAGE 1] BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 1 là gì?...": no reason supplied
+# [AI REVISE] Q1 retry (attempt 1): undefined
+    # Subtest: wrong-language study material is retried before it becomes quiz evidence
+    ok 6 - wrong-language study material is retried before it becomes quiz evidence
+      ---
+      duration_ms: 1023.4148
+      type: 'test'
+      ...
+    # Subtest: English short answers are replaced and top-up keeps the original request
+    ok 7 - English short answers are replaced and top-up keeps the original request
+      ---
+      duration_ms: 24.3822
+      type: 'test'
+      ...
+    # Subtest: English explanation introduced by the answer auditor is rejected
+    ok 8 - English explanation introduced by the answer auditor is rejected
+      ---
+      duration_ms: 19.4322
+      type: 'test'
+      ...
+    # Subtest: answer completion receives the resolved language
+    ok 9 - answer completion receives the resolved language
+      ---
+      duration_ms: 5.9671
+      type: 'test'
+      ...
+    # Subtest: canonical True/False values remain valid with Vietnamese stems
+    ok 10 - canonical True/False values remain valid with Vietnamese stems
+      ---
+      duration_ms: 4.9583
+      type: 'test'
+      ...
+    # Subtest: resume removes legacy English items and preserves accepted Vietnamese items
+    ok 11 - resume removes legacy English items and preserves accepted Vietnamese items
+      ---
+      duration_ms: 4.5271
+      type: 'test'
+      ...
+    # Subtest: English title is rewritten and rechecked before checkpointing
+    ok 12 - English title is rewritten and rechecked before checkpointing
+      ---
+      duration_ms: 5.9524
+      type: 'test'
+      ...
+    # Subtest: missing language verdicts fail closed
+    ok 13 - missing language verdicts fail closed
+      ---
+      duration_ms: 30.4208
+      type: 'test'
+      ...
+# [AI REVISE] Q1: AI picked answer not in options, finding closest match
+# [REVISE LANGUAGE 1] Auditing batch 1/1 (questions 1-1 of 1).
+# [REVISE LANGUAGE 1] BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 1 là gì?...": no reason supplied
+# [AI REVISE] Q1 retry (attempt 2): undefined
+# [AI REVISE] Q1: AI picked answer not in options, finding closest match
+# [REVISE LANGUAGE 1] Auditing batch 1/1 (questions 1-1 of 1).
+# [REVISE LANGUAGE 1] BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 1 là gì?...": no reason supplied
+# [AI REVISE] Q1 retry (attempt 3): undefined
+# [AI REVISE] Q1 failed, keeping original: Error: Revision failed language validation
+#     at pRetry.retries (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2625:48)
+#     at async pRetry (file:///C:/Users/Gia%20Hien/Downloads/PrepetualApp/Prepetual/node_modules/p-retry/index.js:197:19)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2479:25)
+    # Subtest: revision with an English explanation keeps the original question
+    ok 14 - revision with an English explanation keeps the original question
+      ---
+      duration_ms: 3024.8991
+      type: 'test'
+      ...
+    1..14
+ok 22 - language policy survives material creation, audits, replacements, images, and resume
+  ---
+  duration_ms: 5436.7192
+  type: 'test'
+  ...
+# [RAG TIMING] {
+#   sourceId: 'dc41dc78-5dc4-4ff6-998d-855b7f2403b6',
+#   stage: 'indexing',
+#   durationMs: 2,
+#   ok: true
+# }
+# [RAG TIMING] {
+#   sourceId: 'fd3ac3e7-668f-47c9-bf3d-d536018db33d',
+#   stage: 'indexing',
+#   durationMs: 1,
+#   ok: true
+# }
+# [RAG TIMING] {
+#   sourceId: 'a347784f-9207-4c7e-96a1-35294263c6a9',
+#   stage: 'indexing',
+#   durationMs: 2,
+#   ok: true
+# }
+# [RAG TIMING] {
+#   sourceId: 'dba684f4-94e4-4c43-875c-a424b2608a13',
+#   stage: 'indexing',
+#   durationMs: 0,
+#   ok: false
+# }
+# Subtest: short source is available before indexing, with the same persistent citation IDs
+ok 23 - short source is available before indexing, with the same persistent citation IDs
+  ---
+  duration_ms: 7.2456
+  type: 'test'
+  ...
+# Subtest: long-source planning overlaps indexing, but retrieval waits for it
+ok 24 - long-source planning overlaps indexing, but retrieval waits for it
+  ---
+  duration_ms: 2.737
+  type: 'test'
+  ...
+# Subtest: failed planning waits for the index writer before deleting its source
+ok 25 - failed planning waits for the index writer before deleting its source
+  ---
+  duration_ms: 2.8933
+  type: 'test'
+  ...
+# Subtest: background indexing failure is retained for the route to reject before saving
+ok 26 - background indexing failure is retained for the route to reject before saving
+  ---
+  duration_ms: 0.5285
+  type: 'test'
+  ...
+# Subtest: selection candidate normalization keeps every correct option
+ok 27 - selection candidate normalization keeps every correct option
+  ---
+  duration_ms: 2.9119
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: 'f8e38012-b8b7-488b-a8e4-ae2e4acd77ac',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f8e38012-b8b7-488b-a8e4-ae2e4acd77ac',
+#   stage: 'reading',
+#   durationMs: 18
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f8e38012-b8b7-488b-a8e4-ae2e4acd77ac',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f8e38012-b8b7-488b-a8e4-ae2e4acd77ac',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'f8e38012-b8b7-488b-a8e4-ae2e4acd77ac',
+#   stage: 'generating',
+#   durationMs: 29
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f8e38012-b8b7-488b-a8e4-ae2e4acd77ac',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'f8e38012-b8b7-488b-a8e4-ae2e4acd77ac',
+#   stage: 'validating',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Select all prime numbers in set 1...." — changing answer from "["2","4"]" to "["3","2"]"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Select all prime numbers in set 2...." — changing answer from "["2","4"]" to "["2","3"]"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Select all prime numbers in set 3...." — changing answer from "["2","4"]" to "["2","3"]"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'f8e38012-b8b7-488b-a8e4-ae2e4acd77ac',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f8e38012-b8b7-488b-a8e4-ae2e4acd77ac',
+#   stage: 'verifying',
+#   durationMs: 11
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'f8e38012-b8b7-488b-a8e4-ae2e4acd77ac',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f8e38012-b8b7-488b-a8e4-ae2e4acd77ac',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: 'f8e38012-b8b7-488b-a8e4-ae2e4acd77ac', totalMs: 64 }
+# Subtest: selection generation and independent audit preserve a complete answer set after shuffling
+ok 28 - selection generation and independent audit preserve a complete answer set after shuffling
+  ---
+  duration_ms: 973.9027
+  type: 'test'
+  ...
+1..28
+# tests 44
+# suites 0
+# pass 44
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6625.7551

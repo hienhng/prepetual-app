@@ -1,4 +1,6 @@
+import { useLanguage } from "@/lib/language-context";
 import { usePromptQuizSettings } from "@/hooks/use-prompt-quiz-settings";
+import { QuizLanguageSelect } from "./quiz-language-select";
 import { QuizGenerationResumeDialog, type PausedGeneration } from "./quiz-generation-resume-dialog";
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
@@ -35,6 +37,7 @@ async function getResponseErrorMessage(response: Response, fallback: string): Pr
 }
 
 export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
+  const { t } = useLanguage();
   const [, setLocation] = useLocation();
   const [pausedGeneration, setPausedGeneration] = useState<PausedGeneration | null>(null);
   const {
@@ -51,6 +54,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
   const [showFullText, setShowFullText] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generationNotice, setGenerationNotice] = useState("");
+  const [detectedLanguage, setDetectedLanguage] = useState("");
   const [mode, setMode] = useState<QuizMode>("generate");
 
   const isOfficeWithImages = sourceMaterial?.isOfficeWithImages || false;
@@ -62,6 +66,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
   const hasSourceImages = documentImages.length > 0 || Boolean(sourceMaterial.imageDataUrl);
   const isPromptBased = hasQuizPrompt && !materialText && !hasSourceImages;
   const previewText = materialText || sourcePrompt;
+  useEffect(() => { setDetectedLanguage(""); }, [materialText, sourcePrompt, sourceMaterial.outputLanguage]);
   const [questionTypes, setQuestionTypes] = useState<Array<"multiple_choice" | "selection" | "true_false" | "short_answer">>(["multiple_choice", "true_false"]);
   const { questionCount, setQuestionCount, difficulty, setDifficulty, isDetectingSettings, settingsError, retrySettings } = usePromptQuizSettings(sourcePrompt, !headless && mode === "generate");
 
@@ -91,30 +96,12 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
     });
   };
 
-  // Show steady, simulated progress while either request is running. Backend
-  // progress events can arrive in large jumps, so they should not drive the bar.
-  useEffect(() => {
-    if (!isLoading) return;
-
-    const maxProgress = 92;
-    const startTime = Date.now();
-
-    const interval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const progress = maxProgress * (1 - Math.exp(-elapsed / 12000));
-      setProcessingProgress(Math.min(progress, maxProgress));
-    }, 100);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [isLoading, setProcessingProgress]);
-
   const generateQuiz = async () => {
     if (isDetectingSettings) return;
     if (!materialText && !sourcePrompt && !hasSourceImages) return;
 
     setGenerationNotice("");
+    setDetectedLanguage("");
 
     const selectedImageCount = documentImages.length + (sourceMaterial.imageDataUrl ? 1 : 0);
     if (selectedImageCount > MAX_SOURCE_IMAGES) {
@@ -184,6 +171,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
       const sourceImageUrl = sourceMaterial.type === "image" ? sourceMaterial.imageDataUrl : null;
       const isImageOnly = !materialText && hasSourceImages;
       const body = {
+        outputLanguage: sourceMaterial.outputLanguage || "auto",
         materialText: materialText || undefined,
         prompt: sourcePrompt || undefined,
         questionCount: Number(questionCount),
@@ -229,8 +217,10 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
 
         if (data.type === "progress") {
           console.log("[SSE] Progress update:", data.step, data.progress);
+          setProcessingProgress(data.progress);
           setCurrentGenerationStep(data.step);
           setLoadingMessage(data.message);
+          if (data.step === "language_resolved") setDetectedLanguage(data.message);
           if (data.step === "question_count_capped") {
             setGenerationNotice(data.message);
           }
@@ -240,19 +230,10 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
         } else if (data.type === "complete") {
           generationCompleted = true;
 
-          // Show final completion steps
-          setProcessingProgress(98);
-          setCurrentGenerationStep("saving");
-          setLoadingMessage("Saving your quiz...");
-
-
-
           setProcessingProgress(100);
           setCurrentGenerationStep("complete");
           setLoadingMessage("Quiz created successfully!");
-
-
-
+          await new Promise(resolve => setTimeout(resolve, 500));
           setCurrentQuiz(data.quiz);
           clearJob();
           setExtractedText("");
@@ -361,7 +342,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
         progress={processingProgress}
         currentStep={currentGenerationStep}
         message={loadingMessage}
-        notice={generationNotice}
+        notice={[generationNotice, detectedLanguage].filter(Boolean).join(" · ")}
         mode={mode}
       />
     );
@@ -398,7 +379,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
             >
               <img
                 src={expandedImage}
-                alt="Expanded view"
+                alt={t("common.expandedView")}
                 className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
               />
               <Button
@@ -428,9 +409,9 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                   <FileText className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg text-foreground mb-0.5">Your Study Material</h3>
+                  <h3 className="font-semibold text-lg text-foreground mb-0.5">{t("quizGenerator.yourStudyMaterial")}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {allImages.length} image{allImages.length !== 1 ? 's' : ''} ready for AI analysis
+                    {t(allImages.length === 1 ? 'quizGenerator.imageReady' : 'quizGenerator.imagesReady', { count: allImages.length })}
                   </p>
                 </div>
               </div>
@@ -494,12 +475,12 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg text-foreground mb-0.5">
-                    {isPromptBased ? "Your Quiz Prompt" : hasQuizPrompt ? "Your Combined Quiz Sources" : "Your Study Material"}
+                    {isPromptBased ? t("quizGenerator.yourPrompt") : hasQuizPrompt ? t("quizGenerator.combinedSources") : t("quizGenerator.yourStudyMaterial")}
                   </h3>
                   <p className="text-sm text-muted-foreground">
                     {isPromptBased
-                      ? "AI will use this request to choose the topic and focus"
-                      : `${materialText.length.toLocaleString()} material characters${hasQuizPrompt ? " plus your quiz prompt" : ""} ready for generation`}
+                      ? t("quizGenerator.promptFocus")
+                      : t(hasQuizPrompt ? 'quizGenerator.combinedCharactersReady' : 'quizGenerator.charactersReady', { count: materialText.length.toLocaleString(t('common.locale')) })}
                   </p>
                 </div>
               </div>
@@ -519,12 +500,12 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                     {showFullText ? (
                       <>
                         <ChevronUp className="h-3 w-3" />
-                        Collapse
+                        {t("quizGenerator.collapse")}
                       </>
                     ) : (
                       <>
                         <ChevronDown className="h-3 w-3" />
-                        Expand Full Text
+                        {t("quizGenerator.expandFullText")}
                       </>
                     )}
                   </Button>
@@ -563,14 +544,14 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className={`font-black text-xl tracking-tight mb-0.5 ${mode === "generate" ? "text-violet-600 dark:text-violet-400" : "text-foreground"}`}>
-                  Smart Practice
+                  {t("quizGenerator.smartPractice")}
                 </h3>
                 <p className="text-sm font-medium text-muted-foreground leading-snug">
                   {isPromptBased
-                    ? "Prepetual creates original questions that follow your topic and focus."
+                    ? t("quizGenerator.promptPracticeDescription")
                     : hasQuizPrompt
-                      ? "Prepetual grounds questions in every source and follows your requested focus."
-                      : "Prepetual creates original questions based on your specific notes."}
+                      ? t("quizGenerator.combinedPracticeDescription")
+                      : t("quizGenerator.smartPracticeDesc")}
                 </p>
               </div>
               <div className="flex-shrink-0">
@@ -610,10 +591,10 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className={`font-black text-xl tracking-tight mb-0.5 ${mode === "import" ? "text-amber-600 dark:text-amber-400" : "text-foreground"}`}>
-                    Import Questions
+                    {t("quizGenerator.importQuestions")}
                   </h3>
                   <p className="text-sm font-medium text-muted-foreground leading-snug">
-                    Already have an exam? Prepetual can scan it and find the answers.
+                    {t("quizGenerator.importQuestionsDesc")}
                   </p>
                 </div>
                 <div className="flex-shrink-0">
@@ -639,11 +620,11 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
             <CardHeader className="space-y-3 p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <CardTitle className="text-xl font-black">Quiz Options</CardTitle>
-                  {isDetectingSettings && <p role="status">Reading count and difficulty from your prompt…</p>}
-                  {settingsError && <div role="alert">{settingsError} <Button variant="outline" size="sm" onClick={retrySettings}>Retry prompt settings</Button></div>}
+                  <CardTitle className="text-xl font-black">{t("create.quizOptions")}</CardTitle>
+                  {isDetectingSettings && <p role="status">{t("create.detectingSettings")}</p>}
+                  {settingsError && <div role="alert">{settingsError} <Button variant="outline" size="sm" onClick={retrySettings}>{t("create.retryPromptSettings")}</Button></div>}
                   <p className="text-sm text-muted-foreground max-w-2xl">
-                    Control the number of questions, difficulty, and quiz format before generating.
+                    {t("quizGenerator.optionsDescription")}
                   </p>
                 </div>
               </div>
@@ -651,7 +632,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
             <CardContent className="space-y-6 p-5">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Number of Questions</Label>
+                  <Label className="text-sm font-medium">{t("quizGenerator.numQuestions")}</Label>
                   <span className="text-sm font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">
                     {questionCount}
                   </span>
@@ -671,8 +652,12 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                 </div>
               </div>
 
+              <QuizLanguageSelect value={sourceMaterial.outputLanguage || "auto"}
+                onChange={outputLanguage => setSourceMaterial({ ...sourceMaterial, outputLanguage })}
+                disabled={isLoading} detectedLanguage={detectedLanguage} />
+
               <div className="space-y-3">
-                <Label className="text-sm font-medium">Difficulty Level</Label>
+                <Label className="text-sm font-medium">{t("quizGenerator.difficultyLevel")}</Label>
                 <div className="grid grid-cols-3 gap-3">
                   {(["easy", "medium", "hard"] as Array<"easy" | "medium" | "hard">).map((level) => (
                     <Button
@@ -683,14 +668,14 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                       data-testid={`button-difficulty-${level}`}
                     >
                       <Gauge className="h-4 w-4 mr-2" />
-                      {level}
+                      {t(`quizGenerator.${level}`)}
                     </Button>
                   ))}
                 </div>
               </div>
 
               <div className="space-y-3">
-                <Label className="text-sm font-medium">Question Types</Label>
+                <Label className="text-sm font-medium">{t("quizGenerator.questionTypes")}</Label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div
                     className={`flex items-center gap-3 p-4 rounded-md border-2 cursor-pointer transition-all ${questionTypes.includes("multiple_choice") ? "border-primary bg-primary/5" : "border-muted hover:border-muted-foreground/30"}`}
@@ -705,15 +690,15 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                     <div className="flex items-center gap-2">
                       <CheckSquare className="h-4 w-4 text-primary" />
                       <div>
-                        <div className="font-semibold">Multiple Choice</div>
-                        <p className="text-xs text-muted-foreground">4 options per question</p>
+                        <div className="font-semibold">{t("home.howItWorks.steps.generate.mcq")}</div>
+                        <p className="text-xs text-muted-foreground">{t("quizGenerator.fourOptions")}</p>
                       </div>
                     </div>
                   </div>
 
 <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer ${questionTypes.includes("selection") ? "border-primary bg-primary/5" : "border-border/50"}`}>
                         <Checkbox checked={questionTypes.includes("selection")} onCheckedChange={() => toggleQuestionType("selection")} data-testid="option-selection" />
-                        <span><span className="text-sm font-semibold">Selection</span><span className="block text-xs text-muted-foreground">Multiple correct answers</span></span>
+                        <span><span className="text-sm font-semibold">{t("study.selection")}</span><span className="block text-xs text-muted-foreground">{t("quizGenerator.multipleCorrect")}</span></span>
                       </label>
                   <div
                     className={`flex items-center gap-3 p-4 rounded-md border-2 cursor-pointer transition-all ${questionTypes.includes("true_false") ? "border-primary bg-primary/5" : "border-muted hover:border-muted-foreground/30"}`}
@@ -728,8 +713,8 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                     <div className="flex items-center gap-2">
                       <ToggleLeft className="h-4 w-4 text-quiz-purple" />
                       <div>
-                        <div className="font-semibold">True / False</div>
-                        <p className="text-xs text-muted-foreground">Binary judgment questions</p>
+                        <div className="font-semibold">{t("home.howItWorks.steps.generate.tf")}</div>
+                        <p className="text-xs text-muted-foreground">{t("quizGenerator.binaryDescription")}</p>
                       </div>
                     </div>
                   </div>
@@ -747,8 +732,8 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                     <div className="flex items-center gap-2">
                       <MessageSquare className="h-4 w-4 text-quiz-orange" />
                       <div>
-                        <div className="font-semibold">Short Answer</div>
-                        <p className="text-xs text-muted-foreground">Open-ended recall questions</p>
+                        <div className="font-semibold">{t("home.howItWorks.steps.generate.short")}</div>
+                        <p className="text-xs text-muted-foreground">{t("quizGenerator.recallDescription")}</p>
                       </div>
                     </div>
                   </div>
@@ -777,7 +762,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
             className="w-full gap-3 h-16 text-xl font-black rounded-2xl  shadow-primary/200  transition-all group overflow-hidden relative"
             data-testid="button-generate-quiz"
           >
-            Generate Quiz
+            {t("quizGenerator.generate")}
             <ArrowRight className="h-5 w-5" />
           </Button>
         </motion.div>
@@ -797,29 +782,29 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                   <Import className="w-8 h-8 text-white" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-black text-2xl tracking-tight text-foreground">Smart Import</h3>
+                  <h3 className="font-black text-2xl tracking-tight text-foreground">{t("quizGenerator.smartImport")}</h3>
                   <p className="text-muted-foreground font-medium leading-relaxed">
-                    Import multiple-choice, selection, true/false, and short-answer questions from an existing test. Grouped true/false statements become selection questions; uncertain layouts or answers are flagged for review.
+                    {t("quizGenerator.importDescription")}
                   </p>
                 </div>
               </div>
 
               <div className="bg-amber-500/5 rounded-2xl p-6 border border-amber-500/10">
                 <p className="inline-block text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 mb-4 bg-amber-100 dark:bg-amber-900/30 px-3 py-1 rounded-full">
-                  Perfect For
+                  {t("quizGenerator.perfectFor")}
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-amber-500" />
-                    <span className="text-sm font-bold text-foreground/80">Multiple Choice</span>
+                    <span className="text-sm font-bold text-foreground/80">{t("home.howItWorks.steps.generate.mcq")}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-amber-500" />
-                    <span className="text-sm font-bold text-foreground/80">Quiz Papers</span>
+                    <span className="text-sm font-bold text-foreground/80">{t("quizGenerator.quizPapers")}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-amber-500" />
-                    <span className="text-sm font-bold text-foreground/80">Worksheets</span>
+                    <span className="text-sm font-bold text-foreground/80">{t("quizGenerator.worksheets")}</span>
                   </div>
                 </div>
               </div>
@@ -847,7 +832,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
             data-testid="button-import-quiz"
           >
             <Import className="h-6 w-6 group-hover:-translate-y-1 transition-transform" />
-            Import Quiz
+            {t("quizGenerator.import")}
             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </motion.div>
@@ -858,7 +843,7 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
         progress={processingProgress}
         currentStep={currentGenerationStep}
         message={loadingMessage}
-        notice={generationNotice}
+        notice={[generationNotice, detectedLanguage].filter(Boolean).join(" · ")}
         mode={mode}
       />
     </div>

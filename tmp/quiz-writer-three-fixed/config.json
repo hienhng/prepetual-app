@@ -1,0 +1,12 @@
+{
+  "mode": "One live production generation using a synthetic Vietnamese physics fixture with no personal data; excludes upload/OCR, database retrieval, HTTP/SSE and persistence",
+  "difficulty": "hard",
+  "requested": 3,
+  "types": [
+    "multiple_choice",
+    "selection",
+    "short_answer"
+  ],
+  "targetLanguage": "vi",
+  "contextChars": 2512
+}

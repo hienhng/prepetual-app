@@ -1,0 +1,181 @@
+[LIVE CONFIG] {"quizModel":"openai/gpt-oss-120b","visionModel":"qwen/qwen3.6-27b","keyConfigured":true}
+[LIVE EXTRACTION] {"extractionMs":648,"chars":15404,"pages":6,"ocrPages":[],"reasons":[{"page":1,"reasons":[]},{"page":2,"reasons":[]},{"page":3,"reasons":[]},{"page":4,"reasons":[]},{"page":5,"reasons":[]},{"page":6,"reasons":[]}]}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":669,"status":200,"durationMs":1257,"usage":{"queue_time":0.37247052,"prompt_tokens":4717,"prompt_time":0.222833906,"completion_tokens":119,"completion_time":0.251358085,"total_tokens":4836,"total_time":0.474191991,"completion_tokens_details":{"reasoning_tokens":102}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'starting',
+  durationMs: 0
+}
+[LIVE PROGRESS] {"elapsedSeconds":2,"step":"reading","percent":10,"message":"Reading your study material..."}
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'reading',
+  durationMs: 20
+}
+[LIVE PROGRESS] {"elapsedSeconds":2,"step":"analyzing","percent":25,"message":"Analyzing content structure..."}
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'analyzing',
+  durationMs: 0
+}
+[LIVE PROGRESS] {"elapsedSeconds":2,"step":"preparing","percent":35,"message":"Preparing quiz generation..."}
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'preparing',
+  durationMs: 0
+}
+[LIVE PROGRESS] {"elapsedSeconds":2,"step":"generating","percent":50,"message":"AI is generating questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":1962,"status":200,"durationMs":19687,"usage":{"queue_time":0.419543255,"prompt_tokens":9909,"prompt_time":0.501645377,"completion_tokens":8944,"completion_time":18.555650199,"total_tokens":18853,"total_time":19.057295576,"completion_tokens_details":{"reasoning_tokens":4094}},"finishReason":"stop"}
+Quiz generation AI response received successfully
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'generating',
+  durationMs: 19698
+}
+[LIVE PROGRESS] {"elapsedSeconds":22,"step":"processing","percent":70,"message":"Processing AI response..."}
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'processing',
+  durationMs: 2
+}
+[LIVE PROGRESS] {"elapsedSeconds":22,"step":"validating","percent":80,"message":"Validating generated questions..."}
+Initial generation returned 22/22 requested complete questions.
+[TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":21670,"status":200,"durationMs":917,"usage":{"queue_time":0.368318921,"prompt_tokens":651,"prompt_time":0.030433164,"completion_tokens":185,"completion_time":0.383889281,"total_tokens":836,"total_time":0.414322445,"completion_tokens_details":{"reasoning_tokens":136}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'validating',
+  durationMs: 932
+}
+[LIVE PROGRESS] {"elapsedSeconds":23,"step":"verifying","percent":85,"message":"Solving and independently auditing answers..."}
+[SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/3 (questions 1-5 of 13).
+[SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 2/3 (questions 6-10 of 13).
+[SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 3/3 (questions 11-13 of 13).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":22624,"status":200,"durationMs":6296,"usage":{"queue_time":0.374214963,"prompt_tokens":9452,"prompt_time":0.623106064,"completion_tokens":2347,"completion_time":4.954834041,"total_tokens":11799,"total_time":5.577940105,"completion_tokens_details":{"reasoning_tokens":1573}},"finishReason":"stop"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 3/3 Rejecting ambiguous/unverifiable question "Khi bóng bàn được đưa vào nước nóng và sau đó phồng lên, nội..."; satisfying option indexes: none
+[LIVE PROGRESS] {"elapsedSeconds":29,"step":"verifying","percent":85,"message":"Checked 3 of 13 candidate questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":22619,"status":200,"durationMs":9214,"usage":{"queue_time":0.424747894,"prompt_tokens":9988,"prompt_time":0.684266764,"completion_tokens":3853,"completion_time":7.927739963,"total_tokens":13841,"total_time":8.612006727,"completion_tokens_details":{"reasoning_tokens":2953}},"finishReason":"stop"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/3 Rejecting ambiguous/unverifiable question "Khi hơi thở chạm vào mặt kính cửa sổ, các giọt nước nhỏ xuất..."; satisfying option indexes: none
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/3 Rejecting ambiguous/unverifiable question "Quả bóng bàn bị biến dạng (móp) khi thả vào cốc nước nóng, s..."; satisfying option indexes: none
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/3 Rejecting ambiguous/unverifiable question "Trong các hiện tượng sau, nào là sự thay đổi nội năng không ..."; satisfying option indexes: none
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/3 Rejecting ambiguous/unverifiable question "Đối với khí lý tưởng, các khẳng định nào luôn đúng? (Chọn TẤ..."; satisfying option indexes: none
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/3 Rejecting ambiguous/unverifiable question "Với một tủ lạnh có hệ số làm lạnh $COP = 3$ và công nén $A =..."; satisfying option indexes: none
+[LIVE PROGRESS] {"elapsedSeconds":32,"step":"verifying","percent":85,"message":"Checked 8 of 13 candidate questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":22621,"status":200,"durationMs":9981,"usage":{"queue_time":0.390866062,"prompt_tokens":9884,"prompt_time":0.572571062,"completion_tokens":4108,"completion_time":8.675597195,"total_tokens":13992,"total_time":9.248168257,"completion_tokens_details":{"reasoning_tokens":2857}},"finishReason":"stop"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/3 Rejecting audited answer with malformed math formatting (contains a unit expression outside math delimiters) for "Trong bài toán khoan laser thép, các dữ liệu nào được nêu tr..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/3 Rejecting audited answer with malformed math formatting (contains a unit expression outside math delimiters) for "Về bình oxy, các khẳng định nào đúng? (Chọn TẤT CẢ các đáp á..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/3 Rejecting audited answer with malformed math formatting (contains a Unicode math symbol outside delimiters) for "Dữ liệu sau mô tả mối quan hệ giữa thể tích và nhiệt độ tron..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/3 Rejecting ambiguous/unverifiable question "Nhiệt nóng chảy riêng của đá là $1.0\times10^{5}\,\text{J/kg..."; satisfying option indexes: none
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/3 Rejecting ambiguous/unverifiable question "Nếu thể tích không đổi, áp suất tỉ lệ thuận với nhiệt độ tuy..."; satisfying option indexes: none
+[LIVE PROGRESS] {"elapsedSeconds":33,"step":"verifying","percent":85,"message":"Checked 13 of 13 candidate questions..."}
+[SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/2 (questions 1-5 of 6).
+[SOLVE/BUILD] FINAL LANGUAGE Auditing batch 2/2 (questions 6-6 of 6).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":32622,"status":200,"durationMs":1874,"usage":{"queue_time":0.371552029,"prompt_tokens":8240,"prompt_time":0.60678094,"completion_tokens":263,"completion_time":0.755906665,"total_tokens":8503,"total_time":1.362687605,"completion_tokens_details":{"reasoning_tokens":193}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":32620,"status":200,"durationMs":3245,"usage":{"queue_time":0.419881846,"prompt_tokens":8781,"prompt_time":0.538813398,"completion_tokens":1042,"completion_time":2.153781443,"total_tokens":9823,"total_time":2.692594841,"completion_tokens_details":{"reasoning_tokens":657}},"finishReason":"stop"}
+[SOLVE/BUILD] Validation summary: received 22 raw candidates; 11 failed the independent answer audit; 0 failed the final language audit; 6 accepted.
+[QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3, 4, 5, 6; total is 6/20.
+Only built 6/20 valid questions. Top-up attempt 1/3: requesting 8 candidates for 14 missing.
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'verifying',
+  durationMs: 13295
+}
+[LIVE PROGRESS] {"elapsedSeconds":36,"step":"refining","percent":88,"message":"Generating 14 remaining questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":35895,"status":200,"durationMs":11467,"usage":{"queue_time":0.419540565,"prompt_tokens":9285,"prompt_time":0.392188845,"completion_tokens":5092,"completion_time":10.505183082,"total_tokens":14377,"total_time":10.897371927,"completion_tokens_details":{"reasoning_tokens":1915}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-4 of 4).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":47381,"status":200,"durationMs":7941,"usage":{"queue_time":0.419935091,"prompt_tokens":9765,"prompt_time":0.445827218,"completion_tokens":3276,"completion_time":6.926664582,"total_tokens":13041,"total_time":7.3724918,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":1764}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting ambiguous/unverifiable question "Một lốp ô tô chứa không khí ở áp suất $5\,\text{atm}$ và nhi..."; satisfying option indexes: none
+[SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting ambiguous/unverifiable question "Một bình kín chứa $12\,\text{L}$ nitrogen ở áp suất $80\,\te..."; satisfying option indexes: none
+[SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting ambiguous/unverifiable question "Trong một chu trình tủ lạnh, hệ số làm lạnh $\text{COP}=3$ v..."; satisfying option indexes: none
+[SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting ambiguous/unverifiable question "Khi thể tích của khí tăng gấp đôi, nhiệt độ tuyệt đối của nó..."; satisfying option indexes: none
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'refining',
+  durationMs: 19444
+}
+[LIVE PROGRESS] {"elapsedSeconds":55,"step":"verifying","percent":85,"message":"Checked 4 of 4 candidate questions..."}
+[SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":55335,"status":200,"durationMs":1631,"usage":{"queue_time":0.255939405,"prompt_tokens":8401,"prompt_time":0.369398037,"completion_tokens":415,"completion_time":0.873499395,"total_tokens":8816,"total_time":1.242897432,"completion_tokens_details":{"reasoning_tokens":336}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 1] Validation summary: received 8 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 1 accepted.
+[QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 7; total is 7/20.
+Top-up attempt 1 added 1 valid questions; total is now 7/20.
+Only built 7/20 valid questions. Top-up attempt 2/3: requesting 8 candidates for 13 missing.
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'verifying',
+  durationMs: 1642
+}
+[LIVE PROGRESS] {"elapsedSeconds":57,"step":"refining","percent":89,"message":"Generating 13 remaining questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":56976,"status":200,"durationMs":11818,"usage":{"queue_time":0.419561392,"prompt_tokens":9429,"prompt_time":0.443498153,"completion_tokens":5202,"completion_time":10.809728494,"total_tokens":14631,"total_time":11.253226647,"completion_tokens_details":{"reasoning_tokens":2170}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-5 of 5).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":68803,"status":200,"durationMs":10316,"usage":{"queue_time":0.419553862,"prompt_tokens":9917,"prompt_time":0.474191973,"completion_tokens":4459,"completion_time":9.282427206,"total_tokens":14376,"total_time":9.756619179,"completion_tokens_details":{"reasoning_tokens":2190}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Một chiếc lốp ô tô chứa không khí ở áp suất $5\,\text{atm}$ ..." — changing answer from "5.45 atm" to "10 atm"
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting audited answer with malformed math formatting (contains a unit expression outside math delimiters) for "Một bình kín có thể tích $12\,\text{L}$, chứa nitrogen ở áp ..."
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Trong một chu trình tủ lạnh có $\text{COP}=3$ và công nén $A..." — changing answer from "False" to "True"
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Chọn tất cả các phát biểu đúng về mối quan hệ giữa áp suất v..." — changing answer from "["Áp suất tỉ lệ thuận với nhiệt độ tuyệt đối.","Tỷ số $P_{2}/P_{1}$ bằng $T_{2}/T_{1}$."]" to "["Tỷ số $P_{2}/P_{1}$ bằng $T_{2}/T_{1}$.","Áp suất tỉ lệ thuận với nhiệt độ tuyệt đối."]"
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting ambiguous/unverifiable question "Trong quá trình bơm khí oxy vào bình thép thể tích $8\,\text..."; satisfying option indexes: none
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'refining',
+  durationMs: 22153
+}
+[LIVE PROGRESS] {"elapsedSeconds":79,"step":"verifying","percent":85,"message":"Checked 5 of 5 candidate questions..."}
+[SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-4 of 4).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":79131,"status":200,"durationMs":4600,"usage":{"queue_time":0.367889315,"prompt_tokens":9298,"prompt_time":0.474806264,"completion_tokens":1756,"completion_time":3.62334643,"total_tokens":11054,"total_time":4.098152694,"completion_tokens_details":{"reasoning_tokens":1263}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Một chiếc lốp ô tô chứa không khí ở áp suất $5\,\text{atm}$ ...": The question, options and explanations are in Vietnamese, so language consistency is fine. However the provided correctAnswer "10 atm" is incorrect (the correct answer is 5.45 atm). Additionally, the wrongAnswerExplanation for the option "5.45 atm" incorrectly refers to "10.45 atm", making that explanation inconsistent.
+[SOLVE/BUILD TOPUP 2] Validation summary: received 8 raw candidates; 2 failed the independent answer audit; 1 failed the final language audit; 3 accepted.
+[QUIZ GENERATION] Top-up attempt 2 accepted final question positions: 8, 9, 10; total is 10/20.
+Only built 10/20 valid questions. Top-up attempt 3/3: requesting 8 candidates for 10 missing.
+Top-up attempt 2 added 3 valid questions; total is now 10/20.
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'verifying',
+  durationMs: 4615
+}
+[LIVE PROGRESS] {"elapsedSeconds":84,"step":"refining","percent":90,"message":"Generating 10 remaining questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":83745,"status":200,"durationMs":14645,"usage":{"queue_time":0.419237101,"prompt_tokens":9596,"prompt_time":0.453253527,"completion_tokens":6564,"completion_time":13.625463187,"total_tokens":16160,"total_time":14.078716714,"completion_tokens_details":{"reasoning_tokens":3516}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-5 of 7).
+[SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 2/2 (questions 6-7 of 7).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":98404,"status":200,"durationMs":8038,"usage":{"queue_time":0.358043942,"prompt_tokens":9516,"prompt_time":0.570615586,"completion_tokens":3101,"completion_time":6.766337347,"total_tokens":12617,"total_time":7.336952933,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":1735}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 2/2 Rejecting ambiguous/unverifiable question "Khi thể tích không đổi, nhiệt độ tăng từ $25^{\circ}\text{C}..."; satisfying option indexes: none
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'refining',
+  durationMs: 22715
+}
+[LIVE PROGRESS] {"elapsedSeconds":106,"step":"verifying","percent":85,"message":"Checked 2 of 7 candidate questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":98403,"status":200,"durationMs":9395,"usage":{"queue_time":0.366920379,"prompt_tokens":9928,"prompt_time":0.449466213,"completion_tokens":3907,"completion_time":8.424215427,"total_tokens":13835,"total_time":8.873681640000001,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":1833}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting ambiguous/unverifiable question "Một chiếc lốp ô tô chứa không khí ở áp suất $5\,\text{atm}$,..."; satisfying option indexes: none
+[SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting ambiguous/unverifiable question "Chọn tất cả các phát biểu đúng về mối quan hệ giữa áp suất $..."; satisfying option indexes: none
+[SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting ambiguous/unverifiable question "Cần $2123\,\text{kJ}$ để chuyển $4\,\text{kg}$ nước đá từ $0..."; satisfying option indexes: none
+[SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting ambiguous/unverifiable question "Một bình kín có thể tích $12\,\text{L}$, chứa nitrogen ở áp ..."; satisfying option indexes: none
+[SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting ambiguous/unverifiable question "Chọn tất cả các quá trình sau là adiabatic (không trao đổi n..."; satisfying option indexes: none
+[LIVE PROGRESS] {"elapsedSeconds":108,"step":"verifying","percent":85,"message":"Checked 7 of 7 candidate questions..."}
+[SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-2 of 2).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":107807,"status":200,"durationMs":3854,"usage":{"queue_time":0.344848034,"prompt_tokens":8801,"prompt_time":0.360149937,"completion_tokens":1455,"completion_time":3.014630175,"total_tokens":10256,"total_time":3.374780112,"completion_tokens_details":{"reasoning_tokens":1297}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 3] Validation summary: received 8 raw candidates; 6 failed the independent answer audit; 0 failed the final language audit; 2 accepted.
+[QUIZ GENERATION] Top-up attempt 3 accepted final question positions: 11, 12; total is 12/20.
+Top-up attempt 3 added 2 valid questions; total is now 12/20.
+Error generating quiz: QuizGenerationError: Generated 12 of 20 validated questions before the retry limit. Try again or request fewer questions.
+    at generateQuizQuestions (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\openai.ts:2258:13)
+    at async <anonymous> (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\tmp\hard-quiz-live-test.ts:64:16) {
+  code: 'INSUFFICIENT_VALID_QUESTIONS',
+  stage: 'top_up',
+  requested: 20,
+  generated: 12
+}
+[QUIZ COUNTS] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  initialRequests: 1,
+  topUpRequests: 3,
+  completionCandidates: 0,
+  auditedCandidates: 29,
+  rejectedCandidates: 34
+}
+[QUIZ TIMING] {
+  requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec',
+  stage: 'verifying',
+  durationMs: 5240
+}
+[QUIZ TIMING] { requestId: '9ef7e9ad-0f3c-4040-9d5b-ab6250e713ec', totalMs: 109756 }
+[LIVE FAILURE] {"failed":true,"error":"Generated 12 of 20 validated questions before the retry limit. Try again or request fewer questions.","code":"INSUFFICIENT_VALID_QUESTIONS","stage":"top_up","totalMs":111698,"providerRequests":18}

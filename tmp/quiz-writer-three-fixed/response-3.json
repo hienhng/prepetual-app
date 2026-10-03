@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-024aa5b1-4a90-42e0-aca7-7947ae538e78",
+  "object": "chat.completion",
+  "created": 1791016872,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"reviews\":[{\"id\":\"F1\",\"accurate\":true,\"complete\":true,\"noUnresolvedData\":true,\"notDistractorFacts\":true,\"reason\":\"All numeric values, units, constraints, and relationships exactly match the source text; no missing, contradictory, or extraneous information is present.\"}]}",
+        "reasoning": "We need to produce JSON with reviews array, one per record (F1). Need to assess accuracy, completeness, noUnresolvedData, notDistractorFacts, and reason.\n\nWe must verify the record's data matches original evidence. The source text is Vietnamese. The givens match the source: heat extracted per cycle Mode A 540 kJ, electrical work per cycle 180 kJ, cycle time 60 seconds, Mode B 600 kJ, 240 kJ, 40 seconds, required total heat removal 2160 kJ, max total operation time 200 seconds, max electrical energy budget 800 kJ. Conditions: partial cycles may be run; energy flows assumed constant within each mode; total operation time cannot exceed 200 giây; total electrical work cannot exceed 800 kJ; switching time ignored; no other heat flows considered. Relationships: COP = Q_c / W; heat extracted and work scale linearly with number of cycles (or with operation time) for each mode; time constraint: 60 s·n_A + 40 s·n_B ≤ 200 s; energy constraint: 180 kJ·n_A + 240 kJ·n_B ≤ 800 kJ; heat requirement: 540 kJ·n_A + 600 kJ·n_B ≥ 2160 kJ.\n\nWe need to check if any errors: The relationships are correct given givens. The COP definition matches. The constraints are correct. The units consistent. No contradictory data. All givens present. No distractor facts: all are from source. So accurate true, complete true, noUnresolvedData true, notDistractorFacts true.\n\nProvide reason: \"All numeric values, units, constraints, and relationships exactly match the source text; no missing or contradictory data.\"\n\nReturn JSON compact.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.367720944,
+    "prompt_tokens": 1087,
+    "prompt_time": 0.075369487,
+    "completion_tokens": 456,
+    "completion_time": 0.939173837,
+    "total_tokens": 1543,
+    "total_time": 1.014543324,
+    "completion_tokens_details": {
+      "reasoning_tokens": 383
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_02b0d31eca",
+  "x_groq": {
+    "id": "req_01m40es8pnev4bf4tcsxsdd4rh",
+    "seed": 178313517
+  },
+  "service_tier": "on_demand"
+}

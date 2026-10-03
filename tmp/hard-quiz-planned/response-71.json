@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-7cf8ce2a-311e-4342-998b-0e4cca73ee1a",
+  "object": "chat.completion",
+  "created": 1791009650,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"results\": [\n    {\n      \"index\": 0,\n      \"isValid\": false,\n      \"solution\": \"Câu hỏi yêu cầu xác định trạng thái cân bằng của hệ 1 g đá 0 °C và 1 g nước 40 °C, nhưng nguồn tham chiếu được chỉ định (id 44fa7f7e-6d4c-40fe-91f5-de3c7f6458bf) không chứa bất kỳ dữ liệu nào liên quan đến nhiệt dung riêng, nhiệt nóng chảy của nước đá, hoặc các thông tin cần thiết để giải quyết bài toán. Do đó không có bằng chứng hỗ trợ câu hỏi, nên câu hỏi không hợp lệ.\",\n      \"correctAnswer\": \"\",\n      \"options\": [],\n      \"optionVerdicts\": [],\n      \"explanation\": \"Không thể đưa ra đáp án vì nguồn tham chiếu không cung cấp thông tin cần thiết.\"\n    }\n  ]\n}",
+        "reasoning": "We need to process the single draft. First verify sourceChunkIds: draft has sourceChunkIds [\"44fa7f7e-6d4c-40fe-91f5-de3c7f6458bf\"]. In source evidence, there is a chunk with id \"44fa7f7e-6d4c-40fe-91f5-de3c7f6458bf\" (S7). That chunk contains only some lines about laser drilling, not about the ice-water problem. The ice-water problem appears in source chunk id \"ce760b36-060c-4a80-97b9-65cc079f73b8\" (S8) and also in \"S8\". The draft's sourceChunkIds does not include that. So the cited source does not support the question. According to instructions: Reject questions unless sourceChunkIds exactly matches a SOURCE_CHUNK id and the cited chunks directly support the question and answer. Here they do not. So isValid should be false.\n\nWe must output result with isValid false, solution maybe brief? For invalid, we still need fields in order: index, isValid, solution, correctAnswer, options, optionVerdicts, explanation. Probably solution can explain why invalid. correctAnswer empty? For invalid, maybe set correctAnswer null or empty string? Not specified. Probably set correctAnswer null, options empty array, optionVerdicts empty array, explanation maybe reason.\n\nWe must ensure JSON valid. Provide one result.\n\nLet's craft:\n\n{\n \"results\": [\n   {\n     \"index\": 0,\n     \"isValid\": false,\n     \"solution\": \"Câu hỏi yêu cầu xác định trạng thái cân bằng của hệ 1 g đá 0 °C và 1 g nước 40 °C, nhưng nguồn tham chiếu được chỉ định (id 44fa7f7e-6d4c-40fe-91f5-de3c7f6458bf) không chứa bất kỳ dữ liệu nào liên quan đến nhiệt dung riêng, nhiệt nóng chảy của nước đá, hoặc các thông tin cần thiết để giải quyết bài toán. Do đó không có bằng chứng hỗ trợ câu hỏi, nên câu hỏi không hợp lệ.\",\n     \"correctAnswer\": \"\",\n     \"options\": [],\n     \"optionVerdicts\": [],\n     \"explanation\": \"Không thể đưa ra đáp án vì nguồn tham chiếu không cung cấp thông tin cần thiết.\"\n   }\n ]\n}\n\nMake sure JSON strings escaped properly. No LaTeX needed."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.403659435,
+    "prompt_tokens": 12223,
+    "prompt_time": 0.67601944,
+    "completion_tokens": 729,
+    "completion_time": 1.5226927909999999,
+    "total_tokens": 12952,
+    "total_time": 2.198712231,
+    "completion_tokens_details": {
+      "reasoning_tokens": 522
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_6b677c2caf",
+  "x_groq": {
+    "id": "req_01m407wvaweatvd4e84y40eqrh",
+    "seed": 1163752733
+  },
+  "service_tier": "on_demand"
+}

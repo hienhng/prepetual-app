@@ -120,3 +120,36 @@ test("layout keeps raised exponents with their baseline instead of moving them b
   ], 1, 612);
   assert.deepEqual(blocks.map(block => block.text), ["20 cm3", "B. Next option"]);
 });
+
+test("dense selectable exam pages still transcribe missing graph and equation data", async () => {
+  const pdf = new jsPDF();
+  pdf.text("Question 9: The graph below shows an ideal gas. Select the correct process. ".repeat(2), 20, 20);
+  pdf.rect(30, 50, 80, 40, "S");
+  let calls = 0;
+  const result = await extractTextFromPDFWithOCR(Buffer.from(pdf.output("arraybuffer")), { requireComplete: true,
+    transcribePage: async () => { calls++; return "Question 9: Graph axes V and T; state 1 and state 2 lie on a line through the origin."; } });
+  assert.equal(calls, 1);
+  assert.ok(result.pages[0].ocrReasons.includes("visual_stimulus"));
+  assert.match(result.text, /axes V and T/);
+  const text = "Câu 14. d =1 2, mm. " + "Dense readable material. ".repeat(20);
+  assert.ok(assessPdfText(text, false, [], 600_000).includes("fragmented_equations"));
+});
+
+test("question generation receives a visually reviewed transcript instead of conflicting OCR givens", async () => {
+  const pdf = new jsPDF();
+  pdf.text("Question 1: The graph below gives a heater energy of 720 J. Find the useful energy.", 20, 20);
+  let reviews = 0;
+  const result = await extractTextFromPDFWithOCR(Buffer.from(pdf.output("arraybuffer")), { requireComplete: true,
+    transcribePage: async () => "Question 1: The graph supplies 7200 J.",
+    verifyTranscription: async (image, selectable, initial) => {
+      reviews++;
+      assert.match(image, /^data:image\/png;base64,/);
+      assert.match(selectable, /720 J/);
+      assert.match(initial, /7200 J/);
+      return "Question 1: The heater supplies 720 J. Graph efficiency is [unresolved: axis label].";
+    } });
+  assert.equal(reviews, 1);
+  assert.match(result.text, /720 J/);
+  assert.doesNotMatch(result.text, /7200 J/);
+  assert.match(result.text, /\[unresolved:/);
+});

@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-0651f2a1-74f6-4a64-a985-5442a966e642",
+  "object": "chat.completion",
+  "created": 1791010726,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"records\": [\n    {\n      \"topic\": \"Gas pressure–temperature relationship (ideal gas)\",\n      \"kind\": \"problem\",\n      \"blockIds\": [\"B37\"],\n      \"givens\": [\n        {\n          \"name\": \"initial temperature\",\n          \"value\": \"70\",\n          \"unit\": \"°C\",\n          \"sourceText\": \"70°C\",\n          \"blockId\": \"B37\"\n        },\n        {\n          \"name\": \"initial pressure\",\n          \"value\": \"4\",\n          \"unit\": \"atm\",\n          \"sourceText\": \"4 atm\",\n          \"blockId\": \"B37\"\n        },\n        {\n          \"name\": \"final pressure\",\n          \"value\": \"4,5\",\n          \"unit\": \"atm\",\n          \"sourceText\": \"4,5 atm\",\n          \"blockId\": \"B37\"\n        }\n      ],\n      \"conditions\": [\"constant volume\", \"ideal gas behavior\"],\n      \"relationships\": [\"P1/T1 = P2/T2 (Gay‑Lussac's law)\"]\n    }\n  ],\n  \"excluded\": [\n    {\n      \"blockId\": \"B38\",\n      \"reason\": \"missing standard temperature and pressure values needed to use the given density of O₂ at standard conditions\"\n    },\n    {\n      \"blockId\": \"B39\",\n      \"reason\": \"no numerical data (pressures, volumes, temperatures) provided to determine the percentage change in moles\"\n    },\n    {\n      \"blockId\": \"B40\",\n      \"reason\": \"diagram only; no quantitative information supplied\"\n    }\n  ]\n}",
+        "reasoning": "We need to extract up to eight records from source blocks. Must output JSON with records array and excluded array. For each record, include topic, kind, blockIds, givens (list with name, value, unit, sourceText, blockId), conditions, relationships.\n\nWe must not guess missing data. Let's examine each block.\n\nB37: Vietnamese text: \"Câu 1. Vỏ bình thép chứa Oxy ở 70°C ở áp suất 4 atm. Nếu áp suất của khí trong bình là 4,5 atm thì nhiệt độ của khí trong bình bằng bao nhiêu °C?\" So given: initial temperature 70°C, initial pressure 4 atm, final pressure 4.5 atm, ask final temperature. This is a problem about ideal gas law (P/T relationship at constant volume). So we can create a record.\n\nGivens: temperature_initial = 70°C, pressure_initial = 4 atm, pressure_final = 4.5 atm. No volume given but assumed constant. So we can list givens.\n\nConditions: constant volume, ideal gas behavior.\n\nRelationships: P1/T1 = P2/T2 (Gay-Lussac's law).\n\nTopic: Gas laws / Pressure-Temperature relationship.\n\nBlockIds: [\"B37\"].\n\nB38: Text: \"Câu 2. Người ta bơm khí Oxy ở điều kiện tiêu chuẩn vào bình thép có thể tích 8 lít. Sau 2 phút bình chứa đầy khí ở nhiệt độ 24°C và áp suất 765 mmHg. Biết khối lượng riêng khí Oxy ở điều kiện tiêu chuẩn là 1,43 kg/m³ và coi quá trình bơm diễn ra một cách đều đặn. Khối lượng khí bơm vào bình sau mỗi giây bằng bao nhiêu g? (Kết quả làm tròn đến chữ số hàng phần trăm)\". Given: container volume 8 L, final temperature 24°C, final pressure 765 mmHg, density of O2 at standard conditions 1.43 kg/m³, pumping time 2 minutes (120 s). Need mass per second. We have enough data? We need to compute mass using ideal gas? We have density at standard conditions, but final conditions differ. Might need to compute moles using ideal gas law. However we lack standard pressure and temperature values (STP). Not given explicitly. Could assume standard conditions (0°C, 1 atm) but not provided; we cannot guess. So we may consider missing essential data (standard pressure, temperature). So we may exclude due to missing data.\n\nThus B38 excluded: missing standard condition values.\n\nB39: Text: about tire sensor, need percent increase in moles when adding air to one tire to match others. No numerical values given (initial pressures? etc). So insufficient data. Exclude.\n\nB40: Diagram description, no numeric data. Exclude.\n\nThus we have one usable record (B37). Could we also extract a record about B38 if we treat given values as givens and note missing standard condition? The instruction: \"List unresolved/malformed data in excluded, not usable records.\" So we should put B38 in excluded with reason.\n\nSimilarly B39, B40 excluded.\n\nThus JSON with records array containing one record.\n\nNow format givens: need name, value normalized, unit, sourceText, blockId.\n\nFor temperature initial: source text \"70°C\". Normalized value \"70\". Unit \"°C\". sourceText \"70°C\". blockId \"B37\".\n\nPressure initial: \"4 atm\". value \"4\". unit \"atm\". sourceText \"4 atm\". blockId \"B37\".\n\nPressure final: \"4,5 atm\". Note decimal separator is comma. Must preserve. So value \"4,5\". unit \"atm\". sourceText \"4,5 atm\". blockId \"B37\".\n\nConditions: \"constant volume\". maybe also \"ideal gas behavior\". Provide as strings.\n\nRelationships: \"P1/T1 = P2/T2 (Gay‑Lussac's law)\". Provide.\n\nTopic: \"Gas pressure–temperature relationship (ideal gas)\". kind: \"problem\".\n\nNow excluded array entries for B38, B39, B40 with reasons.\n\nMake compact JSON (no whitespace). Ensure proper escaping of quotes.\n\nLet's craft JSON.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.418708732,
+    "prompt_tokens": 1009,
+    "prompt_time": 0.254348977,
+    "completion_tokens": 1237,
+    "completion_time": 3.100130022,
+    "total_tokens": 2246,
+    "total_time": 3.354478999,
+    "prompt_tokens_details": {
+      "cached_tokens": 256
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 894
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_803c0ba83d",
+  "x_groq": {
+    "id": "req_01m408xmetefptbkerq362gyz0",
+    "seed": 748245545
+  },
+  "service_tier": "on_demand"
+}

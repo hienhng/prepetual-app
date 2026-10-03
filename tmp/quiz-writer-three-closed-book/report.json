@@ -1,0 +1,18 @@
+{
+  "mode": "One live production generation using a synthetic Vietnamese physics fixture with no personal data; excludes upload/OCR, database retrieval, HTTP/SSE and persistence",
+  "completed": true,
+  "requested": 3,
+  "accepted": 3,
+  "difficulty": "hard",
+  "targetLanguage": "vi",
+  "typeCounts": {
+    "short_answer": 1,
+    "selection": 1,
+    "multiple_choice": 1
+  },
+  "totalMs": 271766,
+  "providerRequests": 40,
+  "issues": [
+    "Q3: contains a unit expression outside math delimiters"
+  ]
+}

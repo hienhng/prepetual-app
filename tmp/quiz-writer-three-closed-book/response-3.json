@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-be4be039-280f-4043-b818-87f630291e05",
+  "object": "chat.completion",
+  "created": 1791017611,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"reviews\":[{\"id\":\"F1\",\"accurate\":true,\"complete\":true,\"noUnresolvedData\":true,\"notDistractorFacts\":true,\"reason\":\"All givens match the source text, units and values are correctly transcribed, conditions and relationships are fully captured, and no extraneous or missing information is present.\"}]}",
+        "reasoning": "We need to review the record F1. Determine if accurate, complete, noUnresolvedData, notDistractorFacts. Need to compare givens with source evidence. The source text matches the givens: heat extracted per cycle Mode A 540 kJ, electrical work per cycle 180 kJ, cycle time 60 seconds, etc. All values present. Conditions listed. Relationships correct. Need to check if any missing data or contradictions. The record seems accurate and complete. No unresolved data. Not distractor facts: all facts are from source, not distractors. So all true.\n\nThus produce JSON with those fields true and reason.\n\nMake compact JSON."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.354286746,
+    "prompt_tokens": 1025,
+    "prompt_time": 0.056609619,
+    "completion_tokens": 213,
+    "completion_time": 0.459453294,
+    "total_tokens": 1238,
+    "total_time": 0.516062913,
+    "completion_tokens_details": {
+      "reasoning_tokens": 135
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_6b677c2caf",
+  "x_groq": {
+    "id": "req_01m40ffvm4eqnr40b0zy4k7se4",
+    "seed": 58260124
+  },
+  "service_tier": "on_demand"
+}

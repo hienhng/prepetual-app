@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-322b0a78-ef59-478a-b937-b3fc6837bc69",
+  "object": "chat.completion",
+  "created": 1791009844,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"targetLanguage\":\"vi-VN\"}",
+        "reasoning": "We need to determine target language for quiz output. Input mode: material-based. No explicit user quiz request language. So we use rule 3: For material-based quizzes, use primary instructional language of ORIGINAL MATERIAL or its visible text in attached images. The material is Vietnamese (Vật lý 12, etc.). So target language is Vietnamese. Need BCP-47 tag, include regional variety when clear. It's Vietnamese, likely Vietnam region: \"vi-VN\". Use that.\n\nReturn only JSON: {\"targetLanguage\":\"vi-VN\"} Ensure compact JSON, valid.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.419084164,
+    "prompt_tokens": 4563,
+    "prompt_time": 0.209914606,
+    "completion_tokens": 133,
+    "completion_time": 0.273866868,
+    "total_tokens": 4696,
+    "total_time": 0.483781474,
+    "completion_tokens_details": {
+      "reasoning_tokens": 116
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_e1a78f200e",
+  "x_groq": {
+    "id": "req_01m4082tpcenwtehta4t714ggp",
+    "seed": 594298812
+  },
+  "service_tier": "on_demand"
+}

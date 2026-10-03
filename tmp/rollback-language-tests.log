@@ -1,0 +1,529 @@
+TAP version 13
+# Subtest: quiz language accepts regional tags and rejects unresolved or injected values
+ok 1 - quiz language accepts regional tags and rejects unresolved or injected values
+  ---
+  duration_ms: 39.5931
+  type: 'test'
+  ...
+# Subtest: language preferences survive direct generation, replacements, images, and resume
+    # Subtest: manual language overrides a contrary prompt without detection
+    ok 1 - manual language overrides a contrary prompt without detection
+      ---
+      duration_ms: 0.5213
+      type: 'test'
+      ...
+    # Subtest: auto reads original accented and unaccented requests and multilingual material
+    ok 2 - auto reads original accented and unaccented requests and multilingual material
+      ---
+      duration_ms: 40.6236
+      type: 'test'
+      ...
+    # Subtest: image-only detection uses original images
+    ok 3 - image-only detection uses original images
+      ---
+      duration_ms: 2.3271
+      type: 'test'
+      ...
+# [MATERIAL LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [MATERIAL LANGUAGE] BATCH 1/1 Output language mismatch
+    # Subtest: unresolved detection does not silently fall back to English
+    ok 4 - unresolved detection does not silently fall back to English
+      ---
+      duration_ms: 1019.8326
+      type: 'test'
+      ...
+    # Subtest: language detection supports providers that reject JSON mode
+    ok 5 - language detection supports providers that reject JSON mode
+      ---
+      duration_ms: 7.4289
+      type: 'test'
+      ...
+# [MATERIAL LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'd8dc1998-4e88-4ab4-8e7a-cede7b717faa',
+#   stage: 'starting',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'd8dc1998-4e88-4ab4-8e7a-cede7b717faa',
+#   stage: 'reading',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: 'd8dc1998-4e88-4ab4-8e7a-cede7b717faa',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'd8dc1998-4e88-4ab4-8e7a-cede7b717faa',
+#   stage: 'preparing',
+#   durationMs: 4
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'd8dc1998-4e88-4ab4-8e7a-cede7b717faa',
+#   stage: 'generating',
+#   durationMs: 7
+# }
+# [QUIZ TIMING] {
+#   requestId: 'd8dc1998-4e88-4ab4-8e7a-cede7b717faa',
+#   stage: 'processing',
+#   durationMs: 1
+# }
+# Initial generation count mismatch: returned 1, requested 4.
+# Initial generation returned 1/4 requested complete questions.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1; total is 1/3.
+# Only built 1/3 valid questions. Top-up attempt 1/3: requesting 3 candidates for 2 missing.
+# [QUIZ TIMING] {
+#   requestId: 'd8dc1998-4e88-4ab4-8e7a-cede7b717faa',
+#   stage: 'validating',
+#   durationMs: 19
+# }
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 2, 3; total is 3/3.
+# Top-up attempt 1 added 2 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'd8dc1998-4e88-4ab4-8e7a-cede7b717faa',
+#   requested: 3,
+#   initialCandidates: 1,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'd8dc1998-4e88-4ab4-8e7a-cede7b717faa',
+#   stage: 'refining',
+#   durationMs: 17
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'd8dc1998-4e88-4ab4-8e7a-cede7b717faa',
+#   initialRequests: 1,
+#   topUpRequests: 1,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'd8dc1998-4e88-4ab4-8e7a-cede7b717faa',
+#   stage: 'finalizing',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] { requestId: 'd8dc1998-4e88-4ab4-8e7a-cede7b717faa', totalMs: 55 }
+# [QUIZ TIMING] {
+#   requestId: '99556b8d-1909-4281-8e27-415dde3ff286',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '99556b8d-1909-4281-8e27-415dde3ff286',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '99556b8d-1909-4281-8e27-415dde3ff286',
+#   stage: 'analyzing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '99556b8d-1909-4281-8e27-415dde3ff286',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '99556b8d-1909-4281-8e27-415dde3ff286',
+#   stage: 'generating',
+#   durationMs: 13
+# }
+# [QUIZ TIMING] {
+#   requestId: '99556b8d-1909-4281-8e27-415dde3ff286',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '99556b8d-1909-4281-8e27-415dde3ff286',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '99556b8d-1909-4281-8e27-415dde3ff286',
+#   stage: 'validating',
+#   durationMs: 12
+# }
+# [QUIZ COUNTS] {
+#   requestId: '99556b8d-1909-4281-8e27-415dde3ff286',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '99556b8d-1909-4281-8e27-415dde3ff286',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '99556b8d-1909-4281-8e27-415dde3ff286', totalMs: 28 }
+# [QUIZ TIMING] {
+#   requestId: 'af2011d6-af49-4651-8ea1-7a8305056a16',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'af2011d6-af49-4651-8ea1-7a8305056a16',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'af2011d6-af49-4651-8ea1-7a8305056a16',
+#   stage: 'analyzing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'af2011d6-af49-4651-8ea1-7a8305056a16',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'af2011d6-af49-4651-8ea1-7a8305056a16',
+#   stage: 'generating',
+#   durationMs: 4
+# }
+# [QUIZ TIMING] {
+#   requestId: 'af2011d6-af49-4651-8ea1-7a8305056a16',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: 'af2011d6-af49-4651-8ea1-7a8305056a16',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 1, 2, 3; total is 3/3.
+# Top-up attempt 1 added 3 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'af2011d6-af49-4651-8ea1-7a8305056a16',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'af2011d6-af49-4651-8ea1-7a8305056a16',
+#   stage: 'refining',
+#   durationMs: 7
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'af2011d6-af49-4651-8ea1-7a8305056a16',
+#   initialRequests: 1,
+#   topUpRequests: 1,
+#   rejectedCandidates: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'af2011d6-af49-4651-8ea1-7a8305056a16',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: 'af2011d6-af49-4651-8ea1-7a8305056a16', totalMs: 17 }
+# [QUIZ TIMING] {
+#   requestId: '7a487c26-d049-450a-bff8-9c432aff10f4',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '7a487c26-d049-450a-bff8-9c432aff10f4',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '7a487c26-d049-450a-bff8-9c432aff10f4',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '7a487c26-d049-450a-bff8-9c432aff10f4',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '7a487c26-d049-450a-bff8-9c432aff10f4',
+#   stage: 'generating',
+#   durationMs: 5
+# }
+# Initial generation count mismatch: returned 3, requested 4.
+# [QUIZ TIMING] {
+#   requestId: '7a487c26-d049-450a-bff8-9c432aff10f4',
+#   stage: 'processing',
+#   durationMs: 1
+# }
+# Initial generation returned 3/4 requested complete questions.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '7a487c26-d049-450a-bff8-9c432aff10f4',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '7a487c26-d049-450a-bff8-9c432aff10f4',
+#   stage: 'validating',
+#   durationMs: 4
+# }
+# [QUIZ COUNTS] {
+#   requestId: '7a487c26-d049-450a-bff8-9c432aff10f4',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '7a487c26-d049-450a-bff8-9c432aff10f4',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '7a487c26-d049-450a-bff8-9c432aff10f4', totalMs: 12 }
+# [QUIZ TIMING] {
+#   requestId: '400ddb04-e4d7-48b2-ae61-4f9bc0c0821c',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '400ddb04-e4d7-48b2-ae61-4f9bc0c0821c',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '400ddb04-e4d7-48b2-ae61-4f9bc0c0821c',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '400ddb04-e4d7-48b2-ae61-4f9bc0c0821c',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Initial generation returned 0/4 requested complete questions.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '400ddb04-e4d7-48b2-ae61-4f9bc0c0821c',
+#   requested: 3,
+#   initialCandidates: 0,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '400ddb04-e4d7-48b2-ae61-4f9bc0c0821c',
+#   stage: 'validating',
+#   durationMs: 3
+# }
+# [QUIZ COUNTS] {
+#   requestId: '400ddb04-e4d7-48b2-ae61-4f9bc0c0821c',
+#   initialRequests: 0,
+#   topUpRequests: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '400ddb04-e4d7-48b2-ae61-4f9bc0c0821c',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '400ddb04-e4d7-48b2-ae61-4f9bc0c0821c', totalMs: 5 }
+# [AI REVISE] Q1: AI picked answer not in options, finding closest match
+# [REVISE LANGUAGE 1] Auditing batch 1/1 (questions 1-1 of 1).
+# [REVISE LANGUAGE 1] BATCH 1/1 Output language mismatch
+# [AI REVISE] Q1 retry (attempt 1): undefined
+    # Subtest: wrong-language study material is retried before it becomes quiz evidence
+    ok 6 - wrong-language study material is retried before it becomes quiz evidence
+      ---
+      duration_ms: 1023.6232
+      type: 'test'
+      ...
+    # Subtest: direct writer and top-up receive the selected language and request
+    ok 7 - direct writer and top-up receive the selected language and request
+      ---
+      duration_ms: 62.0707
+      type: 'test'
+      ...
+    # Subtest: English explanation from the answer auditor cannot overwrite the writer
+    ok 8 - English explanation from the answer auditor cannot overwrite the writer
+      ---
+      duration_ms: 30.5869
+      type: 'test'
+      ...
+    # Subtest: incomplete questions are replaced by the writer in the selected language
+    ok 9 - incomplete questions are replaced by the writer in the selected language
+      ---
+      duration_ms: 18.3174
+      type: 'test'
+      ...
+    # Subtest: canonical True/False values remain valid with Vietnamese stems
+    ok 10 - canonical True/False values remain valid with Vietnamese stems
+      ---
+      duration_ms: 13.1724
+      type: 'test'
+      ...
+    # Subtest: resume preserves saved items without another review
+    ok 11 - resume preserves saved items without another review
+      ---
+      duration_ms: 10.1951
+      type: 'test'
+      ...
+# [AI REVISE] Q1: AI picked answer not in options, finding closest match
+# [REVISE LANGUAGE 1] Auditing batch 1/1 (questions 1-1 of 1).
+# [REVISE LANGUAGE 1] BATCH 1/1 Output language mismatch
+# [AI REVISE] Q1 retry (attempt 2): undefined
+# [AI REVISE] Q1: AI picked answer not in options, finding closest match
+# [REVISE LANGUAGE 1] Auditing batch 1/1 (questions 1-1 of 1).
+# [REVISE LANGUAGE 1] BATCH 1/1 Output language mismatch
+# [AI REVISE] Q1 retry (attempt 3): undefined
+# [AI REVISE] Q1 failed, keeping original: Error: Revision failed language validation
+#     at pRetry.retries (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2004:48)
+#     at async pRetry (file:///C:/Users/Gia%20Hien/Downloads/PrepetualApp/Prepetual/node_modules/p-retry/index.js:197:19)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:1859:25)
+    # Subtest: revision with an English explanation keeps the original question
+    ok 12 - revision with an English explanation keeps the original question
+      ---
+      duration_ms: 3107.1158
+      type: 'test'
+      ...
+    1..12
+ok 2 - language preferences survive direct generation, replacements, images, and resume
+  ---
+  duration_ms: 5695.634
+  type: 'test'
+  ...
+# Subtest: selection candidate normalization keeps every correct option
+ok 3 - selection candidate normalization keeps every correct option
+  ---
+  duration_ms: 3.0667
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: '0b90bf2b-8342-4e5c-9021-1f862a97cf61',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '0b90bf2b-8342-4e5c-9021-1f862a97cf61',
+#   stage: 'reading',
+#   durationMs: 31
+# }
+# [QUIZ TIMING] {
+#   requestId: '0b90bf2b-8342-4e5c-9021-1f862a97cf61',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '0b90bf2b-8342-4e5c-9021-1f862a97cf61',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '0b90bf2b-8342-4e5c-9021-1f862a97cf61',
+#   stage: 'generating',
+#   durationMs: 33
+# }
+# [QUIZ TIMING] {
+#   requestId: '0b90bf2b-8342-4e5c-9021-1f862a97cf61',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '0b90bf2b-8342-4e5c-9021-1f862a97cf61',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '0b90bf2b-8342-4e5c-9021-1f862a97cf61',
+#   stage: 'validating',
+#   durationMs: 8
+# }
+# [QUIZ COUNTS] {
+#   requestId: '0b90bf2b-8342-4e5c-9021-1f862a97cf61',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '0b90bf2b-8342-4e5c-9021-1f862a97cf61',
+#   stage: 'finalizing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] { requestId: '0b90bf2b-8342-4e5c-9021-1f862a97cf61', totalMs: 74 }
+# [QUIZ TIMING] {
+#   requestId: '0ba099ee-6c13-4de5-b18c-bd4bdea64d8e',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '0ba099ee-6c13-4de5-b18c-bd4bdea64d8e',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '0ba099ee-6c13-4de5-b18c-bd4bdea64d8e',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '0ba099ee-6c13-4de5-b18c-bd4bdea64d8e',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '0ba099ee-6c13-4de5-b18c-bd4bdea64d8e',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: '0ba099ee-6c13-4de5-b18c-bd4bdea64d8e',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '0ba099ee-6c13-4de5-b18c-bd4bdea64d8e',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '0ba099ee-6c13-4de5-b18c-bd4bdea64d8e',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [QUIZ COUNTS] {
+#   requestId: '0ba099ee-6c13-4de5-b18c-bd4bdea64d8e',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '0ba099ee-6c13-4de5-b18c-bd4bdea64d8e',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '0ba099ee-6c13-4de5-b18c-bd4bdea64d8e', totalMs: 4 }
+# Subtest: direct selection generation preserves a complete answer set after shuffling
+ok 4 - direct selection generation preserves a complete answer set after shuffling
+  ---
+  duration_ms: 1255.5771
+  type: 'test'
+  ...
+1..4
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7187.6699

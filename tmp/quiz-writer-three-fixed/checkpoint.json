@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "id": "c7de1140-407e-4060-9ebd-d6dff2109ca7",
+      "type": "multiple_choice",
+      "question": "Có thể đạt tải nhiệt tối thiểu $2160\\ \\mathrm{kJ}$ mà không vượt quá thời gian $200\\ \\mathrm{s}$ và ngân sách điện $800\\ \\mathrm{kJ}$ không?",
+      "options": [
+        "Không, vì thời gian tối đa $200\\ \\mathrm{s}$ không đủ cho ít nhất 4 chu trình của chế độ A.",
+        "Không, vì bất kỳ sự kết hợp nào đều không thể cung cấp đủ nhiệt do giới hạn năng lượng.",
+        "Có, bằng cách chạy hỗn hợp với $n_A = 20/9$ và $n_B = 5/3$, cho $Q = 2200\\ \\mathrm{kJ}$.",
+        "Có, nhưng chỉ có thể đạt được nếu sử dụng hoàn toàn chế độ A và bỏ qua chế độ B."
+      ],
+      "correctAnswer": "Có, bằng cách chạy hỗn hợp với $n_A = 20/9$ và $n_B = 5/3$, cho $Q = 2200\\ \\mathrm{kJ}$.",
+      "explanation": "Miền khả thi được xác định bởi $60 n_A + 40 n_B \\le 200$ và $180 n_A + 240 n_B \\le 800$. Giao điểm của hai bất đẳng thức cho $n_A = \\frac{20}{9}$, $n_B = \\frac{5}{3}$ và nhiệt thu được $Q = 540 n_A + 600 n_B = 2200\\ \\mathrm{kJ}$. Vì $Q_{\\text{tối đa}} = 2200\\ \\mathrm{kJ} \\ge 2160\\ \\mathrm{kJ}$, nên tồn tại một cặp $(n_A,n_B)$ thỏa mãn yêu cầu tải nhiệt tối thiểu mà không vi phạm thời gian và ngân sách điện. Do đó câu trả lời đúng là có thể đạt được bằng cách chạy hỗn hợp với $n_A = \\frac{20}{9}$ và $n_B = \\frac{5}{3}$.",
+      "sourceChunkIds": [
+        "synthetic-physics-3"
+      ],
+      "feedbackVerification": {
+        "version": 2,
+        "signature": "[\"multiple_choice\",\"Có thể đạt tải nhiệt tối thiểu $2160\\\\ \\\\mathrm{kJ}$ mà không vượt quá thời gian $200\\\\ \\\\mathrm{s}$ và ngân sách điện $800\\\\ \\\\mathrm{kJ}$ không?\",[\"Không, vì thời gian tối đa $200\\\\ \\\\mathrm{s}$ không đủ cho ít nhất 4 chu trình của chế độ A.\",\"Không, vì bất kỳ sự kết hợp nào đều không thể cung cấp đủ nhiệt do giới hạn năng lượng.\",\"Có, bằng cách chạy hỗn hợp với $n_A = 20/9$ và $n_B = 5/3$, cho $Q = 2200\\\\ \\\\mathrm{kJ}$.\",\"Có, nhưng chỉ có thể đạt được nếu sử dụng hoàn toàn chế độ A và bỏ qua chế độ B.\"],\"Có, bằng cách chạy hỗn hợp với $n_A = 20/9$ và $n_B = 5/3$, cho $Q = 2200\\\\ \\\\mathrm{kJ}$.\",null,\"Miền khả thi được xác định bởi $60 n_A + 40 n_B \\\\le 200$ và $180 n_A + 240 n_B \\\\le 800$. Giao điểm của hai bất đẳng thức cho $n_A = \\\\frac{20}{9}$, $n_B = \\\\frac{5}{3}$ và nhiệt thu được $Q = 540 n_A + 600 n_B = 2200\\\\ \\\\mathrm{kJ}$. Vì $Q_{\\\\text{tối đa}} = 2200\\\\ \\\\mathrm{kJ} \\\\ge 2160\\\\ \\\\mathrm{kJ}$, nên tồn tại một cặp $(n_A,n_B)$ thỏa mãn yêu cầu tải nhiệt tối thiểu mà không vi phạm thời gian và ngân sách điện. Do đó câu trả lời đúng là có thể đạt được bằng cách chạy hỗn hợp với $n_A = \\\\frac{20}{9}$ và $n_B = \\\\frac{5}{3}$.\",null,[\"synthetic-physics-3\"],[]]"
+      }
+    },
+    {
+      "id": "e4fe3ba0-3ffe-4d80-9ff0-385af66d7565",
+      "type": "short_answer",
+      "question": "Giả sử thời gian hoạt động đạt đúng $200\\ \\mathrm{s}$, suy ra giới hạn tối đa của $n_A$ và $n_B$ từ bất đẳng thức thời gian, sau đó kết hợp với giới hạn ngân sách điện $800\\ \\mathrm{kJ}$ để tính lượng nhiệt tối đa $Q_{\\max}$ (kJ) có thể lấy được mà không vi phạm bất kỳ ràng buộc nào.",
+      "correctAnswer": "2200 kJ",
+      "explanation": "Từ ràng buộc thời gian $60 n_A + 40 n_B \\le 200$ suy ra $n_B = \\frac{200-60 n_A}{40}$. Thay vào ràng buộc năng lượng $180 n_A + 240 n_B \\le 800$ cho $0 \\le n_A \\le \\frac{20}{9}$. Hàm nhiệt $Q = 540 n_A + 600 n_B$ đạt cực đại tại điểm biên $n_A = \\frac{20}{9}$, $n_B = \\frac{5}{3}$. Khi đó $Q_{\\max}=540\\times\\frac{20}{9}+600\\times\\frac{5}{3}=1200+1000=2200\\ \\mathrm{kJ}$. Vì vậy giá trị tối đa có thể lấy được là $2200\\ \\mathrm{kJ}$.",
+      "sourceChunkIds": [
+        "synthetic-physics-3"
+      ],
+      "feedbackVerification": {
+        "version": 2,
+        "signature": "[\"short_answer\",\"Giả sử thời gian hoạt động đạt đúng $200\\\\ \\\\mathrm{s}$, suy ra giới hạn tối đa của $n_A$ và $n_B$ từ bất đẳng thức thời gian, sau đó kết hợp với giới hạn ngân sách điện $800\\\\ \\\\mathrm{kJ}$ để tính lượng nhiệt tối đa $Q_{\\\\max}$ (kJ) có thể lấy được mà không vi phạm bất kỳ ràng buộc nào.\",null,\"2200 kJ\",null,\"Từ ràng buộc thời gian $60 n_A + 40 n_B \\\\le 200$ suy ra $n_B = \\\\frac{200-60 n_A}{40}$. Thay vào ràng buộc năng lượng $180 n_A + 240 n_B \\\\le 800$ cho $0 \\\\le n_A \\\\le \\\\frac{20}{9}$. Hàm nhiệt $Q = 540 n_A + 600 n_B$ đạt cực đại tại điểm biên $n_A = \\\\frac{20}{9}$, $n_B = \\\\frac{5}{3}$. Khi đó $Q_{\\\\max}=540\\\\times\\\\frac{20}{9}+600\\\\times\\\\frac{5}{3}=1200+1000=2200\\\\ \\\\mathrm{kJ}$. Vì vậy giá trị tối đa có thể lấy được là $2200\\\\ \\\\mathrm{kJ}$.\",null,[\"synthetic-physics-3\"],[]]"
+      }
+    }
+  ],
+  "title": "Lựa chọn chu trình làm lạnh dưới ràng buộc thời gian và năng lượng",
+  "category": "categories.science"
+}

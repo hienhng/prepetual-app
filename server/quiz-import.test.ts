@@ -25,7 +25,12 @@ function fakeModel(transform?: (items: AuditItem[], answers: any[]) => any[]): I
     assert.ok(prompt.includes("\nITEMS:\n"), "Standard source choices should not need LLM extraction");
     const items: AuditItem[] = JSON.parse(prompt.split("\nITEMS:\n")[1]);
     const answers = items.map((item) => ({ sourceId: item.sourceId, correctOptionIndex: 1, correctOptionIndexes: [0, 2], correctAnswer: item.type === "true_false" ? "False" : item.type === "short_answer" ? "42" : "", verified: true, solution: "Independent solution.", explanation: "Independent explanation." }));
-    return { title: "Original exam", category: "categories.general", answers: transform ? transform(items, answers) : answers };
+    const questions = prompt.startsWith("Reassess") ? items.map((item: any) => {
+      const options = item.type === "short_answer" ? [] : item.blocks.filter((block: any) => /^[A-Da-d][).]/u.test(block.text));
+      const headings = item.blocks.filter((block: any) => /^(?:SECTION|PHẦN)/u.test(block.text));
+      return { sourceId: item.sourceId, singleQuestion: true, type: item.type || "multiple_choice", truthStatements: item.selectionMode === "truth_statements", stemBlockIds: item.blocks.filter((block: any) => block.text.trim() && !options.includes(block) && !headings.includes(block)).map((block: any) => block.id), optionBlockIds: options.map((block: any) => [block.id]), ignoredBlocks: headings.map((block: any) => ({ blockIds: [block.id], reason: "heading" })) };
+    }) : undefined;
+    return { title: "Original exam", category: "categories.general", questions, answers: transform ? transform(items, answers) : answers };
   };
 }
 
@@ -219,10 +224,17 @@ test("retries missing or duplicate classifications by source identity without si
 });
 
 test("unknown source types retain original text for explicit classification review", async () => {
+  const recoveries: string[] = [];
   const result = await importQuizDocument(exam(2), async (prompt) => {
+    if (prompt.startsWith("Reassess")) {
+      const [item] = JSON.parse(prompt.split("\nITEMS:\n")[1]);
+      recoveries.push(item.sourceId);
+      return { questions: [{ sourceId: item.sourceId, singleQuestion: true, type: "unknown" }] };
+    }
     assert.ok(prompt.startsWith("Classify"));
     return classificationResponse(prompt, () => "unknown");
   });
+  assert.deepEqual(recoveries, ["source-1", "source-2"]);
   assert.equal(result.questions.length, 2);
   assert.ok(result.questions.every(q => q.importReview?.stage === "classification" && q.correctAnswer === ""));
 });

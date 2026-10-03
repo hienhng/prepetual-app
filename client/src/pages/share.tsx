@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/language-context";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
@@ -11,6 +12,7 @@ import type { Quiz } from "@shared/schema";
 import logoImage from "@assets/image_1765894870887.png";
 
 export default function SharePage() {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const { setCurrentQuiz } = useQuiz();
@@ -75,9 +77,9 @@ export default function SharePage() {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Quiz not found</h2>
+        <h2 className="text-xl font-semibold mb-2">{t("share.notFound")}</h2>
         <p className="text-muted-foreground mb-4">
-          This quiz may have been deleted or the link is invalid
+          {t("share.invalidLink")}
         </p>
         <Link href="/">
           <Button data-testid="button-go-home">Go Home</Button>
@@ -97,8 +99,8 @@ export default function SharePage() {
           <div className="w-16 h-16 border-2 rounded-full  flex items-center justify-center mx-auto mb-4">
             <img src={logoImage} alt="Prepetual Logo" className="w-12 h-12 rounded-full object-cover" />
           </div>
-          <h1 className="text-2xl font-bold mb-2">Shared Quiz</h1>
-          <p className="text-muted-foreground">Someone shared a quiz with you</p>
+          <h1 className="text-2xl font-bold mb-2">{t("share.sharedQuiz")}</h1>
+          <p className="text-muted-foreground">{t("share.description")}</p>
         </div>
 
         <Card data-testid="card-shared-quiz">
@@ -128,15 +130,15 @@ export default function SharePage() {
               data-testid="button-start-shared-quiz"
             >
               <Play className="h-5 w-5 mr-2" />
-              Start Quiz
+              {t("share.start")}
             </Button>
           </CardContent>
         </Card>
 
         <p className="text-center text-sm text-muted-foreground">
-          Want to create your own quizzes?{" "}
+          {t("share.createYourOwn")}{" "}
           <Link href="/" className="text-primary hover:underline">
-            Get started
+            {t("share.getStarted")}
           </Link>
         </p>
       </motion.div>

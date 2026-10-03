@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-ee9d12c3-135b-4f64-8fb5-1dc37b0911e1",
+  "object": "chat.completion",
+  "created": 1791010840,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"title\":\"Kế hoạch câu hỏi nâng cao – Định luật khí lý tưởng\",\n  \"category\":\"categories.science\",\n  \"plans\":[\n    {\n      \"id\":\"P28\",\n      \"type\":\"selection\",\n      \"recordIds\":[\"F6\",\"F24\"],\n      \"intent\":\"Yêu cầu học sinh xác định phát biểu nào sau đây mô tả sai mô hình khí khi nhiệt độ tăng từ 27 °C lên 54 °C trong một lốp có thể tích không đổi; so sánh dự đoán áp suất theo Định luật Gay‑Lussac (F6) với giả định áp suất không đổi (lỗi mô hình).\",\n      \"reasoningSteps\":[\"Tính áp suất dự đoán P2 = P1·T2/T1 bằng công thức P/T = hằng số (F6)\",\"So sánh giá trị P2 với giá trị giả định trong các phát biểu để xác định phát biểu sai\"]\n    },\n    {\n      \"id\":\"P29\",\n      \"type\":\"true_false\",\n      \"recordIds\":[\"F7\"],\n      \"intent\":\"Kiểm tra khả năng xác định đúng sai của phát biểu: “Nếu nhiệt độ trong bình tăng trên 300 K, khối lượng nitơ trong bình sẽ vượt quá 2 kg; nếu không, khối lượng sẽ dưới 2 kg.” (phát biểu này sai).\",\n      \"reasoningSteps\":[\"Tính số mol n = PV/RT và khối lượng m = n·M bằng dữ liệu của F7\",\"Đánh giá giá trị m so với ngưỡng 2 kg để xác định phát biểu là sai\"]\n    },\n    {\n      \"id\":\"P30\",\n      \"type\":\"short_answer\",\n      \"recordIds\":[\"F8\"],\n      \"intent\":\"Yêu cầu học sinh tính áp suất cuối cùng trong lọ thuốc sau khi bơm khí bằng ống tiêm (sử dụng công thức ΔP = P_syringe·V_added/V_gas) và sau đó xác định liệu áp suất này có vượt ngưỡng an toàn 1,2 × 10^5 Pa hay không.\",\n      \"reasoningSteps\":[\"Tính thể tích khí đã thêm V_added = A·L (diện tích × chiều dài) và áp suất tăng ΔP = P_syringe·V_added/V_gas (F8)\",\"Cộng ΔP vào áp suất ban đầu để có P_final, sau đó so sánh P_final với ngưỡng 1,2 × 10^5 Pa\"]\n    }\n  ]\n}",
+        "reasoning": "We need to produce JSON with title, category, plans array for slots P28, P29, P30. Must use only reviewed source records. Each plan must have id, type, recordIds (list), intent, reasoningSteps.\n\nWe must follow each slot's reasoningPattern.\n\nSlot P28: selection, primaryRecordId F6, pattern \"diagnose an incorrect model using a decisive comparison\". So we need to create a selection question (multiple correct? selection type likely multiple correct? but selection maybe choose correct statements? We'll assume multiple correct options, but need to provide plan only, not actual question. We just need to describe intent and reasoning steps. Must use primaryRecordId F6 and may include up to two other relevant records when concepts naturally interact. For diagnosing incorrect model, we can compare ideal gas law prediction vs actual observed pressure? Use F6 (ideal gas law pressure change with temperature at constant volume). Could also bring in F24 (gas pressure-temperature relationship) as another record for comparison. But must not exceed two other records. Use F6 and maybe F24 to compare predictions. Intent: Given observed pressure increase, ask learner to identify which statement about the gas behavior is incorrect, based on comparing ideal gas law prediction vs assumption of constant pressure etc.\n\nReasoning steps: 1) Compute expected pressure using ideal gas law from given temps. 2) Compare to a proposed model (e.g., assuming pressure unchanged) and decide which model is wrong.\n\nSlot P29: true_false, primaryRecordId F7, pattern \"piecewise boundary or threshold\", targetTruthValue False. Need a statement that is false, requiring piecewise threshold. Use F7 (ideal gas law mass of nitrogen). Could create a statement about mass being above a threshold if temperature exceeds certain value, etc. Need piecewise boundary: maybe \"If temperature > 300 K, mass > 2 kg else mass < 2 kg\". Provide false statement. Reasoning steps: compute mass using ideal gas law, then evaluate condition.\n\nSlot P30: short_answer, primaryRecordId F8, pattern \"piecewise boundary or threshold\". Need a short answer requiring derived result and second inference. Use F8 (pressure increase when adding gas to fixed-volume container). Could ask: after adding gas, what is final pressure? Then also ask whether pressure exceeds a safety threshold (e.g., 1.2e5 Pa). Short answer expects something like \"1.3×10^5 Pa, which is above the safety limit\". Must require derived intermediate result (final pressure) and then second inference (compare to threshold). Provide intent and reasoning steps.\n\nWe must ensure each plan uses assigned primaryRecordId and optionally up to two others. Provide recordIds list.\n\nNow produce JSON compact.\n\nCheck JSON validity: no trailing commas.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.055372078,
+    "prompt_tokens": 11927,
+    "prompt_time": 0.552298193,
+    "completion_tokens": 1128,
+    "completion_time": 2.3537107170000002,
+    "total_tokens": 13055,
+    "total_time": 2.9060089099999997,
+    "completion_tokens_details": {
+      "reasoning_tokens": 574
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_998410db10",
+  "x_groq": {
+    "id": "req_01m40914yveftrtjgphmhxfmj8",
+    "seed": 898493436
+  },
+  "service_tier": "on_demand"
+}

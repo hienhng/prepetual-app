@@ -1,0 +1,312 @@
+[LIVE CONFIG] {"quizModel":"openai/gpt-oss-120b","visionModel":"qwen/qwen3.6-27b","keyConfigured":true}
+[LIVE EXTRACTION] {"extractionMs":872,"chars":20619,"pages":6,"ocrPages":[1,2,3,4,5,6],"reasons":[{"page":1,"reasons":["visual_stimulus"]},{"page":2,"reasons":["visual_stimulus","fragmented_equations"]},{"page":3,"reasons":["visual_stimulus","fragmented_equations"]},{"page":4,"reasons":["visual_stimulus","fragmented_equations"]},{"page":5,"reasons":["visual_stimulus","fragmented_equations"]},{"page":6,"reasons":["fragmented_equations"]}]}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":906,"status":200,"durationMs":1291,"usage":{"queue_time":0.419911696,"prompt_tokens":4430,"prompt_time":0.244307576,"completion_tokens":121,"completion_time":0.249676765,"total_tokens":4551,"total_time":0.493984341,"completion_tokens_details":{"reasoning_tokens":104}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'starting',
+  durationMs: 0
+}
+[LIVE PROGRESS] {"elapsedSeconds":2,"step":"reading","percent":10,"message":"Reading your study material..."}
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'reading',
+  durationMs: 38
+}
+[LIVE PROGRESS] {"elapsedSeconds":2,"step":"analyzing","percent":25,"message":"Analyzing content structure..."}
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'analyzing',
+  durationMs: 1
+}
+[LIVE PROGRESS] {"elapsedSeconds":2,"step":"preparing","percent":35,"message":"Preparing quiz generation..."}
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'preparing',
+  durationMs: 1
+}
+[LIVE PROGRESS] {"elapsedSeconds":2,"step":"generating","percent":50,"message":"AI is generating questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":2267,"status":200,"durationMs":30403,"usage":{"queue_time":0.368448549,"prompt_tokens":13361,"prompt_time":1.2524828700000001,"completion_tokens":13662,"completion_time":28.559800593,"total_tokens":27023,"total_time":29.812283463,"completion_tokens_details":{"reasoning_tokens":7086}},"finishReason":"stop"}
+Quiz generation AI response received successfully
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'generating',
+  durationMs: 30417
+}
+[LIVE PROGRESS] {"elapsedSeconds":33,"step":"processing","percent":70,"message":"Processing AI response..."}
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'processing',
+  durationMs: 3
+}
+[LIVE PROGRESS] {"elapsedSeconds":33,"step":"validating","percent":80,"message":"Validating generated questions..."}
+Initial generation returned 22/22 requested complete questions.
+[TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":32701,"status":200,"durationMs":892,"usage":{"queue_time":0.345290293,"prompt_tokens":649,"prompt_time":0.030629508,"completion_tokens":183,"completion_time":0.384065875,"total_tokens":832,"total_time":0.414695383,"completion_tokens_details":{"reasoning_tokens":134}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'validating',
+  durationMs: 915
+}
+[LIVE PROGRESS] {"elapsedSeconds":34,"step":"verifying","percent":85,"message":"Solving and independently auditing answers..."}
+[SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/4 (questions 1-5 of 20).
+[SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 2/4 (questions 6-10 of 20).
+[SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 3/4 (questions 11-15 of 20).
+[SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 4/4 (questions 16-20 of 20).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":33662,"status":200,"durationMs":10319,"usage":{"queue_time":0.420219186,"prompt_tokens":12241,"prompt_time":0.507686249,"completion_tokens":4346,"completion_time":9.034155615,"total_tokens":16587,"total_time":9.541841864,"completion_tokens_details":{"reasoning_tokens":1976}},"finishReason":"stop"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 4/4 Rejecting unsupported, incomplete, or insufficiently challenging question "Áp suất cuối cùng trong ống tiêm sau khi bơm $0.12\,\text{ml..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 4/4 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong chu trình tủ lạnh với $COP=3$ và công $180\,\text{kJ}$..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 4/4 Rejecting unsupported, incomplete, or insufficiently challenging question "Đối với bệnh nhân $70.0\,\text{kg}$ hạ nhiệt từ $37^{\circ}\..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 4/4 Rejecting unsupported, incomplete, or insufficiently challenging question "Thể tích thay đổi $\Delta V$ khi piston di chuyển từ $30\,\t..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 4/4 Rejecting unsupported, incomplete, or insufficiently challenging question "Công thực hiện bởi khí khi piston di chuyển lên $5\,\text{cm..."
+[LIVE PROGRESS] {"elapsedSeconds":44,"step":"verifying","percent":85,"message":"Checked 5 of 20 candidate questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":33651,"status":400,"durationMs":13557}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/4 Batch response failed for 5 questions; retrying as groups of 3 and 2. {
+  error: BadRequestError: 400 Failed to generate JSON. Please adjust your prompt. See 'failed_generation' for more details.
+      at Function.generate (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\node_modules\openai\src\core\error.ts:72:14)
+      at OpenAI.makeStatusError (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\node_modules\openai\src\client.ts:478:28)
+      at OpenAI.makeRequest (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\node_modules\openai\src\client.ts:728:24)
+      at async pRetry.retries (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\openai.ts:802:24)
+      at async pRetry (file:///C:/Users/Gia%20Hien/Downloads/PrepetualApp/Prepetual/node_modules/p-retry/index.js:197:19)
+      at async aiVerifyAnswersBatch (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\openai.ts:793:28)
+      at async runValidationBatchWithIsolation (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\validation-batch.ts:20:12)
+      at async <anonymous> (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\validation-batch.ts:85:24) {
+    status: 400,
+    headers: Headers {
+      date: 'Sat, 03 Oct 2026 05:04:16 GMT',
+      'content-type': 'application/json',
+      'transfer-encoding': 'chunked',
+      connection: 'keep-alive',
+      'cache-control': 'private, max-age=0, no-store, no-cache, must-revalidate',
+      server: 'cloudflare',
+      vary: 'Origin',
+      'x-groq-region': 'bom',
+      'x-ratelimit-limit-requests': '500000',
+      'x-ratelimit-limit-tokens': '250000',
+      'x-ratelimit-remaining-requests': '499999',
+      'x-ratelimit-remaining-tokens': '229539',
+      'x-ratelimit-reset-requests': '172ms',
+      'x-ratelimit-reset-tokens': '4.91s',
+      'x-request-id': 'req_01m402bpb2e839qvw21mhcb83m',
+      via: '1.1 google',
+      'set-cookie': '__cf_bm=jK9iVg3pknUg47idq2egyGe7KblB38WuSX7b_AuUyck-1791003842.8715897-1.0.1.1-qv5xFJX3v3fB2DEFPMyGBhbcaOIksspEXOiSFx7.Nx0Pe0ZEC9dXBv9H0I2I1AqrOfXWF6Ey2UJxgJGvB6dJkio9oqlenuWfW74vc4vWhvI89T7cxNkz85egtd4Poahx; HttpOnly; SameSite=None; Secure; Path=/; Domain=groq.com; Expires=Sat, 03 Oct 2026 05:34:16 GMT',
+      'strict-transport-security': 'max-age=15552000',
+      'cf-cache-status': 'DYNAMIC',
+      'cf-ray': 'a4496761fcd11658-SIN',
+      'alt-svc': 'h3=":443"; ma=86400'
+    },
+    requestID: 'req_01m402bpb2e839qvw21mhcb83m',
+    error: {
+      message: "Failed to generate JSON. Please adjust your prompt. See 'failed_generation' for more details.",
+      type: 'invalid_request_error',
+      code: 'json_validate_failed',
+      failed_generation: '{\n' +
+        '  "verifications": [\n' +
+        '    {\n' +
+        '      "index": 0,\n' +
+        '      "solution": "Tính năng lượng tan chảy băng, sau đó dùng năng lượng còn lại để làm nóng nước và tính nhiệt độ cuối cùng.",\n' +
+        '      "statementIsTrue": null,\n' +
+        '      "satisfyingOptionIndexes": [1],\n' +
+        '      "isUnambiguous": true,\n' +
+        '      "isLanguageConsistent": true,\n' +
+        '      "correctOptionIndex": 1,\n' +
+        '      "correctAnswer": null,\n' +
+        '      "explanation": "Đầu tiên tan chảy băng: $Q_{\\\\text{tan}} = mL_{f}=1\\\\,\\\\text{kg}\\\\times3.4\\\\times10^{5}\\\\,\\\\text{J}=3.4\\\\times10^{5}\\\\,\\\\text{J}$.\\\\nNăng lượng còn lại: $Q_{\\\\text{còn}} = 2.0\\\\times10^{6}\\\\,\\\\text{J}-3.4\\\\times10^{5}\\\\,\\\\text{J}=1.66\\\\times10^{6}\\\\,\\\\text{J}$.\\\\nĐối với nước, $Q = mc\\\\Delta T \\\\Rightarrow \\\\Delta T = \\\\frac{Q_{\\\\text{còn}}}{mc}=\\\\frac{1.66\\\\times10^{6}}{1\\\\times4180}\\\\approx3.97\\\\times10^{2}\\\\,\\\\text{K}\\\\approx397\\\\,^{\\\\circ}\\\\text{C}$.\\\\nVì nước đã ở $0^{\\\\circ}\\\\text{C}$, nhiệt độ cuối cùng là khoảng $397^{\\\\circ}\\\\text{C}$.",\n' +
+        '      "selfContained": false,\n' +
+        '      "sourceSupported": true,\n' +
+        '      "hardReasoning": true,\n' +
+        '      "credibleDistractors": true,\n' +
+        '      "reasoningJustification": "Cần tính năng lượng tan chảy, sau đó tính độ tăng nhiệt độ bằng công thức $Q=mc\\\\Delta T$, so sánh và chuyển đổi đơn vị, gồm nhiều bước phụ thuộc.",\n' +
+        '      "evidence": [\n' +
+        '        {\n' +
+        '          "chunkId": "5a1bc9db-b9bf-4f9e-b5c1-0a7ebff355c8",\n' +
+        '          "quote": "nhiệt nóng chảy riêng của nước đá là 34.10^5 J/kg và nhiệt dung riêng của nước là 4180 J/kg.K"\n' +
+        '        }\n' +
+        '      ]\n' +
+        '    },\n' +
+        '    {\n' +
+        '      "index": 1,\n' +
+        '      "solution": "Áp dụng định luật $P/T=\\\\text{hằng số}$ vì thể tích không đổi, đổi độ C sang K rồi tính $P_2$.",\n' +
+        '      "statementIsTrue": null,\n' +
+        '      "satisfyingOptionIndexes": [2],\n' +
+        '      "isUnambiguous": true,\n' +
+        '      "isLanguageConsistent": true,\n' +
+        '      "correctOptionIndex": 2,\n' +
+        '      "correctAnswer": null,\n' +
+        '      "explanation": "Với thể tích không đổi, $\\\\frac{P_1}{T_1}=\\\\frac{P_2}{T_2}$.\\\\n$T_1=27^{\\\\circ}\\\\text{C}=300\\\\,\\\\text{K}$, $T_2=54^{\\\\circ}\\\\text{C}=327\\\\,\\\\text{K}$.\\\\n$P_2 = P_1\\\\frac{T_2}{T_1}=5\\\\,\\\\text{atm}\\\\times\\\\frac{327}{300}\\\\approx5.45\\\\,\\\\text{atm}$.",\n' +
+        '      "selfContained": true,\n' +
+        '      "sourceSupported": true,\n' +
+        '      "hardReasoning": false,\n' +
+        '      "credibleDistractors": true,\n' +
+        '      "reasoningJustification": "Chỉ cần một phép tính tỉ lệ nhiệt độ, không có bước phụ thuộc phức tạp.",\n' +
+        '      "evidence": [\n' +
+        '        {\n' +
+        '          "chunkId": "5a1bc9db-b9bf-4f9e-b5c1-0a7ebff355c8",\n' +
+        '          "quote": "Một chiếc lốp ô tô chứa không khí ở áp suất 5 atm, nhiệt độ 27°C. Khi xe chạy, nhiệt độ của khí trong lốp tăng lên đến 54°C, coi thể tích lốp xe không đổi, áp suất không khí trong lốp khi đó là"\n' +
+        '        }\n' +
+        '      ]\n' +
+        '    },\n' +
+        '    {\n' +
+        '      "index": 2,\n' +
+        '      "solution": "Tính nhiệt lượng cần cho làm nóng cảm ứng và so sánh với nhiệt ẩn của quá trình bốc hơi để xác định yếu tố lớn nhất.",\n' +
+        '      "statementIsTrue": null,\n' +
+        '      "satisfyingOptionIndexes": [3],\n' +
+        '      "isUnambiguous": true,\n' +
+        '      "isLanguageConsistent": true,\n' +
+        '      "correctOptionIndex": 3,\n' +
+        '      "correctAnswer": null,\n' +
+        '      "explanation": "Nhiệt cảm ứng: $Q_{\\\\text{sensible}} = mc\\\\Delta T = 10\\\\,\\\\text{kg}\\\\times4200\\\\,\\\\frac{\\\\text{J}}{\\\\text{kg·K}}\\\\times(100-25)\\\\,\\\\text{K}=3.15\\\\times10^{6}\\\\,\\\\text{J}=3150\\\\,\\\\text{kJ}$.\\\\nNhiệt ẩn bốc hơi: $Q_{\\\\text{latent}} = mL_{v}=10\\\\,\\\\text{kg}\\\\times2.26\\\\times10^{6}\\\\,\\\\frac{\\\\text{J}}{\\\\text{kg}}=2.26\\\\times10^{7}\\\\,\\\\text{J}=22600\\\\,\\\\text{kJ}$.\\\\nVì $22600\\\\,\\\\text{kJ} \\\\gg 3150\\\\,\\\\text{kJ}$, yếu tố đóng góp lớn nhất là \\"Nhiệt ẩn của hơi nước\\".",\n' +
+        '      "selfContained": false,\n' +
+        '      "sourceSupported": true,\n' +
+        '      "hardReasoning": true,\n' +
+        '      "credibleDistractors": true,\n' +
+        '      "reasoningJustification": "Yêu cầu tính cả nhiệt cảm ứng và nhiệt ẩn, sau đó so sánh hai giá trị để đưa ra lựa chọn, gồm nhiều bước tính toán.",\n' +
+        '      "evidence": [\n' +
+        '        {\n' +
+        '          "chunkId": "f7531ac3-1ade-4f26-9749-bf890b161c8c",\n' +
+        '          "quote": "Nhiệt hóa hơi riêng của nước ở 100°C là 2,26.10^6 J/kg và nhiệt dung riêng của nước là 4200 J/kg.K"\n' +
+        '        }\n' +
+        '      ]\n' +
+        '    },\n' +
+        '    {\n' +
+        '      "index": 3,\n' +
+        '      "solution": "Tính thể tích khí đưa vào bằng $A\\\\times l$, sau đó dùng $P_2 = P_1\\\\frac{V_1+V_{\\\\text{in}}}{V_1}$ vì thể tích khí trong lọ không đổi.",\n' +
+        '      "statementIsTrue": null,\n' +
+        '      "satisfyingOptionIndexes": [2],\n' +
+        '      "isUnambiguous": true,\n' +
+        '      "isLanguageConsistent": true,\n' +
+        '      "correctOptionIndex": 2,\n' +
+        '      "correctAnswer": null,\n' +
+        '      "explanation": "Thể tích khí trong lọ ban đầu: $V_1 = 0.9\\\\,\\\\text{ml}-0.5\\\\,\\\\text{ml}=0.4\\\\,\\\\text{ml}$.\\\\nThể tích khí bơm vào: $V_{\\\\text{in}} = A\\\\times l = 0.3\\\\,\\\\text{cm}^2\\\\times0.4\\\\,\\\\text{cm}=0.12\\\\,\\\\text{cm}^3 =0.12\\\\,\\\\text{ml}$.\\\\nÁp suất cuối cùng: $P_2 = P_1\\\\frac{V_1+V_{\\\\text{in}}}{V_1}=1.0\\\\times10^{5}\\\\,\\\\text{Pa}\\\\times\\\\frac{0.4+0.12}{0.4}=1.3\\\\times10^{5}\\\\,\\\\text{Pa}'
+    },
+    code: 'json_validate_failed',
+    param: undefined,
+    type: 'invalid_request_error'
+  },
+  attemptNumber: 1,
+  retriesLeft: 1,
+  retriesConsumed: 0
+}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":33659,"status":200,"durationMs":13942,"usage":{"queue_time":0.346342365,"prompt_tokens":12309,"prompt_time":1.3982258,"completion_tokens":5668,"completion_time":11.794109178,"total_tokens":17977,"total_time":13.192334978,"prompt_tokens_details":{"cached_tokens":1792},"completion_tokens_details":{"reasoning_tokens":3541}},"finishReason":"stop"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 3/4 Rejecting unsupported, incomplete, or insufficiently challenging question "Ở thể tích không đổi, áp suất của một khí lý tưởng giảm khi ..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 3/4 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong chu trình tủ lạnh, công $A$ bằng nhiệt $Q_2$ thải ra d..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 3/4 Rejecting unsupported, incomplete, or insufficiently challenging question "Sau khi bơm $0.12\,\text{ml}$ khí vào ống tiêm, áp suất cuối..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 3/4 Rejecting unsupported, incomplete, or insufficiently challenging question "Khi khí trong xi lanh mở rộng từ $30\,\text{cm}$ lên $35\,\t..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 3/4 Rejecting unsupported, incomplete, or insufficiently challenging question "Nếu cung cấp $2.0\times10^{6}\,\mathrm{J}$ cho $1\,\mathrm{k..."
+[LIVE PROGRESS] {"elapsedSeconds":48,"step":"verifying","percent":85,"message":"Checked 10 of 20 candidate questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":33655,"status":200,"durationMs":14117,"usage":{"queue_time":0.345580671,"prompt_tokens":12702,"prompt_time":0.934593027,"completion_tokens":6000,"completion_time":12.488505836,"total_tokens":18702,"total_time":13.423098863,"prompt_tokens_details":{"cached_tokens":1792},"completion_tokens_details":{"reasoning_tokens":5284}},"finishReason":"length"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/4 Rejecting unsupported, incomplete, or insufficiently challenging question "Chọn tất cả các phát biểu đúng về các quá trình của khí lý t..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/4 Batch response failed for 5 questions; retrying as groups of 3 and 2. Error: Independent answer audit omitted question indexes: 1, 2, 3, 4
+    at aiVerifyAnswersBatch (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\openai.ts:931:15)
+    at async runValidationBatchWithIsolation (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\validation-batch.ts:20:12)
+    at async <anonymous> (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\validation-batch.ts:85:24)
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":47276,"status":200,"durationMs":10759,"usage":{"queue_time":0.42095131,"prompt_tokens":12227,"prompt_time":1.0183801749999999,"completion_tokens":4304,"completion_time":9.126128495,"total_tokens":16531,"total_time":10.14450867,"prompt_tokens_details":{"cached_tokens":1792},"completion_tokens_details":{"reasoning_tokens":2788}},"finishReason":"stop"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/4 SPLIT 1 Rejecting unsupported, incomplete, or insufficiently challenging question "Một nguồn nhiệt cung cấp $2.0\times10^{6}\,\mathrm{J}$ cho $..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/4 SPLIT 1 Rejecting unsupported, incomplete, or insufficiently challenging question "Một lốp xe có áp suất $5\,\text{atm}$ ở $27^{\circ}\mathrm{C..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/4 SPLIT 1 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong quá trình đun $10\,\text{kg}$ nước từ $25^{\circ}\math..."
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":47791,"status":200,"durationMs":12890,"usage":{"queue_time":0.344926595,"prompt_tokens":12315,"prompt_time":0.866668653,"completion_tokens":5530,"completion_time":11.534004621,"total_tokens":17845,"total_time":12.400673274,"prompt_tokens_details":{"cached_tokens":2304},"completion_tokens_details":{"reasoning_tokens":3532}},"finishReason":"stop"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/4 SPLIT 1 Rejecting unsupported, incomplete, or insufficiently challenging question "Chọn tất cả các phát biểu đúng về các quá trình của khí lý t..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/4 SPLIT 1 Rejecting unsupported, incomplete, or insufficiently challenging question "Khi biến đổi nước từ băng sang hơi, các yếu tố nào phải cung..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/4 SPLIT 1 Rejecting unsupported, incomplete, or insufficiently challenging question "Về công thực hiện bởi khí trong xi lanh (đường kính $20\,\te..."
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":58072,"status":200,"durationMs":9039,"usage":{"queue_time":0.420626101,"prompt_tokens":12101,"prompt_time":0.616384896,"completion_tokens":3725,"completion_time":7.837107738,"total_tokens":15826,"total_time":8.453492634,"prompt_tokens_details":{"cached_tokens":768},"completion_tokens_details":{"reasoning_tokens":2340}},"finishReason":"stop"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/4 SPLIT 2 Rejecting unsupported, incomplete, or insufficiently challenging question "Một lọ thuốc chứa $0.5\,\text{ml}$ dung dịch, thể tích lọ $0..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/4 SPLIT 2 Rejecting unsupported, incomplete, or insufficiently challenging question "Một tủ lạnh có hệ số làm lạnh $COP=3$ và công của máy nén $A..."
+[LIVE PROGRESS] {"elapsedSeconds":67,"step":"verifying","percent":85,"message":"Checked 15 of 20 candidate questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":60711,"status":200,"durationMs":10894,"usage":{"queue_time":0.369470719,"prompt_tokens":12124,"prompt_time":0.64283627,"completion_tokens":4661,"completion_time":9.73646404,"total_tokens":16785,"total_time":10.37930031,"completion_tokens_details":{"reasoning_tokens":2988}},"finishReason":"stop"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/4 SPLIT 2 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong phương pháp hạ nhiệt cho bệnh nhân bằng bồn đá, các ph..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/4 SPLIT 2 Rejecting unsupported, incomplete, or insufficiently challenging question "Dựa trên dữ liệu về lốp xe và ống tiêm, chọn các phát biểu đ..."
+[LIVE PROGRESS] {"elapsedSeconds":72,"step":"verifying","percent":85,"message":"Checked 20 of 20 candidate questions..."}
+[SOLVE/BUILD] Validation summary: received 22 raw candidates; 20 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+[QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/20.
+Only built 0/20 valid questions. Top-up attempt 1/3: requesting 8 candidates for 20 missing.
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'verifying',
+  durationMs: 38021
+}
+[LIVE PROGRESS] {"elapsedSeconds":72,"step":"refining","percent":88,"message":"Generating 20 remaining questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":71629,"status":200,"durationMs":11048,"usage":{"queue_time":0.345974384,"prompt_tokens":11536,"prompt_time":0.525999315,"completion_tokens":4676,"completion_time":9.771490212,"total_tokens":16212,"total_time":10.297489527,"completion_tokens_details":{"reasoning_tokens":1898}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-4 of 4).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":82696,"status":200,"durationMs":11595,"usage":{"queue_time":0.368047354,"prompt_tokens":12333,"prompt_time":0.579861566,"completion_tokens":5060,"completion_time":10.498079018,"total_tokens":17393,"total_time":11.077940584,"completion_tokens_details":{"reasoning_tokens":2676}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong một quá trình đẳng áp, nếu thể tích tăng gấp 2 lần, nh..."
+[SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "Một khối khí lý tưởng trong xi lanh (đường kính $20\,\text{c..."
+[SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "Nếu thể tích của khí không đổi, áp suất sẽ tỉ lệ nghịch với ..."
+[SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong quá trình khoan laser, năng lượng trung bình sinh ra t..."
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'refining',
+  durationMs: 22680
+}
+[LIVE PROGRESS] {"elapsedSeconds":94,"step":"verifying","percent":85,"message":"Checked 4 of 4 candidate questions..."}
+[SOLVE/BUILD TOPUP 1] Validation summary: received 8 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+[QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/20.
+Top-up attempt 1 added 0 valid questions; total is now 0/20.
+Only built 0/20 valid questions. Top-up attempt 2/3: requesting 8 candidates for 20 missing.
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'verifying',
+  durationMs: 3
+}
+[LIVE PROGRESS] {"elapsedSeconds":94,"step":"refining","percent":89,"message":"Generating 20 remaining questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":94308,"status":200,"durationMs":12617,"usage":{"queue_time":0.334122016,"prompt_tokens":11536,"prompt_time":0.661245668,"completion_tokens":5446,"completion_time":11.460715837,"total_tokens":16982,"total_time":12.121961505,"completion_tokens_details":{"reasoning_tokens":2528}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-5 of 6).
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 2/2 (questions 6-6 of 6).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":106957,"status":200,"durationMs":6224,"usage":{"queue_time":0.420167867,"prompt_tokens":11911,"prompt_time":0.727980933,"completion_tokens":1981,"completion_time":4.771307145,"total_tokens":13892,"total_time":5.499288078,"prompt_tokens_details":{"cached_tokens":1792},"completion_tokens_details":{"reasoning_tokens":1108}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 2/2 Rejecting audited answer with malformed math formatting (contains a unit expression outside math delimiters) for "Trong một xi‑lanh có đường kính $20\,\text{cm}$, áp suất $p=..."
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'refining',
+  durationMs: 18888
+}
+[LIVE PROGRESS] {"elapsedSeconds":113,"step":"verifying","percent":85,"message":"Checked 1 of 6 candidate questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":106954,"status":200,"durationMs":13915,"usage":{"queue_time":0.419780254,"prompt_tokens":12581,"prompt_time":0.829361851,"completion_tokens":6000,"completion_time":12.467422948,"total_tokens":18581,"total_time":13.296784799,"completion_tokens_details":{"reasoning_tokens":3586}},"finishReason":"length"}
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong một chiếc lốp ô tô, áp suất ban đầu $5\,\text{atm}$ ở ..."
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "Với một lượng khí lý tưởng không đổi, các khẳng định sau nào..."
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong một bình kín có thể tích $12\,\text{L}$ chứa khí nitơ ..."
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong một liệu pháp hạ nhiệt cho bệnh nhân nặng $70\,\text{k..."
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/2 Batch response failed for 5 questions; retrying as groups of 3 and 2. Error: Independent answer audit omitted question indexes: 4
+    at aiVerifyAnswersBatch (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\openai.ts:931:15)
+    at async runValidationBatchWithIsolation (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\validation-batch.ts:20:12)
+    at async <anonymous> (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\validation-batch.ts:85:24)
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":121013,"status":200,"durationMs":9844,"usage":{"queue_time":0.335596356,"prompt_tokens":12206,"prompt_time":0.580804785,"completion_tokens":4137,"completion_time":8.760549029,"total_tokens":16343,"total_time":9.341353814,"completion_tokens_details":{"reasoning_tokens":2681}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/2 SPLIT 1 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong một chiếc lốp ô tô, áp suất ban đầu $5\,\text{atm}$ ở ..."
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/2 SPLIT 1 Rejecting unsupported, incomplete, or insufficiently challenging question "Với một lượng khí lý tưởng không đổi, các khẳng định sau nào..."
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/2 SPLIT 1 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong một bình kín có thể tích $12\,\text{L}$ chứa khí nitơ ..."
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":130891,"status":200,"durationMs":7104,"usage":{"queue_time":0.419640541,"prompt_tokens":12112,"prompt_time":0.56288074,"completion_tokens":2851,"completion_time":5.957077806,"total_tokens":14963,"total_time":6.519958546,"completion_tokens_details":{"reasoning_tokens":1788}},"finishReason":"stop"}
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/2 SPLIT 2 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong một liệu pháp hạ nhiệt cho bệnh nhân nặng $70\,\text{k..."
+[SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/2 SPLIT 2 Rejecting unsupported, incomplete, or insufficiently challenging question "Về quá trình khoan kim loại bằng tia laser (Câu 14), các khẳ..."
+[LIVE PROGRESS] {"elapsedSeconds":138,"step":"verifying","percent":85,"message":"Checked 6 of 6 candidate questions..."}
+[SOLVE/BUILD TOPUP 2] Validation summary: received 9 raw candidates; 6 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+[QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/20.
+Top-up attempt 2 added 0 valid questions; total is now 0/20.
+Only built 0/20 valid questions. Top-up attempt 3/3: requesting 8 candidates for 20 missing.
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'verifying',
+  durationMs: 24831
+}
+[LIVE PROGRESS] {"elapsedSeconds":138,"step":"refining","percent":90,"message":"Generating 20 remaining questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":138030,"status":200,"durationMs":18392,"usage":{"queue_time":0.526105704,"prompt_tokens":11512,"prompt_time":0.596660068,"completion_tokens":8192,"completion_time":17.106580273,"total_tokens":19704,"total_time":17.703240341,"completion_tokens_details":{"reasoning_tokens":4140}},"finishReason":"length"}
+Top-up attempt 3 returned invalid JSON: Unterminated string in JSON at position 10258 (line 130 column 403)
+Error generating quiz: QuizGenerationError: Generated 0 of 20 validated questions. Try a smaller quiz or provide more source material.
+    at generateQuizQuestions (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\openai.ts:2262:13)
+    at async <anonymous> (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\tmp\hard-quiz-live-test.ts:60:16) {
+  code: 'INSUFFICIENT_VALID_QUESTIONS',
+  stage: 'top_up',
+  requested: 20,
+  generated: 0
+}
+[QUIZ COUNTS] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  initialRequests: 1,
+  topUpRequests: 3,
+  completionCandidates: 0,
+  auditedCandidates: 30,
+  rejectedCandidates: 39
+}
+[QUIZ TIMING] {
+  requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1',
+  stage: 'refining',
+  durationMs: 18438
+}
+[QUIZ TIMING] { requestId: '38f66b4c-7a3c-4644-967a-cc50a91ec1a1', totalMs: 154235 }
+[LIVE FAILURE] {"failed":true,"error":"Generated 0 of 20 validated questions. Try a smaller quiz or provide more source material.","code":"INSUFFICIENT_VALID_QUESTIONS","stage":"top_up","requested":20,"generated":0,"totalMs":156462,"providerRequests":19}

@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-4581ecdf-9625-43fc-b974-94d12cfe7ff3",
+  "object": "chat.completion",
+  "created": 1791009469,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"records\": [\n    {\n      \"topic\": \"Ideal gas temperature change at constant volume\",\n      \"kind\": \"problem\",\n      \"blockIds\": [\"B37\"],\n      \"givens\": [\n        {\n          \"name\": \"initial temperature\",\n          \"value\": \"70\",\n          \"unit\": \"°C\",\n          \"sourceText\": \"Vỏ bình thép chứa Oxy ở 70°C ở áp suất 4 atm.\",\n          \"blockId\": \"B37\"\n        },\n        {\n          \"name\": \"initial pressure\",\n          \"value\": \"4\",\n          \"unit\": \"atm\",\n          \"sourceText\": \"Vỏ bình thép chứa Oxy ở 70°C ở áp suất 4 atm.\",\n          \"blockId\": \"B37\"\n        },\n        {\n          \"name\": \"final pressure\",\n          \"value\": \"4.5\",\n          \"unit\": \"atm\",\n          \"sourceText\": \"Nếu áp suất của khí trong bình là 4,5 atm thì nhiệt độ của khí trong bình bằng bao nhiêu °C?\",\n          \"blockId\": \"B37\"\n        }\n      ],\n      \"conditions\": [\n        \"Gas behaves ideally\",\n        \"Container volume remains constant\"\n      ],\n      \"relationships\": [\n        \"P1/T1 = P2/T2 (ideal gas law at constant volume)\"\n      ]\n    },\n    {\n      \"topic\": \"Mass flow rate of oxygen pumped into a fixed‑volume container\",\n      \"kind\": \"problem\",\n      \"blockIds\": [\"B38\"],\n      \"givens\": [\n        {\n          \"name\": \"container volume\",\n          \"value\": \"8\",\n          \"unit\": \"L\",\n          \"sourceText\": \"bơm khí Oxy ... vào bình thép có thể tích 8 lít.\",\n          \"blockId\": \"B38\"\n        },\n        {\n          \"name\": \"final temperature\",\n          \"value\": \"24\",\n          \"unit\": \"°C\",\n          \"sourceText\": \"Sau 2 phút bình chứa đầy khí ở nhiệt độ 24°C\",\n          \"blockId\": \"B38\"\n        },\n        {\n          \"name\": \"final pressure\",\n          \"value\": \"765\",\n          \"unit\": \"mmHg\",\n          \"sourceText\": \"áp suất 765 mmHg.\",\n          \"blockId\": \"B38\"\n        },\n        {\n          \"name\": \"oxygen density at standard conditions\",\n          \"value\": \"1,43\",\n          \"unit\": \"kg/m³\",\n          \"sourceText\": \"khối lượng riêng khí Oxy ở điều kiện tiêu chuẩn là 1,43 kg/m³\",\n          \"blockId\": \"B38\"\n        },\n        {\n          \"name\": \"pumping time\",\n          \"value\": \"2\",\n          \"unit\": \"min\",\n          \"sourceText\": \"Sau 2 phút bình chứa đầy khí\",\n          \"blockId\": \"B38\"\n        }\n      ],\n      \"conditions\": [\n        \"Pumping proceeds uniformly over the given time\",\n        \"Oxygen behaves as an ideal gas\"\n      ],\n      \"relationships\": [\n        \"mass = density × volume (at standard conditions)\",\n        \"flow rate = mass / time\"\n      ]\n    }\n  ],\n  \"excluded\": [\n    {\n      \"blockId\": \"B39\",\n      \"reason\": \"Insufficient numerical data (initial pressure or temperature of the tire not provided)\"\n    },\n    {\n      \"blockId\": \"B40\",\n      \"reason\": \"Diagram contains no quantitative information\"\n    }\n  ]\n}",
+        "reasoning": "We need to parse source blocks and extract up to eight records. Must not produce answers, just givens, conditions, relationships. Identify each problem.\n\nBlock B37: Vietnamese: \"Câu 1. Vỏ bình thép chứa Oxy ở 70°C ở áp suất 4 atm. Nếu áp suất của khí trong bình là 4,5 atm thì nhiệt độ của khí trong bình bằng bao nhiêu °C?\" So givens: initial temperature 70°C, initial pressure 4 atm, final pressure 4.5 atm, find final temperature. Conditions: ideal gas? relationship: P1/T1 = P2/T2 (assuming constant volume). So record.\n\nBlock B38: \"Câu 2. Người ta bơm khí Oxy ở điều kiện tiêu chuẩn vào bình thép có thể tích 8 lít. Sau 2 phút bình chứa đầy khí ở nhiệt độ 24°C và áp suất 765 mmHg. Biết khối lượng riêng khí Oxy ở điều kiện tiêu chuẩn là 1,43 kg/m³ và coi quá trình bơm diễn ra một cách đều đặn. Khối lượng khí bơm vào bình sau mỗi giây bằng bao nhiêu g? (Kết quả làm tròn đến chữ số hàng phần trăm)\" So givens: container volume 8 L, final temperature 24°C, final pressure 765 mmHg, density of O2 at STP 1.43 kg/m³, time 2 minutes (120 s). Need mass flow per second. Conditions: ideal gas, constant temperature? Not given. Relationship: mass = density * volume (at STP) maybe using ideal gas to convert. We'll list givens.\n\nBlock B39: Tire sensor problem. Need percent increase in moles. Given: volume unchanged, need percent increase to match pressure? Not enough data: we don't have initial pressures. So insufficient data. Exclude.\n\nBlock B40: Diagram description, no numbers. Exclude.\n\nThus we have two usable records (B37, B38). Provide JSON with records array and excluded array for B39, B40.\n\nNeed to include givens with name, value normalized, unit, sourceText, blockId.\n\nNormalization: Keep same representation. For temperature 70°C -> value \"70\" unit \"°C\". For pressure 4 atm -> \"4\" unit \"atm\". For final pressure 4.5 atm -> \"4.5\" unit \"atm\". For volume 8 lít -> \"8\" unit \"L\". For temperature 24°C -> \"24\" unit \"°C\". Pressure 765 mmHg -> \"765\" unit \"mmHg\". Density 1,43 kg/m³ -> note decimal comma; normalized value should preserve decimal separator as in source? instruction: preserve decimal separators. So value \"1,43\" unit \"kg/m³\". Time 2 phút -> \"2\" unit \"min\". Also need maybe seconds? But given as minutes. We'll include as given.\n\nRelationships: For B37: ideal gas law at constant volume: P1/T1 = P2/T2. For B38: mass = density * volume (at STP) and flow rate = mass / time, assuming uniform pumping.\n\nConditions: constant volume, ideal gas behavior, uniform pumping.\n\nNow produce JSON compact (no whitespace). Ensure valid JSON.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.345027199,
+    "prompt_tokens": 999,
+    "prompt_time": 0.057061205,
+    "completion_tokens": 1447,
+    "completion_time": 3.024199592,
+    "total_tokens": 2446,
+    "total_time": 3.081260797,
+    "completion_tokens_details": {
+      "reasoning_tokens": 699
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_96d96a151c",
+  "x_groq": {
+    "id": "req_01m407q9jtew388pkfdvy9vqc4",
+    "seed": 1337066535
+  },
+  "service_tier": "on_demand"
+}

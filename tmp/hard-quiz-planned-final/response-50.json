@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-f77b428b-2db5-416f-b24d-5a2f09d7417d",
+  "object": "chat.completion",
+  "created": 1791009975,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"title\":\"Kế hoạch câu hỏi nâng cao về nhiệt động lực học và khí lý tưởng\",\n  \"category\":\"categories.science\",\n  \"plans\":[\n    {\n      \"id\":\"P31\",\n      \"type\":\"multiple_choice\",\n      \"recordIds\":[\"F6\"],\n      \"intent\":\"Tính áp suất cuối cùng của khí trong lốp khi nhiệt độ tăng từ 27 °C lên 54 °C, giả sử thể tích không đổi; yêu cầu lựa chọn đáp án đúng.\",\n      \"reasoningSteps\":[\"Chuyển đổi nhiệt độ Celsius sang Kelvin (T_K = T_°C+273) cho cả hai trạng thái\",\"Áp dụng định luật khí lý tưởng ở thể tích không đổi P1/T1 = P2/T2 để tính P2\"]\n    },\n    {\n      \"id\":\"P32\",\n      \"type\":\"selection\",\n      \"recordIds\":[\"F7\"],\n      \"intent\":\"Xác định các khẳng định đúng về khối lượng nitơ trong bình kín 12 L, áp suất 80 atm, nhiệt độ 17 °C, dựa trên tính toán n = PV/RT và mass = n·M; yêu cầu chọn tất cả đáp án đúng.\",\n      \"reasoningSteps\":[\"Tính số mol nitơ bằng công thức n = PV/(R·T) với R=0.082 atm·L/(mol·K) và T ở Kelvin\",\"Nhân số mol với khối lượng mol 28 g/mol để có khối lượng nitơ, sau đó so sánh với các khẳng định\"]\n    },\n    {\n      \"id\":\"P33\",\n      \"type\":\"true_false\",\n      \"recordIds\":[\"F3\"],\n      \"intent\":\"Khẳng định: \\\"Để tan và làm nóng 4 kg nước đá từ 0 °C lên 25 °C chỉ cần ít hơn 1 000 kJ nhiệt lượng.\\\"\",\n      \"reasoningSteps\":[\"Tính nhiệt lượng cần thiết Q = m·L_f + m·c·ΔT với L_f=3.4×10^6 J/kg và c=4180 J/(kg·K)\",\"So sánh giá trị Q tính được (khoảng 1 700 kJ) với 1 000 kJ để xác định tính sai của khẳng định\"],\n      \"targetTruthValue\":\"False\"\n    },\n    {\n      \"id\":\"P34\",\n      \"type\":\"short_answer\",\n      \"recordIds\":[\"F20\"],\n      \"intent\":\"Xác định nhiệt độ (°C) của khí trong bình thép khi áp suất tăng từ 4 atm lên 4,5 atm, với thể tích không đổi; yêu cầu đưa ra giá trị nhiệt độ cuối cùng.\",\n      \"reasoningSteps\":[\"Chuyển đổi nhiệt độ ban đầu 70 °C sang Kelvin (T1=343 K)\",\"Sử dụng P1/T1 = P2/T2 để tính T2, rồi chuyển lại sang Celsius (T2‑273)\"]\n    },\n    {\n      \"id\":\"P35\",\n      \"type\":\"multiple_choice\",\n      \"recordIds\":[\"F16\"],\n      \"intent\":\"Tính áp suất bên trong xi lanh khi một học sinh 24 kg ngồi trên ghế, tổng khối lượng ghế và xi lanh 6 kg, piston có diện tích 30 cm², và áp suất khí quyển 10^5 Pa; yêu cầu chọn đáp án đúng.\",\n      \"reasoningSteps\":[\"Tính tổng lực trọng lượng F = (m_học sinh + m_ghế)·g = (24 kg+6 kg)·10 m/s²\",\"Áp dụng công thức áp suất P = p₀ + F/S, trong đó S=30 cm²=3×10⁻³ m², để tìm áp suất nội bộ\"]\n    }\n  ]\n}",
+        "reasoning": "We need to output JSON with title, category, plans array for slots P31-P35. Must use only reviewed source records. Each plan must identify source recordIds, intended task, reasoningSteps. Must be hard: at least two dependent steps. Use inverse problems, error diagnosis, comparisons, boundary conditions, interacting concepts.\n\nWe have many source records. Need to assign each slot a type:\n\nP31 multiple_choice\nP32 selection (multiple correct)\nP33 true_false targetFalse\nP34 short_answer\nP35 multiple_choice\n\nWe must create plans, not actual questions. Just plan metadata. Provide intent description, reasoning steps.\n\nWe must not generate actual question content, just plan. Ensure each uses up to 3 records and 4 source chunks. Provide source recordIds list.\n\nLet's design:\n\nP31: multiple_choice using F6 (ideal gas law pressure change). Inverse problem: given initial pressure and temperature, final temperature unknown, find final pressure? Actually we need multiple choice. Could ask to compute final pressure after temperature doubles? Need two steps: convert Celsius to Kelvin, apply P/T ratio. Use F6 data. Reasoning steps: convert temps to Kelvin, apply P1/T1 = P2/T2.\n\nRecordIds: [\"F6\"].\n\nP32 selection: selection type (multiple correct). Use F7 (mass of nitrogen). Could ask which statements about mass are correct given conditions. Need multiple correct options. Reasoning: compute moles, then mass. Steps: compute n = PV/RT, then mass = n * M. Use F7. RecordIds: [\"F7\"].\n\nP33 true_false false: Use F3 (heat to melt ice). Provide statement that required heat is less than some value, which is false. Need derived conclusion. Use calculation: Q = mL + mcΔT. Compute Q = 4kg*34e5 + 4kg*4180*25 = 4*340000 + 4*4180*25? Wait 34.10^5 likely 3.4e5? Actually 34.10^5 = 34*10^5 = 3.4e6 J/kg? ambiguous. But we can still compute symbolic. Provide false statement: \"Cần ít hơn 1,000 kJ\". That's false. Reasoning steps: compute Q using formula, compare. Use F3. RecordIds: [\"F3\"].\n\nP34 short_answer: Use F20 (pressure-temperature). Inverse problem: find final temperature given pressure increase. Steps: convert Celsius to Kelvin, apply ratio, convert back. RecordIds: [\"F20\"].\n\nP35 multiple_choice: Use F16 (hydraulic chair). Complex reasoning: compute pressure in cylinder when loaded, using force balance and Pascal. Two steps: compute total force weight, compute pressure = (force + atmospheric?) Actually pressure inside = atmospheric + extra due to weight over area. Steps: compute total weight (mass* g), add seat+ cylinder weight? Use given masses. Compute pressure. Provide multiple choice. RecordIds: [\"F16\"].\n\nMake sure each plan has at least two reasoning steps.\n\nNow produce JSON compact.\n\nCheck JSON validity: no trailing commas.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.344976568,
+    "prompt_tokens": 9760,
+    "prompt_time": 0.423871549,
+    "completion_tokens": 1501,
+    "completion_time": 3.139749621,
+    "total_tokens": 11261,
+    "total_time": 3.5636211700000002,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 665
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_87b3c396db",
+  "x_groq": {
+    "id": "req_01m4086q7seyw850j4zzwwfs9z",
+    "seed": 1206272975
+  },
+  "service_tier": "on_demand"
+}

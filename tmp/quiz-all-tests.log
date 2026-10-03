@@ -1,0 +1,4072 @@
+TAP version 13
+# Subtest: stage and checkpoint events keep progress moving forward through completion
+ok 1 - stage and checkpoint events keep progress moving forward through completion
+  ---
+  duration_ms: 2.8419
+  type: 'test'
+  ...
+# Subtest: a new run resets progress after a completed, failed, or paused attempt
+ok 2 - a new run resets progress after a completed, failed, or paused attempt
+  ---
+  duration_ms: 0.596
+  type: 'test'
+  ...
+# Subtest: invalid updates cannot corrupt the bar and valid updates stay in bounds
+ok 3 - invalid updates cannot corrupt the bar and valid updates stay in bounds
+  ---
+  duration_ms: 0.4697
+  type: 'test'
+  ...
+# Subtest: keeps questions together and creates no trailing page on an exact fit
+ok 4 - keeps questions together and creates no trailing page on an exact fit
+  ---
+  duration_ms: 6.4944
+  type: 'test'
+  ...
+# Subtest: backs up across overlapping line/formula bounds without cutting content
+ok 5 - backs up across overlapping line/formula bounds without cutting content
+  ---
+  duration_ms: 0.7335
+  type: 'test'
+  ...
+# Subtest: reports an oversized unsplittable element instead of looping or clipping
+ok 6 - reports an oversized unsplittable element instead of looping or clipping
+  ---
+  duration_ms: 1.0614
+  type: 'test'
+  ...
+# Subtest: preserves international titles while removing unsafe filename characters
+ok 7 - preserves international titles while removing unsafe filename characters
+  ---
+  duration_ms: 5.7741
+  type: 'test'
+  ...
+# Subtest: player receives a canonical question before grading and identifies the stored question
+ok 8 - player receives a canonical question before grading and identifies the stored question
+  ---
+  duration_ms: 40.4403
+  type: 'test'
+  ...
+# Subtest: unverified or stale responses cannot replace the player's question
+ok 9 - unverified or stale responses cannot replace the player's question
+  ---
+  duration_ms: 8.6941
+  type: 'test'
+  ...
+# Subtest: restored feedback becomes invalid when its answer or explanations change
+ok 10 - restored feedback becomes invalid when its answer or explanations change
+  ---
+  duration_ms: 0.3534
+  type: 'test'
+  ...
+# Subtest: rejects oversized provider text inputs
+ok 11 - rejects oversized provider text inputs
+  ---
+  duration_ms: 41.233
+  type: 'test'
+  ...
+# Subtest: rejects oversized individual and combined import images
+ok 12 - rejects oversized individual and combined import images
+  ---
+  duration_ms: 8.8188
+  type: 'test'
+  ...
+# Subtest: accepts image-only imports but rejects an entirely empty import
+ok 13 - accepts image-only imports but rejects an entirely empty import
+  ---
+  duration_ms: 1.4858
+  type: 'test'
+  ...
+# Subtest: bounds interactive AI prompts and chat history
+ok 14 - bounds interactive AI prompts and chat history
+  ---
+  duration_ms: 16.0234
+  type: 'test'
+  ...
+# Subtest: bounds lecture and revision controls
+ok 15 - bounds lecture and revision controls
+  ---
+  duration_ms: 1.1487
+  type: 'test'
+  ...
+# Subtest: accepts summary requests with text and source images
+ok 16 - accepts summary requests with text and source images
+  ---
+  duration_ms: 0.4889
+  type: 'test'
+  ...
+# Subtest: accepts image-only summary requests
+ok 17 - accepts image-only summary requests
+  ---
+  duration_ms: 10.3759
+  type: 'test'
+  ...
+# Subtest: rejects empty summary requests
+ok 18 - rejects empty summary requests
+  ---
+  duration_ms: 0.8707
+  type: 'test'
+  ...
+# Subtest: parses fenced and prose-wrapped AI JSON objects
+ok 19 - parses fenced and prose-wrapped AI JSON objects
+  ---
+  duration_ms: 4.3481
+  type: 'test'
+  ...
+# Subtest: rejects empty responses and non-object JSON
+ok 20 - rejects empty responses and non-object JSON
+  ---
+  duration_ms: 1.8032
+  type: 'test'
+  ...
+# Subtest: inspects valid AI JSON completions without exposing response content
+ok 21 - inspects valid AI JSON completions without exposing response content
+  ---
+  duration_ms: 2.5942
+  type: 'test'
+  ...
+# Subtest: marks empty, truncated, and malformed completions for retry
+ok 22 - marks empty, truncated, and malformed completions for retry
+  ---
+  duration_ms: 0.8076
+  type: 'test'
+  ...
+# Subtest: recovers JSON from nested provider failed_generation fields
+ok 23 - recovers JSON from nested provider failed_generation fields
+  ---
+  duration_ms: 0.8238
+  type: 'test'
+  ...
+# Subtest: recognizes provider JSON validation failures that need a plain-mode retry
+ok 24 - recognizes provider JSON validation failures that need a plain-mode retry
+  ---
+  duration_ms: 0.6137
+  type: 'test'
+  ...
+# Subtest: generates cryptographically random six-digit verification codes
+ok 25 - generates cryptographically random six-digit verification codes
+  ---
+  duration_ms: 4.0384
+  type: 'test'
+  ...
+# Subtest: builds password reset links only from a configured application origin
+ok 26 - builds password reset links only from a configured application origin
+  ---
+  duration_ms: 0.9606
+  type: 'test'
+  ...
+# Subtest: rejects missing or insecure production application URLs
+ok 27 - rejects missing or insecure production application URLs
+  ---
+  duration_ms: 1.7629
+  type: 'test'
+  ...
+# Subtest: requires strong production session configuration
+ok 28 - requires strong production session configuration
+  ---
+  duration_ms: 0.5787
+  type: 'test'
+  ...
+# Subtest: normalizes account subjects and prefers an authenticated session
+ok 29 - normalizes account subjects and prefers an authenticated session
+  ---
+  duration_ms: 0.5254
+  type: 'test'
+  ...
+# Subtest: regenerates and saves a session before authenticating it
+ok 30 - regenerates and saves a session before authenticating it
+  ---
+  duration_ms: 2.1114
+  type: 'test'
+  ...
+# Subtest: destroys the request session when credentials are reset
+ok 31 - destroys the request session when credentials are reset
+  ---
+  duration_ms: 0.576
+  type: 'test'
+  ...
+# Subtest: requires explanations to survive option shuffling
+ok 32 - requires explanations to survive option shuffling
+  ---
+  duration_ms: 1.693
+  type: 'test'
+  ...
+# [QUIZ IMPORT REVIEW] {
+#   total: 4,
+#   pending: [
+#     {
+#       label: 'Câu 2.',
+#       reason: "The verified answer conflicts with the source's statement answer key. Review the key and statements."
+#     }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 2,
+#   pending: [
+#     {
+#       label: 'unassigned lines 4–6',
+#       reason: 'This source text was not assigned to a question. Check for a missing question or supporting passage.'
+#     }
+#   ]
+# }
+# Subtest: Vietnamese exam corpus preserves four types and imports the user's block as selection A/B
+ok 33 - Vietnamese exam corpus preserves four types and imports the user's block as selection A/B
+  ---
+  duration_ms: 157.9115
+  type: 'test'
+  ...
+# Subtest: local answer key conflicts are retained for review instead of accepted on verified:true
+ok 34 - local answer key conflicts are retained for review instead of accepted on verified:true
+  ---
+  duration_ms: 27.21
+  type: 'test'
+  ...
+# Subtest: the standalone unnumbered example remains one selection question with four statements
+ok 35 - the standalone unnumbered example remains one selection question with four statements
+  ---
+  duration_ms: 19.1542
+  type: 'test'
+  ...
+# Subtest: block references preserve multiline formulas without asking the model to reproduce text
+ok 36 - block references preserve multiline formulas without asking the model to reproduce text
+  ---
+  duration_ms: 28.3763
+  type: 'test'
+  ...
+# Subtest: truth keys require complete noncontradictory coverage, including an all-false key
+ok 37 - truth keys require complete noncontradictory coverage, including an all-false key
+  ---
+  duration_ms: 1.2446
+  type: 'test'
+  ...
+# Subtest: grouped statements retain their selection type when zero or only one statement is true
+ok 38 - grouped statements retain their selection type when zero or only one statement is true
+  ---
+  duration_ms: 21.5898
+  type: 'test'
+  ...
+# Subtest: ambiguous numbered layouts are re-inventoried instead of merging two option runs
+ok 39 - ambiguous numbered layouts are re-inventoried instead of merging two option runs
+  ---
+  duration_ms: 18.7912
+  type: 'test'
+  ...
+# Subtest: unaccounted inventory source remains visible and cannot be scored without review
+ok 40 - unaccounted inventory source remains visible and cannot be scored without review
+  ---
+  duration_ms: 17.2717
+  type: 'test'
+  ...
+# Subtest: keeps LaTeX backslashes intact in the runtime prompt
+ok 41 - keeps LaTeX backslashes intact in the runtime prompt
+  ---
+  duration_ms: 1.7766
+  type: 'test'
+  ...
+# Subtest: accepts properly delimited KaTeX in generated quiz text
+ok 42 - accepts properly delimited KaTeX in generated quiz text
+  ---
+  duration_ms: 2.6965
+  type: 'test'
+  ...
+# Subtest: rejects raw Unicode and formulas outside delimiters
+ok 43 - rejects raw Unicode and formulas outside delimiters
+  ---
+  duration_ms: 0.7882
+  type: 'test'
+  ...
+# Subtest: rejects lost and JSON-corrupted LaTeX backslashes
+ok 44 - rejects lost and JSON-corrupted LaTeX backslashes
+  ---
+  duration_ms: 0.2568
+  type: 'test'
+  ...
+# Subtest: does not flag ordinary non-mathematical prose
+ok 45 - does not flag ordinary non-mathematical prose
+  ---
+  duration_ms: 0.3335
+  type: 'test'
+  ...
+# Subtest: extracts text through the upgraded OfficeParser API
+ok 46 - extracts text through the upgraded OfficeParser API
+  ---
+  duration_ms: 1262.827
+  type: 'test'
+  ...
+# Subtest: extracts text from an untrusted PDF with evaluation disabled
+ok 47 - extracts text from an untrusted PDF with evaluation disabled
+  ---
+  duration_ms: 10074.2265
+  type: 'test'
+  ...
+# Subtest: reads every page past the former 10-page limit and retains question line breaks
+ok 48 - reads every page past the former 10-page limit and retains question line breaks
+  ---
+  duration_ms: 195.0443
+  type: 'test'
+  ...
+# Subtest: transcribes every sparse page, including sparse pages mixed with selectable text
+ok 49 - transcribes every sparse page, including sparse pages mixed with selectable text
+  ---
+  duration_ms: 247.631
+  type: 'test'
+  ...
+# Subtest: reports unreadable pages instead of silently importing the remaining pages
+ok 50 - reports unreadable pages instead of silently importing the remaining pages
+  ---
+  duration_ms: 108.0303
+  type: 'test'
+  ...
+# Subtest: blank separator pages are skipped without requesting transcription or rejecting the document
+ok 51 - blank separator pages are skipped without requesting transcription or rejecting the document
+  ---
+  duration_ms: 118.4799
+  type: 'test'
+  ...
+# Subtest: PDF layout preserves columns and coordinates instead of interleaving options
+ok 52 - PDF layout preserves columns and coordinates instead of interleaving options
+  ---
+  duration_ms: 26.8985
+  type: 'test'
+  ...
+# Subtest: OCR quality checks detect corrupt text and a readable header over a scanned page
+ok 53 - OCR quality checks detect corrupt text and a readable header over a scanned page
+  ---
+  duration_ms: 1.3435
+  type: 'test'
+  ...
+# Subtest: layout keeps raised exponents with their baseline instead of moving them before the question
+ok 54 - layout keeps raised exponents with their baseline instead of moving them before the question
+  ---
+  duration_ms: 0.8843
+  type: 'test'
+  ...
+# Subtest: dense selectable exam pages still transcribe missing graph and equation data
+ok 55 - dense selectable exam pages still transcribe missing graph and equation data
+  ---
+  duration_ms: 104.271
+  type: 'test'
+  ...
+# Subtest: builds a source-first material instruction for prompt quizzes
+ok 56 - builds a source-first material instruction for prompt quizzes
+  ---
+  duration_ms: 2.5237
+  type: 'test'
+  ...
+# Subtest: includes assessment guidance in material creation
+ok 57 - includes assessment guidance in material creation
+  ---
+  duration_ms: 0.4625
+  type: 'test'
+  ...
+# Subtest: builds focused model instructions for detecting prompt settings
+ok 58 - builds focused model instructions for detecting prompt settings
+  ---
+  duration_ms: 0.572
+  type: 'test'
+  ...
+# Subtest: uses explicit prompt settings when present
+ok 59 - uses explicit prompt settings when present
+  ---
+  duration_ms: 2.7902
+  type: 'test'
+  ...
+# Subtest: validates any model-extracted count within the slider range
+ok 60 - validates any model-extracted count within the slider range
+  ---
+  duration_ms: 3.3457
+  type: 'test'
+  ...
+# Subtest: prefills count and difficulty from descriptive question requests
+ok 61 - prefills count and difficulty from descriptive question requests
+  ---
+  duration_ms: 0.5704
+  type: 'test'
+  ...
+# Subtest: uses ten medium questions when prompt settings are absent
+ok 62 - uses ten medium questions when prompt settings are absent
+  ---
+  duration_ms: 0.6359
+  type: 'test'
+  ...
+# Subtest: defaults only the setting that is missing
+ok 63 - defaults only the setting that is missing
+  ---
+  duration_ms: 0.3046
+  type: 'test'
+  ...
+# Subtest: recognizes Vietnamese numeric and difficulty settings
+ok 64 - recognizes Vietnamese numeric and difficulty settings
+  ---
+  duration_ms: 2.0253
+  type: 'test'
+  ...
+# Subtest: accepts model-recognized settings for natural phrasing
+ok 65 - accepts model-recognized settings for natural phrasing
+  ---
+  duration_ms: 0.9006
+  type: 'test'
+  ...
+# Subtest: caps an explicit numeric question count above twenty
+ok 66 - caps an explicit numeric question count above twenty
+  ---
+  duration_ms: 0.4762
+  type: 'test'
+  ...
+# Subtest: caps an above-limit count recognized by the model
+ok 67 - caps an above-limit count recognized by the model
+  ---
+  duration_ms: 0.2619
+  type: 'test'
+  ...
+# Subtest: does not use model values marked as unspecified
+ok 68 - does not use model values marked as unspecified
+  ---
+  duration_ms: 0.2096
+  type: 'test'
+  ...
+# Subtest: rejects malformed multilingual model output instead of silently defaulting
+ok 69 - rejects malformed multilingual model output instead of silently defaulting
+  ---
+  duration_ms: 0.6359
+  type: 'test'
+  ...
+# Subtest: does not cache the public feed so visibility changes appear immediately
+ok 70 - does not cache the public feed so visibility changes appear immediately
+  ---
+  duration_ms: 1.3364
+  type: 'test'
+  ...
+# Subtest: public quizzes are readable without authentication
+ok 71 - public quizzes are readable without authentication
+  ---
+  duration_ms: 2.1626
+  type: 'test'
+  ...
+# Subtest: private quizzes are readable only by their owner
+ok 72 - private quizzes are readable only by their owner
+  ---
+  duration_ms: 0.3331
+  type: 'test'
+  ...
+# Subtest: only the owner can mutate a quiz, including public quizzes
+ok 73 - only the owner can mutate a quiz, including public quizzes
+  ---
+  duration_ms: 0.2927
+  type: 'test'
+  ...
+# Subtest: ownerless quizzes cannot be treated as privately owned
+ok 74 - ownerless quizzes cannot be treated as privately owned
+  ---
+  duration_ms: 0.4016
+  type: 'test'
+  ...
+# Subtest: quiz results are readable only by the participant or quiz owner
+ok 75 - quiz results are readable only by the participant or quiz owner
+  ---
+  duration_ms: 0.3439
+  type: 'test'
+  ...
+# Subtest: anonymous results are visible only to the quiz owner
+ok 76 - anonymous results are visible only to the quiz owner
+  ---
+  duration_ms: 0.1823
+  type: 'test'
+  ...
+# Quiz chat attempt 1 failed: 429 Temporarily busy
+# Quiz chat attempt 1 failed: 503 Temporarily busy
+# Subtest: Prepal recovers from temporary failures and rejects unusable AI responses
+    # Subtest: retries HTTP 429 using the original provider error
+    ok 1 - retries HTTP 429 using the original provider error
+      ---
+      duration_ms: 1270.7199
+      type: 'test'
+      ...
+# Quiz chat attempt 1 failed: Prepal returned an empty or incomplete response
+    # Subtest: retries HTTP 503 using the original provider error
+    ok 2 - retries HTTP 503 using the original provider error
+      ---
+      duration_ms: 1034.5762
+      type: 'test'
+      ...
+# Quiz chat attempt 1 failed: Prepal returned an empty or incomplete response
+    # Subtest: retries empty or truncated output with more room for the answer
+    ok 3 - retries empty or truncated output with more room for the answer
+      ---
+      duration_ms: 1013.1077
+      type: 'test'
+      ...
+# Quiz chat attempt 2 failed: Prepal returned an empty or incomplete response
+# Quiz chat attempt 3 failed: Prepal returned an empty or incomplete response
+# Quiz chat attempt 1 failed: 401 Invalid credential
+    # Subtest: persistent empty output is an error, not a successful chat message
+    ok 4 - persistent empty output is an error, not a successful chat message
+      ---
+      duration_ms: 3015.9556
+      type: 'test'
+      ...
+    # Subtest: does not retry permanent authentication errors
+    ok 5 - does not retry permanent authentication errors
+      ---
+      duration_ms: 3.8796
+      type: 'test'
+      ...
+    # Subtest: empty quizzes are rejected before contacting the provider
+    ok 6 - empty quizzes are rejected before contacting the provider
+      ---
+      duration_ms: 0.8978
+      type: 'test'
+      ...
+    1..6
+ok 77 - Prepal recovers from temporary failures and rejects unusable AI responses
+  ---
+  duration_ms: 13932.4283
+  type: 'test'
+  ...
+# Quiz chat error: Error: private provider details
+#     at TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-chat.test.ts:103:57)
+#     at Test.runInAsyncScope (node:async_hooks:214:14)
+#     at Test.run (node:internal/test_runner/test:1047:25)
+#     at Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+#     at Test.postRun (node:internal/test_runner/test:1173:19)
+#     at Test.run (node:internal/test_runner/test:1101:12)
+#     at async Test.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   status: 429
+# }
+# Quiz chat error: Error: private provider details
+#     at TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-chat.test.ts:106:50)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+# Subtest: long conversations and large AI replies remain valid request history
+ok 78 - long conversations and large AI replies remain valid request history
+  ---
+  duration_ms: 38.5209
+  type: 'test'
+  ...
+# Subtest: imported and legacy quizzes chat using saved source without requiring an index
+ok 79 - imported and legacy quizzes chat using saved source without requiring an index
+  ---
+  duration_ms: 10.0303
+  type: 'test'
+  ...
+# Subtest: indexed public quizzes retrieve evidence under the owner's identity
+ok 80 - indexed public quizzes retrieve evidence under the owner's identity
+  ---
+  duration_ms: 1.5318
+  type: 'test'
+  ...
+# Subtest: access, missing quizzes, empty quizzes, and invalid requests stop before AI calls
+ok 81 - access, missing quizzes, empty quizzes, and invalid requests stop before AI calls
+  ---
+  duration_ms: 13.5427
+  type: 'test'
+  ...
+# Subtest: out-of-range question indexes use the last available question
+ok 82 - out-of-range question indexes use the last available question
+  ---
+  duration_ms: 1.4469
+  type: 'test'
+  ...
+# Subtest: provider failures return actionable messages without leaking internal errors
+ok 83 - provider failures return actionable messages without leaking internal errors
+  ---
+  duration_ms: 38.7994
+  type: 'test'
+  ...
+# Subtest: submission stores the result and clears only this participant's quiz progress before commit
+ok 84 - submission stores the result and clears only this participant's quiz progress before commit
+  ---
+  duration_ms: 115.3906
+  type: 'test'
+  ...
+# Subtest: guest submissions store their result without deleting anyone's progress
+ok 85 - guest submissions store their result without deleting anyone's progress
+  ---
+  duration_ms: 33.1191
+  type: 'test'
+  ...
+# Subtest: failure to clear progress rolls back the result instead of reporting completion
+ok 86 - failure to clear progress rolls back the result instead of reporting completion
+  ---
+  duration_ms: 17.4313
+  type: 'test'
+  ...
+# Subtest: failure to store the result preserves progress
+ok 87 - failure to store the result preserves progress
+  ---
+  duration_ms: 10.7075
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: 'a0b2deb8-7bf6-4ea8-8c3e-5fa3399f2d96',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a0b2deb8-7bf6-4ea8-8c3e-5fa3399f2d96',
+#   stage: 'reading',
+#   durationMs: 159
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a0b2deb8-7bf6-4ea8-8c3e-5fa3399f2d96',
+#   stage: 'analyzing',
+#   durationMs: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a0b2deb8-7bf6-4ea8-8c3e-5fa3399f2d96',
+#   stage: 'preparing',
+#   durationMs: 2
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'a0b2deb8-7bf6-4ea8-8c3e-5fa3399f2d96',
+#   stage: 'generating',
+#   durationMs: 189
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a0b2deb8-7bf6-4ea8-8c3e-5fa3399f2d96',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'a0b2deb8-7bf6-4ea8-8c3e-5fa3399f2d96',
+#   stage: 'validating',
+#   durationMs: 26
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'a0b2deb8-7bf6-4ea8-8c3e-5fa3399f2d96',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a0b2deb8-7bf6-4ea8-8c3e-5fa3399f2d96',
+#   stage: 'verifying',
+#   durationMs: 96
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'a0b2deb8-7bf6-4ea8-8c3e-5fa3399f2d96',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a0b2deb8-7bf6-4ea8-8c3e-5fa3399f2d96',
+#   stage: 'finalizing',
+#   durationMs: 5
+# }
+# [QUIZ TIMING] { requestId: 'a0b2deb8-7bf6-4ea8-8c3e-5fa3399f2d96', totalMs: 481 }
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'preparing',
+#   durationMs: 8
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'generating',
+#   durationMs: 13
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'validating',
+#   durationMs: 24
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'verifying',
+#   durationMs: 26
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'refining',
+#   durationMs: 28
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'verifying',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'refining',
+#   durationMs: 12
+# }
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'verifying',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'refining',
+#   durationMs: 9
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2265:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:73:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:71:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1',
+#   stage: 'verifying',
+#   durationMs: 32
+# }
+# [QUIZ TIMING] { requestId: 'a54b6049-6c34-418e-97c7-aa5b425f0ee1', totalMs: 165 }
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'validating',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'verifying',
+#   durationMs: 15
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'refining',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'refining',
+#   durationMs: 21
+# }
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'verifying',
+#   durationMs: 9
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'refining',
+#   durationMs: 18
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2265:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:73:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:71:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756',
+#   stage: 'verifying',
+#   durationMs: 9
+# }
+# [QUIZ TIMING] { requestId: '6a4d8da8-e4b9-4baf-b6d1-1a2537f42756', totalMs: 94 }
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'generating',
+#   durationMs: 6
+# }
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'validating',
+#   durationMs: 12
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'verifying',
+#   durationMs: 19
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'refining',
+#   durationMs: 7
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'verifying',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'refining',
+#   durationMs: 16
+# }
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'verifying',
+#   durationMs: 7
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'refining',
+#   durationMs: 16
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2265:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:79:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:77:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d',
+#   stage: 'verifying',
+#   durationMs: 18
+# }
+# [QUIZ TIMING] { requestId: '7da7b091-8b4c-4ed7-8def-134d5f802b8d', totalMs: 106 }
+# [QUIZ TIMING] {
+#   requestId: '882ad27d-f966-46af-ae06-dd04468025c7',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '882ad27d-f966-46af-ae06-dd04468025c7',
+#   stage: 'reading',
+#   durationMs: 6
+# }
+# [QUIZ TIMING] {
+#   requestId: '882ad27d-f966-46af-ae06-dd04468025c7',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '882ad27d-f966-46af-ae06-dd04468025c7',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '882ad27d-f966-46af-ae06-dd04468025c7',
+#   stage: 'generating',
+#   durationMs: 7
+# }
+# [QUIZ TIMING] {
+#   requestId: '882ad27d-f966-46af-ae06-dd04468025c7',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '882ad27d-f966-46af-ae06-dd04468025c7',
+#   stage: 'validating',
+#   durationMs: 12
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '882ad27d-f966-46af-ae06-dd04468025c7',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '882ad27d-f966-46af-ae06-dd04468025c7',
+#   stage: 'verifying',
+#   durationMs: 30
+# }
+# [QUIZ COUNTS] {
+#   requestId: '882ad27d-f966-46af-ae06-dd04468025c7',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '882ad27d-f966-46af-ae06-dd04468025c7',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '882ad27d-f966-46af-ae06-dd04468025c7', totalMs: 56 }
+# Subtest: creation verifies answer keys without generating wrong-option feedback
+    # Subtest: corrected answers are saved without wrong-option explanations
+    ok 1 - corrected answers are saved without wrong-option explanations
+      ---
+      duration_ms: 497.4119
+      type: 'test'
+      ...
+    # Subtest: answerCorrect rejection prevents completion
+    ok 2 - answerCorrect rejection prevents completion
+      ---
+      duration_ms: 165.9533
+      type: 'test'
+      ...
+    # Subtest: explanationConsistent rejection prevents completion
+    ok 3 - explanationConsistent rejection prevents completion
+      ---
+      duration_ms: 95.6783
+      type: 'test'
+      ...
+    # Subtest: missing semantic approval cannot mark feedback prepared
+    ok 4 - missing semantic approval cannot mark feedback prepared
+      ---
+      duration_ms: 106.7969
+      type: 'test'
+      ...
+    # Subtest: missing per-option explanations do not block verified answer keys
+    ok 5 - missing per-option explanations do not block verified answer keys
+      ---
+      duration_ms: 56.4298
+      type: 'test'
+      ...
+    1..5
+ok 88 - creation verifies answer keys without generating wrong-option feedback
+  ---
+  duration_ms: 8152.7306
+  type: 'test'
+  ...
+# Subtest: locks and updates only verified feedback fields while preserving other questions
+ok 89 - locks and updates only verified feedback fields while preserving other questions
+  ---
+  duration_ms: 111.1461
+  type: 'test'
+  ...
+# Subtest: concurrent question or source edits prevent storing obsolete feedback
+ok 90 - concurrent question or source edits prevent storing obsolete feedback
+  ---
+  duration_ms: 38.3164
+  type: 'test'
+  ...
+# Subtest: an identical correction saved by another request is accepted without a second update
+ok 91 - an identical correction saved by another request is accepted without a second update
+  ---
+  duration_ms: 10.8465
+  type: 'test'
+  ...
+# Subtest: uses stored question/evidence and persists corrected key before returning a correct grade
+ok 92 - uses stored question/evidence and persists corrected key before returning a correct grade
+  ---
+  duration_ms: 47.1386
+  type: 'test'
+  ...
+# Subtest: feedback prepared during creation returns immediately without another verification or write
+ok 93 - feedback prepared during creation returns immediately without another verification or write
+  ---
+  duration_ms: 8.0389
+  type: 'test'
+  ...
+# Subtest: ignores client isCorrect and returns factual feedback for a genuinely wrong answer
+ok 94 - ignores client isCorrect and returns factual feedback for a genuinely wrong answer
+  ---
+  duration_ms: 1.5159
+  type: 'test'
+  ...
+# Subtest: private access, unknown question, missing quiz, and incomplete identity stop before verification
+ok 95 - private access, unknown question, missing quiz, and incomplete identity stop before verification
+  ---
+  duration_ms: 11.5589
+  type: 'test'
+  ...
+# Subtest: unverified feedback never changes storage or returns a grade
+ok 96 - unverified feedback never changes storage or returns a grade
+  ---
+  duration_ms: 8.8455
+  type: 'test'
+  ...
+# Subtest: a concurrent edit prevents returning a correction based on the previous question
+ok 97 - a concurrent edit prevents returning a correction based on the previous question
+  ---
+  duration_ms: 8.7804
+  type: 'test'
+  ...
+# Subtest: durable drafts enforce ownership, single resume, preservation, and atomic completion
+ok 98 - durable drafts enforce ownership, single resume, preservation, and atomic completion # SKIP
+  ---
+  duration_ms: 2.2088
+  type: 'test'
+  ...
+# Subtest: repairs labels and whitespace without inventing answers or changing source input
+ok 99 - repairs labels and whitespace without inventing answers or changing source input
+  ---
+  duration_ms: 4.795
+  type: 'test'
+  ...
+# Subtest: scales retrieval evidence while requesting the full quiz up front
+ok 100 - scales retrieval evidence while requesting the full quiz up front
+  ---
+  duration_ms: 0.3757
+  type: 'test'
+  ...
+# Subtest: bounds top-up candidate requests
+ok 101 - bounds top-up candidate requests
+  ---
+  duration_ms: 0.1902
+  type: 'test'
+  ...
+# Subtest: uses answer completion only as a fallback for incomplete initial questions
+ok 102 - uses answer completion only as a fallback for incomplete initial questions
+  ---
+  duration_ms: 0.1579
+  type: 'test'
+  ...
+# Subtest: reports a deficit only when the accepted count is short
+ok 103 - reports a deficit only when the accepted count is short
+  ---
+  duration_ms: 0.3046
+  type: 'test'
+  ...
+# Subtest: uses one consistent bounded context for generation and audits
+ok 104 - uses one consistent bounded context for generation and audits
+  ---
+  duration_ms: 0.2342
+  type: 'test'
+  ...
+# Subtest: exposes safe structured generation diagnostics
+ok 105 - exposes safe structured generation diagnostics
+  ---
+  duration_ms: 1.0664
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: '59fecc12-9438-4c07-a7e1-8202a3eff50d',
+#   stage: 'starting',
+#   durationMs: 5
+# }
+# [QUIZ TIMING] {
+#   requestId: '59fecc12-9438-4c07-a7e1-8202a3eff50d',
+#   stage: 'reading',
+#   durationMs: 110
+# }
+# [QUIZ TIMING] {
+#   requestId: '59fecc12-9438-4c07-a7e1-8202a3eff50d',
+#   stage: 'analyzing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '59fecc12-9438-4c07-a7e1-8202a3eff50d',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '59fecc12-9438-4c07-a7e1-8202a3eff50d',
+#   stage: 'generating',
+#   durationMs: 160
+# }
+# [QUIZ TIMING] {
+#   requestId: '59fecc12-9438-4c07-a7e1-8202a3eff50d',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '59fecc12-9438-4c07-a7e1-8202a3eff50d',
+#   stage: 'validating',
+#   durationMs: 10
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '59fecc12-9438-4c07-a7e1-8202a3eff50d',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '59fecc12-9438-4c07-a7e1-8202a3eff50d',
+#   stage: 'verifying',
+#   durationMs: 40
+# }
+# [QUIZ COUNTS] {
+#   requestId: '59fecc12-9438-4c07-a7e1-8202a3eff50d',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '59fecc12-9438-4c07-a7e1-8202a3eff50d',
+#   stage: 'finalizing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] { requestId: '59fecc12-9438-4c07-a7e1-8202a3eff50d', totalMs: 329 }
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'reading',
+#   durationMs: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'analyzing',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'generating',
+#   durationMs: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'validating',
+#   durationMs: 13
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'verifying',
+#   durationMs: 22
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'refining',
+#   durationMs: 39
+# }
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'verifying',
+#   durationMs: 4
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'refining',
+#   durationMs: 13
+# }
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'refining',
+#   durationMs: 17
+# }
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2265:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:54:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:53:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10',
+#   stage: 'verifying',
+#   durationMs: 95
+# }
+# [QUIZ TIMING] { requestId: '3e09a25d-577c-4abc-b1e5-89360726fc10', totalMs: 223 }
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'analyzing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'preparing',
+#   durationMs: 11
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'generating',
+#   durationMs: 13
+# }
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'validating',
+#   durationMs: 20
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'verifying',
+#   durationMs: 52
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'refining',
+#   durationMs: 31
+# }
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'refining',
+#   durationMs: 22
+# }
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'refining',
+#   durationMs: 24
+# }
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2265:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:54:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:53:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '19df0f1c-027c-4163-8606-78bc86e82a80',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] { requestId: '19df0f1c-027c-4163-8606-78bc86e82a80', totalMs: 178 }
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'validating',
+#   durationMs: 16
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'verifying',
+#   durationMs: 35
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'refining',
+#   durationMs: 39
+# }
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'verifying',
+#   durationMs: 14
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'refining',
+#   durationMs: 93
+# }
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'refining',
+#   durationMs: 10
+# }
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2265:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:54:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:53:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a6b54886-b062-429f-9b96-f093445b4d58',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] { requestId: 'a6b54886-b062-429f-9b96-f093445b4d58', totalMs: 214 }
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation count mismatch: returned 3, requested 4.
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'verifying',
+#   durationMs: 11
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'refining',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'refining',
+#   durationMs: 8
+# }
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'verifying',
+#   durationMs: 8
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'refining',
+#   durationMs: 13
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2265:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:54:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:53:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9',
+#   stage: 'verifying',
+#   durationMs: 7
+# }
+# [QUIZ TIMING] { requestId: '2d3dde0a-ef68-4987-8df6-8c42c7b075d9', totalMs: 64 }
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation count mismatch: returned 3, requested 4.
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'verifying',
+#   durationMs: 14
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'refining',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'refining',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'refining',
+#   durationMs: 10
+# }
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2265:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:54:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:53:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5',
+#   stage: 'verifying',
+#   durationMs: 4
+# }
+# [QUIZ TIMING] { requestId: 'a22ce03a-b076-4d11-92a9-dc2a23afe1f5', totalMs: 45 }
+# Subtest: short-answer keys are solved independently, then rejected on missing givens, weak reasoning, or unsupported citations
+    # Subtest: missing-givens cannot complete or publish a quiz
+    ok 1 - missing-givens cannot complete or publish a quiz
+      ---
+      duration_ms: 231.8488
+      type: 'test'
+      ...
+    # Subtest: recall cannot complete or publish a quiz
+    ok 2 - recall cannot complete or publish a quiz
+      ---
+      duration_ms: 178.7611
+      type: 'test'
+      ...
+    # Subtest: bad-citation cannot complete or publish a quiz
+    ok 3 - bad-citation cannot complete or publish a quiz
+      ---
+      duration_ms: 214.8915
+      type: 'test'
+      ...
+    # Subtest: final-veto cannot complete or publish a quiz
+    ok 4 - final-veto cannot complete or publish a quiz
+      ---
+      duration_ms: 64.1162
+      type: 'test'
+      ...
+    # Subtest: placeholder cannot complete or publish a quiz
+    ok 5 - placeholder cannot complete or publish a quiz
+      ---
+      duration_ms: 45.574
+      type: 'test'
+      ...
+    1..5
+ok 106 - short-answer keys are solved independently, then rejected on missing givens, weak reasoning, or unsupported citations
+  ---
+  duration_ms: 8222.9697
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: 'ae5b80ca-1279-490a-ad21-ca3bbd9bddd1',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ae5b80ca-1279-490a-ad21-ca3bbd9bddd1',
+#   stage: 'reading',
+#   durationMs: 53
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ae5b80ca-1279-490a-ad21-ca3bbd9bddd1',
+#   stage: 'analyzing',
+#   durationMs: 5
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ae5b80ca-1279-490a-ad21-ca3bbd9bddd1',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Initial generation returned 0/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'ae5b80ca-1279-490a-ad21-ca3bbd9bddd1',
+#   stage: 'validating',
+#   durationMs: 209
+# }
+# [RESUME LANGUAGE] Auditing batch 1/1 (questions 1-2 of 2).
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2; total is 2/3.
+# Only built 2/3 valid questions. Top-up attempt 1/3: requesting 2 candidates for 1 missing.
+# [QUIZ TIMING] {
+#   requestId: 'ae5b80ca-1279-490a-ad21-ca3bbd9bddd1',
+#   stage: 'verifying',
+#   durationMs: 18
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-1 of 1).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "What is the capital of Spain?..." — changing answer from "Madrid" to "Berlin"
+# [QUIZ TIMING] {
+#   requestId: 'ae5b80ca-1279-490a-ad21-ca3bbd9bddd1',
+#   stage: 'refining',
+#   durationMs: 75
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-1 of 1).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 2 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 1 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 3; total is 3/3.
+# Top-up attempt 1 added 1 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'ae5b80ca-1279-490a-ad21-ca3bbd9bddd1',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 0,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ae5b80ca-1279-490a-ad21-ca3bbd9bddd1',
+#   stage: 'verifying',
+#   durationMs: 22
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'ae5b80ca-1279-490a-ad21-ca3bbd9bddd1',
+#   initialRequests: 0,
+#   topUpRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 1,
+#   rejectedCandidates: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ae5b80ca-1279-490a-ad21-ca3bbd9bddd1',
+#   stage: 'finalizing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] { requestId: 'ae5b80ca-1279-490a-ad21-ca3bbd9bddd1', totalMs: 383 }
+# [QUIZ TIMING] {
+#   requestId: '365baf77-efd2-4b29-8966-c407e6eafc54',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '365baf77-efd2-4b29-8966-c407e6eafc54',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '365baf77-efd2-4b29-8966-c407e6eafc54',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '365baf77-efd2-4b29-8966-c407e6eafc54',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Initial generation returned 0/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '365baf77-efd2-4b29-8966-c407e6eafc54',
+#   stage: 'validating',
+#   durationMs: 19
+# }
+# [RESUME LANGUAGE] Auditing batch 1/1 (questions 1-2 of 2).
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2; total is 2/3.
+# [QUIZ TIMING] {
+#   requestId: '365baf77-efd2-4b29-8966-c407e6eafc54',
+#   stage: 'verifying',
+#   durationMs: 16
+# }
+# Only built 2/3 valid questions. Top-up attempt 1/3: requesting 2 candidates for 1 missing.
+# Top-up attempt 1 returned no question candidates.
+# Only built 2/3 valid questions. Top-up attempt 2/3: requesting 2 candidates for 1 missing.
+# Top-up attempt 2 returned no question candidates.
+# Only built 2/3 valid questions. Top-up attempt 3/3: requesting 2 candidates for 1 missing.
+# Top-up attempt 3 returned no question candidates.
+# Error generating quiz: QuizGenerationError: Generated 2 of 3 validated questions before the retry limit. Try again or request fewer questions.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2275:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-resume.test.ts:59:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-resume.test.ts:53:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 2
+# }
+# [QUIZ COUNTS] {
+#   requestId: '365baf77-efd2-4b29-8966-c407e6eafc54',
+#   initialRequests: 0,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '365baf77-efd2-4b29-8966-c407e6eafc54',
+#   stage: 'refining',
+#   durationMs: 91
+# }
+# [QUIZ TIMING] { requestId: '365baf77-efd2-4b29-8966-c407e6eafc54', totalMs: 128 }
+# Subtest: resume preserves accepted questions and only requests missing candidates
+    # Subtest: successful resume skips initial generation, deduplicates, and checkpoints additions
+    ok 1 - successful resume skips initial generation, deduplicates, and checkpoints additions
+      ---
+      duration_ms: 420.8404
+      type: 'test'
+      ...
+    # Subtest: a second exhausted attempt preserves the prior checkpoint
+    ok 2 - a second exhausted attempt preserves the prior checkpoint
+      ---
+      duration_ms: 132.284
+      type: 'test'
+      ...
+    1..2
+ok 107 - resume preserves accepted questions and only requests missing candidates
+  ---
+  duration_ms: 6760.9748
+  type: 'test'
+  ...
+# Subtest: support must quote every actual cited chunk, rather than an unrelated existing ID
+ok 108 - support must quote every actual cited chunk, rather than an unrelated existing ID
+  ---
+  duration_ms: 3.5399
+  type: 'test'
+  ...
+# Subtest: hard review rejects recall, missing givens, unsupported answers, and implausible distractors
+ok 109 - hard review rejects recall, missing givens, unsupported answers, and implausible distractors
+  ---
+  duration_ms: 1.1151
+  type: 'test'
+  ...
+# Subtest: replacements prioritize missing types and cannot use recall-friendly types to fill reserved slots
+ok 110 - replacements prioritize missing types and cannot use recall-friendly types to fill reserved slots
+  ---
+  duration_ms: 2.7511
+  type: 'test'
+  ...
+# [QUIZ IMPORT RESPONSE] { reason: 'truncated', finishReason: 'length', contentLength: 36 }
+# Subtest: import provider retries truncated output and includes every supplied image
+    # Subtest: flagged question recovery receives the original images and resolves layout and answer in one call
+    ok 1 - flagged question recovery receives the original images and resolves layout and answer in one call
+      ---
+      duration_ms: 41.2374
+      type: 'test'
+      ...
+    # Subtest: exam transcription rejects a partial page even when it contains readable text
+    ok 2 - exam transcription rejects a partial page even when it contains readable text
+      ---
+      duration_ms: 18.4669
+      type: 'test'
+      ...
+    1..2
+ok 111 - import provider retries truncated output and includes every supplied image
+  ---
+  duration_ms: 5759.3761
+  type: 'test'
+  ...
+# [QUIZ IMPORT REVIEW] {
+#   total: 1,
+#   pending: [
+#     { label: 'Câu 1.', reason: 'The original answer needs checking.' }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 1,
+#   pending: [
+#     { label: 'Câu 1.', reason: 'The original answer needs checking.' }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 1,
+#   pending: [
+#     { label: 'Câu 1.', reason: 'The original answer needs checking.' }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 1,
+#   pending: [
+#     { label: 'Câu 1.', reason: 'The original answer needs checking.' }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 1,
+#   pending: [
+#     { label: 'Câu 1.', reason: 'The original answer needs checking.' }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 1,
+#   pending: [
+#     { label: 'Câu 1.', reason: 'The original answer needs checking.' }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 1,
+#   pending: [
+#     {
+#       label: 'Câu 1.',
+#       reason: "The verified answer conflicts with the source's statement answer key. Review the key and statements."
+#     }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 1,
+#   pending: [
+#     {
+#       label: 'Câu 1.',
+#       reason: 'The required diagram is still unreadable.'
+#     }
+#   ]
+# }
+# Subtest: only flagged questions get one fresh layout-and-answer pass with the previous failure reason
+ok 112 - only flagged questions get one fresh layout-and-answer pass with the previous failure reason
+  ---
+  duration_ms: 15.0147
+  type: 'test'
+  ...
+# Subtest: recovery determines previously unknown types and solves written answers
+ok 113 - recovery determines previously unknown types and solves written answers
+  ---
+  duration_ms: 1.7006
+  type: 'test'
+  ...
+# Subtest: a failed ambiguous layout gets a fresh recovery instead of remaining raw immediately
+ok 114 - a failed ambiguous layout gets a fresh recovery instead of remaining raw immediately
+  ---
+  duration_ms: 1.9749
+  type: 'test'
+  ...
+# Subtest: recovery can restore source content incorrectly treated as supporting material
+ok 115 - recovery can restore source content incorrectly treated as supporting material
+  ---
+  duration_ms: 2.3649
+  type: 'test'
+  ...
+# Subtest: unassigned inventory questions also receive recovery and update type counts
+ok 116 - unassigned inventory questions also receive recovery and update type counts
+  ---
+  duration_ms: 4.8778
+  type: 'test'
+  ...
+# Subtest: invalid or unavailable recovery preserves the prior source and review reason
+    # Subtest: missing source option
+    ok 1 - missing source option
+      ---
+      duration_ms: 3.2501
+      type: 'test'
+      ...
+    # Subtest: rewritten source
+    ok 2 - rewritten source
+      ---
+      duration_ms: 1.7438
+      type: 'test'
+      ...
+    # Subtest: duplicate result
+    ok 3 - duplicate result
+      ---
+      duration_ms: 1.3423
+      type: 'test'
+      ...
+    # Subtest: wrong source identity
+    ok 4 - wrong source identity
+      ---
+      duration_ms: 0.9943
+      type: 'test'
+      ...
+    # Subtest: uncertain boundaries
+    ok 5 - uncertain boundaries
+      ---
+      duration_ms: 0.7344
+      type: 'test'
+      ...
+    # Subtest: provider failure
+    ok 6 - provider failure
+      ---
+      duration_ms: 0.4938
+      type: 'test'
+      ...
+    1..6
+ok 117 - invalid or unavailable recovery preserves the prior source and review reason
+  ---
+  duration_ms: 10.6856
+  type: 'test'
+  ...
+# Subtest: recovered grouped truth layouts retain answer-key conflict checks
+ok 118 - recovered grouped truth layouts retain answer-key conflict checks
+  ---
+  duration_ms: 1.6699
+  type: 'test'
+  ...
+# Subtest: a recovered layout remains reviewable if its answer is still uncertain, without further retries
+ok 119 - a recovered layout remains reviewable if its answer is still uncertain, without further retries
+  ---
+  duration_ms: 4.0941
+  type: 'test'
+  ...
+# [QUIZ IMPORT REVIEW] {
+#   total: 40,
+#   pending: [
+#     { label: '5.', reason: 'The diagram is unclear.' },
+#     { label: '7.', reason: 'The diagram is unclear.' },
+#     { label: '8.', reason: 'The diagram is unclear.' },
+#     { label: '18.', reason: 'The diagram is unclear.' },
+#     { label: '20.', reason: 'The diagram is unclear.' },
+#     { label: '22.', reason: 'The diagram is unclear.' },
+#     { label: '25.', reason: 'The diagram is unclear.' },
+#     { label: '27.', reason: 'The diagram is unclear.' },
+#     { label: '34.', reason: 'The diagram is unclear.' },
+#     { label: '35.', reason: 'The diagram is unclear.' }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 2,
+#   pending: [
+#     {
+#       label: 'Câu 1.',
+#       reason: 'Question extraction was unavailable. Review the preserved source text.'
+#     },
+#     {
+#       label: 'Câu 2.',
+#       reason: 'Question extraction was unavailable. Review the preserved source text.'
+#     }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 2,
+#   pending: [
+#     {
+#       label: '1.',
+#       reason: 'Answer verification was unavailable. The original question is saved for review.'
+#     },
+#     {
+#       label: '2.',
+#       reason: 'Answer verification was unavailable. The original question is saved for review.'
+#     }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 2,
+#   pending: [
+#     {
+#       label: '1.',
+#       reason: 'The answer could not be verified. Check the source, diagram, or answer key.'
+#     },
+#     {
+#       label: '2.',
+#       reason: 'The answer could not be verified. Check the source, diagram, or answer key.'
+#     }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 2,
+#   pending: [
+#     {
+#       label: '1.',
+#       reason: 'A shared passage could not be matched to the source.'
+#     },
+#     {
+#       label: '2.',
+#       reason: 'A shared passage could not be matched to the source.'
+#     }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 5,
+#   pending: [
+#     {
+#       label: 'Câu 1.',
+#       reason: 'Some source blocks were classified as supporting material. Confirm that the full question and every option were retained.'
+#     },
+#     {
+#       label: 'Câu 2.',
+#       reason: 'Some source blocks were classified as supporting material. Confirm that the full question and every option were retained.'
+#     },
+#     {
+#       label: 'Câu 1.',
+#       reason: 'Some source blocks were classified as supporting material. Confirm that the full question and every option were retained.'
+#     },
+#     {
+#       label: 'Câu 1.',
+#       reason: 'Some source blocks were classified as supporting material. Confirm that the full question and every option were retained.'
+#     }
+#   ]
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 2,
+#   pending: [
+#     {
+#       label: '1.',
+#       reason: 'The question type could not be determined. Choose its original type and review its layout.'
+#     },
+#     {
+#       label: '2.',
+#       reason: 'The question type could not be determined. Choose its original type and review its layout.'
+#     }
+#   ]
+# }
+# [QUIZ IMPORT INVENTORY] {
+#   startLine: 1,
+#   endLine: 60,
+#   attempt: 1,
+#   failure: 'Incomplete inventory'
+# }
+# [QUIZ IMPORT INVENTORY] {
+#   startLine: 1,
+#   endLine: 40,
+#   attempt: 1,
+#   failure: 'Incomplete inventory'
+# }
+# [QUIZ IMPORT INVENTORY] {
+#   startLine: 1,
+#   endLine: 40,
+#   attempt: 2,
+#   failure: 'Incomplete inventory'
+# }
+# [QUIZ IMPORT INVENTORY] {
+#   startLine: 1,
+#   endLine: 1,
+#   attempt: 1,
+#   failure: 'provider_error',
+#   status: 503
+# }
+# [QUIZ IMPORT INVENTORY] {
+#   startLine: 1,
+#   endLine: 1,
+#   attempt: 2,
+#   failure: 'provider_error',
+#   status: 503
+# }
+# [QUIZ IMPORT CLASSIFICATION] {
+#   failure: 'provider_error',
+#   status: 503,
+#   name: 'Error',
+#   code: undefined
+# }
+# [QUIZ IMPORT CLASSIFICATION] {
+#   failure: 'provider_error',
+#   status: 503,
+#   name: 'Error',
+#   code: undefined
+# }
+# [QUIZ IMPORT CLASSIFICATION] {
+#   failure: 'provider_error',
+#   status: 503,
+#   name: 'Error',
+#   code: undefined
+# }
+# [QUIZ IMPORT REVIEW] {
+#   total: 2,
+#   pending: [
+#     {
+#       label: '1.',
+#       reason: 'The question type could not be determined. Choose its original type and review its layout.'
+#     },
+#     {
+#       label: '2.',
+#       reason: 'The question type could not be determined. Choose its original type and review its layout.'
+#     }
+#   ]
+# }
+# Subtest: imports all 40 questions beyond the old 8000-character cutoff in 10 batches, in source order
+ok 120 - imports all 40 questions beyond the old 8000-character cutoff in 10 batches, in source order
+  ---
+  duration_ms: 23.8167
+  type: 'test'
+  ...
+# Subtest: recovers omitted audit answers individually without replacing or duplicating questions
+ok 121 - recovers omitted audit answers individually without replacing or duplicating questions
+  ---
+  duration_ms: 10.9607
+  type: 'test'
+  ...
+# Subtest: the reported 30-of-40 failure now retains all 40 with 10 reviewable original questions
+ok 122 - the reported 30-of-40 failure now retains all 40 with 10 reviewable original questions
+  ---
+  duration_ms: 18.3886
+  type: 'test'
+  ...
+# Subtest: Unicode math, spacing, and formula typography are copied without model transcription
+ok 123 - Unicode math, spacing, and formula typography are copied without model transcription
+  ---
+  duration_ms: 3.1142
+  type: 'test'
+  ...
+# Subtest: keeps every raw source item when extraction is unavailable
+ok 124 - keeps every raw source item when extraction is unavailable
+  ---
+  duration_ms: 3.4894
+  type: 'test'
+  ...
+# Subtest: answer service failure retains parsed choices without guessing an answer
+ok 125 - answer service failure retains parsed choices without guessing an answer
+  ---
+  duration_ms: 2.2994
+  type: 'test'
+  ...
+# Subtest: keeps repeated source questions and Vietnamese numbering with section resets
+ok 126 - keeps repeated source questions and Vietnamese numbering with section resets
+  ---
+  duration_ms: 1.6798
+  type: 'test'
+  ...
+# Subtest: uses answer keys as context and continues with questions after the key
+ok 127 - uses answer keys as context and continues with questions after the key
+  ---
+  duration_ms: 4.0708
+  type: 'test'
+  ...
+# Subtest: falls back to line inventory for unnumbered questions
+ok 128 - falls back to line inventory for unnumbered questions
+  ---
+  duration_ms: 3.0921
+  type: 'test'
+  ...
+# Subtest: does not confuse nested numbered choices with question numbers
+ok 129 - does not confuse nested numbered choices with question numbers
+  ---
+  duration_ms: 0.708
+  type: 'test'
+  ...
+# Subtest: counts mixed heading styles and headings on their own line
+ok 130 - counts mixed heading styles and headings on their own line
+  ---
+  duration_ms: 0.4665
+  type: 'test'
+  ...
+# Subtest: ambiguous option labels are not split into fabricated choices
+ok 131 - ambiguous option labels are not split into fabricated choices
+  ---
+  duration_ms: 0.2016
+  type: 'test'
+  ...
+# Subtest: review state survives schema validation and requires a valid confirmed answer
+ok 132 - review state survives schema validation and requires a valid confirmed answer
+  ---
+  duration_ms: 3.1131
+  type: 'test'
+  ...
+# Subtest: shared passages returned by the answer pass must match the source
+ok 133 - shared passages returned by the answer pass must match the source
+  ---
+  duration_ms: 2.3165
+  type: 'test'
+  ...
+# Subtest: mixed exam retains every source format and groups truth statements as selection
+ok 134 - mixed exam retains every source format and groups truth statements as selection
+  ---
+  duration_ms: 4.4892
+  type: 'test'
+  ...
+# Subtest: an exam containing only true/false and short answers imports without invented alternatives
+ok 135 - an exam containing only true/false and short answers imports without invented alternatives
+  ---
+  duration_ms: 1.2233
+  type: 'test'
+  ...
+# Subtest: retries missing or duplicate classifications by source identity without silently dropping questions
+ok 136 - retries missing or duplicate classifications by source identity without silently dropping questions
+  ---
+  duration_ms: 1.3032
+  type: 'test'
+  ...
+# Subtest: unknown source types retain original text for explicit classification review
+ok 137 - unknown source types retain original text for explicit classification review
+  ---
+  duration_ms: 1.5969
+  type: 'test'
+  ...
+# Subtest: explicit English and Vietnamese truth-value choices become true/false even if classified as MC
+ok 138 - explicit English and Vietnamese truth-value choices become true/false even if classified as MC
+  ---
+  duration_ms: 0.6996
+  type: 'test'
+  ...
+# Subtest: numbering gaps in the supplied exam layout do not trigger model line inventory
+ok 139 - numbering gaps in the supplied exam layout do not trigger model line inventory
+  ---
+  duration_ms: 8.0969
+  type: 'test'
+  ...
+# Subtest: explicit headings with nested numbered statements or a single question retain source boundaries
+ok 140 - explicit headings with nested numbered statements or a single question retain source boundaries
+  ---
+  duration_ms: 0.5189
+  type: 'test'
+  ...
+# Subtest: line inventory normalizes unordered, duplicate, and string line IDs
+ok 141 - line inventory normalizes unordered, duplicate, and string line IDs
+  ---
+  duration_ms: 0.8975
+  type: 'test'
+  ...
+# Subtest: line inventory widens boundary context and ignores valid questions owned by an adjacent window
+ok 142 - line inventory widens boundary context and ignores valid questions owned by an adjacent window
+  ---
+  duration_ms: 2.5202
+  type: 'test'
+  ...
+# Subtest: failed inventory windows recover through smaller assignments
+ok 143 - failed inventory windows recover through smaller assignments
+  ---
+  duration_ms: 2.487
+  type: 'test'
+  ...
+# Subtest: provider failures are not mislabeled as unreadable source lines or source types
+ok 144 - provider failures are not mislabeled as unreadable source lines or source types
+  ---
+  duration_ms: 2.7557
+  type: 'test'
+  ...
+# Subtest: quiz language accepts regional tags and rejects unresolved or injected values
+ok 145 - quiz language accepts regional tags and rejects unresolved or injected values
+  ---
+  duration_ms: 118.8956
+  type: 'test'
+  ...
+# Subtest: language policy survives material creation, audits, replacements, images, and resume
+    # Subtest: manual language overrides a contrary prompt without detection
+    ok 1 - manual language overrides a contrary prompt without detection
+      ---
+      duration_ms: 0.7849
+      type: 'test'
+      ...
+    # Subtest: auto reads original accented and unaccented requests and multilingual material
+    ok 2 - auto reads original accented and unaccented requests and multilingual material
+      ---
+      duration_ms: 57.6184
+      type: 'test'
+      ...
+    # Subtest: image-only detection uses original images
+    ok 3 - image-only detection uses original images
+      ---
+      duration_ms: 2.4815
+      type: 'test'
+      ...
+# [MATERIAL LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [MATERIAL LANGUAGE] BATCH 1/1 Rejecting language-inconsistent question "English study material. English study material. English stud...": no reason supplied
+    # Subtest: unresolved detection does not silently fall back to English
+    ok 4 - unresolved detection does not silently fall back to English
+      ---
+      duration_ms: 1020.6775
+      type: 'test'
+      ...
+    # Subtest: language detection supports providers that reject JSON mode
+    ok 5 - language detection supports providers that reject JSON mode
+      ---
+      duration_ms: 26.0735
+      type: 'test'
+      ...
+# [MATERIAL LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   stage: 'generating',
+#   durationMs: 8
+# }
+# [QUIZ TIMING] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   stage: 'validating',
+#   durationMs: 14
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "What is the capital in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "What is the capital in example 2?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "What is the capital in example 3?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   stage: 'verifying',
+#   durationMs: 63
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   stage: 'refining',
+#   durationMs: 18
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 1, 2, 3; total is 3/3.
+# Top-up attempt 1 added 3 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   stage: 'verifying',
+#   durationMs: 16
+# }
+# [QUIZ COUNTS] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   initialRequests: 1,
+#   topUpRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 6,
+#   rejectedCandidates: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '1ad5c0df-4c40-4f22-aceb-03445acabd38', totalMs: 123 }
+# [QUIZ TIMING] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   stage: 'generating',
+#   durationMs: 10
+# }
+# [QUIZ TIMING] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   stage: 'validating',
+#   durationMs: 11
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 1 là gì?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 2 là gì?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 3 là gì?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   stage: 'verifying',
+#   durationMs: 52
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   stage: 'refining',
+#   durationMs: 14
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 1, 2, 3; total is 3/3.
+# Top-up attempt 1 added 3 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   stage: 'verifying',
+#   durationMs: 15
+# }
+# [QUIZ COUNTS] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   initialRequests: 1,
+#   topUpRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 6,
+#   rejectedCandidates: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '35e71da8-59a1-427a-bd3c-49df4d7a7288', totalMs: 103 }
+# [QUIZ TIMING] {
+#   requestId: '63a16493-0109-44bd-bbb2-c46036cb5a2a',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '63a16493-0109-44bd-bbb2-c46036cb5a2a',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '63a16493-0109-44bd-bbb2-c46036cb5a2a',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '63a16493-0109-44bd-bbb2-c46036cb5a2a',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '63a16493-0109-44bd-bbb2-c46036cb5a2a',
+#   stage: 'generating',
+#   durationMs: 6
+# }
+# [QUIZ TIMING] {
+#   requestId: '63a16493-0109-44bd-bbb2-c46036cb5a2a',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '63a16493-0109-44bd-bbb2-c46036cb5a2a',
+#   stage: 'validating',
+#   durationMs: 20
+# }
+# [SOLVE/BUILD] Initial generation left 3/3 eligible questions incomplete; running answer completion only for those items.
+# [SOLVE/BUILD] Solving batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '63a16493-0109-44bd-bbb2-c46036cb5a2a',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '63a16493-0109-44bd-bbb2-c46036cb5a2a',
+#   stage: 'verifying',
+#   durationMs: 19
+# }
+# [QUIZ COUNTS] {
+#   requestId: '63a16493-0109-44bd-bbb2-c46036cb5a2a',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 3,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '63a16493-0109-44bd-bbb2-c46036cb5a2a',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '63a16493-0109-44bd-bbb2-c46036cb5a2a', totalMs: 46 }
+# [QUIZ TIMING] {
+#   requestId: 'aacc2338-051b-41c3-8967-938d8f0e9f5f',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'aacc2338-051b-41c3-8967-938d8f0e9f5f',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'aacc2338-051b-41c3-8967-938d8f0e9f5f',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'aacc2338-051b-41c3-8967-938d8f0e9f5f',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'aacc2338-051b-41c3-8967-938d8f0e9f5f',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: 'aacc2338-051b-41c3-8967-938d8f0e9f5f',
+#   stage: 'processing',
+#   durationMs: 4
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'aacc2338-051b-41c3-8967-938d8f0e9f5f',
+#   stage: 'validating',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'aacc2338-051b-41c3-8967-938d8f0e9f5f',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'aacc2338-051b-41c3-8967-938d8f0e9f5f',
+#   stage: 'verifying',
+#   durationMs: 29
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'aacc2338-051b-41c3-8967-938d8f0e9f5f',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'aacc2338-051b-41c3-8967-938d8f0e9f5f',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: 'aacc2338-051b-41c3-8967-938d8f0e9f5f', totalMs: 43 }
+# [QUIZ TIMING] {
+#   requestId: '5c6ee117-0a4b-456a-bf47-5d9fe305fdf0',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5c6ee117-0a4b-456a-bf47-5d9fe305fdf0',
+#   stage: 'reading',
+#   durationMs: 6
+# }
+# [QUIZ TIMING] {
+#   requestId: '5c6ee117-0a4b-456a-bf47-5d9fe305fdf0',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5c6ee117-0a4b-456a-bf47-5d9fe305fdf0',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Initial generation returned 0/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '5c6ee117-0a4b-456a-bf47-5d9fe305fdf0',
+#   stage: 'validating',
+#   durationMs: 14
+# }
+# [RESUME ANSWER AUDIT] Auditing batch 1/1 (questions 1-3 of 3).
+# [RESUME LANGUAGE] Auditing batch 1/1 (questions 1-3 of 3).
+# [RESUME LANGUAGE] BATCH 1/1 Rejecting language-inconsistent question "What is the capital in example 3?...": no reason supplied
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2; total is 2/3.
+# Only built 2/3 valid questions. Top-up attempt 1/3: requesting 2 candidates for 1 missing.
+# [QUIZ TIMING] {
+#   requestId: '5c6ee117-0a4b-456a-bf47-5d9fe305fdf0',
+#   stage: 'verifying',
+#   durationMs: 21
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '5c6ee117-0a4b-456a-bf47-5d9fe305fdf0',
+#   stage: 'refining',
+#   durationMs: 20
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-1 of 1).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 1 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 1 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 3; total is 3/3.
+# Top-up attempt 1 added 1 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '5c6ee117-0a4b-456a-bf47-5d9fe305fdf0',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 0,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '5c6ee117-0a4b-456a-bf47-5d9fe305fdf0',
+#   stage: 'verifying',
+#   durationMs: 17
+# }
+# [QUIZ COUNTS] {
+#   requestId: '5c6ee117-0a4b-456a-bf47-5d9fe305fdf0',
+#   initialRequests: 0,
+#   topUpRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 1,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5c6ee117-0a4b-456a-bf47-5d9fe305fdf0',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '5c6ee117-0a4b-456a-bf47-5d9fe305fdf0', totalMs: 78 }
+# [QUIZ TIMING] {
+#   requestId: '99f9a400-0a60-4326-a41c-693d820a34d5',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '99f9a400-0a60-4326-a41c-693d820a34d5',
+#   stage: 'reading',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '99f9a400-0a60-4326-a41c-693d820a34d5',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '99f9a400-0a60-4326-a41c-693d820a34d5',
+#   stage: 'preparing',
+#   durationMs: 7
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '99f9a400-0a60-4326-a41c-693d820a34d5',
+#   stage: 'generating',
+#   durationMs: 8
+# }
+# [QUIZ TIMING] {
+#   requestId: '99f9a400-0a60-4326-a41c-693d820a34d5',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [TITLE LANGUAGE] BATCH 1/1 Rejecting language-inconsistent question "French capitals...": no reason supplied
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '99f9a400-0a60-4326-a41c-693d820a34d5',
+#   stage: 'validating',
+#   durationMs: 18
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '99f9a400-0a60-4326-a41c-693d820a34d5',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '99f9a400-0a60-4326-a41c-693d820a34d5',
+#   stage: 'verifying',
+#   durationMs: 15
+# }
+# [QUIZ COUNTS] {
+#   requestId: '99f9a400-0a60-4326-a41c-693d820a34d5',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '99f9a400-0a60-4326-a41c-693d820a34d5',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '99f9a400-0a60-4326-a41c-693d820a34d5', totalMs: 49 }
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'reading',
+#   durationMs: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'generating',
+#   durationMs: 5
+# }
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'validating',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Batch response failed for 3 questions; retrying as groups of 2 and 1. Error: Language-consistency response omitted question indexes: 0, 1, 2
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 SPLIT 1 Batch response failed for 2 questions; retrying as groups of 1 and 1. Error: Language-consistency response omitted question indexes: 0, 1
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 1 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'verifying',
+#   durationMs: 82
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'refining',
+#   durationMs: 13
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Batch response failed for 3 questions; retrying as groups of 2 and 1. Error: Language-consistency response omitted question indexes: 0, 1, 2
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 SPLIT 1 Batch response failed for 2 questions; retrying as groups of 1 and 1. Error: Language-consistency response omitted question indexes: 0, 1
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 1 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'verifying',
+#   durationMs: 55
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'refining',
+#   durationMs: 12
+# }
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Batch response failed for 3 questions; retrying as groups of 2 and 1. Error: Language-consistency response omitted question indexes: 0, 1, 2
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 SPLIT 1 Batch response failed for 2 questions; retrying as groups of 1 and 1. Error: Language-consistency response omitted question indexes: 0, 1
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 1 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'verifying',
+#   durationMs: 41
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'refining',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Batch response failed for 3 questions; retrying as groups of 2 and 1. Error: Language-consistency response omitted question indexes: 0, 1, 2
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 SPLIT 1 Batch response failed for 2 questions; retrying as groups of 1 and 1. Error: Language-consistency response omitted question indexes: 0, 1
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 1 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:684:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at Module.generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2265:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-language.test.ts:227:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-language.test.ts:218:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Test.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901',
+#   stage: 'verifying',
+#   durationMs: 42
+# }
+# [QUIZ TIMING] { requestId: '9c3d05fb-3604-4311-98f1-2d67e91c3901', totalMs: 265 }
+# [AI REVISE] Q1: AI picked answer not in options, finding closest match
+# [REVISE LANGUAGE 1] Auditing batch 1/1 (questions 1-1 of 1).
+# [REVISE LANGUAGE 1] BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 1 là gì?...": no reason supplied
+# [AI REVISE] Q1 retry (attempt 1): undefined
+    # Subtest: wrong-language study material is retried before it becomes quiz evidence
+    ok 6 - wrong-language study material is retried before it becomes quiz evidence
+      ---
+      duration_ms: 1065.2888
+      type: 'test'
+      ...
+    # Subtest: English short answers are replaced and top-up keeps the original request
+    ok 7 - English short answers are replaced and top-up keeps the original request
+      ---
+      duration_ms: 142.8125
+      type: 'test'
+      ...
+    # Subtest: English explanation introduced by the answer auditor is rejected
+    ok 8 - English explanation introduced by the answer auditor is rejected
+      ---
+      duration_ms: 104.5072
+      type: 'test'
+      ...
+    # Subtest: answer completion receives the resolved language
+    ok 9 - answer completion receives the resolved language
+      ---
+      duration_ms: 50.7321
+      type: 'test'
+      ...
+    # Subtest: canonical True/False values remain valid with Vietnamese stems
+    ok 10 - canonical True/False values remain valid with Vietnamese stems
+      ---
+      duration_ms: 45.3116
+      type: 'test'
+      ...
+    # Subtest: resume removes legacy English items and preserves accepted Vietnamese items
+    ok 11 - resume removes legacy English items and preserves accepted Vietnamese items
+      ---
+      duration_ms: 84.2366
+      type: 'test'
+      ...
+    # Subtest: English title is rewritten and rechecked before checkpointing
+    ok 12 - English title is rewritten and rechecked before checkpointing
+      ---
+      duration_ms: 50.5942
+      type: 'test'
+      ...
+    # Subtest: missing language verdicts fail closed
+    ok 13 - missing language verdicts fail closed
+      ---
+      duration_ms: 265.7982
+      type: 'test'
+      ...
+# [AI REVISE] Q1: AI picked answer not in options, finding closest match
+# [REVISE LANGUAGE 1] Auditing batch 1/1 (questions 1-1 of 1).
+# [REVISE LANGUAGE 1] BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 1 là gì?...": no reason supplied
+# [AI REVISE] Q1 retry (attempt 2): undefined
+# [AI REVISE] Q1: AI picked answer not in options, finding closest match
+# [REVISE LANGUAGE 1] Auditing batch 1/1 (questions 1-1 of 1).
+# [REVISE LANGUAGE 1] BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 1 là gì?...": no reason supplied
+# [AI REVISE] Q1 retry (attempt 3): undefined
+# [AI REVISE] Q1 failed, keeping original: Error: Revision failed language validation
+#     at pRetry.retries (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2641:48)
+#     at async pRetry (file:///C:/Users/Gia%20Hien/Downloads/PrepetualApp/Prepetual/node_modules/p-retry/index.js:197:19)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2496:25)
+    # Subtest: revision with an English explanation keeps the original question
+    ok 14 - revision with an English explanation keeps the original question
+      ---
+      duration_ms: 3076.0119
+      type: 'test'
+      ...
+    1..14
+ok 146 - language policy survives material creation, audits, replacements, images, and resume
+  ---
+  duration_ms: 6811.7712
+  type: 'test'
+  ...
+# Subtest: preparation verifies and persists once, then replay and retries need no model requests
+ok 147 - preparation verifies and persists once, then replay and retries need no model requests
+  ---
+  duration_ms: 4.6928
+  type: 'test'
+  ...
+# Subtest: unchanged edits reuse server verification; changed questions and forged markers are audited
+ok 148 - unchanged edits reuse server verification; changed questions and forged markers are audited
+  ---
+  duration_ms: 1.388
+  type: 'test'
+  ...
+# Subtest: import preserves unresolved items and independently prepares short-answer keys too
+ok 149 - import preserves unresolved items and independently prepares short-answer keys too
+  ---
+  duration_ms: 1.6048
+  type: 'test'
+  ...
+# Subtest: a concurrent edit stops legacy preparation from returning stale feedback
+ok 150 - a concurrent edit stops legacy preparation from returning stale feedback
+  ---
+  duration_ms: 1.3255
+  type: 'test'
+  ...
+# Subtest: preparation endpoint checks access and refuses unverified or stale feedback before play
+ok 151 - preparation endpoint checks access and refuses unverified or stale feedback before play
+  ---
+  duration_ms: 3.7556
+  type: 'test'
+  ...
+# Subtest: rejects answer choices embedded at the end of a reading question
+ok 152 - rejects answer choices embedded at the end of a reading question
+  ---
+  duration_ms: 1.7033
+  type: 'test'
+  ...
+# Subtest: recognizes embedded choices across lines and Markdown emphasis
+ok 153 - recognizes embedded choices across lines and Markdown emphasis
+  ---
+  duration_ms: 0.2992
+  type: 'test'
+  ...
+# Subtest: does not reject ordinary references to letters
+ok 154 - does not reject ordinary references to letters
+  ---
+  duration_ms: 0.2769
+  type: 'test'
+  ...
+# Subtest: rejects generated questions about source page and question locations
+ok 155 - rejects generated questions about source page and question locations
+  ---
+  duration_ms: 79.1875
+  type: 'test'
+  ...
+# Subtest: keeps real subject-matter questions that happen to mention pages
+ok 156 - keeps real subject-matter questions that happen to mention pages
+  ---
+  duration_ms: 0.5604
+  type: 'test'
+  ...
+# Subtest: rejects bare answer labels in any order
+ok 157 - rejects bare answer labels in any order
+  ---
+  duration_ms: 1.0323
+  type: 'test'
+  ...
+# Subtest: rejects generic placeholders
+ok 158 - rejects generic placeholders
+  ---
+  duration_ms: 0.7126
+  type: 'test'
+  ...
+# Subtest: rejects labels with no answer text
+ok 159 - rejects labels with no answer text
+  ---
+  duration_ms: 0.3936
+  type: 'test'
+  ...
+# Subtest: rejects the same content hidden behind different labels
+ok 160 - rejects the same content hidden behind different labels
+  ---
+  duration_ms: 1.6856
+  type: 'test'
+  ...
+# Subtest: accepts meaningful Vietnamese answer choices
+ok 161 - accepts meaningful Vietnamese answer choices
+  ---
+  duration_ms: 1.2627
+  type: 'test'
+  ...
+# Subtest: accepts concise numeric choices used by math questions
+ok 162 - accepts concise numeric choices used by math questions
+  ---
+  duration_ms: 0.3538
+  type: 'test'
+  ...
+# Subtest: strips common letter and numeric choice-prefix styles
+ok 163 - strips common letter and numeric choice-prefix styles
+  ---
+  duration_ms: 0.1756
+  type: 'test'
+  ...
+# Subtest: keeps the correct answer attached to its text while removing shuffled source labels
+ok 164 - keeps the correct answer attached to its text while removing shuffled source labels
+  ---
+  duration_ms: 1.0203
+  type: 'test'
+  ...
+# Subtest: resolves a label-only answer against the source labels before removing them
+ok 165 - resolves a label-only answer against the source labels before removing them
+  ---
+  duration_ms: 0.2483
+  type: 'test'
+  ...
+# Subtest: rejects an answer that cannot be mapped uniquely to an option
+ok 166 - rejects an answer that cannot be mapped uniquely to an option
+  ---
+  duration_ms: 0.1573
+  type: 'test'
+  ...
+# [RAG TIMING] {
+#   sourceId: 'c38603bd-efe4-4f79-a1be-55f0f5930afe',
+#   stage: 'indexing',
+#   durationMs: 1,
+#   ok: true
+# }
+# [RAG TIMING] {
+#   sourceId: '7d8dac21-3c98-4f6e-8ca4-52a64f953c89',
+#   stage: 'indexing',
+#   durationMs: 1,
+#   ok: true
+# }
+# [RAG TIMING] {
+#   sourceId: 'aeef6718-da78-4a46-9c95-599957907ace',
+#   stage: 'indexing',
+#   durationMs: 2,
+#   ok: true
+# }
+# [RAG TIMING] {
+#   sourceId: 'a9693aba-5e96-4289-b229-70822f18b46a',
+#   stage: 'indexing',
+#   durationMs: 0,
+#   ok: false
+# }
+# Subtest: short source is available before indexing, with the same persistent citation IDs
+ok 167 - short source is available before indexing, with the same persistent citation IDs
+  ---
+  duration_ms: 5.5259
+  type: 'test'
+  ...
+# Subtest: long-source planning overlaps indexing, but retrieval waits for it
+ok 168 - long-source planning overlaps indexing, but retrieval waits for it
+  ---
+  duration_ms: 3.6493
+  type: 'test'
+  ...
+# Subtest: failed planning waits for the index writer before deleting its source
+ok 169 - failed planning waits for the index writer before deleting its source
+  ---
+  duration_ms: 3.8495
+  type: 'test'
+  ...
+# Subtest: background indexing failure is retained for the route to reject before saving
+ok 170 - background indexing failure is retained for the route to reject before saving
+  ---
+  duration_ms: 0.7179
+  type: 'test'
+  ...
+# Subtest: accepts material, a prompt, and images in one quiz request
+ok 171 - accepts material, a prompt, and images in one quiz request
+  ---
+  duration_ms: 4.7392
+  type: 'test'
+  ...
+# Subtest: keeps prompt-only generation distinct from mixed-source generation
+ok 172 - keeps prompt-only generation distinct from mixed-source generation
+  ---
+  duration_ms: 1.5648
+  type: 'test'
+  ...
+# Subtest: continues to accept legacy single-source clients
+ok 173 - continues to accept legacy single-source clients
+  ---
+  duration_ms: 0.9205
+  type: 'test'
+  ...
+# Subtest: rejects a request without any source
+ok 174 - rejects a request without any source
+  ---
+  duration_ms: 0.654
+  type: 'test'
+  ...
+# Subtest: chunks the whole source with bounded overlap
+ok 175 - chunks the whole source with bounded overlap
+  ---
+  duration_ms: 4.9409
+  type: 'test'
+  ...
+# Subtest: builds a document map with beginning and ending coverage
+ok 176 - builds a document map with beginning and ending coverage
+  ---
+  duration_ms: 1.6422
+  type: 'test'
+  ...
+# Subtest: computes cosine similarity and diversifies repeated retrieval results
+ok 177 - computes cosine similarity and diversifies repeated retrieval results
+  ---
+  duration_ms: 3.1876
+  type: 'test'
+  ...
+# Subtest: formats retrieved chunks with machine-checkable evidence ids
+ok 178 - formats retrieved chunks with machine-checkable evidence ids
+  ---
+  duration_ms: 0.6199
+  type: 'test'
+  ...
+# Subtest: accepts only retrieved evidence ids
+ok 179 - accepts only retrieved evidence ids
+  ---
+  duration_ms: 0.6177
+  type: 'test'
+  ...
+# Subtest: hashes subjects into stable, window-specific database bucket ids
+ok 180 - hashes subjects into stable, window-specific database bucket ids
+  ---
+  duration_ms: 2.5165
+  type: 'test'
+  ...
+# Subtest: uses an authenticated user before falling back to the request IP
+ok 181 - uses an authenticated user before falling back to the request IP
+  ---
+  duration_ms: 0.54
+  type: 'test'
+  ...
+# Subtest: allows requests through the limit and rejects the next request
+ok 182 - allows requests through the limit and rejects the next request
+  ---
+  duration_ms: 1.6694
+  type: 'test'
+  ...
+# Subtest: supports endpoint-specific subjects and safe response messages
+ok 183 - supports endpoint-specific subjects and safe response messages
+  ---
+  duration_ms: 1.6674
+  type: 'test'
+  ...
+# Subtest: fails closed when the shared counter store is unavailable
+ok 184 - fails closed when the shared counter store is unavailable
+  ---
+  duration_ms: 1.0556
+  type: 'test'
+  ...
+# Subtest: selection candidate normalization keeps every correct option
+ok 185 - selection candidate normalization keeps every correct option
+  ---
+  duration_ms: 3.0551
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: 'df53c5b9-5ef8-4d97-9ce2-ab68a7958f75',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'df53c5b9-5ef8-4d97-9ce2-ab68a7958f75',
+#   stage: 'reading',
+#   durationMs: 45
+# }
+# [QUIZ TIMING] {
+#   requestId: 'df53c5b9-5ef8-4d97-9ce2-ab68a7958f75',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'df53c5b9-5ef8-4d97-9ce2-ab68a7958f75',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'df53c5b9-5ef8-4d97-9ce2-ab68a7958f75',
+#   stage: 'generating',
+#   durationMs: 71
+# }
+# [QUIZ TIMING] {
+#   requestId: 'df53c5b9-5ef8-4d97-9ce2-ab68a7958f75',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'df53c5b9-5ef8-4d97-9ce2-ab68a7958f75',
+#   stage: 'validating',
+#   durationMs: 12
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Select all prime numbers in set 1...." — changing answer from "["2","4"]" to "["2","3"]"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Select all prime numbers in set 2...." — changing answer from "["2","4"]" to "["3","2"]"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Select all prime numbers in set 3...." — changing answer from "["2","4"]" to "["3","2"]"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'df53c5b9-5ef8-4d97-9ce2-ab68a7958f75',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'df53c5b9-5ef8-4d97-9ce2-ab68a7958f75',
+#   stage: 'verifying',
+#   durationMs: 35
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'df53c5b9-5ef8-4d97-9ce2-ab68a7958f75',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'df53c5b9-5ef8-4d97-9ce2-ab68a7958f75',
+#   stage: 'finalizing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] { requestId: 'df53c5b9-5ef8-4d97-9ce2-ab68a7958f75', totalMs: 165 }
+# Subtest: selection generation and independent audit preserve a complete answer set after shuffling
+ok 186 - selection generation and independent audit preserve a complete answer set after shuffling
+  ---
+  duration_ms: 2102.4067
+  type: 'test'
+  ...
+# Subtest: recognizes SAT Reading and Writing practice as a skill simulation
+ok 187 - recognizes SAT Reading and Writing practice as a skill simulation
+  ---
+  duration_ms: 2.1144
+  type: 'test'
+  ...
+# Subtest: prefers the authentic multiple-choice type when it is available
+ok 188 - prefers the authentic multiple-choice type when it is available
+  ---
+  duration_ms: 2.191
+  type: 'test'
+  ...
+# Subtest: does not invent an unsupported type when multiple choice was not allowed
+ok 189 - does not invent an unsupported type when multiple choice was not allowed
+  ---
+  duration_ms: 0.7383
+  type: 'test'
+  ...
+# Subtest: distinguishes an explicit quiz about SAT metadata
+ok 190 - distinguishes an explicit quiz about SAT metadata
+  ---
+  duration_ms: 0.4395
+  type: 'test'
+  ...
+# Subtest: recognizes SAT Math separately
+ok 191 - recognizes SAT Math separately
+  ---
+  duration_ms: 0.4657
+  type: 'test'
+  ...
+# Subtest: flags obvious SAT trivia in an assessment-practice draft
+ok 192 - flags obvious SAT trivia in an assessment-practice draft
+  ---
+  duration_ms: 1.2546
+  type: 'test'
+  ...
+# Subtest: parses plain-text transcript responses
+ok 193 - parses plain-text transcript responses
+  ---
+  duration_ms: 3.0168
+  type: 'test'
+  ...
+# Subtest: parses segmented transcript responses
+ok 194 - parses segmented transcript responses
+  ---
+  duration_ms: 0.8142
+  type: 'test'
+  ...
+# Subtest: requests native plain text without exposing the key in the URL
+ok 195 - requests native plain text without exposing the key in the URL
+  ---
+  duration_ms: 54.652
+  type: 'test'
+  ...
+# Subtest: preserves provider status codes on failures
+ok 196 - preserves provider status codes on failures
+  ---
+  duration_ms: 4.3187
+  type: 'test'
+  ...
+# Subtest: repairs the reported Vietnamese filename
+ok 197 - repairs the reported Vietnamese filename
+  ---
+  duration_ms: 1.357
+  type: 'test'
+  ...
+# Subtest: repairs UTF-8 filenames decoded as Latin-1 or Windows-1252
+ok 198 - repairs UTF-8 filenames decoded as Latin-1 or Windows-1252
+  ---
+  duration_ms: 9.8503
+  type: 'test'
+  ...
+# Subtest: preserves correctly decoded international names and filename punctuation
+ok 199 - preserves correctly decoded international names and filename punctuation
+  ---
+  duration_ms: 0.3366
+  type: 'test'
+  ...
+# Subtest: leaves invalid UTF-8 byte sequences unchanged
+ok 200 - leaves invalid UTF-8 byte sequences unchanged
+  ---
+  duration_ms: 0.443
+  type: 'test'
+  ...
+# Subtest: returns Unicode names from real multipart uploads, including filename*
+ok 201 - returns Unicode names from real multipart uploads, including filename*
+  ---
+  duration_ms: 152.4372
+  type: 'test'
+  ...
+# Subtest: isolates a permanently failing item without rejecting its batch-mates
+ok 202 - isolates a permanently failing item without rejecting its batch-mates
+  ---
+  duration_ms: 2.3473
+  type: 'test'
+  ...
+# Subtest: preserves normal per-question rejections without splitting a successful batch
+ok 203 - preserves normal per-question rejections without splitting a successful batch
+  ---
+  duration_ms: 0.3583
+  type: 'test'
+  ...
+# Subtest: processes top-level batches concurrently with a hard limit
+ok 204 - processes top-level batches concurrently with a hard limit
+  ---
+  duration_ms: 44.2962
+  type: 'test'
+  ...
+# Subtest: reports completed items once per finished batch with four concurrent batches
+ok 205 - reports completed items once per finished batch with four concurrent batches
+  ---
+  duration_ms: 20.4857
+  type: 'test'
+  ...
+# Subtest: boiling regression: independently corrects the key and replaces all contradictory feedback
+ok 206 - boiling regression: independently corrects the key and replaces all contradictory feedback
+  ---
+  duration_ms: 7.8109
+  type: 'test'
+  ...
+# Subtest: only reviewed results are cached and callers cannot mutate the cache
+ok 207 - only reviewed results are cached and callers cannot mutate the cache
+  ---
+  duration_ms: 1.3812
+  type: 'test'
+  ...
+# Subtest: concurrent requests share a verification but receive independent objects
+ok 208 - concurrent requests share a verification but receive independent objects
+  ---
+  duration_ms: 1.6989
+  type: 'test'
+  ...
+# Subtest: semantic contradictions are rejected rather than displayed or cached
+ok 209 - semantic contradictions are rejected rather than displayed or cached
+  ---
+  duration_ms: 2.9688
+  type: 'test'
+  ...
+# Subtest: uncertain, out-of-range, duplicate, and incomplete solutions fail closed
+ok 210 - uncertain, out-of-range, duplicate, and incomplete solutions fail closed
+  ---
+  duration_ms: 3.2041
+  type: 'test'
+  ...
+# Subtest: selection verifies the complete set and supports grouped truth statements with none true
+ok 211 - selection verifies the complete set and supports grouped truth statements with none true
+  ---
+  duration_ms: 2.6823
+  type: 'test'
+  ...
+# Subtest: true/false verification keeps False as a valid correct option
+ok 212 - true/false verification keeps False as a valid correct option
+  ---
+  duration_ms: 0.5745
+  type: 'test'
+  ...
+# Subtest: provider thinking never becomes PDF evidence and source equations remain exact
+ok 213 - provider thinking never becomes PDF evidence and source equations remain exact
+  ---
+  duration_ms: 3.0957
+  type: 'test'
+  ...
+# Subtest: generates and independently reviews only the submitted wrong option, caching identical submissions
+ok 214 - generates and independently reviews only the submitted wrong option, caching identical submissions
+  ---
+  duration_ms: 6.4386
+  type: 'test'
+  ...
+# Subtest: invalid or unreviewed feedback never reaches the player or cache
+ok 215 - invalid or unreviewed feedback never reaches the player or cache
+  ---
+  duration_ms: 3.2794
+  type: 'test'
+  ...
+# Subtest: selection with omitted correct choices explains the omission without criticizing selected correct choices
+ok 216 - selection with omitted correct choices explains the omission without criticizing selected correct choices
+  ---
+  duration_ms: 1.026
+  type: 'test'
+  ...
+# Subtest: saved feedback survives retries and JSON persistence but becomes invalid after substantive edits
+ok 217 - saved feedback survives retries and JSON persistence but becomes invalid after substantive edits
+  ---
+  duration_ms: 2.0844
+  type: 'test'
+  ...
+# Subtest: incomplete or contradictory option feedback and unresolved imports cannot be played as verified
+ok 218 - incomplete or contradictory option feedback and unresolved imports cannot be played as verified
+  ---
+  duration_ms: 107.6529
+  type: 'test'
+  ...
+# Subtest: verified keys do not require pre-generated distractor explanations and legacy approvals are rechecked
+ok 219 - verified keys do not require pre-generated distractor explanations and legacy approvals are rechecked
+  ---
+  duration_ms: 1.3778
+  type: 'test'
+  ...
+# Subtest: grouped truth statements with no correct choices still have complete prepared feedback
+ok 220 - grouped truth statements with no correct choices still have complete prepared feedback
+  ---
+  duration_ms: 1.6305
+  type: 'test'
+  ...
+# Subtest: selection grading requires the complete set, regardless of checkbox order
+ok 221 - selection grading requires the complete set, regardless of checkbox order
+  ---
+  duration_ms: 4.202
+  type: 'test'
+  ...
+# Subtest: selection storage preserves punctuation, math, and persisted answers
+ok 222 - selection storage preserves punctuation, math, and persisted answers
+  ---
+  duration_ms: 3.2257
+  type: 'test'
+  ...
+# Subtest: selection keys reject missing, duplicate, blank, or unknown options
+ok 223 - selection keys reject missing, duplicate, blank, or unknown options
+  ---
+  duration_ms: 7.2202
+  type: 'test'
+  ...
+# Subtest: generation accepts selection alone and all four unique types
+ok 224 - generation accepts selection alone and all four unique types
+  ---
+  duration_ms: 4.1306
+  type: 'test'
+  ...
+# Subtest: imported truth statements allow zero or one true statement without relaxing generated selections
+ok 225 - imported truth statements allow zero or one true statement without relaxing generated selections
+  ---
+  duration_ms: 1.3775
+  type: 'test'
+  ...
+1..225
+# tests 265
+# suites 0
+# pass 264
+# fail 0
+# cancelled 0
+# skipped 1
+# todo 0
+# duration_ms 15404.9451

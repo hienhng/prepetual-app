@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-15885898-b7d2-4b16-a73a-7d9b9fb906f7",
+  "object": "chat.completion",
+  "created": 1791009669,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Kế hoạch câu hỏi vật lý và hoá học nâng cao\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P31\",\"type\":\"multiple_choice\",\"recordIds\":[\"F5\"],\"intent\":\"Tính áp suất mới của khí trong lốp khi nhiệt độ tăng từ 27 °C lên 54 °C (thể tích không đổi) và đưa ra 4 lựa chọn, trong đó một đáp án đúng dựa trên áp dụng P₁/T₁ = P₂/T₂.\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ sang Kelvin: T₁=27+273=300 K, T₂=54+273=327 K\",\"Sử dụng tỉ lệ P₁/T₁ = P₂/T₂ để tính P₂ = P₁·T₂/T₁ = 5 atm·327/300 ≈ 5.45 atm\"]},{\"id\":\"P32\",\"type\":\"selection\",\"recordIds\":[\"F14\"],\"intent\":\"Yêu cầu học sinh chọn tất cả các khẳng định đúng về áp suất trong xi lanh của ghế thủy lực khi một học sinh 24 kg ngồi lên ghế, dựa trên cân bằng lực (P·S = mg) và áp suất khí quyển ban đầu 10⁵ Pa.\",\"reasoningSteps\":[\"Tính lực trọng lượng của học sinh và ghế: F = (24+6) kg·10 m/s² = 300 N\",\"Tính tăng áp suất trong xi lanh: Δp = F/S = 300 N / (30 cm² = 3·10⁻³ m²) = 1.0·10⁵ Pa, sau đó cộng với áp suất môi trường để có áp suất tổng\"]},{\"id\":\"P33\",\"type\":\"true_false\",\"targetTruthValue\":\"False\",\"recordIds\":[\"F20\"],\"intent\":\"Xác định nhiệt độ cuối cùng của oxy trong bình khi áp suất tăng từ 4 atm lên 4.5 atm (thể tích không đổi) và đưa ra một phát biểu sai về kết quả này.\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ ban đầu sang Kelvin: T₁=70+273=343 K\",\"Áp dụng P₁/T₁ = P₂/T₂ để tính T₂ = T₁·P₂/P₁ = 343 K·4.5/4 = 385.9 K ≈ 112.9 °C; phát biểu rằng nhiệt độ tăng lên 85 °C là sai\"]},{\"id\":\"P34\",\"type\":\"multiple_choice\",\"recordIds\":[\"F8\"],\"intent\":\"Tính hiệu suất của quá trình hàn nhôm: tính năng lượng cần thiết để làm nóng và nung chảy 20 g nhôm (Q = m·c·ΔT + m·L), tính năng lượng cung cấp bởi máy hàn (Power·time), và đưa ra 4 lựa chọn, trong đó một đáp án đúng cho hiệu suất phần trăm.\",\"reasoningSteps\":[\"Tính ΔT = 660 °C‑25 °C = 635 K; Q₁ = m·c·ΔT = 0.020 kg·880 J/kg·K·635 K ≈ 11 200 J\",\"Tính Q₂ = m·L = 0.020 kg·4·10⁵ J/kg = 8 000 J; tổng Q = 19 200 J; năng lượng đầu vào = Power·time = 1.7 kW·20 s = 34 000 J; hiệu suất = Q/34 000 ≈ 56.5 %\"]},{\"id\":\"P35\",\"type\":\"selection\",\"recordIds\":[\"F15\"],\"intent\":\"Dựa trên điều kiện cuối cùng (T=24 °C, p=1.1 atm, V=5000 L) tính khối lượng oxy đã bơm vào bình và chọn tất cả các phát biểu đúng liên quan đến khối lượng, mật độ và số mol trong bình.\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ sang Kelvin: T=24+273=297 K; tính n = pV/(RT) = (1.1 atm·5000 L)/(0.082 atm·L·mol⁻¹·K·297 K) ≈ 226 mol\",\"Tính khối lượng: m = n·M_O₂ = 226 mol·32 g/mol ≈ 7.2 kg; tính mật độ trong bình: ρ = m/V ≈ 1.44 kg/m³\"]}]}",
+        "reasoning": "We need to produce JSON with title, category, plans array for slots P31-P35. Must use only reviewed source records. Each plan must identify source recordIds, intended task, reasoningSteps. Must not generate actual question content, just plan. Must ensure each plan uses at most 3 records and 4 source chunks. Must be hard: at least two dependent reasoning steps. Types: multiple_choice, selection, true_false (target false), multiple_choice, selection.\n\nWe need to craft tasks using source data. For each slot, we need to define intent: e.g., \"Create a multiple-choice question requiring calculation of final pressure using ideal gas law at constant volume, with distractors based on common mistakes.\" Use source F5 (ideal gas law pressure change). Reasoning steps: convert temperatures to Kelvin, apply P1/T1 = P2/T2, compute P2. That's two steps.\n\nAnother slot selection: maybe ask to select all correct statements about hydraulic chair equilibrium using source F14. Need multiple correct statements? Selection type means multiple correct options. Provide intent: \"Select all statements that are true about the hydraulic chair given data.\" Reasoning steps: compute pressure increase using weight, etc.\n\nTrue_false false: need a statement that is false based on derived conclusion. Use source F20 (pressure-temperature). Compute temperature change, then make false statement like \"The temperature rises to 85°C\". Provide false.\n\nMultiple_choice another: maybe about welding efficiency using F8. Compute efficiency, distractors based on errors.\n\nSelection another: maybe about oxygen tank mass using F15 or F16. Use ideal gas law to compute mass pumped, then select correct statements.\n\nWe must ensure each plan uses only allowed records. Avoid using more than 3 records per plan.\n\nLet's assign:\n\nP31 (multiple_choice) -> use F5 (pressure change with temperature). Reasoning steps: convert temps to K, apply ratio, compute new pressure.\n\nP32 (selection) -> use F14 (hydraulic chair). Need compute pressure in cylinder when loaded, maybe also compute force. Reasoning steps: calculate weight force, pressure increase = weight/area, add atmospheric.\n\nP33 (true_false false) -> use F20 (ideal gas temperature change). Compute final temperature, then false statement.\n\nP34 (multiple_choice) -> use F8 (welding efficiency). Steps: compute energy needed to heat+ melt aluminum, compute input energy from power*time, compute efficiency.\n\nP35 (selection) -> use F15 (oxygen tank filling). Steps: compute moles using ideal gas law at final conditions, compute mass using molar mass (O2 32 g/mol), then select correct statements about mass, density, etc.\n\nWe need to ensure each plan uses recordIds list.\n\nNow produce JSON compact.\n\nMake sure title short. Category \"categories.science\". Provide plans array with objects.\n\nEach plan fields: id, type, recordIds, intent, reasoningSteps (array of strings). Provide concise description.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.25883038,
+    "prompt_tokens": 10091,
+    "prompt_time": 0.40222698,
+    "completion_tokens": 1624,
+    "completion_time": 3.383784085,
+    "total_tokens": 11715,
+    "total_time": 3.786011065,
+    "completion_tokens_details": {
+      "reasoning_tokens": 612
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_69334c0be3",
+  "x_groq": {
+    "id": "req_01m407xc6kefzbpe54xcwd3r7s",
+    "seed": 191440501
+  },
+  "service_tier": "on_demand"
+}

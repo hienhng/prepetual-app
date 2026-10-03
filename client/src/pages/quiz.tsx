@@ -17,6 +17,7 @@ export default function Quiz() {
     currentQuiz,
     userAnswers,
     savedProgresses,
+    isLoadingSavedProgresses,
     setCurrentQuiz,
     loadSavedProgress,
   } = useQuiz();
@@ -37,15 +38,19 @@ export default function Quiz() {
       return;
     }
 
+    // The active session may contain answers newer than the server snapshot.
+    // Never restore over it when the saved-progress query arrives or refetches.
+    if (currentQuiz?.id === quizId) {
+      setHasLoadError(false);
+      return;
+    }
+
+    if (isLoadingSavedProgresses) return;
+
     if (savedProgress && restoredProgressIdRef.current !== quizId) {
       restoredProgressIdRef.current = quizId;
       setHasLoadError(false);
       loadSavedProgress(quizId);
-      return;
-    }
-
-    if (currentQuiz?.id === quizId) {
-      setHasLoadError(false);
       return;
     }
 
@@ -78,7 +83,7 @@ export default function Quiz() {
 
     loadQuiz();
     return () => controller.abort();
-  }, [currentQuiz?.id, loadAttempt, quizId, savedProgress]);
+  }, [currentQuiz?.id, isLoadingSavedProgresses, loadAttempt, quizId, savedProgress]);
 
   useEffect(() => {
     if (quizId) return;
@@ -154,9 +159,9 @@ export default function Quiz() {
     return (
       <div className="container mx-auto max-w-xl px-4 py-16 text-center" data-testid="import-review-required">
         <AlertCircle className="mx-auto mb-4 h-10 w-10 text-amber-600" />
-        <h1 className="text-xl font-semibold">Review imported questions</h1>
-        <p className="my-4 text-muted-foreground">All {currentQuiz.questions.length} questions are saved. Confirm the {pendingImports.length} flagged questions and their answers before starting a scored quiz.</p>
-        {currentQuiz.userId === user?.id && <Button onClick={() => setLocation("/edit-quiz")}>Review questions</Button>}
+        <h1 className="text-xl font-semibold">{t("quiz.reviewImported")}</h1>
+        <p className="my-4 text-muted-foreground">{t('quiz.reviewRequired', { total: currentQuiz.questions.length, count: pendingImports.length })}</p>
+        {currentQuiz.userId === user?.id && <Button onClick={() => setLocation("/edit-quiz")}>{t("quiz.reviewQuestions")}</Button>}
       </div>
     );
   }

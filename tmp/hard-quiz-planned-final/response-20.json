@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-cba59210-dde9-41e8-be75-1dfa57b4c73e",
+  "object": "chat.completion",
+  "created": 1791009872,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Advanced Thermodynamics Problem Set\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P16\",\"type\":\"short_answer\",\"recordIds\":[\"F3\"],\"intent\":\"Calculate the total heat required to melt 4 kg of ice at 0 °C and then heat the resulting water to 25 °C using the given latent heat of fusion and specific heat of water.\",\"reasoningSteps\":[\"Compute heat for melting: Q₁=m·L_f\",\"Compute heat for warming water: Q₂=m·c·ΔT\"]},{\"id\":\"P17\",\"type\":\"multiple_choice\",\"recordIds\":[\"F6\"],\"intent\":\"Determine the final pressure of air in a car tire when its temperature rises from 27 °C to 54 °C while the volume remains constant, using the ideal‑gas relationship at constant volume.\",\"reasoningSteps\":[\"Convert both temperatures to Kelvin\",\"Apply P₁/T₁ = P₂/T₂ to solve for P₂\"]},{\"id\":\"P18\",\"type\":\"selection\",\"recordIds\":[\"F7\"],\"intent\":\"Identify all correct statements describing the procedure to find the mass of nitrogen in a sealed 12 L container at 80 atm and 17 °C, assuming ideal‑gas behavior.\",\"reasoningSteps\":[\"Calculate moles using n = PV/RT\",\"Multiply the moles by the molar mass to obtain the mass\"]},{\"id\":\"P19\",\"type\":\"true_false\",\"recordIds\":[\"F14\"],\"intent\":\"Evaluate the claim: “In the refrigeration cycle with COP = 3 and compressor work A = 180 kJ, the heat rejected to the surroundings Q₂ equals 540 kJ.”\",\"reasoningSteps\":[\"Compute heat absorbed Q₁ = COP·A\",\"Compute heat rejected Q₂ = Q₁ + A\"]},{\"id\":\"P20\",\"type\":\"short_answer\",\"recordIds\":[\"F20\"],\"intent\":\"Find the temperature in °C of oxygen gas in a steel container when its pressure increases from 4 atm at 70 °C to 4.5 atm, assuming constant volume.\",\"reasoningSteps\":[\"Convert 70 °C to Kelvin\",\"Apply P₁/T₁ = P₂/T₂ to solve for the final temperature in Kelvin\",\"Convert the result back to °C\"]}]}",
+        "reasoning": "We need to produce JSON with title, category, plans array for slots P16-P20 with types as given. Must use only reviewed source records. Must plan tasks, not generate questions. Provide intent and reasoning steps. Must ensure each plan uses source recordIds, up to 3 records, up to 4 source chunks. Must be hard: at least two reasoning steps. Provide dependent reasoning steps.\n\nWe need to assign each slot a plan.\n\nWe have many source records. Choose appropriate ones.\n\nSlot types:\nP16 short_answer\nP17 multiple_choice\nP18 selection (multiple correct? selection type likely multiple correct)\nP19 true_false targetTruthValue False\nP20 short_answer\n\nWe need to create plans, not actual questions. So each plan includes id, type, recordIds, intent, reasoningSteps.\n\nWe must not generate wrongAnswerExplanations etc.\n\nWe must ensure each plan uses source records and reasoning steps.\n\nLet's design:\n\nP16 short_answer: Use F3 (heat required to melt ice and warm water). Intent: calculate total heat required. Reasoning steps: compute latent heat, then sensible heating.\n\nRecordIds: [\"F3\"]; reasoningSteps: [\"Calculate heat to melt ice using Q=m·L_f\", \"Add heat to raise temperature of resulting water using Q=m·c·ΔT\"].\n\nP17 multiple_choice: Use F6 (ideal gas law pressure change). Intent: determine final pressure when temperature doubles etc. Provide multiple choice. Reasoning steps: use P1/T1 = P2/T2, convert temps to Kelvin, compute.\n\nRecordIds: [\"F6\"]; steps: [\"Convert temperatures to Kelvin\", \"Apply P1/T1 = P2/T2 to find P2\"].\n\nP18 selection: Use F7 (mass of nitrogen). Intent: select all statements that correctly describe how to compute mass of nitrogen in container. But selection type expects multiple correct options; we just plan. Reasoning steps: compute moles using PV/RT, then mass = n·M.\n\nRecordIds: [\"F7\"]; steps: [\"Calculate number of moles using n = PV/RT\", \"Multiply by molar mass to obtain mass\"].\n\nP19 true_false false: Use F14 (refrigeration COP). Intent: evaluate statement that heat rejected Q2 equals 540 kJ given COP=3 and work 180 kJ. Compute Q2 = Q1 + A, Q1 = COP·A = 540 kJ, then Q2 = 540+180=720 kJ, so statement that Q2 = 540 kJ is false. Reasoning steps: compute Q1, then Q2.\n\nRecordIds: [\"F14\"]; steps: [\"Compute Q1 = COP·A\", \"Compute Q2 = Q1 + A\"].\n\nP20 short_answer: Use F20 (pressure-temperature). Intent: find final temperature when pressure rises from 4 atm at 70°C to 4.5 atm constant volume. Need convert to Kelvin, apply ratio, convert back. Reasoning steps: convert initial temp to Kelvin, apply P1/T1 = P2/T2, solve for T2, convert back to Celsius.\n\nRecordIds: [\"F20\"]; steps: [\"Convert 70°C to Kelvin\", \"Apply P1/T1 = P2/T2 to solve for T2 in Kelvin\", \"Convert T2 back to °C\"] (that's three steps, okay).\n\nAll plans are hard with at least two steps.\n\nMake sure JSON compact, no extra spaces? Compact but still valid.\n\nReturn JSON with title, category, plans.\n\nTitle: \"Advanced Thermodynamics Problem Set\". Category: \"categories.science\". Provide.\n\nLet's craft JSON."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.421596918,
+    "prompt_tokens": 9760,
+    "prompt_time": 0.768399293,
+    "completion_tokens": 1247,
+    "completion_time": 2.71812391,
+    "total_tokens": 11007,
+    "total_time": 3.486523203,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 762
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_8655ddce88",
+  "x_groq": {
+    "id": "req_01m4083jeeexza83sbmfgje3pg",
+    "seed": 394231503
+  },
+  "service_tier": "on_demand"
+}

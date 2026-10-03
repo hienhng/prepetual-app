@@ -359,6 +359,7 @@ export default function EditQuizPage() {
         category,
       });
       const updatedQuiz = await response.json();
+      setQuestions(updatedQuiz.questions);
       setCurrentQuiz(updatedQuiz);
       queryClient.invalidateQueries({ queryKey: ["/api/quizzes"] });
       toast({ title: t('editQuiz.quizSaved'), description: t('editQuiz.quizSavedDesc') });
@@ -406,12 +407,6 @@ export default function EditQuizPage() {
     }
     const saved = await handleSave();
     if (saved) {
-      setCurrentQuiz({
-        ...currentQuiz,
-        title,
-        questions,
-        category,
-      } as any);
       setLocation("/quiz");
     }
   };
@@ -475,12 +470,12 @@ export default function EditQuizPage() {
 
         {pendingImportCount > 0 && (
           <div role="status" className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 space-y-2" data-testid="import-review-summary">
-            <p className="font-semibold">All {questions.length} questions are saved. {pendingImportCount} need review.</p>
-            <p className="text-sm text-muted-foreground">Check the original text, question layout, and correct answer for each flagged item. Unconfirmed answers will not be scored or published.</p>
-            <Button variant="outline" size="sm" onClick={() => { setTypeFilter("needs_review"); setSearchQuery(""); setExpandedIndex(-1); setViewMode("edit"); }}>Show flagged questions</Button>
+            <p className="font-semibold">{t('editQuiz.reviewSummary', { total: questions.length, count: pendingImportCount })}</p>
+            <p className="text-sm text-muted-foreground">{t("editQuiz.reviewHelp")}</p>
+            <Button variant="outline" size="sm" onClick={() => { setTypeFilter("needs_review"); setSearchQuery(""); setExpandedIndex(-1); setViewMode("edit"); }}>{t("editQuiz.showFlagged")}</Button>
             {(currentQuiz.sourceImages?.length || currentQuiz.sourceImageUrl) && (
               <details className="text-sm">
-                <summary className="cursor-pointer font-medium">View source images and diagrams</summary>
+                <summary className="cursor-pointer font-medium">{t("editQuiz.sourceImages")}</summary>
                 <div className="mt-3 space-y-3">
                   {Array.from(new Set([...(currentQuiz.sourceImages || []), ...(currentQuiz.sourceImageUrl ? [currentQuiz.sourceImageUrl] : [])])).map((image, index) => <img key={index} src={image} alt={`Original source ${index + 1}`} className="max-w-full rounded-lg border" />)}
                 </div>
@@ -576,7 +571,7 @@ export default function EditQuizPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">{t('editQuiz.allTypes')}</SelectItem>
-                    <SelectItem value="needs_review">Needs review ({pendingImportCount})</SelectItem>
+                    <SelectItem value="needs_review">{t('editQuiz.needsReview')} ({pendingImportCount})</SelectItem>
                     <SelectItem value="selection">{t("quizGenerator.selection")}</SelectItem>
                     <SelectItem value="multiple_choice">{t('quizGenerator.multipleChoice')}</SelectItem>
                     <SelectItem value="true_false">{t('quizGenerator.trueFalse')}</SelectItem>
@@ -697,7 +692,7 @@ export default function EditQuizPage() {
                               <Badge variant={getTypeBadgeVariant(question.type)} className="shrink-0">
                                 {getTypeLabel(question.type)}
                               </Badge>
-                              {question.importReview && <Badge variant="outline" className="shrink-0 border-amber-500 text-amber-700 dark:text-amber-300">Needs review</Badge>}
+                              {question.importReview && <Badge variant="outline" className="shrink-0 border-amber-500 text-amber-700 dark:text-amber-300">{t("editQuiz.needsReview")}</Badge>}
                               <span className="text-sm text-muted-foreground shrink-0">
                                 {isRevising === index ? <Loader2 className="h-3.5 w-3.5 animate-spin inline" /> : t('quizPlayer.questionNumberShort', { number: index + 1 })}
                               </span>
@@ -788,24 +783,24 @@ export default function EditQuizPage() {
                                   <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 space-y-3">
                                     <p className="text-sm font-medium">{question.importReview.sourceLabel}: {question.importReview.reason}</p>
                                     <details>
-                                      <summary className="cursor-pointer text-sm font-medium">Original source text</summary>
+                                      <summary className="cursor-pointer text-sm font-medium">{t("editQuiz.originalText")}</summary>
                                       <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-words text-sm">{question.importReview.sourceText}</pre>
                                     </details>
-                                    <Label htmlFor={`review-answer-${index}`}>Confirm the correct answer</Label>
+                                    <Label htmlFor={`review-answer-${index}`}>{t("editQuiz.confirmAnswer")}</Label>
                                     {question.type === "short_answer" ? (
-                                      <Input id={`review-answer-${index}`} value={question.correctAnswer} onChange={(event) => handleQuestionChange(index, "correctAnswer", event.target.value)} placeholder="Enter the correct answer" />
+                                      <Input id={`review-answer-${index}`} value={question.correctAnswer} onChange={(event) => handleQuestionChange(index, "correctAnswer", event.target.value)} placeholder={t("editQuiz.enterAnswer")} />
                                     ) : question.type === "selection" ? (
                                       <div className="space-y-2">
-                                        <p className="text-sm">Select every correct option below. For grouped true/false statements, select the true statements.</p>
-                                        {question.selectionMode === "truth_statements" && <Button size="sm" variant="outline" onClick={() => handleQuestionChange(index, "correctAnswer", "[]")}>No statements are true</Button>}
+                                        <p className="text-sm">{t("editQuiz.selectAllHelp")}</p>
+                                        {question.selectionMode === "truth_statements" && <Button size="sm" variant="outline" onClick={() => handleQuestionChange(index, "correctAnswer", "[]")}>{t("editQuiz.noTrueStatements")}</Button>}
                                       </div>
                                     ) : (
                                       <select id={`review-answer-${index}`} className="w-full rounded-md border bg-background p-2 text-sm" value={question.correctAnswer} onChange={(event) => handleQuestionChange(index, "correctAnswer", event.target.value)}>
-                                        <option value="">Select the correct option</option>
+                                        <option value="">{t("editQuiz.selectCorrect")}</option>
                                         {question.options?.map((option, optionIndex) => <option key={optionIndex} value={option}>{String.fromCharCode(65 + optionIndex)}. {option}</option>)}
                                       </select>
                                     )}
-                                    <Button size="sm" variant="outline" onClick={() => confirmImportReview(index)} data-testid={`confirm-import-${index}`}>Confirm question and answer</Button>
+                                    <Button size="sm" variant="outline" onClick={() => confirmImportReview(index)} data-testid={`confirm-import-${index}`}>{t("editQuiz.confirmQuestion")}</Button>
                                   </div>
                                 )}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -845,7 +840,7 @@ export default function EditQuizPage() {
                                     </Select>
                                     {question.type === "selection" && <label className="flex items-center gap-2 text-xs">
                                       <Checkbox checked={question.selectionMode === "truth_statements"} onCheckedChange={checked => handleQuestionChange(index, "selectionMode", checked ? "truth_statements" : undefined)} />
-                                      Grouped true/false statements (any number may be true)
+                                      {t("editQuiz.groupedStatements")}
                                     </label>}
                                   </div>
                                   
@@ -879,7 +874,7 @@ export default function EditQuizPage() {
                                     <div className="relative group">
                                       <img 
                                         src={question.imageUrl} 
-                                        alt="Question image" 
+                                        alt={t("editQuiz.questionImage")} 
                                         className="max-h-48 rounded-lg border object-contain"
                                       />
                                       <Button
@@ -947,7 +942,7 @@ export default function EditQuizPage() {
                                             )}
                                           </div>
                                           <div className="flex gap-1">
-                                            {(question.importReview || question.type === "selection") && <Button size="icon" variant="ghost" aria-label="Remove option" onClick={() => removeOption(index, optIndex)}><Trash2 className="h-4 w-4" /></Button>}
+                                            {(question.importReview || question.type === "selection") && <Button size="icon" variant="ghost" aria-label={t("editQuiz.removeOption")} onClick={() => removeOption(index, optIndex)}><Trash2 className="h-4 w-4" /></Button>}
                                             <Button
                                               size="icon"
                                               variant="ghost"
@@ -983,7 +978,7 @@ export default function EditQuizPage() {
                                           </div>
                                         </div>
                                       ))}
-                                      {(question.importReview || question.type === "selection") && <Button size="sm" variant="outline" onClick={() => addOption(index)}>Add option</Button>}
+                                      {(question.importReview || question.type === "selection") && <Button size="sm" variant="outline" onClick={() => addOption(index)}>{t("editQuiz.addOption")}</Button>}
                                     </div>
                                   </div>
                                 )}
@@ -1078,7 +1073,7 @@ export default function EditQuizPage() {
                           <div className="ml-8">
                             <img 
                               src={questions[previewIndex].imageUrl} 
-                              alt="Question image" 
+                              alt={t("editQuiz.questionImage")} 
                               className="max-h-48 rounded-lg border object-contain"
                             />
                           </div>
@@ -1207,7 +1202,7 @@ export default function EditQuizPage() {
                     ) : questions[reviseDialogIndex]?.type === "selection" ? (
                       <div className="space-y-2">
                         <p>{t("quizGenerator.selectionHint")}</p>
-                        {questions[reviseDialogIndex].selectionMode === "truth_statements" && <Button variant="outline" onClick={() => setReviseSelectedAnswer("[]")}>No statements are true</Button>}
+                        {questions[reviseDialogIndex].selectionMode === "truth_statements" && <Button variant="outline" onClick={() => setReviseSelectedAnswer("[]")}>{t("editQuiz.noTrueStatements")}</Button>}
                         {questions[reviseDialogIndex].options?.map((option, i) => <label key={i} className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer">
                           <Checkbox checked={parseSelectionAnswer(reviseSelectedAnswer).includes(option)} onCheckedChange={checked => {
                             const correct = parseSelectionAnswer(reviseSelectedAnswer);

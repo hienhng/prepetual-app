@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-2fa1c99d-e948-4528-a52e-0f77524103c1",
+  "object": "chat.completion",
+  "created": 1791016864,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"targetLanguage\":\"vi\"}",
+        "reasoning": "We need to determine target language for quiz. Input mode: material-based. So we use primary instructional language of ORIGINAL MATERIAL or its visible text. The material is Vietnamese text (NGUỒN GIẢ LẬP...). So primary instructional language is Vietnamese. Need BCP-47 tag, include regional variety when clear. No region indicated, so use \"vi\". Return JSON {\"targetLanguage\":\"vi\"} compact."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.367163726,
+    "prompt_tokens": 1102,
+    "prompt_time": 0.059279825,
+    "completion_tokens": 100,
+    "completion_time": 0.209709631,
+    "total_tokens": 1202,
+    "total_time": 0.268989456,
+    "completion_tokens_details": {
+      "reasoning_tokens": 85
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_fe269835c7",
+  "x_groq": {
+    "id": "req_01m40es1yge1xvk6p17vdejdra",
+    "seed": 1930446085
+  },
+  "service_tier": "on_demand"
+}

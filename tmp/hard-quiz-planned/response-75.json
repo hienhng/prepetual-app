@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-832bc0c2-1eff-450f-ba12-d7bb3edad7f0",
+  "object": "chat.completion",
+  "created": 1791009668,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Bài tập vật lý nâng cao\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P36\",\"type\":\"true_false\",\"recordIds\":[\"F5\"],\"intent\":\"Xác định áp suất trong lốp khi nhiệt độ tăng từ 27 °C lên 54 °C (thể tích không đổi) và khẳng định rằng áp suất đạt 5,45 atm\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ sang Kelvin (T1=300 K, T2=327 K)\",\"Áp dụng P1/T1=P2/T2 để tính P2=5 atm·(327/300)=5,45 atm\"]},{\"id\":\"P37\",\"type\":\"short_answer\",\"recordIds\":[\"F20\"],\"intent\":\"Tính nhiệt độ cuối cùng (°C) của khí oxy trong bình khi áp suất tăng từ 4 atm lên 4,5 atm (thể tích không đổi)\",\"reasoningSteps\":[\"Chuyển 70 °C sang Kelvin (T1=343 K)\",\"Dùng P1/T1=P2/T2 để tìm T2=4,5/4·343 K=386 K và chuyển lại sang °C (T2≈113 °C)\"]},{\"id\":\"P38\",\"type\":\"multiple_choice\",\"recordIds\":[\"F14\"],\"intent\":\"Tính áp suất tuyệt đối trong xi lanh khi học sinh 24 kg ngồi trên ghế (khối lượng ghế+xi lanh 6 kg), piston có diện tích 30 cm², bỏ qua ma sát và nhiệt độ không đổi\",\"reasoningSteps\":[\"Tính tổng lực trọng lượng: (24+6) kg·g=30 kg·10 m/s²=300 N\",\"Tính tăng áp suất do nén: Δp=F/A=300 N/(30 cm²=0,003 m²)=1,0×10⁵ Pa\",\"Cộng áp suất khí quyển p₀=1,0×10⁵ Pa để có áp suất tuyệt đối p=2,0×10⁵ Pa\"]}]}",
+        "reasoning": "We need to output JSON with title, category, plans array for slots P36 true_false True, P37 short_answer, P38 multiple_choice. Use only reviewed source records. Must plan tasks, not actual questions. Provide intent, reasoningSteps. Use up to 3 records per plan, max 4 source chunks. Must be hard: at least two reasoning steps. For true_false need statement derived, targetTruthValue True. Use source that can derive something. Choose maybe F5 (ideal gas pressure change) to compute new pressure and then statement about pressure being something. Need true statement.\n\nShort_answer: need derived result, not recall. Could use F20 (temperature change) to compute final temperature. Provide answer numeric? Short answer expects learner to compute temperature. Provide intent: calculate temperature when pressure rises.\n\nMultiple_choice: need options with distractors. Use maybe F14 hydraulic chair equilibrium to compute pressure in cylinder when student sits. Provide multiple choice with correct pressure value.\n\nMake sure each plan includes recordIds list, intent, reasoningSteps.\n\nLet's craft:\n\nPlan P36: true_false using F5. Givens: initial P=5 atm, T1=27°C, T2=54°C, constant volume. Compute P2 = P1 * (T2+273)/(T1+273). T1K=300K, T2K=327K. Ratio=327/300=1.09. P2≈5*1.09=5.45 atm. So statement: \"Khi nhiệt độ tăng từ 27 °C lên 54 °C, áp suất trong lốp tăng lên 5,45 atm.\" That's true. Provide targetTruthValue True.\n\nReasoning steps: 1 convert temps to Kelvin, 2 apply P1/T1 = P2/T2.\n\nPlan P37 short_answer: use F20. Compute temperature when pressure 4.5 atm given initial 4 atm at 70°C. Convert 70°C to K = 343 K. Use P1/T1 = P2/T2 => T2 = P2 * T1 / P1 = 4.5/4 * 343 = 1.125*343 = 386. (approx) = 386 K => 113°C. So short answer: 113 °C (rounded). Provide intent: determine final temperature.\n\nReasoning steps: convert initial temp to Kelvin, apply proportionality, convert back to Celsius.\n\nPlan P38 multiple_choice: use F14. Need compute pressure in cylinder when student sits, given masses, area, displacement, atmospheric pressure. Conditions: temperature constant, neglect friction. At equilibrium, weight of system = pressure difference * area + atmospheric pressure? Actually piston supports weight of seat+student+cylinder? The gas pressure inside cylinder exerts upward force on piston equal to atmospheric pressure plus extra due to compression? Let's compute.\n\nGiven: total mass of seat+ cylinder =6 kg, student mass =24 kg, so total weight = (6+24) kg * g =30 kg *10 =300 N. The piston area S =30 cm² = 30 *1e-4 m² = 0.003 m². Pressure difference Δp = Force / Area = 300 N /0.003 m² = 100,000 Pa = 1e5 Pa. Atmospheric pressure p0 =1e5 Pa. So absolute pressure inside cylinder = p0 + Δp = 2e5 Pa = 2×10⁵ Pa. So correct answer: 2.0×10⁵ Pa.\n\nProvide multiple choice options: (A) 1.2×10⁵ Pa, (B) 1.5×10⁵ Pa, (C) 2.0×10⁵ Pa, (D) 2.5×10⁵ Pa. Distractors based on common mistakes: forgetting atmospheric pressure, using only weight/area, miscalculating area, using g=9.8, etc.\n\nReasoning steps: 1 compute total weight, 2 compute pressure increase using Δp = F/A, 3 add atmospheric pressure.\n\nNow produce JSON with title, category \"categories.science\". Ensure compact JSON, no spaces? It says compact formatting but still valid. We'll produce minimal spaces.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.368088457,
+    "prompt_tokens": 10073,
+    "prompt_time": 0.456599691,
+    "completion_tokens": 1362,
+    "completion_time": 2.812892127,
+    "total_tokens": 11435,
+    "total_time": 3.269491818,
+    "completion_tokens_details": {
+      "reasoning_tokens": 893
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_8ea50c0161",
+  "x_groq": {
+    "id": "req_01m407xc6dez7a0vr3zhg58ejq",
+    "seed": 2020591253
+  },
+  "service_tier": "on_demand"
+}

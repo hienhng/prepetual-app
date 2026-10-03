@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-8129cf23-dade-4120-a218-84a86047a2b1",
+  "object": "chat.completion",
+  "created": 1791002166,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"answerCorrect\":true,\"explanationConsistent\":true,\"wrongExplanationsConsistent\":true,\"reason\":\"The item matches the source language and register.\"}]}",
+        "reasoning": "We need to audit the single generated item: short_answer question in Vietnamese. Check language consistency: source material is Vietnamese, question is Vietnamese, answer \"COP\" is abbreviation (English letters) but that's fine. Explanation also Vietnamese. So isConsistent true.\n\nNow need to solve: \"Viết tắt của \\\"Coefficient of Performance\\\" trong ngữ cảnh tủ lạnh là:\" The abbreviation is COP. So answerCorrect true.\n\nExplanation: \"COP là viết tắt chuẩn cho hệ số làm lạnh.\" That is consistent with answer. ExplanationConsistent true.\n\nWrongAnswerExplanations: For short_answer there are no wrong answer explanations. So wrongExplanationsConsistent should be true (vacuously). So all booleans true.\n\nsourceLanguage: Vietnamese. itemLanguage: Vietnamese.\n\nProvide JSON with evaluations array containing one object.\n\nMake sure compact JSON, no extra spaces? \"compact\" means no unnecessary whitespace. Provide exactly as required.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.371552029,
+    "prompt_tokens": 8240,
+    "prompt_time": 0.60678094,
+    "completion_tokens": 263,
+    "completion_time": 0.755906665,
+    "total_tokens": 8503,
+    "total_time": 1.362687605,
+    "completion_tokens_details": {
+      "reasoning_tokens": 193
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_86dc843b12",
+  "x_groq": {
+    "id": "req_01m400rfkdedwtng0fant469r9",
+    "seed": 1383392733
+  },
+  "service_tier": "on_demand"
+}

@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-9471c86a-1b1c-433d-af1a-cfd440d3802e",
+  "object": "chat.completion",
+  "created": 1791009897,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Bộ đề Nhiệt động lực học nâng cao\"}",
+        "reasoning": "The user wants JSON with only {\"title\":\"...\"} where title is the original title translated into Vietnamese, preserving its topic. Original title: \"Advanced Thermodynamics Problem Set\". Need to translate to Vietnamese while preserving topic. Likely \"Bộ đề vấn đề Nhiệt động lực học nâng cao\". Or \"Bộ đề Nhiệt động lực học nâng cao\". \"Advanced Thermodynamics Problem Set\" -> \"Bộ đề Nhiệt động lực học nâng cao\". That seems appropriate.\n\nWe must output only JSON, compact, valid. So {\"title\":\"Bộ đề Nhiệt động lực học nâng cao\"}.\n\nCheck JSON: keys double quotes, value string. No extra spaces? Compact is fine.\n\nReturn only that."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.41849267,
+    "prompt_tokens": 257,
+    "prompt_time": 0.009710103,
+    "completion_tokens": 177,
+    "completion_time": 0.368392234,
+    "total_tokens": 434,
+    "total_time": 0.378102337,
+    "completion_tokens_details": {
+      "reasoning_tokens": 150
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_e1a78f200e",
+  "x_groq": {
+    "id": "req_01m4084eg3e16am365tyw76szy",
+    "seed": 1879661812
+  },
+  "service_tier": "on_demand"
+}

@@ -1,0 +1,902 @@
+TAP version 13
+# [QUIZ TIMING] {
+#   requestId: '69117d8f-4720-4b21-a7fc-eb51e8304b33',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '69117d8f-4720-4b21-a7fc-eb51e8304b33',
+#   stage: 'reading',
+#   durationMs: 17
+# }
+# [QUIZ TIMING] {
+#   requestId: '69117d8f-4720-4b21-a7fc-eb51e8304b33',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '69117d8f-4720-4b21-a7fc-eb51e8304b33',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '69117d8f-4720-4b21-a7fc-eb51e8304b33',
+#   stage: 'generating',
+#   durationMs: 22
+# }
+# [QUIZ TIMING] {
+#   requestId: '69117d8f-4720-4b21-a7fc-eb51e8304b33',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '69117d8f-4720-4b21-a7fc-eb51e8304b33',
+#   stage: 'validating',
+#   durationMs: 4
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '69117d8f-4720-4b21-a7fc-eb51e8304b33',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '69117d8f-4720-4b21-a7fc-eb51e8304b33',
+#   stage: 'verifying',
+#   durationMs: 10
+# }
+# [QUIZ COUNTS] {
+#   requestId: '69117d8f-4720-4b21-a7fc-eb51e8304b33',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '69117d8f-4720-4b21-a7fc-eb51e8304b33',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '69117d8f-4720-4b21-a7fc-eb51e8304b33', totalMs: 55 }
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation count mismatch: returned 3, requested 4.
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'refining',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2248:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:72:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:70:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '9cb81468-1a98-489f-a543-f333f29336cc',
+#   stage: 'verifying',
+#   durationMs: 8
+# }
+# [QUIZ TIMING] { requestId: '9cb81468-1a98-489f-a543-f333f29336cc', totalMs: 27 }
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# Initial generation count mismatch: returned 3, requested 4.
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'verifying',
+#   durationMs: 11
+# }
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# [QUIZ COUNTS] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] { requestId: 'e4e46372-1253-4ba1-bf97-183adffdda2d', totalMs: 27 }
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2248:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:72:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:70:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'verifying',
+#   durationMs: 4
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'refining',
+#   durationMs: 4
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'refining',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2248:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:72:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:70:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [QUIZ TIMING] { requestId: '51f2e697-ce39-438b-baf2-a2136a5e4d72', totalMs: 26 }
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation count mismatch: returned 3, requested 4.
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2248:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:78:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:76:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '9034570f-defc-4715-b924-1da274e53f7a',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] { requestId: '9034570f-defc-4715-b924-1da274e53f7a', totalMs: 18 }
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# Initial generation count mismatch: returned 3, requested 4.
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2248:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:83:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:81:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '93617653-50c5-4192-b23f-e35a247d7dba',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '93617653-50c5-4192-b23f-e35a247d7dba', totalMs: 10 }
+# Subtest: creation prepares reviewed feedback within existing audit calls and rejects contradictions before completion
+    # Subtest: corrected answers and every wrong explanation are saved before completion
+    ok 1 - corrected answers and every wrong explanation are saved before completion
+      ---
+      duration_ms: 58.2464
+      type: 'test'
+      ...
+    # Subtest: answerCorrect rejection prevents completion
+    ok 2 - answerCorrect rejection prevents completion
+      ---
+      duration_ms: 27.1523
+      type: 'test'
+      ...
+    # Subtest: explanationConsistent rejection prevents completion
+    ok 3 - explanationConsistent rejection prevents completion
+      ---
+      duration_ms: 27.7012
+      type: 'test'
+      ...
+    # Subtest: wrongExplanationsConsistent rejection prevents completion
+    ok 4 - wrongExplanationsConsistent rejection prevents completion
+      ---
+      duration_ms: 26.384
+      type: 'test'
+      ...
+    # Subtest: missing semantic approval cannot mark feedback prepared
+    ok 5 - missing semantic approval cannot mark feedback prepared
+      ---
+      duration_ms: 18.8831
+      type: 'test'
+      ...
+    # Subtest: missing per-option explanations cannot mark feedback prepared
+    ok 6 - missing per-option explanations cannot mark feedback prepared
+      ---
+      duration_ms: 10.0547
+      type: 'test'
+      ...
+    1..6
+ok 1 - creation prepares reviewed feedback within existing audit calls and rejects contradictions before completion
+  ---
+  duration_ms: 820.1249
+  type: 'test'
+  ...
+# Subtest: uses stored question/evidence and persists corrected key before returning a correct grade
+ok 2 - uses stored question/evidence and persists corrected key before returning a correct grade
+  ---
+  duration_ms: 3.7545
+  type: 'test'
+  ...
+# Subtest: feedback prepared during creation returns immediately without another verification or write
+ok 3 - feedback prepared during creation returns immediately without another verification or write
+  ---
+  duration_ms: 0.5355
+  type: 'test'
+  ...
+# Subtest: ignores client isCorrect and returns factual feedback for a genuinely wrong answer
+ok 4 - ignores client isCorrect and returns factual feedback for a genuinely wrong answer
+  ---
+  duration_ms: 0.4074
+  type: 'test'
+  ...
+# Subtest: private access, unknown question, missing quiz, and incomplete identity stop before verification
+ok 5 - private access, unknown question, missing quiz, and incomplete identity stop before verification
+  ---
+  duration_ms: 1.0258
+  type: 'test'
+  ...
+# Subtest: unverified feedback never changes storage or returns a grade
+ok 6 - unverified feedback never changes storage or returns a grade
+  ---
+  duration_ms: 0.3384
+  type: 'test'
+  ...
+# Subtest: a concurrent edit prevents returning a correction based on the previous question
+ok 7 - a concurrent edit prevents returning a correction based on the previous question
+  ---
+  duration_ms: 0.2298
+  type: 'test'
+  ...
+# Subtest: preparation verifies and persists once, then replay and retries need no model requests
+ok 8 - preparation verifies and persists once, then replay and retries need no model requests
+  ---
+  duration_ms: 5.7007
+  type: 'test'
+  ...
+# Subtest: unchanged edits reuse server verification; changed questions and forged markers are audited
+ok 9 - unchanged edits reuse server verification; changed questions and forged markers are audited
+  ---
+  duration_ms: 0.6024
+  type: 'test'
+  ...
+# Subtest: import preserves unresolved items, prepares objective items, and leaves student short answers for later
+not ok 10 - import preserves unresolved items, prepares objective items, and leaves student short answers for later
+  ---
+  duration_ms: 0.7578
+  type: 'test'
+  location: 'C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-preparation.test.ts:1:2992'
+  failureType: 'testCodeFailure'
+  error: 'The answer feedback could not be prepared. Please review this question.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    <anonymous> (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\quiz-preparation.ts:20:55)
+  ...
+# Subtest: a concurrent edit stops legacy preparation from returning stale feedback
+ok 11 - a concurrent edit stops legacy preparation from returning stale feedback
+  ---
+  duration_ms: 0.609
+  type: 'test'
+  ...
+# Subtest: preparation endpoint checks access and refuses unverified or stale feedback before play
+ok 12 - preparation endpoint checks access and refuses unverified or stale feedback before play
+  ---
+  duration_ms: 1.8177
+  type: 'test'
+  ...
+# Subtest: saved feedback survives retries and JSON persistence but becomes invalid after substantive edits
+ok 13 - saved feedback survives retries and JSON persistence but becomes invalid after substantive edits
+  ---
+  duration_ms: 1.2223
+  type: 'test'
+  ...
+# Subtest: incomplete or contradictory option feedback and unresolved imports cannot be played as verified
+ok 14 - incomplete or contradictory option feedback and unresolved imports cannot be played as verified
+  ---
+  duration_ms: 12.6551
+  type: 'test'
+  ...
+# Subtest: grouped truth statements with no correct choices still have complete prepared feedback
+ok 15 - grouped truth statements with no correct choices still have complete prepared feedback
+  ---
+  duration_ms: 0.4274
+  type: 'test'
+  ...
+1..15
+# tests 21
+# suites 0
+# pass 20
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1172.1223

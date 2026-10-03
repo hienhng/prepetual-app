@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-90b45149-321f-43a7-ae20-9f40ba05fbe8",
+  "object": "chat.completion",
+  "created": 1791010996,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"results\":[{\"index\":0,\"isValid\":false,\"solution\":\"\",\"correctAnswer\":\"\",\"options\":[],\"optionVerdicts\":[],\"explanation\":\"\"}]}",
+        "reasoning": "We need to process the single draft (index 0). It's a selection type question. Need to verify stem is answerable and supported by sourceChunkIds. The draft's sourceChunkIds: [\"e4880ae2-a819-4dbb-b621-744cb43b9892\"] which corresponds to SOURCE_CHUNK id \"e4880ae2-a819-4dbb-b621-744cb43b9892\" (S10). Let's see its content: It contains statements about V/T = 0.250, volume at 25°C is 68 cm³, and that experiment verifies Charles's law. No data about oxygen tank, pressure, volume, etc. The draft question: \"Nếu áp suất cuối cùng trong bình oxy tăng lên $1.2\\,\\mathrm{atm}$ (nhiệt độ vẫn $24\\,^{\\circ}\\mathrm{C}=297\\,\\mathrm{K}$), khối lượng oxy trong bình sẽ là bao nhiêu? Dữ liệu: Thể tích bình $V = 5000\\,\\mathrm{L}$; hằng số khí lý tưởng $R = 0.082\\,\\mathrm{atm\\,L\\,mol^{-1}\\,K^{-1}}$; khối lượng mol $\\mathrm{O_2}=32\\,\\mathrm{g\\,mol^{-1}}$.\"\n\nThe source chunk does not contain any of these givens. So the stem is not directly supported by its cited source. According to instructions, we must reject if not supported. So isValid should be false.\n\nWe must output result with isValid false, solution maybe empty? The spec: For invalid, set isValid false. Probably still need fields solution, correctAnswer, options, optionVerdicts, explanation? Not specified but likely need them. Could set solution empty string, correctAnswer empty, options empty array, optionVerdicts empty array, explanation empty string.\n\nMake sure JSON valid.\n\nThus output:\n\n{\n \"results\": [\n   {\n     \"index\":0,\n     \"isValid\":false,\n     \"solution\":\"\",\n     \"correctAnswer\":\"\",\n     \"options\":[],\n     \"optionVerdicts\":[],\n     \"explanation\":\"\"\n   }\n ]\n}\n\nCheck order of fields: index, isValid, solution, correctAnswer, options, optionVerdicts, explanation. Yes.\n\nReturn only JSON."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.420231136,
+    "prompt_tokens": 12300,
+    "prompt_time": 0.641764473,
+    "completion_tokens": 525,
+    "completion_time": 1.087588556,
+    "total_tokens": 12825,
+    "total_time": 1.7293530289999999,
+    "completion_tokens_details": {
+      "reasoning_tokens": 484
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_e5b4e54fbb",
+  "x_groq": {
+    "id": "req_01m4095xywebebk28p1p7deg5m",
+    "seed": 3107151
+  },
+  "service_tier": "on_demand"
+}

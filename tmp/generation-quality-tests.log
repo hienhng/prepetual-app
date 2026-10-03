@@ -1,0 +1,2529 @@
+TAP version 13
+# Subtest: player receives a canonical question before grading and identifies the stored question
+not ok 1 - player receives a canonical question before grading and identifies the stored question
+  ---
+  duration_ms: 42.6601
+  type: 'test'
+  location: 'C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\client\\src\\lib\\verified-quiz-feedback.test.ts:1:588'
+  failureType: 'testCodeFailure'
+  error: 'ANSWER_REVIEW_REQUIRED'
+  code: 'ANSWER_REVIEW_REQUIRED'
+  stack: |-
+    fetchVerifiedQuizFeedback (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\client\src\lib\verified-quiz-feedback.ts:28:11)
+    async TestContext.<anonymous> (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\client\src\lib\verified-quiz-feedback.test.ts:15:20)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: unverified or stale responses cannot replace the player's question
+ok 2 - unverified or stale responses cannot replace the player's question
+  ---
+  duration_ms: 4.2309
+  type: 'test'
+  ...
+# Subtest: restored feedback becomes invalid when its answer or explanations change
+ok 3 - restored feedback becomes invalid when its answer or explanations change
+  ---
+  duration_ms: 0.5496
+  type: 'test'
+  ...
+# Subtest: extracts text from an untrusted PDF with evaluation disabled
+ok 4 - extracts text from an untrusted PDF with evaluation disabled
+  ---
+  duration_ms: 2239.6479
+  type: 'test'
+  ...
+# Subtest: reads every page past the former 10-page limit and retains question line breaks
+ok 5 - reads every page past the former 10-page limit and retains question line breaks
+  ---
+  duration_ms: 239.9342
+  type: 'test'
+  ...
+# Subtest: transcribes every sparse page, including sparse pages mixed with selectable text
+ok 6 - transcribes every sparse page, including sparse pages mixed with selectable text
+  ---
+  duration_ms: 223.7473
+  type: 'test'
+  ...
+# Subtest: reports unreadable pages instead of silently importing the remaining pages
+ok 7 - reports unreadable pages instead of silently importing the remaining pages
+  ---
+  duration_ms: 145.4449
+  type: 'test'
+  ...
+# Subtest: blank separator pages are skipped without requesting transcription or rejecting the document
+ok 8 - blank separator pages are skipped without requesting transcription or rejecting the document
+  ---
+  duration_ms: 215.9637
+  type: 'test'
+  ...
+# Subtest: PDF layout preserves columns and coordinates instead of interleaving options
+ok 9 - PDF layout preserves columns and coordinates instead of interleaving options
+  ---
+  duration_ms: 60.1304
+  type: 'test'
+  ...
+# Subtest: OCR quality checks detect corrupt text and a readable header over a scanned page
+ok 10 - OCR quality checks detect corrupt text and a readable header over a scanned page
+  ---
+  duration_ms: 5.9912
+  type: 'test'
+  ...
+# Subtest: layout keeps raised exponents with their baseline instead of moving them before the question
+ok 11 - layout keeps raised exponents with their baseline instead of moving them before the question
+  ---
+  duration_ms: 0.7026
+  type: 'test'
+  ...
+# Subtest: dense selectable exam pages still transcribe missing graph and equation data
+ok 12 - dense selectable exam pages still transcribe missing graph and equation data
+  ---
+  duration_ms: 215.6281
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: '84cd8977-1965-4d59-9d56-810f68fba6be',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '84cd8977-1965-4d59-9d56-810f68fba6be',
+#   stage: 'reading',
+#   durationMs: 34
+# }
+# [QUIZ TIMING] {
+#   requestId: '84cd8977-1965-4d59-9d56-810f68fba6be',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '84cd8977-1965-4d59-9d56-810f68fba6be',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '84cd8977-1965-4d59-9d56-810f68fba6be',
+#   stage: 'generating',
+#   durationMs: 41
+# }
+# [QUIZ TIMING] {
+#   requestId: '84cd8977-1965-4d59-9d56-810f68fba6be',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '84cd8977-1965-4d59-9d56-810f68fba6be',
+#   stage: 'validating',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '84cd8977-1965-4d59-9d56-810f68fba6be',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '84cd8977-1965-4d59-9d56-810f68fba6be',
+#   stage: 'verifying',
+#   durationMs: 29
+# }
+# [QUIZ COUNTS] {
+#   requestId: '84cd8977-1965-4d59-9d56-810f68fba6be',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '84cd8977-1965-4d59-9d56-810f68fba6be',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '84cd8977-1965-4d59-9d56-810f68fba6be', totalMs: 111 }
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'verifying',
+#   durationMs: 4
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'refining',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'refining',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'refining',
+#   durationMs: 4
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2262:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:73:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:71:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '69e56410-aade-49d7-bc15-db74b4bf4043',
+#   stage: 'verifying',
+#   durationMs: 14
+# }
+# [QUIZ TIMING] { requestId: '69e56410-aade-49d7-bc15-db74b4bf4043', totalMs: 41 }
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'verifying',
+#   durationMs: 4
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2262:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:73:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:71:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] { requestId: '9f646e29-df3b-4f90-9547-c4b384eb68f3', totalMs: 21 }
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'refining',
+#   durationMs: 4
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 1?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 2?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Where does boiling vaporize liquid in example 3?...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2262:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:79:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-creation-feedback.test.ts:77:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] { requestId: '3cc5570f-5dec-4b1d-aea2-a194f78c6148', totalMs: 18 }
+# [QUIZ TIMING] {
+#   requestId: '0030ce31-e75e-4ded-bb06-d8376f3d6bf2',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '0030ce31-e75e-4ded-bb06-d8376f3d6bf2',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '0030ce31-e75e-4ded-bb06-d8376f3d6bf2',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '0030ce31-e75e-4ded-bb06-d8376f3d6bf2',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '0030ce31-e75e-4ded-bb06-d8376f3d6bf2',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '0030ce31-e75e-4ded-bb06-d8376f3d6bf2',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '0030ce31-e75e-4ded-bb06-d8376f3d6bf2',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 1?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 2?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Where does boiling vaporize liquid in example 3?..." — changing answer from "Inside only" to "Inside and surface"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '0030ce31-e75e-4ded-bb06-d8376f3d6bf2',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '0030ce31-e75e-4ded-bb06-d8376f3d6bf2',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [QUIZ COUNTS] {
+#   requestId: '0030ce31-e75e-4ded-bb06-d8376f3d6bf2',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '0030ce31-e75e-4ded-bb06-d8376f3d6bf2',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '0030ce31-e75e-4ded-bb06-d8376f3d6bf2', totalMs: 6 }
+# Subtest: creation verifies answer keys without generating wrong-option feedback
+    # Subtest: corrected answers are saved without wrong-option explanations
+    ok 1 - corrected answers are saved without wrong-option explanations
+      ---
+      duration_ms: 116.3726
+      type: 'test'
+      ...
+    # Subtest: answerCorrect rejection prevents completion
+    ok 2 - answerCorrect rejection prevents completion
+      ---
+      duration_ms: 41.5552
+      type: 'test'
+      ...
+    # Subtest: explanationConsistent rejection prevents completion
+    ok 3 - explanationConsistent rejection prevents completion
+      ---
+      duration_ms: 21.4511
+      type: 'test'
+      ...
+    # Subtest: missing semantic approval cannot mark feedback prepared
+    ok 4 - missing semantic approval cannot mark feedback prepared
+      ---
+      duration_ms: 18.9959
+      type: 'test'
+      ...
+    # Subtest: missing per-option explanations do not block verified answer keys
+    ok 5 - missing per-option explanations do not block verified answer keys
+      ---
+      duration_ms: 6.5745
+      type: 'test'
+      ...
+    1..5
+ok 13 - creation verifies answer keys without generating wrong-option feedback
+  ---
+  duration_ms: 1983.4468
+  type: 'test'
+  ...
+# Subtest: uses stored question/evidence and persists corrected key before returning a correct grade
+ok 14 - uses stored question/evidence and persists corrected key before returning a correct grade
+  ---
+  duration_ms: 7.4797
+  type: 'test'
+  ...
+# Subtest: feedback prepared during creation returns immediately without another verification or write
+ok 15 - feedback prepared during creation returns immediately without another verification or write
+  ---
+  duration_ms: 1.1763
+  type: 'test'
+  ...
+# Subtest: ignores client isCorrect and returns factual feedback for a genuinely wrong answer
+ok 16 - ignores client isCorrect and returns factual feedback for a genuinely wrong answer
+  ---
+  duration_ms: 0.9382
+  type: 'test'
+  ...
+# Subtest: private access, unknown question, missing quiz, and incomplete identity stop before verification
+ok 17 - private access, unknown question, missing quiz, and incomplete identity stop before verification
+  ---
+  duration_ms: 2.2082
+  type: 'test'
+  ...
+# Subtest: unverified feedback never changes storage or returns a grade
+ok 18 - unverified feedback never changes storage or returns a grade
+  ---
+  duration_ms: 0.6915
+  type: 'test'
+  ...
+# Subtest: a concurrent edit prevents returning a correction based on the previous question
+ok 19 - a concurrent edit prevents returning a correction based on the previous question
+  ---
+  duration_ms: 0.5063
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: '7ed22ef6-2c66-4dc5-bb36-1e7c4d16447f',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '7ed22ef6-2c66-4dc5-bb36-1e7c4d16447f',
+#   stage: 'reading',
+#   durationMs: 32
+# }
+# [QUIZ TIMING] {
+#   requestId: '7ed22ef6-2c66-4dc5-bb36-1e7c4d16447f',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '7ed22ef6-2c66-4dc5-bb36-1e7c4d16447f',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '7ed22ef6-2c66-4dc5-bb36-1e7c4d16447f',
+#   stage: 'generating',
+#   durationMs: 39
+# }
+# [QUIZ TIMING] {
+#   requestId: '7ed22ef6-2c66-4dc5-bb36-1e7c4d16447f',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '7ed22ef6-2c66-4dc5-bb36-1e7c4d16447f',
+#   stage: 'validating',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '7ed22ef6-2c66-4dc5-bb36-1e7c4d16447f',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '7ed22ef6-2c66-4dc5-bb36-1e7c4d16447f',
+#   stage: 'verifying',
+#   durationMs: 16
+# }
+# [QUIZ COUNTS] {
+#   requestId: '7ed22ef6-2c66-4dc5-bb36-1e7c4d16447f',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '7ed22ef6-2c66-4dc5-bb36-1e7c4d16447f',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '7ed22ef6-2c66-4dc5-bb36-1e7c4d16447f', totalMs: 95 }
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'refining',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'refining',
+#   durationMs: 4
+# }
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2262:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:54:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:53:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '99065494-8996-4c21-8d85-fbc02cc57723',
+#   stage: 'verifying',
+#   durationMs: 11
+# }
+# [QUIZ TIMING] { requestId: '99065494-8996-4c21-8d85-fbc02cc57723', totalMs: 33 }
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'refining',
+#   durationMs: 19
+# }
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2262:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:54:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:53:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] { requestId: '79ed5727-14e2-4180-ab6b-d9c2b72ad65f', totalMs: 32 }
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# Initial generation count mismatch: returned 3, requested 4.
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it..."
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2262:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:54:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:53:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] { requestId: 'd9b2d682-3b99-4a17-ace8-75db2e6dc45d', totalMs: 13 }
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# Initial generation count mismatch: returned 3, requested 4.
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "In cycle 3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and it...": no reason supplied
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2262:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:54:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:53:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [QUIZ TIMING] { requestId: 'ba56987d-aa72-4c44-a7e7-bc8172171919', totalMs: 16 }
+# Subtest: short-answer keys are solved independently, then rejected on missing givens, weak reasoning, or unsupported citations
+    # Subtest: missing-givens cannot complete or publish a quiz
+    ok 1 - missing-givens cannot complete or publish a quiz
+      ---
+      duration_ms: 35.0179
+      type: 'test'
+      ...
+    # Subtest: recall cannot complete or publish a quiz
+    ok 2 - recall cannot complete or publish a quiz
+      ---
+      duration_ms: 32.1694
+      type: 'test'
+      ...
+    # Subtest: bad-citation cannot complete or publish a quiz
+    ok 3 - bad-citation cannot complete or publish a quiz
+      ---
+      duration_ms: 13.771
+      type: 'test'
+      ...
+    # Subtest: final-veto cannot complete or publish a quiz
+    ok 4 - final-veto cannot complete or publish a quiz
+      ---
+      duration_ms: 16.3904
+      type: 'test'
+      ...
+    1..4
+ok 20 - short-answer keys are solved independently, then rejected on missing givens, weak reasoning, or unsupported citations
+  ---
+  duration_ms: 1832.841
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: 'b507571c-f9d5-4363-bc48-09b980e51d08',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'b507571c-f9d5-4363-bc48-09b980e51d08',
+#   stage: 'reading',
+#   durationMs: 15
+# }
+# [QUIZ TIMING] {
+#   requestId: 'b507571c-f9d5-4363-bc48-09b980e51d08',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'b507571c-f9d5-4363-bc48-09b980e51d08',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Initial generation returned 0/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'b507571c-f9d5-4363-bc48-09b980e51d08',
+#   stage: 'validating',
+#   durationMs: 50
+# }
+# [RESUME LANGUAGE] Auditing batch 1/1 (questions 1-2 of 2).
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2; total is 2/3.
+# Only built 2/3 valid questions. Top-up attempt 1/3: requesting 2 candidates for 1 missing.
+# [QUIZ TIMING] {
+#   requestId: 'b507571c-f9d5-4363-bc48-09b980e51d08',
+#   stage: 'verifying',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-1 of 1).
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT BATCH 1/1 Question "What is the capital of Spain?..." — changing answer from "Madrid" to "Paris"
+# [QUIZ TIMING] {
+#   requestId: 'b507571c-f9d5-4363-bc48-09b980e51d08',
+#   stage: 'refining',
+#   durationMs: 13
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-1 of 1).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 2 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 1 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 3; total is 3/3.
+# Top-up attempt 1 added 1 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'b507571c-f9d5-4363-bc48-09b980e51d08',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 0,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'b507571c-f9d5-4363-bc48-09b980e51d08',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'b507571c-f9d5-4363-bc48-09b980e51d08',
+#   initialRequests: 0,
+#   topUpRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 1,
+#   rejectedCandidates: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'b507571c-f9d5-4363-bc48-09b980e51d08',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: 'b507571c-f9d5-4363-bc48-09b980e51d08', totalMs: 86 }
+# [QUIZ TIMING] {
+#   requestId: '1c6ad5b5-e7db-4170-bb81-14aace933f37',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1c6ad5b5-e7db-4170-bb81-14aace933f37',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1c6ad5b5-e7db-4170-bb81-14aace933f37',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1c6ad5b5-e7db-4170-bb81-14aace933f37',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Initial generation returned 0/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '1c6ad5b5-e7db-4170-bb81-14aace933f37',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [RESUME LANGUAGE] Auditing batch 1/1 (questions 1-2 of 2).
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2; total is 2/3.
+# Only built 2/3 valid questions. Top-up attempt 1/3: requesting 2 candidates for 1 missing.
+# [QUIZ TIMING] {
+#   requestId: '1c6ad5b5-e7db-4170-bb81-14aace933f37',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# Top-up attempt 1 returned no question candidates.
+# Only built 2/3 valid questions. Top-up attempt 2/3: requesting 2 candidates for 1 missing.
+# Top-up attempt 2 returned no question candidates.
+# Only built 2/3 valid questions. Top-up attempt 3/3: requesting 2 candidates for 1 missing.
+# Top-up attempt 3 returned no question candidates.
+# Error generating quiz: QuizGenerationError: Generated 2 of 3 validated questions before the retry limit. Try again or request fewer questions.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2272:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-resume.test.ts:59:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-resume.test.ts:53:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 2
+# }
+# [QUIZ COUNTS] {
+#   requestId: '1c6ad5b5-e7db-4170-bb81-14aace933f37',
+#   initialRequests: 0,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1c6ad5b5-e7db-4170-bb81-14aace933f37',
+#   stage: 'refining',
+#   durationMs: 20
+# }
+# [QUIZ TIMING] { requestId: '1c6ad5b5-e7db-4170-bb81-14aace933f37', totalMs: 25 }
+# Subtest: resume preserves accepted questions and only requests missing candidates
+    # Subtest: successful resume skips initial generation, deduplicates, and checkpoints additions
+    ok 1 - successful resume skips initial generation, deduplicates, and checkpoints additions
+      ---
+      duration_ms: 92.6644
+      type: 'test'
+      ...
+    # Subtest: a second exhausted attempt preserves the prior checkpoint
+    ok 2 - a second exhausted attempt preserves the prior checkpoint
+      ---
+      duration_ms: 25.473
+      type: 'test'
+      ...
+    1..2
+ok 21 - resume preserves accepted questions and only requests missing candidates
+  ---
+  duration_ms: 1779.6339
+  type: 'test'
+  ...
+# Subtest: support must quote every actual cited chunk, rather than an unrelated existing ID
+ok 22 - support must quote every actual cited chunk, rather than an unrelated existing ID
+  ---
+  duration_ms: 2.7928
+  type: 'test'
+  ...
+# Subtest: hard review rejects recall, missing givens, unsupported answers, and implausible distractors
+ok 23 - hard review rejects recall, missing givens, unsupported answers, and implausible distractors
+  ---
+  duration_ms: 0.4229
+  type: 'test'
+  ...
+# Subtest: replacements prioritize missing types and cannot use recall-friendly types to fill reserved slots
+ok 24 - replacements prioritize missing types and cannot use recall-friendly types to fill reserved slots
+  ---
+  duration_ms: 2.264
+  type: 'test'
+  ...
+# Subtest: quiz language accepts regional tags and rejects unresolved or injected values
+ok 25 - quiz language accepts regional tags and rejects unresolved or injected values
+  ---
+  duration_ms: 40.2096
+  type: 'test'
+  ...
+# Subtest: language policy survives material creation, audits, replacements, images, and resume
+    # Subtest: manual language overrides a contrary prompt without detection
+    ok 1 - manual language overrides a contrary prompt without detection
+      ---
+      duration_ms: 0.4777
+      type: 'test'
+      ...
+    # Subtest: auto reads original accented and unaccented requests and multilingual material
+    ok 2 - auto reads original accented and unaccented requests and multilingual material
+      ---
+      duration_ms: 50.1085
+      type: 'test'
+      ...
+    # Subtest: image-only detection uses original images
+    ok 3 - image-only detection uses original images
+      ---
+      duration_ms: 2.438
+      type: 'test'
+      ...
+# [MATERIAL LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [MATERIAL LANGUAGE] BATCH 1/1 Rejecting language-inconsistent question "English study material. English study material. English stud...": no reason supplied
+    # Subtest: unresolved detection does not silently fall back to English
+    ok 4 - unresolved detection does not silently fall back to English
+      ---
+      duration_ms: 1020.495
+      type: 'test'
+      ...
+    # Subtest: language detection supports providers that reject JSON mode
+    ok 5 - language detection supports providers that reject JSON mode
+      ---
+      duration_ms: 14.1718
+      type: 'test'
+      ...
+# [MATERIAL LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   stage: 'reading',
+#   durationMs: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   stage: 'generating',
+#   durationMs: 4
+# }
+# [QUIZ TIMING] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   stage: 'processing',
+#   durationMs: 1
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   stage: 'validating',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "What is the capital in example 1?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "What is the capital in example 2?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "What is the capital in example 3?...": no reason supplied
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   stage: 'verifying',
+#   durationMs: 22
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   stage: 'refining',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 1, 2, 3; total is 3/3.
+# Top-up attempt 1 added 3 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   stage: 'verifying',
+#   durationMs: 4
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   initialRequests: 1,
+#   topUpRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 6,
+#   rejectedCandidates: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: 'badc30df-cd25-422e-9f93-b9b9d3b64d44', totalMs: 46 }
+# [QUIZ TIMING] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   stage: 'validating',
+#   durationMs: 4
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   stage: 'verifying',
+#   durationMs: 8
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   stage: 'refining',
+#   durationMs: 8
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 1, 2, 3; total is 3/3.
+# Top-up attempt 1 added 3 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   initialRequests: 1,
+#   topUpRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 6,
+#   rejectedCandidates: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: 'e2524b86-f463-4512-b0a2-b5332d3c4c99', totalMs: 25 }
+# [QUIZ TIMING] {
+#   requestId: 'ec25a1ff-401a-4082-9b29-0a9f9ff548bd',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ec25a1ff-401a-4082-9b29-0a9f9ff548bd',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ec25a1ff-401a-4082-9b29-0a9f9ff548bd',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ec25a1ff-401a-4082-9b29-0a9f9ff548bd',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'ec25a1ff-401a-4082-9b29-0a9f9ff548bd',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ec25a1ff-401a-4082-9b29-0a9f9ff548bd',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'ec25a1ff-401a-4082-9b29-0a9f9ff548bd',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] Solving batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'ec25a1ff-401a-4082-9b29-0a9f9ff548bd',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ec25a1ff-401a-4082-9b29-0a9f9ff548bd',
+#   stage: 'verifying',
+#   durationMs: 17
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'ec25a1ff-401a-4082-9b29-0a9f9ff548bd',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 3,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ec25a1ff-401a-4082-9b29-0a9f9ff548bd',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: 'ec25a1ff-401a-4082-9b29-0a9f9ff548bd', totalMs: 22 }
+# [QUIZ TIMING] {
+#   requestId: 'fd759e89-d912-46e4-a56c-422c4690fea5',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'fd759e89-d912-46e4-a56c-422c4690fea5',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'fd759e89-d912-46e4-a56c-422c4690fea5',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'fd759e89-d912-46e4-a56c-422c4690fea5',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'fd759e89-d912-46e4-a56c-422c4690fea5',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: 'fd759e89-d912-46e4-a56c-422c4690fea5',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'fd759e89-d912-46e4-a56c-422c4690fea5',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'fd759e89-d912-46e4-a56c-422c4690fea5',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'fd759e89-d912-46e4-a56c-422c4690fea5',
+#   stage: 'verifying',
+#   durationMs: 10
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'fd759e89-d912-46e4-a56c-422c4690fea5',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'fd759e89-d912-46e4-a56c-422c4690fea5',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: 'fd759e89-d912-46e4-a56c-422c4690fea5', totalMs: 14 }
+# [QUIZ TIMING] {
+#   requestId: '988f9e18-69fc-4b31-8118-3937e1d1a5d9',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '988f9e18-69fc-4b31-8118-3937e1d1a5d9',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '988f9e18-69fc-4b31-8118-3937e1d1a5d9',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '988f9e18-69fc-4b31-8118-3937e1d1a5d9',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Initial generation returned 0/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '988f9e18-69fc-4b31-8118-3937e1d1a5d9',
+#   stage: 'validating',
+#   durationMs: 4
+# }
+# [RESUME ANSWER AUDIT] Auditing batch 1/1 (questions 1-3 of 3).
+# [RESUME LANGUAGE] Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2; total is 2/3.
+# [QUIZ TIMING] {
+#   requestId: '988f9e18-69fc-4b31-8118-3937e1d1a5d9',
+#   stage: 'verifying',
+#   durationMs: 8
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '988f9e18-69fc-4b31-8118-3937e1d1a5d9',
+#   stage: 'refining',
+#   durationMs: 5
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-1 of 1).
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 1 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 1 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: 3; total is 3/3.
+# Top-up attempt 1 added 1 valid questions; total is now 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '988f9e18-69fc-4b31-8118-3937e1d1a5d9',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 0,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '988f9e18-69fc-4b31-8118-3937e1d1a5d9',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [QUIZ COUNTS] {
+#   requestId: '988f9e18-69fc-4b31-8118-3937e1d1a5d9',
+#   initialRequests: 0,
+#   topUpRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 1,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '988f9e18-69fc-4b31-8118-3937e1d1a5d9',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '988f9e18-69fc-4b31-8118-3937e1d1a5d9', totalMs: 20 }
+# [QUIZ TIMING] {
+#   requestId: 'ea73976f-2ed9-4061-85c4-e42539771bfb',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ea73976f-2ed9-4061-85c4-e42539771bfb',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ea73976f-2ed9-4061-85c4-e42539771bfb',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ea73976f-2ed9-4061-85c4-e42539771bfb',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'ea73976f-2ed9-4061-85c4-e42539771bfb',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ea73976f-2ed9-4061-85c4-e42539771bfb',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'ea73976f-2ed9-4061-85c4-e42539771bfb',
+#   stage: 'validating',
+#   durationMs: 4
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'ea73976f-2ed9-4061-85c4-e42539771bfb',
+#   targetLanguage: 'vi',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ea73976f-2ed9-4061-85c4-e42539771bfb',
+#   stage: 'verifying',
+#   durationMs: 15
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'ea73976f-2ed9-4061-85c4-e42539771bfb',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'ea73976f-2ed9-4061-85c4-e42539771bfb',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: 'ea73976f-2ed9-4061-85c4-e42539771bfb', totalMs: 22 }
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'analyzing',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'verifying',
+#   durationMs: 33
+# }
+# [SOLVE/BUILD TOPUP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'refining',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# Initial generation count mismatch: returned 3, requested 4.
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 1 là gì?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 2 là gì?...": no reason supplied
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 3 là gì?...": no reason supplied
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# Initial generation count mismatch: returned 3, requested 4.
+# [SOLVE/BUILD] Initial generation left 3/3 eligible questions incomplete; running answer completion only for those items.
+# Initial generation count mismatch: returned 3, requested 4.
+# [RESUME LANGUAGE] BATCH 1/1 Rejecting language-inconsistent question "What is the capital in example 3?...": no reason supplied
+# Only built 2/3 valid questions. Top-up attempt 1/3: requesting 2 candidates for 1 missing.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] BATCH 1/1 Rejecting language-inconsistent question "French capitals...": no reason supplied
+# Initial generation count mismatch: returned 3, requested 4.
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Batch response failed for 3 questions; retrying as groups of 2 and 1. Error: Language-consistency response omitted question indexes: 0, 1, 2
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 SPLIT 1 Batch response failed for 2 questions; retrying as groups of 1 and 1. Error: Language-consistency response omitted question indexes: 0, 1
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 1 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 Batch response failed for 3 questions; retrying as groups of 2 and 1. Error: Language-consistency response omitted question indexes: 0, 1, 2
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 SPLIT 1 Batch response failed for 2 questions; retrying as groups of 1 and 1. Error: Language-consistency response omitted question indexes: 0, 1
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 1 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] FINAL LANGUAGE BATCH 1/1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 Batch response failed for 3 questions; retrying as groups of 2 and 1. Error: Language-consistency response omitted question indexes: 0, 1, 2
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 SPLIT 1 Batch response failed for 2 questions; retrying as groups of 1 and 1. Error: Language-consistency response omitted question indexes: 0, 1
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 1 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 1] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 1 accepted final question positions: none; total is 0/3.
+# Top-up attempt 1 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'verifying',
+#   durationMs: 13
+# }
+# [SOLVE/BUILD TOPUP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'refining',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 2] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 2 accepted final question positions: none; total is 0/3.
+# Top-up attempt 2 added 0 valid questions; total is now 0/3.
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'verifying',
+#   durationMs: 15
+# }
+# [SOLVE/BUILD TOPUP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD TOPUP 3] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+# [QUIZ GENERATION] Top-up attempt 3 accepted final question positions: none; total is 0/3.
+# Top-up attempt 3 added 0 valid questions; total is now 0/3.
+# [QUIZ COUNTS] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   initialRequests: 1,
+#   topUpRequests: 3,
+#   completionCandidates: 0,
+#   auditedCandidates: 12,
+#   rejectedCandidates: 12
+# }
+# [QUIZ TIMING] {
+#   requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c',
+#   stage: 'verifying',
+#   durationMs: 12
+# }
+# [QUIZ TIMING] { requestId: '5e55e0a0-fff4-4b1e-ae57-20b106c5b89c', totalMs: 96 }
+# [AI REVISE] Q1: AI picked answer not in options, finding closest match
+# [REVISE LANGUAGE 1] Auditing batch 1/1 (questions 1-1 of 1).
+# [AI REVISE] Q1 retry (attempt 1): undefined
+    # Subtest: wrong-language study material is retried before it becomes quiz evidence
+    ok 6 - wrong-language study material is retried before it becomes quiz evidence
+      ---
+      duration_ms: 1036.246
+      type: 'test'
+      ...
+    # Subtest: English short answers are replaced and top-up keeps the original request
+    ok 7 - English short answers are replaced and top-up keeps the original request
+      ---
+      duration_ms: 53.0426
+      type: 'test'
+      ...
+    # Subtest: English explanation introduced by the answer auditor is rejected
+    ok 8 - English explanation introduced by the answer auditor is rejected
+      ---
+      duration_ms: 26.6976
+      type: 'test'
+      ...
+    # Subtest: answer completion receives the resolved language
+    ok 9 - answer completion receives the resolved language
+      ---
+      duration_ms: 22.4121
+      type: 'test'
+      ...
+    # Subtest: canonical True/False values remain valid with Vietnamese stems
+    ok 10 - canonical True/False values remain valid with Vietnamese stems
+      ---
+      duration_ms: 14.8765
+      type: 'test'
+      ...
+    # Subtest: resume removes legacy English items and preserves accepted Vietnamese items
+    ok 11 - resume removes legacy English items and preserves accepted Vietnamese items
+      ---
+      duration_ms: 20.7042
+      type: 'test'
+      ...
+    # Subtest: English title is rewritten and rechecked before checkpointing
+    ok 12 - English title is rewritten and rechecked before checkpointing
+      ---
+      duration_ms: 24.2698
+      type: 'test'
+      ...
+    # Subtest: missing language verdicts fail closed
+    ok 13 - missing language verdicts fail closed
+      ---
+      duration_ms: 96.4306
+      type: 'test'
+      ...
+# [SOLVE/BUILD TOPUP 2] FINAL LANGUAGE BATCH 1/1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 Batch response failed for 3 questions; retrying as groups of 2 and 1. Error: Language-consistency response omitted question indexes: 0, 1, 2
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 SPLIT 1 Batch response failed for 2 questions; retrying as groups of 1 and 1. Error: Language-consistency response omitted question indexes: 0, 1
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 1 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 SPLIT 1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:36:22)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# [SOLVE/BUILD TOPUP 3] FINAL LANGUAGE BATCH 1/1 SPLIT 2 Validation failed for one isolated question; rejecting it: Error: Language-consistency response omitted question indexes: 0
+#     at aiValidateLanguageConsistencyBatch (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:683:13)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:20:12)
+#     at async runValidationBatchWithIsolation (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:42:27)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\validation-batch.ts:85:24)
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at Module.generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2262:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-language.test.ts:227:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-language.test.ts:218:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Test.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [REVISE LANGUAGE 1] BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 1 là gì?...": no reason supplied
+# [AI REVISE] Q1: AI picked answer not in options, finding closest match
+# [REVISE LANGUAGE 1] Auditing batch 1/1 (questions 1-1 of 1).
+# [REVISE LANGUAGE 1] BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 1 là gì?...": no reason supplied
+# [AI REVISE] Q1 retry (attempt 2): undefined
+# [AI REVISE] Q1: AI picked answer not in options, finding closest match
+# [REVISE LANGUAGE 1] Auditing batch 1/1 (questions 1-1 of 1).
+# [REVISE LANGUAGE 1] BATCH 1/1 Rejecting language-inconsistent question "Thủ đô của Pháp trong ví dụ 1 là gì?...": no reason supplied
+# [AI REVISE] Q1 retry (attempt 3): undefined
+# [AI REVISE] Q1 failed, keeping original: Error: Revision failed language validation
+#     at pRetry.retries (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2639:48)
+#     at async pRetry (file:///C:/Users/Gia%20Hien/Downloads/PrepetualApp/Prepetual/node_modules/p-retry/index.js:197:19)
+#     at async <anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2493:25)
+    # Subtest: revision with an English explanation keeps the original question
+    ok 14 - revision with an English explanation keeps the original question
+      ---
+      duration_ms: 3029.1827
+      type: 'test'
+      ...
+    1..14
+ok 26 - language policy survives material creation, audits, replacements, images, and resume
+  ---
+  duration_ms: 5864.3184
+  type: 'test'
+  ...
+# Subtest: preparation verifies and persists once, then replay and retries need no model requests
+ok 27 - preparation verifies and persists once, then replay and retries need no model requests
+  ---
+  duration_ms: 13.6927
+  type: 'test'
+  ...
+# Subtest: unchanged edits reuse server verification; changed questions and forged markers are audited
+ok 28 - unchanged edits reuse server verification; changed questions and forged markers are audited
+  ---
+  duration_ms: 1.5091
+  type: 'test'
+  ...
+# Subtest: import preserves unresolved items and independently prepares short-answer keys too
+ok 29 - import preserves unresolved items and independently prepares short-answer keys too
+  ---
+  duration_ms: 1.4981
+  type: 'test'
+  ...
+# Subtest: a concurrent edit stops legacy preparation from returning stale feedback
+ok 30 - a concurrent edit stops legacy preparation from returning stale feedback
+  ---
+  duration_ms: 1.3238
+  type: 'test'
+  ...
+# Subtest: preparation endpoint checks access and refuses unverified or stale feedback before play
+ok 31 - preparation endpoint checks access and refuses unverified or stale feedback before play
+  ---
+  duration_ms: 2.9377
+  type: 'test'
+  ...
+# Subtest: selection candidate normalization keeps every correct option
+ok 32 - selection candidate normalization keeps every correct option
+  ---
+  duration_ms: 4.7543
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: 'fbbb002e-a91b-4c3e-b367-c79f5e79b11a',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'fbbb002e-a91b-4c3e-b367-c79f5e79b11a',
+#   stage: 'reading',
+#   durationMs: 31
+# }
+# [QUIZ TIMING] {
+#   requestId: 'fbbb002e-a91b-4c3e-b367-c79f5e79b11a',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'fbbb002e-a91b-4c3e-b367-c79f5e79b11a',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'fbbb002e-a91b-4c3e-b367-c79f5e79b11a',
+#   stage: 'generating',
+#   durationMs: 62
+# }
+# [QUIZ TIMING] {
+#   requestId: 'fbbb002e-a91b-4c3e-b367-c79f5e79b11a',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'fbbb002e-a91b-4c3e-b367-c79f5e79b11a',
+#   stage: 'validating',
+#   durationMs: 6
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Select all prime numbers in set 1...." — changing answer from "["2","4"]" to "["2","3"]"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Select all prime numbers in set 2...." — changing answer from "["2","4"]" to "["3","2"]"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Question "Select all prime numbers in set 3...." — changing answer from "["2","4"]" to "["3","2"]"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+# [SOLVE/BUILD] Validation summary: received 3 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 3 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'fbbb002e-a91b-4c3e-b367-c79f5e79b11a',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'fbbb002e-a91b-4c3e-b367-c79f5e79b11a',
+#   stage: 'verifying',
+#   durationMs: 18
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'fbbb002e-a91b-4c3e-b367-c79f5e79b11a',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 3,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'fbbb002e-a91b-4c3e-b367-c79f5e79b11a',
+#   stage: 'finalizing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] { requestId: 'fbbb002e-a91b-4c3e-b367-c79f5e79b11a', totalMs: 119 }
+# Subtest: selection generation and independent audit preserve a complete answer set after shuffling
+ok 33 - selection generation and independent audit preserve a complete answer set after shuffling
+  ---
+  duration_ms: 1898.8702
+  type: 'test'
+  ...
+# Subtest: boiling regression: independently corrects the key and replaces all contradictory feedback
+ok 34 - boiling regression: independently corrects the key and replaces all contradictory feedback
+  ---
+  duration_ms: 7.4779
+  type: 'test'
+  ...
+# Subtest: only reviewed results are cached and callers cannot mutate the cache
+ok 35 - only reviewed results are cached and callers cannot mutate the cache
+  ---
+  duration_ms: 1.6305
+  type: 'test'
+  ...
+# Subtest: concurrent requests share a verification but receive independent objects
+ok 36 - concurrent requests share a verification but receive independent objects
+  ---
+  duration_ms: 2.0756
+  type: 'test'
+  ...
+# Subtest: semantic contradictions are rejected rather than displayed or cached
+ok 37 - semantic contradictions are rejected rather than displayed or cached
+  ---
+  duration_ms: 3.1111
+  type: 'test'
+  ...
+# Subtest: uncertain, out-of-range, duplicate, and incomplete solutions fail closed
+ok 38 - uncertain, out-of-range, duplicate, and incomplete solutions fail closed
+  ---
+  duration_ms: 1.4059
+  type: 'test'
+  ...
+# Subtest: selection verifies the complete set and supports grouped truth statements with none true
+ok 39 - selection verifies the complete set and supports grouped truth statements with none true
+  ---
+  duration_ms: 2.8891
+  type: 'test'
+  ...
+# Subtest: true/false verification keeps False as a valid correct option
+ok 40 - true/false verification keeps False as a valid correct option
+  ---
+  duration_ms: 0.7127
+  type: 'test'
+  ...
+# Subtest: provider thinking never becomes PDF evidence and source equations remain exact
+ok 41 - provider thinking never becomes PDF evidence and source equations remain exact
+  ---
+  duration_ms: 2.6617
+  type: 'test'
+  ...
+# Subtest: generates and independently reviews only the submitted wrong option, caching identical submissions
+ok 42 - generates and independently reviews only the submitted wrong option, caching identical submissions
+  ---
+  duration_ms: 8.5749
+  type: 'test'
+  ...
+# Subtest: invalid or unreviewed feedback never reaches the player or cache
+ok 43 - invalid or unreviewed feedback never reaches the player or cache
+  ---
+  duration_ms: 5.321
+  type: 'test'
+  ...
+# Subtest: selection with omitted correct choices explains the omission without criticizing selected correct choices
+ok 44 - selection with omitted correct choices explains the omission without criticizing selected correct choices
+  ---
+  duration_ms: 2.4698
+  type: 'test'
+  ...
+# Subtest: saved feedback survives retries and JSON persistence but becomes invalid after substantive edits
+ok 45 - saved feedback survives retries and JSON persistence but becomes invalid after substantive edits
+  ---
+  duration_ms: 2.4518
+  type: 'test'
+  ...
+# Subtest: incomplete or contradictory option feedback and unresolved imports cannot be played as verified
+ok 46 - incomplete or contradictory option feedback and unresolved imports cannot be played as verified
+  ---
+  duration_ms: 26.8055
+  type: 'test'
+  ...
+# Subtest: verified keys do not require pre-generated distractor explanations and legacy approvals are rechecked
+ok 47 - verified keys do not require pre-generated distractor explanations and legacy approvals are rechecked
+  ---
+  duration_ms: 0.4489
+  type: 'test'
+  ...
+# Subtest: grouped truth statements with no correct choices still have complete prepared feedback
+ok 48 - grouped truth statements with no correct choices still have complete prepared feedback
+  ---
+  duration_ms: 0.8902
+  type: 'test'
+  ...
+1..48
+# tests 73
+# suites 0
+# pass 72
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8008.9129

@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/language-context";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -10,6 +11,7 @@ export function QuizGenerationResumeDialog({ draft, blocked, onDraft, onComplete
   onDraft: (draft: PausedGeneration) => void;
   onComplete: (quiz: any) => Promise<void>;
 }) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -22,17 +24,17 @@ export function QuizGenerationResumeDialog({ draft, blocked, onDraft, onComplete
     try {
       const response = await fetch(`/api/quiz-generation-drafts/${draft.id}/resume`, { method: "POST", credentials: "include" });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.message || "Could not resume generation.");
+      if (!response.ok) throw new Error(t('quizGeneration.resumeError'));
       if (result.type === "complete") {
         await onComplete(result.quiz);
         setOpen(false);
       } else if (result.type === "paused") {
         onDraft(result.draft);
       } else {
-        throw new Error("Generation stopped unexpectedly. Your saved questions are retained.");
+        throw new Error(t('quizGeneration.stoppedError'));
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Could not resume. Your questions are saved.");
+      setError(error instanceof Error ? error.message : t('quizGeneration.resumeError'));
     } finally {
       setBusy(false);
     }
@@ -41,21 +43,21 @@ export function QuizGenerationResumeDialog({ draft, blocked, onDraft, onComplete
   if (!draft) return null;
   const remaining = Math.max(0, draft.requested - draft.generated);
   return <>
-    {!open && <Button variant="outline" disabled={blocked} onClick={() => setOpen(true)}>Resume saved quiz · {draft.generated}/{draft.requested} questions</Button>}
+    {!open && <Button variant="outline" disabled={blocked} onClick={() => setOpen(true)}>{t('quizGeneration.resumeSaved', { generated: draft.generated, requested: draft.requested })}</Button>}
     <Dialog open={open && !blocked} onOpenChange={(value) => { if (!busy) setOpen(value); }}>
       <DialogContent onInteractOutside={(event) => event.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>{busy ? "Continuing your quiz…" : remaining ? "Continue generating?" : "Finish saving your quiz?"}</DialogTitle>
+          <DialogTitle>{busy ? t("quizGeneration.continuing") : remaining ? t("quizGeneration.continueQuestion") : t("quizGeneration.finishQuestion")}</DialogTitle>
           <DialogDescription>
-            {draft.generated} of {draft.requested} questions are validated and saved.
-            {remaining > 0 ? ` Generation stopped before reaching your requested count. Continue to generate the remaining ${remaining}? Your saved questions will stay unchanged.` : "Your questions are ready. Try finishing the save again."}
+            {t('quizGeneration.savedCount', { generated: draft.generated, requested: draft.requested })}{' '}
+            {remaining > 0 ? t('quizGeneration.remaining', { remaining }) : t("quizGeneration.readyToSave")}
           </DialogDescription>
         </DialogHeader>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-        {busy && <p role="status" className="text-sm text-muted-foreground">Generating and checking the remaining questions…</p>}
+        {busy && <p role="status" className="text-sm text-muted-foreground">{t("quizGeneration.checkingRemaining")}</p>}
         <DialogFooter>
-          <Button variant="outline" disabled={busy} onClick={() => setOpen(false)}>Not now</Button>
-          <Button disabled={busy} onClick={() => void resume()}>{busy ? "Generating…" : remaining ? "Continue generation" : "Finish saving"}</Button>
+          <Button variant="outline" disabled={busy} onClick={() => setOpen(false)}>{t("quizGeneration.notNow")}</Button>
+          <Button disabled={busy} onClick={() => void resume()}>{busy ? t("quizGeneration.generatingShort") : remaining ? t("quizGeneration.continueGeneration") : t("quizGeneration.finishSaving")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

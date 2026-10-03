@@ -1,0 +1,298 @@
+[LIVE REQUEST] {"id":1,"stage":"other","model":"openai/gpt-oss-120b","startedMs":997,"status":200,"durationMs":1075,"usage":{"queue_time":0.324037379,"prompt_tokens":1102,"prompt_time":0.048602756,"completion_tokens":116,"completion_time":0.240193262,"total_tokens":1218,"total_time":0.288796018,"completion_tokens_details":{"reasoning_tokens":101}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'starting',
+  durationMs: 0
+}
+[LIVE PROGRESS] {"seconds":2,"step":"reading","percent":10,"message":"Reading your study material..."}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'reading',
+  durationMs: 49
+}
+[LIVE PROGRESS] {"seconds":2,"step":"analyzing","percent":25,"message":"Analyzing content structure..."}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'analyzing',
+  durationMs: 1
+}
+[LIVE PROGRESS] {"seconds":2,"step":"preparing","percent":35,"message":"Preparing quiz generation..."}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'preparing',
+  durationMs: 4
+}
+[LIVE PROGRESS] {"seconds":2,"step":"analyzing","percent":25,"message":"Checking source facts, equations and visual data..."}
+[LIVE REQUEST] {"id":2,"stage":"source_records","model":"openai/gpt-oss-120b","startedMs":2151,"status":200,"durationMs":7076,"usage":{"queue_time":0.345909976,"prompt_tokens":1135,"prompt_time":0.052822018,"completion_tokens":3085,"completion_time":6.5126148740000005,"total_tokens":4220,"total_time":6.565436892,"completion_tokens_details":{"reasoning_tokens":1102}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":3,"stage":"source_review","model":"openai/gpt-oss-120b","startedMs":9256,"status":200,"durationMs":1036,"usage":{"queue_time":0.354286746,"prompt_tokens":1025,"prompt_time":0.056609619,"completion_tokens":213,"completion_time":0.459453294,"total_tokens":1238,"total_time":0.516062913,"completion_tokens_details":{"reasoning_tokens":135}},"finishReason":"stop"}
+[QUIZ PLAN] Source records { proposed: 1, accepted: 1, excluded: 0 }
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'analyzing',
+  durationMs: 8179
+}
+[LIVE PROGRESS] {"seconds":10,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE REQUEST] {"id":4,"stage":"question_plans","model":"openai/gpt-oss-120b","startedMs":10334,"status":200,"durationMs":5125,"usage":{"queue_time":0.39997023,"prompt_tokens":1643,"prompt_time":0.531784127,"completion_tokens":1936,"completion_time":3.999281867,"total_tokens":3579,"total_time":4.531065994,"completion_tokens_details":{"reasoning_tokens":1237}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":5,"stage":"plan_review","model":"openai/gpt-oss-120b","startedMs":15483,"status":200,"durationMs":4211,"usage":{"queue_time":0.397022872,"prompt_tokens":4453,"prompt_time":0.194094179,"completion_tokens":1654,"completion_time":3.412987398,"total_tokens":6107,"total_time":3.6070815769999998,"completion_tokens_details":{"reasoning_tokens":1120}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":6,"stage":"plan_revision","model":"openai/gpt-oss-120b","startedMs":19717,"status":200,"durationMs":4953,"usage":{"queue_time":0.398109633,"prompt_tokens":2698,"prompt_time":0.144359299,"completion_tokens":2040,"completion_time":4.262818916,"total_tokens":4738,"total_time":4.407178215,"completion_tokens_details":{"reasoning_tokens":1358}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":7,"stage":"plan_review","model":"openai/gpt-oss-120b","startedMs":24692,"status":200,"durationMs":4338,"usage":{"queue_time":0.397358149,"prompt_tokens":2918,"prompt_time":0.694725995,"completion_tokens":1324,"completion_time":3.068386379,"total_tokens":4242,"total_time":3.763112374,"prompt_tokens_details":{"cached_tokens":768},"completion_tokens_details":{"reasoning_tokens":1131}},"finishReason":"stop"}
+[QUIZ PLAN] Plan review {
+  assigned: 4,
+  initiallyApproved: 2,
+  revised: 2,
+  approvedForSolving: 3
+}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'preparing',
+  durationMs: 18722
+}
+[LIVE PROGRESS] {"seconds":29,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE REQUEST] {"id":8,"stage":"plan_solutions","model":"openai/gpt-oss-120b","startedMs":29054,"status":200,"durationMs":12922,"usage":{"queue_time":0.347908332,"prompt_tokens":4759,"prompt_time":0.26978522,"completion_tokens":5870,"completion_time":12.133441939,"total_tokens":10629,"total_time":12.403227159,"completion_tokens_details":{"reasoning_tokens":4095}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":9,"stage":"question_writing","model":"openai/gpt-oss-120b","startedMs":41987,"status":200,"durationMs":12181,"usage":{"queue_time":0.337103775,"prompt_tokens":2440,"prompt_time":0.117571028,"completion_tokens":5492,"completion_time":11.482980915,"total_tokens":7932,"total_time":11.600551943,"completion_tokens_details":{"reasoning_tokens":4391}},"finishReason":"stop"}
+[QUIZ PLAN] Drafts { requested: 4, returned: 3, batches: 1 }
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'generating',
+  durationMs: 25138
+}
+[LIVE PROGRESS] {"seconds":54,"step":"validating","percent":80,"message":"Validating generated questions..."}
+Initial generation returned 3/4 requested complete questions.
+Initial generation count mismatch: returned 3, requested 4.
+[TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE REQUEST] {"id":10,"stage":"final_review","model":"openai/gpt-oss-120b","startedMs":54205,"status":200,"durationMs":892,"usage":{"queue_time":0.323001235,"prompt_tokens":657,"prompt_time":0.03012426,"completion_tokens":186,"completion_time":0.389201423,"total_tokens":843,"total_time":0.419325683,"completion_tokens_details":{"reasoning_tokens":134}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'validating',
+  durationMs: 918
+}
+[LIVE PROGRESS] {"seconds":55,"step":"verifying","percent":85,"message":"Solving and independently auditing answers..."}
+[SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+[LIVE REQUEST] {"id":11,"stage":"answer_audit","model":"openai/gpt-oss-120b","startedMs":55123,"status":200,"durationMs":15695,"usage":{"queue_time":0.349047272,"prompt_tokens":2237,"prompt_time":0.447136507,"completion_tokens":7095,"completion_time":14.744947976,"total_tokens":9332,"total_time":15.192084483,"completion_tokens_details":{"reasoning_tokens":5562}},"finishReason":"stop"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "Khi so sánh hiệu suất của hai chế độ A và B, một lập luận sa..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "Có thể đạt tải nhiệt $2160\,\mathrm{kJ}$ trong thời gian tối..."
+[LIVE PROGRESS] {"seconds":71,"step":"verifying","percent":85,"message":"Checked 3 of 3 candidate questions..."}
+[SOLVE/BUILD] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final answer, language or quality review; 0 accepted.
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'verifying',
+  durationMs: 15728
+}
+[LIVE PROGRESS] {"seconds":71,"step":"refining","percent":88,"message":"Repairing questions using their validation issues..."}
+[LIVE REQUEST] {"id":12,"stage":"focused_repairs","model":"openai/gpt-oss-120b","startedMs":70838,"status":200,"durationMs":8268,"usage":{"queue_time":0.366364291,"prompt_tokens":6759,"prompt_time":0.31581325,"completion_tokens":3583,"completion_time":7.42441051,"total_tokens":10342,"total_time":7.74022376,"completion_tokens_details":{"reasoning_tokens":1386}},"finishReason":"stop"}
+[SOLVE/BUILD] REPAIRED INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE REQUEST] {"id":13,"stage":"answer_audit","model":"openai/gpt-oss-120b","startedMs":79115,"status":200,"durationMs":5926,"usage":{"queue_time":0.36545647,"prompt_tokens":1842,"prompt_time":0.102022034,"completion_tokens":2560,"completion_time":5.311587219,"total_tokens":4402,"total_time":5.413609253,"completion_tokens_details":{"reasoning_tokens":1809}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'refining',
+  durationMs: 14217
+}
+[LIVE PROGRESS] {"seconds":85,"step":"verifying","percent":85,"message":"Checked 1 of 1 candidate questions..."}
+[SOLVE/BUILD] REPAIRED FINAL REVIEW Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE REQUEST] {"id":14,"stage":"final_review","model":"openai/gpt-oss-120b","startedMs":85050,"status":200,"durationMs":2196,"usage":{"queue_time":0.366303854,"prompt_tokens":3411,"prompt_time":0.159389339,"completion_tokens":740,"completion_time":1.53269361,"total_tokens":4151,"total_time":1.692082949,"completion_tokens_details":{"reasoning_tokens":593}},"finishReason":"stop"}
+[SOLVE/BUILD] REPAIRED Validation summary: received 1 raw candidates; 0 failed the independent answer audit; 0 failed the final answer, language or quality review; 1 accepted.
+[QUIZ GENERATION] Initial pass accepted final question positions: 1; total is 1/3.
+Only built 1/3 valid questions. Top-up attempt 1/3: requesting 3 candidates for 2 missing.
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'verifying',
+  durationMs: 2215
+}
+[LIVE PROGRESS] {"seconds":87,"step":"refining","percent":88,"message":"Generating 2 remaining questions..."}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'refining',
+  durationMs: 1
+}
+[LIVE PROGRESS] {"seconds":87,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE REQUEST] {"id":15,"stage":"question_plans","model":"openai/gpt-oss-120b","startedMs":87266,"status":200,"durationMs":6415,"usage":{"queue_time":0.321589313,"prompt_tokens":1811,"prompt_time":0.086020831,"completion_tokens":2727,"completion_time":5.859058034,"total_tokens":4538,"total_time":5.945078865,"completion_tokens_details":{"reasoning_tokens":2214}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":16,"stage":"plan_review","model":"openai/gpt-oss-120b","startedMs":93694,"status":200,"durationMs":5317,"usage":{"queue_time":0.397584477,"prompt_tokens":3527,"prompt_time":0.161779415,"completion_tokens":2242,"completion_time":4.603972469,"total_tokens":5769,"total_time":4.765751884,"completion_tokens_details":{"reasoning_tokens":1021}},"finishReason":"stop"}
+[QUIZ PLAN] Plan review {
+  assigned: 3,
+  initiallyApproved: 3,
+  revised: 0,
+  approvedForSolving: 3
+}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'preparing',
+  durationMs: 11753
+}
+[LIVE PROGRESS] {"seconds":99,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE REQUEST] {"id":17,"stage":"plan_solutions","model":"openai/gpt-oss-120b","startedMs":99021,"status":200,"durationMs":7641,"usage":{"queue_time":0.419489838,"prompt_tokens":4586,"prompt_time":0.206292443,"completion_tokens":3312,"completion_time":6.858347221,"total_tokens":7898,"total_time":7.064639664,"completion_tokens_details":{"reasoning_tokens":1245}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":18,"stage":"question_writing","model":"openai/gpt-oss-120b","startedMs":106671,"status":200,"durationMs":8412,"usage":{"queue_time":0.418931298,"prompt_tokens":2619,"prompt_time":0.124099965,"completion_tokens":3701,"completion_time":7.713357306,"total_tokens":6320,"total_time":7.837457271,"completion_tokens_details":{"reasoning_tokens":2946}},"finishReason":"stop"}
+[QUIZ PLAN] Drafts { requested: 3, returned: 3, batches: 1 }
+[PLANNED TOP-UP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE REQUEST] {"id":19,"stage":"answer_audit","model":"openai/gpt-oss-120b","startedMs":115095,"status":200,"durationMs":5626,"usage":{"queue_time":0.35308276,"prompt_tokens":1905,"prompt_time":0.097436274,"completion_tokens":2390,"completion_time":4.936701345,"total_tokens":4295,"total_time":5.034137619,"completion_tokens_details":{"reasoning_tokens":1760}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'generating',
+  durationMs: 21717
+}
+[LIVE PROGRESS] {"seconds":121,"step":"verifying","percent":85,"message":"Checked 1 of 1 candidate questions..."}
+[PLANNED TOP-UP 1] Validation summary: received 3 raw candidates; 1 failed the independent answer audit; 0 failed the final answer, language or quality review; 0 accepted.
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'verifying',
+  durationMs: 2
+}
+[LIVE PROGRESS] {"seconds":121,"step":"refining","percent":88,"message":"Repairing questions using their validation issues..."}
+[LIVE REQUEST] {"id":20,"stage":"focused_repairs","model":"openai/gpt-oss-120b","startedMs":120739,"status":200,"durationMs":9286,"usage":{"queue_time":0.048040155,"prompt_tokens":6174,"prompt_time":0.30959018,"completion_tokens":4214,"completion_time":8.78483342,"total_tokens":10388,"total_time":9.0944236,"completion_tokens_details":{"reasoning_tokens":2278}},"finishReason":"stop"}
+[PLANNED TOP-UP 1] REPAIRED INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+[LIVE REQUEST] {"id":21,"stage":"answer_audit","model":"openai/gpt-oss-120b","startedMs":130044,"status":200,"durationMs":7675,"usage":{"queue_time":0.049196145,"prompt_tokens":2525,"prompt_time":0.109038543,"completion_tokens":3514,"completion_time":7.332618113,"total_tokens":6039,"total_time":7.441656656,"completion_tokens_details":{"reasoning_tokens":2538}},"finishReason":"stop"}
+[PLANNED TOP-UP 1] REPAIRED INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "Trong một hệ thống tủ lạnh có hai chế độ A và B, công thức đ..."
+[PLANNED TOP-UP 1] REPAIRED INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "Một học sinh cho rằng chỉ dùng chế độ B luôn cho thời gian n..."
+[PLANNED TOP-UP 1] REPAIRED INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "Xác định ranh giới tối đa nhiệt có thể lấy được dưới ràng bu..."
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'refining',
+  durationMs: 16995
+}
+[LIVE PROGRESS] {"seconds":138,"step":"verifying","percent":85,"message":"Checked 3 of 3 candidate questions..."}
+[PLANNED TOP-UP 1] REPAIRED Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final answer, language or quality review; 0 accepted.
+[QUIZ GENERATION] Replacement pass 1 accepted final question positions: none; total is 1/3.
+Only built 1/3 valid questions. Top-up attempt 2/3: requesting 3 candidates for 2 missing.
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'verifying',
+  durationMs: 3
+}
+[LIVE PROGRESS] {"seconds":138,"step":"refining","percent":89,"message":"Generating 2 remaining questions..."}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'refining',
+  durationMs: 1
+}
+[LIVE PROGRESS] {"seconds":138,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE REQUEST] {"id":22,"stage":"question_plans","model":"openai/gpt-oss-120b","startedMs":137736,"status":200,"durationMs":4714,"usage":{"queue_time":0.369987598,"prompt_tokens":1808,"prompt_time":0.085374596,"completion_tokens":1982,"completion_time":4.106153381,"total_tokens":3790,"total_time":4.191527977,"completion_tokens_details":{"reasoning_tokens":1226}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":23,"stage":"plan_review","model":"openai/gpt-oss-120b","startedMs":142459,"status":200,"durationMs":3560,"usage":{"queue_time":0.213213411,"prompt_tokens":3765,"prompt_time":0.232769683,"completion_tokens":1283,"completion_time":2.93035032,"total_tokens":5048,"total_time":3.163120003,"prompt_tokens_details":{"cached_tokens":768},"completion_tokens_details":{"reasoning_tokens":934}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":24,"stage":"plan_revision","model":"openai/gpt-oss-120b","startedMs":146027,"status":200,"durationMs":2141,"usage":{"queue_time":0.348800299,"prompt_tokens":1723,"prompt_time":0.085190685,"completion_tokens":695,"completion_time":1.4525732,"total_tokens":2418,"total_time":1.537763885,"completion_tokens_details":{"reasoning_tokens":375}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":25,"stage":"plan_review","model":"openai/gpt-oss-120b","startedMs":148180,"status":200,"durationMs":2343,"usage":{"queue_time":0.346464751,"prompt_tokens":1869,"prompt_time":0.085790713,"completion_tokens":812,"completion_time":1.686156672,"total_tokens":2681,"total_time":1.771947385,"completion_tokens_details":{"reasoning_tokens":508}},"finishReason":"stop"}
+[QUIZ PLAN] Plan review {
+  assigned: 3,
+  initiallyApproved: 2,
+  revised: 1,
+  approvedForSolving: 3
+}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'preparing',
+  durationMs: 12795
+}
+[LIVE PROGRESS] {"seconds":151,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE REQUEST] {"id":26,"stage":"plan_solutions","model":"openai/gpt-oss-120b","startedMs":150534,"status":200,"durationMs":10636,"usage":{"queue_time":0.348840535,"prompt_tokens":4895,"prompt_time":0.252443217,"completion_tokens":4700,"completion_time":9.832156751,"total_tokens":9595,"total_time":10.084599968,"completion_tokens_details":{"reasoning_tokens":2451}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":27,"stage":"question_writing","model":"openai/gpt-oss-120b","startedMs":161179,"status":200,"durationMs":6793,"usage":{"queue_time":0.396169162,"prompt_tokens":2704,"prompt_time":0.14579159,"completion_tokens":2957,"completion_time":6.100147736,"total_tokens":5661,"total_time":6.245939326,"completion_tokens_details":{"reasoning_tokens":1983}},"finishReason":"stop"}
+[QUIZ PLAN] Drafts { requested: 3, returned: 3, batches: 1 }
+[PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+[LIVE REQUEST] {"id":28,"stage":"answer_audit","model":"openai/gpt-oss-120b","startedMs":167985,"status":200,"durationMs":11416,"usage":{"queue_time":0.359055444,"prompt_tokens":2415,"prompt_time":0.113755349,"completion_tokens":5189,"completion_time":10.739507613,"total_tokens":7604,"total_time":10.853262962,"completion_tokens_details":{"reasoning_tokens":3549}},"finishReason":"stop"}
+[PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting unsupported, incomplete, or insufficiently challenging question "Xác định trong các trường hợp sau, trường hợp nào cho phép đ..."
+[PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting ambiguous/unverifiable question "Dựa trên hệ số hiệu suất (COP) và tỉ lệ tuyến tính giữa thời..."; satisfying option indexes: none
+[PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/1 Rejecting ambiguous/unverifiable question "Có thể đạt tải nhiệt $2160\,\mathrm{kJ}$ trong thời gian tối..."; satisfying option indexes: none
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'generating',
+  durationMs: 28879
+}
+[LIVE PROGRESS] {"seconds":179,"step":"verifying","percent":85,"message":"Checked 3 of 3 candidate questions..."}
+[PLANNED TOP-UP 2] Validation summary: received 3 raw candidates; 3 failed the independent answer audit; 0 failed the final answer, language or quality review; 0 accepted.
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'verifying',
+  durationMs: 1
+}
+[LIVE PROGRESS] {"seconds":179,"step":"refining","percent":88,"message":"Repairing questions using their validation issues..."}
+[LIVE REQUEST] {"id":29,"stage":"focused_repairs","model":"openai/gpt-oss-120b","startedMs":179412,"status":200,"durationMs":11456,"usage":{"queue_time":0.35019583,"prompt_tokens":6629,"prompt_time":0.311338191,"completion_tokens":5028,"completion_time":10.56212361,"total_tokens":11657,"total_time":10.873461801,"completion_tokens_details":{"reasoning_tokens":2962}},"finishReason":"stop"}
+[PLANNED TOP-UP 2] REPAIRED INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+[LIVE REQUEST] {"id":30,"stage":"answer_audit","model":"openai/gpt-oss-120b","startedMs":190879,"status":200,"durationMs":14017,"usage":{"queue_time":0.059295876,"prompt_tokens":2406,"prompt_time":0.11099092,"completion_tokens":6505,"completion_time":13.570260224,"total_tokens":8911,"total_time":13.681251144,"completion_tokens_details":{"reasoning_tokens":4368}},"finishReason":"stop"}
+[PLANNED TOP-UP 2] REPAIRED INDEPENDENT AUDIT BATCH 1/1 Rejecting ambiguous/unverifiable question "Dựa trên hệ số hiệu suất (COP) và tỉ lệ tuyến tính giữa thời..."; satisfying option indexes: none
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'refining',
+  durationMs: 25494
+}
+[LIVE PROGRESS] {"seconds":205,"step":"verifying","percent":85,"message":"Checked 3 of 3 candidate questions..."}
+[PLANNED TOP-UP 2] REPAIRED FINAL REVIEW Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE REQUEST] {"id":31,"stage":"final_review","model":"openai/gpt-oss-120b","startedMs":204907,"status":200,"durationMs":3891,"usage":{"queue_time":0.062851539,"prompt_tokens":2957,"prompt_time":0.14045156,"completion_tokens":1646,"completion_time":3.462227667,"total_tokens":4603,"total_time":3.602679227,"completion_tokens_details":{"reasoning_tokens":1447}},"finishReason":"stop"}
+[PLANNED TOP-UP 2] REPAIRED Validation summary: received 3 raw candidates; 2 failed the independent answer audit; 0 failed the final answer, language or quality review; 1 accepted.
+[QUIZ GENERATION] Replacement pass 2 accepted final question positions: 2; total is 2/3.
+Only built 2/3 valid questions. Top-up attempt 3/3: requesting 2 candidates for 1 missing.
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'verifying',
+  durationMs: 3905
+}
+[LIVE PROGRESS] {"seconds":209,"step":"refining","percent":90,"message":"Generating 1 remaining question..."}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'refining',
+  durationMs: 1
+}
+[LIVE PROGRESS] {"seconds":209,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE REQUEST] {"id":32,"stage":"question_plans","model":"openai/gpt-oss-120b","startedMs":208813,"status":200,"durationMs":7405,"usage":{"queue_time":0.068757206,"prompt_tokens":1989,"prompt_time":0.144708502,"completion_tokens":3276,"completion_time":6.959433697,"total_tokens":5265,"total_time":7.104142199,"completion_tokens_details":{"reasoning_tokens":2816}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":33,"stage":"plan_review","model":"openai/gpt-oss-120b","startedMs":216225,"status":200,"durationMs":3313,"usage":{"queue_time":0.061089222,"prompt_tokens":2723,"prompt_time":0.112982666,"completion_tokens":1362,"completion_time":2.862509407,"total_tokens":4085,"total_time":2.975492073,"completion_tokens_details":{"reasoning_tokens":902}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":34,"stage":"plan_revision","model":"openai/gpt-oss-120b","startedMs":219545,"status":200,"durationMs":3683,"usage":{"queue_time":0.060641707,"prompt_tokens":2761,"prompt_time":0.124341072,"completion_tokens":1555,"completion_time":3.27654659,"total_tokens":4316,"total_time":3.400887662,"completion_tokens_details":{"reasoning_tokens":838}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":35,"stage":"plan_review","model":"openai/gpt-oss-120b","startedMs":223238,"status":200,"durationMs":3096,"usage":{"queue_time":0.059778528,"prompt_tokens":3007,"prompt_time":0.129239041,"completion_tokens":1275,"completion_time":2.683479592,"total_tokens":4282,"total_time":2.8127186330000002,"completion_tokens_details":{"reasoning_tokens":1052}},"finishReason":"stop"}
+[QUIZ PLAN] Plan review {
+  assigned: 2,
+  initiallyApproved: 0,
+  revised: 2,
+  approvedForSolving: 2
+}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'preparing',
+  durationMs: 17530
+}
+[LIVE PROGRESS] {"seconds":226,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE REQUEST] {"id":36,"stage":"plan_solutions","model":"openai/gpt-oss-120b","startedMs":226344,"status":200,"durationMs":11720,"usage":{"queue_time":0.059772711,"prompt_tokens":4066,"prompt_time":0.162634708,"completion_tokens":5387,"completion_time":11.261923785,"total_tokens":9453,"total_time":11.424558493,"completion_tokens_details":{"reasoning_tokens":3350}},"finishReason":"stop"}
+[LIVE REQUEST] {"id":37,"stage":"question_writing","model":"openai/gpt-oss-120b","startedMs":238071,"status":200,"durationMs":6247,"usage":{"queue_time":0.356091862,"prompt_tokens":2618,"prompt_time":0.16957694,"completion_tokens":2648,"completion_time":5.580045831,"total_tokens":5266,"total_time":5.749622771,"completion_tokens_details":{"reasoning_tokens":1979}},"finishReason":"stop"}
+[QUIZ PLAN] Drafts { requested: 2, returned: 2, batches: 1 }
+[PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-2 of 2).
+[LIVE REQUEST] {"id":38,"stage":"answer_audit","model":"openai/gpt-oss-120b","startedMs":244329,"status":200,"durationMs":13830,"usage":{"queue_time":0.33389776,"prompt_tokens":2351,"prompt_time":0.095585744,"completion_tokens":6279,"completion_time":13.239756448,"total_tokens":8630,"total_time":13.335342192,"completion_tokens_details":{"reasoning_tokens":4952}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'generating',
+  durationMs: 31830
+}
+[LIVE PROGRESS] {"seconds":258,"step":"verifying","percent":85,"message":"Checked 2 of 2 candidate questions..."}
+[PLANNED TOP-UP 3] FINAL REVIEW Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE REQUEST] {"id":39,"stage":"final_review","model":"openai/gpt-oss-120b","startedMs":258174,"status":200,"durationMs":5212,"usage":{"queue_time":0.396747274,"prompt_tokens":3194,"prompt_time":0.150489708,"completion_tokens":2082,"completion_time":4.345561077,"total_tokens":5276,"total_time":4.4960507849999995,"completion_tokens_details":{"reasoning_tokens":1798}},"finishReason":"stop"}
+[PLANNED TOP-UP 3] Validation summary: received 2 raw candidates; 1 failed the independent answer audit; 0 failed the final answer, language or quality review; 1 accepted.
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'verifying',
+  durationMs: 5225
+}
+[LIVE PROGRESS] {"seconds":263,"step":"refining","percent":88,"message":"Repairing questions using their validation issues..."}
+[LIVE REQUEST] {"id":40,"stage":"focused_repairs","model":"openai/gpt-oss-120b","startedMs":263397,"status":200,"durationMs":8299,"usage":{"queue_time":0.213851968,"prompt_tokens":3624,"prompt_time":0.169762147,"completion_tokens":3391,"completion_time":7.719159325,"total_tokens":7015,"total_time":7.888921472,"completion_tokens_details":{"reasoning_tokens":2629}},"finishReason":"stop"}
+[QUIZ GENERATION] Replacement pass 3 accepted final question positions: 3; total is 3/3.
+[QUIZ COUNTS] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  targetLanguage: 'vi',
+  requested: 3,
+  initialCandidates: 3,
+  accepted: 3
+}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'refining',
+  durationMs: 8310
+}
+[LIVE PROGRESS] {"seconds":272,"step":"finalizing","percent":95,"message":"Finalizing your quiz..."}
+[QUIZ COUNTS] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  initialRequests: 6,
+  topUpRequests: 16,
+  sourceRequests: 2,
+  repairRequests: 4,
+  completionCandidates: 0,
+  auditedCandidates: 16,
+  rejectedCandidates: 15
+}
+[QUIZ TIMING] {
+  requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0',
+  stage: 'finalizing',
+  durationMs: 1
+}
+[QUIZ TIMING] { requestId: '27096d95-3942-42f7-a59f-c83ad5502fb0', totalMs: 269615 }
+[LIVE RESULT] {"mode":"One live production generation using a synthetic Vietnamese physics fixture with no personal data; excludes upload/OCR, database retrieval, HTTP/SSE and persistence","completed":true,"requested":3,"accepted":3,"difficulty":"hard","targetLanguage":"vi","typeCounts":{"short_answer":1,"selection":1,"multiple_choice":1},"totalMs":271766,"providerRequests":40,"issues":["Q3: contains a unit expression outside math delimiters"]}

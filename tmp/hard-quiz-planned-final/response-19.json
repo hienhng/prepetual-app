@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-300533ed-93d4-4560-8af4-5394fbc472b9",
+  "object": "chat.completion",
+  "created": 1791009872,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Kế hoạch câu hỏi nhiệt động lực học nâng cao\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P11\",\"type\":\"true_false\",\"recordIds\":[\"F6\"],\"intent\":\"Xác định tính đúng/sai của phát biểu \\\"Áp suất không khí trong lốp sẽ là 10 atm khi nhiệt độ tăng lên 54 °C\\\" dựa trên quan hệ P₁/T₁ = P₂/T₂ (thể tích không đổi)\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ 27 °C và 54 °C sang Kelvin (T₁=300 K, T₂=327 K)\",\"Áp dụng P₁/T₁ = P₂/T₂ để tính P₂ và so sánh với giá trị 10 atm\"]},{\"id\":\"P12\",\"type\":\"short_answer\",\"recordIds\":[\"F3\"],\"intent\":\"Tính tổng nhiệt lượng cần thiết để tan 4 kg băng ở 0 °C và sau đó làm nóng nước thu được lên 25 °C, sử dụng Q = m·L_f + m·c·ΔT\",\"reasoningSteps\":[\"Tính nhiệt tan băng Q₁ = m·L_f với L_f=3.41×10⁵ J/kg\",\"Tính nhiệt làm nóng nước Q₂ = m·c·ΔT với c=4180 J/kg·K và ΔT=25 K\",\"Cộng Q₁ và Q₂ để có nhiệt lượng tổng cộng\"]},{\"id\":\"P13\",\"type\":\"multiple_choice\",\"recordIds\":[\"F7\"],\"intent\":\"Xác định khối lượng nitơ trong bình kín (V=12 L, p=80 atm, T=17 °C) bằng cách tính số mol n = PV/RT rồi nhân với khối lượng mol 28 g/mol\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ 17 °C sang Kelvin (T=290 K) và áp dụng công thức n = PV/(R·T) với R=0.082 atm·L/(mol·K) để tìm n\",\"Nhân số mol n với khối lượng mol 28 g/mol để có khối lượng nitơ\"]},{\"id\":\"P14\",\"type\":\"selection\",\"recordIds\":[\"F15\"],\"intent\":\"Dựa trên hằng số V/T = 0,250 cm³/K và dữ liệu đo được, xác định các khẳng định đúng về mối quan hệ giữa thể tích và nhiệt độ trong thí nghiệm Charles\",\"reasoningSteps\":[\"Sử dụng V/T = 0,250 để tính thể tích dự kiến tại các nhiệt độ đo được (đổi °C sang K)\",\"So sánh thể tích tính được với giá trị thực nghiệm để đánh giá tính nhất quán\",\"Kiểm tra từng khẳng định dựa trên kết quả so sánh và quy luật Charles\"]},{\"id\":\"P15\",\"type\":\"true_false\",\"recordIds\":[\"F20\"],\"intent\":\"Kiểm tra tính đúng/sai của phát biểu \\\"Nhiệt độ của khí sẽ là 100 °C khi áp suất tăng từ 4 atm lên 4,5 atm trong bình thép (thể tích không đổi)\\\" bằng cách áp dụng P₁/T₁ = P₂/T₂\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ ban đầu 70 °C sang Kelvin (T₁=343 K)\",\"Tính T₂ = P₂·T₁/P₁, rồi chuyển lại sang độ Celsius và so sánh với 100 °C\"]}]}",
+        "reasoning": "We need to produce JSON with title, category, plans array for slots P11-P15. Must use only reviewed source records. Each plan must identify source recordIds, intended task, reasoningSteps. Must not generate actual question content, just plan metadata. Need to ensure each plan uses appropriate source(s) and reasoning steps (at least two steps). Must be hard: need at least two dependent reasoning steps. For true_false slots targetTruthValue False. Must produce false statements based on derived conclusion.\n\nWe just need to output the JSON with plans, not the questions themselves. So each plan includes id, type, recordIds, intent, reasoningSteps.\n\nWe must not generate wrongAnswerExplanations etc.\n\nWe need to assign each slot a plan using source records. Use up to 3 records per plan, max 4 source chunks. Provide reasoning steps.\n\nLet's design:\n\nP11 true_false false. Use source F6 (ideal gas law pressure change). Derive that pressure after temperature increase is not 10 atm (since false). Compute correct pressure: P1/T1 = P2/T2. T in Kelvin: 27°C = 300K, 54°C = 327K. P2 = P1 * T2/T1 = 5 atm * 327/300 = 5*1.09 = 5.45 atm approx. So false statement could be \"Áp suất sẽ tăng lên 10 atm\". So intent: Determine whether statement \"Áp suất không khí trong lốp sẽ là 10 atm khi nhiệt độ tăng lên 54°C\" is true. Target false. Reasoning steps: 1 convert temps to Kelvin, 2 apply P1/T1 = P2/T2.\n\nP12 short_answer. Use source F3 (heat to melt ice and warm water). Ask for total heat required. Must be derived, not just recall. Provide intent: calculate heat required to melt 4 kg ice at 0°C and heat resulting water to 25°C. Reasoning steps: 1 compute melt heat Q1 = m*L_f, 2 compute heating water Q2 = m*c*ΔT, 3 sum.\n\nP13 multiple_choice. Use source F7 (mass of nitrogen). Need a hard question: maybe ask for pressure after temperature change? But we need multiple choice with plausible distractors. Use source F7 to compute mass of nitrogen. Intent: Determine mass of nitrogen in the container. Reasoning steps: 1 compute moles n = PV/RT, 2 multiply by molar mass. Provide distractors based on common errors: using wrong R units, forgetting conversion of temperature to Kelvin, using pressure in atm but volume in L okay, but maybe using Celsius directly. Provide plan.\n\nP14 selection (multiple correct). Use source F15 (Charles's law). Ask which statements are correct about experiment. Need selection type where multiple statements may be correct. Provide intent: Identify all correct conclusions from given data. Reasoning steps: 1 compute expected volume at given temperature using V/T constant, 2 compare with measured values to see consistency, 3 evaluate each statement.\n\nBut selection type expects multiple correct options; we just need plan metadata.\n\nP15 true_false false. Use source F20 (pressure-temperature relationship). Determine false statement about temperature when pressure rises to 4.5 atm. Compute temperature: T2 = P2 * T1 / P1 = 4.5* (70+273) /4 = 4.5*343/4 = 386.25 K => 113.25°C. So false statement could be \"Nhiệt độ sẽ là 100°C\". Intent: evaluate statement. Reasoning steps: convert initial temp to K, apply proportionality, convert back to °C.\n\nNow produce JSON.\n\nMake sure title short descriptive. Category \"categories.science\". Provide plans array with each plan.\n\nCheck JSON validity compact.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.357775274,
+    "prompt_tokens": 9766,
+    "prompt_time": 0.458563783,
+    "completion_tokens": 1579,
+    "completion_time": 3.276122611,
+    "total_tokens": 11345,
+    "total_time": 3.734686394,
+    "completion_tokens_details": {
+      "reasoning_tokens": 808
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_3166198c1d",
+  "x_groq": {
+    "id": "req_01m4083je1eyks5q7bt84w29e3",
+    "seed": 471843541
+  },
+  "service_tier": "on_demand"
+}

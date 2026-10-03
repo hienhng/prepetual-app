@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-c150e25d-2c51-4fd9-97de-900bddaad900",
+  "object": "chat.completion",
+  "created": 1791009849,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"records\":[{\"topic\":\"Thermodynamic state diagram of 1 mol in V–T and p–T coordinates\",\"kind\":\"concept\",\"blockIds\":[\"B13\"],\"givens\":[],\"conditions\":[\"Axes: vertical V, horizontal T with origin O; point 1 on dashed line from O, point 2 on curve, point 3 below curve; line 1–2 diagonal up to curve, line 2–3 vertical down, line 3–1 horizontal left, dashed line O–1 for V–T diagram\",\"Axes: vertical p, horizontal T with origin O; point 1 on top of curve, point 3 below curve, point 2 below curve; line 1–2 convex outward toward curve, line 3–2 horizontal, line 1–3 vertical\"],\"relationships\":[]},{\"topic\":\"Selection of correct p–T diagram among options a–d\",\"kind\":\"problem\",\"blockIds\":[\"B14\"],\"givens\":[],\"conditions\":[\"Option a: axes p (vertical) vs T (horizontal) with origin O; point 1 on top, point 3 below top, point 2 below curve; line 1–2 convex outward toward curve, line 3–2 horizontal, line 1–3 vertical\",\"Option b: point 3 between top and bottom, point 2 on curve, point 1 below curve; line 2–3 diagonal down to top, line 3–1 horizontal, line 1–2 vertical, dashed line O–3\",\"Option c: point 3 on top, point 1 below top, point 2 below curve; line 1–3 convex outward left, line 3–2 diagonal down to curve, line 1–2 horizontal\",\"Option d: point 3 on top, point 1 below top, point 2 below curve; line 1–2 horizontal, line 2–3 vertical left, line 3–1 convex outward\"],\"relationships\":[]},{\"topic\":\"Linear relationship between scales X (°X) and Y (°Y)\",\"kind\":\"problem\",\"blockIds\":[\"B15\"],\"givens\":[{\"name\":\"X₁\",\"value\":\"0\",\"unit\":\"°X\",\"sourceText\":\"(0; 32)\",\"blockId\":\"B15\"},{\"name\":\"Y₁\",\"value\":\"32\",\"unit\":\"°Y\",\"sourceText\":\"(0; 32)\",\"blockId\":\"B15\"},{\"name\":\"X₂\",\"value\":\"100\",\"unit\":\"°X\",\"sourceText\":\"(100; 212)\",\"blockId\":\"B15\"},{\"name\":\"Y₂\",\"value\":\"212\",\"unit\":\"°Y\",\"sourceText\":\"(100; 212)\",\"blockId\":\"B15\"},{\"name\":\"Y_target\",\"value\":\"68\",\"unit\":\"°Y\",\"sourceText\":\"68°Y\",\"blockId\":\"B15\"}],\"conditions\":[\"Straight line passes through points (0, 32) and (100, 212) and extends across the axes\"],\"relationships\":[\"Linear interpolation: Y = m·X + b where m = (Y₂‑Y₁)/(X₂‑X₁)\"]}],\"excluded\":[{\"blockId\":\"B16\",\"reason\":\"Duplicate description of the same linear relationship without a specific question or additional data\"}]}",
+        "reasoning": "We need to extract up to eight records describing problems or concepts. Provide JSON with records array and excluded array. Must not generate answers or explanations. Just parse givens, conditions, relationships.\n\nWe have source blocks B13, B14, B15, B16. They describe diagrams of thermodynamic states and a geometry problem about angles.\n\nWe need to extract records.\n\nRecord 1: From B13: description of diagram of state of 1 mol in V,T coordinates and p,T coordinates. Givens? Not numeric values, just description of axes and points. Could be considered a concept: thermodynamic surface representation. No specific numeric givens. Might still be a record with conditions: axes definitions, points positions relative to axes. No numeric values. Could include relationships: ideal gas law? Not given. Might be excluded due to lack of concrete numeric data? The instruction: \"Extract up to eight useful concept/problem/visual records... Each record describes one coherent problem or concept, retaining all related conditions.\" So we can include conceptual record even without numeric givens. Provide givens maybe none. But we need at least one given? Not required. Could have empty givens.\n\nRecord 2: From B14: multiple diagram options a,b,c,d with axes p vs T and points positions. This is a multiple-choice about which diagram matches something. No numeric givens. Could be a conceptual record.\n\nRecord 3: From B15: geometry problem: relationship between two scales X and Y, given a line through (0,32) and (100,212). Need to find Y value when X is 68°. Actually question: \"Khi nhiệt độ là 68°Y ... trên thang độ X là bao nhiêu?\" So given line equation, find X corresponding to Y=68°. This is a problem with numeric givens: points (0,32) and (100,212). Condition: linear relationship. Relationship: linear interpolation. So record with givens: point1 (0,32) Y=32 at X=0, point2 (100,212) Y=212 at X=100. Condition: line passes through those points. Need to find X for Y=68.\n\nRecord 4: B16 appears duplicate of B15 but missing question. It's same description but no question. Might be excluded as duplicate or incomplete.\n\nThus we can produce three records: one for thermodynamic diagram concept (B13), one for diagram options (B14), one for geometry problem (B15). Exclude B16 as duplicate.\n\nNow format JSON.\n\nRecord for B13:\n\ntopic: \"Thermodynamic state diagram of 1 mol in V–T and p–T coordinates\"\nkind: \"concept\"\nblockIds: [\"B13\"]\ngivens: [] (maybe none)\nconditions: list description: \"Axes: V (vertical), T (horizontal) with origin O; points 1 (on dashed line from O), 2 (on curve), 3 (below curve); lines: 1–2 diagonal up to curve, 2–3 vertical down, 3–1 horizontal left, dashed line O–1.\" Also for p–T diagram similar.\n\nrelationships: maybe \"State of 1 mol described in V–T and p–T coordinates\" but no law.\n\nRecord for B14:\n\ntopic: \"Selection of correct p–T diagram among options a–d\"\nkind: \"problem\"\nblockIds: [\"B14\"]\ngivens: [] (no numeric)\nconditions: description of each option's point positions and line types.\nrelationships: none.\n\nRecord for B15:\n\ntopic: \"Linear relationship between scales X and Y\"\nkind: \"problem\"\nblockIds: [\"B15\"]\ngivens: list two points:\n- name: \"point1\", value: \"(0, 32)\", unit: \"°Y vs °X\"? Actually point coordinates: X=0, Y=32. Provide separate givens: maybe \"X1\" = \"0\", unit \"°X\", sourceText \"(0; 32)\", blockId \"B15\". \"Y1\" = \"32\", unit \"°Y\". Similarly point2 X2=100, Y2=212.\n\nAlso given target Y=68°Y.\n\nconditions: \"Points lie on straight line extended across axis.\"\n\nrelationships: \"Linear interpolation (y = m x + b)\".\n\nNow excluded: B16 reason: duplicate of B15 without question.\n\nMake JSON compact (no whitespace). Ensure proper quoting.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.366755337,
+    "prompt_tokens": 1684,
+    "prompt_time": 0.085651805,
+    "completion_tokens": 1623,
+    "completion_time": 3.397578828,
+    "total_tokens": 3307,
+    "total_time": 3.483230633,
+    "completion_tokens_details": {
+      "reasoning_tokens": 930
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_8ea50c0161",
+  "x_groq": {
+    "id": "req_01m4082vxwe25bmhs8k7apqw19",
+    "seed": 224998906
+  },
+  "service_tier": "on_demand"
+}

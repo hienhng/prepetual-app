@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-c76bd9ed-4343-4016-a7a7-8c63df49ce2e",
+  "object": "chat.completion",
+  "created": 1791009858,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"records\":[{\"topic\":\"Gas law – pressure‑temperature relationship at constant volume\",\"kind\":\"problem\",\"blockIds\":[\"B37\"],\"givens\":[{\"name\":\"initial temperature\",\"value\":\"70\",\"unit\":\"°C\",\"sourceText\":\"70°C\",\"blockId\":\"B37\"},{\"name\":\"initial pressure\",\"value\":\"4\",\"unit\":\"atm\",\"sourceText\":\"4 atm\",\"blockId\":\"B37\"},{\"name\":\"final pressure\",\"value\":\"4.5\",\"unit\":\"atm\",\"sourceText\":\"4,5 atm\",\"blockId\":\"B37\"}],\"conditions\":[\"steel container, volume assumed constant\"],\"relationships\":[\"P1/T1 = P2/T2 (ideal gas law at constant volume)\"]},{\"topic\":\"Gas mass flow into a fixed‑volume container\",\"kind\":\"problem\",\"blockIds\":[\"B38\"],\"givens\":[{\"name\":\"container volume\",\"value\":\"8\",\"unit\":\"L\",\"sourceText\":\"8 lít\",\"blockId\":\"B38\"},{\"name\":\"final temperature\",\"value\":\"24\",\"unit\":\"°C\",\"sourceText\":\"24°C\",\"blockId\":\"B38\"},{\"name\":\"final pressure\",\"value\":\"765\",\"unit\":\"mmHg\",\"sourceText\":\"765 mmHg\",\"blockId\":\"B38\"},{\"name\":\"oxygen density at STP\",\"value\":\"1.43\",\"unit\":\"kg/m³\",\"sourceText\":\"1,43 kg/m³\",\"blockId\":\"B38\"},{\"name\":\"filling time\",\"value\":\"2\",\"unit\":\"min\",\"sourceText\":\"2 phút\",\"blockId\":\"B38\"}],\"conditions\":[\"uniform pumping process\",\"final state at 24°C and 765 mmHg\"],\"relationships\":[\"Ideal gas law PV = nRT\",\"mass = density × volume (at given conditions)\",\"mass flow rate = total mass / total time\"]}],\"excluded\":[{\"blockId\":\"B39\",\"reason\":\"missing numerical data (pressures, volumes) needed to compute percentage change in moles\"},{\"blockId\":\"B40\",\"reason\":\"no quantitative data provided\"}]}",
+        "reasoning": "We need to parse source blocks and extract up to eight records. Each record must have topic, kind, blockIds, givens, conditions, relationships. Must not produce answers or quiz questions. Just extract givens etc.\n\nWe have four blocks B37, B38, B39, B40.\n\nWe need to identify coherent problems/concepts.\n\nB37: \"Câu 1. Vỏ bình thép chứa Oxy ở 70°C ở áp suất 4 atm. Nếu áp suất của khí trong bình là 4,5 atm thì nhiệt độ của khí trong bình bằng bao nhiêu °C?\" This is a problem about gas law (ideal gas) relating temperature and pressure at constant volume. Givens: initial temperature 70°C, initial pressure 4 atm, final pressure 4.5 atm, find final temperature. Conditions: constant volume (steel container). Relationship: P1/T1 = P2/T2 (ideal gas law at constant V). Topic: Gas laws (pressure-temperature relationship). kind: problem.\n\nB38: \"Câu 2. Người ta bơm khí Oxy ở điều kiện tiêu chuẩn vào bình thép có thể tích 8 lít. Sau 2 phút bình chứa đầy khí ở nhiệt độ 24°C và áp suất 765 mmHg. Biết khối lượng riêng khí Oxy ở điều kiện tiêu chuẩn là 1,43 kg/m³ và coi quá trình bơm diễn ra một cách đều đặn. Khối lượng khí bơm vào bình sau mỗi giây bằng bao nhiêu g? (Kết quả làm tròn đến chữ số hàng phần trăm)\" This is about mass flow rate. Givens: container volume 8 L, final temperature 24°C, final pressure 765 mmHg, density of O2 at STP 1.43 kg/m³, time 2 minutes to fill. Need mass per second. Conditions: pumping uniform, ideal gas maybe. Relationship: mass = density * volume (at STP) but need conversion? Actually they give density at standard conditions, but final conditions differ. Might need ideal gas law to find moles then mass. But we can list givens. Topic: Gas mass flow, ideal gas.\n\nB39: Tire sensor problem. Need percent increase in moles when adding air to one tire to match pressure of others. No numeric values given (the image). So insufficient data. Excluded.\n\nB40: Diagram description, no numeric data. Excluded.\n\nThus we will produce records for B37 and B38. Possibly also B39 as excluded due to missing data. B40 excluded.\n\nWe need to format JSON compactly.\n\nFor each given, include name, value normalized, unit, sourceText, blockId.\n\nNormalization: Keep same as source. For temperature 70°C -> value \"70\" unit \"°C\". Pressure 4 atm -> value \"4\" unit \"atm\". Final pressure 4.5 atm -> value \"4.5\" unit \"atm\". For B38: volume 8 lít -> value \"8\" unit \"L\". Temperature 24°C -> \"24\" \"°C\". Pressure 765 mmHg -> \"765\" \"mmHg\". Density 1.43 kg/m³ -> \"1.43\" \"kg/m³\". Time 2 minutes -> \"2\" \"min\". Also need maybe convert to seconds? Not required.\n\nRelationships: For B37: \"P1/T1 = P2/T2 (ideal gas law at constant volume)\". For B38: \"Ideal gas law PV = nRT; mass = density × volume; uniform flow rate = total mass / total time\". Provide as list.\n\nConditions: For B37: \"constant volume (steel container)\". For B38: \"uniform pumping process; final state at 24°C and 765 mmHg; density given at standard conditions\". Provide as strings.\n\nNow construct JSON.\n\nExcluded list: B39 reason \"missing numerical data for pressures/volumes needed to compute percentage\". B40 reason \"no quantitative data provided\".\n\nReturn JSON with records array.\n\nMake sure compact (no whitespace)."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.423452646,
+    "prompt_tokens": 1005,
+    "prompt_time": 0.049757776,
+    "completion_tokens": 1271,
+    "completion_time": 2.66384421,
+    "total_tokens": 2276,
+    "total_time": 2.713601986,
+    "completion_tokens_details": {
+      "reasoning_tokens": 854
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_803c0ba83d",
+  "x_groq": {
+    "id": "req_01m40835hyeprvhgec6q4qepnc",
+    "seed": 252386993
+  },
+  "service_tier": "on_demand"
+}

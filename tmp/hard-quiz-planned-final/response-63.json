@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-5a2af572-b628-4e96-8279-bf74fe5a1d18",
+  "object": "chat.completion",
+  "created": 1791010040,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Bộ câu hỏi nhiệt động lực học nâng cao\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P39\",\"type\":\"multiple_choice\",\"recordIds\":[\"F6\"],\"intent\":\"Tính áp suất cuối cùng của khí trong lốp xe khi nhiệt độ tăng từ 27 °C lên 54 °C, thể tích không đổi, dựa trên định luật khí lý tưởng\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ ban đầu và cuối cùng sang Kelvin\",\"Áp dụng công thức P1/T1 = P2/T2 để tính P2\"]},{\"id\":\"P40\",\"type\":\"selection\",\"recordIds\":[\"F12\"],\"intent\":\"Xác định tất cả các khẳng định đúng về khối lượng nước và băng ở trạng thái cân bằng khi 1 g băng 0 °C được cho vào 1 g nước 40 °C, bỏ qua nhiệt dung của bình, dựa trên cân bằng năng lượng\",\"reasoningSteps\":[\"Tính lượng nhiệt mất của nước 40 °C khi làm lạnh tới nhiệt độ cân bằng\",\"Tính lượng nhiệt cần để tan băng và làm ấm nước tan thành nhiệt độ cân bằng\",\"Giải hệ phương trình năng lượng để tìm khối lượng nước và băng cuối cùng\",\"So sánh kết quả với các lựa chọn để xác định các đáp án đúng\"]},{\"id\":\"P41\",\"type\":\"true_false\",\"recordIds\":[\"F14\"],\"intent\":\"Khẳng định rằng trong chu trình tủ lạnh, nhiệt lượng Q₂ thải ra dàn nóng bằng 540 kJ khi COP = 3 và công nén A = 180 kJ; xác định tính sai của phát biểu này\",\"reasoningSteps\":[\"Tính Q₁ = COP × A = 3 × 180 kJ = 540 kJ\",\"Sử dụng quan hệ năng lượng Q₂ = Q₁ + A để tính Q₂ = 540 kJ + 180 kJ = 720 kJ\",\"So sánh Q₂ thực tế (720 kJ) với giá trị khẳng định (540 kJ) để xác định phát biểu là sai\"]},{\"id\":\"P42\",\"type\":\"short_answer\",\"recordIds\":[\"F3\"],\"intent\":\"Tính tổng nhiệt lượng cần thiết để tan 4 kg băng ở 0 °C và làm nước nóng lên 25 °C, sử dụng nhiệt ẩn tan và nhiệt dung riêng của nước\",\"reasoningSteps\":[\"Tính nhiệt tan băng: Q₁ = m·L_f = 4 kg × 34.1×10⁵ J/kg\",\"Tính nhiệt làm nóng nước: Q₂ = m·c·ΔT = 4 kg × 4180 J/kg·K × 25 K\",\"Cộng Q₁ và Q₂ để có nhiệt lượng tổng cộng\"]},{\"id\":\"P43\",\"type\":\"multiple_choice\",\"recordIds\":[\"F15\"],\"intent\":\"Dự đoán thể tích khí khi nhiệt độ tăng từ 25 °C lên 80 °C, biết tỉ lệ V/T = 0,250 cm³/K và thể tích tại 25 °C là 68 cm³, áp dụng định luật Charles\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ 25 °C và 80 °C sang Kelvin\",\"Tính hằng số V/T bằng cách dùng V=68 cm³ và T=298 K\",\"Sử dụng hằng số để tính thể tích mới V = (V/T)·T_{new} cho T_{new}=353 K\",\"Lựa chọn đáp án đúng dựa trên giá trị tính được\"]}]}",
+        "reasoning": "We need to output JSON with title, category, plans array for slots P39-P43. Must use only reviewed source records. Need to create hard questions for each slot, with reasoning steps. Use up to 3 records per plan, max 4 source chunks. Must not generate actual question content, only plan metadata: id, type, recordIds, intent, reasoningSteps. No question text. So we just describe intended task.\n\nWe must ensure each plan uses appropriate source records and includes reasoning steps.\n\nSlots:\n\nP39 multiple_choice\nP40 selection (multiple correct)\nP41 true_false targetTruthValue False\nP42 short_answer\nP43 multiple_choice\n\nWe need 5 plans.\n\nSelect sources:\n\nWe have many physics problems. Use different sources.\n\nPlan for P39: multiple_choice using F6 (ideal gas law pressure change). Intent: calculate final pressure given temperature increase, constant volume. Reasoning steps: convert temps to Kelvin, apply P1/T1 = P2/T2.\n\nPlan for P40 selection: selection (multiple correct) using F12 (ice-water mixture equilibrium). Intent: determine which statements about final masses are correct (multiple correct). Need reasoning: compute heat exchange, solve for final masses, compare options.\n\nPlan for P41 true_false false: use F14 (refrigeration COP). Intent: statement about Q2 value being something false. Need derived Q2 = Q1 + A. Compute Q1 = COP * A = 3*180 = 540 kJ, then Q2 = 540+180=720 kJ. So false statement could claim Q2 = 540 kJ. So truth value false. Reasoning: compute Q1 then Q2.\n\nPlan for P42 short_answer: use F3 (heat to melt ice and warm water). Intent: ask for total heat required (numeric). Need reasoning: Q = m*L + m*c*ΔT. Compute.\n\nPlan for P43 multiple_choice: use F15 (Charles law verification). Could ask to predict volume at a new temperature using V/T constant. Need reasoning: convert to Kelvin, compute constant, find volume.\n\nAll within constraints.\n\nNow craft JSON.\n\nMake sure recordIds list correct.\n\nReasoningSteps as strings.\n\nProvide title and category.\n\nReturn compact JSON.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.421640602,
+    "prompt_tokens": 9760,
+    "prompt_time": 0.358681055,
+    "completion_tokens": 1254,
+    "completion_time": 2.576271586,
+    "total_tokens": 11014,
+    "total_time": 2.9349526409999998,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 468
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_8655ddce88",
+  "x_groq": {
+    "id": "req_01m4088qr6efvv2afmk8agn3q8",
+    "seed": 377705470
+  },
+  "service_tier": "on_demand"
+}

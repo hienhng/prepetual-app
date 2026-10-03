@@ -1,41 +1,13 @@
+import { useLanguage } from "@/lib/language-context";
+import { localizeProgressMessage } from "@/lib/localized-progress";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lightbulb } from "lucide-react";
 import logoImage from "@assets/image-removebg-preview_(2)_1769320540513.png";
 
-const STEP_MESSAGES: Record<string, string> = {
-  starting: "Starting quiz generation...",
-  reading: "Reading your study material...",
-  analyzing: "Analyzing content structure...",
-  preparing: "Preparing quiz generation...",
-  generating: "AI is generating questions...",
-  processing: "Processing AI response...",
-  validating: "Validating generated questions...",
-  finalizing: "Finalizing your quiz...",
-  saving: "Saving your quiz...",
-  complete: "Quiz created successfully!",
-};
-
-const STUDY_TIPS = [
-  "Break your study sessions into 25-minute chunks with short breaks in between.",
-  "Teaching someone else what you've learned is one of the best ways to retain information.",
-  "Get enough sleep! Your brain consolidates memories while you rest.",
-  "Use active recall instead of just re-reading notes. Quiz yourself frequently!",
-  "Connect new information to things you already know to create stronger memories.",
-  "Study in different locations to help your brain form more associations.",
-  "Handwriting notes can improve retention compared to typing them.",
-  "Stay hydrated! Even mild dehydration can impair cognitive function.",
-  "Review material right before sleep for better memory consolidation.",
-  "Use mnemonics and memory palaces for memorizing lists and sequences.",
-  "Exercise regularly - it increases blood flow to the brain and improves focus.",
-  "Eliminate distractions during study time. Put your phone in another room!",
-  "Use the Feynman Technique: explain concepts in simple terms as if teaching a child.",
-  "Space out your studying over time instead of cramming all at once.",
-  "Test yourself on material before you think you're ready - it strengthens recall.",
-];
-
 function AnimatedLogo() {
+  const { t } = useLanguage();
   return (
     <div className="relative w-24 h-24 flex items-center justify-center">
       <motion.div
@@ -64,7 +36,7 @@ function AnimatedLogo() {
       >
         <img
           src={logoImage}
-          alt="Prepetual"
+          alt={t("common.footer")}
           className="w-full h-full object-contain drop-shadow-lg"
         />
       </motion.div>
@@ -89,14 +61,30 @@ export function QuizGenerationDialog({
   notice,
   mode,
 }: QuizGenerationDialogProps) {
+  const { t, tArray } = useLanguage();
+  const studyTips = tArray('quizGeneration.studyTips');
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [tipVisible, setTipVisible] = useState(true);
+  const [estimatedProgress, setEstimatedProgress] = useState(0);
+
+  // Imports do not stream progress. Keep their estimate local so it cannot
+  // overwrite server updates or the completed state in the quiz context.
+  useEffect(() => {
+    setEstimatedProgress(0);
+    if (!isOpen || mode !== "import") return;
+
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      setEstimatedProgress(90 * (1 - Math.exp(-(Date.now() - startTime) / 12000)));
+    }, 100);
+    return () => clearInterval(interval);
+  }, [isOpen, mode]);
 
   useEffect(() => {
     if (isOpen) {
-      setCurrentTipIndex(Math.floor(Math.random() * STUDY_TIPS.length));
+      setCurrentTipIndex(Math.floor(Math.random() * studyTips.length));
     }
-  }, [isOpen]);
+  }, [isOpen, studyTips.length]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -104,18 +92,19 @@ export function QuizGenerationDialog({
     const interval = setInterval(() => {
       setTipVisible(false);
       setTimeout(() => {
-        setCurrentTipIndex((prev) => (prev + 1) % STUDY_TIPS.length);
+        setCurrentTipIndex((prev) => (prev + 1) % studyTips.length);
         setTipVisible(true);
       }, 300);
     }, 6000);
 
     return () => clearInterval(interval);
-  }, [isOpen]);
+  }, [isOpen, studyTips.length]);
 
   if (!isOpen) return null;
 
-  const stepMessage = STEP_MESSAGES[currentStep] || message || "Processing...";
-  const roundedProgress = Math.round(progress);
+  const stepMessage = localizeProgressMessage(message, t, mode === 'import' ? 'quizGeneration.importingQuestions' : ['starting', 'reading', 'analyzing', 'preparing', 'generating', 'processing', 'validating', 'finalizing', 'saving', 'complete'].includes(currentStep) ? `quizGeneration.${currentStep}` : 'quizGeneration.default');
+  const safeProgress = Number.isFinite(progress) ? Math.min(100, Math.max(0, progress)) : 0;
+  const roundedProgress = Math.round(Math.max(safeProgress, mode === "import" ? estimatedProgress : 0));
 
   return createPortal(
     <AnimatePresence>
@@ -144,7 +133,7 @@ export function QuizGenerationDialog({
 
                 {/* Title */}
                 <h2 className="text-sm font-semibold text-foreground mb-5 tracking-wide">
-                  {mode === "import" ? "Importing Quiz" : "Creating Quiz"}
+                  {mode === "import" ? t("quizGeneration.importing") : t("quizGeneration.creating")}
                 </h2>
 
                 {/* Percentage */}
@@ -153,7 +142,15 @@ export function QuizGenerationDialog({
                 </p>
 
                 {/* Progress Bar */}
-                <div className="w-full bg-border/60 rounded-full h-2 mb-4 overflow-hidden">
+                <div
+                  role="progressbar"
+                  aria-label={mode === "import" ? t("quizGeneration.importProgress") : t("quizGeneration.generationProgress")}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={roundedProgress}
+                  aria-valuetext={`${roundedProgress}%: ${stepMessage}`}
+                  className="w-full bg-border/60 rounded-full h-2 mb-4 overflow-hidden"
+                >
                   <motion.div
                     className="h-full bg-primary rounded-full"
                     initial={{ width: 0 }}
@@ -162,26 +159,13 @@ export function QuizGenerationDialog({
                   />
                 </div>
 
-                {/* Step message */}
-                {/* <AnimatePresence mode="wait">
-                  <motion.p
-                    key={currentStep}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="text-xs text-muted-foreground min-h-[1rem]"
-                  >
-                    {stepMessage}
-                  </motion.p>
-                </AnimatePresence> */}
-                <p className="text-xs text-muted-foreground min-h-[1rem]">
-                  Just a moment... take a quick break
+                <p role="status" className="text-xs text-muted-foreground min-h-[1rem]">
+                  {stepMessage}
                 </p>
 
                 {notice && (
                   <p className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-700 dark:text-amber-300">
-                    {notice}
+                    {localizeProgressMessage(notice, t, 'quizGeneration.validating')}
                   </p>
                 )}
               </div>
@@ -205,7 +189,7 @@ export function QuizGenerationDialog({
                         transition={{ duration: 0.5 }}
                         className="text-xs text-muted-foreground leading-relaxed italic"
                       >
-                        {STUDY_TIPS[currentTipIndex]}
+                        {studyTips[currentTipIndex]}
                       </motion.p>
                     </AnimatePresence>
                   </div>

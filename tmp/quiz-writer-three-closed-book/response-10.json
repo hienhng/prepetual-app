@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-3511698b-d6c1-4ade-80be-b62c1121db22",
+  "object": "chat.completion",
+  "created": 1791017656,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"reason\":\"All fields are in Vietnamese and match the required output language.\"}]}",
+        "reasoning": "We need to output JSON with evaluations array. There's one item. Need to check language consistency. The resolved QUIZ OUTPUT LANGUAGE is Vietnamese. The item is type title, question is Vietnamese. So sourceLanguage? The source language is presumably Vietnamese as well. itemLanguage is Vietnamese. isConsistent true. Reason: all passed.\n\nWe must ensure JSON compact, no spaces? \"compact JSON formatting\". So no spaces after commas? Probably minimal. Provide {\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"reason\":\"All fields are in Vietnamese and match the required output language.\"}]}"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.323001235,
+    "prompt_tokens": 657,
+    "prompt_time": 0.03012426,
+    "completion_tokens": 186,
+    "completion_time": 0.389201423,
+    "total_tokens": 843,
+    "total_time": 0.419325683,
+    "completion_tokens_details": {
+      "reasoning_tokens": 134
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_854fa9be4c",
+  "x_groq": {
+    "id": "req_01m40fh7geee5b3yp841566xmf",
+    "seed": 841212211
+  },
+  "service_tier": "on_demand"
+}

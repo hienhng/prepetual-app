@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-a0596698-65ad-4dfa-8fda-b347dcc9e89d",
+  "object": "chat.completion",
+  "created": 1791009728,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"evaluations\": [\n    {\n      \"index\": 0,\n      \"sourceLanguage\": \"Vietnamese\",\n      \"itemLanguage\": \"Vietnamese\",\n      \"isConsistent\": true,\n      \"answerCorrect\": true,\n      \"explanationConsistent\": true,\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"Tính trọng lực của học sinh và ghế (30 kg × 10 m/s² = 300 N), đổi diện tích piston sang mét vuông (30 cm² = 3×10⁻³ m²), tính áp suất gauge = F/S = 300 N / 3×10⁻³ m² = 1.0×10⁵ Pa, cộng áp suất khí quyển 1.0×10⁵ Pa để có áp suất tuyệt đối 2.0×10⁵ Pa.\",\n      \"reason\": \"The item matches the source language and register.\"\n    },\n    {\n      \"index\": 1,\n      \"sourceLanguage\": \"Vietnamese\",\n      \"itemLanguage\": \"Vietnamese\",\n      \"isConsistent\": true,\n      \"answerCorrect\": true,\n      \"explanationConsistent\": true,\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": false,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"Chuyển đổi nhiệt độ sang Kelvin (27 °C = 300 K, 54 °C = 327 K), áp dụng định luật p/T = hằng số vì thể tích không đổi: p₂ = p₁·(T₂/T₁) = 5 atm·(327/300) ≈ 5.45 atm.\",\n      \"reason\": \"The item matches the source language and register.\"\n    }\n  ]\n}",
+        "reasoning": "We need to evaluate each item (2 items). Provide JSON with evaluations array containing objects for each index. Need fields: index, sourceLanguage, itemLanguage, isConsistent, answerCorrect, explanationConsistent, selfContained, sourceSupported, hardReasoning, credibleDistractors, reasoningJustification, reason.\n\nWe must audit language consistency: both items are Vietnamese. sourceLanguage likely Vietnamese (source chunks are Vietnamese). So isConsistent true.\n\nNow need to independently solve each question and verify answer and explanation.\n\nItem 0: Problem about absolute pressure in cylinder with student weight.\n\nGiven: student mass 24 kg, seat+ cylinder mass 6 kg, total mass 30 kg. g=10 m/s^2. Force = 300 N. Area S = 30 cm^2 = 30 *1e-4 m^2 = 3e-3 m^2. Pressure gauge = F/S = 300 / 0.003 = 100,000 Pa = 1.0e5 Pa. Add atmospheric 1.0e5 Pa => absolute = 2.0e5 Pa. So correct answer matches. Explanation matches.\n\nCheck selfContained: all needed values given. Yes.\n\nSourceSupported: source chunk includes statement \"c. Khi học sinh ngồi trên ghế, áp suất khí trong xi lanh là 2.10^5 Pa.\" That's a claim. The chunk also gives masses, area, etc. So source supports. Provide evidence quote includes that claim. The quote includes the data. So sourceSupported true.\n\nHardReasoning: Need multiple steps: compute weight, convert area, compute pressure, add atmospheric. That's moderate but maybe qualifies as hard? The criteria: hard requires multiple dependent reasoning steps, not just single substitution. This has at least two steps (force then pressure then add). Could be considered hard for physics? Probably yes. We'll mark hardReasoning true.\n\nCredibleDistractors: Options: 1.5e5, 1.0e5, 2.5e5, 2.0e5. Incorrect options plausible: 1.5e5 (maybe forgetting atmospheric partially), 1.0e5 (just gauge), 2.5e5 (maybe miscalc). So credible. true.\n\nNow item 1: Ideal gas law with constant volume. Initial pressure 5 atm, T1 = 27°C = 300 K (actually 273+27=300 K). T2 = 54°C = 327 K. p2 = p1 * T2/T1 = 5 * 327/300 = 5 * 1.09 = 5.45 atm. Answer matches. Explanation correct.\n\nSelfContained: all values given. Yes.\n\nSourceSupported: source chunk includes the question and answer options. The chunk states the problem. So supports.\n\nHardReasoning: Steps: convert Celsius to Kelvin, apply proportionality. That's two steps. Might be considered not hard? But requirement for hard: multiple dependent steps, analysis, etc. This is simple. Might be considered not hard. The difficulty requested is hard, but we evaluate actual reasoning. I think this is not hard enough. So hardReasoning false.\n\nCredibleDistractors: Options: 5.45 correct, 5.0 (same), 10, 10.45. The wrong ones include plausible errors: forgetting conversion (use Celsius ratio gives 5*54/27=10, that's 10 atm). 4.55 maybe using inverse. 5.45 correct. So plausible. So credibleDistractors true.\n\nNow language consistency: both Vietnamese. isConsistent true.\n\nExplanationConsistent: explanation matches answer and language. Yes.\n\nNow need to include sourceEvidence? The output format only requires fields listed. Not required to include evidence array. But we could include? The spec says when source grounding is enabled, also return evidence. Not sure if required. Probably not needed. We'll just include fields.\n\nProvide sourceLanguage: \"Vietnamese\". itemLanguage: \"Vietnamese\". isConsistent true.\n\nNow produce JSON with two evaluation objects.\n\nAdd reasoningJustification: brief description of steps.\n\nAdd reason: \"The item matches the source language and register.\"\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.420431148,
+    "prompt_tokens": 12685,
+    "prompt_time": 0.666761397,
+    "completion_tokens": 1306,
+    "completion_time": 2.710071251,
+    "total_tokens": 13991,
+    "total_time": 3.376832648,
+    "completion_tokens_details": {
+      "reasoning_tokens": 874
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_bb691ea66b",
+  "x_groq": {
+    "id": "req_01m407z5ymewcb9gqchjk4skxw",
+    "seed": 1092079383
+  },
+  "service_tier": "on_demand"
+}

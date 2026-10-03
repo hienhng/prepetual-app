@@ -1,0 +1,14 @@
+
+  VITE v5.4.21  ready in 504 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+
+warn - The class `ease-[cubic-bezier(0.34,1.56,0.64,1)]` is ambiguous and matches multiple utilities.
+warn - If this is content and not a class, replace it with `ease-&lsqb;cubic-bezier(0.34,1.56,0.64,1)&rsqb;` to silence this warning.
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+12:16:19 PM [vite] page reload src/components/auth-dialog.tsx
+12:16:19 PM [vite] page reload src/components/auth-dialog.tsx
+12:19:35 PM [vite] hmr update /src/pages/quiz.tsx, /src/index.css
+12:20:17 PM [vite] hmr update /src/components/quiz-player.tsx, /src/index.css
+12:21:14 PM [vite] hmr update /src/components/quiz-player.tsx, /src/index.css

@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-4a506bdc-2fae-418e-9c30-ec44a05d7da0",
+  "object": "chat.completion",
+  "created": 1791017810,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"evaluations\": [\n    {\n      \"index\": 0,\n      \"sourceLanguage\": \"Vietnamese\",\n      \"itemLanguage\": \"Vietnamese\",\n      \"isConsistent\": true,\n      \"answerCorrect\": true,\n      \"explanationConsistent\": true,\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"Giải hệ bất phương trình với hai biến liên tục (số chu trình A và B) để thỏa mãn tải nhiệt, thời gian và ngân sách điện yêu cầu xác định miền khả thi; việc xét cả ràng buộc thời gian và điện năng đồng thời và tìm giá trị khả thi không phải là phép thay thế đơn thuần, đáp ứng yêu cầu độ khó HARD.\",\n      \"reason\": \"All criteria satisfied.\"\n    }\n  ]\n}",
+        "reasoning": "We need to evaluate the single item.\n\nFirst, check language consistency: question, options, explanation are Vietnamese. Yes. isConsistent true.\n\nNow answer correctness: Need to solve the problem.\n\nWe have requirement: achieve heat load 2160 kJ from cold reservoir. Each cycle A provides 540 kJ heat, consumes 180 kJ electricity, takes 60 s. Cycle B provides 600 kJ heat, consumes 240 kJ electricity, takes 40 s. Can use fractional cycles. Constraints: total time ≤200 s, electricity budget ≤800 kJ.\n\nWe need to determine which of the four statements are true.\n\nOptions:\n\n1. \"Kết hợp chế độ A và B có thể đáp ứng được tất cả các ràng buộc.\" (Combination A and B can satisfy all constraints.)\n\n2. \"Chỉ dùng chế độ A có thể đáp ứng được yêu cầu nếu sử dụng phần chu trình.\" (Only A can meet requirement if using fractional cycles.)\n\n3. \"Chỉ dùng chế độ B không đáp ứng được ràng buộc năng lượng.\" (Only B does not meet energy constraint.)\n\n4. \"Kết hợp chế độ A và B luôn vi phạm một trong các ràng buộc, bất kể cách phân bổ chu trình.\" (Combination always violates one constraint.)\n\nThe correctAnswer field is a JSON array with two strings: option 1 and option 3. So they claim statements 1 and 3 are correct. But note that option 3 says \"Only B does not meet the energy constraint.\" That is a statement about B alone. Option 1 says combination can meet all constraints. Both could be true simultaneously.\n\nWe need to independently solve.\n\nLet x = number of A cycles (can be fractional), y = number of B cycles.\n\nConstraints:\n\nHeat: 540x + 600y = 2160 (must achieve exactly? At least? The problem says \"đạt tải nhiệt 2160 kJ\". Usually need to meet that load, could be at least. We'll assume at least. But they likely need exactly 2160, but fractional cycles allow exact.\n\nTime: 60x + 40y ≤ 200\n\nElectricity: 180x + 240y ≤ 800\n\nx, y ≥0.\n\nWe need to see if there exists solution.\n\nSolve heat equation: 540x + 600y = 2160.\n\nDivide by 60: 9x + 10y = 36.\n\nWe can solve for x = (36 - 10y)/9.\n\nNow apply constraints.\n\nTime: 60x + 40y = 60*(36 -10y)/9 + 40y = (2160 -600y)/9 + 40y = (2160 -600y + 360y)/9 = (2160 -240y)/9 ≤200.\n\nMultiply 9: 2160 -240y ≤1800 => -240y ≤ -360 => y ≥ 1.5.\n\nElectricity: 180x + 240y = 180*(36 -10y)/9 + 240y = (6480 -1800y)/9 + 240y = (6480 -1800y + 2160y)/9 = (6480 +360y)/9 ≤800.\n\nMultiply 9: 6480 +360y ≤7200 => 360y ≤720 => y ≤2.\n\nAlso need x ≥0 => (36 -10y)/9 ≥0 => y ≤3.6.\n\nAnd y ≥0.\n\nSo feasible y range from constraints: y ≥1.5 and y ≤2. So there is feasible interval [1.5,2].\n\nPick y=1.5 => x = (36 -15)/9 =21/9 =2.333... (2.333). Check time: 60*2.333 +40*1.5 =140 +60 =200 exactly. Electricity: 180*2.333 +240*1.5 =420 +360 =780 ≤800. Good.\n\nPick y=2 => x = (36 -20)/9 =16/9 =1.777... Time: 60*1.777 +40*2 =106.666+80=186.666 ≤200. Electricity: 180*1.777+240*2 =320+480=800 exactly. Good.\n\nThus combination can satisfy constraints. So statement 1 is true.\n\nNow evaluate only A: set y=0, need heat: 540x =2160 => x=4. Time: 60*4=240 >200, violates time. Electricity: 180*4=720 ≤800, okay. So only A violates time constraint, cannot meet all constraints. So statement 2 is false.\n\nOnly B: set x=0, need 600y=2160 => y=3.6. Time: 40*3.6=144 ≤200 okay. Electricity: 240*3.6=864 >800 violates electricity budget. So B alone violates electricity constraint. Statement 3 says \"Chỉ dùng chế độ B không đáp ứng được ràng buộc năng lượng.\" That is true (does not meet electricity constraint). So statement 3 is true.\n\nStatement 4 says combination always violates one constraint, which is false because we found feasible combos.\n\nThus true statements are 1 and 3. So correctAnswer array matches that. Good.\n\nNow explanation: Provided explanation says solving system yields feasible solution (example x≈2.30, y≈1.55). That matches our solution (approx). It also says B alone violates electricity and A alone violates time, thus only two statements true. Explanation consistent with answer. Language Vietnamese, consistent.\n\nNow selfContained: All needed data provided in stem: heat per cycle, time, electricity, constraints, load. Yes.\n\nsourceSupported: The source chunk synthetic-physics-3 contains same data. The explanation uses that. So source supports.\n\nhardReasoning: Need to solve linear inequalities with fractional cycles, find feasible region. This is more than routine substitution? For hard difficulty, they require non-routine dependent inference, inverse constraints, etc. This problem involves solving a system of inequalities and checking feasibility, which is moderate. Is it considered hard? The guidelines: converting units, linear thermometer calibration alone are routine. This is solving a linear programming feasibility with two variables, requiring checking bounds. Might be considered beyond routine substitution because need to consider both time and electricity constraints simultaneously and find feasible region. Likely qualifies as hard. We'll mark hardReasoning true.\n\ncredibleDistractors: Options include plausible misconceptions: A alone, B alone, combination always fails, combination works. These are plausible. So true.\n\nNow isConsistent: language consistent, yes.\n\nNow need to produce JSON with evaluation fields.\n\nAlso need to include reasoningJustification: brief assessment.\n\nAnd reason field: if any failures, else state all passed.\n\nAll passed, so reason: \"All criteria satisfied.\"\n\nNow produce JSON.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.062851539,
+    "prompt_tokens": 2957,
+    "prompt_time": 0.14045156,
+    "completion_tokens": 1646,
+    "completion_time": 3.462227667,
+    "total_tokens": 4603,
+    "total_time": 3.602679227,
+    "completion_tokens_details": {
+      "reasoning_tokens": 1447
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_0708ac49a5",
+  "x_groq": {
+    "id": "req_01m40fntq5e1haa5b225xxedbn",
+    "seed": 249412978
+  },
+  "service_tier": "on_demand"
+}

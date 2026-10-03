@@ -1,0 +1,107 @@
+
+> prepetual@1.0.0 build
+> tsx script/build.ts
+
+building client...
+vite v5.4.21 building for production...
+transforming...
+
+warn - The class `ease-[cubic-bezier(0.34,1.56,0.64,1)]` is ambiguous and matches multiple utilities.
+warn - If this is content and not a class, replace it with `ease-&lsqb;cubic-bezier(0.34,1.56,0.64,1)&rsqb;` to silence this warning.
+
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+✓ 4070 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                                                        3.03 kB │ gzip:   1.06 kB
+../dist/public/assets/KaTeX_Size3-Regular-CTq5MqoE.woff                          4.42 kB
+../dist/public/assets/KaTeX_Size4-Regular-Dl5lxZxV.woff2                         4.93 kB
+../dist/public/assets/KaTeX_Size2-Regular-Dy4dx90m.woff2                         5.21 kB
+../dist/public/assets/KaTeX_Size1-Regular-mCD8mA8B.woff2                         5.47 kB
+../dist/public/assets/KaTeX_Size4-Regular-BF-4gkZK.woff                          5.98 kB
+../dist/public/assets/KaTeX_Size2-Regular-oD1tc_U0.woff                          6.19 kB
+../dist/public/assets/KaTeX_Size1-Regular-C195tn64.woff                          6.50 kB
+../dist/public/assets/KaTeX_Caligraphic-Regular-Di6jR-x-.woff2                   6.91 kB
+../dist/public/assets/KaTeX_Caligraphic-Bold-Dq_IR9rO.woff2                      6.91 kB
+../dist/public/assets/KaTeX_Size3-Regular-DgpXs0kz.ttf                           7.59 kB
+../dist/public/assets/KaTeX_Caligraphic-Regular-CTRA-rTL.woff                    7.66 kB
+../dist/public/assets/KaTeX_Caligraphic-Bold-BEiXGLvX.woff                       7.72 kB
+../dist/public/assets/image_1765894870887-DBfrQS9M.png                           8.16 kB
+../dist/public/assets/KaTeX_Script-Regular-D3wIWfF6.woff2                        9.64 kB
+../dist/public/assets/favicon_prepetual_1768124938772-C4uHslQ0.png               9.87 kB
+../dist/public/assets/KaTeX_SansSerif-Regular-DDBCnlJ7.woff2                    10.34 kB
+../dist/public/assets/KaTeX_Size4-Regular-DWFBv043.ttf                          10.36 kB
+../dist/public/assets/KaTeX_Script-Regular-D5yQViql.woff                        10.59 kB
+../dist/public/assets/KaTeX_Fraktur-Regular-CTYiF6lA.woff2                      11.32 kB
+../dist/public/assets/KaTeX_Fraktur-Bold-CL6g_b3V.woff2                         11.35 kB
+../dist/public/assets/KaTeX_Size2-Regular-B7gKUWhC.ttf                          11.51 kB
+../dist/public/assets/KaTeX_SansSerif-Italic-C3H0VqGB.woff2                     12.03 kB
+../dist/public/assets/KaTeX_SansSerif-Bold-D1sUS0GD.woff2                       12.22 kB
+../dist/public/assets/KaTeX_Size1-Regular-Dbsnue_I.ttf                          12.23 kB
+../dist/public/assets/KaTeX_SansSerif-Regular-CS6fqUqJ.woff                     12.32 kB
+../dist/public/assets/KaTeX_Caligraphic-Regular-wX97UBjC.ttf                    12.34 kB
+../dist/public/assets/KaTeX_Caligraphic-Bold-ATXxdsX0.ttf                       12.37 kB
+../dist/public/assets/KaTeX_Fraktur-Regular-Dxdc4cR9.woff                       13.21 kB
+../dist/public/assets/KaTeX_Fraktur-Bold-BsDP51OF.woff                          13.30 kB
+../dist/public/assets/KaTeX_Typewriter-Regular-CO6r4hn1.woff2                   13.57 kB
+../dist/public/assets/KaTeX_SansSerif-Italic-DN2j7dab.woff                      14.11 kB
+../dist/public/assets/KaTeX_SansSerif-Bold-DbIhKOiC.woff                        14.41 kB
+../dist/public/assets/KaTeX_Typewriter-Regular-C0xS9mPB.woff                    16.03 kB
+../dist/public/assets/KaTeX_Math-BoldItalic-CZnvNsCZ.woff2                      16.40 kB
+../dist/public/assets/KaTeX_Math-Italic-t53AETM-.woff2                          16.44 kB
+../dist/public/assets/KaTeX_Script-Regular-C5JkGWo-.ttf                         16.65 kB
+../dist/public/assets/KaTeX_Main-BoldItalic-DxDJ3AOS.woff2                      16.78 kB
+../dist/public/assets/KaTeX_Main-Italic-NWA7e6Wa.woff2                          16.99 kB
+../dist/public/assets/KaTeX_Math-BoldItalic-iY-2wyZ7.woff                       18.67 kB
+../dist/public/assets/KaTeX_Math-Italic-DA0__PXp.woff                           18.75 kB
+../dist/public/assets/KaTeX_Main-BoldItalic-SpSLRI95.woff                       19.41 kB
+../dist/public/assets/KaTeX_SansSerif-Regular-BNo7hRIc.ttf                      19.44 kB
+../dist/public/assets/KaTeX_Fraktur-Regular-CB_wures.ttf                        19.57 kB
+../dist/public/assets/KaTeX_Fraktur-Bold-BdnERNNW.ttf                           19.58 kB
+../dist/public/assets/KaTeX_Main-Italic-BMLOBm91.woff                           19.68 kB
+../dist/public/assets/KaTeX_SansSerif-Italic-YYjJ1zSn.ttf                       22.36 kB
+../dist/public/assets/KaTeX_SansSerif-Bold-CFMepnvq.ttf                         24.50 kB
+../dist/public/assets/KaTeX_Main-Bold-Cx986IdX.woff2                            25.32 kB
+../dist/public/assets/KaTeX_Main-Regular-B22Nviop.woff2                         26.27 kB
+../dist/public/assets/image-removebg-preview_(2)_1769320540513-D4axt4tb.png     26.62 kB
+../dist/public/assets/KaTeX_Typewriter-Regular-D3Ib7_Hf.ttf                     27.56 kB
+../dist/public/assets/KaTeX_AMS-Regular-BQhdFMY1.woff2                          28.08 kB
+../dist/public/assets/KaTeX_Main-Bold-Jm3AIy58.woff                             29.91 kB
+../dist/public/assets/KaTeX_Main-Regular-Dr94JaBh.woff                          30.77 kB
+../dist/public/assets/KaTeX_Math-BoldItalic-B3XSjfu4.ttf                        31.20 kB
+../dist/public/assets/KaTeX_Math-Italic-flOr_0UB.ttf                            31.31 kB
+../dist/public/assets/KaTeX_Main-BoldItalic-DzxPMmG6.ttf                        32.97 kB
+../dist/public/assets/KaTeX_AMS-Regular-DMm9YOAa.woff                           33.52 kB
+../dist/public/assets/KaTeX_Main-Italic-3WenGoN9.ttf                            33.58 kB
+../dist/public/assets/KaTeX_Main-Bold-waoOVXN0.ttf                              51.34 kB
+../dist/public/assets/KaTeX_Main-Regular-ypZvNtVU.ttf                           53.58 kB
+../dist/public/assets/KaTeX_AMS-Regular-DRggAlZN.ttf                            63.63 kB
+../dist/public/assets/flashcards_learning__d59b1982-DO2zQd36.jpg                90.47 kB
+../dist/public/assets/time_management_cloc_681d2dae-BzNzX291.jpg               136.39 kB
+../dist/public/assets/online_learning_digi_42d10943-DDkYQmF7.jpg               226.26 kB
+../dist/public/assets/technology_apps_on_s_c5006dad-CcFn-5pu.jpg               231.32 kB
+../dist/public/assets/brain_memory_learnin_6d97ed0d-CdeKuU1B.jpg               234.06 kB
+../dist/public/assets/education_technology_2b7a5460-BgaErTfm.jpg               249.52 kB
+../dist/public/assets/mobile_phone_apps_st_f5343544-DzWv9OkS.jpg               257.24 kB
+../dist/public/assets/group_study_collabor_4040bda8--J1sv_8v.jpg               258.15 kB
+../dist/public/assets/laptop_computer_stud_429719bb-9Z6kuWk3.jpg               277.35 kB
+../dist/public/assets/student_studying_exa_4e0e4082-BdZ0TF3S.jpg               316.39 kB
+../dist/public/assets/artificial_intellige_de833e12-Dwya0IUN.jpg               347.30 kB
+../dist/public/assets/organized_student_de_5cb006a3-BkrVkhzJ.jpg               395.27 kB
+../dist/public/assets/quiz-pdf-CPM1h9cT.css                                      6.08 kB │ gzip:   2.75 kB
+../dist/public/assets/index-Dokb44Z6.css                                       245.61 kB │ gzip:  39.69 kB
+../dist/public/assets/purify.es-BnINGy_Y.js                                     28.93 kB │ gzip:  11.14 kB
+../dist/public/assets/index.es-BnDxf2Uq.js                                     150.73 kB │ gzip:  51.57 kB
+../dist/public/assets/quiz-pdf-CbCj_7Ea.js                                     668.69 kB │ gzip: 201.92 kB
+../dist/public/assets/index-ROwoH5eP.js                                      2,475.91 kB │ gzip: 714.78 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 48.99s
+building server...
+
+  dist\index.mjs  1.7mb
+
+Done in 413ms

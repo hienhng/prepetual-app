@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-56a2fd5e-843f-4e34-9d33-18e8f25eb414",
+  "object": "chat.completion",
+  "created": 1791003565,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"verifications\": [\n    {\n      \"index\": 0,\n      \"solution\": \"Latent heat of fusion $L$ is defined by $Q = L\\\\,m$, where $Q$ is energy (J) and $m$ is mass (kg); therefore $L$ has unit $\\\\frac{\\\\text{J}}{\\\\text{kg}}$ (J/kg).\",\n      \"statementIsTrue\": null,\n      \"satisfyingOptionIndexes\": [],\n      \"isUnambiguous\": true,\n      \"isLanguageConsistent\": true,\n      \"correctOptionIndex\": null,\n      \"correctAnswer\": \"J/kg\",\n      \"explanation\": \"Nhiệt ẩn nóng chảy được định nghĩa bằng công thức $Q = L\\\\,m$, trong đó $Q$ có đơn vị joule (J) và $m$ có đơn vị kilogram (kg). Do đó $L = \\\\frac{Q}{m}$ có đơn vị $\\\\frac{\\\\text{J}}{\\\\text{kg}}$, tức là $\\\\mathrm{J/kg}$.\",\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": false,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"Recall definition of latent heat and perform unit analysis; no multi‑step calculation needed.\",\n      \"evidence\": [\n        {\n          \"chunkId\": \"44178eb8-d350-4b9e-9dc0-26ffcc4f34ec\",\n          \"quote\": \"nhiệt nóng chảy riêng của nước đá là 34.10^5 J/kg\"\n        }\n      ]\n    }\n  ]\n}",
+        "reasoning": "We have one question: index 0, type short_answer, question: \"Đơn vị chuẩn của nhiệt ẩn nóng chảy (latent heat of fusion) là gì?\" sourceChunkIds includes \"44178eb8-d350-4b9e-9dc0-26ffcc4f34ec\". That chunk is part of source for question 3 about latent heat of fusion of ice. It contains the phrase: \"Biết rằng nhiệt nóng chảy riêng của nước đá là 34.10^5 J/kg\". So the unit is J/kg. The question asks: \"Đơn vị chuẩn của nhiệt ẩn nóng chảy (latent heat of fusion) là gì?\" The answer: joule per kilogram (J/kg). That's standard. Need to verify source supports: the chunk mentions \"nhiệt nóng chảy riêng của nước đá là 34.10^5 J/kg\". That includes unit J/kg, supporting that latent heat of fusion unit is J/kg. So sourceSupported true.\n\nselfContained: The question asks for unit; no other givens needed. Yes.\n\nhardReasoning: It's a short answer but requires recall of unit; not hard. But requirement: for HARD difficulty require multiple dependent steps. This is just recall, not hard. So hardReasoning false.\n\ncredibleDistractors: Not applicable for short answer? But we still need boolean; likely true because no distractors.\n\nWe need to produce JSON with fields: index, solution, statementIsTrue (null), satisfyingOptionIndexes (empty array), isUnambiguous (true?), isLanguageConsistent (true), correctOptionIndex (null), correctAnswer (the answer string), explanation (learner-facing explanation), selfContained, sourceSupported, hardReasoning, credibleDistractors, reasoningJustification, evidence array.\n\nWe need to include at least one quote from source chunk: include the line with unit.\n\nLet's craft solution: derive that unit is J/kg.\n\nSolution: The latent heat of fusion is energy per mass, so unit J/kg. Provide derivation: latent heat defined as Q = L m, L has unit J/kg.\n\nNow produce JSON.\n\nCheck required fields order: solution, satisfyingOptionIndexes, correctOptionIndex, correctAnswer, explanation, selfContained, sourceSupported, hardReasoning, credibleDistractors, reasoningJustification, evidence.\n\nAlso include statementIsTrue (null), isUnambiguous, isLanguageConsistent.\n\nLet's fill:\n\nindex:0\nsolution: \"Latent heat of fusion L is defined by Q = L·m, where Q is energy (J) and m is mass (kg); therefore L has unit J·kg⁻¹ (J/kg).\"\nsatisfyingOptionIndexes: [] (since short answer)\ncorrectOptionIndex: null\ncorrectAnswer: \"J/kg\"\nexplanation: \"Nhiệt ẩn nóng chảy được định nghĩa bằng công thức $Q = L\\\\,m$, trong đó $Q$ có đơn vị joule (J) và $m$ có đơn vị kilogram (kg). Do đó $L = \\\\frac{Q}{m}$ có đơn vị $\\\\frac{\\\\text{J}}{\\\\text{kg}}$, tức là $\\\\mathrm{J/kg}$.\"\nselfContained: true\nsourceSupported: true\nhardReasoning: false\ncredibleDistractors: true (no distractors)\nreasoningJustification: \"Recall definition of latent heat and unit analysis; no multi-step calculation required.\"\nevidence: [{chunkId:\"44178eb8-d350-4b9e-9dc0-26ffcc4f34ec\", quote:\"nhiệt nóng chảy riêng của nước đá là 34.10^5 J/kg\"}]\n\nisUnambiguous: true (only one answer)\nisLanguageConsistent: true (question in Vietnamese, answer in unit)\n\nNow produce JSON. Ensure proper escaping of backslashes. Use double backslashes for LaTeX."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.33804385,
+    "prompt_tokens": 12506,
+    "prompt_time": 0.601359748,
+    "completion_tokens": 1181,
+    "completion_time": 2.4945518890000002,
+    "total_tokens": 13687,
+    "total_time": 3.095911637,
+    "completion_tokens_details": {
+      "reasoning_tokens": 815
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_5082008e34",
+  "x_groq": {
+    "id": "req_01m40233qmej2sgbwkxsxyqn94",
+    "seed": 1345479473
+  },
+  "service_tier": "on_demand"
+}

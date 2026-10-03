@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-aadadf57-c92e-4ecd-922b-2dfcf5e11c54",
+  "object": "chat.completion",
+  "created": 1791017010,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"title\":\"Lựa chọn chu trình làm lạnh dưới ràng buộc thời gian và năng lượng\",\n  \"category\":\"categories.science\",\n  \"plans\":[\n    {\n      \"id\":\"P9\",\n      \"type\":\"multiple_choice\",\n      \"recordIds\":[\"F1\"],\n      \"intent\":\"Xác định cặp số chu trình (n_A, n_B) nguyên hoặc thập phân cho phép đáp ứng tải nhiệt 2160 kJ đồng thời không vượt quá thời gian tối đa 200 giây và ngân sách điện 800 kJ; yêu cầu suy ra biên giới khả thi từ các bất đẳng thức thời gian và năng lượng rồi quyết định trường hợp nào thỏa mãn.\",\n      \"reasoningSteps\":[\"Suy ra biên giới khả thi bằng cách viết bất đẳng thức 60 s·n_A+40 s·n_B≤200 s và 180 kJ·n_A+240 kJ·n_B≤800 kJ\",\"Kiểm tra từng lựa chọn đề xuất xem có thỏa mãn cả ba bất đẳng thức (thời gian, năng lượng, nhiệt) không và chọn đáp án đúng\"]\n    },\n    {\n      \"id\":\"P10\",\n      \"type\":\"selection\",\n      \"recordIds\":[\"F1\"],\n      \"intent\":\"Kết hợp công thức COP=Q_c/W và các ràng buộc thời gian‑năng lượng để suy ra hệ số COP tổng thể của một hỗn hợp chu trình A và B; yêu cầu chọn tất cả các phát biểu đúng về hệ số COP tổng hợp và ảnh hưởng của việc tăng tỉ lệ chu trình B.\",\n      \"reasoningSteps\":[\"Tính COP riêng cho A (540/180=3) và B (600/240=2.5)\",\"Sử dụng quan hệ Q_total=540 n_A+600 n_B và W_total=180 n_A+240 n_B để suy ra COP_hỗn_hợp=Q_total/W_total và đánh giá ảnh hưởng của tỉ lệ n_B/n_A\"]\n    },\n    {\n      \"id\":\"P11\",\n      \"type\":\"short_answer\",\n      \"recordIds\":[\"F1\"],\n      \"intent\":\"Giả sử thời gian hoạt động đạt đúng 200 giây, suy ra giới hạn tối đa của n_A và n_B từ bất đẳng thức thời gian, sau đó kết hợp với giới hạn ngân sách điện 800 kJ để tính lượng nhiệt tối đa có thể lấy được mà không vi phạm bất kỳ ràng buộc nào.\",\n      \"reasoningSteps\":[\"Biểu diễn n_B=(200‑60 n_A)/40 từ ràng buộc thời gian\",\"Thay thế n_B vào bất đẳng thức năng lượng 180 n_A+240 n_B≤800 để xác định miền khả thi của n_A, rồi tính Q_max=540 n_A+600 n_B tại điểm biên\"]\n    },\n    {\n      \"id\":\"P12\",\n      \"type\":\"multiple_choice\",\n      \"recordIds\":[\"F1\"],\n      \"intent\":\"Xác định liệu việc chỉ sử dụng chế độ B (n_A=0) có thể đáp ứng tải nhiệt 2160 kJ mà không vượt quá thời gian 200 giây và ngân sách điện 800 kJ; yêu cầu suy ra kết quả bằng cách kết hợp các bất đẳng thức thời gian, năng lượng và nhiệt.\",\n      \"reasoningSteps\":[\"Áp dụng n_A=0 vào bất đẳng thức thời gian 40 s·n_B≤200 s và năng lượng 240 kJ·n_B≤800 kJ để tìm n_B tối đa\",\"Kiểm tra xem 600 kJ·n_B tối đa có ≥2160 kJ hay không và đưa ra kết luận\"]\n    }\n  ]\n}",
+        "reasoning": "We need to output JSON with title, category, plans array for 4 slots. Must use only reviewed source records (F1). Each plan must have id, type, recordIds, intent, reasoningSteps.\n\nWe need to create hard difficulty tasks requiring non-routine inference and conclusion depends on that inference. For each slot type:\n\n- P9: multiple_choice, reasoningPattern \"infer a boundary then decide which case applies\". So need to infer a boundary (e.g., feasible region boundary from constraints) then decide which case applies (e.g., which mode combination meets constraints). Provide question with options.\n\n- P10: selection (likely multiple select? but type \"selection\" maybe choose correct statements). ReasoningPattern \"combine interacting concepts to infer a consequence\". So combine concepts (COP, time, energy) to infer consequence.\n\n- P11: short_answer, same pattern.\n\n- P12: multiple_choice, same pattern.\n\nWe need to include recordIds list (primaryRecordId plus maybe others). Only F1 exists, so recordIds will be [\"F1\"] maybe plus others but none.\n\nWe must include intent: precise intended task including all conditions. Must state initial/final condition, constants, etc.\n\nReasoningSteps: list of dependent operations.\n\nWe must ensure each question is hard: non-routine inference. For example, infer that to meet heat requirement within time and energy constraints, the feasible region is limited; then decide which combination of cycles is optimal or possible.\n\nWe need to avoid accepted questions (none). Must not generate wrongAnswerExplanations etc.\n\nWe need output language Vietnamese for title, intents, etc. But JSON keys remain English.\n\nTitle: short descriptive title in Vietnamese.\n\nCategory: \"categories.science\".\n\nNow craft each plan.\n\nPlan P9: multiple_choice. Intent: Determine which combination of partial cycles (numbers of cycles of mode A and B) satisfies all constraints and yields maximum COP, given boundary inference. Provide question: \"Which of the following combinations of numbers of cycles (n_A, n_B) can be used to meet the heat removal requirement while staying within time ≤200 s and energy ≤800 kJ?\" Options include correct and distractors.\n\nReasoning steps: 1) Infer feasible region boundary from time and energy constraints (linear inequalities). 2) Evaluate each option against heat requirement and constraints.\n\nPlan P10: selection (maybe \"select all that apply\"). Intent: Combine concepts of COP and constraints to infer which mode yields higher overall COP under a given mix. Provide statements to select.\n\nReasoning steps: 1) Compute COP for each mode (given). 2) Infer overall COP for mixture based on weighted average using heat extracted. 3) Determine which statement about COP consequence is true.\n\nPlan P11: short_answer. Intent: Given a scenario where total operation time is exactly 200 s, find the maximum heat that can be removed without exceeding electrical budget, using inference of boundary intersection. Need to compute max heat removal.\n\nReasoning steps: 1) Use time constraint equality to express relation between n_A and n_B. 2) Substitute into energy constraint to find feasible region, then maximize heat extraction linear function.\n\nPlan P12: multiple_choice. ReasoningPattern same as combine interacting concepts. Intent: Decide whether switching to only mode B would violate any constraint given the required heat removal, requiring inference of combined constraints.\n\nNow produce JSON.\n\nMake sure each plan includes \"recordIds\": [\"F1\"].\n\nNow produce final JSON compact.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.396144153,
+    "prompt_tokens": 1704,
+    "prompt_time": 0.072827228,
+    "completion_tokens": 1532,
+    "completion_time": 3.173455569,
+    "total_tokens": 3236,
+    "total_time": 3.246282797,
+    "completion_tokens_details": {
+      "reasoning_tokens": 712
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_e1a78f200e",
+  "x_groq": {
+    "id": "req_01m40exe70e5t9faqbrm1gwspn",
+    "seed": 545025084
+  },
+  "service_tier": "on_demand"
+}

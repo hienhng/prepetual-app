@@ -1,5 +1,6 @@
 import { createQuizChatHandler } from "./quiz-chat.js";
-import { selectionAnswersMatch } from "../shared/selection-answer.js";
+import { answersMatch } from "../shared/answer-grading.js";
+import { signShortAnswerGrade, verifyShortAnswerGrade } from "./short-answer-grade.js";
 import { validatedQuestionSchema } from "../shared/schema.js";
 import { createGenerationDraft, runGenerationDraft, claimGenerationDraft, listGenerationDrafts } from "./quiz-generation-drafts.js";
 import type { Express } from "express";
@@ -9,15 +10,16 @@ import { createServer, type Server } from "http";
 import { createGenerationTiming } from "./generation-timing.js";
 import { QuizImportError } from "./quiz-import.js";
 import { confirmImportedQuestion, getPendingImportQuestions } from "../shared/import-review.js";
-import { transcribeExamImage } from "./openai.js";
+import { transcribeExamImage, verifyExamPageTranscription } from "./openai.js";
 import { prepareQuizSource } from "./quiz-source-preparation.js";
 import { storage } from "./storage.js";
 import { setupAuth, isAuthenticated, populateUser } from "./auth.js";
 import { sendContactEmail, sendBugReportEmail } from "./email.js";
 import multer from "multer";
+import { decodeUploadedFileName } from "../shared/upload-filename.js";
 import { ocrImageBuffer, terminateOCRWorker } from "./ocr.js";
 import { extractTextFromOfficeDocument } from "./office-extract.js";
-import { generateStudyMaterialFromPrompt, detectQuizSettingsFromPrompt, importExistingQuiz, quizChatResponse, classifyImages, extractTextFromImagesWithVision, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
+import { resolveQuizOutputLanguage, generateStudyMaterialFromPrompt, detectQuizSettingsFromPrompt, importExistingQuiz, quizChatResponse, classifyImages, extractTextFromImagesWithVision, reviseQuizQuestions, generateReviewQuestions, generateLectureTopicTitles, generateLectureFromMaterial } from "./openai.js";
 import { IMAGE_ANALYSIS_SOURCE_MARKER, generateQuizRequestSchema, submitQuizRequestSchema, insertBugReportSchema } from "../shared/schema.js";
 import type { Question, DifficultyLevel } from "@shared/schema";
 import { createJob, getJob, storeBuffer, processJob, deleteJob } from "./upload-jobs.js";
@@ -25,7 +27,9 @@ import { extractTextFromPDFWithOCR } from "./pdf-extract.js";
 import { fetchSupadataTranscript, SupadataTranscriptError } from "./supadata.js";
 import { setPublicFeedCacheHeaders } from "./public-feed-cache.js";
 import { canManageQuiz, canReadQuiz, canReadQuizResult } from "./quiz-access.js";
-import { POSITION_INDEPENDENT_EXPLANATION_RULE } from "./explanation-guidance.js";
+import { createSubmittedAnswerExplainer } from "./submitted-answer-feedback.js";
+import { createQuizFeedbackHandler } from "./quiz-feedback.js";
+import { preserveVerifiedQuizQuestions } from "./quiz-preparation.js";
 import { KATEX_FORMATTING_RULES } from "./math-format.js";
 import {
   inspectAiJsonCompletion,
@@ -38,9 +42,7 @@ import {
 } from "./quiz-generation-policy.js";
 import { resolveQuizGenerationSources } from "./quiz-sources.js";
 import {
-  MAX_AI_GRADED_SHORT_ANSWERS_PER_SUBMISSION,
   MAX_UPLOAD_TOTAL_BYTES,
-  generateExplanationRequestSchema,
   generateLectureRequestSchema,
   gradeShortAnswerRequestSchema,
   importQuizRequestSchema,
@@ -68,8 +70,28 @@ const textModel = process.env.AI_QUIZ_MODEL || "openai/gpt-oss-120b";
 const visionModel = process.env.AI_VISION_MODEL || "qwen/qwen3.6-27b";
 const SHORT_ANSWER_GRADING_MAX_TOKENS = 1_200;
 const SHORT_ANSWER_GRADING_RETRY_MAX_TOKENS = 2_000;
-const EXPLANATION_MAX_TOKENS = 1_200;
-const EXPLANATION_RETRY_MAX_TOKENS = 2_000;
+const completeQuizFeedback: import("./verified-feedback.js").FeedbackCompletion = async (prompt, images) => {
+  const messages = images.length
+    ? [{ role: "user" as const, content: [{ type: "text" as const, text: prompt }, ...images.map(url => ({ type: "image_url" as const, image_url: { url } }))] }]
+    : [{ role: "user" as const, content: prompt }];
+  let jsonMode = true;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await openaiClient.chat.completions.create({
+        model: images.length ? visionModel : (process.env.AI_VALIDATION_MODEL || textModel),
+        messages, temperature: 0, max_tokens: attempt === 2 ? 6_000 : 4_000,
+        ...(jsonMode ? { response_format: { type: "json_object" as const } } : {}),
+      }, { timeout: 30_000, maxRetries: 0 });
+      const inspection = inspectAiJsonCompletion(response);
+      if (inspection.result) return inspection.result;
+    } catch (error) {
+      if (!isJsonResponseFormatError(error)) throw error;
+      jsonMode = false;
+    }
+  }
+  throw new Error("Quiz feedback response was incomplete or invalid");
+};
+const explainQuizSubmission = createSubmittedAnswerExplainer(completeQuizFeedback);
 
 const ollamaClient = new OpenAI({
   baseURL: process.env.OLLAMA_BASE_URL || "http://localhost:11434/v1",
@@ -322,6 +344,7 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
     maxPages: 100,
     requireComplete: true,
     transcribePage: transcribeExamImage,
+    verifyTranscription: verifyExamPageTranscription,
     renderScale: 1.4,
     maxRenderPixels: 2_500_000,
   });
@@ -667,7 +690,7 @@ export async function registerRoutes(
         createJob(jobId, mimetype);
         storeBuffer(jobId, buffer);
 
-        queuedJobs.push({ jobId, fileName: originalname });
+        queuedJobs.push({ jobId, fileName: decodeUploadedFileName(originalname) });
 
         // Serverless requests can be handled by different instances, so an in-memory
         // job created here may not exist when the browser polls for it. Process the
@@ -824,6 +847,13 @@ export async function registerRoutes(
       let sourceUsesVisionTranscription = false;
       const imageOnlyFlag = isImageOnly || (!sources.materialText && sources.hasImages);
 
+      sendProgress("language", 12, "Determining quiz language...");
+      const targetLanguage = await resolveQuizOutputLanguage({
+        outputLanguage: validation.data.outputLanguage,
+        prompt: sources.prompt, materialText: sources.materialText, promptOnly: sources.promptOnly,
+        documentImages: [...(sourceImageUrl ? [sourceImageUrl] : []), ...(documentImages || [])],
+      });
+
       if (sources.promptOnly) {
         textForQuiz = await generateStudyMaterialFromPrompt({
           prompt: sources.prompt,
@@ -831,6 +861,7 @@ export async function registerRoutes(
           questionTypes,
           difficulty: resolvedDifficulty,
           onProgress: sendProgress,
+          targetLanguage,
         });
       }
 
@@ -902,6 +933,7 @@ export async function registerRoutes(
       timing.mark("generation");
 
       const generation = {
+        targetLanguage,
         text: rag?.retrieved.context || textForQuiz,
         isPromptBased: false,
         questionCount: resolvedQuestionCount,
@@ -983,6 +1015,12 @@ export async function registerRoutes(
       let sourceUsesVisionTranscription = false;
       const imageOnlyFlag = isImageOnly || (!sources.materialText && sources.hasImages);
 
+      const targetLanguage = await resolveQuizOutputLanguage({
+        outputLanguage: validation.data.outputLanguage,
+        prompt: sources.prompt, materialText: sources.materialText, promptOnly: sources.promptOnly,
+        documentImages: [...(sourceImageUrl ? [sourceImageUrl] : []), ...(documentImages || [])],
+      });
+
       if (sources.promptOnly) {
         textForQuiz = await generateStudyMaterialFromPrompt({
           prompt: sources.prompt,
@@ -990,6 +1028,7 @@ export async function registerRoutes(
           questionTypes,
           difficulty: resolvedDifficulty,
           onProgress: undefined,
+          targetLanguage,
         });
       }
 
@@ -1041,6 +1080,7 @@ export async function registerRoutes(
       timing.mark("generation");
 
       const generation = {
+        targetLanguage,
         text: rag?.retrieved.context || textForQuiz,
         isPromptBased: false,
         questionCount: resolvedQuestionCount,
@@ -1126,13 +1166,14 @@ export async function registerRoutes(
         documentImages: importImages,
       });
 
+
       const quiz = await storage.saveQuiz({
         userId,
         title,
         sourceText: sourceUsesVisionTranscription ? markInternalImageAnalysisText(textForImport) : textForImport,
         sourceImageUrl: sourceImageUrl || null,
         sourceImages: Array.isArray(documentImages) ? documentImages : null,
-        questions: questions as Question[],
+        questions,
         difficulty: "medium",
         category,
         generationMode: "import",
@@ -1221,7 +1262,7 @@ IMPORTANT NOTE:
         });
       }
 
-      const { quizId, answers, timeTaken } = validation.data;
+      const { quizId, answers, timeTaken, shortAnswerGradingTokens } = validation.data;
 
       const quiz = await storage.getQuiz(quizId);
       if (!quiz) {
@@ -1237,67 +1278,21 @@ IMPORTANT NOTE:
       if (getPendingImportQuestions(questions).length) {
         return res.status(409).json({ message: "Review and confirm the flagged imported questions before starting a scored quiz.", code: "IMPORT_REVIEW_REQUIRED" });
       }
-      const quizSourceText = (quiz as any).sourceText || "";
-      let aiGradedShortAnswerCount = 0;
-
-      const gradePromises = questions.map(async (question) => {
-        const userAnswer = answers[question.id];
-        if (!userAnswer) {
-          return { questionId: question.id, correct: false };
-        }
-
-        if (question.type === "short_answer") {
-          if (aiGradedShortAnswerCount >= MAX_AI_GRADED_SHORT_ANSWERS_PER_SUBMISSION) {
-            return {
-              questionId: question.id,
-              correct: userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim(),
-            };
+      // Choice questions use the saved key; short answers retain the model's signed verdict.
+      const gradeResults: { questionId: string; correct: boolean }[] = [];
+      for (const question of questions) {
+        const answer = answers[question.id];
+        if (question.type === "short_answer" && answer?.trim()) {
+          const verdict = verifyShortAnswerGrade(shortAnswerGradingTokens[question.id], quizId, question, answer);
+          if (!verdict) {
+            return res.status(409).json({ code: "SHORT_ANSWER_GRADING_REQUIRED", questionId: question.id,
+              message: "Wait for the model to grade each short answer before submitting the quiz." });
           }
-          aiGradedShortAnswerCount++;
-          try {
-            const sourceContext = quizSourceText
-              ? `\nOriginal study material:\n---\n${quizSourceText.slice(0, 3000)}\n---`
-              : "";
-            const referenceHint = question.correctAnswer
-              ? `\nA suggested answer was: "${question.correctAnswer}" — but do NOT treat this as the only correct answer. Use the study material to determine if the student's answer is valid.`
-              : "";
-            const response = await openaiClient.chat.completions.create({
-              model: textModel,
-              messages: [
-                {
-                  role: "system",
-                  content: `You are a strict but fair exam grader. Determine if the student's short answer is correct based on the question and the original study material — NOT by comparing to a fixed predetermined answer.${sourceContext}${referenceHint}\nAccept answers that demonstrate correct understanding even if worded differently. Accept synonyms, abbreviations, alternate phrasings, and minor spelling mistakes. Be strict about factual accuracy.\nRespond ONLY with JSON: {"isCorrect": true/false}`
-                },
-                {
-                  role: "user",
-                  content: `Question: ${question.question}\nStudent's Answer: ${userAnswer}`
-                }
-              ],
-              temperature: 0.1,
-              max_tokens: 50,
-            });
-            const content = response.choices[0]?.message?.content || "";
-            const jsonMatch = content.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-              const result = JSON.parse(jsonMatch[0]);
-              return { questionId: question.id, correct: result.isCorrect === true };
-            }
-          } catch (e) {
-            console.error("AI grading failed for submit, falling back to exact match:", e);
-          }
-          return {
-            questionId: question.id,
-            correct: userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim()
-          };
+          gradeResults.push({ questionId: question.id, correct: verdict.isCorrect });
+        } else {
+          gradeResults.push({ questionId: question.id, correct: answersMatch(answer, question.correctAnswer, question.type) });
         }
-
-        return {
-          questionId: question.id,
-          correct: question.type === "selection" ? selectionAnswersMatch(userAnswer, question.correctAnswer) : userAnswer.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim()
-        };
-      });
-
-      const gradeResults = await Promise.all(gradePromises);
+      }
       for (const result of gradeResults) {
         if (result.correct) {
           correctAnswers++;
@@ -1349,6 +1344,7 @@ IMPORTANT NOTE:
       res.status(500).json({ message: "Failed to get quiz" });
     }
   });
+
 
   app.get("/api/quizzes", isAuthenticated, async (req: any, res) => {
     try {
@@ -1605,7 +1601,7 @@ IMPORTANT NOTE:
         return res.status(409).json({ message: "Confirm the flagged imported questions before publishing this quiz.", code: "IMPORT_REVIEW_REQUIRED" });
       }
       if (title !== undefined) updates.title = title;
-      if (questions !== undefined) updates.questions = questions;
+      if (questions !== undefined) updates.questions = preserveVerifiedQuizQuestions(questions, existingQuiz.questions);
       if (category !== undefined) updates.category = category;
       if (isPublic !== undefined) updates.isPublic = isPublic ? 1 : 0;
       if (pendingImports.length) updates.isPublic = 0;
@@ -1667,7 +1663,7 @@ IMPORTANT NOTE:
 
       const mode = quiz.generationMode === "import" ? "answers_only" : "full";
       const { questionIndex, userCorrectAnswer } = validation.data;
-      const allQuestions = quiz.questions as Question[];
+      const allQuestions = structuredClone(quiz.questions);
 
       if (questionIndex !== undefined && typeof questionIndex === "number") {
         if (questionIndex < 0 || questionIndex >= allQuestions.length) {
@@ -1692,7 +1688,7 @@ IMPORTANT NOTE:
       }
 
       const updatedQuiz = await storage.updateQuiz(id, {
-        questions: allQuestions,
+        questions: preserveVerifiedQuizQuestions(allQuestions, quiz.questions),
       });
 
       res.json({
@@ -2126,6 +2122,7 @@ IMPORTANT NOTE:
         selectedQuestions = [...selectedQuestions, ...extraQuestions];
       }
 
+
       // 6. Return the "Review Quiz" object
       // We keep the original ID so that submit-quiz (which checks the DB) still works
       // but we mark it as a review session.
@@ -2305,7 +2302,22 @@ IMPORTANT NOTE:
           message: validation.error.errors[0]?.message || "Invalid request",
         });
       }
-      const { question, correctAnswer, userAnswer, sourceText, category } = validation.data;
+      const { quizId, questionId, userAnswer } = validation.data;
+      let { question, correctAnswer, sourceText } = validation.data;
+      let gradingQuestion: Question = { id: questionId || "feedback", type: "short_answer", question, correctAnswer };
+      if (quizId) {
+        const quiz = await storage.getQuiz(quizId);
+        if (!quiz) return res.status(404).json({ message: "Quiz not found" });
+        const requesterId = (req as typeof req & { user?: { claims?: { sub?: string } } }).user?.claims?.sub;
+        if (!canReadQuiz(quiz, requesterId)) return res.status(403).json({ message: "You do not have access to this quiz" });
+        const stored = quiz.questions.find(item => item.id === questionId);
+        if (!stored || stored.type !== "short_answer") return res.status(404).json({ message: "Short-answer question not found" });
+        if (stored.importReview) return res.status(422).json({ code: "ANSWER_REVIEW_REQUIRED", message: "Review this imported question first." });
+        gradingQuestion = stored;
+        question = stored.question;
+        correctAnswer = stored.correctAnswer;
+        sourceText = quiz.sourceText;
+      }
 
       const sourceContext = sourceText
         ? `\n\nOriginal study material the question was generated from:\n---\n${sourceText.slice(0, 3000)}\n---`
@@ -2492,10 +2504,11 @@ If the question and study material are in a non-English language, respond with t
         return res.status(502).json({ message: "Failed to parse AI grading response" });
       }
 
+      const verdict = { isCorrect: result.isCorrect === true, isPartial: result.isCorrect !== true && result.isPartial === true };
       res.json({
-        isCorrect: result.isCorrect === true,
-        isPartial: result.isPartial === true,
+        ...verdict,
         explanation: result.explanation,
+        gradingToken: signShortAnswerGrade(quizId, gradingQuestion, userAnswer, verdict),
       });
     } catch (error: any) {
       const status = error?.status ?? error?.response?.status;
@@ -2512,177 +2525,10 @@ If the question and study material are in a non-English language, respond with t
     }
   });
 
-  app.post("/api/generate-explanation", interactiveAiRateLimit, async (req, res) => {
-    const requestId = crypto.randomUUID();
-
-    try {
-      const validation = generateExplanationRequestSchema.safeParse(req.body);
-      if (!validation.success) {
-        return res.status(400).json({
-          message: validation.error.errors[0]?.message || "Invalid request",
-        });
-      }
-      const { question, options, correctAnswer, selectedAnswer, isCorrect, sourceText, brief, category } = validation.data;
-
-      const sourceContext = sourceText
-        ? `\n\nOriginal study material:\n---\n${sourceText.slice(0, 3000)}\n---`
-        : "";
-
-      const mathFormattingRules = `\n\n${KATEX_FORMATTING_RULES}`;
-
-      const instructions = brief
-        ? `Return JSON with an "explanation" only. Explain why the student's answer is correct or incorrect in exactly 10 to 15 words. Be direct, use the question's language, and do not add a heading, label, or extra text.`
-        : `Your job is to provide short, concise explanations formatted in JSON.
-1. "explanation": Explain clearly why the correct answer is right. For math/science, briefly show the calculation.
-2. "wrongExplanation": Explain specifically why their selected answer is incorrect (if applicable) or the common misconception it represents. If they answered correctly, you can leave this empty or explain why options are generally tricky.
-
-The explanation should be said in the perspective of a tutor talking to the student. ALWAYS use the pronoun "you" and "your" to talk to the user (IMORTANT). The explanation should be 2-3 sentences long.
-
-If the question and study material are in a non-English language, respond with the explanations in that same language.
-Always return JSON:
-{
-  "explanation": "Why correct answer is right...",
-  "wrongExplanation": "Why selected answer is wrong..."
-}`;
-
-      const messages = [
-        {
-          role: "system" as const,
-          content: `You are an expert tutor explaining a quiz question to a student.${sourceContext}
-
-The student answered a multiple choice, selection (select all correct options), or true/false question. A selection answer is correct only if every correct option and no incorrect option is selected.
-${instructions}
-
-${POSITION_INDEPENDENT_EXPLANATION_RULE}${mathFormattingRules}`
-        },
-        {
-          role: "user" as const,
-          content: `Question: ${question}\nOptions: ${options ? options.join(", ") : "N/A"}\nCorrect Answer: ${correctAnswer}\nStudent Selected: ${selectedAnswer}\nDid student answer correctly?: ${isCorrect ? "Yes" : "No"}`
-        }
-      ];
-      const completionRequest = {
-        model: textModel,
-        messages,
-        temperature: 0.1,
-      };
-
-      let result: Record<string, unknown> | null = null;
-      let needsPlainModeRetry = false;
-
-      const hasExplanationText = (value: Record<string, unknown> | null) =>
-        value !== null && [value.explanation, value.wrongExplanation].some(
-          (field) => typeof field === "string" && field.trim().length > 0,
-        );
-
-      const inspectCompletion = (
-        response: unknown,
-        attempt: string,
-        maxTokens: number,
-      ) => {
-        const inspection = inspectAiJsonCompletion(response);
-        console.info(`[generate-explanation:${requestId}] ${attempt} completion`, {
-          finishReason: inspection.finishReason,
-          contentLength: inspection.contentLength,
-          maxTokens,
-          retryReason: inspection.retryReason,
-        });
-        return inspection;
-      };
-
-      try {
-        const response = await openaiClient.chat.completions.create({
-          ...completionRequest,
-          // gpt-oss reasoning tokens share this budget with the visible JSON.
-          max_tokens: EXPLANATION_MAX_TOKENS,
-          response_format: { type: "json_object" },
-        });
-        const inspection = inspectCompletion(
-          response,
-          "JSON-mode",
-          EXPLANATION_MAX_TOKENS,
-        );
-        result = hasExplanationText(inspection.result) ? inspection.result : null;
-        needsPlainModeRetry = result === null;
-        if (inspection.result && !result) {
-          console.warn(
-            `[generate-explanation:${requestId}] JSON-mode response omitted explanation fields; retrying in plain mode`,
-          );
-        }
-      } catch (error) {
-        const recoveredResult = recoverFailedGenerationJson(error);
-        result = hasExplanationText(recoveredResult) ? recoveredResult : null;
-
-        if (!result) {
-          if (!isJsonResponseFormatError(error)) throw error;
-
-          console.warn(
-            `[generate-explanation:${requestId}] Provider rejected JSON mode; retrying without response_format`,
-          );
-          needsPlainModeRetry = true;
-        } else {
-          console.info(
-            `[generate-explanation:${requestId}] Recovered JSON from the provider's failed generation`,
-          );
-        }
-      }
-
-      if (!result && needsPlainModeRetry) {
-        const retryBudgets = [EXPLANATION_MAX_TOKENS, EXPLANATION_RETRY_MAX_TOKENS];
-        for (let index = 0; index < retryBudgets.length && !result; index++) {
-          const maxTokens = retryBudgets[index];
-          const fallbackResponse = await openaiClient.chat.completions.create({
-            ...completionRequest,
-            max_tokens: maxTokens,
-          });
-          const inspection = inspectCompletion(
-            fallbackResponse,
-            `plain-mode attempt ${index + 1}/${retryBudgets.length}`,
-            maxTokens,
-          );
-          result = hasExplanationText(inspection.result) ? inspection.result : null;
-
-          if (!result && index + 1 < retryBudgets.length) {
-            const retryReason = inspection.retryReason || "missing explanation fields";
-            console.warn(
-              `[generate-explanation:${requestId}] Plain-mode response had ${retryReason}; retrying with a larger budget`,
-            );
-          }
-        }
-      }
-
-      if (!result) {
-        console.error(
-          `[generate-explanation:${requestId}] AI explanation remained empty, truncated, or invalid after retries`,
-        );
-        return res.status(502).json({ message: "Failed to parse AI explanation response" });
-      }
-
-      const explanation = typeof result.explanation === "string"
-        ? result.explanation.trim()
-        : "";
-      const wrongExplanation = typeof result.wrongExplanation === "string"
-        ? result.wrongExplanation.trim()
-        : "";
-
-      if (!explanation && !wrongExplanation) {
-        console.error(`[generate-explanation:${requestId}] AI response omitted explanation fields`);
-        return res.status(502).json({ message: "AI explanation response was incomplete" });
-      }
-      
-      res.json({
-        explanation: explanation || wrongExplanation,
-        wrongExplanation,
-      });
-    } catch (error: any) {
-      console.error(`[generate-explanation:${requestId}] AI explanation error:`, error);
-      const status = error?.status ?? error?.response?.status;
-      if (status === 429) {
-        return res.status(429).json({ message: "The AI provider is busy. Please try again shortly." });
-      }
-      res.status(502).json({ message: "The AI explanation service is temporarily unavailable" });
-    }
-  });
-
+  app.post("/api/generate-explanation", interactiveAiRateLimit, createQuizFeedbackHandler({
+    storage,
+    explain: explainQuizSubmission,
+  }));
   app.post("/api/quiz-chat", interactiveAiRateLimit, createQuizChatHandler({
     storage,
     retrieveRagContext,

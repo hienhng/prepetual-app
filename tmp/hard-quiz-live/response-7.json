@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-0eea1dac-0785-4294-8219-93a9aadb2050",
+  "object": "chat.completion",
+  "created": 1791002167,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"answerCorrect\":true,\"explanationConsistent\":true,\"wrongExplanationsConsistent\":true,\"reason\":\"The item uses Vietnamese throughout, the statement is false according to source S2, and both the correct explanation and the wrong‑answer explanation are accurate.\"},{\"index\":1,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"answerCorrect\":true,\"explanationConsistent\":true,\"wrongExplanationsConsistent\":true,\"reason\":\"Vietnamese language is maintained, the definition of COP from source S6 matches the statement, so the answer \\\"True\\\" is correct and explanations are consistent.\"},{\"index\":2,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"answerCorrect\":true,\"explanationConsistent\":true,\"wrongExplanationsConsistent\":true,\"reason\":\"The short‑answer is in Vietnamese, the term for condensation is correctly given as \\\"ngưng tụ\\\" and the explanation matches the concept.\"},{\"index\":3,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"answerCorrect\":true,\"explanationConsistent\":true,\"wrongExplanationsConsistent\":true,\"reason\":\"Vietnamese is used, the symbol for specific heat of water is correctly identified as \\\"c\\\" and the explanation is appropriate.\"},{\"index\":4,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"answerCorrect\":true,\"explanationConsistent\":true,\"wrongExplanationsConsistent\":true,\"reason\":\"The answer \\\"atm\\\" correctly reflects the pressure unit used in the source problems, and all text is in Vietnamese with consistent explanations.\"}]}",
+        "reasoning": "We need to audit each item (0-4). Determine consistency, answer correctness, explanation consistency, wrong explanations consistency.\n\nWe must output JSON with evaluations array containing an object per item with fields: index, sourceLanguage, itemLanguage, isConsistent, answerCorrect, explanationConsistent, wrongExplanationsConsistent, reason.\n\nWe need to verify language: QUIZ OUTPUT LANGUAGE is Vietnamese. All fields are Vietnamese. Check each.\n\nItem0: true_false. Question: \"Nhiệt dung riêng của nước là $3000\\,...$.\" Source: S2 says 4200 J/kg.K. So statement false. correctAnswer given \"False\". Explanation says source says 4200, not 3000, thus false correct. WrongAnswerExplanations: for True says it's wrong because contradicts source. That is consistent. Need to verify answer correctness: false is correct. Explanation consistent: yes. Wrong explanations consistent: yes (rejects True). Language: Vietnamese. Consistent.\n\nItem1: true_false. Statement: \"COP bằng tỉ lệ giữa nhiệt lượng tỏa ra môi trường và công nén vào máy nén.\" Source S6: COP = Q2 / A, where Q2 is heat rejected to environment, A is work input. So definition matches statement: COP = ratio of heat rejected to work input. So statement true. correctAnswer given \"True\". Explanation says source defines COP as ratio between heat rejected and work. That's correct. WrongAnswerExplanations: for False says it denies definition, contradicts source. That's consistent. Language Vietnamese. Good.\n\nItem2: short_answer. Question: \"Thuật ngữ tiếng Việt cho hiện tượng khi hơi nước ngưng tụ trên bề mặt lạnh là:\" Answer: \"ngưng tụ\". Is that correct? The phenomenon is condensation, Vietnamese term \"ngưng tụ\". Yes. Explanation: \"Khi hơi nước chuyển thành giọt trên kính, đó là ngưng tụ.\" correct. Language Vietnamese. No options. So answerCorrect true. explanationConsistent true.\n\nItem3: short_answer. Question: \"Ký hiệu nào được dùng cho nhiệt dung riêng của nước trong các công thức đề bài?\" Answer: \"c\". In physics, specific heat often denoted c. Source S2 uses \"c\"? In source snippet: \"nhiệt dung riêng của nước là 4200 J/kg.K.\" Not showing symbol, but typical. Acceptable. Explanation: \"Ký hiệu $c$ xuất hiện trong các biểu thức tính nhiệt lượng.\" That's fine. So answer correct.\n\nItem4: short_answer. Question: \"Đơn vị áp suất được dùng trong các bài toán khí lý tưởng ở đề là:\" Answer: \"atm\". Source includes pressures in atm (e.g., 5 atm). So correct. Explanation matches.\n\nThus all items consistent, correct.\n\nNeed sourceLanguage: Determine source language for each item. The source material is Vietnamese. So sourceLanguage \"Vietnamese\". itemLanguage also Vietnamese.\n\nThus isConsistent true for all.\n\nNow produce JSON with evaluations for indices 0-4.\n\nMake sure compact JSON formatting, no extra spaces? \"compact\" means no pretty printing. Provide array.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.419881846,
+    "prompt_tokens": 8781,
+    "prompt_time": 0.538813398,
+    "completion_tokens": 1042,
+    "completion_time": 2.153781443,
+    "total_tokens": 9823,
+    "total_time": 2.692594841,
+    "completion_tokens_details": {
+      "reasoning_tokens": 657
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_9241e9962b",
+  "x_groq": {
+    "id": "req_01m400rfk1e318s9jx9av61gbp",
+    "seed": 98349218
+  },
+  "service_tier": "on_demand"
+}

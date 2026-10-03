@@ -1,7 +1,7 @@
 import JSZip from "jszip";
 import { extractTextFromOfficeDocument } from "./office-extract.js";
 import { extractTextFromPDFWithOCR } from "./pdf-extract.js";
-import { transcribeExamImage } from "./openai.js";
+import { transcribeExamImage, verifyExamPageTranscription } from "./openai.js";
 
 export interface UploadJob {
   id: string;
@@ -173,6 +173,7 @@ export async function processJob(id: string) {
         performOcr: true,
         requireComplete: true,
         transcribePage: transcribeExamImage,
+        verifyTranscription: verifyExamPageTranscription,
         onProgress: (completedPages, totalPages) => {
           const progress = totalPages > 0
             ? 20 + Math.round((completedPages / totalPages) * 55)

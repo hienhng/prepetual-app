@@ -1,0 +1,61 @@
+{
+  "questions": [
+    {
+      "id": "f7f82561-95fe-4f20-92e9-8bf1ed55954c",
+      "type": "short_answer",
+      "question": "Một xilanh có đường kính trong $20\\,\\mathrm{cm}$, piston ban đầu cách đáy $30\\,\\mathrm{cm}$ và sau khi đốt nóng lên $35\\,\\mathrm{cm}$. Áp suất khí trong xilanh được giả thiết không đổi và bằng $102\\,\\mathrm{kPa}$. Tính công thực hiện bởi khí trong quá trình piston di chuyển lên.",
+      "correctAnswer": "160 J",
+      "explanation": "Đầu tiên tính bán kính piston $r = \\frac{20\\,\\mathrm{cm}}{2}=0.10\\,\\mathrm{m}$. Diện tích mặt cắt $A = \\pi r^{2}=\\pi (0.10)^{2}=0.01\\pi\\,\\mathrm{m^{2}}$. Độ dịch piston $\\Delta h = 35\\,\\mathrm{cm}-30\\,\\mathrm{cm}=5\\,\\mathrm{cm}=0.05\\,\\mathrm{m}$. Thể tích thay đổi $\\Delta V = A\\Delta h =0.01\\pi \\times 0.05 =5.0\\times10^{-4}\\pi\\,\\mathrm{m^{3}}$. Công thực hiện bởi khí (áp suất không đổi) $W = p\\Delta V = 1.02\\times10^{5}\\,\\mathrm{Pa}\\times5.0\\times10^{-4}\\pi\\,\\mathrm{m^{3}} \\approx 1.6\\times10^{2}\\,\\mathrm{J}$. Vì piston di chuyển lên, công dương, nên $W \\approx 160\\,\\mathrm{J}$.",
+      "sourceChunkIds": [
+        "ce760b36-060c-4a80-97b9-65cc079f73b8",
+        "f4dfe584-bea9-4c3f-af82-a626374abfdf"
+      ],
+      "feedbackVerification": {
+        "version": 2,
+        "signature": "[\"short_answer\",\"Một xilanh có đường kính trong $20\\\\,\\\\mathrm{cm}$, piston ban đầu cách đáy $30\\\\,\\\\mathrm{cm}$ và sau khi đốt nóng lên $35\\\\,\\\\mathrm{cm}$. Áp suất khí trong xilanh được giả thiết không đổi và bằng $102\\\\,\\\\mathrm{kPa}$. Tính công thực hiện bởi khí trong quá trình piston di chuyển lên.\",null,\"160 J\",null,\"Đầu tiên tính bán kính piston $r = \\\\frac{20\\\\,\\\\mathrm{cm}}{2}=0.10\\\\,\\\\mathrm{m}$. Diện tích mặt cắt $A = \\\\pi r^{2}=\\\\pi (0.10)^{2}=0.01\\\\pi\\\\,\\\\mathrm{m^{2}}$. Độ dịch piston $\\\\Delta h = 35\\\\,\\\\mathrm{cm}-30\\\\,\\\\mathrm{cm}=5\\\\,\\\\mathrm{cm}=0.05\\\\,\\\\mathrm{m}$. Thể tích thay đổi $\\\\Delta V = A\\\\Delta h =0.01\\\\pi \\\\times 0.05 =5.0\\\\times10^{-4}\\\\pi\\\\,\\\\mathrm{m^{3}}$. Công thực hiện bởi khí (áp suất không đổi) $W = p\\\\Delta V = 1.02\\\\times10^{5}\\\\,\\\\mathrm{Pa}\\\\times5.0\\\\times10^{-4}\\\\pi\\\\,\\\\mathrm{m^{3}} \\\\approx 1.6\\\\times10^{2}\\\\,\\\\mathrm{J}$. Vì piston di chuyển lên, công dương, nên $W \\\\approx 160\\\\,\\\\mathrm{J}$.\",null,[\"ce760b36-060c-4a80-97b9-65cc079f73b8\",\"f4dfe584-bea9-4c3f-af82-a626374abfdf\"],[]]"
+      }
+    },
+    {
+      "id": "33b5d9cb-955d-473a-9065-0ca38cdfcc7e",
+      "type": "multiple_choice",
+      "question": "Một mẩu nhôm khối $20\\,\\mathrm{g}$ có nhiệt độ ban đầu $25\\,^{\\circ}\\mathrm{C}$ được nung đến điểm nóng chảy $660\\,^{\\circ}\\mathrm{C}$ bằng máy hàn công suất $1.7\\,\\mathrm{kW}$ trong $20\\,\\mathrm{s}$. Hiệu suất của quá trình hàn là bao nhiêu?",
+      "options": [
+        "Hiệu suất là $76.4\\%$.",
+        "Hiệu suất là $53.5\\%$.",
+        "Hiệu suất là $56.4\\%$.",
+        "Hiệu suất là $63.5\\%$."
+      ],
+      "correctAnswer": "Hiệu suất là $56.4\\%$.",
+      "explanation": "Nhiệt lượng cần để làm nóng $m=20\\,\\text{g}=0.020\\,\\text{kg}$ nhôm từ $25^{\\circ}\\text{C}$ lên $660^{\\circ}\\text{C}$ gồm hai phần:\\n1. Nhiệt cảm ứng: $Q_1 = mc\\Delta T = 0.020\\,\\text{kg}\\times 880\\,\\frac{\\text{J}}{\\text{kg\\cdot K}}\\times(660-25)\\,\\text{K}=11\\,176\\,\\text{J}$.\\n2. Nhiệt nóng chảy: $Q_2 = mL = 0.020\\,\\text{kg}\\times 4.0\\times10^{5}\\,\\frac{\\text{J}}{\\text{kg}} = 8\\,000\\,\\text{J}$.\\nTổng $Q = Q_1+Q_2 = 19\\,176\\,\\text{J}$.\\nCông suất máy hàn $P=1.7\\,\\text{kW}=1700\\,\\text{W}$ trong $t=20\\,\\text{s}$ cung cấp năng lượng $E = Pt = 34\\,000\\,\\text{J}$.\\nHiệu suất $\\eta = \\frac{Q}{E}\\times100\\% = \\frac{19\\,176}{34\\,000}\\times100\\% \\approx 56.4\\%$.\\nDo đó đáp án là $56.4\\%$.",
+      "sourceChunkIds": [
+        "05950966-bbab-4cab-b438-053134894718"
+      ],
+      "feedbackVerification": {
+        "version": 2,
+        "signature": "[\"multiple_choice\",\"Một mẩu nhôm khối $20\\\\,\\\\mathrm{g}$ có nhiệt độ ban đầu $25\\\\,^{\\\\circ}\\\\mathrm{C}$ được nung đến điểm nóng chảy $660\\\\,^{\\\\circ}\\\\mathrm{C}$ bằng máy hàn công suất $1.7\\\\,\\\\mathrm{kW}$ trong $20\\\\,\\\\mathrm{s}$. Hiệu suất của quá trình hàn là bao nhiêu?\",[\"Hiệu suất là $76.4\\\\%$.\",\"Hiệu suất là $53.5\\\\%$.\",\"Hiệu suất là $56.4\\\\%$.\",\"Hiệu suất là $63.5\\\\%$.\"],\"Hiệu suất là $56.4\\\\%$.\",null,\"Nhiệt lượng cần để làm nóng $m=20\\\\,\\\\text{g}=0.020\\\\,\\\\text{kg}$ nhôm từ $25^{\\\\circ}\\\\text{C}$ lên $660^{\\\\circ}\\\\text{C}$ gồm hai phần:\\\\n1. Nhiệt cảm ứng: $Q_1 = mc\\\\Delta T = 0.020\\\\,\\\\text{kg}\\\\times 880\\\\,\\\\frac{\\\\text{J}}{\\\\text{kg\\\\cdot K}}\\\\times(660-25)\\\\,\\\\text{K}=11\\\\,176\\\\,\\\\text{J}$.\\\\n2. Nhiệt nóng chảy: $Q_2 = mL = 0.020\\\\,\\\\text{kg}\\\\times 4.0\\\\times10^{5}\\\\,\\\\frac{\\\\text{J}}{\\\\text{kg}} = 8\\\\,000\\\\,\\\\text{J}$.\\\\nTổng $Q = Q_1+Q_2 = 19\\\\,176\\\\,\\\\text{J}$.\\\\nCông suất máy hàn $P=1.7\\\\,\\\\text{kW}=1700\\\\,\\\\text{W}$ trong $t=20\\\\,\\\\text{s}$ cung cấp năng lượng $E = Pt = 34\\\\,000\\\\,\\\\text{J}$.\\\\nHiệu suất $\\\\eta = \\\\frac{Q}{E}\\\\times100\\\\% = \\\\frac{19\\\\,176}{34\\\\,000}\\\\times100\\\\% \\\\approx 56.4\\\\%$.\\\\nDo đó đáp án là $56.4\\\\%$.\",null,[\"05950966-bbab-4cab-b438-053134894718\"],[]]"
+      }
+    },
+    {
+      "id": "b0d2ad61-7f15-44a8-a6d3-6313b9253c4f",
+      "type": "multiple_choice",
+      "question": "Khi một học sinh nặng $24\\,\\mathrm{kg}$ ngồi trên ghế, tổng khối lượng của mặt ghế và xi lanh là $6\\,\\mathrm{kg}$, diện tích piston $S = 30\\,\\mathrm{cm^{2}}$, áp suất khí quyển $p_{0} = 1.0\\times10^{5}\\,\\mathrm{Pa}$ và $g = 10\\,\\mathrm{m/s^{2}}$, áp suất tuyệt đối trong xi lanh là bao nhiêu?",
+      "options": [
+        "Áp suất tuyệt đối trong xi lanh là $1.5\\times10^{5}\\,\\mathrm{Pa}$.",
+        "Áp suất tuyệt đối trong xi lanh là $1.0\\times10^{5}\\,\\mathrm{Pa}$.",
+        "Áp suất tuyệt đối trong xi lanh là $2.5\\times10^{5}\\,\\mathrm{Pa}$.",
+        "Áp suất tuyệt đối trong xi lanh là $2.0\\times10^{5}\\,\\mathrm{Pa}$."
+      ],
+      "correctAnswer": "Áp suất tuyệt đối trong xi lanh là $2.0\\times10^{5}\\,\\mathrm{Pa}$.",
+      "explanation": "Trọng lượng tổng cộng của học sinh và ghế là $ (24+6)\\,\\text{kg}=30\\,\\text{kg}$. Lực trọng lượng $F=mg=30\\times10=300\\,\\text{N}$. Diện tích piston $S=30\\,\\text{cm}^2=3.0\\times10^{-3}\\,\\text{m}^2$. Áp suất do trọng lượng $p_{\\text{gauge}}=F/S=300/(3.0\\times10^{-3})=1.0\\times10^{5}\\,\\text{Pa}$. Thêm áp suất khí quyển $p_0=1.0\\times10^{5}\\,\\text{Pa}$, ta được áp suất tuyệt đối $p_{\\text{abs}}=2.0\\times10^{5}\\,\\text{Pa}$. Vì vậy đáp án đúng là $2.0\\times10^{5}\\,\\text{Pa}$.",
+      "sourceChunkIds": [
+        "ba65f35c-fd2b-4730-8418-a3903ffcea0f"
+      ],
+      "feedbackVerification": {
+        "version": 2,
+        "signature": "[\"multiple_choice\",\"Khi một học sinh nặng $24\\\\,\\\\mathrm{kg}$ ngồi trên ghế, tổng khối lượng của mặt ghế và xi lanh là $6\\\\,\\\\mathrm{kg}$, diện tích piston $S = 30\\\\,\\\\mathrm{cm^{2}}$, áp suất khí quyển $p_{0} = 1.0\\\\times10^{5}\\\\,\\\\mathrm{Pa}$ và $g = 10\\\\,\\\\mathrm{m/s^{2}}$, áp suất tuyệt đối trong xi lanh là bao nhiêu?\",[\"Áp suất tuyệt đối trong xi lanh là $1.5\\\\times10^{5}\\\\,\\\\mathrm{Pa}$.\",\"Áp suất tuyệt đối trong xi lanh là $1.0\\\\times10^{5}\\\\,\\\\mathrm{Pa}$.\",\"Áp suất tuyệt đối trong xi lanh là $2.5\\\\times10^{5}\\\\,\\\\mathrm{Pa}$.\",\"Áp suất tuyệt đối trong xi lanh là $2.0\\\\times10^{5}\\\\,\\\\mathrm{Pa}$.\"],\"Áp suất tuyệt đối trong xi lanh là $2.0\\\\times10^{5}\\\\,\\\\mathrm{Pa}$.\",null,\"Trọng lượng tổng cộng của học sinh và ghế là $ (24+6)\\\\,\\\\text{kg}=30\\\\,\\\\text{kg}$. Lực trọng lượng $F=mg=30\\\\times10=300\\\\,\\\\text{N}$. Diện tích piston $S=30\\\\,\\\\text{cm}^2=3.0\\\\times10^{-3}\\\\,\\\\text{m}^2$. Áp suất do trọng lượng $p_{\\\\text{gauge}}=F/S=300/(3.0\\\\times10^{-3})=1.0\\\\times10^{5}\\\\,\\\\text{Pa}$. Thêm áp suất khí quyển $p_0=1.0\\\\times10^{5}\\\\,\\\\text{Pa}$, ta được áp suất tuyệt đối $p_{\\\\text{abs}}=2.0\\\\times10^{5}\\\\,\\\\text{Pa}$. Vì vậy đáp án đúng là $2.0\\\\times10^{5}\\\\,\\\\text{Pa}$.\",null,[\"ba65f35c-fd2b-4730-8418-a3903ffcea0f\"],[]]"
+      }
+    }
+  ],
+  "title": "Kế hoạch câu hỏi khó cho các khái niệm nhiệt động lực học và khí lý tưởng",
+  "category": "categories.science"
+}

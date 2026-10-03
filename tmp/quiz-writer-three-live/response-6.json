@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-ecd66e07-bbd7-4b25-8a2a-87e4499f529b",
+  "object": "chat.completion",
+  "created": 1791015812,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"English\",\"isConsistent\":false,\"reason\":\"The title is in English, not Vietnamese as required\"}]}",
+        "reasoning": "We need to output JSON with evaluations array. There's one item: type title, question \"Calorimetry and Refrigeration Hard Reasoning Plans\". The required QUIZ OUTPUT LANGUAGE is Vietnamese. We must check if the title is in Vietnamese. It's English. So it's inconsistent. sourceLanguage is Vietnamese per instruction? Actually sourceLanguage should be the language of the source? The instruction says \"sourceLanguage\":\"Vietnamese\". Since resolved output language is Vietnamese, sourceLanguage likely Vietnamese. itemLanguage is the language used in the item, which is English. So isConsistent false. Reason: title not in Vietnamese. Provide reason.\n\nWe must ensure JSON compact, no spaces? \"compact JSON formatting\". So no spaces after commas? Probably minimal. Provide as single line.\n\nThus output: {\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"English\",\"isConsistent\":false,\"reason\":\"The title is in English, not Vietnamese as required\"}]}\n\nCheck keys: sourceLanguage, itemLanguage, isConsistent, reason. Use true/false boolean. Provide false. Ensure JSON valid.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.367070982,
+    "prompt_tokens": 650,
+    "prompt_time": 0.027030142,
+    "completion_tokens": 276,
+    "completion_time": 0.568619386,
+    "total_tokens": 926,
+    "total_time": 0.595649528,
+    "completion_tokens_details": {
+      "reasoning_tokens": 227
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_8ea50c0161",
+  "x_groq": {
+    "id": "req_01m40dry5bejs9cf784jqdrnq8",
+    "seed": 1763587400
+  },
+  "service_tier": "on_demand"
+}

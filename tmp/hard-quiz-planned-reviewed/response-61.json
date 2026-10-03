@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-bf77efc0-6867-424f-a987-764e082312d5",
+  "object": "chat.completion",
+  "created": 1791010868,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"questions\": [\n    {\n      \"id\": \"P25\",\n      \"explanation\": \"Ta tính nhiệt ẩn tan cần cho 4\\\\,kg băng:\\n$Q_{\\\\text{latent}} = m\\\\,L_f = 4\\\\,\\\\text{kg}\\\\times 3.41\\\\times10^{5}\\\\,\\\\mathrm{J/kg}=1.364\\\\times10^{6}\\\\,\\\\mathrm{J}=1364\\\\,\\\\text{kJ}$.\\n\\nNếu chỉ cung cấp lượng nhiệt bằng $Q_{\\\\text{latent}}$ và có 15\\\\% tổng nhiệt $Q_{\\\\text{total}}$ bị mất vào môi trường, thì lượng nhiệt thực tế còn lại để tan băng là\\n$Q_{\\\\text{available}} = Q_{\\\\text{latent}} - 0.15\\\\,Q_{\\\\text{total}}$.\\n\\nTa tính $Q_{\\\\text{total}}$ (nhiệt cần để tan băng và làm nước lên $25\\\\,^{\\\\circ}\\\\text{C}$):\\n$Q_{\\\\text{total}} = Q_{\\\\text{latent}} + m\\\\,c\\\\,\\\\Delta T = 1.364\\\\times10^{6}\\\\,\\\\mathrm{J}+4\\\\,\\\\text{kg}\\\\times4180\\\\,\\\\mathrm{J/(kg\\\\cdot K)}\\\\times25\\\\,\\\\text{K}=1.782\\\\times10^{6}\\\\,\\\\mathrm{J}=1782\\\\,\\\\text{kJ}$.\\n\\nMất nhiệt vào môi trường:\\n$Q_{\\\\text{lost}} = 0.15\\\\,Q_{\\\\text{total}} = 0.15\\\\times1782\\\\,\\\\text{kJ}=267.3\\\\,\\\\text{kJ}$.\\n\\nDo đó\\n$Q_{\\\\text{available}} = 1364\\\\,\\\\text{kJ} - 267.3\\\\,\\\\text{kJ}=1096.7\\\\,\\\\text{kJ}$.\\n\\nVì $Q_{\\\\text{available}} < Q_{\\\\text{latent}}$, năng lượng còn lại không đủ để tan hết 4\\\\,kg băng. Chỉ một phần băng tan và hỗn hợp băng‑nước duy trì ở nhiệt độ $0\\\\,^{\\\\circ}\\\\text{C}$. Vì vậy, sau khi quá trình dừng, nước (cùng với phần băng chưa tan) vẫn ở $0\\\\,^{\\\\circ}\\\\text{C}$, khẳng định của câu đúng.\"\n    }\n  ]\n}",
+        "reasoning": "We need to output JSON with questions array containing id and explanation. Must preserve plan id and explanation. Explanation should be learner-facing text in Vietnamese (vi-VN). Must wrap math in $...$ and escape backslashes. The given solution already includes explanation but we need to produce correct-answer explanation. Should be similar but ensure proper formatting. Also ensure no mention of options positions. Provide explanation of why statement is true. Use math delimiters. Escape backslashes in JSON.\n\nWe need to output:\n\n{\n  \"questions\": [\n    {\n      \"id\": \"P25\",\n      \"explanation\": \"...\"\n    }\n  ]\n}\n\nNow craft explanation in Vietnamese, using math. Use same calculations. Ensure backslashes escaped.\n\nLet's write:\n\n\"Tính nhiệt ẩn tan cần cho 4 kg băng: $Q_{\\\\text{latent}} = m\\\\,L_f = 4\\\\,\\\\text{kg}\\\\times 3.41\\\\times10^{5}\\\\,\\\\mathrm{J/kg}=1.364\\\\times10^{6}\\\\,\\\\mathrm{J}=1364\\\\,\\\\text{kJ}$. ...\"\n\nMake sure each backslash is double escaped in JSON string. Also ensure line breaks maybe \\n.\n\nWe'll produce a single string with line breaks \\n.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.418749586,
+    "prompt_tokens": 1178,
+    "prompt_time": 0.031908907,
+    "completion_tokens": 842,
+    "completion_time": 1.881358349,
+    "total_tokens": 2020,
+    "total_time": 1.9132672560000001,
+    "prompt_tokens_details": {
+      "cached_tokens": 512
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 268
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_90620edd96",
+  "x_groq": {
+    "id": "req_01m409215fe8gsxgdnk5c1z5jt",
+    "seed": 1960649734
+  },
+  "service_tier": "on_demand"
+}

@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-b064367b-2f53-4336-92bb-249dbcecf3d3",
+  "object": "chat.completion",
+  "created": 1791009898,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"reason\":\"The item matches the required output language and uses appropriate Vietnamese wording.\"}]}",
+        "reasoning": "We need to output JSON with evaluations array. There's one item index 0, type title, question in Vietnamese. Output language is Vietnamese. So sourceLanguage \"Vietnamese\". itemLanguage \"Vietnamese\". isConsistent true. Provide reason. Ensure compact JSON."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.369428434,
+    "prompt_tokens": 650,
+    "prompt_time": 0.09553585,
+    "completion_tokens": 107,
+    "completion_time": 0.223683359,
+    "total_tokens": 757,
+    "total_time": 0.319219209,
+    "completion_tokens_details": {
+      "reasoning_tokens": 54
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_f640395b96",
+  "x_groq": {
+    "id": "req_01m4084fd6emfry0a4g3wbe1hc",
+    "seed": 1432827325
+  },
+  "service_tier": "on_demand"
+}

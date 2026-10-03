@@ -1,0 +1,484 @@
+TAP version 13
+# Subtest: explanation response preserves the saved answer key and identifies the stored question
+ok 1 - explanation response preserves the saved answer key and identifies the stored question
+  ---
+  duration_ms: 41.5562
+  type: 'test'
+  ...
+# Subtest: unverified or stale responses cannot replace the player's question
+ok 2 - unverified or stale responses cannot replace the player's question
+  ---
+  duration_ms: 6.8055
+  type: 'test'
+  ...
+# Subtest: restored feedback becomes invalid when its answer or explanations change
+ok 3 - restored feedback becomes invalid when its answer or explanations change
+  ---
+  duration_ms: 0.3545
+  type: 'test'
+  ...
+# Subtest: selection dropdowns use the individual option explanation without summary fallback
+ok 4 - selection dropdowns use the individual option explanation without summary fallback
+  ---
+  duration_ms: 0.4052
+  type: 'test'
+  ...
+# Subtest: selection response requires feedback for each displayed option
+ok 5 - selection response requires feedback for each displayed option
+  ---
+  duration_ms: 5.1792
+  type: 'test'
+  ...
+# Subtest: rejects oversized provider text inputs
+ok 6 - rejects oversized provider text inputs
+  ---
+  duration_ms: 5.5641
+  type: 'test'
+  ...
+# Subtest: rejects oversized individual and combined import images
+ok 7 - rejects oversized individual and combined import images
+  ---
+  duration_ms: 1.2826
+  type: 'test'
+  ...
+# Subtest: accepts image-only imports but rejects an entirely empty import
+ok 8 - accepts image-only imports but rejects an entirely empty import
+  ---
+  duration_ms: 0.8253
+  type: 'test'
+  ...
+# Subtest: bounds interactive AI prompts and chat history
+ok 9 - bounds interactive AI prompts and chat history
+  ---
+  duration_ms: 1.544
+  type: 'test'
+  ...
+# Subtest: bounds lecture and revision controls
+ok 10 - bounds lecture and revision controls
+  ---
+  duration_ms: 0.5178
+  type: 'test'
+  ...
+# Subtest: accepts summary requests with text and source images
+ok 11 - accepts summary requests with text and source images
+  ---
+  duration_ms: 0.2561
+  type: 'test'
+  ...
+# Subtest: accepts image-only summary requests
+ok 12 - accepts image-only summary requests
+  ---
+  duration_ms: 0.3606
+  type: 'test'
+  ...
+# Subtest: rejects empty summary requests
+ok 13 - rejects empty summary requests
+  ---
+  duration_ms: 0.3458
+  type: 'test'
+  ...
+# Subtest: requires explanations to survive option shuffling
+ok 14 - requires explanations to survive option shuffling
+  ---
+  duration_ms: 1.7505
+  type: 'test'
+  ...
+# Subtest: submission stores the result and clears only this participant's quiz progress before commit
+ok 15 - submission stores the result and clears only this participant's quiz progress before commit
+  ---
+  duration_ms: 10.0223
+  type: 'test'
+  ...
+# Subtest: guest submissions store their result without deleting anyone's progress
+ok 16 - guest submissions store their result without deleting anyone's progress
+  ---
+  duration_ms: 1.2216
+  type: 'test'
+  ...
+# Subtest: failure to clear progress rolls back the result instead of reporting completion
+ok 17 - failure to clear progress rolls back the result instead of reporting completion
+  ---
+  duration_ms: 2.2827
+  type: 'test'
+  ...
+# Subtest: failure to store the result preserves progress
+ok 18 - failure to store the result preserves progress
+  ---
+  duration_ms: 1.2036
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: '3a49cfaf-4833-4c5a-b809-5fe4b20cc6d0',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '3a49cfaf-4833-4c5a-b809-5fe4b20cc6d0',
+#   stage: 'reading',
+#   durationMs: 22
+# }
+# [QUIZ TIMING] {
+#   requestId: '3a49cfaf-4833-4c5a-b809-5fe4b20cc6d0',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '3a49cfaf-4833-4c5a-b809-5fe4b20cc6d0',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '3a49cfaf-4833-4c5a-b809-5fe4b20cc6d0',
+#   stage: 'generating',
+#   durationMs: 35
+# }
+# [QUIZ TIMING] {
+#   requestId: '3a49cfaf-4833-4c5a-b809-5fe4b20cc6d0',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '3a49cfaf-4833-4c5a-b809-5fe4b20cc6d0',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '3a49cfaf-4833-4c5a-b809-5fe4b20cc6d0',
+#   stage: 'validating',
+#   durationMs: 8
+# }
+# [QUIZ COUNTS] {
+#   requestId: '3a49cfaf-4833-4c5a-b809-5fe4b20cc6d0',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '3a49cfaf-4833-4c5a-b809-5fe4b20cc6d0',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '3a49cfaf-4833-4c5a-b809-5fe4b20cc6d0', totalMs: 67 }
+# [QUIZ TIMING] {
+#   requestId: '5a300b49-e9e5-4c6d-885a-979122ff67e6',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5a300b49-e9e5-4c6d-885a-979122ff67e6',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5a300b49-e9e5-4c6d-885a-979122ff67e6',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5a300b49-e9e5-4c6d-885a-979122ff67e6',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '5a300b49-e9e5-4c6d-885a-979122ff67e6',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# Initial generation count mismatch: returned 3, requested 4.
+# [QUIZ TIMING] {
+#   requestId: '5a300b49-e9e5-4c6d-885a-979122ff67e6',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '5a300b49-e9e5-4c6d-885a-979122ff67e6',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '5a300b49-e9e5-4c6d-885a-979122ff67e6',
+#   stage: 'validating',
+#   durationMs: 2
+# }
+# [QUIZ COUNTS] {
+#   requestId: '5a300b49-e9e5-4c6d-885a-979122ff67e6',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '5a300b49-e9e5-4c6d-885a-979122ff67e6',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '5a300b49-e9e5-4c6d-885a-979122ff67e6', totalMs: 5 }
+# Subtest: three questions are written in one call with an immediately usable saved answer key
+ok 19 - three questions are written in one call with an immediately usable saved answer key
+  ---
+  duration_ms: 1338.4692
+  type: 'test'
+  ...
+# Subtest: explains the stored key and uses stored evidence, ignoring client grade and key
+ok 20 - explains the stored key and uses stored evidence, ignoring client grade and key
+  ---
+  duration_ms: 6.0235
+  type: 'test'
+  ...
+# Subtest: incorrect answers retain their saved-key grade
+ok 21 - incorrect answers retain their saved-key grade
+  ---
+  duration_ms: 0.7868
+  type: 'test'
+  ...
+# Subtest: short answers and empty truth-statement selections use their saved keys
+ok 22 - short answers and empty truth-statement selections use their saved keys
+  ---
+  duration_ms: 1.6114
+  type: 'test'
+  ...
+# Subtest: access failures and invalid choices stop before explanation generation
+ok 23 - access failures and invalid choices stop before explanation generation
+  ---
+  duration_ms: 2.8337
+  type: 'test'
+  ...
+# Subtest: explanation failure or a replacement key never changes the stored question
+ok 24 - explanation failure or a replacement key never changes the stored question
+  ---
+  duration_ms: 1.3144
+  type: 'test'
+  ...
+# Subtest: selection candidate normalization keeps every correct option
+ok 25 - selection candidate normalization keeps every correct option
+  ---
+  duration_ms: 4.1743
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: 'cda5b0a4-b8a5-44fe-90ab-50cd7197ea01',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'cda5b0a4-b8a5-44fe-90ab-50cd7197ea01',
+#   stage: 'reading',
+#   durationMs: 31
+# }
+# [QUIZ TIMING] {
+#   requestId: 'cda5b0a4-b8a5-44fe-90ab-50cd7197ea01',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'cda5b0a4-b8a5-44fe-90ab-50cd7197ea01',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: 'cda5b0a4-b8a5-44fe-90ab-50cd7197ea01',
+#   stage: 'generating',
+#   durationMs: 31
+# }
+# [QUIZ TIMING] {
+#   requestId: 'cda5b0a4-b8a5-44fe-90ab-50cd7197ea01',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'cda5b0a4-b8a5-44fe-90ab-50cd7197ea01',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'cda5b0a4-b8a5-44fe-90ab-50cd7197ea01',
+#   stage: 'validating',
+#   durationMs: 8
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'cda5b0a4-b8a5-44fe-90ab-50cd7197ea01',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'cda5b0a4-b8a5-44fe-90ab-50cd7197ea01',
+#   stage: 'finalizing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] { requestId: 'cda5b0a4-b8a5-44fe-90ab-50cd7197ea01', totalMs: 73 }
+# [QUIZ TIMING] {
+#   requestId: '1f3e4e0a-c9ee-44af-99d9-c3a7eed47cd2',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1f3e4e0a-c9ee-44af-99d9-c3a7eed47cd2',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1f3e4e0a-c9ee-44af-99d9-c3a7eed47cd2',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1f3e4e0a-c9ee-44af-99d9-c3a7eed47cd2',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# Quiz generation AI response received successfully
+# [QUIZ TIMING] {
+#   requestId: '1f3e4e0a-c9ee-44af-99d9-c3a7eed47cd2',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: '1f3e4e0a-c9ee-44af-99d9-c3a7eed47cd2',
+#   stage: 'processing',
+#   durationMs: 0
+# }
+# Initial generation returned 3/4 requested complete questions.
+# Initial generation count mismatch: returned 3, requested 4.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: '1f3e4e0a-c9ee-44af-99d9-c3a7eed47cd2',
+#   requested: 3,
+#   initialCandidates: 3,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: '1f3e4e0a-c9ee-44af-99d9-c3a7eed47cd2',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [QUIZ COUNTS] {
+#   requestId: '1f3e4e0a-c9ee-44af-99d9-c3a7eed47cd2',
+#   initialRequests: 1,
+#   topUpRequests: 0,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1f3e4e0a-c9ee-44af-99d9-c3a7eed47cd2',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '1f3e4e0a-c9ee-44af-99d9-c3a7eed47cd2', totalMs: 5 }
+# Subtest: direct selection generation preserves a complete answer set after shuffling
+ok 26 - direct selection generation preserves a complete answer set after shuffling
+  ---
+  duration_ms: 1336.6078
+  type: 'test'
+  ...
+# Subtest: generates explanations only on submission and retains the generated key
+ok 27 - generates explanations only on submission and retains the generated key
+  ---
+  duration_ms: 5.4539
+  type: 'test'
+  ...
+# Subtest: wrong submissions explain only submitted mistakes and omissions
+ok 28 - wrong submissions explain only submitted mistakes and omissions
+  ---
+  duration_ms: 3.384
+  type: 'test'
+  ...
+# Subtest: selection feedback covers correct options without explaining unselected distractors
+ok 29 - selection feedback covers correct options without explaining unselected distractors
+  ---
+  duration_ms: 1.0864
+  type: 'test'
+  ...
+# Subtest: incomplete, extra, or inconsistent option explanations are rejected
+ok 30 - incomplete, extra, or inconsistent option explanations are rejected
+  ---
+  duration_ms: 2.91
+  type: 'test'
+  ...
+# Subtest: quiz language overrides foreign-language sources in generation and review
+ok 31 - quiz language overrides foreign-language sources in generation and review
+  ---
+  duration_ms: 1.8343
+  type: 'test'
+  ...
+# Subtest: review rejects wrong-language or cross-option feedback and does not cache it
+ok 32 - review rejects wrong-language or cross-option feedback and does not cache it
+  ---
+  duration_ms: 0.9222
+  type: 'test'
+  ...
+# Subtest: short-answer explanations retain the immediate exact-match result
+ok 33 - short-answer explanations retain the immediate exact-match result
+  ---
+  duration_ms: 0.8189
+  type: 'test'
+  ...
+# Subtest: review rejects selection feedback that discusses another option
+ok 34 - review rejects selection feedback that discusses another option
+  ---
+  duration_ms: 0.6927
+  type: 'test'
+  ...
+# Subtest: empty truth-statement selections require no option explanations
+ok 35 - empty truth-statement selections require no option explanations
+  ---
+  duration_ms: 0.9015
+  type: 'test'
+  ...
+# Subtest: contradictory explanations fail without rewriting the key or caching failures
+ok 36 - contradictory explanations fail without rewriting the key or caching failures
+  ---
+  duration_ms: 1.2029
+  type: 'test'
+  ...
+# Subtest: all question types grade against the saved key without explanations
+ok 37 - all question types grade against the saved key without explanations
+  ---
+  duration_ms: 2.1125
+  type: 'test'
+  ...
+# Subtest: saved feedback survives retries and JSON persistence but becomes invalid after substantive edits
+ok 38 - saved feedback survives retries and JSON persistence but becomes invalid after substantive edits
+  ---
+  duration_ms: 3.1174
+  type: 'test'
+  ...
+# Subtest: incomplete or contradictory option feedback and unresolved imports cannot be played as verified
+ok 39 - incomplete or contradictory option feedback and unresolved imports cannot be played as verified
+  ---
+  duration_ms: 28.7857
+  type: 'test'
+  ...
+# Subtest: verified keys do not require pre-generated distractor explanations and legacy approvals are rechecked
+ok 40 - verified keys do not require pre-generated distractor explanations and legacy approvals are rechecked
+  ---
+  duration_ms: 0.5421
+  type: 'test'
+  ...
+# Subtest: grouped truth statements with no correct choices still have complete prepared feedback
+ok 41 - grouped truth statements with no correct choices still have complete prepared feedback
+  ---
+  duration_ms: 1.122
+  type: 'test'
+  ...
+1..41
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2099.575

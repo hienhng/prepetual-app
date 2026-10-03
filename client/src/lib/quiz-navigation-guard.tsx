@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { useQuiz } from "@/lib/quiz-context";
 import { useUpload } from "@/lib/upload-context";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/lib/language-context";
 import { Save, Trash2 } from "lucide-react";
 import {
   AlertDialog,
@@ -24,6 +25,7 @@ interface QuizNavigationGuardContextType {
 const QuizNavigationGuardContext = createContext<QuizNavigationGuardContextType | undefined>(undefined);
 
 export function QuizNavigationGuardProvider({ children }: { children: ReactNode }) {
+  const { t } = useLanguage();
   const [, setLocation] = useLocation();
   const [location] = useLocation();
   const { currentQuiz, sourceMaterial, setSourceMaterial, setExtractedText, saveCurrentProgress, getPlayerProgress, userAnswers, checkedQuestions, playerRetryAnswers, resetQuiz } = useQuiz();
@@ -231,24 +233,24 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
         <AlertDialogContent data-testid={hasCreateMaterials ? "dialog-create-exit" : isReviewSession ? "dialog-review-exit" : isInRevisionMode ? "dialog-revision-exit-warning" : "dialog-quiz-exit"}>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              {hasCreateMaterials ? "Leave Create page?" : isReviewSession ? "Discard Review Session?" : !canPersistProgress ? "Leave Quiz?" : isInRevisionMode ? "Save Revision Progress?" : "Leave Quiz?"}
+              {hasCreateMaterials ? t('navigationGuard.leaveCreate') : isReviewSession ? t('navigationGuard.discardReview') : !canPersistProgress ? t('navigationGuard.leaveQuiz') : isInRevisionMode ? t('navigationGuard.saveRevision') : t('navigationGuard.leaveQuiz')}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {hasCreateMaterials
-                ? "Leaving this page will remove every added material, uploaded file, pasted note, video transcript, and prompt."
+                ? t('navigationGuard.leaveCreateDescription')
                 : isReviewSession 
-                ? "Your review session progress will not be saved. Are you sure you want to exit?"
+                ? t('navigationGuard.discardReviewDescription')
                 : !canPersistProgress
-                  ? "This quiz does not save progress. Are you sure you want to leave?"
+                  ? t('navigationGuard.unsavedQuizDescription')
                   : isInRevisionMode 
-                  ? "You're currently revising incorrect answers. Your revision progress will be saved so you can continue later."
-                  : "You have a quiz in progress. Would you like to save your progress for later?"
+                  ? t('navigationGuard.saveRevisionDescription')
+                  : t('navigationGuard.saveQuizDescription')
               }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel onClick={handleCancel} data-testid="button-cancel-nav-exit">
-              {hasCreateMaterials ? "Stay on Create" : isReviewSession || !canPersistProgress ? "Continue Quiz" : isInRevisionMode ? "Keep Revising" : "Continue Quiz"}
+              {hasCreateMaterials ? t('navigationGuard.stayOnCreate') : isReviewSession || !canPersistProgress ? t('navigationGuard.continueQuiz') : isInRevisionMode ? t('dashboard.keepRevising') : t('navigationGuard.continueQuiz')}
             </AlertDialogCancel>
             
             {hasCreateMaterials ? (
@@ -258,7 +260,7 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
                 data-testid="button-discard-create"
               >
                 <Trash2 className="h-4 w-4" />
-                Discard & Leave
+                {t('navigationGuard.discardAndLeave')}
               </AlertDialogAction>
             ) : isReviewSession || !canPersistProgress ? (
               <AlertDialogAction
@@ -266,7 +268,7 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
                 className="bg-destructive text-destructive-foreground border-destructive/10 shadow-destructive/70 hover:bg-destructive/90"
                 data-testid={isReviewSession ? "button-discard-review" : "button-discard-public-quiz"}
               >
-                Discard & Exit
+                {t('navigationGuard.discardAndExit')}
               </AlertDialogAction>
             ) : (
               <AlertDialogAction
@@ -275,7 +277,7 @@ export function QuizNavigationGuardProvider({ children }: { children: ReactNode 
                 data-testid={isInRevisionMode ? "button-confirm-revision-exit" : "button-save-nav-exit"}
               >
                 <Save className="h-4 w-4" />
-                Save & Exit
+                {t('navigationGuard.saveAndExit')}
               </AlertDialogAction>
             )}
           </AlertDialogFooter>

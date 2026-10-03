@@ -1,5 +1,6 @@
 import { eq, desc, and, gt, inArray, count, sql } from "drizzle-orm";
 import { db } from "./db.js";
+import { serializeFeedback, type FeedbackEvidence } from "./verified-feedback.js";
 import { 
   users, 
   quizzes, 
@@ -65,6 +66,7 @@ export interface IStorage {
   getQuizzesByUserIdLight(userId: string): Promise<(Omit<Quiz, "questions" | "sourceText" | "sourceImages" | "lecture"> & { questionCount: number })[]>;
   getPublicQuizzes(): Promise<PublicQuizSummary[]>;
   updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined>;
+  updateVerifiedQuestion(quizId: string, original: Question, verified: Question, evidence: FeedbackEvidence): Promise<Quiz | undefined>;
   deleteQuiz(id: string): Promise<boolean>;
   saveQuizResult(result: InsertQuizResult): Promise<QuizResult>;
   getQuizResult(quizId: string): Promise<QuizResult | undefined>;
@@ -312,6 +314,30 @@ export class DatabaseStorage implements IStorage {
       .where(eq(quizzes.id, id))
       .returning();
     return updated;
+  }
+
+  async updateVerifiedQuestion(quizId: string, original: Question, verified: Question, evidence: FeedbackEvidence): Promise<Quiz | undefined> {
+    return db.transaction(async transaction => {
+      const [quiz] = await transaction.select().from(quizzes)
+        .where(eq(quizzes.id, quizId)).for("update");
+      if (!quiz) return undefined;
+      const currentEvidence = { sourceText: quiz.sourceText,
+        images: [...(quiz.sourceImages || []), ...(quiz.sourceImageUrl ? [quiz.sourceImageUrl] : [])] };
+      if (serializeFeedback(currentEvidence) !== serializeFeedback(evidence)) return undefined;
+      const index = quiz.questions.findIndex(question => question.id === original.id);
+      if (index < 0) return undefined;
+      const current = quiz.questions[index];
+      if (serializeFeedback(current) === serializeFeedback(verified)) return quiz;
+      if (serializeFeedback(current) !== serializeFeedback(original)) return undefined;
+      // Only feedback fields may be changed by verification.
+      const questions = [...quiz.questions];
+      questions[index] = { ...current, correctAnswer: verified.correctAnswer,
+        explanation: verified.explanation, wrongAnswerExplanations: verified.wrongAnswerExplanations,
+        feedbackVerification: verified.feedbackVerification };
+      const [updated] = await transaction.update(quizzes).set({ questions })
+        .where(eq(quizzes.id, quizId)).returning();
+      return updated;
+    });
   }
 
   async deleteQuiz(id: string): Promise<boolean> {

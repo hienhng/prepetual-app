@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-39020c80-30c8-4f9a-afc9-a99058d4acea",
+  "object": "chat.completion",
+  "created": 1791009464,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"records\":[{\"topic\":\"latent heat of fusion and specific heat of water equilibrium\",\"kind\":\"problem\",\"blockIds\":[\"B25\"],\"givens\":[{\"name\":\"latent heat of fusion of ice\",\"value\":\"3,36.10⁵\",\"unit\":\"J/kg\",\"sourceText\":\"nóng chảy riêng của nước đá là 3,36.10⁵ J/kg\",\"blockId\":\"B25\"},{\"name\":\"specific heat of water\",\"value\":\"4200\",\"unit\":\"J/kg·K\",\"sourceText\":\"nhiệt dung riêng của nước là 4200 J/kg.K\",\"blockId\":\"B25\"}],\"conditions\":[\"system reaches thermal equilibrium between water and ice\"],\"relationships\":[\"Q = m·L_f for melting/freezing\",\"Q = m·c·ΔT for temperature change\"]},{\"topic\":\"refrigerator coefficient of performance calculation\",\"kind\":\"problem\",\"blockIds\":[\"B26\"],\"givens\":[{\"name\":\"coefficient of performance (COP)\",\"value\":\"3\",\"unit\":\"\",\"sourceText\":\"COP = 3\",\"blockId\":\"B26\"},{\"name\":\"compressor work A\",\"value\":\"180\",\"unit\":\"kJ\",\"sourceText\":\"A=180kJ\",\"blockId\":\"B26\"}],\"conditions\":[\"steady refrigeration cycle, Q1 absorbed from cold space, Q2 rejected to ambient, COP defined as Q1/A\"],\"relationships\":[\"COP = Q1/A\",\"Energy balance Q2 = Q1 + A\"]},{\"topic\":\"work done by ideal gas at (approximately) constant pressure in a piston-cylinder\",\"kind\":\"problem\",\"blockIds\":[\"B27\",\"B28\"],\"givens\":[{\"name\":\"cylinder inner diameter\",\"value\":\"20\",\"unit\":\"cm\",\"sourceText\":\"Đường kính xilanh là 20 cm\",\"blockId\":\"B27\"},{\"name\":\"initial piston height above cylinder base\",\"value\":\"30\",\"unit\":\"cm\",\"sourceText\":\"pit-tông cách đáy xilanh 30 cm\",\"blockId\":\"B27\"},{\"name\":\"final piston height above cylinder base\",\"value\":\"35\",\"unit\":\"cm\",\"sourceText\":\"đẩy pit-tông lên độ cao 35 cm\",\"blockId\":\"B27\"},{\"name\":\"gas pressure (assumed constant)\",\"value\":\"102\",\"unit\":\"kPa\",\"sourceText\":\"áp suất khí là 102 kPa\",\"blockId\":\"B27\"}],\"conditions\":[\"vertical piston motion, pressure change negligible\"],\"relationships\":[\"Work = P·ΔV\",\"ΔV = A·Δh where A = π·(d/2)^2\"]}],\"excluded\":[]}",
+        "reasoning": "We need to extract up to eight records from source blocks. Each record includes topic, kind, blockIds, givens, conditions, relationships. Must not produce answers or quiz questions. Only extract concepts/problems. For each block, we need to parse givens: e.g., latent heat of fusion of ice, specific heat of water, masses, etc. Also for B26: COP, work A, etc. For B27: cylinder dimensions, pressure, distances, assumption about pressure constant, compute work. Provide relationships like Q = mL, Q = mcΔT, COP = Q1/A, work = PΔV, etc.\n\nWe must not include answer options as facts. But we can note that the problem asks to compute something. So record includes givens and conditions.\n\nWe need to list excluded if missing essential data. All blocks seem to have enough data.\n\nWe need to produce JSON compact (no whitespace). Ensure valid JSON.\n\nLet's craft records:\n\nRecord1: topic \"latent heat and specific heat of water/ice equilibrium\". kind \"problem\". blockIds [\"B25\"]. givens: latent heat of fusion of ice = \"3,36.10⁵ J/kg\" unit \"J/kg\". specific heat of water = \"4200 J/kg.K\" unit \"J/kg·K\". Also masses options but those are answer choices, not givens. So maybe not include masses. Conditions: \"system reaches equilibrium between water and ice\". Relationships: \"Q = m·L_f\" for melting, \"Q = m·c·ΔT\". Might be okay.\n\nRecord2: topic \"refrigerator COP calculation\". kind \"problem\". blockIds [\"B26\"]. givens: COP = 3 (dimensionless). Work A = \"180kJ\" unit \"kJ\". Need Q2? The question asks to compute Q2. Conditions: \"steady cycle, Q1 absorbed, A input, Q2 rejected, COP = Q1/A\". Relationships: \"COP = Q1/A\", \"Energy balance Q2 = Q1 + A\". Provide.\n\nRecord3: topic \"work done by gas in piston with constant pressure\". kind \"problem\". blockIds [\"B27\",\"B28\"] (maybe same). givens: cylinder diameter = \"20 cm\" unit \"cm\". initial piston height = \"30 cm\" unit \"cm\". final height = \"35 cm\". pressure = \"102 kPa\". Assume pressure constant. Conditions: \"vertical piston movement, gas does work\". Relationships: \"Work = P·ΔV\", \"ΔV = A·Δh where A = π·(d/2)^2\". Also note pressure change negligible.\n\nWe have three records. Up to eight allowed.\n\nNow produce JSON.\n\nMake sure values normalized: keep as in source, preserve decimal separators (comma used). Should we convert \"3,36.10⁵\" maybe it's \"3.36×10^5\"? The source uses comma as decimal separator? It says \"3,36.10⁵ J/kg\". That's ambiguous. We'll keep exactly as source text. Normalized value maybe same string.\n\nWe'll include sourceText for each given.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.345190022,
+    "prompt_tokens": 1239,
+    "prompt_time": 0.056142572,
+    "completion_tokens": 1190,
+    "completion_time": 2.470846301,
+    "total_tokens": 2429,
+    "total_time": 2.526988873,
+    "completion_tokens_details": {
+      "reasoning_tokens": 653
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_854fa9be4c",
+  "x_groq": {
+    "id": "req_01m407q59we4694qabgdehccnk",
+    "seed": 1626995532
+  },
+  "service_tier": "on_demand"
+}

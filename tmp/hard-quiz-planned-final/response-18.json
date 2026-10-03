@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-dd4ece04-9f85-46f2-ac5d-ce0da2a8e081",
+  "object": "chat.completion",
+  "created": 1791009872,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"title\":\"Kế hoạch câu hỏi nâng cao – Nhiệt động lực học\",\n  \"category\":\"categories.science\",\n  \"plans\":[\n    {\n      \"id\":\"P6\",\n      \"type\":\"selection\",\n      \"recordIds\":[\"F5\"],\n      \"intent\":\"Chọn tất cả các tình huống trong danh sách mà nội năng của hệ thay đổi mà không có truyền nhiệt (Q=0).\",\n      \"reasoningSteps\":[\"Áp dụng định luật thứ nhất của nhiệt động lực học ΔU = Q + W, với Q=0 => ΔU = W; xác định xem mỗi tình huống có thực hiện công W lên hệ hay không\",\"Dựa trên kết quả trên, lựa chọn các mô tả mà công thực hiện (ví dụ: ma sát tay, nén không khí) tồn tại, trong khi các mô tả chỉ có truyền nhiệt bị loại bỏ\"]\n    },\n    {\n      \"id\":\"P7\",\n      \"type\":\"true_false\",\n      \"targetTruthValue\":\"False\",\n      \"recordIds\":[\"F6\"],\n      \"intent\":\"Xác định tính đúng/sai của phát biểu: “Khi nhiệt độ của khí trong lốp tăng từ 27 °C lên 54 °C, áp suất tăng lên 10 atm.”\",\n      \"reasoningSteps\":[\"Chuyển đổi nhiệt độ sang Kelvin (T1=300 K, T2=327 K) và dùng quan hệ P1/T1 = P2/T2 cho thể tích không đổi để tính áp suất cuối cùng P2≈5.45 atm\",\"So sánh giá trị tính được với giá trị trong phát biểu (10 atm) để quyết định phát biểu là sai\"]\n    },\n    {\n      \"id\":\"P8\",\n      \"type\":\"short_answer\",\n      \"recordIds\":[\"F3\"],\n      \"intent\":\"Tính tổng nhiệt lượng cần thiết để tan 4 kg băng ở 0 °C và sau đó làm nước nóng lên 25 °C. Yêu cầu đưa kết quả dưới dạng kJ.\",\n      \"reasoningSteps\":[\"Tính nhiệt ẩn tan băng: Q1 = m·L_f = 4 kg·3.41×10^5 J/kg\",\"Tính nhiệt làm nước ấm lên: Q2 = m·c·ΔT = 4 kg·4180 J/kg·K·25 K\",\"Cộng Q1 và Q2, rồi đổi sang kJ để có đáp số cuối cùng\"]\n    },\n    {\n      \"id\":\"P9\",\n      \"type\":\"multiple_choice\",\n      \"recordIds\":[\"F7\"],\n      \"intent\":\"Xác định khối lượng nitơ trong bình kín (V=12 L, p=80 atm, T=17 °C) bằng cách sử dụng định luật khí lý tưởng và khối lượng mol của nitơ.\",\n      \"reasoningSteps\":[\"Chuyển đổi nhiệt độ sang Kelvin (T=290 K) và áp suất sang atm, tính số mol n = PV/(R·T) với R=0.082 atm·L/(mol·K)\",\"Nhân số mol với khối lượng mol 28 g/mol để có khối lượng nitơ, sau đó chuyển đổi sang kg nếu cần\"],\n      \"options\":[\n        {\"label\":\"A\",\"text\":\"1,13 kg\"},\n        {\"label\":\"B\",\"text\":\"1,13 g\"},\n        {\"label\":\"C\",\"text\":\"0,113 g\"},\n        {\"label\":\"D\",\"text\":\"0,113 kg\"}\n      ]\n    },\n    {\n      \"id\":\"P10\",\n      \"type\":\"selection\",\n      \"recordIds\":[\"F16\"],\n      \"intent\":\"Chọn tất cả các khẳng định đúng liên quan đến áp suất và lực trong hệ thống ghế nâng bằng khí khi một học sinh 24 kg ngồi lên ghế, biết diện tích piston S=30 cm², trọng lượng ghế+xi lanh 6 kg và độ trượt 12 cm, nhiệt độ không đổi, không ma sát.\",\n      \"reasoningSteps\":[\"Sử dụng cân bằng lực: (m_giáo+ m_học sinh)·g = p·S, tính áp suất trong xi lanh khi ghế trống và khi có tải\",\"Áp dụng nguyên lý Pascal để xác định áp suất tăng do giảm thể tích khi piston di chuyển 12 cm, tính công thực hiện bởi khí nếu cần\",\"Dựa trên các tính toán trên, xác định các phát biểu đúng về giá trị áp suất và công thực hiện\"]\n    }\n  ]\n}",
+        "reasoning": "We need to produce JSON with title, category, plans array for slots P6-P10. Must use only reviewed source records. Each plan must identify source recordIds, intended task, reasoningSteps. Must not generate actual question content, just plan metadata. Must ensure each plan uses up to 3 records and 4 source chunks. Need hard difficulty: each plan must have at least two dependent reasoning steps, involve inverse problems, error diagnosis, comparisons, boundary conditions, interacting concepts.\n\nWe have slots types: P6 selection, P7 true_false (target false), P8 short_answer, P9 multiple_choice, P10 selection.\n\nWe need to create plans for each slot using source records.\n\nSelection type: likely ask to select all correct statements among options. Could use source F5 (internal energy change) or F6 (ideal gas law pressure). Need at least two reasoning steps.\n\nTrue_false false: need a statement that is false based on derived conclusion. Use source F6 maybe compute pressure and claim something else.\n\nShort_answer: ask for derived result numeric maybe from F3 (heat required) but must be hard: maybe ask for total heat required given extra step like compute energy per kg then total. But short answer cannot be simple recall; maybe ask for temperature change needed to achieve certain heat.\n\nMultiple_choice: need options with distractors based on common mistakes. Use source F7 (mass of nitrogen) maybe ask for mass and options.\n\nSelection: second selection slot maybe use F16 (hydraulic chair) to select correct statements.\n\nWe must not generate question text, only plan metadata. Provide intent describing task and conditions.\n\nLet's craft each plan.\n\nPlan P6 (selection): Use source F5 (internal energy change without heat). Task: select all situations where internal energy changes without heat transfer. Need reasoning: identify Q=0, compute ΔU = W, evaluate each option. Use source F5 only. Reasoning steps: 1) Apply first law ΔU = Q + W, with Q=0. 2) Determine which scenario involves work done on system (e.g., rubbing hands). Provide selection.\n\nPlan P7 (true_false false): Use source F6 (ideal gas law pressure change). Compute final pressure using P1/T1 = P2/T2 with temperatures in Kelvin. Initial T1 = 27°C = 300K, T2 = 54°C = 327K. P2 = P1 * T2/T1 = 5 * 327/300 = 5.45 atm approx. So true pressure ~5.45 atm. Provide false statement maybe \"Pressure becomes 10 atm\". So plan: derive pressure and compare.\n\nPlan P8 (short_answer): Use source F3 (heat required to melt ice and warm water). But need hard: maybe ask for total heat per kilogram? Or ask for heat required to raise temperature from 0°C ice to 25°C water, but also ask for energy per gram? That's straightforward. Need at least two steps: compute latent heat then sensible heat. Provide short answer numeric value in kJ. Use source F3.\n\nPlan P9 (multiple_choice): Use source F7 (mass of nitrogen). Compute mass using ideal gas law. Steps: 1) Compute moles n = PV/RT (convert units). 2) Multiply by molar mass. Provide options with common errors: forgetting conversion of temperature to Kelvin, using atm-L constant incorrectly, using volume in L vs m3, etc. Provide correct answer.\n\nPlan P10 (selection): Use source F16 (hydraulic chair). Task: select all correct statements about pressures and forces. Need reasoning: compute pressure increase using Pascal principle, force balance, etc. Provide selection.\n\nNow produce JSON with title, category, plans list.\n\nMake sure each plan includes \"recordIds\": list of IDs used. Provide \"intent\": description. Provide \"reasoningSteps\": list strings.\n\nNo more than three records per plan; we use one each.\n\nNow produce compact JSON. Ensure valid.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.345599134,
+    "prompt_tokens": 9759,
+    "prompt_time": 0.375411015,
+    "completion_tokens": 1804,
+    "completion_time": 3.780394723,
+    "total_tokens": 11563,
+    "total_time": 4.155805738,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 823
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_854fa9be4c",
+  "x_groq": {
+    "id": "req_01m4083jeaewsa978gwt72c1f2",
+    "seed": 1245579520
+  },
+  "service_tier": "on_demand"
+}

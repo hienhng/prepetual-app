@@ -1,4 +1,5 @@
 import { isValidSelectionQuestion } from "./selection-answer.js";
+import { normalizeQuizLanguage } from "./quiz-language.js";
 import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, integer, jsonb, timestamp, index, uniqueIndex, boolean, vector } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
@@ -91,6 +92,7 @@ export const questionSchema = z.object({
   selectionMode: z.literal("truth_statements").optional(),
   explanation: z.string().optional(),
   wrongAnswerExplanations: z.record(z.string(), z.string()).optional(),
+  feedbackVerification: z.object({ version: z.union([z.literal(1), z.literal(2)]), signature: z.string() }).optional(),
   imageUrl: z.string().optional(),
   sourceChunkIds: z.array(z.string()).optional(),
   // Imported source questions are retained even when parsing/answer verification
@@ -264,6 +266,12 @@ export interface ShortAnswerGradingResult {
   isPartial: boolean;
   explanation: string;
   wrongExplanation?: string;
+  wrongAnswerExplanations?: Record<string, string>;
+  optionExplanations?: Record<string, string>;
+  // Objective feedback is also kept in progress; older records omit this.
+  verifiedFeedbackSignature?: string;
+  judgedAnswer?: string;
+  gradingToken?: string;
 }
 
 // Quiz comments table
@@ -375,6 +383,7 @@ export const MAX_SOURCE_IMAGE_CHARS = 14_000_000;
 export const MAX_SOURCE_IMAGES_TOTAL_CHARS = 28_000_000;
 
 export const generateQuizRequestSchema = z.object({
+  outputLanguage: z.string().max(35).refine(value => value === "auto" || normalizeQuizLanguage(value) !== null, "Choose a valid quiz language").default("auto"),
   // `text` and `sourceType` are retained for older clients. New clients send
   // materialText and prompt independently so both can be used in one quiz.
   text: z.string().max(MAX_SOURCE_TEXT_CHARS, "Text is too large").optional(),
@@ -445,6 +454,8 @@ export type GenerateQuizRequest = z.infer<typeof generateQuizRequestSchema>;
 
 export const submitQuizRequestSchema = z.object({
   quizId: z.string().min(1).max(100),
+  shortAnswerGradingTokens: z.record(z.string(), z.string().max(24_000))
+    .refine(tokens => Object.keys(tokens).length <= 100, "Too many grades").optional().default({}),
   answers: z
     .record(z.string(), z.string().max(4_000, "An answer is too long"))
     .refine((answers) => Object.keys(answers).length <= 100, "Too many answers"),

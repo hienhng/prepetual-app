@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-ea58642b-419e-4447-a482-14ce50286ae4",
+  "object": "chat.completion",
+  "created": 1791017068,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"reviews\": [\n    {\n      \"id\": \"P13\",\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"The task requires solving a two‑variable linear inequality system to maximize heat extraction under simultaneous time and energy limits, then re‑evaluating feasibility with a tighter energy budget. This involves selecting a feasible (n_A, n_B) pair, comparing corner‑point solutions, and reasoning about the impact of the budget change—steps that go beyond simple substitution.\",\n      \"reason\": \"All necessary givens are present; the source provides the linear relationships and constraints; the optimization and budget‑change analysis constitute non‑routine inference.\"\n    },\n    {\n      \"id\": \"P14\",\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"The problem asks for the minimal proportion of mode B cycles that satisfies both heat‑load and combined time/energy constraints, then tests the same proportion under a different time limit. Determining the proportion requires solving coupled inequalities, expressing n_A in terms of n_B, and evaluating feasibility—an interacting‑constraint reasoning task rather than direct substitution.\",\n      \"reason\": \"All required data are supplied; the source supports the base constraints and permits hypothetical changes; deriving and checking the proportion involves complex constraint reasoning.\"\n    }\n  ]\n}",
+        "reasoning": "We need to produce JSON with reviews for each plan (P13 and P14). For each, assess selfContained, sourceSupported, hardReasoning, credibleDistractors (only for multiple_choice? but still boolean). Provide reasoningJustification and maybe reason field. Also include evidence array if sourceEvidence not provided (we have sourceEvidence in records). The instruction: \"When source grounding is enabled and no server-provided sourceEvidence is supplied, also return evidence:[{\"chunkId\":\"exact cited id\",\"quote\":\"verbatim relevant passage from that cited chunk\"}]. Include at least one relevant quote for EVERY cited chunk\". Here each plan includes records with evidence array containing quote. So we have sourceEvidence provided. So we should not regenerate quotes, but we still need to include evidence? It says: \"When server-provided sourceEvidence is supplied, independently assess those actual passages but do not regenerate their quotes.\" So we should not include evidence field in output. Only include booleans and justification.\n\nNow evaluate each plan.\n\nPlan P13: selection type (likely ask to decide if still can meet heat load with reduced budget). Need to assess criteria.\n\nSelfContained: Does the plan provide all needed givens? The plan description: \"Xác định lượng nhiệt tối đa Q_max có thể thu được dưới các ràng buộc thời gian ≤200 s và ngân sách điện ≤800 kJ (bước 1). Sau đó, giả sử ngân sách điện giảm còn 600 kJ, quyết định liệu vẫn có thể đạt tải nhiệt yêu cầu 2160 kJ mà không vượt quá thời gian 200 s (bước 2).\" The source provides all givens: heat per cycle, work per cycle, times, total time, total energy, required heat. So yes selfContained.\n\nSourceSupported: The source includes relationships and constraints. The plan asks to compute Q_max under constraints, then evaluate with new energy budget. The source supports the constraints and linear scaling. So sourceSupported true.\n\nHardReasoning: Need to assess difficulty. The task involves solving a linear integer (or real) optimization under two constraints to maximize heat, then re-evaluate with tighter energy budget. This is a linear programming problem with two variables, but could be solved by checking corner points. Is that considered hard? According to guidelines, routine conversion, linear substitution is routine. However, this requires optimization under inequality constraints and evaluating feasibility under changed budget, which may be considered non‑routine dependent inference, especially because you must consider trade‑off between modes and possibly partial cycles. That could be considered hard reasoning because you need to consider the interaction of two constraints and decide feasibility, not just plug numbers. I'd argue hardReasoning = true.\n\nCredibleDistractors: For selection type, not multiple choice, but still need boolean. CredibleDistractors maybe not applicable; but we can set true if plausible distractors could be generated. Since it's selection (maybe true/false?), but we can set credibleDistractors = true (since plausible alternatives exist). Or maybe false because not multiple choice. The spec: \"For HARD multiple_choice/selection, incorrect choices must arise...\" So for selection, we still need credibleDistractors boolean. We'll set true assuming plausible distractors can be made.\n\nProvide reasoningJustification: brief.\n\nPlan P14: multiple_choice. Need to assess.\n\nSelfContained: The plan asks to find minimum proportion of mode B needed to meet heat load when time limit increased to 240 s, energy budget same 800 kJ, then check if same proportion works when time reduced to 180 s. All givens present. Yes selfContained.\n\nSourceSupported: The source provides same givens and constraints (time 200 s originally). However the plan modifies time limit to 240 s and 180 s, which are hypothetical changes. The source says \"Mọi so sánh thay đổi ngân sách phải nêu rõ đó là tình huống giả định.\" It allows hypothetical changes. So source supports the base values; the hypothetical changes are allowed as assumed. So sourceSupported true.\n\nHardReasoning: Need to compute minimum proportion of mode B to meet heat load under constraints, which involves solving inequalities, possibly linear programming, then re-evaluating. This is similar to P13, but also requires deriving proportion expression. This is non‑routine, involves interacting constraints, so hardReasoning true.\n\nCredibleDistractors: For multiple choice, need plausible incorrect options. The plan likely can generate them. So credibleDistractors true.\n\nNow produce JSON.\n\nStructure: {\"reviews\":[{\"id\":\"P13\",...},{\"id\":\"P14\",...}]}\n\nInclude fields: selfContained, sourceSupported, hardReasoning, credibleDistractors, reasoningJustification, reason? The spec: \"Return JSON {\"reviews\":[{\"id\":\"assigned plan id\",\"selfContained\":true,\"sourceSupported\":true,\"hardReasoning\":true,\"reasoningJustification\":\"actual dependent inference beyond routine substitution\",\"reason\":\"specific feasibility/difficulty assessment\"}]}.\" It includes reason field optional. We'll include reasoningJustification and maybe reason summarizing.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.320304133,
+    "prompt_tokens": 2854,
+    "prompt_time": 0.222002969,
+    "completion_tokens": 1367,
+    "completion_time": 3.162361226,
+    "total_tokens": 4221,
+    "total_time": 3.384364195,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1043
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_5082008e34",
+  "x_groq": {
+    "id": "req_01m40ez6m9et1vab36kyd10ng6",
+    "seed": 499582114
+  },
+  "service_tier": "on_demand"
+}

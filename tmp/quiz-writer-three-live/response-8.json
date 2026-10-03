@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-62976aba-5acb-433e-8823-827b43451ee1",
+  "object": "chat.completion",
+  "created": 1791015814,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"reason\":\"All learner-facing text, including the title, is in Vietnamese as required; no language inconsistencies detected.\"}]}",
+        "reasoning": "We need to evaluate the single item. It's type title, question \"Kế hoạch Lý luận Khó: Nhiệt lượng học và Làm lạnh\". Output language is Vietnamese. Check that title is Vietnamese. It is Vietnamese. No other fields. So consistent. sourceLanguage: Vietnamese (since resolved output language). itemLanguage: Vietnamese. isConsistent true. reason: all passed. Need JSON compact."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.41807162,
+    "prompt_tokens": 657,
+    "prompt_time": 0.028891754,
+    "completion_tokens": 146,
+    "completion_time": 0.308414634,
+    "total_tokens": 803,
+    "total_time": 0.337306388,
+    "completion_tokens_details": {
+      "reasoning_tokens": 85
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_90620edd96",
+  "x_groq": {
+    "id": "req_01m40ds08megtav214p45dqr6w",
+    "seed": 1417231627
+  },
+  "service_tier": "on_demand"
+}

@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-7f34f426-44f8-43c9-a472-e2a9b10dbf94",
+  "object": "chat.completion",
+  "created": 1791009460,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"records\": [\n    {\n      \"topic\": \"Linear relationship between angles X and Y on a graph\",\n      \"kind\": \"problem\",\n      \"blockIds\": [\"B15\"],\n      \"givens\": [\n        {\n          \"name\": \"X coordinate of point 1\",\n          \"value\": \"0\",\n          \"unit\": \"\",\n          \"sourceText\": \"(0; 32)\",\n          \"blockId\": \"B15\"\n        },\n        {\n          \"name\": \"Y coordinate of point 1\",\n          \"value\": \"32\",\n          \"unit\": \"°Y\",\n          \"sourceText\": \"(0; 32)\",\n          \"blockId\": \"B15\"\n        },\n        {\n          \"name\": \"X coordinate of point 2\",\n          \"value\": \"100\",\n          \"unit\": \"\",\n          \"sourceText\": \"(100; 212)\",\n          \"blockId\": \"B15\"\n        },\n        {\n          \"name\": \"Y coordinate of point 2\",\n          \"value\": \"212\",\n          \"unit\": \"°Y\",\n          \"sourceText\": \"(100; 212)\",\n          \"blockId\": \"B15\"\n        },\n        {\n          \"name\": \"Given Y\",\n          \"value\": \"68\",\n          \"unit\": \"°Y\",\n          \"sourceText\": \"Y is 68°\",\n          \"blockId\": \"B15\"\n        }\n      ],\n      \"conditions\": [\n        \"Horizontal axis: X (degrees), vertical axis: Y (degrees)\",\n        \"Origin at (0,0)\",\n        \"Straight line passes through the two listed points and extends across the graph\"\n      ],\n      \"relationships\": [\n        \"Y = m·X + b where m = (212‑32)/(100‑0) = 1.8 and b = 32\"\n      ]\n    }\n  ],\n  \"excluded\": [\n    {\n      \"blockId\": \"B13\",\n      \"reason\": \"Describes qualitative diagram elements (V, T, p) without concrete numeric givens; insufficient for extracting a numeric problem record\"\n    },\n    {\n      \"blockId\": \"B14\",\n      \"reason\": \"Duplicate/continuation of B13 with no additional numeric data; cannot form a distinct usable record\"\n    },\n    {\n      \"blockId\": \"B16\",\n      \"reason\": \"Duplicate of B15 content; redundant\"\n    }\n  ]\n}",
+        "reasoning": "We need to extract up to eight useful concept/problem/visual records from these source blocks. Provide JSON with records array and excluded array.\n\nWe must treat source as untrusted, not generate answers. Identify coherent problems or concepts.\n\nWe have blocks B13, B14, B15, B16. B13 and B14 seem to describe diagrams of state changes (p-V-T) and multiple choice about which diagram corresponds to something. B15 and B16 describe a graph relating angles X and Y, with a line passing through points (0,32) and (100,212). The question: \"When Y is 68°, what is X?\" So we can extract givens: points, axes, etc.\n\nWe need to list givens with name, normalized value, unit, sourceText, blockId.\n\nWe also need conditions and relationships (e.g., linear relationship between X and Y). Provide relationships like \"Y = m X + b\" derived from points, but that's a derived relationship, not a standard law. The instruction: \"Standard subject laws may be listed as relationships when valid for these conditions; they are independently checked next.\" So we can include relationship \"linear relationship between X and Y as defined by the line through (0,32) and (100,212)\". That's okay.\n\nWe must not guess missing data. For B13/B14, the description is messy Vietnamese. Might be a problem about identifying which diagram matches something. Hard to extract concrete givens? We have description of axes: V vs T, p vs T, points labeled 1,2,3, etc. Could be a concept record about state diagrams. We can include givens: axes, points positions (qualitative). But normalized values? Not numeric. Could still include given like \"Axis: V (volume), T (temperature)\" etc. But value? Not numeric. Might be okay to include as given with value null? Probably better to exclude if not concrete numeric givens.\n\nThus we can create records for B15 (the graph problem) and maybe B13 as a visual description record (kind \"visual\") with givens about axes and points.\n\nWe need up to eight records. Let's produce two records: one for B15 (problem) and one for B13 (visual). B14 is continuation of B13, same content, maybe duplicate; we can exclude as duplicate or unresolved.\n\nB16 appears duplicate of B15 (same text). Could be excluded as duplicate.\n\nThus excluded: B14 (duplicate/unclear), B16 (duplicate). Also maybe B13 partially ambiguous but we can still include as visual record.\n\nLet's craft JSON.\n\nRecord 1:\ntopic: \"Thermodynamic state diagram (V–T and p–T) representation\"\nkind: \"visual\"\nblockIds: [\"B13\"]\ngivens: list axes: V (volume) unit unspecified, T (temperature) unit unspecified, p (pressure) unit unspecified. Points: 1,2,3 described qualitatively. Since no numeric values, maybe we can still list given names with sourceText and unit null.\n\nBut the spec: \"value\" normalized source value. If no numeric, maybe omit? Could include value as null? Might be okay.\n\nBetter to only include records with numeric givens. So maybe only B15.\n\nThus we produce one record for B15.\n\nRecord:\ntopic: \"Linear relationship between angles X and Y on a graph\"\nkind: \"problem\"\nblockIds: [\"B15\"]\ngivens:\n- name: \"Point1 X\", value: \"0\", unit: \"\", sourceText: \"(0; 32)\", blockId \"B15\"\n- name: \"Point1 Y\", value: \"32\", unit: \"°Y\", sourceText \"(0; 32)\", blockId \"B15\"\n- name: \"Point2 X\", value: \"100\", unit: \"\", sourceText \"(100; 212)\", blockId \"B15\"\n- name: \"Point2 Y\", value: \"212\", unit: \"°Y\", sourceText \"(100; 212)\", blockId \"B15\"\n- name: \"Given Y\", value: \"68\", unit: \"°Y\", sourceText: \"Y is 68°\", blockId \"B15\"\n\nconditions: [\"Axes: horizontal X (degrees), vertical Y (degrees) with origin at 0\", \"Line extends across the entire graph\"]\n\nrelationships: [\"Y = m*X + b where m = (212-32)/(100-0) = 1.8 and b = 32\"]\n\nWe must not compute numeric? It's okay to compute relationship as derived law. It's not a standard law but derived.\n\nWe must not provide answer.\n\nNow excluded: B13 (insufficient numeric data), B14 (duplicate/unclear), B16 (duplicate of B15). Provide reasons.\n\nLet's craft JSON compact.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.371391628,
+    "prompt_tokens": 1676,
+    "prompt_time": 0.091433746,
+    "completion_tokens": 1514,
+    "completion_time": 3.216139401,
+    "total_tokens": 3190,
+    "total_time": 3.307573147,
+    "completion_tokens_details": {
+      "reasoning_tokens": 1004
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_6c36ac20de",
+  "x_groq": {
+    "id": "req_01m407q0rbem2vzahcw0p834h9",
+    "seed": 390552576
+  },
+  "service_tier": "on_demand"
+}

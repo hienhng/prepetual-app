@@ -72,5 +72,15 @@ export function assessPdfText(text: string, hasImages: boolean, blocks: PdfTextB
   if (corrupt >= 2 && corrupt / Math.max(1, compact.length) > 0.02) reasons.push("corrupt_text");
   // Image-backed pages can have a perfectly readable running header above a scan.
   if (hasImages && (textArea / Math.max(1, pageArea) < 0.035 || blocks.length < 5)) reasons.push("image_with_limited_text");
+  const searchable = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").toLowerCase();
+  // Dense selectable prose does not contain the data drawn in a graph or the
+  // meaning of a fraction split across PDF text runs. Page coverage is not enough.
+  if (/\b(?:do thi|hinh (?:ben|ve|duoi)|bang (?:ben|duoi)|so do|graph|diagram|figure|chart)\b/.test(searchable)) {
+    reasons.push("visual_stimulus");
+  }
+  if (/[!"#$%&]{2,}/.test(text) || /\b[A-Za-z]\s*=\s*\d+\s+\d+\s*,/.test(text) ||
+      blocks.filter(block => /^[A-Za-z]\d?$/.test(block.text.trim())).length >= 4) {
+    reasons.push("fragmented_equations");
+  }
   return reasons;
 }

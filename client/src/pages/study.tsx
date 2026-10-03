@@ -308,7 +308,7 @@ export default function StudyPage() {
         >
           <span className="flex flex-col items-start">
             <span className="font-semibold">{t("study.intro")}</span>
-            <span className="text-xs opacity-70">Start here</span>
+            <span className="text-xs opacity-70">{t("study.startHere")}</span>
           </span>
         </Button>
         {lecture.topics.map((topic, topicIndex) => (
@@ -349,17 +349,17 @@ export default function StudyPage() {
         >
           <span className="flex flex-col items-start">
             <span className="font-semibold">{t("study.summary")}</span>
-            <span className="text-xs opacity-70">Wrap up</span>
+            <span className="text-xs opacity-70">{t("study.wrapUp")}</span>
           </span>
         </Button>
         <Button
-          variant={currentLecture?.kind === "quiz" ? "default" : "outline"}
+          variant={currentLecture?.kind === t("history.quiz") ? "default" : "outline"}
           className="w-full justify-start rounded-2xl px-3 py-2 text-left"
           onClick={() => selectStep(lecture.sequence.length - 1)}
         >
           <span className="flex flex-col items-start">
             <span className="font-semibold">{t("study.revisionQuiz")}</span>
-            <span className="text-xs opacity-70">Test yourself</span>
+            <span className="text-xs opacity-70">{t("study.testYourself")}</span>
           </span>
         </Button>
       </div>
@@ -403,7 +403,7 @@ export default function StudyPage() {
           {lecture ? (
             <Sheet open={isTopicsOpen} onOpenChange={setIsTopicsOpen}>
               <SheetTrigger asChild>
-                <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full lg:hidden" aria-label="Open lecture topics" data-testid="button-open-topics">
+                <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full lg:hidden" aria-label={t("study.openTopics")} data-testid="button-open-topics">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -422,7 +422,7 @@ export default function StudyPage() {
             data-testid="button-ask-prepal"
           >
             <AskPipIcon size={22} />
-            <span className="ml-1.5 hidden text-sm font-semibold sm:inline">Prepal AI</span>
+            <span className="ml-1.5 hidden text-sm font-semibold sm:inline">{t("quizPlayer.askPip")}</span>
           </Button>
           <Link href="/dashboard">
             <Button size="icon" variant="ghost" className="h-10 w-10 rounded-full">
@@ -488,7 +488,7 @@ export default function StudyPage() {
                   <MarkdownText content={currentLecture.body.join("\n\n")} />
                 ) : null}
 
-                {currentLecture?.kind === "quiz" && (
+                {currentLecture?.kind === t("history.quiz") && (
                   <div className="mt-8 flex justify-center">
                     <Link href="/quiz">
                       <Button size="lg" className="rounded-2xl px-8 font-semibold shadow-md flex items-center gap-2" data-testid="button-start-main-quiz">
@@ -523,10 +523,10 @@ export default function StudyPage() {
         questions={currentQuiz.questions}
         currentQuestionIndex={0}
         suggestedQuestions={[
-          "Explain the main idea of this lecture slide",
-          "Summarize this topic in simple terms",
-          "Give me an example that helps explain this lesson",
-          "Quiz me on the material covered in this lecture",
+          t("study.mainIdeaCue"),
+          t("study.summaryCue"),
+          t("study.exampleCue"),
+          t("study.quizCue"),
         ]}
         isOpen={isChatbotOpen}
         onClose={() => setIsChatbotOpen(false)}

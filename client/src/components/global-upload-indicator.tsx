@@ -1,10 +1,9 @@
+import { useLanguage } from "@/lib/language-context";
 import { useUpload } from "@/lib/upload-context";
-import { composeSourceMaterialText, useQuiz } from "@/lib/quiz-context";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, CheckCircle, XCircle, Loader2, Files } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Files } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import { useEffect } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,86 +17,37 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export function GlobalUploadIndicator() {
-  const { activeJobs, clearJobs, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, hasImageOnlyUploads } = useUpload();
-  const { setExtractedText, setSourceMaterial, sourceMaterial } = useQuiz();
+  const { t } = useLanguage();
+  const { activeJobs: allJobs, discardPendingUploads } = useUpload();
   const [location, setLocation] = useLocation();
-
+  const activeJobs = allJobs.filter(job => job.accepted === false);
   const completedJobs = activeJobs.filter(job => job.status === "completed");
   const processingJobs = activeJobs.filter(job => job.status === "pending" || job.status === "processing");
   const errorJobs = activeJobs.filter(job => job.status === "error");
-
-  const overallProgress = activeJobs.length > 0 
+  const overallProgress = activeJobs.length > 0
     ? Math.round(activeJobs.reduce((sum, job) => sum + job.progress, 0) / activeJobs.length)
     : 0;
 
-  useEffect(() => {
-    if (isAllCompleted() && completedJobs.length > 0) {
-      const combinedText = getCombinedText();
-      const combinedImages = getCombinedDocumentImages();
-      const hasImages = hasOfficeWithImages();
-      const isImageOnly = hasImageOnlyUploads();
-      const nextMaterial = {
-        ...sourceMaterial,
-        text: null,
-        uploadedText: isImageOnly ? null : combinedText,
-        imageDataUrl: null,
-        isOfficeWithImages: hasImages || combinedImages.length > 0,
-        documentImages: combinedImages,
-      };
-      const combinedMaterialText = composeSourceMaterialText(nextMaterial);
-      const prompt = nextMaterial.prompt?.trim() || "";
+  // The upload surfaces provide their own progress and confirmation controls.
+  if (activeJobs.length === 0 || location === "/" || location === "/create") return null;
 
-      setSourceMaterial({
-        ...nextMaterial,
-        type: combinedMaterialText ? "document" : combinedImages.length > 0 ? "image" : prompt ? "prompt" : null,
-        text: combinedMaterialText || prompt || null,
-        isImageOnly: combinedImages.length > 0 && !combinedMaterialText,
-      });
-      setExtractedText(combinedMaterialText || prompt || (combinedImages.length > 0 ? "[Images uploaded - AI will analyze visually]" : ""));
-    }
-  }, [isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasOfficeWithImages, hasImageOnlyUploads, setSourceMaterial, setExtractedText]);
-
-  // Auto-dismiss when landing on generate page - but only after source material is captured
-  useEffect(() => {
-    // Only clear jobs after source material has been set with images
-    const hasImageData = sourceMaterial.documentImages && sourceMaterial.documentImages.length > 0;
-    const hasTextData = sourceMaterial.text && sourceMaterial.text.length > 0;
-    const isImageOnlyReady = sourceMaterial.isImageOnly && hasImageData;
-    const isDocumentReady = !sourceMaterial.isImageOnly && hasTextData;
-    
-    if (location === "/generate" && activeJobs.length > 0 && (isImageOnlyReady || isDocumentReady)) {
-      clearJobs();
-    }
-  }, [location, activeJobs.length, clearJobs, sourceMaterial.documentImages, sourceMaterial.text, sourceMaterial.isImageOnly]);
-
-  if (activeJobs.length === 0) return null;
-  if (location === "/" && isAnyProcessing()) {
-    return null;
-  }
-
-  const isProcessing = isAnyProcessing();
-  const isCompleted = isAllCompleted() && completedJobs.length > 0;
+  const isProcessing = processingJobs.length > 0;
+  const isCompleted = !isProcessing && completedJobs.length > 0;
   const hasErrors = errorJobs.length > 0;
-
-  const handleGoToQuiz = () => {
-    setLocation("/generate");
-  };
-
-  const handleDismiss = () => {
-    clearJobs();
-  };
+  const handleReviewFiles = () => setLocation("/create");
+  const handleDismiss = () => { discardPendingUploads(); };
 
   const displayName = activeJobs.length === 1 
     ? activeJobs[0].fileName 
-    : `${activeJobs.length} files`;
+    : t('fileUpload.filesCount', { count: activeJobs.length });
 
   const displayMessage = isProcessing 
-    ? `Processing ${processingJobs.length} of ${activeJobs.length} files...`
+    ? t('fileUpload.processingCount', { current: processingJobs.length, total: activeJobs.length })
     : hasErrors && completedJobs.length > 0
-    ? `${completedJobs.length} completed, ${errorJobs.length} failed`
+    ? t('fileUpload.completedFailed', { completed: completedJobs.length, failed: errorJobs.length })
     : hasErrors
-    ? `${errorJobs.length} file(s) failed`
-    : `${completedJobs.length} files ready`;
+    ? t('fileUpload.failedCount', { count: errorJobs.length })
+    : t('fileUpload.readyCount', { count: completedJobs.length });
 
   return (
     <AnimatePresence>
@@ -142,20 +92,20 @@ export function GlobalUploadIndicator() {
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" data-testid="button-cancel-upload">
-                          Cancel
+                          {t("common.cancel")}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Cancel upload?</AlertDialogTitle>
+                          <AlertDialogTitle>{t("fileUpload.cancelUpload")}</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to cancel the document processing?
+                            {t("fileUpload.cancelDescription")}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>No, keep it</AlertDialogCancel>
+                          <AlertDialogCancel>{t("fileUpload.keep")}</AlertDialogCancel>
                           <AlertDialogAction onClick={handleDismiss} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                            Yes, cancel
+                            {t("fileUpload.confirmCancel")}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -166,22 +116,22 @@ export function GlobalUploadIndicator() {
               
               {isCompleted && !hasErrors && (
                 <div className="flex gap-2 mt-2">
-                  <Button size="sm" onClick={handleGoToQuiz}>
-                    Continue
+                  <Button size="sm" onClick={handleReviewFiles}>
+                    {t("fileUpload.reviewFiles")}
                   </Button>
                   <Button size="sm" variant="ghost" onClick={handleDismiss} data-testid="button-dismiss-upload">
-                    Dismiss
+                    {t("common.dismiss")}
                   </Button>
                 </div>
               )}
               
               {hasErrors && completedJobs.length > 0 && (
                 <div className="flex gap-2 mt-2">
-                  <Button size="sm" onClick={handleGoToQuiz}>
-                    Continue with {completedJobs.length}
+                  <Button size="sm" onClick={handleReviewFiles}>
+                    {t('fileUpload.reviewCount', { count: completedJobs.length })}
                   </Button>
                   <Button size="sm" variant="ghost" onClick={handleDismiss} data-testid="button-dismiss-upload">
-                    Dismiss
+                    {t("common.dismiss")}
                   </Button>
                 </div>
               )}
@@ -189,7 +139,7 @@ export function GlobalUploadIndicator() {
               {hasErrors && completedJobs.length === 0 && (
                 <div className="flex gap-2 mt-2">
                   <Button size="sm" variant="ghost" onClick={handleDismiss} data-testid="button-dismiss-error">
-                    Dismiss
+                    {t("common.dismiss")}
                   </Button>
                 </div>
               )}

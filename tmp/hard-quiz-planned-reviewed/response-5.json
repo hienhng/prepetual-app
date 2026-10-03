@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-ea7ec642-390a-4f09-9a10-67a4d4d6a95f",
+  "object": "chat.completion",
+  "created": 1791010718,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"records\": [\n    {\n      \"topic\": \"Thermodynamic state diagram (V‑T) for 1 mol\",\n      \"kind\": \"problem\",\n      \"blockIds\": [\"B13\"],\n      \"givens\": [],\n      \"conditions\": [\n        \"Diagram shows volume V (vertical axis) vs temperature T (horizontal axis) for 1 mol.\",\n        \"Point 1 lies on the dashed line from the origin O.\",\n        \"Point 2 lies on the top axis, point 3 lies below the top axis.\",\n        \"Path 1–2 is diagonal upward, 2–3 is vertical downward, 3–1 is horizontal left; dashed line O–1 is also shown.\"\n      ],\n      \"relationships\": []\n    },\n    {\n      \"topic\": \"Thermodynamic state diagram (p‑T) options for 1 mol\",\n      \"kind\": \"problem\",\n      \"blockIds\": [\"B14\"],\n      \"givens\": [],\n      \"conditions\": [\n        \"Diagram shows pressure p (vertical axis) vs temperature T (horizontal axis) with four candidate shapes a, b, c, d.\",\n        \"For each shape the positions of points 1, 2, 3 relative to the axes are described (e.g., point 1 on the top axis, point 2 below the top axis, etc.).\",\n        \"Corresponding paths between points are described (e.g., 1–2 convex outward toward the axis, 3–2 horizontal, etc.).\"\n      ],\n      \"relationships\": []\n    },\n    {\n      \"topic\": \"Linear relationship between angles X and Y on a graph\",\n      \"kind\": \"problem\",\n      \"blockIds\": [\"B15\"],\n      \"givens\": [\n        {\n          \"name\": \"point1 X\",\n          \"value\": \"0\",\n          \"unit\": \"°\",\n          \"sourceText\": \"(0; 32)\",\n          \"blockId\": \"B15\"\n        },\n        {\n          \"name\": \"point1 Y\",\n          \"value\": \"32\",\n          \"unit\": \"°\",\n          \"sourceText\": \"(0; 32)\",\n          \"blockId\": \"B15\"\n        },\n        {\n          \"name\": \"point2 X\",\n          \"value\": \"100\",\n          \"unit\": \"°\",\n          \"sourceText\": \"(100; 212)\",\n          \"blockId\": \"B15\"\n        },\n        {\n          \"name\": \"point2 Y\",\n          \"value\": \"212\",\n          \"unit\": \"°\",\n          \"sourceText\": \"(100; 212)\",\n          \"blockId\": \"B15\"\n        },\n        {\n          \"name\": \"given Y\",\n          \"value\": \"68\",\n          \"unit\": \"°\",\n          \"sourceText\": \"Khi nhiêt đọ là 68°Y\",\n          \"blockId\": \"B15\"\n        }\n      ],\n      \"conditions\": [\n        \"A straight line passes through the two given points (0, 32) and (100, 212) and is extended to intersect the X‑axis (Y = 0).\"\n      ],\n      \"relationships\": [\n        \"Equation of a straight line: (Y‑Y1)/(X‑X1) = (Y2‑Y1)/(X2‑X1)\"\n      ]\n    }\n  ],\n  \"excluded\": [\n    {\n      \"blockId\": \"B16\",\n      \"reason\": \"Duplicate of B15 content; no additional unique information.\"\n    }\n  ]\n}",
+        "reasoning": "We need to extract up to eight useful concept/problem/visual records from these source blocks. Provide JSON with records array and excluded array.\n\nWe must treat source as untrusted, not generate answers. We need to identify coherent problems or concepts.\n\nWe have blocks B13, B14, B15, B16. B13 and B14 seem to describe diagrams of state changes (V,T) and (p,T) with points and paths. That's a concept: phase diagram or state diagram for 1 mol. Could be a problem about interpreting diagram.\n\nB15 and B16 describe a graph relating angles X and Y, with a line through points (0,32) and (100,212). The question: given Y=68°, find X? That's a problem.\n\nWe need to extract givens: quantities with values and units. For B15/B16: given points coordinates, axes units degrees. Also given Y=68°. That's a given.\n\nFor B13/B14: givens are axes labels, points positions (but no numeric values). They are described qualitatively (point 1 on axis, etc). No numeric values. Might be considered not usable? But we can still record the concept: diagram of state changes with axes V,T and p,T. No numeric givens. Could still be a record with conditions but no givens. The spec says \"givens copy sourceText verbatim from its block, and give its normalized value and unit.\" If no numeric value, maybe we exclude? Could list as condition.\n\nProbably we can create a record for B13 describing the V-T diagram, with conditions: axes V (volume) and T (temperature), points described. No numeric givens, so givens array empty.\n\nSimilarly B14 describes four possible p-T diagrams (a,b,c,d) with points positions. Could be a record.\n\nBut we have limit up to eight records. Let's produce maybe three records: one for B13 (V-T diagram), one for B14 (p-T diagram options), one for B15/B16 (angle relationship problem). B16 seems duplicate of B15, maybe same content; we can treat B16 as duplicate and exclude due to redundancy.\n\nThus excluded: B16 reason \"duplicate of B15 content\". Also maybe any malformed data? B13 text is garbled Vietnamese but still understandable.\n\nNow format JSON compact.\n\nRecord 1:\ntopic: \"Thermodynamic state diagram (V‑T) for 1 mol\"\nkind: \"problem\"\nblockIds: [\"B13\"]\ngivens: [] (none)\nconditions: [\"Diagram shows volume V (vertical axis) vs temperature T (horizontal axis) for 1 mol; points 1,2,3 positioned as described; paths 1–2 diagonal upward, 2–3 vertical down, 3–1 horizontal left; dashed line O–1.\"]\nrelationships: [] (maybe \"state of a substance can be represented in V‑T plane\"]\n\nBut relationships should be established law, maybe \"For a given amount of substance, V and T are related via thermal expansion\" but not given. Could leave empty.\n\nRecord 2:\ntopic: \"Thermodynamic state diagram (p‑T) options for 1 mol\"\nkind: \"problem\"\nblockIds: [\"B14\"]\ngivens: [] (none)\nconditions: [\"Diagram shows pressure p (vertical) vs temperature T (horizontal) with four candidate shapes a, b, c, d; point positions described for each.\"]\nrelationships: [].\n\nRecord 3:\ntopic: \"Linear relationship between angles X and Y on a graph\"\nkind: \"problem\"\nblockIds: [\"B15\"]\ngivens: list:\n- name: \"point1\", value: \"(0, 32)\", unit: \"degrees for Y, unitless for X\"? Actually coordinates: X=0, Y=32°. So we can have two givens: X1=0 (unit: degree? X is angle in degrees), Y1=32° (unit: °). Provide sourceText.\n- name: \"point2\", value: \"(100, 212)\", unit: \"degrees\". X2=100°, Y2=212°.\n- name: \"given Y\", value: \"68\", unit: \"°\", sourceText: \"Khi nhiêt đọ là 68°Y\". blockId B15.\n\nconditions: [\"Straight line passes through the two given points and extends to intersect the X‑axis (Y=0)\"] maybe.\n\nrelationships: [\"Equation of a line: (Y‑Y1)/(X‑X1) = (Y2‑Y1)/(X2‑X1)\"] (established law).\n\nNow excluded: B16 duplicate.\n\nReturn JSON compact.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.344583582,
+    "prompt_tokens": 1685,
+    "prompt_time": 0.986138376,
+    "completion_tokens": 1721,
+    "completion_time": 3.600318959,
+    "total_tokens": 3406,
+    "total_time": 4.586457335,
+    "prompt_tokens_details": {
+      "cached_tokens": 256
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 977
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_87b3c396db",
+  "x_groq": {
+    "id": "req_01m408xc91e5nsfhrd404zht9r",
+    "seed": 1117120801
+  },
+  "service_tier": "on_demand"
+}

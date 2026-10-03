@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-0684730b-0aa9-41e9-a4b2-1a92fab03c2d",
+  "object": "chat.completion",
+  "created": 1791010972,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"solutions\": [\n    {\n      \"id\": \"P45\",\n      \"verified\": true,\n      \"selfContained\": true,\n      \"sourceSupported\": false,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": true,\n      \"question\": \"Các giọt nước li ti xuất hiện khi hơi thở làm tăng nhiệt độ mặt kính lên trên điểm sôi của nước, dẫn đến ngưng tụ.\",\n      \"solution\": \"Ngưng tụ xảy ra khi hơi nước được làm lạnh dưới $T_{\\\\text{dew}}$ (điểm sương), khiến áp suất phần riêng của hơi giảm xuống dưới áp suất bão hòa tại nhiệt độ bề mặt. Khi nhiệt độ bề mặt cao hơn $T_{\\\\text{boil}}$ (điểm sôi), hơi nước sẽ có xu hướng bốc hơi chứ không ngưng tụ. Vì vậy, khẳng định rằng việc tăng nhiệt độ mặt kính lên trên điểm sôi gây ra ngưng tụ là sai. So sánh quyết định: \\\\(T_{\\\\text{bề mặt}} > T_{\\\\text{boil}}\\\\) → bốc hơi; \\\\(T_{\\\\text{bề mặt}} < T_{\\\\text{dew}}\\\\) → ngưng tụ. Như trong thực tế, khi thở vào kính, kính thường lạnh hơn không khí, do đó $T_{\\\\text{bề mặt}} < T_{\\\\text{dew}}$ và xảy ra ngưng tụ.\",\n      \"answer\": \"False\",\n      \"claims\": [],\n      \"evidence\": [\n        {\n          \"chunkId\": \"e0933adc-ae2f-4a9b-b0ae-1f7bc17f7df3\",\n          \"quote\": \"Câu 1: Khi hà hơi vào mặt kính cửa sổ sẽ xuất hiện những giọt nước li ti làm mờ kính. Đây là hiện tượng\\nA. đông đặc.\\nB. bay hơi.\\nC. ngưng kết.\\nD. ngưng tụ.\"\n        }\n      ]\n    }\n  ]\n}",
+        "reasoning": "We need to produce JSON with solutions array. There's one plan P45, type true_false. Need to verify selfContained, sourceSupported, hardReasoning, credibleDistractors (though for true_false credibleDistractors maybe not applicable but still boolean). Provide reasoningJustification? The spec says return selfContained, sourceSupported, hardReasoning, credibleDistractors as booleans and reasoningJustification as a brief assessment for each item. But final JSON format described later: {\"solutions\":[{\"id\":\"plan id\",\"verified\":true,\"selfContained\":true,\"sourceSupported\":true,\"hardReasoning\":true,\"question\":\"...\",\"solution\":\"...\",\"answer\":\"...\",\"claims\":[...]}]}. No reasoningJustification field there. The earlier instruction says return those booleans and reasoningJustification. But later spec overrides? Need to reconcile. Probably include those booleans and also maybe include reasoningJustification? The final format didn't include reasoningJustification. I think we follow final format. Also need evidence array if sourceEvidence not provided. Provide evidence with chunkId and quote.\n\nWe need to produce question: fully specified statement without answer choices. For true_false, question is the statement to evaluate. The plan targetTruthValue is False. So statement: \"Các giọt nước li ti xuất hiện khi hơi thở làm tăng nhiệt độ mặt kính lên trên điểm sôi của nước, dẫn đến ngưng tụ.\" Actually the original claim: \"khẳng định rằng các giọt nước li ti xuất hiện khi hơi thở làm tăng nhiệt độ mặt kính lên trên điểm sôi của nước, dẫn đến ngưng tụ\". So we need to restate as a statement. Provide in Vietnamese.\n\nSolution: explain condensation occurs when vapor is cooled below dew point, not when temperature rises above boiling point. Provide cross-check.\n\nAnswer: False.\n\nClaims: For true_false, claims array is empty per spec. So claims: [].\n\nverified: true? Since we can verify. Provide evidence array.\n\nNow evaluate criteria:\n\nselfContained: The question includes all needed info? It mentions phenomenon, but does it need any extra givens? The statement itself is enough to evaluate based on known physics. So true.\n\nsourceSupported: The source evidence is a multiple-choice question listing condensation as option C. The quote: \"Câu 1: Khi hà hơi vào mặt kính cửa sổ sẽ xuất hiện những giọt nước li ti làm mờ kính. Đây là hiện tượng A. đông đặc. B. bay hơi. C. ngưng kết. D. ngưng tụ.\" This supports that condensation occurs, but does it support the false claim about temperature increase above boiling point? The source does not mention temperature. So source does not support the needed fact to refute claim. However we can use general knowledge, but sourceSupported requires cited passages support the subject, measured givens and applicable relationships. The source only says condensation occurs, not the temperature condition. So source does not support the reasoning about dew point vs boiling point. So sourceSupported = false.\n\nhardReasoning: The task requires diagnosing incorrect model using decisive comparison, which is non-routine. So true.\n\ncredibleDistractors: Not applicable for true_false? But we can set true as there are no distractors. Probably true.\n\nNow produce JSON with evidence array.\n\nNeed to escape backslashes in LaTeX. We'll have some math: dew point, boiling point. Use $T_{\\text{dew}}$, $T_{\\text{boil}}$. Provide in solution.\n\nEscape: \"$\\\\text{dew}$\"? Actually we need $T_{\\text{dew}}$ etc. In JSON string need double backslashes: \"$T_{\\\\text{dew}}$\". Provide.\n\nNow construct JSON compact.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.345439873,
+    "prompt_tokens": 1788,
+    "prompt_time": 0.054156093,
+    "completion_tokens": 1214,
+    "completion_time": 2.904956991,
+    "total_tokens": 3002,
+    "total_time": 2.959113084,
+    "prompt_tokens_details": {
+      "cached_tokens": 512
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 763
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_96d96a151c",
+  "x_groq": {
+    "id": "req_01m40955n7exhv4kjyxsrrb1ps",
+    "seed": 841253829
+  },
+  "service_tier": "on_demand"
+}

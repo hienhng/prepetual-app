@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-0ada83bb-e853-4e4e-823c-c33a68ca65b7",
+  "object": "chat.completion",
+  "created": 1791010918,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Thermal and Gas Law Reasoning Plans\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P36\",\"type\":\"selection\",\"recordIds\":[\"F15\",\"F3\"],\"intent\":\"Xác định khối lượng băng tan khi 2 g nước ở 30 °C được trộn với 3 g băng ở 0 °C, giả sử không có mất nhiệt ra môi trường\",\"reasoningSteps\":[\"Tính nhiệt lượng mà nước sẽ giải phóng khi nguội từ 30 °C tới 0 °C bằng công thức Q=m·c·ΔT\",\"So sánh nhiệt giải phóng với nhiệt ẩn tan băng Q=m_đã_tan·L_f và giải phương trình để tìm m_đã_tan\"]},{\"id\":\"P37\",\"type\":\"true_false\",\"recordIds\":[\"F16\"],\"intent\":\"Kiểm tra tính đúng sai của phát biểu: \\\"Nếu công của máy nén tăng gấp đôi lên 360 kJ trong một chu trình có COP = 3, thì nhiệt lượng Q₂ mà chất làm lạnh tỏa ra sẽ bằng 1080 kJ\\\"\",\"reasoningSteps\":[\"Từ COP=Q₁/A tính Q₁=3×360 kJ=1080 kJ\",\"Tính Q₂ bằng Q₁+A=1080 kJ+360 kJ=1440 kJ và so sánh với giá trị khẳng định\"]},{\"id\":\"P38\",\"type\":\"short_answer\",\"recordIds\":[\"F17\"],\"intent\":\"Dựa trên tỉ lệ V/T=0,250 cm³/K được đưa ra trong thí nghiệm, tính thể tích khí khi nhiệt độ bằng 0 °C (273 K) và quyết định xem thể tích này có lớn hơn 70 cm³ hay không\",\"reasoningSteps\":[\"Áp dụng V=0,250·T để tính V(273 K)=0,250×273≈68,3 cm³\",\"So sánh V≈68 cm³ với 70 cm³ để đưa ra kết luận\"]}]}",
+        "reasoning": "We need to produce JSON with title, category, plans array for slots P36, P37, P38. Must use only reviewed source records. Each plan must have id, type, recordIds (list), intent, reasoningSteps.\n\nWe need to assign primaryRecordId: P36 primary F15, P37 primary F16, P38 primary F17. Must use those as primary and may include up to two other relevant records when concepts naturally interact.\n\nWe must create hard questions per difficulty. For each slot, we need to design a transformed task.\n\nSlot P36: selection type, combine interacting subject laws to infer a hidden quantity. Primary record F15 is about thermal equilibrium of water-ice mixture, with latent heat of fusion and specific heat of water. Need to combine interacting subject laws: maybe combine energy conservation with phase change and also maybe ideal gas law? But we can only use up to two other records. Could combine with F3 (thermal energy to melt ice) or F14 similar. But F15 already about ice-water equilibrium. Another record could be F6 (ideal gas law) but not natural interaction. Better combine with F3 (melting ice heating) to infer hidden quantity like final temperature of mixture given different masses? But selection requires multiple options; we need to infer hidden quantity like mass of ice melted given some water temperature change.\n\nWe need to create a selection question (multiple correct? selection type likely multiple correct? Usually selection means select all that apply. We'll assume multiple correct options. Need to infer hidden quantity using interacting laws: energy balance and maybe specific heat of water.\n\nWe can design: Given 2 g of water at 30°C mixed with 3 g of ice at 0°C, find mass of ice that melts. Use energy balance (heat released by water cooling) and latent heat. That's combining heat capacity law and latent heat law.\n\nWe need to use F15 (latent heat of fusion and specific heat) and maybe F3 (same values but also includes heating water). But F3 provides latent heat and specific heat values, same as F15. Could use F3 as second record for values. So recordIds [\"F15\",\"F3\"].\n\nIntent: Determine mass of ice that will melt when 2 g water at 30°C is mixed with 3 g ice at 0°C, assuming no heat loss.\n\nReasoning steps: 1) Compute heat released by water cooling from 30°C to final equilibrium temperature (which will be 0°C if not all ice melts). 2) Set heat released equal to latent heat needed to melt some ice, solve for melted mass.\n\nBut need hidden quantity maybe final temperature? Actually if some ice remains, final T =0°C. So hidden quantity is mass melted.\n\nOk.\n\nSlot P37: true_false, primary F16 (refrigeration cycle COP). Need to compare an explicitly hypothetical change with recorded baseline. TargetTruthValue False. So we need a statement that is false when comparing hypothetical change.\n\nWe can create: \"If the compressor work were doubled to 360 kJ while COP remains 3, the heat rejected Q2 would be 1080 kJ.\" Need to evaluate: COP = Q1/A, so Q1 = COP*A = 3*360 =1080 kJ. Then Q2 = Q1 + A =1080+360=1440 kJ, not 1080. So statement false.\n\nWe must include source givens: COP=3, A=180kJ. Use F16 only. Reasoning steps: 1) Compute Q1 from COP and A. 2) Compute Q2 = Q1 + A. Compare to claim.\n\nIntent: Evaluate truth of statement about heat rejected when compressor work doubled.\n\nSlot P38: short_answer, primary F17 (Charles law experiment). Need to compare hypothetical change with baseline. Provide a question requiring derived result and second inference.\n\nWe can ask: Given the data, determine the volume at 0°C (273 K) using Charles law, then decide whether the gas would fill a 70 cm³ container at that temperature. So answer is volume and yes/no? Short answer expects numeric result maybe \"68 cm³, Yes\" but need derived result and second inference. Could ask: \"What would be the volume of the gas at 0°C, and would it be larger than 70 cm³?\" Provide numeric answer for volume; second inference is comparison.\n\nWe need to use F17 data: V/T = 0.250 cm³/K, and V at 25°C =68 cm³. Actually they gave V/T ratio and V at 25°C. Use that to compute V at 0°C (273 K). Use V/T =0.250 => V =0.250 * T(K). At 0°C, T=273 K, V=0.250*273=68.25 cm³ approx. So answer: about 68 cm³, which is less than 70 cm³, so does not exceed.\n\nWe may also use F21 or F22 but not needed. Use only F17 maybe plus F21 for extra law? But okay.\n\nRecordIds [\"F17\"].\n\nReasoning steps: 1) Use V/T =0.250 to compute V at 273 K. 2) Compare to 70 cm³ threshold.\n\nNow produce JSON compact.\n\nCheck JSON validity: no trailing commas.\n\nTitle: \"Thermal and Gas Law Reasoning Plans\". Category: \"categories.science\". Plans array with three objects.\n\nEach object fields: id, type, recordIds (list of strings), intent (string), reasoningSteps (list of strings). Ensure recordIds includes primary and others.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.368496522,
+    "prompt_tokens": 11935,
+    "prompt_time": 0.580995309,
+    "completion_tokens": 1631,
+    "completion_time": 3.511505071,
+    "total_tokens": 13566,
+    "total_time": 4.09250038,
+    "prompt_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1175
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_4200b3f836",
+  "x_groq": {
+    "id": "req_01m4093fvbe25b3vj5c4hvpr5c",
+    "seed": 1532231075
+  },
+  "service_tier": "on_demand"
+}

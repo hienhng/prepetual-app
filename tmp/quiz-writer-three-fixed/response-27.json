@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-5a904748-251f-49ba-b029-80a9848588f2",
+  "object": "chat.completion",
+  "created": 1791017023,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"reviews\": [\n    {\n      \"id\": \"P12\",\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"Learner must formulate two linear inequalities from time and energy budgets, determine the feasible region in the (n_A,n_B) plane, locate its extreme points, and evaluate the heat‑extraction expression at those points (or any convex combination) to decide feasibility. This goes beyond simple substitution; it requires linear‑programming style reasoning and understanding of convex feasibility.\",\n      \"reason\": \"The task demands constructing and analysing a feasible region of interacting constraints and checking an optimization condition, which is a non‑routine inference.\"\n    }\n  ]\n}",
+        "reasoning": "We need to produce JSON with reviews array. For each plan (only one, id P12). Need to assess criteria: selfContained, sourceSupported, hardReasoning, credibleDistractors. Also reasoningJustification and reason? The spec: Return JSON {\"reviews\":[{\"id\":\"assigned plan id\",\"selfContained\":true,\"sourceSupported\":true,\"hardReasoning\":true,\"reasoningJustification\":\"actual dependent inference beyond routine substitution\",\"reason\":\"specific feasibility/difficulty assessment\"}]}. Also include evidence array if sourceEvidence not provided. We have sourceEvidence in record: evidence includes chunkId synthetic-physics-3 with quote. So we must include evidence? The instruction: \"When source grounding is enabled and no server-provided sourceEvidence is supplied, also return evidence:[...]. Include at least one relevant quote for EVERY cited chunk\". Here sourceEvidence is provided within the plan's records? The plan includes \"evidence\" field with chunkId and quote. That is likely the sourceEvidence. So we should not regenerate quotes, but we can include evidence? It says when sourceEvidence is supplied, independently assess those actual passages but do not regenerate their quotes. So we should not include evidence field in output? It says also return evidence:[...] only when no server-provided sourceEvidence is supplied. Since we have it, we omit evidence.\n\nNow evaluate criteria.\n\nSelfContained: The question would ask to determine if can achieve heat removal 2160 kJ within time 200 s and energy 800 kJ using modes A and B, with possibly fractional cycles. All needed numbers are given in the source: heat per cycle, work per cycle, time per cycle, total constraints, required heat. So selfContained true.\n\nSourceSupported: The cited chunk includes all those givens and relationships. The relationships needed to set up inequalities are present. So source supports. True.\n\nHardReasoning: Need to infer feasible region of (n_A, n_B) solving linear inequalities, then maximize heat extraction, check if >=2160. This is linear programming with two variables, not just routine substitution. It requires understanding of feasible region, extreme points, possibly convex combination. That's beyond routine. So hardReasoning true.\n\nCredibleDistractors: For multiple choice, need plausible distractors. The plan is to create a question; we need to assess if credible distractors can be made. Since the problem involves linear programming, plausible distractors could be from miscalculating constraints, ignoring one constraint, using integer cycles only, etc. So credibleDistractors true (assuming they can be generated). We need to justify.\n\nProvide reasoningJustification: \"requires constructing and analyzing feasible region of two linear inequalities, identifying extreme points, and evaluating heat extraction at those points; not just plugging numbers.\"\n\nProvide reason: maybe \"task requires solving a linear programming feasibility and optimization problem, which is non‑routine.\"\n\nNow produce JSON.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.333728157,
+    "prompt_tokens": 1953,
+    "prompt_time": 0.094594154,
+    "completion_tokens": 761,
+    "completion_time": 1.633647486,
+    "total_tokens": 2714,
+    "total_time": 1.72824164,
+    "completion_tokens_details": {
+      "reasoning_tokens": 589
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_5082008e34",
+  "x_groq": {
+    "id": "req_01m40exvvkebbb3ttyw65g0kk2",
+    "seed": 121687488
+  },
+  "service_tier": "on_demand"
+}

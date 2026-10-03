@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-9d95e22f-0b38-4d1a-b0da-3ba9121a0c61",
+  "object": "chat.completion",
+  "created": 1791010780,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"questions\":[{\"id\":\"P16\",\"explanation\":\"Đầu tiên tính thể tích khi $T = 0\\\\,^{\\\\circ}\\\\mathrm{C}$ (273\\\\,\\\\mathrm{K}) bằng tỉ lệ $V/T = 0.250\\\\\\\\,\\\\mathrm{cm^3/K}$: $V_{0}=0.250\\\\\\\\times 273 = 68.25\\\\\\\\,\\\\mathrm{cm^3}$.\\\\nSau đó áp dụng định luật khí lý tưởng ở thể tích gần như không đổi, $P\\\\\\\\propto T/V$, nên\\\\n$$P_{0}=P_{25}\\\\\\\\times\\\\\\\\frac{T_{0}}{V_{0}}\\\\\\\\times\\\\\\\\frac{V_{25}}{T_{25}}.$$\\\\nThay $P_{25}=1\\\\\\\\,\\\\mathrm{atm}$, $T_{0}=273\\\\\\\\,\\\\mathrm{K}$, $V_{0}=68.25\\\\\\\\,\\\\mathrm{cm^3}$, $V_{25}=68\\\\\\\\,\\\\mathrm{cm^3}$, $T_{25}=298\\\\\\\\,\\\\mathrm{K}$ ta được\\\\n$$P_{0}=1\\\\\\\\,\\\\mathrm{atm}\\\\\\\\times\\\\\\\\frac{273\\\\\\\\times68}{298\\\\\\\\times68.25}=0.913\\\\\\\\,\\\\mathrm{atm}\\\\\\\\approx0.91\\\\\\\\,\\\\mathrm{atm}.$$\\\\nVì vậy áp suất khi nhiệt độ giảm xuống $0\\\\,^{\\\\circ}\\\\mathrm{C}$ là khoảng $0.91\\\\\\\\,\\\\mathrm{atm}$.\"}]}",
+        "reasoning": "We need to output JSON with questions array containing id and explanation. Must be compact JSON, escape backslashes. Explanation must be learner-facing text in vi-VN, with math wrapped in $...$ and KaTeX. Must not refer to options. Provide explanation of correct answer. Use given solution but adapt to Vietnamese learner text, keep math. Ensure backslashes escaped.\n\nWe need to include plan id \"P16\". Explanation: walk through steps, compute volume at 0°C using V/T ratio, then use ideal gas law at constant volume? Actually they used P ∝ T/V. Provide final answer 0.91 atm.\n\nMake sure to escape backslashes: each LaTeX backslash becomes double backslash in JSON string. Also need to escape double quotes.\n\nWrite JSON single line? Compact.\n\nLet's craft explanation:\n\n\"Đầu tiên tính thể tích khi T = 0 °C (273 K) bằng tỉ lệ $V/T = 0.250\\\\,\\\\mathrm{cm^3/K}$: $V_{0}=0.250\\\\times 273 = 68.25\\\\,\\\\mathrm{cm^3}$. \\nSau đó áp dụng định luật khí lý tưởng ở thể tích gần như không đổi, $P\\\\propto T/V$, nên\\n$$P_{0}=P_{25}\\\\times\\\\frac{T_{0}}{V_{0}}\\\\times\\\\frac{V_{25}}{T_{25}}.$$ \\nThay $P_{25}=1\\\\,\\\\mathrm{atm}$, $T_{0}=273\\\\,\\\\mathrm{K}$, $V_{0}=68.25\\\\,\\\\mathrm{cm^3}$, $V_{25}=68\\\\,\\\\mathrm{cm^3}$, $T_{25}=298\\\\,\\\\mathrm{K}$ ta được\\n$$P_{0}=1\\\\,\\\\mathrm{atm}\\\\times\\\\frac{273\\\\times68}{298\\\\times68.25}=0.913\\\\,\\\\mathrm{atm}\\\\approx0.91\\\\,\\\\mathrm{atm}.$$ \\nVì vậy áp suất khi nhiệt độ giảm xuống 0 °C là khoảng $0.91\\\\,\\\\mathrm{atm}$.\"\n\nMake sure line breaks are okay inside string; JSON can have \\n escaped. Provide compact JSON: {\"questions\":[{\"id\":\"P16\",\"explanation\":\"...\"}]}\n\nEscape backslashes: each \"\\\\\" becomes \"\\\\\\\\\" in JSON string. Also need to escape double quotes inside string.\n\nLet's construct string with proper escaping.\n\nWe'll write explanation string with \\n as \\\\n.\n\nNow produce final JSON."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.419583921,
+    "prompt_tokens": 1215,
+    "prompt_time": 0.235381948,
+    "completion_tokens": 894,
+    "completion_time": 2.121079843,
+    "total_tokens": 2109,
+    "total_time": 2.356461791,
+    "prompt_tokens_details": {
+      "cached_tokens": 512
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 548
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_bb691ea66b",
+  "x_groq": {
+    "id": "req_01m408za7bexjsb4a529p2hxmh",
+    "seed": 1273471836
+  },
+  "service_tier": "on_demand"
+}

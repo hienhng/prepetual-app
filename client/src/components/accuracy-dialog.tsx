@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/language-context";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { format, parseISO } from "date-fns";
@@ -92,6 +93,7 @@ function getTrend(history: ResultHistoryItem[]): { trend: "up" | "down" | "neutr
 }
 
 export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttempts }: AccuracyDialogProps) {
+  const { t } = useLanguage();
   const { data: history = [], isLoading } = useQuery<ResultHistoryItem[]>({
     queryKey: ["/api/user/result-history"],
     enabled: open,
@@ -124,7 +126,7 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
         <DialogHeader className="pb-2">
           <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
             <ChartLine className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-            Your Progress
+            {t("progress.title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -150,11 +152,11 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
             <div className="mt-4 sm:mt-5 grid grid-cols-3 gap-2 sm:gap-4">
               <div className="text-center">
                 <div className="text-xl sm:text-2xl font-bold text-primary">{averageAccuracy}%</div>
-                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Avg. Accuracy</div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">{t("accuracyDialog.averageAccuracy")}</div>
               </div>
               <div className="text-center">
                 <div className="text-xl sm:text-2xl font-bold text-foreground">{totalAttempts}</div>
-                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Quizzes Taken</div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">{t("accuracyDialog.quizzesTaken")}</div>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-0.5 sm:gap-1">
@@ -168,7 +170,7 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
                      trend.trend === "down" ? `-${trend.change}%` : "—"}
                   </span>
                 </div>
-                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">Recent Trend</div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">{t("accuracyDialog.recentTrend")}</div>
               </div>
             </div>
           </motion.div>
@@ -179,7 +181,7 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <h4 className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">Accuracy Over Time</h4>
+              <h4 className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">{t("accuracyDialog.accuracyOverTime")}</h4>
               <Card className="overflow-hidden">
                 <CardContent className="p-2 sm:p-4 pt-3 sm:pt-4 overflow-hidden">
                   <ChartContainer config={chartConfig} className="h-[140px] sm:h-[180px] w-full aspect-auto">
@@ -240,7 +242,7 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <h4 className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">Score Distribution</h4>
+              <h4 className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">{t("progress.scoreDistribution")}</h4>
               <Card>
                 <CardContent className="p-3 sm:p-4">
                   <div className="space-y-2 sm:space-y-3">
@@ -273,7 +275,7 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <h4 className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">Recent Results</h4>
+              <h4 className="text-xs sm:text-sm font-medium text-foreground mb-2 sm:mb-3">{t("accuracyDialog.recentResults")}</h4>
               <div className="space-y-2">
                 {recentResults.map((result, index) => (
                   <motion.div
@@ -316,7 +318,7 @@ export function AccuracyDialog({ open, onOpenChange, averageAccuracy, totalAttem
           {history.length === 0 && !isLoading && (
             <div className="text-center py-6 sm:py-8">
               <Target className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground/50 mx-auto mb-2 sm:mb-3" />
-              <p className="text-sm text-muted-foreground">Take some quizzes to see your progress!</p>
+              <p className="text-sm text-muted-foreground">{t("accuracyDialog.noResults")}</p>
             </div>
           )}
         </div>

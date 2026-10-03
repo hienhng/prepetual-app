@@ -1,0 +1,14 @@
+client/src/components/auth-dialog.tsx(200,14): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(218,40): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(239,40): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(255,20): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(268,22): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(281,75): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(315,30): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(315,52): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(320,14): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(327,16): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(332,14): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(334,16): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(336,14): error TS2304: Cannot find name 't'.
+client/src/components/auth-dialog.tsx(338,16): error TS2304: Cannot find name 't'.

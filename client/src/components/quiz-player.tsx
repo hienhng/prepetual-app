@@ -1,4 +1,4 @@
-import { parseSelectionAnswer, encodeSelectionAnswer, selectionAnswersMatch, isCorrectOption, formatAnswer } from "@shared/selection-answer";
+import { parseSelectionAnswer, encodeSelectionAnswer, isCorrectOption, formatAnswer } from "@shared/selection-answer";
 import { useState, useMemo, useEffect, useRef, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { Check, X, ArrowRight, ArrowLeft, Loader2, Sparkles, CheckCheck, RotateCcw, Zap, Trophy, Target, ChevronUp, ChevronDown, Star, Flame, BadgeCheck, Bookmark, BookCheck, Lock, CircleCheck, CircleCheckBig, MessageCircle, Lightbulb, AlertCircle, ZoomIn, FileImage, FileText, ChevronLeft, ChevronRight, Image, Flag, AlertTriangle, Clock, Eye, EyeOff, MessageCircleQuestion, Square, SquareCheck, Circle, } from "lucide-react";
@@ -16,11 +16,13 @@ import { useSidebarOptional } from "@/components/ui/sidebar";
 import { useLanguage } from "@/lib/language-context";
 import { apiRequest } from "@/lib/queryClient";
 import { motion, AnimatePresence } from "framer-motion";
-import { IMAGE_ANALYSIS_DISPLAY_TEXT, IMAGE_ANALYSIS_SOURCE_MARKER, type Question } from "@shared/schema";
+import { IMAGE_ANALYSIS_DISPLAY_TEXT, IMAGE_ANALYSIS_SOURCE_MARKER, type Question, type ShortAnswerGradingResult } from "@shared/schema";
 import confetti from "canvas-confetti";
 import { QuizChatbot } from "@/components/quiz-chatbot";
 import AskPipIcon from "@/components/ui/ask-pip-icon";
 import { MathText } from "@/components/formatted-text";
+import { answersMatch, hasJudgedShortAnswer, isAnswerCorrect, normalizeTrueFalseAnswer } from "@shared/answer-grading";
+import { fetchJudgedShortAnswer, fetchVerifiedQuizFeedback, getQuestionFeedbackSignature, getQuizOptionExplanation } from "@/lib/verified-quiz-feedback";
 
 const getEncouragingMessages = (t: any) => ({
   correct: [
@@ -72,38 +74,6 @@ const getStreakMessage = (streak: number, t: any) => {
   return messages[3];
 };
 
-const normalizeTrueFalseAnswer = (answer: string | undefined): "true" | "false" | null => {
-  if (!answer) return null;
-
-  const normalized = answer
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\u0111/g, "d");
-
-  if (["true", "t", "yes", "y", "dung"].includes(normalized)) return "true";
-  if (["false", "f", "no", "n", "sai"].includes(normalized)) return "false";
-  return null;
-};
-
-const answersMatch = (
-  answer: string | undefined,
-  correctAnswer: string | undefined,
-  type: Question["type"],
-) => {
-  if (!answer || !correctAnswer) return false;
-  if (type === "selection") return selectionAnswersMatch(answer, correctAnswer);
-
-  if (type === "true_false") {
-    const normalizedAnswer = normalizeTrueFalseAnswer(answer);
-    const normalizedCorrect = normalizeTrueFalseAnswer(correctAnswer);
-    return normalizedAnswer !== null && normalizedAnswer === normalizedCorrect;
-  }
-
-  return answer.toLowerCase().trim() === correctAnswer.toLowerCase().trim();
-};
-
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MaterialPane } from "@/components/material-pane";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -148,9 +118,20 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
   const questionNavPanelRef = useRef<HTMLDivElement>(null);
   const questionNavTriggerRef = useRef<HTMLButtonElement>(null);
   const [bookmarkedQuestions, setBookmarkedQuestions] = useState<string[]>([]);
-  const [isGrading, setIsGrading] = useState(false);
-  const [aiGradingResults, setAiGradingResults] = useState<Record<string, { isCorrect: boolean; isPartial: boolean; explanation: string; wrongExplanation?: string }>>({});
-  const [isGeneratingExplanation, setIsGeneratingExplanation] = useState<Record<string, boolean>>({});
+  const [explanationStatus, setExplanationStatus] = useState<Record<string, "loading" | "error">>({});
+  const submittedQuestions = useRef(new Set<string>());
+  const activeAttempt = useRef({ quizId: currentQuiz?.id, finished: false, mounted: true });
+  activeAttempt.current.quizId = currentQuiz?.id;
+  activeAttempt.current.finished = !!quizResult;
+  useEffect(() => {
+    activeAttempt.current.mounted = true;
+    return () => { activeAttempt.current.mounted = false; };
+  }, []);
+  useEffect(() => {
+    submittedQuestions.current.clear();
+    setExplanationStatus({});
+  }, [currentQuiz?.id]);
+  const [aiGradingResults, setAiGradingResults] = useState<Record<string, ShortAnswerGradingResult>>({});
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [reportReason, setReportReason] = useState<string>("Correct answer is wrong");
   const [reportDetails, setReportDetails] = useState("");
@@ -257,7 +238,9 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
     for (const q of questions) {
       const userAnswer = userAnswers[q.id];
       if (userAnswer && checkedQuestions.has(q.id)) {
-        const isCorrect = answersMatch(userAnswer, q.correctAnswer, q.type);
+        const grade = restoredShortAnswerGradingResults?.[q.id];
+        if (q.type === "short_answer" && !hasJudgedShortAnswer(q, userAnswer, grade)) continue;
+        const isCorrect = isAnswerCorrect(userAnswer, q, grade);
         if (!isCorrect) {
           derivedWrongIds.add(q.id);
         }
@@ -361,19 +344,17 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
     ? retryAnswers[currentQuestion.id] 
     : userAnswers[currentQuestion?.originalId];
     
-  const isChecked = currentQuestion?.isRetry 
+  const wasChecked = currentQuestion?.isRetry
     ? retryChecked.has(currentQuestion.id)
     : checkedQuestions.has(currentQuestion?.originalId);
+  const currentGradeKey = currentQuestion?.isRetry ? currentQuestion.id : currentQuestion?.originalId;
+  const isJudging = currentQuestion?.type === "short_answer" && explanationStatus[currentGradeKey] === "loading";
+  const isChecked = wasChecked && (currentQuestion?.type !== "short_answer" ||
+    hasJudgedShortAnswer(currentQuestion, selectedAnswer, aiGradingResults[currentGradeKey]));
 
   const isCorrectAnswer = (answer: string | undefined, question: typeof currentQuestion) => {
     if (!answer || !question) return false;
-    if (question.type === "short_answer") {
-      const gradeKey = question.isRetry ? question.id : question.originalId;
-      const grading = aiGradingResults[gradeKey];
-      if (grading) return grading.isCorrect;
-      return false;
-    }
-    return answersMatch(answer, question.correctAnswer, question.type);
+    return isAnswerCorrect(answer, question, aiGradingResults[question.isRetry ? question.id : question.originalId]);
   };
 
   const isCorrect = () => {
@@ -403,7 +384,7 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
   };
 
   const commitShortAnswer = (value: string) => {
-    if (isChecked) return;
+    if (isChecked || isJudging) return;
 
     if (currentQuestion.isRetry) {
       setRetryAnswers(prev => ({ ...prev, [currentQuestion.id]: value }));
@@ -413,7 +394,7 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
   };
 
   const handleShortAnswerChange = (value: string) => {
-    if (isChecked) return;
+    if (isChecked || isJudging) return;
     setShortAnswerInput(value);
     commitShortAnswer(value);
   };
@@ -454,6 +435,9 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
       }
     }
 
+  };
+
+  const expandQuestionExplanations = (correct: boolean, answerToCheck: string, qSnap: typeof currentQuestion) => {
     const keysToExpand: string[] = [];
     if (qSnap.type === "true_false") {
       const correctOption = normalizeTrueFalseAnswer(qSnap.correctAnswer) === "true" ? "True" : "False";
@@ -463,7 +447,7 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
       }
     } else if (qSnap.type === "short_answer") {
       keysToExpand.push(`${qSnap.id}-short-answer`);
-    } else if (qSnap.options && qSnap.explanation && (!isGuest || qSnap.isRetry)) {
+    } else if (qSnap.options && (!isGuest || qSnap.isRetry)) {
       qSnap.options.forEach((opt, idx) => {
         const isCorrectOpt = isCorrectOption(opt, qSnap);
         const isSelectedWrong = (qSnap.type === "selection" ? parseSelectionAnswer(answerToCheck).includes(opt) : opt === answerToCheck) && !correct;
@@ -479,200 +463,92 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
         keysToExpand.forEach(key => next.add(key));
         return next;
       });
-
-      // Automatically trigger explanation generation when answer is checked
-      keysToExpand.forEach(key => {
-        let optionText = "";
-        let isCorrectOpt = false;
-
-        if (qSnap.type === "true_false") {
-          optionText = key.includes("-tf-True") ? "True" : "False";
-          isCorrectOpt = answersMatch(optionText, qSnap.correctAnswer, qSnap.type);
-        } else if ((qSnap.type === "multiple_choice" || qSnap.type === "selection")) {
-          const optIdx = parseInt(key.split("-").pop() || "0");
-          optionText = qSnap.options?.[optIdx] || "";
-          isCorrectOpt = isCorrectOption(optionText, qSnap);
-        }
-
-        if (optionText) {
-          fetchExplanationIfMissing(key, optionText, isCorrectOpt, qSnap, answerToCheck);
-        }
-      });
     }
   };
 
-  const handleCheck = async () => {
+  const loadExplanation = async (questionSnapshot: typeof currentQuestion, answer: string) => {
+    if (questionSnapshot.type === "short_answer") {
+      await judgeShortAnswer(questionSnapshot, answer);
+      return;
+    }
+    const quizId = currentQuiz.id;
+    const gradeKey = questionSnapshot.isRetry ? questionSnapshot.id : questionSnapshot.originalId;
+    const correct = answersMatch(answer, questionSnapshot.correctAnswer, questionSnapshot.type);
+    const isActive = () => activeAttempt.current.mounted && activeAttempt.current.quizId === quizId && !activeAttempt.current.finished;
+    setExplanationStatus(prev => ({ ...prev, [gradeKey]: "loading" }));
+    try {
+      const feedback = await fetchVerifiedQuizFeedback(currentQuiz.generationMode === "review" ? undefined : quizId,
+        { ...questionSnapshot, id: questionSnapshot.originalId }, answer, sourceMaterial?.text || currentQuiz.sourceText,
+        [currentQuiz.title, ...currentQuiz.questions.slice(0, 8).map(question => question.question)].join("\n"));
+      if (!isActive()) return;
+      const result = { isCorrect: correct, isPartial: false,
+        explanation: feedback.explanation,
+        wrongExplanation: feedback.wrongExplanation, wrongAnswerExplanations: feedback.wrongAnswerExplanations,
+        optionExplanations: feedback.optionExplanations,
+        verifiedFeedbackSignature: getQuestionFeedbackSignature(questionSnapshot) };
+      setAiGradingResults(prev => ({ ...prev, [gradeKey]: result }));
+      setShortAnswerGradingResult(gradeKey, result);
+      expandQuestionExplanations(correct, answer, questionSnapshot);
+      setExplanationStatus(prev => {
+        const next = { ...prev };
+        delete next[gradeKey];
+        return next;
+      });
+    } catch {
+      if (isActive()) setExplanationStatus(prev => ({ ...prev, [gradeKey]: "error" }));
+    }
+  };
+
+  const handleCheck = () => {
+    const gradeKey = currentQuestion.isRetry ? currentQuestion.id : currentQuestion.originalId;
+    if (isChecked || submittedQuestions.current.has(gradeKey)) return;
     let answerToCheck = selectedAnswer;
     const questionSnapshot = { ...currentQuestion };
-
     if (questionSnapshot.type === "short_answer" && shortAnswerInput.trim()) {
       answerToCheck = shortAnswerInput.trim();
       commitShortAnswer(answerToCheck);
     }
-
-    if (answerToCheck || (questionSnapshot.type === "short_answer" && shortAnswerInput.trim())) {
-      const questionKey = questionSnapshot.id;
-
-      if (questionSnapshot.type === "short_answer") {
-        setIsGrading(true);
-        try {
-          const res = await fetch("/api/grade-short-answer", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              question: questionSnapshot.question,
-              correctAnswer: questionSnapshot.correctAnswer,
-              userAnswer: answerToCheck,
-              sourceText: sourceMaterial?.text || (currentQuiz as any)?.sourceText || "",
-              category: currentQuiz.category,
-              userPreferences: user,
-            }),
-          });
-
-          if (!res.ok) throw new Error("Grading failed");
-
-          const grading = await res.json();
-          const gradeKey = questionSnapshot.isRetry ? questionSnapshot.id : questionSnapshot.originalId;
-          const nextGradingResults = {
-            ...aiGradingResults,
-            [gradeKey]: {
-              isCorrect: grading.isCorrect,
-              isPartial: grading.isPartial,
-              explanation: grading.explanation,
-            },
-          };
-
-          setAiGradingResults(nextGradingResults);
-          setShortAnswerGradingResult(gradeKey, nextGradingResults[gradeKey]);
-          syncPlayerState(
-            currentIndex,
-            questionSnapshot.isRetry ? { ...retryAnswers, [questionSnapshot.id]: answerToCheck! } : retryAnswers,
-            Array.from(retryChecked),
-            nextGradingResults,
-            sessionTime
-          );
-
-          applyCheckResult(grading.isCorrect, answerToCheck, questionSnapshot);
-        } catch {
-          const normalizedUser = (answerToCheck || "").toLowerCase().trim();
-          const normalizedCorrect = questionSnapshot.correctAnswer.toLowerCase().trim();
-          const fallbackCorrect = normalizedUser === normalizedCorrect;
-          const gradeKey = questionSnapshot.isRetry ? questionSnapshot.id : questionSnapshot.originalId;
-          const nextGradingResults = {
-            ...aiGradingResults,
-            [gradeKey]: {
-              isCorrect: fallbackCorrect,
-              isPartial: false,
-              explanation: fallbackCorrect
-                ? t('quizPlayer.shortAnswerFallbackCorrect')
-                : t('quizPlayer.shortAnswerFallbackIncorrect', { expected: questionSnapshot.correctAnswer }),
-            },
-          };
-
-          setAiGradingResults(nextGradingResults);
-          setShortAnswerGradingResult(gradeKey, nextGradingResults[gradeKey]);
-          syncPlayerState(
-            currentIndex,
-            questionSnapshot.isRetry ? { ...retryAnswers, [questionSnapshot.id]: answerToCheck! } : retryAnswers,
-            Array.from(retryChecked),
-            nextGradingResults,
-            sessionTime
-          );
-
-          applyCheckResult(fallbackCorrect, answerToCheck, questionSnapshot);
-        } finally {
-          setIsGrading(false);
-        }
-      } else {
-        const correct = isCorrectAnswer(answerToCheck, questionSnapshot);
-        applyCheckResult(correct, answerToCheck, questionSnapshot);
-      }
-    }
-  };
-
-  const fetchExplanationIfMissing = async (
-    explanationKey: string, 
-    option: string, 
-    isCorrectOpt: boolean, 
-    qSnap: any, 
-    ansToCheck: string | undefined
-  ) => {
-    const gradeKey = qSnap.isRetry ? qSnap.id : qSnap.originalId;
-    const aiExplanation = aiGradingResults[gradeKey];
-    const currentExplanation = qSnap.explanation || aiExplanation?.explanation;
-    
-    // Use the component's getWrongAnswerExplanation with the provided qSnap context
-    const getWrongExplanationForQ = (answer: string | undefined) => {
-      if (!answer || !qSnap.wrongAnswerExplanations) return null;
-      const answerWithoutPrefix = answer.replace(/^[A-D]\)\s*/, "").trim();
-      return qSnap.wrongAnswerExplanations[answer] || qSnap.wrongAnswerExplanations[answerWithoutPrefix];
-    };
-
-    const currentWrongExplanation = qSnap.wrongAnswerExplanations && Object.keys(qSnap.wrongAnswerExplanations).length > 0
-      ? getWrongExplanationForQ(option)
-      : (ansToCheck === option ? aiExplanation?.wrongExplanation : null);
-
-    const neededExplanation = isCorrectOpt ? currentExplanation : currentWrongExplanation;
-    if (neededExplanation) return;
-
-    setIsGeneratingExplanation(prev => ({ ...prev, [explanationKey]: true }));
-    try {
-      const res = await fetch("/api/generate-explanation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          question: qSnap.question,
-          options: qSnap.options,
-          correctAnswer: formatAnswer(qSnap.correctAnswer, qSnap.type),
-          selectedAnswer: formatAnswer(ansToCheck, qSnap.type),
-          isCorrect: isCorrectAnswer(ansToCheck, qSnap),
-          sourceText: sourceMaterial?.text || (currentQuiz as any)?.sourceText || "",
-          category: currentQuiz.category,
-          userPreferences: user,
-        }),
-      });
-
-      if (res.ok) {
-        const grading = await res.json();
-        
-        setAiGradingResults(prev => ({
-          ...prev,
-          [gradeKey]: {
-            ...prev[gradeKey],
-            isCorrect: prev[gradeKey]?.isCorrect ?? isCorrectAnswer(ansToCheck, qSnap),
-            isPartial: prev[gradeKey]?.isPartial ?? false,
-            explanation: grading.explanation,
-            wrongExplanation: grading.wrongExplanation,
-          },
-        }));
-        
-        qSnap.explanation = grading.explanation;
-        if (!qSnap.wrongAnswerExplanations) {
-          qSnap.wrongAnswerExplanations = {};
-        }
-        if (ansToCheck) {
-          qSnap.wrongAnswerExplanations[ansToCheck.replace(/^[A-D]\)\s*/, "").trim()] = grading.wrongExplanation;
-        }
-      }
-    } catch (error) {
-      console.error("Failed to fetch explanation:", error);
-    } finally {
-      setIsGeneratingExplanation(prev => ({ ...prev, [explanationKey]: false }));
-    }
-  };
-
-  const handleToggleExplanation = async (explanationKey: string, option: string, isCorrectOpt: boolean) => {
-    if (expandedExplanations.has(explanationKey)) {
-      toggleExplanation(explanationKey);
+    if (!answerToCheck?.trim()) return;
+    submittedQuestions.current.add(gradeKey);
+    if (questionSnapshot.type === "short_answer") {
+      void judgeShortAnswer(questionSnapshot, answerToCheck);
       return;
     }
+    const correct = answersMatch(answerToCheck, questionSnapshot.correctAnswer, questionSnapshot.type);
+    const result = { isCorrect: correct, isPartial: false, explanation: "" };
+    setAiGradingResults(prev => ({ ...prev, [gradeKey]: result }));
+    setShortAnswerGradingResult(gradeKey, result);
+    applyCheckResult(correct, answerToCheck, questionSnapshot);
+    void loadExplanation(questionSnapshot, answerToCheck);
+  };
 
-    toggleExplanation(explanationKey);
-    await fetchExplanationIfMissing(explanationKey, option, isCorrectOpt, currentQuestion, selectedAnswer);
+  const judgeShortAnswer = async (questionSnapshot: typeof currentQuestion, answer: string) => {
+    const quizId = currentQuiz.id;
+    const gradeKey = questionSnapshot.isRetry ? questionSnapshot.id : questionSnapshot.originalId;
+    const isActive = () => activeAttempt.current.mounted && activeAttempt.current.quizId === quizId && !activeAttempt.current.finished;
+    setExplanationStatus(prev => ({ ...prev, [gradeKey]: "loading" }));
+    try {
+      const result = await fetchJudgedShortAnswer(currentQuiz.generationMode === "review" ? undefined : quizId,
+        { ...questionSnapshot, id: questionSnapshot.originalId }, answer, sourceMaterial?.text || currentQuiz.sourceText);
+      if (!isActive()) return;
+      setAiGradingResults(prev => ({ ...prev, [gradeKey]: result }));
+      setShortAnswerGradingResult(gradeKey, result);
+      applyCheckResult(result.isCorrect, answer, questionSnapshot);
+      expandQuestionExplanations(result.isCorrect, answer, questionSnapshot);
+      setExplanationStatus(prev => {
+        const next = { ...prev };
+        delete next[gradeKey];
+        return next;
+      });
+    } catch {
+      if (isActive()) {
+        submittedQuestions.current.delete(gradeKey);
+        setExplanationStatus(prev => ({ ...prev, [gradeKey]: "error" }));
+      }
+    }
   };
 
   const goToNext = () => {
-    if (isGrading) return;
     if (currentIndex < allQuestions.length - 1) {
       const nextQuestion = allQuestions[currentIndex + 1];
       
@@ -696,7 +572,6 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
   };
 
   const goToPrevious = () => {
-    if (isGrading) return;
     
     // Prevent going back from retry questions to original questions
     if (isRetryQuestion) {
@@ -719,7 +594,6 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
   };
 
   const goToQuestion = (index: number) => {
-    if (isGrading) return;
     
     const targetQuestion = allQuestions[index];
     
@@ -754,41 +628,30 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
       for (const rq of retryQs) {
         const answer = retryAnswers[rq.id];
         if (answer) {
-          if (rq.type === "short_answer") {
-            const grading = aiGradingResults[rq.id];
-            if (grading?.isCorrect) retryCorrect++;
-          } else if (answersMatch(answer, rq.correctAnswer, rq.type)) {
-            retryCorrect++;
-          }
+          if (isCorrectAnswer(answer, rq)) retryCorrect++;
         }
       }
       setRetryCorrectCount(retryCorrect);
       
       if (currentQuiz.generationMode === 'review') {
-        const correctAnswers = allQuestions.filter(q => {
+        const correctAnswers = originalQuestions.filter(q => {
           const answer = userAnswers[q.id];
           if (!answer) return false;
-          if (q.type === "short_answer") {
-            return aiGradingResults[q.id]?.isCorrect;
-          }
-          return answersMatch(answer, q.correctAnswer, q.type);
+          return isAnswerCorrect(answer, q, aiGradingResults[q.id]);
         }).length;
 
         const result = {
           quizId: currentQuiz.id,
           answers: userAnswers,
-          score: Math.round((correctAnswers / allQuestions.length) * 100),
-          totalQuestions: allQuestions.length,
+          score: Math.round((correctAnswers / originalQuestions.length) * 100),
+          totalQuestions: originalQuestions.length,
           correctAnswers: correctAnswers,
           timeTaken: sessionTime,
           completedAt: new Date(),
-          wrongQuestionIds: allQuestions.filter(q => {
+          wrongQuestionIds: originalQuestions.filter(q => {
             const answer = userAnswers[q.id];
             if (!answer) return true;
-            if (q.type === "short_answer") {
-              return !aiGradingResults[q.id]?.isCorrect;
-            }
-            return !answersMatch(answer, q.correctAnswer, q.type);
+            return !isAnswerCorrect(answer, q, aiGradingResults[q.id]);
           }).map(q => q.id),
         };
         setQuizResult(result as any);
@@ -802,11 +665,28 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
         body: JSON.stringify({
           quizId: currentQuiz.id,
           answers: userAnswers,
+          shortAnswerGradingTokens: Object.fromEntries(originalQuestions
+            .filter(q => q.type === "short_answer" && hasJudgedShortAnswer(q, userAnswers[q.id], aiGradingResults[q.id]))
+            .map(q => [q.id, aiGradingResults[q.id].gradingToken])),
           timeTaken: sessionTime,
         }),
       });
 
       if (!response.ok) {
+        const error = await response.json();
+        if (error.code === "SHORT_ANSWER_GRADING_REQUIRED" && error.questionId) {
+          const gradeKey = error.questionId as string;
+          const invalidated = { isCorrect: false, isPartial: false, explanation: "" };
+          submittedQuestions.current.delete(gradeKey);
+          setAiGradingResults(prev => ({ ...prev, [gradeKey]: invalidated }));
+          setShortAnswerGradingResult(gradeKey, invalidated);
+          setExplanationStatus(prev => ({ ...prev, [gradeKey]: "error" }));
+          const index = originalQuestions.findIndex(q => q.id === gradeKey);
+          if (index !== -1) {
+            setCurrentIndex(index);
+            setShortAnswerInput(userAnswers[gradeKey] || "");
+          }
+        }
         throw new Error(t('quizPlayer.submitFailed'));
       }
 
@@ -816,6 +696,7 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
       setLocation("/quiz-results");
     } catch (error) {
       console.error("Error submitting quiz:", error);
+      toast({ title: t('common.error'), description: t('quizPlayer.submitFailed'), variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
@@ -874,44 +755,15 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
   };
 
   const getWrongAnswerExplanation = (answer: string | undefined) => {
-    if (!answer || !currentQuestion.wrongAnswerExplanations) return null;
-    
-    if (currentQuestion.wrongAnswerExplanations[answer]) {
-      return currentQuestion.wrongAnswerExplanations[answer];
-    }
-    
-    const answerWithoutPrefix = answer.replace(/^[A-D]\)\s*/, "").trim();
-    if (currentQuestion.wrongAnswerExplanations[answerWithoutPrefix]) {
-      return currentQuestion.wrongAnswerExplanations[answerWithoutPrefix];
-    }
-    
-    const normalize = (s: string) => s.replace(/^[A-D]\)\s*/, "").trim().toLowerCase()
-      .replace(/\s+/g, " ")
-      .replace(/,/g, ".")
-      .replace(/\u00A0/g, " ");
-    
-    const normalizedAnswer = normalize(answer);
-    
-    for (const [key, value] of Object.entries(currentQuestion.wrongAnswerExplanations)) {
-      const normalizedKey = normalize(key);
-      if (normalizedKey === normalizedAnswer) {
-        return value;
-      }
-    }
-    
-    for (const [key, value] of Object.entries(currentQuestion.wrongAnswerExplanations)) {
-      const normalizedKey = normalize(key);
-      if (normalizedKey.length > 3 && normalizedAnswer.length > 3 && 
-          (normalizedAnswer.includes(normalizedKey) || normalizedKey.includes(normalizedAnswer))) {
-        return value;
-      }
-    }
-    
-    return null;
+    const gradeKey = currentQuestion.isRetry ? currentQuestion.id : currentQuestion.originalId;
+    const feedback = aiGradingResults[gradeKey];
+    if (!answer || feedback?.verifiedFeedbackSignature !== getQuestionFeedbackSignature(currentQuestion)) return null;
+    return feedback.wrongAnswerExplanations?.[answer] || feedback.wrongExplanation || null;
   };
 
   const renderFeedback = () => {
     if (!isChecked) return null;
+    if (currentQuestion.type === "short_answer" && aiGradingResults[currentGradeKey]?.isPartial) return null;
     const feedback = feedbackMessages[currentQuestion.id];
     if (!feedback) return null;
 
@@ -939,12 +791,21 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
           <p className="text-sm opacity-80 font-medium">
             {isCorrect ? t('quizPlayer.doingGreat') : t('quizPlayer.keepGoing')}
           </p>
+          {!isCorrect && currentQuestion.type === "selection" && (!isGuest || isRetryQuestion) && getWrongAnswerExplanation(selectedAnswer) && (
+            <p className="text-sm mt-2"><MathText content={getWrongAnswerExplanation(selectedAnswer)!} /></p>
+          )}
         </div>
       </motion.div>
     );
   };
 
   const toggleExplanation = (key: string) => {
+    if (explanationStatus[currentQuestion.id] === "loading") return;
+    if (!aiGradingResults[currentQuestion.id]?.explanation ||
+        (currentQuestion.type !== "short_answer" && !aiGradingResults[currentQuestion.id]?.optionExplanations)) {
+      void loadExplanation({ ...currentQuestion }, selectedAnswer!);
+      return;
+    }
     setExpandedExplanations(prev => {
       const next = new Set(prev);
       if (next.has(key)) {
@@ -971,6 +832,20 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
     );
   };
 
+  const renderExplanationChevron = (isExpanded: boolean) => (
+    <span className="flex items-center gap-2">
+      {explanationStatus[currentQuestion.id] === "loading" && (
+        <Loader2 className="h-4 w-4 animate-spin" role="status" aria-label={t("quizPlayer.generatingExplanation")} data-testid="explanation-loading" />
+      )}
+      {explanationStatus[currentQuestion.id] === "error" && (
+        <span className="text-xs" title={t("quizPlayer.explanationUnavailable")} data-testid="explanation-error">
+          {t("quizPlayer.retryExplanation")}
+        </span>
+      )}
+      {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+    </span>
+  );
+
   const renderAnswerOptions = () => {
     if (currentQuestion.type === "true_false") {
       return (
@@ -979,18 +854,15 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
             const isSelected = answersMatch(selectedAnswer, option, "true_false");
             const isCorrectOpt = answersMatch(option, currentQuestion.correctAnswer, "true_false");
             const gradeKey = currentQuestion.isRetry ? currentQuestion.id : currentQuestion.originalId;
-            const aiExplanation = aiGradingResults[gradeKey];
-            const currentExplanation = currentQuestion.explanation || aiExplanation?.explanation;
-            const currentWrongExplanation = currentQuestion.wrongAnswerExplanations && Object.keys(currentQuestion.wrongAnswerExplanations).length > 0
-              ? getWrongAnswerExplanation(option)
-              : (isSelected ? aiExplanation?.wrongExplanation : null);
+            const optionExplanation = getQuizOptionExplanation(currentQuestion, aiGradingResults[gradeKey], option);
+            const currentExplanation = isCorrectOpt ? optionExplanation : null;
+            const currentWrongExplanation = !isCorrectOpt ? optionExplanation : null;
 
             const showCorrectExplanation = isChecked && isCorrectOpt && (!isGuest || isRetryQuestion);
             const showWrongExplanation = isChecked && isSelected && !isCorrectOpt && (!isGuest || isRetryQuestion);
             const explanationKey = `${currentQuestion.id}-tf-${option}`;
-            const isExpanded = expandedExplanations.has(explanationKey);
+            const isExpanded = Boolean(isCorrectOpt ? currentExplanation : currentWrongExplanation) && expandedExplanations.has(explanationKey);
             const hasExplanation = showCorrectExplanation || showWrongExplanation;
-            const isLoadingExplanation = isGeneratingExplanation[explanationKey];
             
             return (
               <div key={option} className="flex flex-col">
@@ -1087,7 +959,9 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
                     ${isCorrectOpt ? "border-green-500 bg-green-500/5" : "border-red-500 bg-red-500/5"}
                   `}>
                     <button
-                      onClick={() => handleToggleExplanation(explanationKey, option, isCorrectOpt)}
+                      onClick={() => toggleExplanation(explanationKey)}
+                      aria-expanded={isExpanded}
+                      aria-busy={explanationStatus[currentQuestion.id] === "loading"}
                       className={`
                         w-full px-3 py-2 flex items-center justify-between text-xs sm:text-sm font-medium transition-colors
                         ${isCorrectOpt 
@@ -1107,17 +981,12 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
                         <span className="sm:hidden">{t('quizPlayer.explain')}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        {isLoadingExplanation && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                        {isExpanded ? (
-                          <ChevronUp className="h-3.5 w-3.5" />
-                        ) : (
-                          <ChevronDown className="h-3.5 w-3.5" />
-                        )}
+                        {renderExplanationChevron(isExpanded)}
                       </div>
                     </button>
                     
                     <AnimatePresence>
-                      {isExpanded && !isLoadingExplanation && (
+                      {isExpanded && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
@@ -1127,7 +996,7 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
                         >
                           <div className="px-3 pb-3 pt-1">
                             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                              <MathText content={isCorrectOpt ? (currentExplanation || "") : (currentWrongExplanation || "")} />
+                              <MathText content={(isCorrectOpt ? currentExplanation : currentWrongExplanation) || ""} />
                             </p>
                           </div>
                         </motion.div>
@@ -1146,10 +1015,10 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
       const gradeKey = currentQuestion.isRetry ? currentQuestion.id : currentQuestion.originalId;
       const aiGrading = aiGradingResults[gradeKey];
       const explanationKey = `${currentQuestion.id}-short-answer`;
-      const isExpanded = expandedExplanations.has(explanationKey);
-      const showAiExplanation = isChecked && aiGrading && (!isGuest || isRetryQuestion);
-      const isShortAnswerCorrect = aiGrading?.isCorrect;
-      const isPartial = aiGrading?.isPartial;
+      const isExpanded = Boolean(aiGrading?.explanation) && expandedExplanations.has(explanationKey);
+      const showAiExplanation = isChecked;
+      const isShortAnswerCorrect = isCorrectAnswer(selectedAnswer, currentQuestion);
+      const isPartial = aiGrading?.isPartial === true;
       
       const borderColor = isChecked 
         ? isShortAnswerCorrect 
@@ -1169,26 +1038,21 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
             ) : {}}
           >
             <Input
-              value={isChecked ? (selectedAnswer || shortAnswerInput) : shortAnswerInput}
+              value={selectedAnswer ?? shortAnswerInput}
               onChange={(e) => handleShortAnswerChange(e.target.value)}
               placeholder={t('quizPlayer.shortAnswerPlaceholder')}
-              className={`py-6 px-5 text-lg rounded-xl border-2 ${borderColor} transition-all duration-300 shadow-primary ${isChecked && isShortAnswerCorrect ? "shadow-green-500/20" : isChecked && !isShortAnswerCorrect ? "shadow-red-500/20" : ""}`}
-              disabled={isChecked || isGrading}
+              className={`py-6 px-5 text-lg rounded-xl border-2 ${borderColor} transition-all duration-300 shadow-primary ${isChecked && isShortAnswerCorrect ? "shadow-green-500/20" : isChecked && isPartial ? "shadow-yellow-500/20" : isChecked ? "shadow-red-500/20" : ""}`}
+              disabled={isChecked || isJudging}
               data-testid="input-short-answer"
             />
           </motion.div>
 
-          {isGrading && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground px-1">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>{t('quizPlayer.gradingInProgress')}</span>
-            </div>
-          )}
-          
           {showAiExplanation && (
             <div className={`border-2 ${isShortAnswerCorrect ? "border-green-500 bg-green-500/5" : isPartial ? "border-yellow-500 bg-yellow-500/5" : "border-red-500 bg-red-500/5"} rounded-xl overflow-hidden`}>
               <button
                 onClick={() => toggleExplanation(explanationKey)}
+                      aria-expanded={isExpanded}
+                      aria-busy={explanationStatus[currentQuestion.id] === "loading"}
                 className={`w-full px-4 py-2.5 flex items-center justify-between text-sm font-medium transition-colors ${
                   isShortAnswerCorrect 
                     ? "text-green-700 dark:text-green-400 hover:bg-green-500/10" 
@@ -1207,14 +1071,10 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
                     <X className="h-4 w-4" />
                   )}
                   <span>
-                    {isShortAnswerCorrect ? t('common.correct') : isPartial ? t('quizPlayer.partiallyCorrect') : t('common.incorrect')} — {t('quizPlayer.aiAssessment')}
+                    {isShortAnswerCorrect ? t('common.correct') : isPartial ? t('quizPlayer.partiallyCorrect') : t('common.incorrect')} — {t('quizPlayer.explanation')}
                   </span>
                 </div>
-                {isExpanded ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
+                {renderExplanationChevron(isExpanded)}
               </button>
               
               <AnimatePresence>
@@ -1228,7 +1088,7 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
                   >
                     <div className="px-4 pb-4 pt-1">
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        <MathText content={aiGrading.explanation} />
+                        <MathText content={aiGrading?.explanation || ""} />
                       </p>
                     </div>
                   </motion.div>
@@ -1255,18 +1115,15 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
           const isCorrectOpt = isCorrectOption(option, currentQuestion);
           
           const gradeKey = currentQuestion.isRetry ? currentQuestion.id : currentQuestion.originalId;
-          const aiExplanation = aiGradingResults[gradeKey];
-          const currentExplanation = currentQuestion.explanation || aiExplanation?.explanation;
-          const currentWrongExplanation = currentQuestion.wrongAnswerExplanations && Object.keys(currentQuestion.wrongAnswerExplanations).length > 0
-              ? getWrongAnswerExplanation(option)
-              : (isSelected ? aiExplanation?.wrongExplanation : null);
+          const optionExplanation = getQuizOptionExplanation(currentQuestion, aiGradingResults[gradeKey], option);
+          const currentExplanation = isCorrectOpt ? optionExplanation : null;
+          const currentWrongExplanation = !isCorrectOpt ? optionExplanation : null;
 
           const showCorrectExplanation = isChecked && isCorrectOpt && (!isGuest || isRetryQuestion);
           const showWrongExplanation = isChecked && isSelected && !isCorrectOpt && (!isGuest || isRetryQuestion);
           const explanationKey = `${currentQuestion.id}-${index}`;
-          const isExpanded = expandedExplanations.has(explanationKey);
+          const isExpanded = Boolean(isCorrectOpt ? currentExplanation : currentWrongExplanation) && expandedExplanations.has(explanationKey);
           const hasExplanation = showCorrectExplanation || showWrongExplanation;
-          const isLoadingExplanation = isGeneratingExplanation[explanationKey];
           
           return (
             <div key={index} className="space-y-0">
@@ -1387,7 +1244,9 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
                   ${isCorrectOpt ? "border-green-500 bg-green-500/5" : "border-red-500 bg-red-500/5"}
                 `}>
                   <button
-                    onClick={() => handleToggleExplanation(explanationKey, option, isCorrectOpt)}
+                    onClick={() => toggleExplanation(explanationKey)}
+                      aria-expanded={isExpanded}
+                      aria-busy={explanationStatus[currentQuestion.id] === "loading"}
                     className={`
                       w-full px-4 py-2.5 flex items-center justify-between text-sm font-medium transition-colors
                       ${isCorrectOpt 
@@ -1406,17 +1265,12 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
                       <span>{t('quizPlayer.viewExplanation')}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        {isLoadingExplanation && <Loader2 className="h-4 w-4 animate-spin" />}
-                        {isExpanded ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
-                        )}
+                        {renderExplanationChevron(isExpanded)}
                     </div>
                   </button>
                   
                   <AnimatePresence>
-                    {isExpanded && !isLoadingExplanation && (
+                    {isExpanded && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
@@ -1426,7 +1280,7 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
                       >
                         <div className="px-4 pb-4 pt-1">
                           <p className="text-sm text-muted-foreground leading-relaxed">
-                            <MathText content={isCorrectOpt ? (currentExplanation || "") : (currentWrongExplanation || "")} />
+                            <MathText content={(isCorrectOpt ? currentExplanation : currentWrongExplanation) || ""} />
                           </p>
                         </div>
                       </motion.div>
@@ -1455,8 +1309,10 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
               <p className="text-sm font-medium text-muted-foreground mb-3">{t('quizPlayer.jumpToQuestion')}</p>
               <div className="flex flex-wrap gap-2">
                 {originalQuestions.map((q, i) => {
-                  const isAnswered = checkedQuestions.has(q.id);
+                  const isAnswered = checkedQuestions.has(q.id) &&
+                    (q.type !== "short_answer" || hasJudgedShortAnswer(q, userAnswers[q.id], aiGradingResults[q.id]));
                   const wasCorrect = isAnswered && isCorrectAnswer(userAnswers[q.id], { ...q, isRetry: false, originalId: q.id });
+                  const wasPartial = isAnswered && q.type === "short_answer" && aiGradingResults[q.id]?.isPartial;
                   const isCurrent = currentQuestion?.originalId === q.id && !currentQuestion?.isRetry;
                   const isCurrentRetry = currentQuestion?.originalId === q.id && currentQuestion?.isRetry;
                   const needsRetry = wrongAnswerIds.current.has(q.id);
@@ -1479,6 +1335,8 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
                             ? "bg-orange-500 text-white ring-2 ring-orange-500 ring-offset-2"
                             : isAnswered && wasCorrect
                               ? "bg-green-500/20 text-green-700 dark:text-green-400 border border-green-500/50"
+                              : wasPartial
+                                ? "bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border border-yellow-500/50"
                               : isAnswered
                                 ? "bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/50"
                                 : "bg-muted hover:bg-muted/80"
@@ -1606,7 +1464,8 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
     );
   };
 
-  const allOriginalChecked = checkedQuestions.size === originalQuestionCount;
+  const allOriginalChecked = originalQuestions.every(question => checkedQuestions.has(question.id) &&
+    (question.type !== "short_answer" || hasJudgedShortAnswer(question, userAnswers[question.id], aiGradingResults[question.id])));
 
   const allMaterialImages = useMemo(() => {
     const quizMaterialImages = ((currentQuiz as any)?.sourceImages as string[] | undefined) || [];
@@ -1639,11 +1498,12 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
   const hasMaterialContent = hasMaterialImages || hasMaterialText;
 
   const retryQuestionsInList = allQuestions.filter(q => q.isRetry);
-  const allRetryChecked = retryQuestionsInList.every(q => retryChecked.has(q.id));
+  const allRetryChecked = retryQuestionsInList.every(q => retryChecked.has(q.id) &&
+    (q.type !== "short_answer" || hasJudgedShortAnswer(q, retryAnswers[q.id], aiGradingResults[q.id])));
   const isLastQuestion = currentIndex === allQuestions.length - 1;
   const canFinish = allOriginalChecked && (retryQuestionsInList.length === 0 || allRetryChecked);
     
-  const canCheck = !isChecked && !isGrading && (selectedAnswer || (currentQuestion?.type === "short_answer" && shortAnswerInput.trim()));
+  const canCheck = !isChecked && !isJudging && (selectedAnswer || (currentQuestion?.type === "short_answer" && shortAnswerInput.trim()));
 
   useEffect(() => {
     const handleEnterShortcut = (event: KeyboardEvent) => {
@@ -1909,7 +1769,28 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
                 
 
                 {renderAnswerOptions()}
+                {isJudging && (
+                  <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground" role="status" data-testid="short-answer-grading">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t("quizPlayer.grading")}
+                  </div>
+                )}
+                {!isChecked && currentQuestion.type === "short_answer" && explanationStatus[currentGradeKey] === "error" && (
+                  <p className="mt-4 text-sm text-muted-foreground" role="status" data-testid="short-answer-grading-unavailable">
+                    {t("quizPlayer.gradingFailed")}
+                  </p>
+                )}
                 {renderFeedback()}
+                {isChecked && explanationStatus[currentQuestion.id] === "error" && (!isGuest || isRetryQuestion) && (
+                  <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border bg-muted/40 p-4" role="status" data-testid="explanation-unavailable">
+                    <p className="flex-1 text-sm text-muted-foreground">{t("quizPlayer.explanationUnavailable")}</p>
+                    <Button variant="outline" size="sm" onClick={() => void loadExplanation({ ...currentQuestion }, selectedAnswer!)} data-testid="button-retry-explanation">
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      {t("quizPlayer.retryExplanation")}
+                    </Button>
+                  </div>
+                )}
+
               </motion.div>
             </AnimatePresence>
           </div>
@@ -1947,7 +1828,7 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
             <Button
               variant="outline"
               onClick={goToPrevious}
-              disabled={currentIndex === 0 || isGrading || (isRetryQuestion && (currentIndex === 0 || !allQuestions[currentIndex - 1]?.isRetry))}
+              disabled={currentIndex === 0 || (isRetryQuestion && (currentIndex === 0 || !allQuestions[currentIndex - 1]?.isRetry))}
               size="icon"
               className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-11 sm:w-auto sm:px-4 shrink-0"
               data-testid="button-previous"
@@ -1980,12 +1861,8 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
                   className="gap-1 sm:gap-2 rounded-lg sm:rounded-xl flex-1 max-w-[140px] sm:max-w-none sm:min-w-[160px] font-semibold h-9 sm:h-11 text-sm sm:text-base px-3 sm:px-4"
                   data-testid="button-check"
                 >
-                  {isGrading ? (
-                    <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                  ) : (
-                    <CheckCheck className="h-4 w-4 sm:h-5 sm:w-5" />
-                  )}
-                  {isGrading ? t('quizPlayer.gradingInProgressShort') : t('common.check')}
+                  {isJudging ? <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> : <CheckCheck className="h-4 w-4 sm:h-5 sm:w-5" />}
+                  {isJudging ? t('quizPlayer.grading') : t('common.check')}
                 </Button>
               ) : isLastQuestion ? (
                 <Button
@@ -2016,7 +1893,7 @@ export function QuizPlayer({ header }: { header?: ReactNode }) {
             <Button
               variant="outline"
               onClick={goToNext}
-              disabled={currentIndex >= allQuestions.length - 1 || isGrading || (!currentQuestion?.isRetry && allQuestions[currentIndex + 1]?.isRetry && !allOriginalChecked)}
+              disabled={currentIndex >= allQuestions.length - 1 || (!currentQuestion?.isRetry && allQuestions[currentIndex + 1]?.isRetry && !allOriginalChecked)}
               size="icon"
               className="rounded-lg sm:rounded-xl h-9 w-9 sm:h-11 sm:w-auto sm:px-4 shrink-0"
               data-testid="button-skip"

@@ -72,6 +72,7 @@ interface LoginDialogProps {
 
 export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialogProps) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
   const hiddenGoogleButtonRef = useRef<HTMLDivElement>(null);
@@ -197,7 +198,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
           />
           <h2 className="text-xl sm:text-2xl font-bold text-foreground font-brand">prepetual</h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Welcome back! Sign in to continue
+            {t("auth.welcomeBack")}
           </p>
         </div>
 
@@ -215,7 +216,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
                         <Input
                           {...field}
                           type="email"
-                          placeholder="Email address"
+                          placeholder={t("auth.emailAddress")}
                           className="pl-10 h-12 sm:h-11 text-base"
                           data-testid="input-login-email"
                         />
@@ -236,7 +237,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
                         <Input
                           {...field}
                           type="password"
-                          placeholder="Password"
+                          placeholder={t("auth.password")}
                           className="pl-10 h-12 sm:h-11 text-base"
                           data-testid="input-login-password"
                         />
@@ -252,7 +253,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
                   className="text-xs text-muted-foreground hover:text-primary transition-colors"
                   onClick={() => onOpenChange(false)}
                 >
-                  Forgot password?
+                  {t("auth.forgotPassword")}
                 </Link>
               </div>
               <Button
@@ -265,7 +266,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <>
-                    Sign In
+                    {t("auth.signIn")}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </>
                 )}
@@ -278,7 +279,7 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or</span>
+              <span className="bg-background px-2 text-muted-foreground">{t("common.or")}</span>
             </div>
           </div>
 
@@ -312,30 +313,30 @@ export function LoginDialog({ open, onOpenChange, onSwitchToSignUp }: LoginDialo
                 />
               </svg>
             )}
-            {googleLoading ? "Signing in..." : "Continue with Google"}
+            {googleLoading ? t("auth.signingIn") : t("auth.continueGoogle")}
           </Button>
           <div ref={hiddenGoogleButtonRef} className="hidden" />
 
           <div className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            {t("auth.noAccount")}{" "}
             <button
               type="button"
               onClick={onSwitchToSignUp}
               className="text-primary hover:underline font-medium"
               data-testid="link-switch-to-signup"
             >
-              Sign up
+              {t("publicHeader.signup")}
             </button>
           </div>
 
           <p className="text-xs text-center text-muted-foreground">
-            By continuing, you agree to our{" "}
+            {t("auth.agreement")}{" "}
             <Link href="/terms" className="underline hover:text-foreground" onClick={() => onOpenChange(false)}>
-              Terms of Service
+              {t("footer.terms")}
             </Link>{" "}
-            and{" "}
+            {t("common.and")}{" "}
             <Link href="/privacy" className="underline hover:text-foreground" onClick={() => onOpenChange(false)}>
-              Privacy Policy
+              {t("footer.privacy")}
             </Link>
           </p>
         </div>
@@ -520,7 +521,7 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
           />
           <h2 className="text-xl sm:text-2xl font-bold text-foreground custom-highlight">prepetual</h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            {step === "register" ? "Create an account to get started" : t("auth.verifyEmail")}
+            {step === "register" ? t("auth.createAccountDescription") : t("auth.verifyEmail")}
           </p>
         </div>
 
@@ -540,7 +541,7 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
                             <Input
                               {...field}
                               type="email"
-                              placeholder="Email address"
+                              placeholder={t("auth.emailAddress")}
                               className="pl-10 h-12 sm:h-11 text-base"
                               data-testid="input-register-email"
                             />
@@ -561,7 +562,7 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
                             <Input
                               {...field}
                               type="password"
-                              placeholder="Password (min 8 characters)"
+                              placeholder={t("auth.passwordMinimum")}
                               className="pl-10 h-12 sm:h-11 text-base"
                               data-testid="input-register-password"
                             />
@@ -581,7 +582,7 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <>
-                        Create Account
+                        {t("auth.createAccount")}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </>
                     )}
@@ -594,7 +595,7 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">Or</span>
+                  <span className="bg-background px-2 text-muted-foreground">{t("common.or")}</span>
                 </div>
               </div>
 
@@ -628,19 +629,19 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
                     />
                   </svg>
                 )}
-                {googleLoading ? "Signing up..." : "Sign up with Google"}
+                {googleLoading ? t("auth.signingUp") : t("auth.signUpGoogle")}
               </Button>
               <div ref={hiddenGoogleButtonRef} className="hidden" />
 
               <div className="text-center text-sm text-muted-foreground">
-                Already have an account?{" "}
+                {t("auth.haveAccount")}{" "}
                 <button
                   type="button"
                   onClick={onSwitchToLogin}
                   className="text-primary hover:underline font-medium"
                   data-testid="link-switch-to-login"
                 >
-                  Sign in
+                  {t("publicHeader.login")}
                 </button>
               </div>
             </>
@@ -704,19 +705,19 @@ export function SignUpDialog({ open, onOpenChange, onSwitchToLogin }: SignUpDial
                 onClick={() => setStep("register")}
                 className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                Change email address
+                {t("auth.changeEmail")}
               </button>
             </div>
           )}
 
           <p className="text-xs text-center text-muted-foreground">
-            By continuing, you agree to our{" "}
+            {t("auth.agreement")}{" "}
             <Link href="/terms" className="underline hover:text-foreground" onClick={() => onOpenChange(false)}>
-              Terms of Service
+              {t("footer.terms")}
             </Link>{" "}
-            and{" "}
+            {t("common.and")}{" "}
             <Link href="/privacy" className="underline hover:text-foreground" onClick={() => onOpenChange(false)}>
-              Privacy Policy
+              {t("footer.privacy")}
             </Link>
           </p>
         </div>

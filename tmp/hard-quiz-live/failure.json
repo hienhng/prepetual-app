@@ -1,0 +1,8 @@
+{
+  "failed": true,
+  "error": "Generated 12 of 20 validated questions before the retry limit. Try again or request fewer questions.",
+  "code": "INSUFFICIENT_VALID_QUESTIONS",
+  "stage": "top_up",
+  "totalMs": 111698,
+  "providerRequests": 18
+}

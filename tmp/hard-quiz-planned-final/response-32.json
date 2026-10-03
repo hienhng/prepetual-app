@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-1e497477-4476-4fbf-9e87-d2eea1b9c0f6",
+  "object": "chat.completion",
+  "created": 1791009896,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"English\",\"isConsistent\":false,\"reason\":\"The item is in English but the required output language is Vietnamese.\"}]}",
+        "reasoning": "We need to output JSON with evaluations array. There's one item index 0, type title, question \"Advanced Thermodynamics Problem Set\". The resolved QUIZ OUTPUT LANGUAGE is Vietnamese (vi-VN). The item is in English, not Vietnamese. So it's inconsistent. sourceLanguage is Vietnamese per instruction? Actually sourceLanguage should be the resolved output language? The spec: fields: sourceLanguage and itemLanguage. sourceLanguage is the language that should be used (resolved output language). So sourceLanguage = \"Vietnamese\". itemLanguage is the language detected in the item, which is English. So isConsistent false. Reason: The item is in English not Vietnamese. Provide JSON.\n\nThus output:\n\n{\n \"evaluations\":[\n   {\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"English\",\"isConsistent\":false,\"reason\":\"The item is in English but the required output language is Vietnamese.\"}\n ]\n}\n\nMake sure compact JSON."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.418413744,
+    "prompt_tokens": 644,
+    "prompt_time": 0.026436579,
+    "completion_tokens": 244,
+    "completion_time": 0.50474581,
+    "total_tokens": 888,
+    "total_time": 0.531182389,
+    "completion_tokens_details": {
+      "reasoning_tokens": 192
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_e1a78f200e",
+  "x_groq": {
+    "id": "req_01m4084defekqbp0p3xs7vwv3m",
+    "seed": 1542372632
+  },
+  "service_tier": "on_demand"
+}

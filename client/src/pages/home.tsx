@@ -48,7 +48,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileUpload } from "@/components/file-upload";
-import { useQuiz } from "@/lib/quiz-context";
+import { composeSourceMaterialText, useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthDialog } from "@/lib/auth-context";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -2395,7 +2395,7 @@ function StatsSection() {
 export default function Home() {
   const { t } = useLanguage();
   const [, setLocation] = useLocation();
-  const { extractedText, setExtractedText } = useQuiz();
+  const { extractedText, setExtractedText, sourceMaterial, setSourceMaterial } = useQuiz();
   const { isAuthenticated, isLoading } = useAuth();
   const { openLoginDialog, openSignUpDialog } = useAuthDialog();
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -2425,8 +2425,27 @@ export default function Home() {
     text: string,
     isOfficeWithImages?: boolean,
     documentImages?: string[],
+    isImageOnly?: boolean,
   ) => {
-    setExtractedText(text);
+    const nextMaterial = {
+      ...sourceMaterial,
+      text: null,
+      uploadedText: isImageOnly ? null : text,
+      imageDataUrl: null,
+      isOfficeWithImages,
+      documentImages: documentImages || [],
+      autoGenerate: false,
+    };
+    const materialText = composeSourceMaterialText(nextMaterial);
+    const prompt = nextMaterial.prompt?.trim() || "";
+    const hasImages = Boolean(documentImages?.length);
+    setSourceMaterial({
+      ...nextMaterial,
+      type: materialText ? "document" : hasImages ? "image" : prompt ? "prompt" : null,
+      text: materialText || prompt || null,
+      isImageOnly: hasImages && !materialText,
+    });
+    setExtractedText(materialText || prompt || (hasImages ? "[Images uploaded - AI will analyze visually]" : ""));
   };
 
   const handleContinueToGenerate = () => {

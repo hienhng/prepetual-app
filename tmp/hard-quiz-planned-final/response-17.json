@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-b73066cf-5b77-488d-96c0-81af7d8ec30a",
+  "object": "chat.completion",
+  "created": 1791009872,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Kỹ năng nhiệt động lực học và khí động học\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P1\",\"type\":\"multiple_choice\",\"recordIds\":[\"F6\"],\"intent\":\"Given a tire initially at 5 atm and 27 °C, after heating to 54 °C while volume remains constant, determine the final pressure. Choose the correct value.\",\"reasoningSteps\":[\"Convert 27 °C and 54 °C to Kelvin (T1=300 K, T2=327 K).\",\"Apply the constant‑volume ideal‑gas relation P1/T1 = P2/T2 to solve for P2.\"]},{\"id\":\"P2\",\"type\":\"selection\",\"recordIds\":[\"F5\"],\"intent\":\"Select all statements that represent a change in internal energy of a system that is not caused by heat transfer, based on ΔU = Q + W with Q=0.\",\"reasoningSteps\":[\"Identify situations where work is performed on or by the system while no heat is exchanged.\",\"Compare each option to the criteria and mark those that satisfy it.\"]},{\"id\":\"P3\",\"type\":\"true_false\",\"recordIds\":[\"F3\"],\"intent\":\"True/False: For 4 kg of ice at 0 °C melted and then heated to 25 °C, the total heat required is less than 1500 kJ.\",\"reasoningSteps\":[\"Calculate latent‑heat term: Q_latent = m·L_f = 4 kg·3.41×10^5 J/kg = 1.364 MJ (≈1364 kJ).\",\"Calculate sensible‑heat term: Q_sensible = m·c·ΔT = 4 kg·4180 J/kg·K·25 K = 418 kJ; sum ≈1778 kJ, which exceeds 1500 kJ.\"]},{\"id\":\"P4\",\"type\":\"short_answer\",\"recordIds\":[\"F10\"],\"intent\":\"A straight line passes through (0, 32) and (100, 212). Find the X‑value that corresponds to Y = 68 °Y.\",\"reasoningSteps\":[\"Determine slope m = (212‑32)/(100‑0) = 1.8 °Y/°X.\",\"Solve 68 = 1.8·X + 32 → X = (68‑32)/1.8 = 20 °X.\"]},{\"id\":\"P5\",\"type\":\"multiple_choice\",\"recordIds\":[\"F7\"],\"intent\":\"A sealed 12 L container holds nitrogen at 80 atm and 17 °C. Assuming ideal‑gas behavior, calculate the mass of nitrogen present. Choose the correct answer.\",\"reasoningSteps\":[\"Convert temperature to Kelvin: T = 17 °C + 273 = 290 K.\",\"Use n = PV/RT with P=80 atm, V=12 L, R=0.082 atm·L/(mol·K) to find moles, then multiply by molar mass 28 g/mol to obtain mass.\"]}]}",
+        "reasoning": "We need to output JSON with title, category, plans array for slots P1-P5. Must use only reviewed source records. Each plan must identify source recordIds, intended task, reasoningSteps. Must not generate actual question content, just plan metadata. Must ensure each plan uses up to 3 records and 4 source chunks. Must be hard: at least two reasoning steps. Provide for each slot type.\n\nWe need to select appropriate source records for each type.\n\nSlots:\nP1 multiple_choice\nP2 selection\nP3 true_false targetFalse\nP4 short_answer\nP5 multiple_choice\n\nWe must avoid using same plan as accepted questions (none given). Must ensure each plan distinct.\n\nWe need to craft tasks: e.g., for multiple_choice, maybe error diagnosis or inverse problem.\n\nWe need to specify intent: \"Given ... calculate ...\" etc.\n\nWe need reasoning steps list.\n\nWe must reference source record IDs. Use up to 3 records per plan.\n\nLet's design:\n\nP1: Use F6 (ideal gas law pressure change) but make inverse: given final pressure, find final temperature, then ask which option correctly gives temperature. That's multi-step: use P1/T1 = P2/T2, convert Celsius to Kelvin, solve. Provide multiple choice options with plausible errors. Plan uses F6 only.\n\nP2 selection: selection type means multiple correct answers? Usually select all that apply. Use F5 (internal energy change without heat) maybe ask select statements that correctly describe situations where ΔU changes without heat. Provide list of four statements (from source) but need to select which are correct. Use source F5 only.\n\nP3 true_false false: Use F3 (heat required to melt ice) but ask statement about total heat required being less than some value, which is false. Need derived conclusion. Use F3.\n\nP4 short_answer: Use F10 linear relationship, ask compute X value for given Y, need calculation. That's two steps: find slope, then solve. Use F10.\n\nP5 multiple_choice: Use F7 (mass of nitrogen) but make error diagnosis: given calculated mass, which option identifies mistake in using R value? Or ask which answer is correct after proper calculation. Provide multiple choice with plausible errors. Use F7.\n\nNow produce JSON.\n\nNeed to include reasoningSteps as strings.\n\nMake sure each plan's intent includes conditions and required result.\n\nLet's craft.\n\nP1 intent: \"Given a tire initially at 5 atm and 27 °C, after heating to 54 °C (constant volume), determine the final pressure. Choose the correct value.\" Reasoning steps: 1) Convert temperatures to Kelvin. 2) Apply P1/T1 = P2/T2 to solve for P2.\n\nP2 intent: \"Select all statements that represent a change in internal energy of a system that is not caused by heat transfer, based on the first law ΔU = Q + W with Q=0.\" Reasoning steps: 1) Identify situations where work is done without heat. 2) Evaluate each option.\n\nP3 intent: \"True/False: For 4 kg of ice at 0 °C melted and heated to 25 °C, the total heat required is less than 1500 kJ.\" Need to compute actual heat ~ (4*34e5)+(4*4180*25)=? 4*34e5=1.36e6 J =1360 kJ. plus 4*4180*25=4*104500=418000 J=418 kJ. total 1778 kJ. So statement \"less than 1500 kJ\" is false. Reasoning steps: 1) Compute latent heat term. 2) Compute sensible heating term and sum.\n\nP4 intent: \"Given linear scale relation passing through (0,32) and (100,212), find the X value corresponding to Y=68 °Y.\" Steps: 1) Determine slope m = (212-32)/(100-0)=180/100=1.8. 2) Solve 68 = 1.8 X + 32 => X = (68-32)/1.8 = 36/1.8 =20.\n\nP5 intent: \"A sealed 12 L container holds nitrogen at 80 atm and 17 °C. Assuming ideal gas, calculate the mass of nitrogen. Choose the correct answer.\" Steps: 1) Convert temperature to Kelvin. 2) Use n = PV/RT to find moles. 3) Multiply by molar mass.\n\nNow ensure each uses correct source IDs.\n\nP1 uses F6.\nP2 uses F5.\nP3 uses F3.\nP4 uses F10.\nP5 uses F7.\n\nAll within limit.\n\nNow produce JSON compact.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.423631593,
+    "prompt_tokens": 9760,
+    "prompt_time": 0.426969385,
+    "completion_tokens": 1651,
+    "completion_time": 3.551721974,
+    "total_tokens": 11411,
+    "total_time": 3.978691359,
+    "completion_tokens_details": {
+      "reasoning_tokens": 992
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_8655ddce88",
+  "x_groq": {
+    "id": "req_01m4083jcsewvragzegstz9smt",
+    "seed": 1231487322
+  },
+  "service_tier": "on_demand"
+}

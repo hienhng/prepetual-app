@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-333a4bd0-dbac-4aad-9d47-182c11eb1a8d",
+  "object": "chat.completion",
+  "created": 1791010722,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"records\":[{\"topic\":\"Thermal equilibrium of water‑ice mixture\",\"kind\":\"problem\",\"blockIds\":[\"B25\"],\"givens\":[{\"name\":\"latent heat of fusion of ice\",\"value\":\"3,36.10⁵\",\"unit\":\"J/kg\",\"sourceText\":\"nóng chảy riêng của nước đá là 3,36.10⁵ J/kg\",\"blockId\":\"B25\"},{\"name\":\"specific heat of water\",\"value\":\"4200\",\"unit\":\"J/kg.K\",\"sourceText\":\"nhiệt dung riêng của nước là 4200 J/kg.K\",\"blockId\":\"B25\"}],\"conditions\":[\"system consists of water and ice that reach a common equilibrium state\"],\"relationships\":[\"energy conservation: heat released by cooling water equals heat absorbed by melting ice\"]},{\"topic\":\"Refrigeration cycle coefficient of performance\",\"kind\":\"problem\",\"blockIds\":[\"B26\"],\"givens\":[{\"name\":\"coefficient of performance (COP)\",\"value\":\"3\",\"unit\":\"\",\"sourceText\":\"COP = 3\",\"blockId\":\"B26\"},{\"name\":\"compressor work A\",\"value\":\"180kJ\",\"unit\":\"kJ\",\"sourceText\":\"A=180kJ\",\"blockId\":\"B26\"}],\"conditions\":[\"refrigeration cycle where Q₁ is heat absorbed in evaporator and Q₂ is heat rejected in condenser\"],\"relationships\":[\"COP = Q₁/A\",\"first law for refrigerator: Q₂ = Q₁ + A\"]},{\"topic\":\"Work done by gas at (approximately) constant pressure in a vertical piston‑cylinder\",\"kind\":\"problem\",\"blockIds\":[\"B27\"],\"givens\":[{\"name\":\"cylinder diameter\",\"value\":\"20\",\"unit\":\"cm\",\"sourceText\":\"Đường kính xilanh là 20 cm\",\"blockId\":\"B27\"},{\"name\":\"gas pressure\",\"value\":\"102\",\"unit\":\"kPa\",\"sourceText\":\"áp suất khí là 102 kPa\",\"blockId\":\"B27\"},{\"name\":\"initial piston height\",\"value\":\"30\",\"unit\":\"cm\",\"sourceText\":\"pit‑tông cách đáy xilanh 30 cm\",\"blockId\":\"B27\"},{\"name\":\"final piston height\",\"value\":\"35\",\"unit\":\"cm\",\"sourceText\":\"đẩy pit‑tông lên độ cao 35 cm\",\"blockId\":\"B27\"}],\"conditions\":[\"ideal gas assumed, pressure change negligible (approximately constant) while piston moves vertically\"],\"relationships\":[\"work W = P·ΔV\",\"ΔV = A·Δh where A = π·(d/2)²\"]}],\"excluded\":[{\"blockId\":\"B28\",\"reason\":\"contains only repeated answer options and figure caption without additional numeric data\"}]}",
+        "reasoning": "We need to extract up to eight useful concept/problem records from source blocks. Must output JSON with records array and excluded array. For each record, include topic, kind, blockIds, givens (list with name, value, unit, sourceText, blockId), conditions, relationships.\n\nWe must not generate answers or explanations. Just extract givens and conditions.\n\nWe have four blocks B25-B28.\n\nWe need to parse each.\n\nB25: Vietnamese text: \"nóng chảy riêng của nước đá là 3,36.10⁵ J/kg và nhiệt dung riêng của nước là 4200 J/kg.K. Trạng thái cân bằng của hệ gồm A...\". So givens: latent heat of fusion of ice = 3,36·10⁵ J/kg (note decimal comma). Specific heat of water = 4200 J/kg·K. No other numeric givens. Conditions: system equilibrium of water and ice mixture? The problem asks which composition yields equilibrium. So conditions: mixture of water and ice, total mass? Not given. So we can record givens and condition: \"system of water and ice reaching thermal equilibrium\". Relationships: latent heat and specific heat relationship for equilibrium: heat released by water cooling equals heat absorbed by ice melting etc. Could list \"energy conservation\".\n\nB26: COP = Q1/A. Given COP=3, A=180 kJ. Need Q2? Actually Q2 is heat rejected. Relationship: COP = Q1/A, also Q2 = Q1 + A (first law for refrigerator). So givens: COP=3 (dimensionless), A=180 kJ. Conditions: refrigeration cycle described. Relationships: Q2 = Q1 + A, COP = Q1/A.\n\nB27: Cylinder with piston. Diameter 20 cm, pressure 102 kPa, initial piston height 30 cm, final height 35 cm. Pressure assumed constant (negligible change). Need work done by gas. Givens: diameter = 20 cm, pressure = 102 kPa, initial position = 30 cm, final = 35 cm. Conditions: ideal gas, constant pressure, vertical motion. Relationships: work = P * ΔV, ΔV = A * Δh, where A = π*(d/2)^2.\n\nB28: This block appears to be duplicate of answer options and figure description, no new givens. It may be excluded due to being incomplete or duplicate. It contains no new numeric data beyond what's in B27. Could be excluded as redundant.\n\nWe need up to eight records; we have three records (B25, B26, B27). Provide them.\n\nMake sure JSON compact (no spaces). Provide excluded list with B28 reason.\n\nNow format.\n\nFor each given, need name, value normalized, unit, sourceText, blockId.\n\nNormalization: keep as in source, preserve decimal separators etc. For latent heat: \"3,36.10⁵ J/kg\". That's weird: \"3,36.10⁵\". Probably means 3.36×10^5. Keep as \"3,36.10⁵\". Unit \"J/kg\". For specific heat: \"4200 J/kg.K\". Unit \"J/kg·K\" maybe \"J/kg.K\". Keep as \"J/kg.K\". For COP: \"3\". Unit none. For A: \"180kJ\". Normalize maybe \"180 kJ\". Keep as \"180kJ\". For pressure: \"102 kPa\". For diameter: \"20 cm\". For initial height: \"30 cm\". Final height: \"35 cm\".\n\nNow produce JSON.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.344766416,
+    "prompt_tokens": 1235,
+    "prompt_time": 0.046569578,
+    "completion_tokens": 1303,
+    "completion_time": 2.7675756959999998,
+    "total_tokens": 2538,
+    "total_time": 2.814145274,
+    "prompt_tokens_details": {
+      "cached_tokens": 256
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 747
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_96d96a151c",
+  "x_groq": {
+    "id": "req_01m408xh7pe9ery8hc5ac4s33b",
+    "seed": 156532091
+  },
+  "service_tier": "on_demand"
+}

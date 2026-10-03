@@ -1,0 +1,706 @@
+[
+  {
+    "id": 1,
+    "stage": "other",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 1118,
+    "status": 200,
+    "durationMs": 1034,
+    "usage": {
+      "queue_time": 0.418599958,
+      "prompt_tokens": 1102,
+      "prompt_time": 0.052611346,
+      "completion_tokens": 112,
+      "completion_time": 0.231873142,
+      "total_tokens": 1214,
+      "total_time": 0.284484488,
+      "completion_tokens_details": {
+        "reasoning_tokens": 97
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 2,
+    "stage": "source_records",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 2202,
+    "status": 200,
+    "durationMs": 11383,
+    "usage": {
+      "queue_time": 0.418045173,
+      "prompt_tokens": 1135,
+      "prompt_time": 0.0604649,
+      "completion_tokens": 5181,
+      "completion_time": 10.719705626,
+      "total_tokens": 6316,
+      "total_time": 10.780170526,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2126
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 3,
+    "stage": "source_review",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 13601,
+    "status": 200,
+    "durationMs": 1955,
+    "usage": {
+      "queue_time": 0.370783767,
+      "prompt_tokens": 2337,
+      "prompt_time": 0.127907976,
+      "completion_tokens": 607,
+      "completion_time": 1.28694738,
+      "total_tokens": 2944,
+      "total_time": 1.414855356,
+      "completion_tokens_details": {
+        "reasoning_tokens": 486
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 4,
+    "stage": "question_plans",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 15568,
+    "status": 200,
+    "durationMs": 6059,
+    "usage": {
+      "queue_time": 0.420162589,
+      "prompt_tokens": 2849,
+      "prompt_time": 0.126550174,
+      "completion_tokens": 2547,
+      "completion_time": 5.310461313,
+      "total_tokens": 5396,
+      "total_time": 5.437011487,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1769
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 5,
+    "stage": "plan_review",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 21639,
+    "status": 400,
+    "durationMs": 6105
+  },
+  {
+    "id": 6,
+    "stage": "final_review",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 27762,
+    "status": 200,
+    "durationMs": 1097,
+    "usage": {
+      "queue_time": 0.367070982,
+      "prompt_tokens": 650,
+      "prompt_time": 0.027030142,
+      "completion_tokens": 276,
+      "completion_time": 0.568619386,
+      "total_tokens": 926,
+      "total_time": 0.595649528,
+      "completion_tokens_details": {
+        "reasoning_tokens": 227
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 7,
+    "stage": "other",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 28870,
+    "status": 200,
+    "durationMs": 1023,
+    "usage": {
+      "queue_time": 0.418008959,
+      "prompt_tokens": 256,
+      "prompt_time": 0.011725805,
+      "completion_tokens": 197,
+      "completion_time": 0.403672478,
+      "total_tokens": 453,
+      "total_time": 0.415398283,
+      "completion_tokens_details": {
+        "reasoning_tokens": 163
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 8,
+    "stage": "final_review",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 29906,
+    "status": 200,
+    "durationMs": 910,
+    "usage": {
+      "queue_time": 0.41807162,
+      "prompt_tokens": 657,
+      "prompt_time": 0.028891754,
+      "completion_tokens": 146,
+      "completion_time": 0.308414634,
+      "total_tokens": 803,
+      "total_time": 0.337306388,
+      "completion_tokens_details": {
+        "reasoning_tokens": 85
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 9,
+    "stage": "question_plans",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 30839,
+    "status": 200,
+    "durationMs": 4742,
+    "usage": {
+      "queue_time": 0.367487172,
+      "prompt_tokens": 2853,
+      "prompt_time": 0.123078061,
+      "completion_tokens": 1967,
+      "completion_time": 4.106175743,
+      "total_tokens": 4820,
+      "total_time": 4.229253804,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1315
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 10,
+    "stage": "plan_review",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 35591,
+    "status": 200,
+    "durationMs": 5671,
+    "usage": {
+      "queue_time": 0.419422667,
+      "prompt_tokens": 5600,
+      "prompt_time": 0.244101113,
+      "completion_tokens": 2342,
+      "completion_time": 4.843225327,
+      "total_tokens": 7942,
+      "total_time": 5.08732644,
+      "completion_tokens_details": {
+        "reasoning_tokens": 799
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 11,
+    "stage": "plan_solutions",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 41279,
+    "status": 200,
+    "durationMs": 14129,
+    "usage": {
+      "queue_time": 0.053794055,
+      "prompt_tokens": 6555,
+      "prompt_time": 0.31428243,
+      "completion_tokens": 6532,
+      "completion_time": 13.537469608,
+      "total_tokens": 13087,
+      "total_time": 13.851752038,
+      "completion_tokens_details": {
+        "reasoning_tokens": 4329
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 12,
+    "stage": "question_writing",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 55419,
+    "status": 200,
+    "durationMs": 6793,
+    "usage": {
+      "queue_time": 0.418225088,
+      "prompt_tokens": 2285,
+      "prompt_time": 0.096125414,
+      "completion_tokens": 2959,
+      "completion_time": 6.122255124,
+      "total_tokens": 5244,
+      "total_time": 6.218380538,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1905
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 13,
+    "stage": "answer_audit",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 62235,
+    "status": 200,
+    "durationMs": 8389,
+    "usage": {
+      "queue_time": 0.25710652,
+      "prompt_tokens": 3669,
+      "prompt_time": 0.189348723,
+      "completion_tokens": 3731,
+      "completion_time": 7.774959482,
+      "total_tokens": 7400,
+      "total_time": 7.964308205,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2327
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 14,
+    "stage": "focused_repairs",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 70640,
+    "status": 200,
+    "durationMs": 9724,
+    "usage": {
+      "queue_time": 0.372132785,
+      "prompt_tokens": 7026,
+      "prompt_time": 0.306799475,
+      "completion_tokens": 4234,
+      "completion_time": 8.884751389,
+      "total_tokens": 11260,
+      "total_time": 9.191550864,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1781
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 15,
+    "stage": "answer_audit",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 80374,
+    "status": 200,
+    "durationMs": 14952,
+    "usage": {
+      "queue_time": 0.344730656,
+      "prompt_tokens": 4869,
+      "prompt_time": 0.215648346,
+      "completion_tokens": 6839,
+      "completion_time": 14.188226789,
+      "total_tokens": 11708,
+      "total_time": 14.403875135,
+      "completion_tokens_details": {
+        "reasoning_tokens": 3903
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 16,
+    "stage": "question_plans",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 95345,
+    "status": 200,
+    "durationMs": 10226,
+    "usage": {
+      "queue_time": 0.370758368,
+      "prompt_tokens": 2848,
+      "prompt_time": 0.359882402,
+      "completion_tokens": 4446,
+      "completion_time": 9.2187887,
+      "total_tokens": 7294,
+      "total_time": 9.578671102,
+      "completion_tokens_details": {
+        "reasoning_tokens": 3708
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 17,
+    "stage": "plan_review",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 105590,
+    "status": 200,
+    "durationMs": 5206,
+    "usage": {
+      "queue_time": 0.379713549,
+      "prompt_tokens": 5682,
+      "prompt_time": 0.35686245,
+      "completion_tokens": 2075,
+      "completion_time": 4.291559537,
+      "total_tokens": 7757,
+      "total_time": 4.648421987,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1238
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 18,
+    "stage": "plan_revision",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 110811,
+    "status": 200,
+    "durationMs": 10219,
+    "usage": {
+      "queue_time": 0.367144554,
+      "prompt_tokens": 5713,
+      "prompt_time": 0.242543666,
+      "completion_tokens": 4559,
+      "completion_time": 9.418974257,
+      "total_tokens": 10272,
+      "total_time": 9.661517923,
+      "completion_tokens_details": {
+        "reasoning_tokens": 3289
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 19,
+    "stage": "plan_review",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 121049,
+    "status": 200,
+    "durationMs": 4195,
+    "usage": {
+      "queue_time": 0.418903379,
+      "prompt_tokens": 6203,
+      "prompt_time": 0.30246377,
+      "completion_tokens": 1583,
+      "completion_time": 3.290797695,
+      "total_tokens": 7786,
+      "total_time": 3.593261465,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1063
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 20,
+    "stage": "plan_solutions",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 125253,
+    "status": 200,
+    "durationMs": 18825,
+    "usage": {
+      "queue_time": 0.367596475,
+      "prompt_tokens": 5832,
+      "prompt_time": 0.291210336,
+      "completion_tokens": 8654,
+      "completion_time": 17.90947533,
+      "total_tokens": 14486,
+      "total_time": 18.200685666,
+      "completion_tokens_details": {
+        "reasoning_tokens": 6071
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 21,
+    "stage": "question_writing",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 144087,
+    "status": 200,
+    "durationMs": 6075,
+    "usage": {
+      "queue_time": 0.418738848,
+      "prompt_tokens": 2575,
+      "prompt_time": 0.121151354,
+      "completion_tokens": 2601,
+      "completion_time": 5.378883427,
+      "total_tokens": 5176,
+      "total_time": 5.500034781,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1516
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 22,
+    "stage": "answer_audit",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 150177,
+    "status": 200,
+    "durationMs": 10884,
+    "usage": {
+      "queue_time": 0.427978998,
+      "prompt_tokens": 3736,
+      "prompt_time": 0.252757643,
+      "completion_tokens": 4833,
+      "completion_time": 10.034483358,
+      "total_tokens": 8569,
+      "total_time": 10.287241001,
+      "completion_tokens_details": {
+        "reasoning_tokens": 3822
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 23,
+    "stage": "focused_repairs",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 161074,
+    "status": 200,
+    "durationMs": 8430,
+    "usage": {
+      "queue_time": 0.333067675,
+      "prompt_tokens": 6086,
+      "prompt_time": 0.310457796,
+      "completion_tokens": 3556,
+      "completion_time": 7.611981166,
+      "total_tokens": 9642,
+      "total_time": 7.922438962,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1641
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 24,
+    "stage": "answer_audit",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 169526,
+    "status": 200,
+    "durationMs": 19499,
+    "usage": {
+      "queue_time": 0.345067971,
+      "prompt_tokens": 4409,
+      "prompt_time": 1.699755679,
+      "completion_tokens": 7399,
+      "completion_time": 17.263531004,
+      "total_tokens": 11808,
+      "total_time": 18.963286683,
+      "prompt_tokens_details": {
+        "cached_tokens": 2048
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 4308
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 25,
+    "stage": "question_plans",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 189039,
+    "status": 200,
+    "durationMs": 4695,
+    "usage": {
+      "queue_time": 0.344356754,
+      "prompt_tokens": 2856,
+      "prompt_time": 0.121193169,
+      "completion_tokens": 1936,
+      "completion_time": 4.041183426,
+      "total_tokens": 4792,
+      "total_time": 4.162376595,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1195
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 26,
+    "stage": "plan_review",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 193742,
+    "status": 200,
+    "durationMs": 5314,
+    "usage": {
+      "queue_time": 0.419273347,
+      "prompt_tokens": 5694,
+      "prompt_time": 0.261647063,
+      "completion_tokens": 2126,
+      "completion_time": 4.419429858,
+      "total_tokens": 7820,
+      "total_time": 4.681076921,
+      "completion_tokens_details": {
+        "reasoning_tokens": 908
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 27,
+    "stage": "plan_revision",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 199071,
+    "status": 200,
+    "durationMs": 7554,
+    "usage": {
+      "queue_time": 0.357550445,
+      "prompt_tokens": 5776,
+      "prompt_time": 0.262010836,
+      "completion_tokens": 3264,
+      "completion_time": 6.779542536,
+      "total_tokens": 9040,
+      "total_time": 7.041553372,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2291
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 28,
+    "stage": "plan_review",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 206630,
+    "status": 200,
+    "durationMs": 6600,
+    "usage": {
+      "queue_time": 0.332352455,
+      "prompt_tokens": 5942,
+      "prompt_time": 0.287239456,
+      "completion_tokens": 2763,
+      "completion_time": 5.770704927,
+      "total_tokens": 8705,
+      "total_time": 6.057944383,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1436
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 29,
+    "stage": "plan_solutions",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 213237,
+    "status": 200,
+    "durationMs": 17741,
+    "usage": {
+      "queue_time": 0.371343631,
+      "prompt_tokens": 5597,
+      "prompt_time": 0.297779079,
+      "completion_tokens": 7986,
+      "completion_time": 16.841280142,
+      "total_tokens": 13583,
+      "total_time": 17.139059221,
+      "completion_tokens_details": {
+        "reasoning_tokens": 4960
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 30,
+    "stage": "question_writing",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 230985,
+    "status": 200,
+    "durationMs": 5350,
+    "usage": {
+      "queue_time": 0.431166233,
+      "prompt_tokens": 2334,
+      "prompt_time": 0.186029308,
+      "completion_tokens": 2164,
+      "completion_time": 4.505945655,
+      "total_tokens": 4498,
+      "total_time": 4.691974963,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1250
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 31,
+    "stage": "answer_audit",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 236346,
+    "status": 200,
+    "durationMs": 14831,
+    "usage": {
+      "queue_time": 0.333009437,
+      "prompt_tokens": 4288,
+      "prompt_time": 0.205425322,
+      "completion_tokens": 6584,
+      "completion_time": 14.084768703,
+      "total_tokens": 10872,
+      "total_time": 14.290194025,
+      "completion_tokens_details": {
+        "reasoning_tokens": 4484
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 32,
+    "stage": "final_review",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 251189,
+    "status": 200,
+    "durationMs": 2956,
+    "usage": {
+      "queue_time": 0.371200729,
+      "prompt_tokens": 2992,
+      "prompt_time": 0.134188411,
+      "completion_tokens": 1043,
+      "completion_time": 2.181672894,
+      "total_tokens": 4035,
+      "total_time": 2.315861305,
+      "completion_tokens_details": {
+        "reasoning_tokens": 813
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 33,
+    "stage": "focused_repairs",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 254151,
+    "status": 200,
+    "durationMs": 10518,
+    "usage": {
+      "queue_time": 0.35309591,
+      "prompt_tokens": 3708,
+      "prompt_time": 0.181048379,
+      "completion_tokens": 4714,
+      "completion_time": 9.833885,
+      "total_tokens": 8422,
+      "total_time": 10.014933379,
+      "completion_tokens_details": {
+        "reasoning_tokens": 3401
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "id": 34,
+    "stage": "answer_audit",
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 264679,
+    "status": 200,
+    "durationMs": 9173,
+    "usage": {
+      "queue_time": 0.366248564,
+      "prompt_tokens": 3750,
+      "prompt_time": 0.161042925,
+      "completion_tokens": 4084,
+      "completion_time": 8.472368363,
+      "total_tokens": 7834,
+      "total_time": 8.633411288,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2724
+      }
+    },
+    "finishReason": "stop"
+  }
+]

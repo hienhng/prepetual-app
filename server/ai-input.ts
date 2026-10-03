@@ -74,6 +74,8 @@ export const summarizeTextRequestSchema = z
   });
 
 export const gradeShortAnswerRequestSchema = z.object({
+  quizId: z.string().min(1).max(100).optional(),
+  questionId: z.string().min(1).max(100).optional(),
   question: z.string().min(1).max(2_000),
   correctAnswer: z.string().max(2_000).optional().default(""),
   userAnswer: z.string().min(1).max(4_000),
@@ -82,6 +84,11 @@ export const gradeShortAnswerRequestSchema = z.object({
 });
 
 export const generateExplanationRequestSchema = z.object({
+  quizLanguageContext: z.string().max(8_000).optional(),
+  quizId: z.string().min(1).max(100).optional(),
+  questionId: z.string().min(1).max(100).optional(),
+  type: z.enum(["multiple_choice", "selection", "true_false", "short_answer"]).optional(),
+  selectionMode: z.literal("truth_statements").optional(),
   question: z.string().min(1).max(2_000),
   options: z.array(z.string().max(2_000)).max(10).optional(),
   correctAnswer: z.string().min(1).max(2_000),
@@ -90,6 +97,8 @@ export const generateExplanationRequestSchema = z.object({
   sourceText: z.string().max(MAX_SUMMARY_TEXT_CHARS).optional().default(""),
   brief: z.boolean().optional().default(false),
   category: z.string().max(100).optional(),
+}).refine(data => Boolean(data.quizId) === Boolean(data.questionId), {
+  message: "Provide both quizId and questionId", path: ["questionId"],
 });
 
 export const generateLectureRequestSchema = z.object({

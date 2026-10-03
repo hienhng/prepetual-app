@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-4eb45cd1-b628-42b7-80fc-c5e0f1613189",
+  "object": "chat.completion",
+  "created": 1791009485,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Hard physics reasoning plans for multiple-choice and selection\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P21\",\"type\":\"multiple_choice\",\"recordIds\":[\"F5\"],\"intent\":\"Given a tire containing air at 5 atm and 27 °C, when the temperature rises to 54 °C while the volume remains constant, determine which of the listed statements about the resulting pressure is correct.\",\"reasoningSteps\":[\"Convert the initial and final temperatures from °C to K by adding 273.\",\"Apply the constant‑volume ideal‑gas relation P1/T1 = P2/T2 to compute the final pressure.\"]},{\"id\":\"P22\",\"type\":\"selection\",\"recordIds\":[\"F14\"],\"intent\":\"For a hydraulic chair with total seated mass 30 kg, piston area 30 cm², atmospheric pressure 1×10⁵ Pa and negligible friction, identify all statements that are true about the cylinder pressure and the work done by the gas when the seat descends 12 cm.\",\"reasoningSteps\":[\"Calculate the total downward force (mass × g) and obtain the pressure increase Δp = F/A, then add atmospheric pressure to get the absolute cylinder pressure.\",\"Determine the volume change ΔV = piston area × displacement and compute the work W = (average pressure)·ΔV (using the final pressure as an approximation).\"]}]}",
+        "reasoning": "We need to produce JSON with title, category, plans for slots P21 (multiple_choice) and P22 (selection). Must use only reviewed source records. Must plan slots, not generate questions. Provide plan details: id, type, recordIds, intent, reasoningSteps. Must not generate actual question content, just plan. Use up to 3 records per plan, max 4 source chunks. Must be hard: at least two dependent reasoning steps. For multiple_choice: need a transformed hard question. For selection (multiple correct options). Must specify intent: precise intended task including all conditions. Reasoning steps list operations.\n\nWe need to select source records that can support such tasks. For multiple_choice, maybe use F5 (ideal gas pressure-temperature) combined with maybe F20 for similar but we can only use up to 3 records. Use F5 to compute new pressure given temperature change. Hard version: reverse problem: given final pressure, find final temperature, then ask which of options could be the final temperature? But that's recall. Need multi-step: maybe combine with conversion to Kelvin and ratio. That's two steps. Provide distractors based on common errors: forgetting to convert Celsius to Kelvin, using linear approximation, mixing units.\n\nSo plan: Use F5 givens: initial pressure 5 atm, initial temp 27°C, final temp 54°C, constant volume. Derive relationship P/T = const. Compute expected final pressure. Then ask which of the following statements about pressure change is correct? Provide options with common mistakes. That's multi-step: convert temps to Kelvin, compute ratio, get pressure.\n\nThus reasoning steps: 1) Convert temperatures to Kelvin (add 273). 2) Apply P1/T1 = P2/T2 to find P2.\n\nRecordIds: [\"F5\"].\n\nIntent: \"Given a tire containing air at 5 atm and 27 °C, when the temperature rises to 54 °C while volume remains constant, determine which of the listed statements about the resulting pressure is correct.\"\n\nNow selection slot: need multiple correct options. Could use F14 (hydraulic chair) to evaluate statements about pressures and forces. Provide selection of statements that are true. Need at least two reasoning steps: compute pressure increase using Pascal principle, weight force, area, etc. Use givens: total mass 6 kg, student mass 24 kg, area 30 cm², displacement 12 cm, atmospheric pressure 1e5 Pa, g=10 m/s². Need to find pressure in cylinder when student sits. Steps: 1) Compute total weight = (24+6)kg * g = 30*10=300 N. 2) Force on piston = weight - atmospheric pressure force? Actually pressure difference times area equals weight force. Pressure increase Δp = F/A. Convert area to m²: 30 cm² = 30e-4 m² = 0.003 m². Δp = 300 / 0.003 = 100,000 Pa = 1e5 Pa. So absolute pressure = atmospheric + Δp = 2e5 Pa. So statements about pressure being 2e5 Pa is true, others false. Also statement about work done by gas maybe true? Could include statement about displacement causing work. But selection requires multiple correct statements. Could have two true statements: (i) pressure in cylinder is 2×10⁵ Pa, (ii) gas does work on piston equal to pΔV (compute). Compute ΔV = area * displacement (0.003 m² * 0.12 m = 0.00036 m³). Work = p * ΔV (use average pressure maybe). Approx using final pressure 2e5 Pa gives work = 2e5 * 0.00036 = 72 J. So statement about work ~70 J is true. Provide plan.\n\nRecordIds: [\"F14\"].\n\nReasoning steps: 1) Compute total weight and force on piston. 2) Compute pressure increase using Δp = F/A and then absolute pressure. 3) Compute volume change and work.\n\nWe need at least two steps; we have three.\n\nNow produce JSON with title, category, plans array.\n\nTitle: \"Hard physics reasoning plans for multiple-choice and selection\"\n\nCategory: \"categories.science\"\n\nMake sure JSON compact (no spaces? but can be minimal). Provide as single line? Compact means no unnecessary whitespace. We'll output compact.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.345067774,
+    "prompt_tokens": 9959,
+    "prompt_time": 0.445821884,
+    "completion_tokens": 1218,
+    "completion_time": 2.526480774,
+    "total_tokens": 11177,
+    "total_time": 2.9723026580000003,
+    "completion_tokens_details": {
+      "reasoning_tokens": 921
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_87b3c396db",
+  "x_groq": {
+    "id": "req_01m407qsa5ekk9j2da7q6vs8dj",
+    "seed": 1703090903
+  },
+  "service_tier": "on_demand"
+}

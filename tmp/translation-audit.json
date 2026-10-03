@@ -1,0 +1,2630 @@
+[
+  {
+    "file": "client\\src\\App.tsx",
+    "line": 176,
+    "kind": "attr",
+    "text": "Prepetual Logo"
+  },
+  {
+    "file": "client\\src\\App.tsx",
+    "line": 183,
+    "kind": "text",
+    "text": "prepetual"
+  },
+  {
+    "file": "client\\src\\App.tsx",
+    "line": 220,
+    "kind": "text",
+    "text": "· Prepetual"
+  },
+  {
+    "file": "client\\src\\components\\accuracy-dialog.tsx",
+    "line": 257,
+    "kind": "expr",
+    "text": "easeOut"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 249,
+    "kind": "expr",
+    "text": "Dashboard"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 251,
+    "kind": "expr",
+    "text": "Create"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 253,
+    "kind": "expr",
+    "text": "My Library"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 254,
+    "kind": "expr",
+    "text": "yourQuizzes"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 255,
+    "kind": "expr",
+    "text": "Discover"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 268,
+    "kind": "expr",
+    "text": "animate-in zoom-in-50 duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 282,
+    "kind": "expr",
+    "text": "Dashboard"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 284,
+    "kind": "expr",
+    "text": "Create"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 286,
+    "kind": "expr",
+    "text": "My Library"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 287,
+    "kind": "expr",
+    "text": "yourQuizzes"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 288,
+    "kind": "expr",
+    "text": "Discover"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 320,
+    "kind": "attr",
+    "text": "Expand Sidebar"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 332,
+    "kind": "attr",
+    "text": "Prepetual Logo"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 336,
+    "kind": "text",
+    "text": "prepetual"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 363,
+    "kind": "expr",
+    "text": "Dashboard"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 363,
+    "kind": "expr",
+    "text": "Create"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 363,
+    "kind": "expr",
+    "text": "My Library"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 363,
+    "kind": "expr",
+    "text": "yourQuizzes"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 367,
+    "kind": "expr",
+    "text": "Dashboard"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 367,
+    "kind": "expr",
+    "text": "Create"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 367,
+    "kind": "expr",
+    "text": "My Library"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 367,
+    "kind": "expr",
+    "text": "yourQuizzes"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 385,
+    "kind": "expr",
+    "text": "Progress"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 389,
+    "kind": "expr",
+    "text": "Progress"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 470,
+    "kind": "expr",
+    "text": "justify-center w-10 h-10 p-0"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 470,
+    "kind": "expr",
+    "text": "justify-start px-2 flex-1"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 472,
+    "kind": "expr",
+    "text": "User"
+  },
+  {
+    "file": "client\\src\\components\\app-sidebar.tsx",
+    "line": 516,
+    "kind": "expr",
+    "text": "hidden md:flex"
+  },
+  {
+    "file": "client\\src\\components\\auth-dialog.tsx",
+    "line": 195,
+    "kind": "attr",
+    "text": "Prepetual Logo"
+  },
+  {
+    "file": "client\\src\\components\\auth-dialog.tsx",
+    "line": 198,
+    "kind": "text",
+    "text": "prepetual"
+  },
+  {
+    "file": "client\\src\\components\\auth-dialog.tsx",
+    "line": 518,
+    "kind": "attr",
+    "text": "Prepetual Logo"
+  },
+  {
+    "file": "client\\src\\components\\auth-dialog.tsx",
+    "line": 521,
+    "kind": "text",
+    "text": "prepetual"
+  },
+  {
+    "file": "client\\src\\components\\file-upload.tsx",
+    "line": 174,
+    "kind": "expr",
+    "text": "radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)"
+  },
+  {
+    "file": "client\\src\\components\\file-upload.tsx",
+    "line": 232,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5 text-foreground"
+  },
+  {
+    "file": "client\\src\\components\\file-upload.tsx",
+    "line": 232,
+    "kind": "expr",
+    "text": "border-border/70 bg-transparent hover:border-foreground/30 hover:bg-muted/20 hover:text-foreground"
+  },
+  {
+    "file": "client\\src\\components\\file-upload.tsx",
+    "line": 270,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5 scale-[1.02]"
+  },
+  {
+    "file": "client\\src\\components\\file-upload.tsx",
+    "line": 277,
+    "kind": "expr",
+    "text": "radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)"
+  },
+  {
+    "file": "client\\src\\components\\file-upload.tsx",
+    "line": 289,
+    "kind": "expr",
+    "text": "bg-primary text-white scale-110 rotate-12"
+  },
+  {
+    "file": "client\\src\\components\\file-upload.tsx",
+    "line": 289,
+    "kind": "expr",
+    "text": "bg-background border border-border/50 group-hover:border-primary/50 group-hover:-translate-y-2"
+  },
+  {
+    "file": "client\\src\\components\\file-upload.tsx",
+    "line": 291,
+    "kind": "expr",
+    "text": "text-primary group-hover:scale-110"
+  },
+  {
+    "file": "client\\src\\components\\footer.tsx",
+    "line": 17,
+    "kind": "attr",
+    "text": "Prepetual Logo"
+  },
+  {
+    "file": "client\\src\\components\\footer.tsx",
+    "line": 21,
+    "kind": "text",
+    "text": "prepetual"
+  },
+  {
+    "file": "client\\src\\components\\footer.tsx",
+    "line": 49,
+    "kind": "text",
+    "text": "Prepetual."
+  },
+  {
+    "file": "client\\src\\components\\footer.tsx",
+    "line": 60,
+    "kind": "attr",
+    "text": "Facebook"
+  },
+  {
+    "file": "client\\src\\components\\footer.tsx",
+    "line": 69,
+    "kind": "attr",
+    "text": "Twitter"
+  },
+  {
+    "file": "client\\src\\components\\footer.tsx",
+    "line": 78,
+    "kind": "attr",
+    "text": "Instagram"
+  },
+  {
+    "file": "client\\src\\components\\footer.tsx",
+    "line": 87,
+    "kind": "attr",
+    "text": "LinkedIn"
+  },
+  {
+    "file": "client\\src\\components\\footer.tsx",
+    "line": 96,
+    "kind": "attr",
+    "text": "GitHub"
+  },
+  {
+    "file": "client\\src\\components\\material-pane.tsx",
+    "line": 140,
+    "kind": "expr",
+    "text": "border-primary ring-2 ring-primary/30"
+  },
+  {
+    "file": "client\\src\\components\\material-pane.tsx",
+    "line": 251,
+    "kind": "expr",
+    "text": "bg-primary text-primary-foreground shadow-sm"
+  },
+  {
+    "file": "client\\src\\components\\material-pane.tsx",
+    "line": 252,
+    "kind": "expr",
+    "text": "text-muted-foreground hover:text-foreground"
+  },
+  {
+    "file": "client\\src\\components\\material-pane.tsx",
+    "line": 262,
+    "kind": "expr",
+    "text": "bg-primary text-primary-foreground shadow-sm"
+  },
+  {
+    "file": "client\\src\\components\\material-pane.tsx",
+    "line": 263,
+    "kind": "expr",
+    "text": "text-muted-foreground hover:text-foreground"
+  },
+  {
+    "file": "client\\src\\components\\material-pane.tsx",
+    "line": 460,
+    "kind": "expr",
+    "text": "bg-primary text-primary-foreground"
+  },
+  {
+    "file": "client\\src\\components\\material-pane.tsx",
+    "line": 461,
+    "kind": "expr",
+    "text": "bg-muted text-muted-foreground hover:bg-muted/80"
+  },
+  {
+    "file": "client\\src\\components\\material-pane.tsx",
+    "line": 471,
+    "kind": "expr",
+    "text": "bg-primary text-primary-foreground"
+  },
+  {
+    "file": "client\\src\\components\\material-pane.tsx",
+    "line": 472,
+    "kind": "expr",
+    "text": "bg-muted text-muted-foreground hover:bg-muted/80"
+  },
+  {
+    "file": "client\\src\\components\\quiz-chatbot.tsx",
+    "line": 150,
+    "kind": "text",
+    "text": "Sparkles"
+  },
+  {
+    "file": "client\\src\\components\\quiz-chatbot.tsx",
+    "line": 176,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\components\\quiz-chatbot.tsx",
+    "line": 378,
+    "kind": "expr",
+    "text": "fixed bottom-0 inset-x-0 z-40 w-full min-w-0 h-[85dvh] rounded-t-2xl border-t shadow-xl lg:top-0 lg:left-auto lg:w-96 lg:h-dvh lg:rounded-none lg:border-t-0 lg:border-l lg:shadow-none"
+  },
+  {
+    "file": "client\\src\\components\\quiz-chatbot.tsx",
+    "line": 378,
+    "kind": "expr",
+    "text": "rounded-2xl shadow-2xl border"
+  },
+  {
+    "file": "client\\src\\components\\quiz-chatbot.tsx",
+    "line": 508,
+    "kind": "expr",
+    "text": "rounded-tr-sm bg-primary/10 text-foreground"
+  },
+  {
+    "file": "client\\src\\components\\quiz-chatbot.tsx",
+    "line": 509,
+    "kind": "expr",
+    "text": "rounded-tl-sm bg-muted/50 text-foreground"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generation-dialog.tsx",
+    "line": 22,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generation-dialog.tsx",
+    "line": 34,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generation-dialog.tsx",
+    "line": 158,
+    "kind": "expr",
+    "text": "easeOut"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 414,
+    "kind": "expr",
+    "text": "quizGenerator.imageReady"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 414,
+    "kind": "expr",
+    "text": "quizGenerator.imagesReady"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 483,
+    "kind": "expr",
+    "text": "quizGenerator.combinedCharactersReady"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 483,
+    "kind": "expr",
+    "text": "quizGenerator.charactersReady"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 541,
+    "kind": "expr",
+    "text": "bg-muted text-muted-foreground"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 588,
+    "kind": "expr",
+    "text": "bg-muted text-muted-foreground"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 681,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 681,
+    "kind": "expr",
+    "text": "border-muted hover:border-muted-foreground/30"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 699,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 704,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 704,
+    "kind": "expr",
+    "text": "border-muted hover:border-muted-foreground/30"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 723,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5"
+  },
+  {
+    "file": "client\\src\\components\\quiz-generator.tsx",
+    "line": 723,
+    "kind": "expr",
+    "text": "border-muted hover:border-muted-foreground/30"
+  },
+  {
+    "file": "client\\src\\components\\quiz-language-select.tsx",
+    "line": 19,
+    "kind": "expr",
+    "text": "Ngôn ngữ câu hỏi"
+  },
+  {
+    "file": "client\\src\\components\\quiz-language-select.tsx",
+    "line": 19,
+    "kind": "expr",
+    "text": "Quiz language"
+  },
+  {
+    "file": "client\\src\\components\\quiz-language-select.tsx",
+    "line": 23,
+    "kind": "expr",
+    "text": "Tự động theo yêu cầu hoặc tài liệu"
+  },
+  {
+    "file": "client\\src\\components\\quiz-language-select.tsx",
+    "line": 23,
+    "kind": "expr",
+    "text": "Auto — follow request or material"
+  },
+  {
+    "file": "client\\src\\components\\quiz-language-select.tsx",
+    "line": 27,
+    "kind": "expr",
+    "text": "Có thể yêu cầu ngôn ngữ khác trong lời nhắc. Lựa chọn ở đây được ưu tiên."
+  },
+  {
+    "file": "client\\src\\components\\quiz-language-select.tsx",
+    "line": 27,
+    "kind": "expr",
+    "text": "You can request another language in your prompt. A selection here takes priority."
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 928,
+    "kind": "expr",
+    "text": "bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400 shadow-sm shadow-green-500/5"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 929,
+    "kind": "expr",
+    "text": "bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400 shadow-sm shadow-red-500/5"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 979,
+    "kind": "expr",
+    "text": "True"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 979,
+    "kind": "expr",
+    "text": "False"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1023,
+    "kind": "expr",
+    "text": "0 0px 0px 0px rgba(15,23,42,0)"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1038,
+    "kind": "expr",
+    "text": "bg-green-500/15 border-2 border-green-500 shadow-none ring-2 ring-green-500/20"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1040,
+    "kind": "expr",
+    "text": "bg-red-500/15 border-2 border-red-500 shadow-md shadow-red-500/10"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1042,
+    "kind": "expr",
+    "text": "bg-primary/10 border-2 border-primary shadow-lg shadow-primary/80"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1043,
+    "kind": "expr",
+    "text": "bg-card border-2 border-border"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1252,
+    "kind": "expr",
+    "text": "Không có phát biểu nào đúng"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1252,
+    "kind": "expr",
+    "text": "No statements are true"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1303,
+    "kind": "expr",
+    "text": "0 0px 0px 0px rgba(86, 110, 166, 0)"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1314,
+    "kind": "expr",
+    "text": "rounded-t-xl rounded-b-none"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1323,
+    "kind": "expr",
+    "text": "bg-card border-2 border-border"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1332,
+    "kind": "expr",
+    "text": "bg-green-500 text-white shadow-lg shadow-green-500/40 scale-110"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1336,
+    "kind": "expr",
+    "text": "bg-red-500 text-white shadow-lg shadow-red-500/40"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1338,
+    "kind": "expr",
+    "text": "bg-primary text-primary-foreground shadow-md shadow-primary/30"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1339,
+    "kind": "expr",
+    "text": "bg-muted text-muted-foreground"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1477,
+    "kind": "expr",
+    "text": "cursor-pointer hover:scale-105"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1480,
+    "kind": "expr",
+    "text": "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1482,
+    "kind": "expr",
+    "text": "bg-orange-500 text-white ring-2 ring-orange-500 ring-offset-2"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1484,
+    "kind": "expr",
+    "text": "bg-green-500/20 text-green-700 dark:text-green-400 border border-green-500/50"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1486,
+    "kind": "expr",
+    "text": "bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/50"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1487,
+    "kind": "expr",
+    "text": "bg-muted hover:bg-muted/80"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1492,
+    "kind": "expr",
+    "text": "Bookmarked question"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1780,
+    "kind": "expr",
+    "text": "circOut"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1794,
+    "kind": "expr",
+    "text": "easeOut"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1813,
+    "kind": "expr",
+    "text": "Remove bookmark"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1813,
+    "kind": "expr",
+    "text": "Bookmark question"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1814,
+    "kind": "expr",
+    "text": "Remove bookmark"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1814,
+    "kind": "expr",
+    "text": "Bookmark question"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1851,
+    "kind": "expr",
+    "text": "Correct answer is wrong"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1852,
+    "kind": "expr",
+    "text": "Explanation is incorrect"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1853,
+    "kind": "expr",
+    "text": "Typo or formatting issue"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1854,
+    "kind": "expr",
+    "text": "Question is unclear"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1855,
+    "kind": "expr",
+    "text": "Other"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1862,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5 font-semibold"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1863,
+    "kind": "expr",
+    "text": "border-transparent bg-muted/50 hover:bg-muted"
+  },
+  {
+    "file": "client\\src\\components\\quiz-player.tsx",
+    "line": 1929,
+    "kind": "expr",
+    "text": "contents lg:block lg:w-96 lg:shrink-0"
+  },
+  {
+    "file": "client\\src\\components\\quiz-results.tsx",
+    "line": 127,
+    "kind": "expr",
+    "text": "easeIn"
+  },
+  {
+    "file": "client\\src\\components\\quiz-results.tsx",
+    "line": 151,
+    "kind": "expr",
+    "text": "easeOut"
+  },
+  {
+    "file": "client\\src\\components\\quiz-results.tsx",
+    "line": 306,
+    "kind": "attr",
+    "text": "Question reference image"
+  },
+  {
+    "file": "client\\src\\components\\result-details-modal.tsx",
+    "line": 181,
+    "kind": "expr",
+    "text": "easeIn"
+  },
+  {
+    "file": "client\\src\\components\\result-details-modal.tsx",
+    "line": 205,
+    "kind": "expr",
+    "text": "easeOut"
+  },
+  {
+    "file": "client\\src\\components\\result-details-modal.tsx",
+    "line": 356,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\components\\result-details-modal.tsx",
+    "line": 365,
+    "kind": "attr",
+    "text": "Question reference image"
+  },
+  {
+    "file": "client\\src\\lib\\quiz-pdf.tsx",
+    "line": 27,
+    "kind": "attr",
+    "text": "Prepetual logo"
+  },
+  {
+    "file": "client\\src\\lib\\quiz-pdf.tsx",
+    "line": 28,
+    "kind": "text",
+    "text": "prepetual"
+  },
+  {
+    "file": "client\\src\\lib\\quiz-pdf.tsx",
+    "line": 39,
+    "kind": "expr",
+    "text": "Question image"
+  },
+  {
+    "file": "client\\src\\lib\\quiz-pdf.tsx",
+    "line": 47,
+    "kind": "expr",
+    "text": "Quiz"
+  },
+  {
+    "file": "client\\src\\lib\\quiz-pdf.tsx",
+    "line": 48,
+    "kind": "text",
+    "text": "questions"
+  },
+  {
+    "file": "client\\src\\lib\\quiz-pdf.tsx",
+    "line": 52,
+    "kind": "expr",
+    "text": "True"
+  },
+  {
+    "file": "client\\src\\lib\\quiz-pdf.tsx",
+    "line": 52,
+    "kind": "expr",
+    "text": "False"
+  },
+  {
+    "file": "client\\src\\lib\\quiz-pdf.tsx",
+    "line": 55,
+    "kind": "text",
+    "text": "QUESTION"
+  },
+  {
+    "file": "client\\src\\lib\\quiz-pdf.tsx",
+    "line": 58,
+    "kind": "text",
+    "text": "Select all correct answers."
+  },
+  {
+    "file": "client\\src\\pages\\about.tsx",
+    "line": 156,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\about.tsx",
+    "line": 226,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\about.tsx",
+    "line": 317,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\about.tsx",
+    "line": 383,
+    "kind": "attr",
+    "text": "Prepetual Logo"
+  },
+  {
+    "file": "client\\src\\pages\\about.tsx",
+    "line": 404,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\about.tsx",
+    "line": 511,
+    "kind": "expr",
+    "text": "text-muted-foreground line-through decoration-muted-foreground/30"
+  },
+  {
+    "file": "client\\src\\pages\\about.tsx",
+    "line": 579,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 67,
+    "kind": "text",
+    "text": "Upload Material"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 68,
+    "kind": "text",
+    "text": "Support PDF, images, Word docs"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 75,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 79,
+    "kind": "text",
+    "text": "Drag & drop here"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 98,
+    "kind": "text",
+    "text": "AI Generation"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 99,
+    "kind": "text",
+    "text": "Smart quiz creation in seconds"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 105,
+    "kind": "text",
+    "text": "Generating questions..."
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 116,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 144,
+    "kind": "text",
+    "text": "Question 2 of 10"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 145,
+    "kind": "text",
+    "text": "What is the capital of France?"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 147,
+    "kind": "text",
+    "text": "Medium"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 156,
+    "kind": "expr",
+    "text": "bg-muted hover:bg-muted/80 border border-border/50"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 191,
+    "kind": "text",
+    "text": "Your Progress"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 192,
+    "kind": "text",
+    "text": "Last 7 days"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 201,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 231,
+    "kind": "text",
+    "text": "Share & Collaborate"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 232,
+    "kind": "text",
+    "text": "Quiz: Biology Chapter 5"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 236,
+    "kind": "text",
+    "text": "prep.io/share/bio5"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 239,
+    "kind": "expr",
+    "text": "bg-primary hover:bg-primary/90"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 241,
+    "kind": "expr",
+    "text": "Copied!"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 241,
+    "kind": "expr",
+    "text": "Copy"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 265,
+    "kind": "text",
+    "text": "with 11 friends"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 553,
+    "kind": "attr",
+    "text": "Prepetual Logo"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 556,
+    "kind": "text",
+    "text": "prepetual"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 573,
+    "kind": "text",
+    "text": "Back to Home"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 583,
+    "kind": "attr",
+    "text": "Prepetual Logo"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 586,
+    "kind": "text",
+    "text": "prepetual"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 592,
+    "kind": "expr",
+    "text": "Welcome back"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 592,
+    "kind": "expr",
+    "text": "Create your account"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 595,
+    "kind": "expr",
+    "text": "Don't have an account?"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 595,
+    "kind": "expr",
+    "text": "Already have an account?"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 602,
+    "kind": "expr",
+    "text": "Sign up"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 602,
+    "kind": "expr",
+    "text": "Sign in"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 638,
+    "kind": "expr",
+    "text": "Signing in..."
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 638,
+    "kind": "expr",
+    "text": "Continue with Google"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 648,
+    "kind": "text",
+    "text": "Or continue with email"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 667,
+    "kind": "attr",
+    "text": "Email address"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 688,
+    "kind": "attr",
+    "text": "Password"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 703,
+    "kind": "text",
+    "text": "Forgot password?"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 716,
+    "kind": "text",
+    "text": "Sign In"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 740,
+    "kind": "attr",
+    "text": "Email address"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 761,
+    "kind": "attr",
+    "text": "Password (min 8 characters)"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 781,
+    "kind": "text",
+    "text": "Create Account"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 794,
+    "kind": "text",
+    "text": "By continuing, you agree to our"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 796,
+    "kind": "text",
+    "text": "Terms of Service"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 798,
+    "kind": "text",
+    "text": "and"
+  },
+  {
+    "file": "client\\src\\pages\\auth.tsx",
+    "line": 800,
+    "kind": "text",
+    "text": "Privacy Policy"
+  },
+  {
+    "file": "client\\src\\pages\\create.tsx",
+    "line": 671,
+    "kind": "expr",
+    "text": "radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)"
+  },
+  {
+    "file": "client\\src\\pages\\create.tsx",
+    "line": 709,
+    "kind": "expr",
+    "text": "'Zalando Sans Expanded', sans-serif"
+  },
+  {
+    "file": "client\\src\\pages\\create.tsx",
+    "line": 816,
+    "kind": "text",
+    "text": "PDF"
+  },
+  {
+    "file": "client\\src\\pages\\create.tsx",
+    "line": 817,
+    "kind": "text",
+    "text": "DOCX"
+  },
+  {
+    "file": "client\\src\\pages\\create.tsx",
+    "line": 1167,
+    "kind": "expr",
+    "text": "bg-muted text-muted-foreground"
+  },
+  {
+    "file": "client\\src\\pages\\create.tsx",
+    "line": 1181,
+    "kind": "expr",
+    "text": "bg-muted text-muted-foreground"
+  },
+  {
+    "file": "client\\src\\pages\\create.tsx",
+    "line": 1253,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5"
+  },
+  {
+    "file": "client\\src\\pages\\create.tsx",
+    "line": 1265,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5"
+  },
+  {
+    "file": "client\\src\\pages\\create.tsx",
+    "line": 1276,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5"
+  },
+  {
+    "file": "client\\src\\pages\\create.tsx",
+    "line": 1288,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5"
+  },
+  {
+    "file": "client\\src\\pages\\dashboard.tsx",
+    "line": 185,
+    "kind": "expr",
+    "text": "relative group"
+  },
+  {
+    "file": "client\\src\\pages\\dashboard.tsx",
+    "line": 202,
+    "kind": "expr",
+    "text": "bg-gradient-to-br from-primary via-primary to-primary/90 border-0 shadow-lg shadow-primary/20"
+  },
+  {
+    "file": "client\\src\\pages\\dashboard.tsx",
+    "line": 211,
+    "kind": "expr",
+    "text": "bg-white/20 backdrop-blur-sm border border-white/20"
+  },
+  {
+    "file": "client\\src\\pages\\dashboard.tsx",
+    "line": 258,
+    "kind": "expr",
+    "text": "easeOut"
+  },
+  {
+    "file": "client\\src\\pages\\dashboard.tsx",
+    "line": 559,
+    "kind": "expr",
+    "text": "easeOut"
+  },
+  {
+    "file": "client\\src\\pages\\dashboard.tsx",
+    "line": 569,
+    "kind": "expr",
+    "text": "bg-violet-500 shadow-sm hover:bg-violet-600 text-white"
+  },
+  {
+    "file": "client\\src\\pages\\dashboard.tsx",
+    "line": 851,
+    "kind": "expr",
+    "text": "border-destructive bg-destructive/10"
+  },
+  {
+    "file": "client\\src\\pages\\dashboard.tsx",
+    "line": 853,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5"
+  },
+  {
+    "file": "client\\src\\pages\\dashboard.tsx",
+    "line": 854,
+    "kind": "expr",
+    "text": "border-border bg-card/60 hover:border-primary/40 hover:bg-muted/40"
+  },
+  {
+    "file": "client\\src\\pages\\dashboard.tsx",
+    "line": 1327,
+    "kind": "expr",
+    "text": "flex flex-col items-center justify-center"
+  },
+  {
+    "file": "client\\src\\pages\\dashboard.tsx",
+    "line": 1330,
+    "kind": "expr",
+    "text": "text-center w-full"
+  },
+  {
+    "file": "client\\src\\pages\\dashboard.tsx",
+    "line": 1331,
+    "kind": "expr",
+    "text": "md:flex-row md:items-end md:justify-between"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 551,
+    "kind": "text",
+    "text": "MC:"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 554,
+    "kind": "text",
+    "text": "T/F:"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 557,
+    "kind": "text",
+    "text": "SA:"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 819,
+    "kind": "expr",
+    "text": "Option 1"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 819,
+    "kind": "expr",
+    "text": "Option 2"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 819,
+    "kind": "expr",
+    "text": "Option 3"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 819,
+    "kind": "expr",
+    "text": "Option 4"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 825,
+    "kind": "expr",
+    "text": "True"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 825,
+    "kind": "expr",
+    "text": "False"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 828,
+    "kind": "expr",
+    "text": "A) Option 1"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 828,
+    "kind": "expr",
+    "text": "B) Option 2"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 828,
+    "kind": "expr",
+    "text": "C) Option 3"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 828,
+    "kind": "expr",
+    "text": "D) Option 4"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 925,
+    "kind": "expr",
+    "text": "Correct option "
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 932,
+    "kind": "expr",
+    "text": "bg-muted text-muted-foreground"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 1109,
+    "kind": "expr",
+    "text": "True"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 1109,
+    "kind": "expr",
+    "text": "False"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 1155,
+    "kind": "expr",
+    "text": "bg-primary text-primary-foreground"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 1156,
+    "kind": "expr",
+    "text": "bg-muted hover:bg-muted/80"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 1230,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5"
+  },
+  {
+    "file": "client\\src\\pages\\edit-quiz.tsx",
+    "line": 1231,
+    "kind": "expr",
+    "text": "border-border hover:bg-muted/50"
+  },
+  {
+    "file": "client\\src\\pages\\feed.tsx",
+    "line": 180,
+    "kind": "expr",
+    "text": "easeOut"
+  },
+  {
+    "file": "client\\src\\pages\\feed.tsx",
+    "line": 558,
+    "kind": "expr",
+    "text": "bg-primary text-black hover:bg-primary/90"
+  },
+  {
+    "file": "client\\src\\pages\\feed.tsx",
+    "line": 559,
+    "kind": "expr",
+    "text": "text-muted-foreground hover:bg-background hover:text-foreground"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 481,
+    "kind": "expr",
+    "text": "General"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 483,
+    "kind": "expr",
+    "text": "Math"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 484,
+    "kind": "expr",
+    "text": "Science"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 485,
+    "kind": "expr",
+    "text": "English"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 485,
+    "kind": "expr",
+    "text": "Global Languages"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 486,
+    "kind": "expr",
+    "text": "Social Studies"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 646,
+    "kind": "expr",
+    "text": "Enter"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 679,
+    "kind": "expr",
+    "text": "General"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 685,
+    "kind": "expr",
+    "text": "bg-muted/10 border-transparent hover:border-border/50"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 691,
+    "kind": "expr",
+    "text": "bg-primary border-primary"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 698,
+    "kind": "expr",
+    "text": "Math"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 699,
+    "kind": "expr",
+    "text": "Science"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 700,
+    "kind": "expr",
+    "text": "English"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 700,
+    "kind": "expr",
+    "text": "Global Languages"
+  },
+  {
+    "file": "client\\src\\pages\\folder.tsx",
+    "line": 701,
+    "kind": "expr",
+    "text": "Social Studies"
+  },
+  {
+    "file": "client\\src\\pages\\forgot-password.tsx",
+    "line": 52,
+    "kind": "text",
+    "text": "Check Your Email"
+  },
+  {
+    "file": "client\\src\\pages\\forgot-password.tsx",
+    "line": 54,
+    "kind": "text",
+    "text": "If an account exists with that email, we've sent password reset instructions."
+  },
+  {
+    "file": "client\\src\\pages\\forgot-password.tsx",
+    "line": 60,
+    "kind": "text",
+    "text": "Back to Login"
+  },
+  {
+    "file": "client\\src\\pages\\forgot-password.tsx",
+    "line": 74,
+    "kind": "attr",
+    "text": "Prepetual Logo"
+  },
+  {
+    "file": "client\\src\\pages\\forgot-password.tsx",
+    "line": 76,
+    "kind": "text",
+    "text": "Forgot Password"
+  },
+  {
+    "file": "client\\src\\pages\\forgot-password.tsx",
+    "line": 77,
+    "kind": "text",
+    "text": "Enter your email to receive reset instructions"
+  },
+  {
+    "file": "client\\src\\pages\\forgot-password.tsx",
+    "line": 87,
+    "kind": "text",
+    "text": "Email"
+  },
+  {
+    "file": "client\\src\\pages\\forgot-password.tsx",
+    "line": 91,
+    "kind": "attr",
+    "text": "you@example.com"
+  },
+  {
+    "file": "client\\src\\pages\\forgot-password.tsx",
+    "line": 100,
+    "kind": "text",
+    "text": "Send Reset Link"
+  },
+  {
+    "file": "client\\src\\pages\\forgot-password.tsx",
+    "line": 106,
+    "kind": "text",
+    "text": "Back to Login"
+  },
+  {
+    "file": "client\\src\\pages\\history.tsx",
+    "line": 517,
+    "kind": "expr",
+    "text": "General"
+  },
+  {
+    "file": "client\\src\\pages\\history.tsx",
+    "line": 813,
+    "kind": "expr",
+    "text": "Enter"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 115,
+    "kind": "expr",
+    "text": "currentColor"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 120,
+    "kind": "expr",
+    "text": "easeOut"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 129,
+    "kind": "expr",
+    "text": "currentColor"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 188,
+    "kind": "expr",
+    "text": "'Indie Flower', cursive"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 201,
+    "kind": "expr",
+    "text": "linear-gradient(to bottom, transparent, #e8a0a0aa 10%, #e8a0a0aa 90%, transparent)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 208,
+    "kind": "expr",
+    "text": "url(\"data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 218,
+    "kind": "text",
+    "text": "Cell Biology - Ch. 5 Notes"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 243,
+    "kind": "text",
+    "text": "Mitochondria"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 243,
+    "kind": "text",
+    "text": "= \"powerhouse of the cell\""
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 250,
+    "kind": "text",
+    "text": "- produces ATP (energy!)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 256,
+    "kind": "text",
+    "text": "- through cellular respiration"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 262,
+    "kind": "text",
+    "text": "- has double membrane"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 316,
+    "kind": "text",
+    "text": "outer"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 336,
+    "kind": "text",
+    "text": "inner"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 356,
+    "kind": "text",
+    "text": "cristae folds ^"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 376,
+    "kind": "text",
+    "text": "Key process:"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 377,
+    "kind": "text",
+    "text": "glucose + O₂ → ATP"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 383,
+    "kind": "text",
+    "text": "(36-38 ATP per glucose molecule)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 395,
+    "kind": "text",
+    "text": "Q: primary function of mitochondria?"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 402,
+    "kind": "text",
+    "text": "→ Energy production (ATP)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 446,
+    "kind": "text",
+    "text": "Other organelles:"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 452,
+    "kind": "text",
+    "text": "- Ribosomes → protein synthesis"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 458,
+    "kind": "text",
+    "text": "- ER (rough = ribosomes, smooth = lipids)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 465,
+    "kind": "text",
+    "text": "- Lysosomes break down food"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 468,
+    "kind": "text",
+    "text": "*waste, not food"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 475,
+    "kind": "text",
+    "text": "- Golgi body → packages proteins"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 487,
+    "kind": "text",
+    "text": "remember: \"cells are like tiny factories\""
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 493,
+    "kind": "text",
+    "text": "each organelle = different department"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 505,
+    "kind": "text",
+    "text": "Test review:"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 511,
+    "kind": "text",
+    "text": "☐ memorize organelle functions"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 517,
+    "kind": "text",
+    "text": "☐ draw + label cell diagram"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 523,
+    "kind": "text",
+    "text": "☑ ATP production steps"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 597,
+    "kind": "text",
+    "text": "cell"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 630,
+    "kind": "text",
+    "text": "pg. 47-48"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 650,
+    "kind": "text",
+    "text": "imp!"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 683,
+    "kind": "text",
+    "text": "prepetual"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 730,
+    "kind": "expr",
+    "text": "bg-muted/80 text-muted-foreground border border-border/40"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 820,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 875,
+    "kind": "expr",
+    "text": "'Dela Gothic One', 'Segoe UI', sans-serif"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 883,
+    "kind": "expr",
+    "text": "drop-shadow(0 0 10px rgba(250, 204, 21, 0.9)) drop-shadow(0 0 22px rgba(250, 204, 21, 0.7)) brightness(1.45)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 884,
+    "kind": "expr",
+    "text": "drop-shadow(0 0 8px rgba(250, 204, 21, 0.8)) drop-shadow(0 0 18px rgba(250, 204, 21, 0.5)) brightness(1.2)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 885,
+    "kind": "expr",
+    "text": "drop-shadow(0 0 5px rgba(250, 204, 21, 0.6)) drop-shadow(0 0 12px rgba(250, 204, 21, 0.3)) brightness(1)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 917,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 936,
+    "kind": "expr",
+    "text": "radial-gradient(ellipse at center, hsl(48 96% 53% / 0.22) 0%, transparent 70%)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 951,
+    "kind": "expr",
+    "text": "radial-gradient(ellipse at center, hsl(48 96% 53% / 0.18) 0%, transparent 70%)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1142,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1158,
+    "kind": "expr",
+    "text": "linear-gradient(to bottom, transparent 0%, hsl(var(--background) / 0.15) 15%, hsl(var(--background) / 0.5) 35%, hsl(var(--background) / 0.8) 55%, hsl(var(--background)) 75%)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1187,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1193,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1205,
+    "kind": "expr",
+    "text": "Images"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1206,
+    "kind": "expr",
+    "text": "Word"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1254,
+    "kind": "expr",
+    "text": "0 0 0px rgba(34,211,238,0)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1254,
+    "kind": "expr",
+    "text": "0 0 15px rgba(34,211,238,0.2)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1254,
+    "kind": "expr",
+    "text": "0 0 0px rgba(34,211,238,0)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1356,
+    "kind": "expr",
+    "text": "easeOut"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1432,
+    "kind": "expr",
+    "text": "radial-gradient(circle at 50% 45%, "
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1445,
+    "kind": "expr",
+    "text": "border-primary/40 bg-primary/10 text-foreground shadow-sm"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1445,
+    "kind": "expr",
+    "text": "border-transparent text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1522,
+    "kind": "text",
+    "text": "Upload your study material"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1525,
+    "kind": "text",
+    "text": "Drag and drop or click"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1529,
+    "kind": "text",
+    "text": "PDF"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1532,
+    "kind": "text",
+    "text": "DOCX"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1535,
+    "kind": "text",
+    "text": "PPTX"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1538,
+    "kind": "text",
+    "text": "Images"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1556,
+    "kind": "text",
+    "text": "Q3 / 10"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1559,
+    "kind": "text",
+    "text": "Multiple Choice"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1569,
+    "kind": "text",
+    "text": "A"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1575,
+    "kind": "text",
+    "text": "B"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1599,
+    "kind": "text",
+    "text": "Still"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1602,
+    "kind": "text",
+    "text": "Learning"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1610,
+    "kind": "text",
+    "text": "Question"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1618,
+    "kind": "text",
+    "text": "tap to flip"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1626,
+    "kind": "text",
+    "text": "Know"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1627,
+    "kind": "text",
+    "text": "This"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1650,
+    "kind": "text",
+    "text": "Revision Round 2 of 3"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1659,
+    "kind": "text",
+    "text": "correct"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1672,
+    "kind": "text",
+    "text": "to retry"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1681,
+    "kind": "text",
+    "text": "Retry Missed Questions"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1697,
+    "kind": "text",
+    "text": "Biology Quiz"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1699,
+    "kind": "text",
+    "text": "10 questions"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1713,
+    "kind": "text",
+    "text": "Share"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1720,
+    "kind": "text",
+    "text": "Copy link"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1755,
+    "kind": "text",
+    "text": "Explain this"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1761,
+    "kind": "text",
+    "text": "Give a hint"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1771,
+    "kind": "text",
+    "text": "Ask Prepal"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1789,
+    "kind": "text",
+    "text": "Quizzes"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1799,
+    "kind": "text",
+    "text": "Score"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1807,
+    "kind": "text",
+    "text": "Accuracy"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 1818,
+    "kind": "text",
+    "text": "Weekly Progress"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 2317,
+    "kind": "expr",
+    "text": "border-primary/30 shadow-2xl shadow-primary/5"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 2317,
+    "kind": "expr",
+    "text": "opacity-30 grayscale blur-sm border-border/40"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 2328,
+    "kind": "expr",
+    "text": "bg-muted/30 border-transparent text-muted-foreground"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 2470,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 2475,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 2489,
+    "kind": "expr",
+    "text": "\n                linear-gradient(to right, hsl(48 96% 53% / 0.07) 1px, transparent 1px),\n                linear-gradient(to bottom, hsl(48 96% 53% / 0.07) 1px, transparent 1px)\n              "
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 2495,
+    "kind": "expr",
+    "text": "linear-gradient(to bottom, transparent 0%, black 20%, black 100%)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 2497,
+    "kind": "expr",
+    "text": "linear-gradient(to bottom, transparent 0%, black 20%, black 100%)"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 2546,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 2630,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 2986,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\home.tsx",
+    "line": 3076,
+    "kind": "attr",
+    "text": "Scroll to top"
+  },
+  {
+    "file": "client\\src\\pages\\in-progress.tsx",
+    "line": 208,
+    "kind": "expr",
+    "text": "border-violet-500/30 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-transparent"
+  },
+  {
+    "file": "client\\src\\pages\\in-progress.tsx",
+    "line": 292,
+    "kind": "expr",
+    "text": "easeOut"
+  },
+  {
+    "file": "client\\src\\pages\\in-progress.tsx",
+    "line": 323,
+    "kind": "attr",
+    "text": "Discard progress"
+  },
+  {
+    "file": "client\\src\\pages\\not-found.tsx",
+    "line": 29,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\not-found.tsx",
+    "line": 60,
+    "kind": "text",
+    "text": "&copy;"
+  },
+  {
+    "file": "client\\src\\pages\\onboarding.tsx",
+    "line": 186,
+    "kind": "text",
+    "text": "Step"
+  },
+  {
+    "file": "client\\src\\pages\\onboarding.tsx",
+    "line": 186,
+    "kind": "text",
+    "text": "of"
+  },
+  {
+    "file": "client\\src\\pages\\onboarding.tsx",
+    "line": 210,
+    "kind": "expr",
+    "text": "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+  },
+  {
+    "file": "client\\src\\pages\\onboarding.tsx",
+    "line": 236,
+    "kind": "text",
+    "text": "Skip"
+  },
+  {
+    "file": "client\\src\\pages\\onboarding.tsx",
+    "line": 245,
+    "kind": "text",
+    "text": "Back"
+  },
+  {
+    "file": "client\\src\\pages\\onboarding.tsx",
+    "line": 252,
+    "kind": "expr",
+    "text": "Complete"
+  },
+  {
+    "file": "client\\src\\pages\\onboarding.tsx",
+    "line": 252,
+    "kind": "expr",
+    "text": "Next"
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 24,
+    "kind": "text",
+    "text": "Chúng tôi thu thập các loại thông tin sau:"
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 26,
+    "kind": "text",
+    "text": "Thông tin tài khoản:"
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 26,
+    "kind": "text",
+    "text": "Tên, địa chỉ email và mật khẩu khi bạn đăng ký."
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 27,
+    "kind": "text",
+    "text": "Nội dung người dùng:"
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 27,
+    "kind": "text",
+    "text": "Tài liệu (PDF, hình ảnh) và văn bản bạn tải lên để tạo quiz."
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 28,
+    "kind": "text",
+    "text": "Dữ liệu sử dụng:"
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 28,
+    "kind": "text",
+    "text": "Thông tin về cách bạn tương tác với ứng dụng và kết quả học tập."
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 68,
+    "kind": "text",
+    "text": "We collect information that you provide directly to us:"
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 70,
+    "kind": "text",
+    "text": "Account Data:"
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 70,
+    "kind": "text",
+    "text": "Name, email address, and credentials."
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 71,
+    "kind": "text",
+    "text": "User Content:"
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 71,
+    "kind": "text",
+    "text": "Documents (PDFs, images) and text uploaded for quiz generation."
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 72,
+    "kind": "text",
+    "text": "Usage Data:"
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 72,
+    "kind": "text",
+    "text": "Information on how you use our service and your learning progress."
+  },
+  {
+    "file": "client\\src\\pages\\privacy.tsx",
+    "line": 140,
+    "kind": "text",
+    "text": "© 2026 Prepetual. All rights reserved."
+  },
+  {
+    "file": "client\\src\\pages\\progress.tsx",
+    "line": 442,
+    "kind": "expr",
+    "text": "dataMin"
+  },
+  {
+    "file": "client\\src\\pages\\progress.tsx",
+    "line": 442,
+    "kind": "expr",
+    "text": "dataMax"
+  },
+  {
+    "file": "client\\src\\pages\\progress.tsx",
+    "line": 448,
+    "kind": "expr",
+    "text": "insideBottom"
+  },
+  {
+    "file": "client\\src\\pages\\progress.tsx",
+    "line": 457,
+    "kind": "expr",
+    "text": "insideLeft"
+  },
+  {
+    "file": "client\\src\\pages\\progress.tsx",
+    "line": 504,
+    "kind": "expr",
+    "text": "easeOut"
+  },
+  {
+    "file": "client\\src\\pages\\progress.tsx",
+    "line": 527,
+    "kind": "expr",
+    "text": "Others/General"
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 83,
+    "kind": "text",
+    "text": "Invalid Link"
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 85,
+    "kind": "text",
+    "text": "This password reset link is invalid or has expired."
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 93,
+    "kind": "text",
+    "text": "Back to Login"
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 109,
+    "kind": "text",
+    "text": "Password Reset Complete"
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 111,
+    "kind": "text",
+    "text": "Your password has been successfully reset."
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 119,
+    "kind": "text",
+    "text": "Go to Login"
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 137,
+    "kind": "attr",
+    "text": "Prepetual Logo"
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 141,
+    "kind": "text",
+    "text": "Reset Password"
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 142,
+    "kind": "text",
+    "text": "Enter your new password below"
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 155,
+    "kind": "text",
+    "text": "New Password"
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 162,
+    "kind": "attr",
+    "text": "At least 8 characters"
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 177,
+    "kind": "text",
+    "text": "Confirm Password"
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 184,
+    "kind": "attr",
+    "text": "Confirm your password"
+  },
+  {
+    "file": "client\\src\\pages\\reset-password.tsx",
+    "line": 203,
+    "kind": "text",
+    "text": "Reset Password"
+  },
+  {
+    "file": "client\\src\\pages\\results.tsx",
+    "line": 230,
+    "kind": "expr",
+    "text": "easeInOut"
+  },
+  {
+    "file": "client\\src\\pages\\settings.tsx",
+    "line": 368,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5 text-primary"
+  },
+  {
+    "file": "client\\src\\pages\\settings.tsx",
+    "line": 368,
+    "kind": "expr",
+    "text": "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
+  },
+  {
+    "file": "client\\src\\pages\\settings.tsx",
+    "line": 398,
+    "kind": "expr",
+    "text": "border-primary bg-primary/5 text-primary"
+  },
+  {
+    "file": "client\\src\\pages\\settings.tsx",
+    "line": 398,
+    "kind": "expr",
+    "text": "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
+  },
+  {
+    "file": "client\\src\\pages\\share.tsx",
+    "line": 85,
+    "kind": "text",
+    "text": "Go Home"
+  },
+  {
+    "file": "client\\src\\pages\\share.tsx",
+    "line": 100,
+    "kind": "attr",
+    "text": "Prepetual Logo"
+  },
+  {
+    "file": "client\\src\\pages\\share.tsx",
+    "line": 118,
+    "kind": "text",
+    "text": "questions"
+  },
+  {
+    "file": "client\\src\\pages\\study.tsx",
+    "line": 318,
+    "kind": "expr",
+    "text": "bg-transparent text-foreground hover:bg-muted/80"
+  },
+  {
+    "file": "client\\src\\pages\\study.tsx",
+    "line": 334,
+    "kind": "expr",
+    "text": "bg-primary text-primary-foreground"
+  },
+  {
+    "file": "client\\src\\pages\\study.tsx",
+    "line": 334,
+    "kind": "expr",
+    "text": "bg-transparent text-muted-foreground hover:bg-muted/80"
+  },
+  {
+    "file": "client\\src\\pages\\terms.tsx",
+    "line": 122,
+    "kind": "text",
+    "text": "© 2026 Prepetual. All rights reserved."
+  },
+  {
+    "file": "client\\src\\pages\\terms.tsx",
+    "line": 123,
+    "kind": "text",
+    "text": "Contact: giahienhn@gmail.com"
+  },
+  {
+    "file": "client\\src\\pages\\verify-email.tsx",
+    "line": 46,
+    "kind": "attr",
+    "text": "Prepetual Logo"
+  },
+  {
+    "file": "client\\src\\pages\\verify-email.tsx",
+    "line": 48,
+    "kind": "text",
+    "text": "Email Verification"
+  },
+  {
+    "file": "client\\src\\pages\\verify-email.tsx",
+    "line": 49,
+    "kind": "text",
+    "text": "Verifying your email address"
+  },
+  {
+    "file": "client\\src\\pages\\verify-email.tsx",
+    "line": 55,
+    "kind": "text",
+    "text": "Verifying your email..."
+  },
+  {
+    "file": "client\\src\\pages\\verify-email.tsx",
+    "line": 63,
+    "kind": "text",
+    "text": "Go to Home"
+  },
+  {
+    "file": "client\\src\\pages\\verify-email.tsx",
+    "line": 72,
+    "kind": "text",
+    "text": "Back to Home"
+  }
+]

@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-1caa6133-c3b4-4883-ad4e-1957cd44549f",
+  "object": "chat.completion",
+  "created": 1791010073,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"answerCorrect\":true,\"explanationConsistent\":true,\"selfContained\":true,\"sourceSupported\":true,\"hardReasoning\":false,\"credibleDistractors\":true,\"reasoningJustification\":\"Chuyển đổi nhiệt độ sang Kelvin (T1=27°C→300 K, T2=54°C→327 K), áp dụng định luật khí lý tưởng ở thể tích không đổi (P∝T), tính P2 = 5 atm × 327/300 = 5.45 atm. Các bước phụ thuộc: (1) đổi độ C sang K, (2) tính tỉ lệ nhiệt độ, (3) nhân với áp suất ban đầu để có áp suất cuối cùng.\",\"reason\":\"The item matches the source language and register.\"}]}",
+        "reasoning": "We need to evaluate the single item (index 0). Must check language consistency: question, options, explanation are Vietnamese. Yes. source language Vietnamese. isConsistent true.\n\nNow answer correctness: The question: initial pressure 5 atm, T1=27°C = 300 K? Actually 27°C = 300 K (273+27=300). T2=54°C = 327 K. Using P2 = P1 * T2/T1 = 5 * 327/300 = 5 * 1.09 = 5.45 atm. Option \"5.45 atm\" correct. Explanation matches. So answerCorrect true.\n\nexplanationConsistent: explanation in Vietnamese matches answer, correct formula. So true.\n\nselfContained: All needed data present: initial pressure, temperatures, volume constant. Yes.\n\nsourceSupported: source chunk includes the same question with options. It supports. The source provides the question but not the solution; but the needed data is present. So source supports the facts. Yes.\n\nhardReasoning: Is this hard? The difficulty requested hard. The reasoning requires conversion to Kelvin and applying ideal gas law. That's a single step. Might be considered not hard. The criteria: hard requires multiple dependent steps, comparison, analysis. This is just one step. So hardReasoning should be false. Therefore the item fails hardReasoning. But the evaluation requires all booleans. We must set hardReasoning false.\n\ncredibleDistractors: Options: 5.45 (correct), 10.45, 10, 4.55. Are they plausible misconceptions? 10 and 10.45 maybe double pressure (assuming linear with temperature difference in Celsius). 4.55 maybe inverse. They are plausible. So credibleDistractors true.\n\nNow need reasoningJustification: describe actual dependent reasoning steps: conversion to Kelvin, apply P proportional to T, compute.\n\nNow produce JSON with fields: index, sourceLanguage, itemLanguage, isConsistent, answerCorrect, explanationConsistent, selfContained, sourceSupported, hardReasoning, credibleDistractors, reasoningJustification, reason.\n\nWe also need reason field? The schema in example includes reason? The prompt says include reason: \"reason\":\"The item matches the source language and register.\" So include reason.\n\nThus produce JSON array with one evaluation.\n\nCheck JSON compact formatting, no extra spaces? Compact but okay.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.419773109,
+    "prompt_tokens": 11662,
+    "prompt_time": 0.533969095,
+    "completion_tokens": 691,
+    "completion_time": 1.433378106,
+    "total_tokens": 12353,
+    "total_time": 1.967347201,
+    "prompt_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 494
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_9241e9962b",
+  "x_groq": {
+    "id": "req_01m4089rfre38satsz087pydde",
+    "seed": 1360414979
+  },
+  "service_tier": "on_demand"
+}

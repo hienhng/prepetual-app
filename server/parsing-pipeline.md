@@ -12,7 +12,16 @@ Ordinary generated selection questions still require at least two correct option
 1. PDF extraction groups text fragments using coordinates and reads detected
    columns within heading bands. Its result retains per-page selectable blocks,
    coordinates, OCR reasons, and transcription. OCR considers sparse text,
-   corrupt text, and image-backed pages with limited selectable text. Visually
+   corrupt text, image-backed pages with limited selectable text, references to
+   diagrams/graphs/tables, and fragmented equations even on text-dense pages.
+   Visual transcription describes axes, points, graph relationships, dimensions,
+   and table values with their corresponding questions; it does not solve them.
+   A separate visual review compares selectable text and transcription against the
+   rendered page, restoring dropped givens and resolving discrepancies. Unclear
+   essential values are explicitly marked unresolved and excluded from quiz facts.
+   A review that omits a numbered question or returns truncated text is rejected.
+   Provider reasoning tags are removed before source indexing. PDF.js and its
+   canvas renderer use the same native dependency to preserve vector paths. Visually
    empty pages are skipped without calling the transcription model. Unreadable
    nonblank pages still fail explicitly instead of silently returning a partial PDF.
 2. Recognizable question numbering supplies a fast inventory. Repeated option
@@ -31,7 +40,13 @@ Ordinary generated selection questions still require at least two correct option
 5. Separate local answers from learner-facing stems/options. Audit answers using
    type-specific fields: one option index, a complete index set, a truth value,
    or a written answer. A recognized statement key must agree with the audited
-   set. Retry unresolved items individually and preserve remaining problems.
+   set. Give every flagged item one individual model recovery pass that reconsiders
+   its type, complete layout, and answer together, using the original source,
+   context, supplied images, and previous review reason. This includes unresolved
+   classifications, layouts, supporting blocks, and inventory ranges. Accept a
+   recovered inventory item only when the model identifies one complete question.
+   Validate source coverage and answers with the same checks as the initial pass;
+   preserve remaining problems and do not retry indefinitely.
 6. Save review stages (`inventory`, `classification`, `structure`, `answer`). The
    editor can save unfinished reviews and confirm complete selection answer sets.
    Scoring and publishing remain blocked until review is completed.
@@ -40,7 +55,7 @@ Ordinary generated selection questions still require at least two correct option
 
 `fixtures/import-mixed-exam.txt` contains the supplied Vietnamese rectangular-block
 example alongside the other question types. `import-source.test.ts`,
-`quiz-import.test.ts`, `quiz-import-provider.test.ts`, `pdf-extract.test.ts`, and
+`quiz-import.test.ts`, `quiz-import-recovery.test.ts`, `quiz-import-provider.test.ts`, `pdf-extract.test.ts`, and
 `shared/selection-answer.test.ts` cover source fidelity, missing/duplicate ranges,
 provider failures, math typography, question order, answer conflicts, all-false
 sets, review confirmation, two-column PDFs, and blank pages. Model responses are

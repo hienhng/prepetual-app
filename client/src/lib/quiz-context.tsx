@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "./queryClient";
 import type { Quiz, QuizResult, Question, QuizProgress, ShortAnswerGradingResult } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
+import { advanceQuizGenerationProgress } from "./quiz-generation-progress";
 
 const safeSessionStorageSet = (key: string, value: string) => {
   try {
@@ -21,6 +22,7 @@ const safeSessionStorageSet = (key: string, value: string) => {
 export type SourceMaterialType = "pdf" | "image" | "document" | "prompt" | null;
 
 export interface SourceMaterial {
+  outputLanguage?: string;
   type: SourceMaterialType;
   text: string | null;
   imageDataUrl: string | null;
@@ -108,6 +110,7 @@ interface QuizState {
   userAnswers: Record<string, string>;
   checkedQuestions: Set<string>;
   savedProgresses: SavedQuizProgress[];
+  isLoadingSavedProgresses: boolean;
   isLoading: boolean;
   loadingMessage: string;
   processingProgress: number;
@@ -139,6 +142,7 @@ interface QuizContextType extends QuizState {
   setExtractedText: (text: string | null) => void;
   setSourceMaterial: (material: SourceMaterial) => void;
   setCurrentQuiz: (quiz: Quiz | null) => void;
+  updateQuizFeedback: (quizId: string, questions: Question[]) => void;
   setQuizResult: (result: QuizResult | null) => void;
   completeQuiz: (result: QuizResult) => Promise<void>;
   setUserAnswer: (questionId: string, answer: string) => void;
@@ -174,7 +178,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
 
   // Fetch saved progresses from API
-  const { data: apiProgresses = [], refetch: refetchProgresses } = useQuery<SavedProgressFromAPI[]>({
+  const { data: apiProgresses = [], isPending: isProgressPending, refetch: refetchProgresses } = useQuery<SavedProgressFromAPI[]>({
     queryKey: ["/api/quiz-progress"],
     staleTime: 0,
   });
@@ -243,6 +247,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       userAnswers,
       checkedQuestions,
       savedProgresses: [], // Start empty, will be synced from API
+      isLoadingSavedProgresses: true,
       isLoading: false,
       loadingMessage: "",
       processingProgress: 0,
@@ -272,6 +277,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
 
   // Sync savedProgresses from API data
   useEffect(() => {
+    if (isProgressPending) return;
     const converted: SavedQuizProgress[] = apiProgresses
       .filter((p) => !user || p.quiz.userId === user.id)
       .map((p) => ({
@@ -288,12 +294,12 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     }));
     setState((prev) => {
       // Only update if data actually changed
-      if (JSON.stringify(prev.savedProgresses) !== JSON.stringify(converted)) {
-        return { ...prev, savedProgresses: converted };
+      if (prev.isLoadingSavedProgresses || JSON.stringify(prev.savedProgresses) !== JSON.stringify(converted)) {
+        return { ...prev, savedProgresses: converted, isLoadingSavedProgresses: false };
       }
       return prev;
     });
-  }, [apiProgresses, user?.id]);
+  }, [apiProgresses, isProgressPending, user?.id]);
 
   useEffect(() => {
     if (!state.currentQuiz) return;
@@ -378,6 +384,17 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         sessionStorage.removeItem("quiz_progress");
       }
       return newState;
+    });
+  };
+
+  const updateQuizFeedback = (quizId: string, questions: Question[]) => {
+    setState(prev => {
+      if (prev.currentQuiz?.id !== quizId) return prev;
+      const quiz = { ...prev.currentQuiz, questions };
+      if (user && quiz.userId === user.id && quiz.generationMode !== "review") {
+        writeQuizProgressSnapshot(quiz, prev.userAnswers, Array.from(prev.checkedQuestions), prev.playerShortAnswerGradingResults);
+      }
+      return { ...prev, currentQuiz: quiz };
     });
   };
 
@@ -720,9 +737,12 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, loadingMessage: message }));
   };
 
-  const setProcessingProgress = (progress: number) => {
-    setState((prev) => ({ ...prev, processingProgress: progress }));
-  };
+  const setProcessingProgress = useCallback((progress: number) => {
+    setState((prev) => ({
+      ...prev,
+      processingProgress: advanceQuizGenerationProgress(prev.processingProgress, progress),
+    }));
+  }, []);
 
   const setCurrentGenerationStep = (step: string) => {
     setState((prev) => ({ ...prev, currentGenerationStep: step }));
@@ -778,6 +798,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         setExtractedText,
         setSourceMaterial,
         setCurrentQuiz,
+        updateQuizFeedback,
         setQuizResult,
         completeQuiz,
         setUserAnswer,

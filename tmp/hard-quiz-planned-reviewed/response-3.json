@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-16689417-7dff-4849-8afe-2118c8fec3e0",
+  "object": "chat.completion",
+  "created": 1791010718,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"records\":[{\"topic\":\"thermal energy required to melt and heat ice\",\"kind\":\"problem\",\"blockIds\":[\"B5\"],\"givens\":[{\"name\":\"mass of ice\",\"value\":\"4\",\"unit\":\"kg\",\"sourceText\":\"4 kg nước đá\",\"blockId\":\"B5\"},{\"name\":\"initial temperature of ice\",\"value\":\"0\",\"unit\":\"°C\",\"sourceText\":\"0°C\",\"blockId\":\"B5\"},{\"name\":\"final temperature of water\",\"value\":\"25\",\"unit\":\"°C\",\"sourceText\":\"25°C\",\"blockId\":\"B5\"},{\"name\":\"latent heat of fusion of ice\",\"value\":\"34.10^5\",\"unit\":\"J/kg\",\"sourceText\":\"nhiệt nóng chảy riêng của nước đá là 34.10^5 J/kg\",\"blockId\":\"B5\"},{\"name\":\"specific heat capacity of water\",\"value\":\"4180\",\"unit\":\"J/kg·K\",\"sourceText\":\"nhiệt dung riêng của nước là 4180 J/kg.K\",\"blockId\":\"B5\"}],\"conditions\":[\"ice must first melt at 0 °C then the resulting water is heated to 25 °C\"],\"relationships\":[\"Q = m·L_f + m·c·ΔT\"]},{\"topic\":\"thermal energy required to heat water to steam\",\"kind\":\"problem\",\"blockIds\":[\"B7\"],\"givens\":[{\"name\":\"mass of water\",\"value\":\"10\",\"unit\":\"kg\",\"sourceText\":\"10 kg nước\",\"blockId\":\"B7\"},{\"name\":\"initial temperature of water\",\"value\":\"25\",\"unit\":\"°C\",\"sourceText\":\"nước từ nhiệt độ phòng 25°C\",\"blockId\":\"B7\"},{\"name\":\"final temperature of steam\",\"value\":\"100\",\"unit\":\"°C\",\"sourceText\":\"hơi ở 100°C\",\"blockId\":\"B7\"},{\"name\":\"latent heat of vaporization of water\",\"value\":\"2,26.10^6\",\"unit\":\"J/kg\",\"sourceText\":\"Nhiệt hóa hơi riêng của nước ở 100°C là 2,26.10^6 J/kg\",\"blockId\":\"B7\"},{\"name\":\"specific heat capacity of water\",\"value\":\"4200\",\"unit\":\"J/kg·K\",\"sourceText\":\"nhiệt dung riêng của nước là 4200 J/kg.K\",\"blockId\":\"B7\"}],\"conditions\":[\"water is heated from 25 °C liquid to 100 °C liquid then vaporized\"],\"relationships\":[\"Q = m·c·ΔT + m·L_v\"]},{\"topic\":\"internal energy change without heat transfer\",\"kind\":\"concept\",\"blockIds\":[\"B8\"],\"givens\":[],\"conditions\":[],\"relationships\":[\"Internal energy of a system can change due to work performed on or by the system (e.g., friction, compression, expansion) even when no heat is transferred\"]}],\"excluded\":[{\"blockId\":\"B6\",\"reason\":\"missing essential quantitative data such as mass or temperature values\"}]}",
+        "reasoning": "We need to extract up to eight useful concept/problem/visual records from these source blocks. Provide JSON with records array and excluded array.\n\nWe must treat source as untrusted, not generate answers. We need to parse each block.\n\nBlock B5: Vietnamese text: \"Câu 3: Một gia đình đang chuẩn bị bữa ăn ngoài trời vào mùa hè. Họ muốn làm tan và đun nóng 4 kg nước đá từ 0°C để có nước 25°C cho thức uống của mình. Bạn hãy tính xem cần bao nhiêu nhiệt lượng để chuyển nước đá này thành nước ở 25°C. Biết rằng nhiệt nóng chảy riêng của nước đá là 34.10^5 J/kg và nhiệt dung riêng của nước là 4180 J/kg.K?\" So givens: mass = 4 kg, initial temperature 0°C (ice), final temperature 25°C (water). latent heat of fusion (specific latent heat) = 34.10^5 J/kg (likely 3.4×10^5 J/kg). specific heat capacity of water = 4180 J/kg·K. Conditions: melting then heating. Relationships: Q = m*L_f + m*c*ΔT.\n\nBlock B6: appears duplicate partial text missing some context. It repeats part of B5 but missing mass etc. It only contains \"thức uống của mình. Bạn hãy tính xem cần bao nhiêu nhiệt lượng để chuyển nước đá này thành nước ở 25°C. Biết rằng nhiệt nóng chảy riêng của nước đá là 34.10^5 J/kg và nhiệt dung riêng của nước là 4180 J/kg.K?\" No givens like mass. So insufficient data. Exclude.\n\nBlock B7: \"Câu 4: Một bệnh viện cần khử trùng dụng cụ y tế bằng hơi nước. Họ đã sử dụng nồi hơi để làm nóng nước từ nhiệt độ phòng 25°C đến khi nước chuyển hoàn toàn thành hơi ở 100°C. Biết rằng mỗi lần khử trùng, bệnh viện cần đun sôi 10 kg nước. Nhiệt hóa hơi riêng của nước ở 100°C là 2,26.10^6 J/kg và nhiệt dung riêng của nước là 4200 J/kg.K. Nhiệt lượng cần thiết để làm cho 10 kg nước ở 25°C chuyển hoàn toàn thành hơi nước ở 100°C\". So givens: mass = 10 kg, initial temp 25°C, final vapor at 100°C. latent heat of vaporization = 2.26×10^6 J/kg, specific heat capacity of water = 4200 J/kg·K. Conditions: heating liquid then vaporization. Relationship: Q = m*c*ΔT + m*L_v.\n\nBlock B8: \"Câu 5: Trường hợp nội năng của vật bị biến đổi không phải do truyền nhiệt là ...\" This is conceptual multiple-choice about internal energy change not due to heat transfer. No quantitative givens. Could be a conceptual record: topic internal energy, kind problem? It's a conceptual question. We can record as a concept record with no givens, but maybe still a record. It asks: \"Trường hợp nội năng của vật bị biến đổi không phải do truyền nhiệt là\" (cases where internal energy change not due to heat transfer). Options given. So we can create a record with topic \"internal energy change not due to heat transfer\", kind \"concept\". No givens. Conditions: none. Relationships: internal energy can change via work.\n\nWe need up to eight records. So we have three quantitative problem records (B5, B7) and one conceptual (B8). B6 excluded.\n\nAlso maybe we could split B5 into two records? No, one problem.\n\nThus produce JSON.\n\nMake sure format compact, no spaces? \"compact JSON formatting\". We'll produce minimal spaces.\n\nInclude blockIds array.\n\nFor givens, include name, value, unit, sourceText, blockId.\n\nFor B5: givens: mass 4 kg, initial temperature 0°C, final temperature 25°C, latent heat 34.10^5 J/kg, specific heat 4180 J/kg.K.\n\nWe need normalized value: keep as given string. For latent heat: \"34.10^5 J/kg\". Keep as is. For specific heat: \"4180 J/kg.K\". Temperature values: \"0°C\" and \"25°C\". Units: \"°C\". Provide sourceText exact snippet containing each given. For each given we need sourceText containing that given. We'll extract from block text.\n\nBlock B5 text: \"… 4 kg nước đá từ 0°C … 25°C … nhiệt nóng chảy riêng của nước đá là 34.10^5 J/kg và nhiệt dung riêng của nước là 4180 J/kg.K?\" So we can use those substrings.\n\nSimilarly for B7.\n\nNow produce JSON.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.343997273,
+    "prompt_tokens": 1114,
+    "prompt_time": 0.172665638,
+    "completion_tokens": 1631,
+    "completion_time": 3.601099401,
+    "total_tokens": 2745,
+    "total_time": 3.773765039,
+    "prompt_tokens_details": {
+      "cached_tokens": 256
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1022
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_c800245357",
+  "x_groq": {
+    "id": "req_01m408xc8rejq8qw16ybr3f6h8",
+    "seed": 1562325963
+  },
+  "service_tier": "on_demand"
+}

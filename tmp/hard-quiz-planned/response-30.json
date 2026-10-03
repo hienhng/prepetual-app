@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-686b82ee-1f91-4884-9531-96e06d7822eb",
+  "object": "chat.completion",
+  "created": 1791009481,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Kế hoạch câu hỏi khó cho các khái niệm nhiệt động lực học và khí lý tưởng\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P11\",\"type\":\"true_false\",\"recordIds\":[\"F5\"],\"intent\":\"Xác định tính đúng/sai của phát biểu: Khi nhiệt độ của khí trong lốp tăng từ 27 °C lên 54 °C (thể tích không đổi), áp suất sẽ là 10 atm.\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ sang Kelvin (T1=300 K, T2=327 K)\",\"Áp dụng công thức P1/T1=P2/T2 để tính P2 và so sánh với 10 atm\"]},{\"id\":\"P12\",\"type\":\"short_answer\",\"recordIds\":[\"F3\"],\"intent\":\"Tính tổng nhiệt lượng cần thiết để tan 4 kg băng ở 0 °C và sau đó làm nước nóng lên 25 °C.\",\"reasoningSteps\":[\"Tính nhiệt tan băng Q1=m·L_f\",\"Tính nhiệt làm nóng nước Q2=m·c·ΔT và cộng Q1+Q2 để có đáp số\"]},{\"id\":\"P13\",\"type\":\"multiple_choice\",\"recordIds\":[\"F8\"],\"intent\":\"Tính hiệu suất của quá trình hàn nhôm: công suất 1,7 kW, thời gian 20 s, khối lượng 20 g, nhiệt độ ban đầu 25 °C, nhiệt độ nóng chảy 660 °C, c=880 J/kg·K, L_f=4·10^5 J/kg.\",\"reasoningSteps\":[\"Tính năng lượng cần để làm nóng và chảy chảy nhôm Q= m·c·ΔT + m·L_f\",\"Tính năng lượng cung cấp bởi nguồn P·t và lấy hiệu suất = Q/(P·t)\"]},{\"id\":\"P14\",\"type\":\"selection\",\"recordIds\":[\"F14\"],\"intent\":\"Xác định các khẳng định đúng về áp suất trong xi lanh của ghế thủy lực khi một học sinh 24 kg ngồi, ghế hạ 12 cm, tổng khối lượng ghế+xi lanh 6 kg, diện tích piston 30 cm², p₀=10⁵ Pa, g=10 m/s².\",\"reasoningSteps\":[\"Tính lực tổng do trọng lượng học sinh và ghế (F=(24+6)·g)\",\"Dùng công thức Δp·S = F để tính áp suất tăng Δp và cộng với p₀ để có áp suất cuối cùng, sau đó so sánh với các khẳng định\"]},{\"id\":\"P15\",\"type\":\"true_false\",\"recordIds\":[\"F20\"],\"intent\":\"Xác định tính đúng/sai của phát biểu: Khi áp suất trong bình tăng từ 4 atm lên 4,5 atm (thể tích không đổi), nhiệt độ của khí giảm xuống dưới 70 °C.\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ ban đầu 70 °C sang Kelvin (T1=343 K)\",\"Áp dụng P1/T1=P2/T2 để tính T2 và nhận thấy T2> T1, do đó phát biểu sai\"]}]}",
+        "reasoning": "We need to produce JSON with title, category, plans array for slots P11-P15. Must use only reviewed source records. Need to create hard questions per slot, with reasoning steps.\n\nWe have many source records. Need to assign each slot a plan using some records (max 3 records, 4 source chunks). Provide intent and reasoning steps.\n\nWe must not generate actual question content, just plan metadata. So each plan includes id, type, recordIds, intent, reasoningSteps.\n\nWe need to ensure each plan uses source records and includes dependent reasoning steps (at least two). For hard, need multi-step reasoning.\n\nLet's design:\n\nP11 true_false targetFalse. Need a statement that is false based on derived conclusion. Use source F5 (ideal gas law pressure change). Derive new pressure at different temperature? Could create statement: \"When temperature rises from 27°C to 54°C at constant volume, pressure becomes 10 atm.\" That's false (actual 5.45 atm). Provide reasoning steps: convert temps to K, apply P1/T1 = P2/T2, compute.\n\nP12 short_answer. Use source F3 (ice melting heating). Ask for total heat required. That's a calculation. Provide reasoning steps: compute Q = m L_f + m c ΔT. That's two steps.\n\nP13 multiple_choice. Use source F8 (welding efficiency). Ask for efficiency value. Provide reasoning steps: compute energy needed to heat+ melt, compute power*time, then efficiency = useful/ input. That's multi-step.\n\nP14 selection (multiple correct). Use source F14 (hydraulic chair). Ask which statements are correct among four given. Need selection type (multiple correct). Provide reasoning steps: compute pressure in cylinder using hydrostatic equilibrium, compare to statements.\n\nP15 true_false false. Use source F20 (constant volume pressure-temperature). Statement: \"If pressure increases from 4 atm to 4.5 atm, temperature decreases.\" That's false because temperature increases. Reasoning steps similar to P11.\n\nMake sure each plan uses appropriate recordIds (maybe multiple). Keep within limit.\n\nNow produce JSON compact.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.374765138,
+    "prompt_tokens": 10001,
+    "prompt_time": 0.500667419,
+    "completion_tokens": 1144,
+    "completion_time": 2.375345435,
+    "total_tokens": 11145,
+    "total_time": 2.876012854,
+    "completion_tokens_details": {
+      "reasoning_tokens": 436
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_4140daa9c2",
+  "x_groq": {
+    "id": "req_01m407qnyhe7frx1q0e61bdh5b",
+    "seed": 201338185
+  },
+  "service_tier": "on_demand"
+}

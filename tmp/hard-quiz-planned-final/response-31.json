@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-1f8d0793-47de-4b03-8c18-a1c3c8e909c8",
+  "object": "chat.completion",
+  "created": 1791009894,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"questions\":[{\"id\":\"P21\",\"explanation\":\"Đầu tiên chuyển đổi nhiệt độ sang Kelvin: $T_1 = 27 + 273 = 300\\\\,\\\\mathrm{K}$, $T_2 = 54 + 273 = 327\\\\,\\\\mathrm{K}$. Vì thể tích không đổi, áp dụng định luật khí lý tưởng $\\\\frac{P_1}{T_1}=\\\\frac{P_2}{T_2}$. Thay $P_1 = 5\\\\,\\\\mathrm{atm}$, $T_1 = 300\\\\,\\\\mathrm{K}$, $T_2 = 327\\\\,\\\\mathrm{K}$ ta có $P_2 = 5\\\\,\\\\mathrm{atm}\\\\times\\\\frac{327}{300}=5.45\\\\,\\\\mathrm{atm}$. Nếu dùng nhiệt độ độ C trực tiếp sẽ cho $P_2 = 5\\\\,\\\\mathrm{atm}\\\\times\\\\frac{54}{27}=10\\\\,\\\\mathrm{atm}$, sai vì không tính điểm zero của thang Kelvin.\"}]}",
+        "reasoning": "We need to output JSON with questions array containing id and explanation. Explanation must be learner-facing text in vi-VN, with math wrapped in $...$ and KaTeX. Must escape backslashes. Provide explanation of correct answer, mention common mistake. No wrong answer explanations. Ensure JSON compact.\n\nWe need to include the explanation preserving calculations, units, cross-checks. Use proper LaTeX escaping.\n\nLet's craft explanation:\n\n\"Đầu tiên chuyển đổi nhiệt độ sang Kelvin: $T_1 = 27 + 273 = 300\\\\,\\\\mathrm{K}$, $T_2 = 54 + 273 = 327\\\\,\\\\mathrm{K}$. Vì thể tích không đổi, áp dụng định luật khí lý tưởng $\\\\frac{P_1}{T_1}=\\\\frac{P_2}{T_2}$. Thay $P_1 = 5\\\\,\\\\mathrm{atm}$, $T_1 = 300\\\\,\\\\mathrm{K}$, $T_2 = 327\\\\,\\\\mathrm{K}$ ta có $P_2 = 5\\\\,\\\\mathrm{atm}\\\\times\\\\frac{327}{300}=5.45\\\\,\\\\mathrm{atm}$. Nếu dùng nhiệt độ độ C trực tiếp sẽ cho $P_2 = 5\\\\,\\\\mathrm{atm}\\\\times\\\\frac{54}{27}=10\\\\,\\\\mathrm{atm}$, sai vì không tính điểm zero của thang Kelvin.\"\n\nMake sure backslashes escaped: each backslash becomes double in JSON string. So \"$\\\\frac{P_1}{T_1}=\\\\frac{P_2}{T_2}$\" etc.\n\nReturn JSON: {\"questions\":[{\"id\":\"P21\",\"explanation\":\"...\"}]}\n\nMake compact (no spaces). Ensure proper escaping of quotes.\n\nLet's construct final."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.418676385,
+    "prompt_tokens": 1016,
+    "prompt_time": 0.021373158,
+    "completion_tokens": 632,
+    "completion_time": 1.5586550319999999,
+    "total_tokens": 1648,
+    "total_time": 1.5800281900000002,
+    "prompt_tokens_details": {
+      "cached_tokens": 512
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 387
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_9241e9962b",
+  "x_groq": {
+    "id": "req_01m4084agbevs98rk7p9qh08ha",
+    "seed": 1706710644
+  },
+  "service_tier": "on_demand"
+}

@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-f719143a-81fa-46ba-9f82-8ff25e8ac0b6",
+  "object": "chat.completion",
+  "created": 1791002189,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"answerCorrect\":true,\"explanationConsistent\":true,\"wrongExplanationsConsistent\":true,\"reason\":\"The item matches the source language and register, and the computed answer and explanation are correct.\"}]}",
+        "reasoning": "We need to audit the single generated item (short_answer). Check language consistency: question is Vietnamese, answer \"3.6 kg\" includes English unit kg but that's fine. Explanation also Vietnamese. Source material includes Vietnamese. So sourceLanguage Vietnamese, itemLanguage Vietnamese. isConsistent true.\n\nNow need to verify answer correctness: Compute required mass of ice.\n\nGiven: patient mass m=70 kg, specific heat c=3480 J/(kg·K). Temperature drop ΔT = 37-32 =5 K. Heat removed Q = m*c*ΔT = 70*3480*5 = 70*17400 = 1,218,000 J (since 3480*5=17400). Ice melt latent heat L = 334×10^3 J/kg = 334,000 J/kg. Mass = Q/L = 1,218,000 / 334,000 ≈ 3.6485 kg. Rounded to one decimal = 3.6 kg. So answer correct.\n\nExplanation: \"Quá trình chỉ có trao đổi nhiệt, không có tăng nhiệt độ đá, do đó khối lượng đá bằng Q/L ≈ 3.6 kg.\" That's consistent with answer. No wrong answer explanations present (short answer type). So wrongExplanationsConsistent true (vacuously). explanationConsistent true.\n\nThus all booleans true.\n\nReturn JSON with evaluation.\n\nCheck format: {\"evaluations\":[{...}]}. Provide fields: index, sourceLanguage, itemLanguage, isConsistent, answerCorrect, explanationConsistent, wrongExplanationsConsistent, reason.\n\nAll good."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.255939405,
+    "prompt_tokens": 8401,
+    "prompt_time": 0.369398037,
+    "completion_tokens": 415,
+    "completion_time": 0.873499395,
+    "total_tokens": 8816,
+    "total_time": 1.242897432,
+    "completion_tokens_details": {
+      "reasoning_tokens": 336
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_4a7bb72c24",
+  "x_groq": {
+    "id": "req_01m400s5rvej5sc2y6pkvfqx6f",
+    "seed": 721423448
+  },
+  "service_tier": "on_demand"
+}

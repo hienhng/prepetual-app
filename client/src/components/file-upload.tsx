@@ -1,6 +1,9 @@
-import { useCallback, useState, useEffect, useRef } from "react";
+import { useLanguage } from "@/lib/language-context";
+import { localizeProgressMessage } from "@/lib/localized-progress";
+import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, Image, X, Loader2, File } from "lucide-react";
+import { Upload, Plus, X, Loader2, ArrowRight } from "lucide-react";
+import { FileTypeIcon } from "@/components/file-type-icon";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,43 +32,32 @@ function isSizeRelatedError(errorMessage: string): boolean {
   return sizeLimitPatterns.some(pattern => pattern.test(errorMessage));
 }
 
+function formatFileSize(bytes: number | undefined, unavailable: string): string {
+  if (bytes === undefined) return unavailable;
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export function FileUpload({ onTextExtracted, requireAuth = false, onRequireAuth }: FileUploadProps) {
-  const { activeJobs, startUpload, isAllCompleted, isAnyProcessing, getCombinedText, getCombinedDocumentImages, hasImageOnlyUploads } = useUpload();
+  const { t } = useLanguage();
+  const { activeJobs, startUpload, acceptJobs, discardPendingUploads, getCombinedText, getCombinedDocumentImages, hasImageOnlyUploads } = useUpload();
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const uploadInitiatedRef = useRef(false);
-
-  const isLoading = isUploading || isAnyProcessing();
-
-  const completedJobs = activeJobs.filter(job => job.status === "completed");
-  const processingJobs = activeJobs.filter(job => job.status === "pending" || job.status === "processing");
-  const errorJobs = activeJobs.filter(job => job.status === "error");
+  const pendingUploads = activeJobs.filter(job => job.accepted === false);
+  const completedJobs = pendingUploads.filter(job => job.status === "completed");
+  const processingJobs = pendingUploads.filter(job => job.status === "pending" || job.status === "processing");
+  const firstError = pendingUploads.find(job => job.status === "error");
+  const isLoading = isUploading || processingJobs.length > 0;
+  const canProceed = completedJobs.some(job => job.text?.trim() || job.documentImages?.length || (job.isImageOnly && job.imageDataUrl));
 
   const loadingMessage = processingJobs.length > 0
-    ? processingJobs[0].message || "Processing files..."
-    : isUploading ? "Preparing files..." : "";
+    ? localizeProgressMessage(processingJobs[0].message || '', t, 'fileUpload.processing')
+    : isUploading ? t('fileUpload.preparing') : "";
 
   useEffect(() => {
-    if (uploadInitiatedRef.current && isAllCompleted() && completedJobs.length > 0) {
-      uploadInitiatedRef.current = false;
-      const combinedText = getCombinedText();
-      const combinedImages = getCombinedDocumentImages();
-      const isImageOnly = hasImageOnlyUploads();
-
-      if (combinedImages.length > 0) {
-        onTextExtracted(combinedText, true, combinedImages, isImageOnly);
-      } else if (combinedText) {
-        onTextExtracted(combinedText, false, []);
-      }
-    }
-
-    if (activeJobs.length === 0) {
-      setError(null);
-    }
-
-    const firstError = errorJobs[0];
     if (firstError) {
       const errorMessage = firstError.error || "An error occurred while processing files";
       setError(errorMessage);
@@ -78,20 +70,26 @@ export function FileUpload({ onTextExtracted, requireAuth = false, onRequireAuth
           variant: "destructive",
         });
       }
-    } else if (activeJobs.length > 0) {
+    } else {
       setError(null);
     }
-  }, [activeJobs, isAllCompleted, completedJobs.length, getCombinedText, getCombinedDocumentImages, hasImageOnlyUploads, onTextExtracted, errorJobs, toast]);
+  }, [firstError?.error, firstError?.jobId, toast]);
+
+  const handleProceed = () => {
+    if (isLoading || !canProceed) return;
+    const combinedText = getCombinedText();
+    const combinedImages = getCombinedDocumentImages();
+    acceptJobs(completedJobs.map(job => job.jobId));
+    onTextExtracted(combinedText, combinedImages.length > 0, combinedImages, hasImageOnlyUploads());
+  };
 
   const processFiles = useCallback(async (files: File[]) => {
     setError(null);
     setIsUploading(true);
-    uploadInitiatedRef.current = true;
 
     try {
       await startUpload(files);
     } catch (err) {
-      uploadInitiatedRef.current = false;
       const errorMessage = err instanceof Error ? err.message : "An error occurred while uploading files";
       setError(errorMessage);
       
@@ -191,9 +189,61 @@ export function FileUpload({ onTextExtracted, requireAuth = false, onRequireAuth
             </h3>
             <p className="text-muted-foreground font-medium mb-6">
               {activeJobs.length > 0
-                ? `Processing ${processingJobs.length} of ${activeJobs.length} files`
-                : "Extracting available text and preserving visuals"}
+                ? `Processing ${processingJobs.length} of ${pendingUploads.length} files`
+                : t("fileUpload.extracting")}
             </p>
+          </motion.div>
+        ) : completedJobs.length > 0 ? (
+          <motion.div
+            key="preview"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            className="space-y-4"
+            data-testid="upload-preview"
+          >
+            <div className="space-y-1">
+              <h3 className="text-xl font-black tracking-tight">{t("fileUpload.preview")}</h3>
+              <p className="text-sm text-muted-foreground">{t("fileUpload.previewDescription")}</p>
+            </div>
+            <div className="grid max-h-[45svh] grid-cols-1 gap-3 overflow-y-auto" data-testid="upload-preview-grid">
+              {completedJobs.map(job => {
+                return (
+                  <Card key={job.jobId} className="flex min-w-0 items-center gap-3 rounded-xl p-4" data-testid="upload-file-preview">
+                    <FileTypeIcon fileName={job.fileName} mimeType={job.fileType} />
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <p className="break-words text-sm font-bold" title={job.fileName}>{job.fileName}</p>
+                      <p className="text-xs text-muted-foreground">{formatFileSize(job.fileSize, t('fileUpload.sizeUnavailable'))}</p>
+                    </div>
+                  </Card>
+                );
+              })}
+              <Card
+                {...rootProps}
+                onClick={(event) => {
+                  if (requireAuth && !isAuthenticated) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onRequireAuth?.();
+                    return;
+                  }
+                  rootProps.onClick?.(event);
+                }}
+                className={`flex min-h-16 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed p-4 text-muted-foreground shadow-none outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${isDragActive ? "border-primary bg-primary/5 text-foreground" : "border-border/70 bg-transparent hover:border-foreground/30 hover:bg-muted/20 hover:text-foreground"}`}
+                role="button"
+                aria-label={t("fileUpload.addMore")}
+                data-testid="button-add-more-files"
+              >
+                <input {...getInputProps()} data-testid="input-file" />
+                <Plus className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <p className="text-sm font-medium">{isDragActive ? t("fileUpload.dropHere") : t("fileUpload.addMore")}</p>
+              </Card>
+            </div>
+            {firstError && <p className="text-sm text-muted-foreground">{t("fileUpload.onlyProcessed")}</p>}
+            <div className="flex items-center justify-between gap-3">
+              <Button type="button" variant="outline" onClick={() => { discardPendingUploads(); setError(null); }} data-testid="button-cancel-upload-preview">{t("common.cancel")}</Button>
+              <Button type="button" onClick={handleProceed} disabled={!canProceed} className="gap-2" data-testid="button-proceed-upload">{t("common.proceed")} <ArrowRight className="h-4 w-4" /></Button>
+            </div>
           </motion.div>
         ) : (
           <motion.div
@@ -244,10 +294,10 @@ export function FileUpload({ onTextExtracted, requireAuth = false, onRequireAuth
 
                 <div className="space-y-2 max-w-sm">
                   <h3 className="text-2xl font-black text-foreground tracking-tight">
-                    {isDragActive ? "Release to Upload" : "Upload your materials"}
+                    {isDragActive ? t("fileUpload.release") : t("fileUpload.uploadMaterials")}
                   </h3>
                   <p className="text-muted-foreground font-medium text-lg">
-                    Drag and drop your files or <span className="text-primary font-bold">click to browse</span>
+                    {t("fileUpload.dragDrop")} <span className="text-primary font-bold">{t("fileUpload.browse")}</span>
                   </p>
                 </div>
 
@@ -281,7 +331,7 @@ export function FileUpload({ onTextExtracted, requireAuth = false, onRequireAuth
               <div className="flex items-start gap-3">
                 <X className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-destructive">Upload failed</p>
+                  <p className="text-sm font-medium text-destructive">{t("fileUpload.failed")}</p>
                   <p className="text-sm text-muted-foreground mt-1">{error}</p>
                 </div>
                 <Button
@@ -291,7 +341,7 @@ export function FileUpload({ onTextExtracted, requireAuth = false, onRequireAuth
                   className="shrink-0"
                   data-testid="button-dismiss-error"
                 >
-                  Dismiss
+                  {t("common.dismiss")}
                 </Button>
               </div>
             </Card>

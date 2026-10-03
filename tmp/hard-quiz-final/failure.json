@@ -1,0 +1,10 @@
+{
+  "failed": true,
+  "error": "Generated 0 of 20 validated questions. Try a smaller quiz or provide more source material.",
+  "code": "INSUFFICIENT_VALID_QUESTIONS",
+  "stage": "top_up",
+  "requested": 20,
+  "generated": 0,
+  "totalMs": 156462,
+  "providerRequests": 19
+}

@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-efe48736-0b6b-4b3b-9267-60498aafef62",
+  "object": "chat.completion",
+  "created": 1791009704,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"evaluations\": [\n    {\n      \"index\": 0,\n      \"sourceLanguage\": \"Vietnamese\",\n      \"itemLanguage\": \"Vietnamese\",\n      \"isConsistent\": true,\n      \"answerCorrect\": true,\n      \"explanationConsistent\": true,\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": false,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"Chuyển đổi nhiệt độ sang Kelvin (27°C → 300 K, 54°C → 327 K) rồi áp dụng tỉ lệ P/T = hằng số vì thể tích không đổi, tính P₂ = 5 atm × 327/300 = 5.45 atm.\",\n      \"reason\": \"Câu hỏi, đáp án và lời giải đều bằng tiếng Việt, khớp với ngôn ngữ nguồn và không có sai sót.\"\n    },\n    {\n      \"index\": 1,\n      \"sourceLanguage\": \"Vietnamese\",\n      \"itemLanguage\": \"Vietnamese\",\n      \"isConsistent\": true,\n      \"answerCorrect\": true,\n      \"explanationConsistent\": true,\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"Tính nhiệt lượng cảm ứng Q₁ = m c ΔT, tính nhiệt lượng nóng chảy Q₂ = m L, cộng lại Q = Q₁+Q₂. Tính năng lượng cung cấp E = P t, rồi hiệu suất η = Q/E×100 %. Các bước phụ thuộc lẫn nhau và yêu cầu thực hiện ba phép tính riêng biệt.\",\n      \"reason\": \"Câu hỏi, đáp án và lời giải đều bằng tiếng Việt, khớp với ngôn ngữ nguồn và không có sai sót.\"\n    }\n  ]\n}",
+        "reasoning": "We need to evaluate each item (2 items). Provide JSON with evaluations array containing objects for each index. Need fields: index, sourceLanguage, itemLanguage, isConsistent, answerCorrect, explanationConsistent, selfContained, sourceSupported, hardReasoning, credibleDistractors, reasoningJustification, reason.\n\nWe must audit language consistency: both items are Vietnamese, source language also Vietnamese. So isConsistent true.\n\nNow need to independently solve each question, verify answer and explanation.\n\nItem 0: Ideal gas law, constant volume. Initial P1=5 atm, T1=27°C = 300 K (actually 27+273=300). T2=54°C = 327 K. P2 = P1 * T2/T1 = 5 * 327/300 = 5 * 1.09 = 5.45 atm. So correct answer is 5.45 atm. Provided correctAnswer matches. Explanation correct. So answerCorrect true, explanationConsistent true.\n\nSelf-contained? All needed values given: initial pressure, temperatures, volume constant. Yes. sourceSupported? The source chunk includes the same question with options, but does it provide the needed formula? The source is just the question, not the law. However sourceSupported requires that cited chunks support the subject, givens, and answer. The chunk includes the question and options, but not the law. However the law is general knowledge, not needed from source. The requirement: \"sourceSupported: The cited chunks actually support the subject, givens, and answer; an existing ID is insufficient. Do not treat a source's distractors as factual statements or its answer key as proof. Established subject laws and mathematics may be applied to derive an answer from the stated source givens; do not invent empirical values or change the source's conditions.\" The source chunk includes the givens (pressure, temperature) and the answer options, but does it support the answer? It includes the answer key? The chunk includes options but not the correct answer. It doesn't state the correct answer. However the source provides the question, which includes the needed givens. That is sufficient to support the answer derivation. So sourceSupported true.\n\nhardReasoning: Need to convert temperatures, apply proportionality. That's a single step? Actually two steps: convert to Kelvin, compute ratio. For hard difficulty, they require multiple dependent reasoning steps. This is relatively simple, maybe not hard. But the instruction: For HARD difficulty require application with multiple dependent reasoning steps, etc. This item is simple, maybe not hard. So hardReasoning should be false. But the request says \"REQUESTED DIFFICULTY: hard\". However we must assess actual difficulty. The item likely does not meet hardReasoning criteria. So hardReasoning false.\n\ncredibleDistractors: Options include plausible values: 10.45, 10, 4.55, 5.45. The wrong ones are plausible miscalculations (maybe forgetting Kelvin, etc). So credibleDistractors true.\n\nNow item 1: Aluminum heating, compute efficiency.\n\nGiven: mass 20 g = 0.020 kg. Specific heat c = 880 J/(kg·K). ΔT = 660-25 = 635 K. Q1 = 0.020*880*635 = 0.020* (880*635). 880*635 = 880*600 + 880*35 = 528,000 + 30,800 = 558,800. Times 0.020 = 11,176 J. Good.\n\nLatent heat L = 4.0×10^5 J/kg. Q2 = 0.020*4.0e5 = 8,000 J. Total Q = 19,176 J.\n\nPower 1.7 kW = 1700 W, time 20 s => energy supplied = 34,000 J.\n\nEfficiency = Q/E = 19,176/34,000 = 0.5634 = 56.34% ≈ 56.4%. So correct answer matches.\n\nExplanation correct.\n\nSelf-contained: All needed constants given (c, L, power, time). Yes.\n\nSourceSupported: Source chunk includes the problem statement in Vietnamese with same numbers. So supports.\n\nhardReasoning: Steps: compute Q1, Q2, sum, compute energy supplied, ratio. That's multiple steps (3 calculations). Might be considered moderate, but maybe qualifies as hard? Hard requires multiple dependent reasoning steps, which we have. Could be considered hard enough. I'd say hardReasoning true.\n\ncredibleDistractors: Options: 53.5, 56.4, 63.5, 76.4. Plausible miscalculations. So true.\n\nNow language consistency: both Vietnamese, fine.\n\nNow need to include sourceEvidence field? The output format requires only evaluations array with fields as described. Not required to include evidence. But we could include evidence? The spec says when source grounding is enabled, also return evidence. Not sure if required. The prompt says \"When source grounding is enabled, also return evidence:[...]\" but not explicitly that we must. Probably we should include evidence for each item. The generated items already have sourceEvidence. We can include evidence field in evaluation? Not specified in output schema. The required format: {\"evaluations\":[{...}]} with fields listed. No evidence field. So we omit.\n\nNow fill fields:\n\nsourceLanguage: The source material language is Vietnamese. So \"Vietnamese\". itemLanguage also Vietnamese.\n\nisConsistent true.\n\nanswerCorrect true.\n\nexplanationConsistent true.\n\nselfContained true.\n\nsourceSupported true.\n\nhardReasoning: false for item0, true for item1.\n\ncredibleDistractors true for both.\n\nreasoningJustification: Provide brief description.\n\nreason: Provide reason for consistency.\n\nNow produce JSON compact (no spaces? but can have spaces). Must be valid JSON.\n\nLet's craft.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.337488693,
+    "prompt_tokens": 12585,
+    "prompt_time": 0.639538152,
+    "completion_tokens": 1640,
+    "completion_time": 3.43006308,
+    "total_tokens": 14225,
+    "total_time": 4.069601232,
+    "completion_tokens_details": {
+      "reasoning_tokens": 1222
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_f73454f048",
+  "x_groq": {
+    "id": "req_01m407yek1evttc437tfa65qej",
+    "seed": 1754185667
+  },
+  "service_tier": "on_demand"
+}

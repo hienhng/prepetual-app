@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-b3630b0b-af49-4000-98b6-882f19517012",
+  "object": "chat.completion",
+  "created": 1791009952,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Kế hoạch câu hỏi nâng cao\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P28\",\"type\":\"selection\",\"recordIds\":[\"F5\"],\"intent\":\"Dựa trên định luật thứ nhất của nhiệt động lực học (ΔU = Q + W) và các tình huống mô tả trong nguồn F5, xác định các phát biểu nào mô tả đúng sự thay đổi nội năng không do truyền nhiệt.\",\"reasoningSteps\":[\"Xác định các tình huống trong F5 mà không có truyền nhiệt (Q=0)\",\"Áp dụng ΔU = W để kiểm tra xem trong các tình huống đó có công (W) thực hiện, từ đó quyết định phát biểu nào đúng\"]},{\"id\":\"P29\",\"type\":\"true_false\",\"recordIds\":[\"F6\"],\"intent\":\"Tính áp suất cuối cùng của khí trong lốp khi nhiệt độ tăng từ 27 °C lên 54 °C, thể tích không đổi, và đánh giá tính đúng sai của phát biểu: \\\"Áp suất sẽ tăng lên 10 atm\\\" (targetTruthValue: False).\",\"reasoningSteps\":[\"Chuyển đổi nhiệt độ từ độ C sang Kelvin (T1=300 K, T2=327 K)\",\"Sử dụng quan hệ P1/T1 = P2/T2 để tính P2 và so sánh với giá trị 10 atm\"]},{\"id\":\"P30\",\"type\":\"short_answer\",\"recordIds\":[\"F3\"],\"intent\":\"Tính tổng nhiệt lượng cần thiết để tan 4 kg băng ở 0 °C và sau đó làm nước nóng lên 25 °C, dựa trên các giá trị L_f và c được cung cấp trong nguồn F3.\",\"reasoningSteps\":[\"Tính nhiệt tan băng Q_f = m·L_f\",\"Tính nhiệt làm nóng nước Q_h = m·c·ΔT và cộng Q_f + Q_h để có nhiệt lượng tổng cần thiết\"]}]}",
+        "reasoning": "We need to output JSON with title, category, plans array for slots P28 (selection), P29 (true_false false), P30 (short_answer). Use only reviewed source records. Must plan, not generate questions. Provide intent and reasoningSteps. Use up to 3 records per plan. Need hard difficulty: each plan must have at least two dependent reasoning steps, involve inverse problems, error diagnosis, comparisons, etc.\n\nWe must not generate actual question content, only plan metadata. Provide source recordIds used.\n\nWe need to select appropriate source records for each type.\n\nSelection (multiple correct options) - need a task where learner selects all correct statements. Use source maybe F5 (internal energy change without heat transfer) or F16 (hydraulic chair). Could create selection: identify which statements about internal energy change are correct. Use source F5. Provide reasoning steps: identify condition where Q=0, apply first law, determine which scenario matches.\n\nTrue_false false: need a statement that is false based on derived conclusion. Use source F6 (ideal gas law pressure change). Compute final pressure using P1/T1 = P2/T2. Provide reasoning steps: convert Celsius to Kelvin, compute ratio, get pressure ~? Let's compute: initial T1 = 27°C = 300 K (273+27=300). final T2 = 54°C = 327 K. P1=5 atm. P2 = P1 * T2/T1 =5*327/300 =5*1.09 =5.45 atm. So true pressure is 5.45 atm. The false statement could claim pressure is 10 atm. So targetTruthValue false. Provide reasoning steps: convert, apply law.\n\nShort_answer: need derived result, not recall. Use source F3 (heat required to melt ice and warm water). Compute total heat Q = m*L_f + m*c*ΔT. m=4 kg, L_f=34*10^5 J/kg? Actually \"34.10^5\" meaning 3.4*10^5? Probably 3.4e5 J/kg. Use given. ΔT =25 K. c=4180 J/kgK. Compute: Q1 =4*3.4e5=1.36e6 J. Q2=4*4180*25=4*104500=418000 J. Total=1.778e6 J = 1778 kJ. Provide answer maybe 1.78 MJ. Provide reasoning steps: calculate melt heat, calculate heating water, sum.\n\nMake sure not to reveal answer in plan; just intent includes conditions and ask to compute. Provide reasoning steps.\n\nNow construct JSON compact.\n\nTitle: \"Kế hoạch câu hỏi nâng cao\". Category: \"categories.science\". Plans list.\n\nEach plan includes id, type, recordIds, intent, reasoningSteps.\n\nMake sure recordIds list correct.\n\nPlan P28 selection: use F5. Could also include F16 but limit 3 records. Use just F5.\n\nIntent: \"Dựa trên định luật thứ nhất của nhiệt động lực học (ΔU = Q + W) và các tình huống mô tả trong nguồn F5, xác định các phát biểu nào mô tả đúng sự thay đổi nội năng không do truyền nhiệt.\" Reasoning steps: 1) Identify scenario where Q=0 (no heat transfer). 2) Apply ΔU = W to determine which scenario involves work causing internal energy change.\n\nPlan P29 true_false false: use F6. Intent: \"Tính áp suất cuối cùng của khí trong lốp khi nhiệt độ tăng từ 27 °C lên 54 °C, thể tích không đổi, và xác định tính đúng sai của phát biểu: 'Áp suất sẽ tăng lên 10 atm'.\" Reasoning steps: 1) Convert Celsius to Kelvin. 2) Apply P1/T1 = P2/T2 to compute P2 and compare.\n\nPlan P30 short_answer: use F3. Intent: \"Tính tổng nhiệt lượng cần thiết để tan 4 kg băng ở 0 °C và sau đó làm nước nóng lên 25 °C, dựa trên các giá trị L_f và c cho trong nguồn F3.\" Reasoning steps: 1) Tính nhiệt tan băng Q_f = m·L_f. 2) Tính nhiệt làm nóng nước Q_h = m·c·ΔT và cộng lại để có Q_total.\n\nReturn JSON compact.\n\nCheck JSON validity. Ensure no trailing commas.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.368291405,
+    "prompt_tokens": 9740,
+    "prompt_time": 0.454965582,
+    "completion_tokens": 1362,
+    "completion_time": 2.827012172,
+    "total_tokens": 11102,
+    "total_time": 3.281977754,
+    "completion_tokens_details": {
+      "reasoning_tokens": 940
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_64b2f1c926",
+  "x_groq": {
+    "id": "req_01m40861a8evwtbw3y00490cnn",
+    "seed": 1292702223
+  },
+  "service_tier": "on_demand"
+}

@@ -1,0 +1,354 @@
+[LIVE CONFIG] {"quizModel":"openai/gpt-oss-120b","visionModel":"qwen/qwen3.6-27b","keyConfigured":true}
+[LIVE EXTRACTION] {"extractionMs":699,"chars":19994,"pages":6,"ocrPages":[1,2,3,4,5,6],"reasons":[{"page":1,"reasons":["visual_stimulus"]},{"page":2,"reasons":["visual_stimulus","fragmented_equations"]},{"page":3,"reasons":["visual_stimulus","fragmented_equations"]},{"page":4,"reasons":["visual_stimulus","fragmented_equations"]},{"page":5,"reasons":["visual_stimulus","fragmented_equations"]},{"page":6,"reasons":["fragmented_equations"]}]}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":722,"status":200,"durationMs":1318,"usage":{"queue_time":0.419084164,"prompt_tokens":4563,"prompt_time":0.209914606,"completion_tokens":133,"completion_time":0.273866868,"total_tokens":4696,"total_time":0.483781474,"completion_tokens_details":{"reasoning_tokens":116}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'starting',
+  durationMs: 0
+}
+[LIVE PROGRESS] {"elapsedSeconds":2,"step":"reading","percent":10,"message":"Reading your study material..."}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'reading',
+  durationMs: 42
+}
+[LIVE PROGRESS] {"elapsedSeconds":2,"step":"analyzing","percent":25,"message":"Analyzing content structure..."}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'analyzing',
+  durationMs: 1
+}
+[LIVE PROGRESS] {"elapsedSeconds":2,"step":"preparing","percent":35,"message":"Preparing quiz generation..."}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'preparing',
+  durationMs: 2
+}
+[LIVE PROGRESS] {"elapsedSeconds":2,"step":"analyzing","percent":25,"message":"Checking source facts, equations and visual data..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":2113,"status":200,"durationMs":2886,"usage":{"queue_time":0.34562054,"prompt_tokens":964,"prompt_time":0.046749983,"completion_tokens":850,"completion_time":2.3580616340000002,"total_tokens":1814,"total_time":2.404811617,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":657}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":2116,"status":200,"durationMs":4120,"usage":{"queue_time":0.366755337,"prompt_tokens":1684,"prompt_time":0.085651805,"completion_tokens":1623,"completion_time":3.397578828,"total_tokens":3307,"total_time":3.483230633,"completion_tokens_details":{"reasoning_tokens":930}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":2114,"status":200,"durationMs":5234,"usage":{"queue_time":0.367719438,"prompt_tokens":1102,"prompt_time":0.136373335,"completion_tokens":2032,"completion_time":4.470151402,"total_tokens":3134,"total_time":4.606524737,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":1489}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":2115,"status":200,"durationMs":5433,"usage":{"queue_time":0.370520228,"prompt_tokens":1165,"prompt_time":0.055948426,"completion_tokens":2231,"completion_time":4.7157828330000005,"total_tokens":3396,"total_time":4.771731259,"completion_tokens_details":{"reasoning_tokens":1549}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":5006,"status":200,"durationMs":6571,"usage":{"queue_time":0.34442613,"prompt_tokens":1430,"prompt_time":0.075559673,"completion_tokens":2848,"completion_time":6.019874406,"total_tokens":4278,"total_time":6.095434079,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":1827}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":7356,"status":200,"durationMs":4745,"usage":{"queue_time":0.420383444,"prompt_tokens":1239,"prompt_time":0.285140826,"completion_tokens":1895,"completion_time":3.904649413,"total_tokens":3134,"total_time":4.189790239,"completion_tokens_details":{"reasoning_tokens":1131}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":7556,"status":200,"durationMs":4855,"usage":{"queue_time":0.356556909,"prompt_tokens":1572,"prompt_time":0.169486092,"completion_tokens":1955,"completion_time":4.182082604,"total_tokens":3527,"total_time":4.351568696,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":724}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":6245,"status":200,"durationMs":7084,"usage":{"queue_time":0.419215384,"prompt_tokens":1450,"prompt_time":0.089734147,"completion_tokens":2863,"completion_time":6.429158233,"total_tokens":4313,"total_time":6.5188923800000005,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":1299}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":12110,"status":200,"durationMs":3265,"usage":{"queue_time":0.423452646,"prompt_tokens":1005,"prompt_time":0.049757776,"completion_tokens":1271,"completion_time":2.66384421,"total_tokens":2276,"total_time":2.713601986,"completion_tokens_details":{"reasoning_tokens":854}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":11585,"status":200,"durationMs":8654,"usage":{"queue_time":0.343593601,"prompt_tokens":1956,"prompt_time":0.253120949,"completion_tokens":3598,"completion_time":7.925111109,"total_tokens":5554,"total_time":8.178232058,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":2086}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":20254,"status":200,"durationMs":2678,"usage":{"queue_time":0.344781331,"prompt_tokens":2824,"prompt_time":0.117651482,"completion_tokens":943,"completion_time":1.9507870729999999,"total_tokens":3767,"total_time":2.068438555,"completion_tokens_details":{"reasoning_tokens":673}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":20256,"status":200,"durationMs":3035,"usage":{"queue_time":0.418881164,"prompt_tokens":2961,"prompt_time":0.288992764,"completion_tokens":1002,"completion_time":2.073759662,"total_tokens":3963,"total_time":2.362752426,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":690}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":20255,"status":200,"durationMs":3437,"usage":{"queue_time":0.379652534,"prompt_tokens":2670,"prompt_time":0.139078467,"completion_tokens":1287,"completion_time":2.69244298,"total_tokens":3957,"total_time":2.831521447,"completion_tokens_details":{"reasoning_tokens":1001}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":20253,"status":200,"durationMs":3905,"usage":{"queue_time":0.419364164,"prompt_tokens":1846,"prompt_time":0.088592517,"completion_tokens":1575,"completion_time":3.261796193,"total_tokens":3421,"total_time":3.35038871,"completion_tokens_details":{"reasoning_tokens":1252}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":22939,"status":200,"durationMs":2296,"usage":{"queue_time":0.417778083,"prompt_tokens":693,"prompt_time":0.033936709,"completion_tokens":837,"completion_time":1.718381079,"total_tokens":1530,"total_time":1.752317788,"completion_tokens_details":{"reasoning_tokens":644}},"finishReason":"stop"}
+[QUIZ PLAN] Source records { proposed: 21, accepted: 19, excluded: 2 }
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'analyzing',
+  durationMs: 23139
+}
+[LIVE PROGRESS] {"elapsedSeconds":25,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE PROGRESS] {"elapsedSeconds":25,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE PROGRESS] {"elapsedSeconds":25,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE PROGRESS] {"elapsedSeconds":25,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE PROGRESS] {"elapsedSeconds":25,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":25257,"status":200,"durationMs":4099,"usage":{"queue_time":0.421596918,"prompt_tokens":9760,"prompt_time":0.768399293,"completion_tokens":1247,"completion_time":2.71812391,"total_tokens":11007,"total_time":3.486523203,"prompt_tokens_details":{"cached_tokens":768},"completion_tokens_details":{"reasoning_tokens":762}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'preparing',
+  durationMs: 4115
+}
+[LIVE PROGRESS] {"elapsedSeconds":29,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":25256,"status":200,"durationMs":4278,"usage":{"queue_time":0.357775274,"prompt_tokens":9766,"prompt_time":0.458563783,"completion_tokens":1579,"completion_time":3.276122611,"total_tokens":11345,"total_time":3.734686394,"completion_tokens_details":{"reasoning_tokens":808}},"finishReason":"stop"}
+[LIVE PROGRESS] {"elapsedSeconds":30,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":25253,"status":200,"durationMs":4535,"usage":{"queue_time":0.423631593,"prompt_tokens":9760,"prompt_time":0.426969385,"completion_tokens":1651,"completion_time":3.551721974,"total_tokens":11411,"total_time":3.978691359,"completion_tokens_details":{"reasoning_tokens":992}},"finishReason":"stop"}
+[LIVE PROGRESS] {"elapsedSeconds":30,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":25255,"status":200,"durationMs":4686,"usage":{"queue_time":0.345599134,"prompt_tokens":9759,"prompt_time":0.375411015,"completion_tokens":1804,"completion_time":3.780394723,"total_tokens":11563,"total_time":4.155805738,"prompt_tokens_details":{"cached_tokens":768},"completion_tokens_details":{"reasoning_tokens":823}},"finishReason":"stop"}
+[LIVE PROGRESS] {"elapsedSeconds":30,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":29363,"status":200,"durationMs":3070,"usage":{"queue_time":0.34566959,"prompt_tokens":9724,"prompt_time":0.454143467,"completion_tokens":1023,"completion_time":2.139576427,"total_tokens":10747,"total_time":2.593719894,"completion_tokens_details":{"reasoning_tokens":624}},"finishReason":"stop"}
+[LIVE PROGRESS] {"elapsedSeconds":32,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":29540,"status":200,"durationMs":9748,"usage":{"queue_time":0.418450216,"prompt_tokens":3473,"prompt_time":0.151826194,"completion_tokens":4405,"completion_time":9.049611781,"total_tokens":7878,"total_time":9.201437975,"completion_tokens_details":{"reasoning_tokens":1713}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":29953,"status":200,"durationMs":10854,"usage":{"queue_time":0.369639391,"prompt_tokens":3710,"prompt_time":0.16944749,"completion_tokens":4898,"completion_time":10.176765881,"total_tokens":8608,"total_time":10.346213371,"completion_tokens_details":{"reasoning_tokens":2944}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":29798,"status":200,"durationMs":14947,"usage":{"queue_time":0.419322783,"prompt_tokens":4167,"prompt_time":0.167596608,"completion_tokens":6159,"completion_time":14.22490282,"total_tokens":10326,"total_time":14.392499428,"prompt_tokens_details":{"cached_tokens":1024},"completion_tokens_details":{"reasoning_tokens":2761}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":32440,"status":200,"durationMs":13106,"usage":{"queue_time":0.370315706,"prompt_tokens":4137,"prompt_time":0.195344085,"completion_tokens":5976,"completion_time":12.397214098,"total_tokens":10113,"total_time":12.592558183,"completion_tokens_details":{"reasoning_tokens":2380}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":39294,"status":200,"durationMs":7137,"usage":{"queue_time":0.354399869,"prompt_tokens":2446,"prompt_time":0.153354072,"completion_tokens":3094,"completion_time":6.503117914,"total_tokens":5540,"total_time":6.656471986,"completion_tokens_details":{"reasoning_tokens":1204}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":44754,"status":200,"durationMs":5191,"usage":{"queue_time":0.367028771,"prompt_tokens":1714,"prompt_time":0.087371482,"completion_tokens":2227,"completion_time":4.615346711,"total_tokens":3941,"total_time":4.702718193,"completion_tokens_details":{"reasoning_tokens":1317}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":45554,"status":400,"durationMs":4929}
+[QUIZ PLAN] Batch failed {
+  stage: 'question_writing',
+  message: "400 Failed to generate JSON. Please adjust your prompt. See 'failed_generation' for more details."
+}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":40812,"status":200,"durationMs":11145,"usage":{"queue_time":0.365879577,"prompt_tokens":2227,"prompt_time":0.096993305,"completion_tokens":4992,"completion_time":10.535488724,"total_tokens":7219,"total_time":10.632482029,"completion_tokens_details":{"reasoning_tokens":3920}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":49950,"status":200,"durationMs":2123,"usage":{"queue_time":0.418676385,"prompt_tokens":1016,"prompt_time":0.021373158,"completion_tokens":632,"completion_time":1.5586550319999999,"total_tokens":1648,"total_time":1.5800281900000002,"prompt_tokens_details":{"cached_tokens":512},"completion_tokens_details":{"reasoning_tokens":387}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":46437,"status":200,"durationMs":6504,"usage":{"queue_time":0.370000955,"prompt_tokens":2070,"prompt_time":0.103779497,"completion_tokens":2797,"completion_time":5.899974255,"total_tokens":4867,"total_time":6.003753752,"completion_tokens_details":{"reasoning_tokens":1724}},"finishReason":"stop"}
+[QUIZ PLAN] Drafts { requested: 22, returned: 14, batches: 5 }
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'generating',
+  durationMs: 23591
+}
+[LIVE PROGRESS] {"elapsedSeconds":53,"step":"validating","percent":80,"message":"Validating generated questions..."}
+Initial generation returned 14/22 requested complete questions.
+Initial generation count mismatch: returned 14, requested 22.
+[TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":52961,"status":200,"durationMs":1071,"usage":{"queue_time":0.418413744,"prompt_tokens":644,"prompt_time":0.026436579,"completion_tokens":244,"completion_time":0.50474581,"total_tokens":888,"total_time":0.531182389,"completion_tokens_details":{"reasoning_tokens":192}},"finishReason":"stop"}
+[TITLE LANGUAGE] BATCH 1/1 Rejecting language-inconsistent question "Advanced Thermodynamics Problem Set...": The item is in English but the required output language is Vietnamese.
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":54040,"status":200,"durationMs":921,"usage":{"queue_time":0.41849267,"prompt_tokens":257,"prompt_time":0.009710103,"completion_tokens":177,"completion_time":0.368392234,"total_tokens":434,"total_time":0.378102337,"completion_tokens_details":{"reasoning_tokens":150}},"finishReason":"stop"}
+[TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":54976,"status":200,"durationMs":801,"usage":{"queue_time":0.369428434,"prompt_tokens":650,"prompt_time":0.09553585,"completion_tokens":107,"completion_time":0.223683359,"total_tokens":757,"total_time":0.319219209,"completion_tokens_details":{"reasoning_tokens":54}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'validating',
+  durationMs: 2834
+}
+[LIVE PROGRESS] {"elapsedSeconds":56,"step":"verifying","percent":85,"message":"Solving and independently auditing answers..."}
+[SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 6).
+[SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-6 of 6).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":55799,"status":200,"durationMs":8488,"usage":{"queue_time":0.370016499,"prompt_tokens":13487,"prompt_time":0.641158374,"completion_tokens":3370,"completion_time":7.319394049,"total_tokens":16857,"total_time":7.960552423,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":1693}},"finishReason":"stop"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/2 Rejecting audited answer with malformed math formatting (contains a formula outside math delimiters) for "Một chiếc lốp ô tô chứa không khí ở áp suất $5\,\text{atm}$ ..."
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/2 Rejecting audited answer with malformed math formatting (contains a Unicode math symbol outside delimiters) for "Một bình kín có thể tích $12\,\text{L}$, chứa nitrogen ở áp ..."
+[LIVE PROGRESS] {"elapsedSeconds":64,"step":"verifying","percent":85,"message":"Checked 3 of 6 candidate questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":55799,"status":200,"durationMs":9216,"usage":{"queue_time":0.369749546,"prompt_tokens":13415,"prompt_time":0.719913298,"completion_tokens":3820,"completion_time":7.993267581,"total_tokens":17235,"total_time":8.713180879,"completion_tokens_details":{"reasoning_tokens":2362}},"finishReason":"stop"}
+[SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/2 Rejecting audited answer with malformed math formatting (contains a unit expression outside math delimiters) for "Một bình kín có thể tích $12\,\mathrm{L}$ chứa nitơ ở áp suấ..."
+[LIVE PROGRESS] {"elapsedSeconds":65,"step":"verifying","percent":85,"message":"Checked 6 of 6 candidate questions..."}
+[SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":65034,"status":200,"durationMs":4771,"usage":{"queue_time":0.430827312,"prompt_tokens":12539,"prompt_time":0.924092346,"completion_tokens":1571,"completion_time":3.2710804270000002,"total_tokens":14110,"total_time":4.195172773,"completion_tokens_details":{"reasoning_tokens":1018}},"finishReason":"stop"}
+[SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Một chiếc lốp ô tô chứa không khí ở áp suất $5\,\mathrm{atm}...": The item matches the source language and register.
+[SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Một đường thẳng đi qua các điểm $(0,\,32)$ và $(100,\,212)$....": The item matches the source language and register.
+[SOLVE/BUILD] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Một chiếc lốp xe kín chứa không khí ở áp suất $5\,\mathrm{at...": The item matches the source language and register.
+[SOLVE/BUILD] Validation summary: received 14 raw candidates; 3 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'verifying',
+  durationMs: 14034
+}
+[LIVE PROGRESS] {"elapsedSeconds":70,"step":"refining","percent":88,"message":"Repairing questions using their validation issues..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":69825,"status":200,"durationMs":7002,"usage":{"queue_time":0.357470564,"prompt_tokens":3960,"prompt_time":0.231810217,"completion_tokens":2985,"completion_time":6.27603997,"total_tokens":6945,"total_time":6.507850187,"completion_tokens_details":{"reasoning_tokens":1506}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":69828,"status":200,"durationMs":9577,"usage":{"queue_time":0.419584364,"prompt_tokens":3601,"prompt_time":0.152314688,"completion_tokens":4197,"completion_time":8.705878213,"total_tokens":7798,"total_time":8.858192901,"completion_tokens_details":{"reasoning_tokens":2061}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":69827,"status":400,"durationMs":26169}
+[QUIZ PLAN] Batch failed {
+  stage: 'focused_repairs',
+  message: "400 Failed to generate JSON. Please adjust your prompt. See 'failed_generation' for more details."
+}
+[SOLVE/BUILD] REPAIRED INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 5).
+[SOLVE/BUILD] REPAIRED INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-5 of 5).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":96019,"status":200,"durationMs":9128,"usage":{"queue_time":0.37510985,"prompt_tokens":13413,"prompt_time":0.867915031,"completion_tokens":3699,"completion_time":7.666521731,"total_tokens":17112,"total_time":8.534436762,"completion_tokens_details":{"reasoning_tokens":1879}},"finishReason":"stop"}
+[SOLVE/BUILD] REPAIRED INDEPENDENT AUDIT BATCH 2/2 Rejecting audited answer with malformed math formatting (contains a Unicode math symbol outside delimiters) for "Cho hệ thống ghế nâng bằng khí có các dữ liệu sau: khối lượn..."
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'refining',
+  durationMs: 35347
+}
+[LIVE PROGRESS] {"elapsedSeconds":105,"step":"verifying","percent":85,"message":"Checked 2 of 5 candidate questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":96016,"status":200,"durationMs":10015,"usage":{"queue_time":0.369618913,"prompt_tokens":13610,"prompt_time":0.729877589,"completion_tokens":4080,"completion_time":8.594004316,"total_tokens":17690,"total_time":9.323881905,"completion_tokens_details":{"reasoning_tokens":2639}},"finishReason":"stop"}
+[SOLVE/BUILD] REPAIRED INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "Một bình kín có thể tích $12\,\mathrm{L}$ chứa nitơ ở áp suấ..."
+[SOLVE/BUILD] REPAIRED INDEPENDENT AUDIT BATCH 1/2 Rejecting audited answer with malformed math formatting (contains a formula outside math delimiters) for "Một chiếc lốp ô tô chứa không khí ở áp suất $5\,\mathrm{atm}..."
+[SOLVE/BUILD] REPAIRED INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "Một bình kín có thể tích $12\,\mathrm{L}$, chứa nitrogen ở á..."
+[LIVE PROGRESS] {"elapsedSeconds":106,"step":"verifying","percent":85,"message":"Checked 5 of 5 candidate questions..."}
+[SOLVE/BUILD] REPAIRED Validation summary: received 7 raw candidates; 5 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+[QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/20.
+Only built 0/20 valid questions. Top-up attempt 1/3: requesting 8 candidates for 20 missing.
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'verifying',
+  durationMs: 881
+}
+[LIVE PROGRESS] {"elapsedSeconds":106,"step":"refining","percent":88,"message":"Generating 20 remaining questions..."}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'refining',
+  durationMs: 1
+}
+[LIVE PROGRESS] {"elapsedSeconds":106,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE PROGRESS] {"elapsedSeconds":106,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":106052,"status":200,"durationMs":3552,"usage":{"queue_time":0.335365998,"prompt_tokens":9760,"prompt_time":0.44567125,"completion_tokens":1259,"completion_time":2.627490293,"total_tokens":11019,"total_time":3.073161543,"completion_tokens_details":{"reasoning_tokens":683}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'preparing',
+  durationMs: 3561
+}
+[LIVE PROGRESS] {"elapsedSeconds":110,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":106055,"status":200,"durationMs":3803,"usage":{"queue_time":0.368291405,"prompt_tokens":9740,"prompt_time":0.454965582,"completion_tokens":1362,"completion_time":2.827012172,"total_tokens":11102,"total_time":3.281977754,"completion_tokens_details":{"reasoning_tokens":940}},"finishReason":"stop"}
+[LIVE PROGRESS] {"elapsedSeconds":110,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":109861,"status":200,"durationMs":8426,"usage":{"queue_time":0.366825322,"prompt_tokens":2551,"prompt_time":0.10694278,"completion_tokens":3764,"completion_time":7.815340407,"total_tokens":6315,"total_time":7.922283187,"completion_tokens_details":{"reasoning_tokens":2207}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":109610,"status":200,"durationMs":11666,"usage":{"queue_time":0.367178125,"prompt_tokens":3474,"prompt_time":0.158688456,"completion_tokens":5275,"completion_time":10.996953737,"total_tokens":8749,"total_time":11.155642193,"completion_tokens_details":{"reasoning_tokens":2308}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":118293,"status":200,"durationMs":3172,"usage":{"queue_time":0.364537972,"prompt_tokens":985,"prompt_time":0.097730341,"completion_tokens":1229,"completion_time":2.584837566,"total_tokens":2214,"total_time":2.682567907,"completion_tokens_details":{"reasoning_tokens":948}},"finishReason":"stop"}
+[QUIZ PLAN] Drafts { requested: 8, returned: 1, batches: 2 }
+[PLANNED TOP-UP 1] INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":121472,"status":200,"durationMs":6330,"usage":{"queue_time":0.345096172,"prompt_tokens":12629,"prompt_time":0.620936332,"completion_tokens":2517,"completion_time":5.228117462,"total_tokens":15146,"total_time":5.849053794,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":1893}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'generating',
+  durationMs: 18207
+}
+[LIVE PROGRESS] {"elapsedSeconds":128,"step":"verifying","percent":85,"message":"Checked 1 of 1 candidate questions..."}
+[PLANNED TOP-UP 1] Validation summary: received 1 raw candidates; 1 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'verifying',
+  durationMs: 2
+}
+[LIVE PROGRESS] {"elapsedSeconds":128,"step":"refining","percent":88,"message":"Repairing questions using their validation issues..."}
+[LIVE PROVIDER FAILED] {"model":"openai/gpt-oss-120b","startedMs":127821,"error":"fetch failed"}
+[QUIZ PLAN] Batch failed { stage: 'focused_repairs', message: 'Connection error.' }
+[QUIZ GENERATION] Replacement pass 1 accepted final question positions: none; total is 0/20.
+Only built 0/20 valid questions. Top-up attempt 2/3: requesting 8 candidates for 20 missing.
+[LIVE PROGRESS] {"elapsedSeconds":128,"step":"refining","percent":89,"message":"Generating 20 remaining questions..."}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'refining',
+  durationMs: 322
+}
+[LIVE PROGRESS] {"elapsedSeconds":128,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE PROGRESS] {"elapsedSeconds":128,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":128146,"status":200,"durationMs":4181,"usage":{"queue_time":0.256815956,"prompt_tokens":9740,"prompt_time":0.464702893,"completion_tokens":1412,"completion_time":2.931570152,"total_tokens":11152,"total_time":3.396273045,"completion_tokens_details":{"reasoning_tokens":890}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'preparing',
+  durationMs: 4196
+}
+[LIVE PROGRESS] {"elapsedSeconds":132,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":128145,"status":200,"durationMs":4466,"usage":{"queue_time":0.344976568,"prompt_tokens":9760,"prompt_time":0.423871549,"completion_tokens":1501,"completion_time":3.139749621,"total_tokens":11261,"total_time":3.5636211700000002,"prompt_tokens_details":{"cached_tokens":768},"completion_tokens_details":{"reasoning_tokens":665}},"finishReason":"stop"}
+[LIVE PROGRESS] {"elapsedSeconds":133,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":132338,"status":200,"durationMs":8354,"usage":{"queue_time":0.419334458,"prompt_tokens":2825,"prompt_time":0.130932983,"completion_tokens":3498,"completion_time":7.616469536,"total_tokens":6323,"total_time":7.7474025189999995,"prompt_tokens_details":{"cached_tokens":768},"completion_tokens_details":{"reasoning_tokens":1829}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":132615,"status":200,"durationMs":11872,"usage":{"queue_time":0.261593151,"prompt_tokens":4097,"prompt_time":0.314132479,"completion_tokens":5162,"completion_time":10.634905707,"total_tokens":9259,"total_time":10.949038186,"completion_tokens_details":{"reasoning_tokens":1922}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":140698,"status":200,"durationMs":5285,"usage":{"queue_time":0.419573215,"prompt_tokens":1538,"prompt_time":0.045938398,"completion_tokens":1770,"completion_time":4.406432626,"total_tokens":3308,"total_time":4.452371024,"prompt_tokens_details":{"cached_tokens":512},"completion_tokens_details":{"reasoning_tokens":1200}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":144493,"status":200,"durationMs":10292,"usage":{"queue_time":0.344753578,"prompt_tokens":2558,"prompt_time":0.112894834,"completion_tokens":4617,"completion_time":9.653172176,"total_tokens":7175,"total_time":9.76606701,"completion_tokens_details":{"reasoning_tokens":3422}},"finishReason":"stop"}
+[QUIZ PLAN] Drafts { requested: 8, returned: 4, batches: 2 }
+[PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+[PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":154800,"status":200,"durationMs":5230,"usage":{"queue_time":0.419963592,"prompt_tokens":12635,"prompt_time":0.584400601,"completion_tokens":1744,"completion_time":3.598541625,"total_tokens":14379,"total_time":4.182942226,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":1218}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'generating',
+  durationMs: 27705
+}
+[LIVE PROGRESS] {"elapsedSeconds":160,"step":"verifying","percent":85,"message":"Checked 1 of 4 candidate questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":154799,"status":200,"durationMs":11348,"usage":{"queue_time":0.256212276,"prompt_tokens":13758,"prompt_time":0.636346759,"completion_tokens":4865,"completion_time":10.113149013,"total_tokens":18623,"total_time":10.749495772,"completion_tokens_details":{"reasoning_tokens":2927}},"finishReason":"stop"}
+[PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "Một khối lượng $4\ \mathrm{kg}$ băng ở $0\ ^\circ\mathrm{C}$..."
+[LIVE PROGRESS] {"elapsedSeconds":166,"step":"verifying","percent":85,"message":"Checked 4 of 4 candidate questions..."}
+[PLANNED TOP-UP 2] FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":166163,"status":200,"durationMs":5005,"usage":{"queue_time":0.368340861,"prompt_tokens":13179,"prompt_time":0.568641853,"completion_tokens":1873,"completion_time":3.864197596,"total_tokens":15052,"total_time":4.432839449,"completion_tokens_details":{"reasoning_tokens":1165}},"finishReason":"stop"}
+[PLANNED TOP-UP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Một học sinh nặng $24\,\mathrm{kg}$ ngồi trên ghế. Tổng khối...": Câu hỏi và các trường đều bằng tiếng Việt, không có sự chuyển ngôn ngữ; nội dung hợp lý và phù hợp với nguồn.
+[PLANNED TOP-UP 2] Validation summary: received 4 raw candidates; 1 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+[PLANNED TOP-UP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Một chiếc lốp ô tô chứa không khí ở áp suất $5\ \mathrm{atm}...": Câu hỏi, các lựa chọn và lời giải đều bằng tiếng Việt; ngôn ngữ nhất quán với nguồn.
+[PLANNED TOP-UP 2] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Trong một chu trình làm lạnh, hệ số hiệu suất $COP = 3$ và c...": Ngôn ngữ của câu hỏi, đáp án và giải thích hoàn toàn bằng tiếng Việt, phù hợp với nguồn trích dẫn.
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'verifying',
+  durationMs: 11131
+}
+[LIVE PROGRESS] {"elapsedSeconds":171,"step":"refining","percent":88,"message":"Repairing questions using their validation issues..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":171174,"status":200,"durationMs":7694,"usage":{"queue_time":0.36750623,"prompt_tokens":3993,"prompt_time":0.160373682,"completion_tokens":3131,"completion_time":6.532376981,"total_tokens":7124,"total_time":6.692750663,"completion_tokens_details":{"reasoning_tokens":1082}},"finishReason":"stop"}
+[PLANNED TOP-UP 2] REPAIRED INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+[PLANNED TOP-UP 2] REPAIRED INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":178889,"status":200,"durationMs":5790,"usage":{"queue_time":0.419533832,"prompt_tokens":12636,"prompt_time":0.757442099,"completion_tokens":1847,"completion_time":3.794137558,"total_tokens":14483,"total_time":4.551579657,"completion_tokens_details":{"reasoning_tokens":1217}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'refining',
+  durationMs: 13517
+}
+[LIVE PROGRESS] {"elapsedSeconds":185,"step":"verifying","percent":85,"message":"Checked 1 of 4 candidate questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":178888,"status":200,"durationMs":10318,"usage":{"queue_time":0.41967797,"prompt_tokens":13769,"prompt_time":0.80471435,"completion_tokens":4239,"completion_time":8.750010875,"total_tokens":18008,"total_time":9.554725225,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":2738}},"finishReason":"stop"}
+[PLANNED TOP-UP 2] REPAIRED INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "Một khối lượng $4\,\mathrm{kg}$ băng ở $0\,^{\circ}\mathrm{C..."
+[PLANNED TOP-UP 2] REPAIRED INDEPENDENT AUDIT BATCH 1/2 Question "Một chiếc lốp ô tô chứa không khí ở áp suất $5\,\mathrm{atm}..." — changing answer from "["Áp suất cuối cùng xấp xỉ $5.45\\,\\mathrm{atm}$","Áp suất cuối cùng lớn hơn áp suất ban đầu"]" to "["Áp suất cuối cùng lớn hơn áp suất ban đầu","Áp suất cuối cùng xấp xỉ $5.45\\,\\mathrm{atm}$"]"
+[LIVE PROGRESS] {"elapsedSeconds":189,"step":"verifying","percent":85,"message":"Checked 4 of 4 candidate questions..."}
+[PLANNED TOP-UP 2] REPAIRED FINAL LANGUAGE Auditing batch 1/1 (questions 1-2 of 2).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":189221,"status":200,"durationMs":5327,"usage":{"queue_time":0.419742702,"prompt_tokens":12492,"prompt_time":0.582617082,"completion_tokens":1990,"completion_time":4.104653486,"total_tokens":14482,"total_time":4.687270568,"completion_tokens_details":{"reasoning_tokens":1494}},"finishReason":"stop"}
+[PLANNED TOP-UP 2] REPAIRED FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Một học sinh nặng $24\,\mathrm{kg}$ ngồi trên ghế. Tổng khối...": Câu hỏi, đáp án và lời giải đều bằng tiếng Việt, dữ liệu đầy đủ, nguồn cung cấp các số cần thiết và khẳng định kết quả, các đáp án sai là những suy đoán hợp lý.
+[PLANNED TOP-UP 2] REPAIRED FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Một chiếc lốp ô tô chứa không khí ở áp suất $5\,\mathrm{atm}...": Câu hỏi, các lựa chọn và lời giải đều bằng tiếng Việt, dữ liệu cần thiết có trong đề bài và nguồn, các lựa chọn sai phản ánh những hiểu lầm phổ biến.
+[PLANNED TOP-UP 2] REPAIRED Validation summary: received 4 raw candidates; 2 failed the independent answer audit; 2 failed the final language audit; 0 accepted.
+[QUIZ GENERATION] Replacement pass 2 accepted final question positions: none; total is 0/20.
+Only built 0/20 valid questions. Top-up attempt 3/3: requesting 8 candidates for 20 missing.
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'verifying',
+  durationMs: 9871
+}
+[LIVE PROGRESS] {"elapsedSeconds":195,"step":"refining","percent":90,"message":"Generating 20 remaining questions..."}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'refining',
+  durationMs: 1
+}
+[LIVE PROGRESS] {"elapsedSeconds":195,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE PROGRESS] {"elapsedSeconds":195,"step":"preparing","percent":35,"message":"Planning question types and reasoning steps..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":194568,"status":200,"durationMs":3573,"usage":{"queue_time":0.421640602,"prompt_tokens":9760,"prompt_time":0.358681055,"completion_tokens":1254,"completion_time":2.576271586,"total_tokens":11014,"total_time":2.9349526409999998,"prompt_tokens_details":{"cached_tokens":768},"completion_tokens_details":{"reasoning_tokens":468}},"finishReason":"stop"}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'preparing',
+  durationMs: 3603
+}
+[LIVE PROGRESS] {"elapsedSeconds":198,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":194570,"status":200,"durationMs":3855,"usage":{"queue_time":0.419835004,"prompt_tokens":9740,"prompt_time":0.490324261,"completion_tokens":1275,"completion_time":2.632763416,"total_tokens":11015,"total_time":3.123087677,"completion_tokens_details":{"reasoning_tokens":733}},"finishReason":"stop"}
+[LIVE PROGRESS] {"elapsedSeconds":198,"step":"generating","percent":50,"message":"Solving planned problems before writing choices..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":198432,"status":200,"durationMs":7520,"usage":{"queue_time":0.418380094,"prompt_tokens":2961,"prompt_time":0.076824558,"completion_tokens":3132,"completion_time":6.882825406,"total_tokens":6093,"total_time":6.9596499640000005,"prompt_tokens_details":{"cached_tokens":1024},"completion_tokens_details":{"reasoning_tokens":1328}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":198166,"status":200,"durationMs":11102,"usage":{"queue_time":0.367782055,"prompt_tokens":4377,"prompt_time":0.200281576,"completion_tokens":4958,"completion_time":10.347580733,"total_tokens":9335,"total_time":10.547862309,"completion_tokens_details":{"reasoning_tokens":1992}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":205962,"status":200,"durationMs":3809,"usage":{"queue_time":0.255850737,"prompt_tokens":1431,"prompt_time":0.068643787,"completion_tokens":1520,"completion_time":3.152544967,"total_tokens":2951,"total_time":3.221188754,"completion_tokens_details":{"reasoning_tokens":998}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":209275,"status":200,"durationMs":7117,"usage":{"queue_time":0.36648631,"prompt_tokens":1694,"prompt_time":0.093446943,"completion_tokens":2987,"completion_time":6.254127112,"total_tokens":4681,"total_time":6.347574055,"completion_tokens_details":{"reasoning_tokens":2086}},"finishReason":"stop"}
+[QUIZ PLAN] Drafts { requested: 8, returned: 6, batches: 2 }
+[PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+[PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":216401,"status":200,"durationMs":7910,"usage":{"queue_time":0.3465306,"prompt_tokens":12782,"prompt_time":0.682420324,"completion_tokens":3125,"completion_time":6.541990847,"total_tokens":15907,"total_time":7.224411171,"completion_tokens_details":{"reasoning_tokens":2118}},"finishReason":"stop"}
+[PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 2/2 Rejecting ambiguous/unverifiable question "Khi nhiệt độ của khí trong lốp xe tăng từ $27^\circ\mathrm{C..."; satisfying option indexes: 1
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'generating',
+  durationMs: 26154
+}
+[LIVE PROGRESS] {"elapsedSeconds":224,"step":"verifying","percent":85,"message":"Checked 1 of 4 candidate questions..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":216401,"status":200,"durationMs":11650,"usage":{"queue_time":0.346664605,"prompt_tokens":13741,"prompt_time":0.683688838,"completion_tokens":4674,"completion_time":10.42522954,"total_tokens":18415,"total_time":11.108918378,"prompt_tokens_details":{"cached_tokens":256},"completion_tokens_details":{"reasoning_tokens":2711}},"finishReason":"stop"}
+[PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting audited answer with malformed math formatting (contains a unit expression outside math delimiters) for "Một lượng khí có $V/T=0.250\,\mathrm{cm^{3}/K}$ và thể tích ..."
+[LIVE PROGRESS] {"elapsedSeconds":228,"step":"verifying","percent":85,"message":"Checked 4 of 4 candidate questions..."}
+[PLANNED TOP-UP 3] FINAL LANGUAGE Auditing batch 1/1 (questions 1-1 of 1).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":228080,"status":200,"durationMs":2603,"usage":{"queue_time":0.419773109,"prompt_tokens":11662,"prompt_time":0.533969095,"completion_tokens":691,"completion_time":1.433378106,"total_tokens":12353,"total_time":1.967347201,"prompt_tokens_details":{"cached_tokens":1024},"completion_tokens_details":{"reasoning_tokens":494}},"finishReason":"stop"}
+[PLANNED TOP-UP 3] Validation summary: received 6 raw candidates; 3 failed the independent answer audit; 1 failed the final language audit; 0 accepted.
+[PLANNED TOP-UP 3] FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Một chiếc lốp ô tô chứa không khí ở áp suất $5\,\mathrm{atm}...": The item matches the source language and register.
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'verifying',
+  durationMs: 6370
+}
+[LIVE PROGRESS] {"elapsedSeconds":231,"step":"refining","percent":88,"message":"Repairing questions using their validation issues..."}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":230693,"status":200,"durationMs":4282,"usage":{"queue_time":0.418850694,"prompt_tokens":1422,"prompt_time":0.058428069,"completion_tokens":1573,"completion_time":3.25706573,"total_tokens":2995,"total_time":3.315493799,"completion_tokens_details":{"reasoning_tokens":1153}},"finishReason":"stop"}
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":230692,"status":200,"durationMs":8929,"usage":{"queue_time":0.368463612,"prompt_tokens":4560,"prompt_time":0.19290723,"completion_tokens":3579,"completion_time":8.152756702,"total_tokens":8139,"total_time":8.345663932,"prompt_tokens_details":{"cached_tokens":512},"completion_tokens_details":{"reasoning_tokens":2015}},"finishReason":"stop"}
+[PLANNED TOP-UP 3] REPAIRED INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-3 of 3).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":239629,"status":200,"durationMs":11927,"usage":{"queue_time":0.25915307,"prompt_tokens":13974,"prompt_time":0.630201276,"completion_tokens":5049,"completion_time":10.771357534,"total_tokens":19023,"total_time":11.40155881,"prompt_tokens_details":{"cached_tokens":1792},"completion_tokens_details":{"reasoning_tokens":3156}},"finishReason":"stop"}
+[PLANNED TOP-UP 3] REPAIRED INDEPENDENT AUDIT BATCH 1/1 Question "Khi nhiệt độ của khí trong lốp xe tăng từ $27\,^{\circ}\math..." — changing answer from "["Nội năng của khí không thay đổi vì thể tích không đổi và không có truyền nhiệt.","Công cơ học thực hiện trên khí bằng $0$ vì $\\Delta V=0$, do đó $\\Delta U = 0$."]" to "["Công cơ học thực hiện trên khí bằng $0$ vì $\\Delta V=0$, do đó $\\Delta U = 0$.","Nội năng của khí không thay đổi vì thể tích không đổi và không có truyền nhiệt."]"
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'refining',
+  durationMs: 20874
+}
+[LIVE PROGRESS] {"elapsedSeconds":252,"step":"verifying","percent":85,"message":"Checked 3 of 3 candidate questions..."}
+[PLANNED TOP-UP 3] REPAIRED FINAL LANGUAGE Auditing batch 1/1 (questions 1-3 of 3).
+[LIVE PROVIDER] {"model":"openai/gpt-oss-120b","startedMs":251565,"status":200,"durationMs":6441,"usage":{"queue_time":0.344826704,"prompt_tokens":13455,"prompt_time":0.575039803,"completion_tokens":2559,"completion_time":5.294265877,"total_tokens":16014,"total_time":5.86930568,"completion_tokens_details":{"reasoning_tokens":2155}},"finishReason":"stop"}
+[PLANNED TOP-UP 3] REPAIRED FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Tính tổng nhiệt lượng cần thiết để tan $4\,\mathrm{kg}$ băng...": The item matches the source language and register.
+[PLANNED TOP-UP 3] REPAIRED FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Một lượng khí có $\frac{V}{T}=0.250\,\mathrm{cm^{3}/K}$ và t...": The item matches the source language and register.
+[PLANNED TOP-UP 3] REPAIRED FINAL LANGUAGE BATCH 1/1 Rejecting language-inconsistent question "Khi nhiệt độ của khí trong lốp xe tăng từ $27\,^{\circ}\math...": The item matches the source language and register.
+[PLANNED TOP-UP 3] REPAIRED Validation summary: received 5 raw candidates; 0 failed the independent answer audit; 3 failed the final language audit; 0 accepted.
+[QUIZ GENERATION] Replacement pass 3 accepted final question positions: none; total is 0/20.
+Error generating quiz: QuizGenerationError: Generated 0 of 20 validated questions. Try a smaller quiz or provide more source material.
+    at generateQuizQuestions (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\server\openai.ts:2348:13)
+    at async <anonymous> (C:\Users\Gia Hien\Downloads\PrepetualApp\Prepetual\tmp\hard-quiz-live-test.ts:61:16) {
+  code: 'INSUFFICIENT_VALID_QUESTIONS',
+  stage: 'top_up',
+  requested: 20,
+  generated: 0
+}
+[QUIZ COUNTS] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  initialRequests: 15,
+  topUpRequests: 17,
+  sourceRequests: 15,
+  repairRequests: 7,
+  completionCandidates: 0,
+  auditedCandidates: 27,
+  rejectedCandidates: 41
+}
+[QUIZ TIMING] {
+  requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879',
+  stage: 'verifying',
+  durationMs: 6470
+}
+[QUIZ TIMING] { requestId: 'dd0e1d06-ffe7-44f7-a105-b5752b7fc879', totalMs: 255972 }
+[LIVE FAILURE] {"failed":true,"error":"Generated 0 of 20 validated questions. Try a smaller quiz or provide more source material.","code":"INSUFFICIENT_VALID_QUESTIONS","stage":"top_up","requested":20,"generated":0,"totalMs":258035,"providerRequests":75}

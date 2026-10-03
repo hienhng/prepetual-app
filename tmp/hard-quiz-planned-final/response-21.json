@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-59a9b387-3dd2-4308-97ca-58669c0b7a51",
+  "object": "chat.completion",
+  "created": 1791009875,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"title\":\"Hard Thermodynamics Planning\",\"category\":\"categories.science\",\"plans\":[{\"id\":\"P21\",\"type\":\"multiple_choice\",\"recordIds\":[\"F6\"],\"intent\":\"Given a sealed tire containing air at 5 atm and 27 °C, the temperature rises to 54 °C while the volume stays constant. Determine the final pressure and identify the common error of using Celsius temperatures directly.\",\"reasoningSteps\":[\"Convert the initial and final temperatures from °C to K (T1=300 K, T2=327 K).\",\"Apply the constant‑volume ideal‑gas relation P1/T1 = P2/T2 to compute P2 ≈ 5 atm·327 K/300 K = 5.45 atm.\"]},{\"id\":\"P22\",\"type\":\"selection\",\"recordIds\":[\"F12\"],\"intent\":\"Mix 1 g of ice at 0 °C with 1 g of water at 40 °C in an insulated calorimeter. Determine the masses of water and ice at thermal equilibrium (neglect calorimeter heat capacity) and then select all statements that correctly describe the final state.\",\"reasoningSteps\":[\"Calculate heat released by the water cooling from 40 °C to 0 °C: Q_water = m·c·ΔT = 0.001 kg·4200 J·kg⁻¹·K⁻¹·40 K = 168 J.\",\"Compare this heat with the latent heat needed to melt ice: Q_melt = m·L = 0.001 kg·3.36×10⁵ J·kg⁻¹ = 336 J; only 168 J is available, so 0.5 g of ice melts, yielding 1.5 g liquid water and 0.5 g solid ice at equilibrium.\"]}]}",
+        "reasoning": "We need to produce JSON with title, category, plans array for slots P21 (multiple_choice) and P22 (selection). Must use only reviewed source records. Must plan slots, not generate questions themselves. Provide plan details: id, type, recordIds, intent, reasoningSteps. Must ensure hard difficulty: at least two dependent reasoning steps. Use up to three records and four source chunks per slot. Must not generate actual question content, just plan.\n\nWe need to select source records to base tasks. For multiple_choice, need a hard transformed problem. Choose maybe F6 (ideal gas law pressure change) but need inverse problem or error diagnosis. Could ask to compute final pressure given temperature increase, but that's straightforward. To make hard, could ask to diagnose error if student used Celsius directly. Reasoning steps: convert Celsius to Kelvin, then apply P/T ratio. Use record F6. That's two steps.\n\nFor selection (multiple correct options), could use F12 (ice-water mixture equilibrium) requiring selection of all correct statements about final state. Need multi-step reasoning: compute heat exchange, determine final masses, then select correct statements. Use record F12. Provide reasoning steps: calculate heat lost by water, heat needed to melt ice, compare, determine final masses, then evaluate statements.\n\nWe must list recordIds used. For P21: recordIds [\"F6\"]. Intent: \"Given initial pressure 5 atm at 27°C and final temperature 54°C with constant volume, determine the final pressure. Identify the common mistake of using Celsius directly and select the correct answer among options.\" But it's multiple_choice, need one correct answer. Provide intent describing task.\n\nReasoning steps: 1) Convert temperatures to Kelvin (T1=300K, T2=327K). 2) Apply P1/T1 = P2/T2 to find P2 ≈ 5 * 327/300 = 5.45 atm.\n\nFor P22 selection: recordIds [\"F12\"]. Intent: \"Determine the equilibrium composition (mass of water and ice) after mixing 1 g ice at 0°C with 1 g water at 40°C, neglect calorimeter heat capacity, then select all statements that correctly describe the final state.\" Provide reasoning steps: 1) Compute heat lost by water cooling to 0°C: Q = m*c*ΔT = 0.001 kg * 4200 * 40 = 168 J. 2) Compute heat required to melt ice: Q = m*L = 0.001 kg * 3.36e5 = 336 J. Compare: insufficient heat, only part of ice melts. Determine melted mass = Q_water / L = 168/336000 = 0.0005 kg = 0.5 g. So final: 1.5 g water, 0.5 g ice. Then selection of statements that match that.\n\nWe need to ensure selection options are not provided, just plan.\n\nNow produce JSON compact. Ensure valid JSON, no trailing commas.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.34566959,
+    "prompt_tokens": 9724,
+    "prompt_time": 0.454143467,
+    "completion_tokens": 1023,
+    "completion_time": 2.139576427,
+    "total_tokens": 10747,
+    "total_time": 2.593719894,
+    "completion_tokens_details": {
+      "reasoning_tokens": 624
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_96d96a151c",
+  "x_groq": {
+    "id": "req_01m4083pd2ex0a3mgn3w003smy",
+    "seed": 721663439
+  },
+  "service_tier": "on_demand"
+}

@@ -1,0 +1,1177 @@
+TAP version 13
+# [QUIZ PLAN] Source records { proposed: 1, accepted: 1, excluded: 0 }
+# [QUIZ PLAN] Batch failed { stage: 'question_plans', message: 'One provider batch failed' }
+# [QUIZ PLAN] Drafts { requested: 20, returned: 15, batches: 4 }
+# [QUIZ PLAN] Source records { proposed: 1, accepted: 0, excluded: 1 }
+# [QUIZ PLAN] Source records { proposed: 1, accepted: 1, excluded: 0 }
+# [QUIZ PLAN] Drafts { requested: 8, returned: 8, batches: 2 }
+# [QUIZ PLAN] Source records { proposed: 2, accepted: 2, excluded: 0 }
+# [QUIZ PLAN] Drafts { requested: 8, returned: 0, batches: 2 }
+# Subtest: source records copy original blocks and reject fabricated references, givens, and unresolved data
+ok 1 - source records copy original blocks and reject fabricated references, givens, and unresolved data
+  ---
+  duration_ms: 4.1044
+  type: 'test'
+  ...
+# Subtest: type slots allocate five of each type for twenty questions and compensate for accepted imbalance
+ok 2 - type slots allocate five of each type for twenty questions and compensate for accepted imbalance
+  ---
+  duration_ms: 0.7157
+  type: 'test'
+  ...
+# Subtest: one failed generation batch preserves other drafts, while rejected source records cannot become givens
+ok 3 - one failed generation batch preserves other drafts, while rejected source records cannot become givens
+  ---
+  duration_ms: 15.5779
+  type: 'test'
+  ...
+# Subtest: shallow plans are revised once and independently reviewed before solving; topic and truth assignments vary
+ok 4 - shallow plans are revised once and independently reviewed before solving; topic and truth assignments vary
+  ---
+  duration_ms: 4.448
+  type: 'test'
+  ...
+# Subtest: parallel plan batches receive rotating source assignments and cannot cite a different primary record
+ok 5 - parallel plan batches receive rotating source assignments and cannot cite a different primary record
+  ---
+  duration_ms: 1.8201
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   stage: 'reading',
+#   durationMs: 18
+# }
+# [QUIZ TIMING] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Source records { proposed: 1, accepted: 1, excluded: 0 }
+# [QUIZ TIMING] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   stage: 'analyzing',
+#   durationMs: 27
+# }
+# [QUIZ TIMING] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   stage: 'preparing',
+#   durationMs: 9
+# }
+# [QUIZ PLAN] Drafts { requested: 22, returned: 22, batches: 5 }
+# [QUIZ TIMING] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   stage: 'generating',
+#   durationMs: 7
+# }
+# Initial generation returned 22/22 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   stage: 'validating',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/8 (questions 1-3 of 22).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 2/8 (questions 4-6 of 22).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 3/8 (questions 7-9 of 22).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 4/8 (questions 10-12 of 22).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/8 Rejecting unsupported, incomplete, or insufficiently challenging question "For refrigerator cycle P1, rejected heat is 720 kJ. What is ..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/8 Question "For refrigerator cycle P2, rejected heat is 720 kJ and compr..." — changing answer from "["Absorbed heat is 540 kJ","Refrigerator COP is 3"]" to "["Refrigerator COP is 3","Absorbed heat is 540 kJ"]"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 4/8 Question "For refrigerator cycle P10, rejected heat is 720 kJ and comp..." — changing answer from "["Absorbed heat is 540 kJ","Refrigerator COP is 3"]" to "["Refrigerator COP is 3","Absorbed heat is 540 kJ"]"
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 5/8 (questions 13-15 of 22).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 6/8 (questions 16-18 of 22).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 7/8 (questions 19-21 of 22).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 8/8 (questions 22-22 of 22).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 6/8 Question "For refrigerator cycle P18, rejected heat is 720 kJ and comp..." — changing answer from "["Absorbed heat is 540 kJ","Refrigerator COP is 3"]" to "["Refrigerator COP is 3","Absorbed heat is 540 kJ"]"
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 8/8 Question "For refrigerator cycle P22, rejected heat is 720 kJ and comp..." — changing answer from "["Absorbed heat is 540 kJ","Refrigerator COP is 3"]" to "["Refrigerator COP is 3","Absorbed heat is 540 kJ"]"
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/7 (questions 1-3 of 21).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 2/7 (questions 4-6 of 21).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 3/7 (questions 7-9 of 21).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 4/7 (questions 10-12 of 21).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 5/7 (questions 13-15 of 21).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 6/7 (questions 16-18 of 21).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 7/7 (questions 19-21 of 21).
+# [SOLVE/BUILD] Validation summary: received 22 raw candidates; 1 failed the independent answer audit; 0 failed the final language audit; 21 accepted.
+# [QUIZ TIMING] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   stage: 'verifying',
+#   durationMs: 25
+# }
+# [SOLVE/BUILD] REPAIRED INDEPENDENT AUDIT Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   stage: 'refining',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD] REPAIRED FINAL LANGUAGE Auditing batch 1/1 (questions 1-1 of 1).
+# [SOLVE/BUILD] REPAIRED Validation summary: received 1 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 1 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20; total is 20/20.
+# [QUIZ COUNTS] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   targetLanguage: 'en',
+#   requested: 20,
+#   initialCandidates: 22,
+#   accepted: 20
+# }
+# [QUIZ TIMING] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [QUIZ COUNTS] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   initialRequests: 20,
+#   topUpRequests: 0,
+#   sourceRequests: 2,
+#   repairRequests: 1,
+#   completionCandidates: 0,
+#   auditedCandidates: 23,
+#   rejectedCandidates: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '2787530e-f974-4236-b545-c0360f20ba69',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: '2787530e-f974-4236-b545-c0360f20ba69', totalMs: 96 }
+# Subtest: default production path builds twenty balanced questions, repairs a missing given once, and independently reaudits it
+ok 6 - default production path builds twenty balanced questions, repairs a missing given once, and independently reaudits it
+  ---
+  duration_ms: 1055.3422
+  type: 'test'
+  ...
+# [QUIZ TIMING] {
+#   requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724',
+#   stage: 'reading',
+#   durationMs: 18
+# }
+# [QUIZ TIMING] {
+#   requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Source records { proposed: 1, accepted: 1, excluded: 0 }
+# [QUIZ TIMING] {
+#   requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724',
+#   stage: 'analyzing',
+#   durationMs: 27
+# }
+# [QUIZ TIMING] {
+#   requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724',
+#   stage: 'preparing',
+#   durationMs: 3
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [QUIZ TIMING] {
+#   requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# Initial generation returned 4/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724',
+#   stage: 'validating',
+#   durationMs: 3
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/2 (questions 1-3 of 4).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 2/2 (questions 4-4 of 4).
+# [SOLVE/BUILD] Validation summary: received 4 raw candidates; 0 failed the independent answer audit; 0 failed the final language audit; 4 accepted.
+# [QUIZ GENERATION] Initial pass accepted final question positions: 1, 2, 3; total is 3/3.
+# [QUIZ COUNTS] {
+#   requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724',
+#   targetLanguage: 'en',
+#   requested: 3,
+#   initialCandidates: 4,
+#   accepted: 3
+# }
+# [QUIZ TIMING] {
+#   requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724',
+#   stage: 'verifying',
+#   durationMs: 14
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724',
+#   initialRequests: 4,
+#   topUpRequests: 0,
+#   sourceRequests: 2,
+#   repairRequests: 0,
+#   completionCandidates: 0,
+#   auditedCandidates: 4,
+#   rejectedCandidates: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724',
+#   stage: 'finalizing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] { requestId: 'aa52776b-6faf-4939-bb37-d0a8fed78724', totalMs: 70 }
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# [QUIZ PLAN] Source records { proposed: 1, accepted: 1, excluded: 0 }
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'analyzing',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# Initial generation returned 4/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P4, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [SOLVE/BUILD] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P5, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P6, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P7, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT BATCH 2/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P8, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [PLANNED TOP-UP 1] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ GENERATION] Replacement pass 1 accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P9, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P10, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P11, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 2/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P12, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 2] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ GENERATION] Replacement pass 2 accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P13, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P14, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P15, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'generating',
+#   durationMs: 13
+# }
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 2/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P16, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 3] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ GENERATION] Replacement pass 3 accepted final question positions: none; total is 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2353:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:75:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:74:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   initialRequests: 4,
+#   topUpRequests: 12,
+#   sourceRequests: 2,
+#   repairRequests: 4,
+#   completionCandidates: 0,
+#   auditedCandidates: 16,
+#   rejectedCandidates: 16
+# }
+# [QUIZ TIMING] {
+#   requestId: '895968d0-779e-4813-9d68-234e92fe6a00',
+#   stage: 'refining',
+#   durationMs: 9
+# }
+# [QUIZ TIMING] { requestId: '895968d0-779e-4813-9d68-234e92fe6a00', totalMs: 45 }
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# [QUIZ PLAN] Source records { proposed: 1, accepted: 1, excluded: 0 }
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'analyzing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# Initial generation returned 4/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [SOLVE/BUILD] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P4, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P5, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P6, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P7, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT BATCH 2/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P8, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [PLANNED TOP-UP 1] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ GENERATION] Replacement pass 1 accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P9, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P10, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P11, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [PLANNED TOP-UP 2] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 2/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P12, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ GENERATION] Replacement pass 2 accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P13, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P14, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P15, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 2/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P16, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [PLANNED TOP-UP 3] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ GENERATION] Replacement pass 3 accepted final question positions: none; total is 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2353:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:75:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:74:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   initialRequests: 4,
+#   topUpRequests: 12,
+#   sourceRequests: 2,
+#   repairRequests: 4,
+#   completionCandidates: 0,
+#   auditedCandidates: 16,
+#   rejectedCandidates: 16
+# }
+# [QUIZ TIMING] {
+#   requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] { requestId: 'c6bcd648-803d-42b3-b287-2c50f9040d9f', totalMs: 22 }
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# [QUIZ PLAN] Source records { proposed: 1, accepted: 1, excluded: 0 }
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'analyzing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# Initial generation returned 4/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [SOLVE/BUILD] INDEPENDENT AUDIT BATCH 2/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P4, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [SOLVE/BUILD] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'verifying',
+#   durationMs: 2
+# }
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P5, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P6, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P7, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT BATCH 2/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P8, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [PLANNED TOP-UP 1] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ GENERATION] Replacement pass 1 accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P9, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c..."
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P10, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P11, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT BATCH 2/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P12, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [PLANNED TOP-UP 2] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ GENERATION] Replacement pass 2 accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'preparing',
+#   durationMs: 2
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P13, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P14, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 1/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P15, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT BATCH 2/2 Rejecting unsupported, incomplete, or insufficiently challenging question "In cycle P16, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ..."
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [PLANNED TOP-UP 3] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ GENERATION] Replacement pass 3 accepted final question positions: none; total is 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2353:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:75:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:74:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   initialRequests: 4,
+#   topUpRequests: 12,
+#   sourceRequests: 2,
+#   repairRequests: 4,
+#   completionCandidates: 0,
+#   auditedCandidates: 16,
+#   rejectedCandidates: 16
+# }
+# [QUIZ TIMING] {
+#   requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] { requestId: '9d5949a6-2657-4a25-b3a0-4b44b0d027de', totalMs: 25 }
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# [QUIZ PLAN] Source records { proposed: 1, accepted: 1, excluded: 0 }
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'analyzing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'generating',
+#   durationMs: 12
+# }
+# Initial generation returned 4/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 1/2 (questions 1-3 of 4).
+# [SOLVE/BUILD] FINAL LANGUAGE Auditing batch 2/2 (questions 4-4 of 4).
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/2 Rejecting question "In cycle P1, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/2 Rejecting question "In cycle P2, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 1/2 Rejecting question "In cycle P3, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [SOLVE/BUILD] FINAL LANGUAGE BATCH 2/2 Rejecting question "In cycle P4, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [SOLVE/BUILD] Validation summary: received 4 raw candidates; 0 failed the independent answer audit; 4 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'verifying',
+#   durationMs: 3
+# }
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [PLANNED TOP-UP 1] FINAL LANGUAGE Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 1] FINAL LANGUAGE Auditing batch 2/2 (questions 4-4 of 4).
+# [PLANNED TOP-UP 1] FINAL LANGUAGE BATCH 1/2 Rejecting question "In cycle P5, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [PLANNED TOP-UP 1] FINAL LANGUAGE BATCH 1/2 Rejecting question "In cycle P6, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [PLANNED TOP-UP 1] Validation summary: received 4 raw candidates; 0 failed the independent answer audit; 4 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [PLANNED TOP-UP 1] FINAL LANGUAGE BATCH 1/2 Rejecting question "In cycle P7, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [PLANNED TOP-UP 1] FINAL LANGUAGE BATCH 2/2 Rejecting question "In cycle P8, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [QUIZ GENERATION] Replacement pass 1 accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [PLANNED TOP-UP 2] FINAL LANGUAGE Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 2] FINAL LANGUAGE Auditing batch 2/2 (questions 4-4 of 4).
+# [PLANNED TOP-UP 2] FINAL LANGUAGE BATCH 1/2 Rejecting question "In cycle P9, a refrigerator rejects $720\\,\\mathrm{kJ}$ and c...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [PLANNED TOP-UP 2] Validation summary: received 4 raw candidates; 0 failed the independent answer audit; 4 failed the final language audit; 0 accepted.
+# [PLANNED TOP-UP 2] FINAL LANGUAGE BATCH 1/2 Rejecting question "In cycle P10, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [PLANNED TOP-UP 2] FINAL LANGUAGE BATCH 1/2 Rejecting question "In cycle P11, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [PLANNED TOP-UP 2] FINAL LANGUAGE BATCH 2/2 Rejecting question "In cycle P12, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [QUIZ GENERATION] Replacement pass 2 accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'generating',
+#   durationMs: 3
+# }
+# [PLANNED TOP-UP 3] FINAL LANGUAGE Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 3] FINAL LANGUAGE Auditing batch 2/2 (questions 4-4 of 4).
+# [PLANNED TOP-UP 3] FINAL LANGUAGE BATCH 1/2 Rejecting question "In cycle P13, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [PLANNED TOP-UP 3] Validation summary: received 4 raw candidates; 0 failed the independent answer audit; 4 failed the final language audit; 0 accepted.
+# [PLANNED TOP-UP 3] FINAL LANGUAGE BATCH 1/2 Rejecting question "In cycle P14, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [PLANNED TOP-UP 3] FINAL LANGUAGE BATCH 1/2 Rejecting question "In cycle P15, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [PLANNED TOP-UP 3] FINAL LANGUAGE BATCH 2/2 Rejecting question "In cycle P16, a refrigerator rejects $720\\,\\mathrm{kJ}$ and ...": ANSWER: answerCorrect was rejected. Solve the precise statement again and correct its key.
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [QUIZ GENERATION] Replacement pass 3 accepted final question positions: none; total is 0/3.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2353:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:75:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:74:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ COUNTS] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   initialRequests: 4,
+#   topUpRequests: 12,
+#   sourceRequests: 2,
+#   repairRequests: 4,
+#   completionCandidates: 0,
+#   auditedCandidates: 16,
+#   rejectedCandidates: 16
+# }
+# [QUIZ TIMING] {
+#   requestId: '1915a4dd-daa2-409d-b924-b98033443bb8',
+#   stage: 'refining',
+#   durationMs: 2
+# }
+# [QUIZ TIMING] { requestId: '1915a4dd-daa2-409d-b924-b98033443bb8', totalMs: 37 }
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'starting',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'reading',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'analyzing',
+#   durationMs: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'preparing',
+#   durationMs: 0
+# }
+# [QUIZ PLAN] Source records { proposed: 1, accepted: 1, excluded: 0 }
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'analyzing',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'generating',
+#   durationMs: 1
+# }
+# Initial generation returned 4/4 requested complete questions.
+# [TITLE LANGUAGE] Auditing batch 1/1 (questions 1-1 of 1).
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'validating',
+#   durationMs: 1
+# }
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [SOLVE/BUILD] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [SOLVE/BUILD] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'verifying',
+#   durationMs: 1
+# }
+# [QUIZ GENERATION] Initial pass accepted final question positions: none; total is 0/3.
+# Only built 0/3 valid questions. Top-up attempt 1/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 1] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [PLANNED TOP-UP 1] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ GENERATION] Replacement pass 1 accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# Only built 0/3 valid questions. Top-up attempt 2/3: requesting 4 candidates for 3 missing.
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 2] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [PLANNED TOP-UP 2] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ GENERATION] Replacement pass 2 accepted final question positions: none; total is 0/3.
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# Only built 0/3 valid questions. Top-up attempt 3/3: requesting 4 candidates for 3 missing.
+# Error generating quiz: QuizGenerationError: Generated 0 of 3 validated questions. Try a smaller quiz or provide more source material.
+#     at generateQuizQuestions (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\openai.ts:2353:13)
+#     at async waitForActual (node:assert:565:5)
+#     at async Function.rejects (node:assert:686:25)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:75:9)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async TestContext.<anonymous> (C:\\Users\\Gia Hien\\Downloads\\PrepetualApp\\Prepetual\\server\\quiz-generation-quality.test.ts:74:7)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   code: 'INSUFFICIENT_VALID_QUESTIONS',
+#   stage: 'top_up',
+#   requested: 3,
+#   generated: 0
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'preparing',
+#   durationMs: 1
+# }
+# [QUIZ PLAN] Drafts { requested: 4, returned: 4, batches: 1 }
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 1/2 (questions 1-3 of 4).
+# [PLANNED TOP-UP 3] INDEPENDENT AUDIT Auditing batch 2/2 (questions 4-4 of 4).
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'generating',
+#   durationMs: 2
+# }
+# [PLANNED TOP-UP 3] Validation summary: received 4 raw candidates; 4 failed the independent answer audit; 0 failed the final language audit; 0 accepted.
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'verifying',
+#   durationMs: 0
+# }
+# [QUIZ GENERATION] Replacement pass 3 accepted final question positions: none; total is 0/3.
+# [QUIZ COUNTS] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   initialRequests: 4,
+#   topUpRequests: 12,
+#   sourceRequests: 2,
+#   repairRequests: 4,
+#   completionCandidates: 0,
+#   auditedCandidates: 16,
+#   rejectedCandidates: 16
+# }
+# [QUIZ TIMING] {
+#   requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b',
+#   stage: 'refining',
+#   durationMs: 1
+# }
+# [QUIZ TIMING] { requestId: 'f300ef73-802d-4580-a639-6a67a760cb2b', totalMs: 18 }
+# Subtest: short-answer keys are solved independently, then rejected on missing givens, weak reasoning, or unsupported citations
+    # Subtest: missing-givens cannot complete or publish a quiz
+    ok 1 - missing-givens cannot complete or publish a quiz
+      ---
+      duration_ms: 46.2121
+      type: 'test'
+      ...
+    # Subtest: recall cannot complete or publish a quiz
+    ok 2 - recall cannot complete or publish a quiz
+      ---
+      duration_ms: 21.6649
+      type: 'test'
+      ...
+    # Subtest: bad-citation cannot complete or publish a quiz
+    ok 3 - bad-citation cannot complete or publish a quiz
+      ---
+      duration_ms: 25.3228
+      type: 'test'
+      ...
+    # Subtest: final-veto cannot complete or publish a quiz
+    ok 4 - final-veto cannot complete or publish a quiz
+      ---
+      duration_ms: 37.5403
+      type: 'test'
+      ...
+    # Subtest: placeholder cannot complete or publish a quiz
+    ok 5 - placeholder cannot complete or publish a quiz
+      ---
+      duration_ms: 18.508
+      type: 'test'
+      ...
+    1..5
+ok 7 - short-answer keys are solved independently, then rejected on missing givens, weak reasoning, or unsupported citations
+  ---
+  duration_ms: 1227.2426
+  type: 'test'
+  ...
+# Subtest: support must quote every actual cited chunk, rather than an unrelated existing ID
+ok 8 - support must quote every actual cited chunk, rather than an unrelated existing ID
+  ---
+  duration_ms: 1.8373
+  type: 'test'
+  ...
+# Subtest: hard review rejects recall, missing givens, unsupported answers, and implausible distractors
+ok 9 - hard review rejects recall, missing givens, unsupported answers, and implausible distractors
+  ---
+  duration_ms: 0.5031
+  type: 'test'
+  ...
+# Subtest: replacements prioritize missing types and cannot use recall-friendly types to fill reserved slots
+ok 10 - replacements prioritize missing types and cannot use recall-friendly types to fill reserved slots
+  ---
+  duration_ms: 2.3834
+  type: 'test'
+  ...
+# Subtest: repair feedback preserves every failed criterion and the actual difficulty rationale
+ok 11 - repair feedback preserves every failed criterion and the actual difficulty rationale
+  ---
+  duration_ms: 1.2166
+  type: 'test'
+  ...
+1..11
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1652.0836

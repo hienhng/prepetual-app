@@ -1,0 +1,191 @@
+TAP version 13
+# Subtest: explanation response preserves the saved answer key and identifies the stored question
+ok 1 - explanation response preserves the saved answer key and identifies the stored question
+  ---
+  duration_ms: 35.1006
+  type: 'test'
+  ...
+# Subtest: unverified or stale responses cannot replace the player's question
+ok 2 - unverified or stale responses cannot replace the player's question
+  ---
+  duration_ms: 5.1037
+  type: 'test'
+  ...
+# Subtest: restored feedback becomes invalid when its answer or explanations change
+ok 3 - restored feedback becomes invalid when its answer or explanations change
+  ---
+  duration_ms: 0.261
+  type: 'test'
+  ...
+# Subtest: multiple-choice and true/false dropdowns never fall back to whole-answer summaries
+ok 4 - multiple-choice and true/false dropdowns never fall back to whole-answer summaries
+  ---
+  duration_ms: 0.3688
+  type: 'test'
+  ...
+# Subtest: multiple-choice and true/false responses require each displayed option's own feedback
+ok 5 - multiple-choice and true/false responses require each displayed option's own feedback
+  ---
+  duration_ms: 4.9497
+  type: 'test'
+  ...
+# Subtest: selection dropdowns use the individual option explanation without summary fallback
+ok 6 - selection dropdowns use the individual option explanation without summary fallback
+  ---
+  duration_ms: 0.2505
+  type: 'test'
+  ...
+# Subtest: selection response requires feedback for each displayed option
+ok 7 - selection response requires feedback for each displayed option
+  ---
+  duration_ms: 2.0971
+  type: 'test'
+  ...
+# Subtest: explains the stored key and uses stored evidence, ignoring client grade and key
+ok 8 - explains the stored key and uses stored evidence, ignoring client grade and key
+  ---
+  duration_ms: 5.175
+  type: 'test'
+  ...
+# Subtest: incorrect answers retain their saved-key grade
+ok 9 - incorrect answers retain their saved-key grade
+  ---
+  duration_ms: 0.4568
+  type: 'test'
+  ...
+# Subtest: short answers and empty truth-statement selections use their saved keys
+ok 10 - short answers and empty truth-statement selections use their saved keys
+  ---
+  duration_ms: 1.0152
+  type: 'test'
+  ...
+# Subtest: access failures and invalid choices stop before explanation generation
+ok 11 - access failures and invalid choices stop before explanation generation
+  ---
+  duration_ms: 1.5368
+  type: 'test'
+  ...
+# Subtest: explanation failure or a replacement key never changes the stored question
+ok 12 - explanation failure or a replacement key never changes the stored question
+  ---
+  duration_ms: 0.7115
+  type: 'test'
+  ...
+# Subtest: explanation generation failures return an unavailable response instead of answer review
+ok 13 - explanation generation failures return an unavailable response instead of answer review
+  ---
+  duration_ms: 0.8882
+  type: 'test'
+  ...
+# Subtest: generates explanations only on submission and retains the generated key
+ok 14 - generates explanations only on submission and retains the generated key
+  ---
+  duration_ms: 5.245
+  type: 'test'
+  ...
+# Subtest: wrong submissions explain only submitted mistakes and omissions
+ok 15 - wrong submissions explain only submitted mistakes and omissions
+  ---
+  duration_ms: 1.6777
+  type: 'test'
+  ...
+# Subtest: selection feedback covers correct options without explaining unselected distractors
+ok 16 - selection feedback covers correct options without explaining unselected distractors
+  ---
+  duration_ms: 0.6294
+  type: 'test'
+  ...
+# Subtest: incomplete, extra, or inconsistent option explanations are rejected
+ok 17 - incomplete, extra, or inconsistent option explanations are rejected
+  ---
+  duration_ms: 1.8647
+  type: 'test'
+  ...
+# Subtest: quiz language overrides foreign-language sources in generation and review
+ok 18 - quiz language overrides foreign-language sources in generation and review
+  ---
+  duration_ms: 1.282
+  type: 'test'
+  ...
+# Subtest: review rejects wrong-language or cross-option feedback and does not cache it
+ok 19 - review rejects wrong-language or cross-option feedback and does not cache it
+  ---
+  duration_ms: 0.568
+  type: 'test'
+  ...
+# Subtest: short-answer explanations retain the immediate exact-match result
+ok 20 - short-answer explanations retain the immediate exact-match result
+  ---
+  duration_ms: 0.4786
+  type: 'test'
+  ...
+# Subtest: review rejects selection feedback that discusses another option
+ok 21 - review rejects selection feedback that discusses another option
+  ---
+  duration_ms: 0.505
+  type: 'test'
+  ...
+# Subtest: empty truth-statement selections require no option explanations
+ok 22 - empty truth-statement selections require no option explanations
+  ---
+  duration_ms: 0.6318
+  type: 'test'
+  ...
+# Subtest: contradictory explanations fail without rewriting the key or caching failures
+ok 23 - contradictory explanations fail without rewriting the key or caching failures
+  ---
+  duration_ms: 0.8174
+  type: 'test'
+  ...
+# Subtest: missing, empty, and non-string explanations retry once and are reviewed before caching
+ok 24 - missing, empty, and non-string explanations retry once and are reviewed before caching
+  ---
+  duration_ms: 4.3484
+  type: 'test'
+  ...
+# Subtest: persistent empty explanations are generation failures with bounded retries and no cache
+ok 25 - persistent empty explanations are generation failures with bounded retries and no cache
+  ---
+  duration_ms: 0.8485
+  type: 'test'
+  ...
+# Subtest: a retry cannot bypass rejection of the saved answer or the explanation review
+ok 26 - a retry cannot bypass rejection of the saved answer or the explanation review
+  ---
+  duration_ms: 0.7434
+  type: 'test'
+  ...
+# Subtest: multiple choice and true/false generate separate feedback for correct and submitted wrong options
+    # Subtest: multiple_choice
+    ok 1 - multiple_choice
+      ---
+      duration_ms: 0.8004
+      type: 'test'
+      ...
+    # Subtest: true_false
+    ok 2 - true_false
+      ---
+      duration_ms: 0.9299
+      type: 'test'
+      ...
+    1..2
+ok 27 - multiple choice and true/false generate separate feedback for correct and submitted wrong options
+  ---
+  duration_ms: 2.4214
+  type: 'test'
+  ...
+# Subtest: multiple choice and true/false reject missing per-option feedback and cross-option reviews
+ok 28 - multiple choice and true/false reject missing per-option feedback and cross-option reviews
+  ---
+  duration_ms: 1.2054
+  type: 'test'
+  ...
+1..28
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1265.3886

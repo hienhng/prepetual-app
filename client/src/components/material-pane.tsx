@@ -103,7 +103,7 @@ const MaterialContent: React.FC<{
     return (
       <div className="space-y-4 pb-11">
         <div className="rounded-3xl border border-border/70 bg-background p-4 text-sm leading-7 text-foreground shadow-sm">
-          <p className="mb-3 text-sm font-semibold text-foreground">Study summary</p>
+          <p className="mb-3 text-sm font-semibold text-foreground">{t("materialPane.summary")}</p>
           <MathText content={summary} />
         </div>
         {error && (
@@ -275,7 +275,7 @@ const MobileView: React.FC<{
                 <div className="flex items-center gap-1.5">
                   <BookCheck className="h-3.5 w-3.5 text-muted-foreground" />
                   <span className="text-xs font-medium text-muted-foreground">
-                    {state.viewMode === 'summary' ? 'Showing AI summary' : hasText ? 'Extracted text' : 'Source images'}
+                    {state.viewMode === 'summary' ? t("materialPane.showingSummary") : hasText ? t("materialPane.extractedText") : t("materialPane.sourceImages")}
                   </span>
                 </div>
 
@@ -287,7 +287,7 @@ const MobileView: React.FC<{
                     className="rounded-full text-xs h-8 px-4 shrink-0"
                     onClick={() => onViewModeChange(state.viewMode === 'summary' ? 'text' : 'summary')}
                   >
-                    {state.viewMode === 'summary' ? 'View original' : 'View summary'}
+                    {state.viewMode === 'summary' ? t("materialPane.original") : t("materialPane.viewSummary")}
                   </Button>
                 ) : (
                   <Button
@@ -301,10 +301,10 @@ const MobileView: React.FC<{
                     {state.isSummarizing ? (
                       <>
                         <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                        <span>Summarizing...</span>
+                        <span>{t("materialPane.summarizing")}</span>
                       </>
                     ) : (
-                      <span>Summarize</span>
+                      <span>{t("materialPane.summarize")}</span>
                     )}
                   </Button>
                 )}
@@ -330,7 +330,7 @@ const MobileView: React.FC<{
             {state.summary ? (
               <div className="flex items-center justify-center gap-2 py-2 border-t border-border/40 bg-muted/10">
                 <span className="text-center text-sm italic text-muted-foreground">
-                  AI generated content might be inaccurate. Check for mistakes.
+                  {t("materialPane.disclaimer")}
                 </span>
               </div>
             ) : (
@@ -487,7 +487,7 @@ const DesktopView: React.FC<{
                     className="rounded-full"
                     onClick={() => onViewModeChange(state.viewMode === 'summary' ? 'text' : 'summary')}
                   >
-                    {state.viewMode === 'summary' ? 'View original' : 'View summary'}
+                    {state.viewMode === 'summary' ? t("materialPane.original") : t("materialPane.viewSummary")}
                   </Button>
                 </div>
               )}
@@ -506,7 +506,7 @@ const DesktopView: React.FC<{
                     ) : (
                       <BookCheck className="mr-2 h-4 w-4" />
                     )}
-                    Summarize material
+                    {t("materialPane.summarizeMaterial")}
                   </Button>
                 </div>
               )}
@@ -582,7 +582,7 @@ export const MaterialPane: React.FC<MaterialPaneProps> = ({
 
   const handleSummarize = async () => {
     if (!materialText.trim() && materialImages.length === 0) {
-      materialState.setError('No study material is available to summarize.');
+      materialState.setError(t('materialPane.noMaterial'));
       return;
     }
 
@@ -598,7 +598,7 @@ export const MaterialPane: React.FC<MaterialPaneProps> = ({
       materialState.setSummary(data.summary || '');
       materialState.setViewMode('summary');
     } catch (error: any) {
-      materialState.setError(error?.message || 'Failed to summarize material. Please try again.');
+      materialState.setError(t('materialPane.summaryError'));
     } finally {
       materialState.setIsSummarizing(false);
     }
@@ -657,7 +657,7 @@ export const MaterialPane: React.FC<MaterialPaneProps> = ({
             >
               <img
                 src={expandedImageUrl}
-                alt="Expanded view"
+                alt={t("common.expandedView")}
                 className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl ring-1 ring-white/10"
               />
               <Button

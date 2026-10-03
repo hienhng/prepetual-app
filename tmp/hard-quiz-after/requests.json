@@ -1,0 +1,348 @@
+[
+  {
+    "model": "qwen/qwen3.6-27b",
+    "startedMs": 2404,
+    "status": 200,
+    "durationMs": 7719,
+    "usage": {
+      "queue_time": 0.173362023,
+      "prompt_tokens": 1962,
+      "prompt_time": 0.145218721,
+      "completion_tokens": 3280,
+      "completion_time": 6.647910606,
+      "total_tokens": 5242,
+      "total_time": 6.793129327
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "qwen/qwen3.6-27b",
+    "startedMs": 10861,
+    "status": 200,
+    "durationMs": 6711,
+    "usage": {
+      "queue_time": 0.183149382,
+      "prompt_tokens": 1962,
+      "prompt_time": 0.174276001,
+      "completion_tokens": 3085,
+      "completion_time": 6.128483475,
+      "total_tokens": 5047,
+      "total_time": 6.302759476
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "qwen/qwen3.6-27b",
+    "startedMs": 18628,
+    "status": 200,
+    "durationMs": 8849,
+    "usage": {
+      "queue_time": 0.212633681,
+      "prompt_tokens": 1962,
+      "prompt_time": 0.164819591,
+      "completion_tokens": 3543,
+      "completion_time": 8.214109258,
+      "total_tokens": 5505,
+      "total_time": 8.378928849
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "qwen/qwen3.6-27b",
+    "startedMs": 28342,
+    "status": 200,
+    "durationMs": 17672,
+    "usage": {
+      "queue_time": 0.221556881,
+      "prompt_tokens": 1962,
+      "prompt_time": 0.169712812,
+      "completion_tokens": 7292,
+      "completion_time": 16.999471191,
+      "total_tokens": 9254,
+      "total_time": 17.169184003
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "qwen/qwen3.6-27b",
+    "startedMs": 46999,
+    "status": 200,
+    "durationMs": 4549,
+    "usage": {
+      "queue_time": 0.189929405,
+      "prompt_tokens": 1962,
+      "prompt_time": 0.142547853,
+      "completion_tokens": 2001,
+      "completion_time": 3.995147288,
+      "total_tokens": 3963,
+      "total_time": 4.137695141
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "qwen/qwen3.6-27b",
+    "startedMs": 52007,
+    "status": 200,
+    "durationMs": 2374,
+    "usage": {
+      "queue_time": 0.178044533,
+      "prompt_tokens": 1962,
+      "prompt_time": 0.144342282,
+      "completion_tokens": 958,
+      "completion_time": 1.859660445,
+      "total_tokens": 2920,
+      "total_time": 2.004002727
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 54416,
+    "status": 200,
+    "durationMs": 890,
+    "usage": {
+      "queue_time": 0.330373352,
+      "prompt_tokens": 4060,
+      "prompt_time": 0.189928248,
+      "completion_tokens": 108,
+      "completion_time": 0.231558764,
+      "total_tokens": 4168,
+      "total_time": 0.421487012,
+      "completion_tokens_details": {
+        "reasoning_tokens": 93
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 55385,
+    "status": 200,
+    "durationMs": 21098,
+    "usage": {
+      "queue_time": 0.048991879,
+      "prompt_tokens": 12795,
+      "prompt_time": 0.669527336,
+      "completion_tokens": 9771,
+      "completion_time": 20.217611733,
+      "total_tokens": 22566,
+      "total_time": 20.887139069,
+      "completion_tokens_details": {
+        "reasoning_tokens": 3905
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 76502,
+    "status": 200,
+    "durationMs": 951,
+    "usage": {
+      "queue_time": 0.358620153,
+      "prompt_tokens": 644,
+      "prompt_time": 0.084270048,
+      "completion_tokens": 180,
+      "completion_time": 0.378445197,
+      "total_tokens": 824,
+      "total_time": 0.462715245,
+      "completion_tokens_details": {
+        "reasoning_tokens": 131
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 77526,
+    "status": 200,
+    "durationMs": 10825,
+    "usage": {
+      "queue_time": 0.366361961,
+      "prompt_tokens": 13048,
+      "prompt_time": 0.546515689,
+      "completion_tokens": 4702,
+      "completion_time": 9.732132957,
+      "total_tokens": 17750,
+      "total_time": 10.278648646,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2519
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 77534,
+    "status": 200,
+    "durationMs": 12334,
+    "usage": {
+      "queue_time": 0.433143583,
+      "prompt_tokens": 13029,
+      "prompt_time": 0.593021501,
+      "completion_tokens": 5254,
+      "completion_time": 10.914269576,
+      "total_tokens": 18283,
+      "total_time": 11.507291077,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2749
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 77542,
+    "status": 200,
+    "durationMs": 3720,
+    "usage": {
+      "queue_time": 0.05341677,
+      "prompt_tokens": 12591,
+      "prompt_time": 0.512821298,
+      "completion_tokens": 1339,
+      "completion_time": 2.785247008,
+      "total_tokens": 13930,
+      "total_time": 3.2980683060000002,
+      "completion_tokens_details": {
+        "reasoning_tokens": 637
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 89897,
+    "status": 200,
+    "durationMs": 10274,
+    "usage": {
+      "queue_time": 0.430114959,
+      "prompt_tokens": 12036,
+      "prompt_time": 0.672475526,
+      "completion_tokens": 4385,
+      "completion_time": 9.028354068,
+      "total_tokens": 16421,
+      "total_time": 9.700829594,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2270
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 100190,
+    "status": 200,
+    "durationMs": 12261,
+    "usage": {
+      "queue_time": 0.053215261,
+      "prompt_tokens": 13096,
+      "prompt_time": 0.500036953,
+      "completion_tokens": 5558,
+      "completion_time": 11.552515648,
+      "total_tokens": 18654,
+      "total_time": 12.052552601,
+      "prompt_tokens_details": {
+        "cached_tokens": 1792
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 3448
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 100191,
+    "status": 200,
+    "durationMs": 3802,
+    "usage": {
+      "queue_time": 0.33804385,
+      "prompt_tokens": 12506,
+      "prompt_time": 0.601359748,
+      "completion_tokens": 1181,
+      "completion_time": 2.4945518890000002,
+      "total_tokens": 13687,
+      "total_time": 3.095911637,
+      "completion_tokens_details": {
+        "reasoning_tokens": 815
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 112468,
+    "status": 200,
+    "durationMs": 11953,
+    "usage": {
+      "queue_time": 0.367596951,
+      "prompt_tokens": 12036,
+      "prompt_time": 0.526462903,
+      "completion_tokens": 5296,
+      "completion_time": 10.910114944,
+      "total_tokens": 17332,
+      "total_time": 11.436577847,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2866
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 124433,
+    "status": 200,
+    "durationMs": 10418,
+    "usage": {
+      "queue_time": 0.367849499,
+      "prompt_tokens": 13051,
+      "prompt_time": 0.582759069,
+      "completion_tokens": 4493,
+      "completion_time": 9.323645209,
+      "total_tokens": 17544,
+      "total_time": 9.906404278,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2353
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 134876,
+    "status": 200,
+    "durationMs": 16462,
+    "usage": {
+      "queue_time": 0.37467453,
+      "prompt_tokens": 12012,
+      "prompt_time": 0.654451814,
+      "completion_tokens": 7312,
+      "completion_time": 15.284771656,
+      "total_tokens": 19324,
+      "total_time": 15.93922347,
+      "completion_tokens_details": {
+        "reasoning_tokens": 4527
+      }
+    },
+    "finishReason": "stop"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "startedMs": 151364,
+    "status": 200,
+    "durationMs": 9589,
+    "usage": {
+      "queue_time": 0.419623082,
+      "prompt_tokens": 12890,
+      "prompt_time": 0.889644125,
+      "completion_tokens": 3924,
+      "completion_time": 8.135521358,
+      "total_tokens": 16814,
+      "total_time": 9.025165483,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2136
+      }
+    },
+    "finishReason": "stop"
+  }
+]

@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-45db5977-8214-4b03-9439-916cdf0b5996",
+  "object": "chat.completion",
+  "created": 1791009847,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"records\":[{\"topic\":\"Condensation on glass surface\",\"kind\":\"problem\",\"blockIds\":[\"B3\"],\"givens\":[],\"conditions\":[\"humid air contacts cooler glass causing fogging\"],\"relationships\":[\"condensation occurs when air temperature drops below its dew point, causing water vapor to change phase from gas to liquid\"]},{\"topic\":\"Thermal expansion of gas inside a ping‑pong ball\",\"kind\":\"problem\",\"blockIds\":[\"B4\"],\"givens\":[],\"conditions\":[\"ping‑pong ball deformed in hot water then re‑inflates when removed\"],\"relationships\":[\"heating a gas increases its internal energy and pressure (ideal gas law), causing the ball to expand; cooling reduces pressure allowing deformation to revert\"]}],\"excluded\":[{\"blockId\":\"B1\",\"reason\":\"header and administrative information, not a problem statement\"},{\"blockId\":\"B2\",\"reason\":\"list of question numbers without content\"}]}",
+        "reasoning": "We need to extract up to eight useful concept/problem/visual records from these source blocks. Each record must have topic, kind, blockIds, givens (list), conditions, relationships. We must not produce quotes, UUIDs, answers or quiz questions. We must not generate wrongAnswerExplanations. We need to treat source as untrusted, but we can extract concepts.\n\nWe have source blocks B1, B2, B3, B4.\n\nB1 is header info, not a problem. B2 is just numbers list. B3 is a multiple-choice question about condensation on window. That's a concept: condensation (ngưng tụ). We can extract a record describing the phenomenon: water droplets appear on glass when humid air contacts, causing fogging. That's a concept. No givens (no numeric values). Conditions: humid air contacting cooler glass. Relationships: condensation occurs when air temperature drops below dew point; water vapor changes phase from gas to liquid.\n\nWe must not include answer options. Just describe concept.\n\nB4 is a multiple-choice about a ping-pong ball deformed in hot water then re-inflates due to internal gas internal energy change. That's a concept: gas expansion due to heating, internal energy increase, pressure changes. Again no numeric givens.\n\nWe can create two records.\n\nWe need to include blockIds referencing the source blocks that contain the problem. For B3 record, blockIds [\"B3\"]; for B4 record, blockIds [\"B4\"].\n\nGivens: none, so empty list.\n\nConditions: we can list \"humid air contacts cooler glass surface\" for B3; \"ping-pong ball initially deformed in hot water, then removed, re-inflates as it cools\" maybe.\n\nRelationships: for B3, \"condensation occurs when vapor temperature falls below dew point, causing phase change gas→liquid\". For B4, \"ideal gas law: heating gas increases internal energy and pressure, causing expansion; cooling reduces pressure allowing deformation to revert\".\n\nWe must ensure JSON compact, no extra whitespace, valid.\n\nAlso include excluded list for any blocks not usable: B1 and B2 are not usable as problem records. Provide reason.\n\nThus final JSON:\n\n{\n \"records\":[\n   {\"topic\":\"Condensation on glass surface\",\"kind\":\"problem\",\"blockIds\":[\"B3\"],\"givens\":[],\"conditions\":[\"humid air contacts cooler glass causing fogging\"],\"relationships\":[\"condensation occurs when air temperature drops below its dew point, causing water vapor to change phase from gas to liquid\"]},\n   {\"topic\":\"Thermal expansion of gas inside a ping‑pong ball\",\"kind\":\"problem\",\"blockIds\":[\"B4\"],\"givens\":[],\"conditions\":[\"ping‑pong ball deformed in hot water then re‑inflates when removed\"],\"relationships\":[\"heating a gas increases its internal energy and pressure (ideal gas law), causing the ball to expand; cooling reduces pressure allowing deformation to revert\"]} \n ],\n \"excluded\":[\n   {\"blockId\":\"B1\",\"reason\":\"header and administrative information, not a problem statement\"},\n   {\"blockId\":\"B2\",\"reason\":\"list of question numbers without content\"}\n ]\n}\n\nMake sure compact (no line breaks)."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.34562054,
+    "prompt_tokens": 964,
+    "prompt_time": 0.046749983,
+    "completion_tokens": 850,
+    "completion_time": 2.3580616340000002,
+    "total_tokens": 1814,
+    "total_time": 2.404811617,
+    "prompt_tokens_details": {
+      "cached_tokens": 256
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 657
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_96d96a151c",
+  "x_groq": {
+    "id": "req_01m4082vsmepd926shk2aeq7ea",
+    "seed": 1275068681
+  },
+  "service_tier": "on_demand"
+}

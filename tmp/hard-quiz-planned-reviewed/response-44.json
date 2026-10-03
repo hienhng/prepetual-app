@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-23d32db7-9ae1-4861-87e9-bd49a6520fa5",
+  "object": "chat.completion",
+  "created": 1791010793,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"reason\":\"All fields are in Vietnamese as required; no inconsistencies detected\"}]}",
+        "reasoning": "We need to output JSON with evaluations array. There's one item. Need to check language consistency. The resolved QUIZ OUTPUT LANGUAGE is Vietnamese (vi-VN). The item is a title type with question \"Phân tích hiện tượng và năng lượng trong các quá trình nhiệt\". That's Vietnamese. So sourceLanguage? The source language is presumably Vietnamese as well. itemLanguage is Vietnamese. isConsistent true. Reason: all passed.\n\nWe must ensure JSON compact, no extra spaces? \"compact JSON formatting\". Provide as single line? Probably fine.\n\nReturn: {\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"reason\":\"All fields are in Vietnamese as required; no inconsistencies detected\"}]}\n\nMake sure keys correct. Use true not \"true\". Provide exactly."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.418411237,
+    "prompt_tokens": 659,
+    "prompt_time": 0.022492846,
+    "completion_tokens": 222,
+    "completion_time": 0.462230601,
+    "total_tokens": 881,
+    "total_time": 0.484723447,
+    "prompt_tokens_details": {
+      "cached_tokens": 256
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 170
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_803c0ba83d",
+  "x_groq": {
+    "id": "req_01m408zs48epqs6yw6d3zfqwwx",
+    "seed": 1064216399
+  },
+  "service_tier": "on_demand"
+}

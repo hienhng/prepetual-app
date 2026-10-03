@@ -1,11 +1,12 @@
 import { usePromptQuizSettings } from "@/hooks/use-prompt-quiz-settings";
 import { QuizGenerationResumeDialog, type PausedGeneration } from "@/components/quiz-generation-resume-dialog";
+import { QuizLanguageSelect } from "@/components/quiz-language-select";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import {
   FileText, Image, Sparkles, ArrowRight,
-  CheckCircle2, Loader2, X, Wand2,
+  CheckCircle2, Loader2, X,
   Type, Youtube, Link, AlertCircle, FileUp, Zap, Layers, Eye, Trash2, SendHorizontal,
   Gauge, CheckSquare, ToggleLeft, MessageSquare, Import, ListCheck,
 } from "lucide-react";
@@ -18,7 +19,8 @@ import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { FileUpload } from "@/components/file-upload";
-import { QuizGenerator } from "@/components/quiz-generator";
+import { FileTypeIcon, SourceTypeIcon } from "@/components/file-type-icon";
+import { QuizGenerationDialog } from "@/components/quiz-generation-dialog";
 import { composeSourceMaterialText, useQuiz, type SourceMaterial } from "@/lib/quiz-context";
 import { useUpload } from "@/lib/upload-context";
 import { useLanguage } from "@/lib/language-context";
@@ -83,20 +85,22 @@ const RESET_CREATE_SESSION_KEY = "reset_create_session_after_generation";
 export default function Create() {
   const [, setLocation] = useLocation();
   const [pausedGeneration, setPausedGeneration] = useState<PausedGeneration | null>(null);
+  const [detectedLanguage, setDetectedLanguage] = useState("");
   const {
     extractedText, setExtractedText,
     sourceMaterial, setSourceMaterial,
     resetQuiz, setCurrentQuiz,
     setIsLoading, isLoading,
-    setLoadingMessage,
-    setProcessingProgress,
-    setCurrentGenerationStep
+    setLoadingMessage, loadingMessage,
+    setProcessingProgress, processingProgress,
+    setCurrentGenerationStep, currentGenerationStep
   } = useQuiz();
   const { toast } = useToast();
   const { t, tArray, language } = useLanguage();
   const { activeJobs, clearJobs, removeJob } = useUpload();
   const examplePrompts = tArray('create.examplePrompts');
-  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+  const acceptedJobs = activeJobs.filter(job => job.accepted !== false && job.status === "completed");
+  const [activeModal, setActiveModal] = useState<ActiveModal>(() => activeJobs.some(job => job.accepted === false) ? "upload" : null);
   const [isSourcesPanelOpen, setIsSourcesPanelOpen] = useState(false);
   const [isSettingsPanelOpen, setIsSettingsPanelOpen] = useState(false);
   const [showUploadCloseWarning, setShowUploadCloseWarning] = useState(false);
@@ -137,13 +141,16 @@ export default function Create() {
 
   const samplePrompt = t('create.samplePrompt');
   const materialText = composeSourceMaterialText(sourceMaterial);
+  useEffect(() => { setDetectedLanguage(""); }, [materialText, sourceMaterial.prompt, sourceMaterial.outputLanguage]);
   const hasUploadedSource = Boolean(sourceMaterial.uploadedText?.trim() || sourceMaterial.documentImages?.length || sourceMaterial.imageDataUrl);
   const hasManualSource = Boolean(sourceMaterial.manualText?.trim());
   const hasYoutubeSource = Boolean(sourceMaterial.youtubeTranscript?.trim());
   const hasPromptSource = Boolean(sourceMaterial.prompt?.trim());
   const hasInvalidPromptDraft = quizPrompt.trim().length > 0 && quizPrompt.trim().length < 3;
 
-  const totalSourcesCount = [hasUploadedSource, hasManualSource, hasYoutubeSource, hasPromptSource].filter(Boolean).length;
+  const uploadedSourcesCount = hasUploadedSource ? Math.max(acceptedJobs.length, 1) : 0;
+  const totalSourcesCount = uploadedSourcesCount
+    + [hasManualSource, hasYoutubeSource, hasPromptSource].filter(Boolean).length;
   const isReady = totalSourcesCount > 0 && !resetOnMountRef.current;
 
   const toggleQuestionType = (type: "multiple_choice" | "selection" | "true_false" | "short_answer") => {
@@ -267,7 +274,6 @@ export default function Create() {
 
   const handleUploadDialogOpenChange = (open: boolean) => {
     if (open) {
-      clearJobs(); // clear stale completed jobs so FileUpload mounts cleanly
       setActiveModal("upload");
       return;
     }
@@ -379,6 +385,7 @@ export default function Create() {
   };
 
   const handleStartGeneration = async () => {
+    setDetectedLanguage("");
     if (isDetectingSettings) return;
     const sourcePrompt = sourceMaterial.prompt?.trim() || "";
     const materialText = composeSourceMaterialText(sourceMaterial);
@@ -451,6 +458,7 @@ export default function Create() {
       const sourceImageUrl = sourceMaterial.type === "image" ? sourceMaterial.imageDataUrl : null;
       const isImageOnly = !materialText && hasSourceImages;
       const body = {
+        outputLanguage: sourceMaterial.outputLanguage || "auto",
         materialText: materialText || undefined,
         prompt: sourcePrompt || undefined,
         questionCount: Number(questionCount),
@@ -488,18 +496,16 @@ export default function Create() {
           setProcessingProgress(data.progress);
           setCurrentGenerationStep(data.step);
           setLoadingMessage(data.message);
+          if (data.step === "language_resolved") setDetectedLanguage(data.message);
         } else if (data.type === "paused") {
           generationCompleted = true;
           setPausedGeneration(data.draft);
         } else if (data.type === "complete") {
           generationCompleted = true;
-          setProcessingProgress(98);
-          setCurrentGenerationStep("saving");
-          setLoadingMessage("Saving your quiz...");
-
           setProcessingProgress(100);
           setCurrentGenerationStep("complete");
           setLoadingMessage("Quiz created successfully!");
+          await new Promise(resolve => setTimeout(resolve, 500));
 
           sessionStorage.setItem(RESET_CREATE_SESSION_KEY, "1");
           await clearJobs();
@@ -554,7 +560,7 @@ export default function Create() {
   };
 
   const handleRemoveUpload = (jobId: string) => {
-    const remainingJobs = activeJobs.filter(job => job.jobId !== jobId && job.status === "completed");
+    const remainingJobs = acceptedJobs.filter(job => job.jobId !== jobId);
     const images = remainingJobs.flatMap(job => [
       ...(job.documentImages || []),
       ...(job.isImageOnly && job.imageDataUrl ? [job.imageDataUrl] : []),
@@ -675,7 +681,7 @@ export default function Create() {
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsSourcesPanelOpen(true)}
           className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex items-center gap-2.5 rounded-l-3xl border-l-2 border-y border-primary-500/50 bg-background/95 p-3 pr-2.5 shadow-primary backdrop-blur-xl transition-all hover:bg-primary-500/10 dark:bg-card/95"
-          title="Open Added Materials Panel"
+          title={t("create.openMaterials")}
           data-testid="button-floating-sources-indicator"
         >
           <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white/80 shadow-md shadow-primary/30">
@@ -685,7 +691,7 @@ export default function Create() {
             </span>
           </div>
           <div className="hidden sm:flex flex-col text-left">
-            <span className="text-xs font-black tracking-tight text-foreground">Added <br></br> Materials</span>
+            <span className="text-xs font-black tracking-tight text-foreground">{t('create.addedMaterials')}</span>
           </div>
         </motion.button>
       )}
@@ -809,7 +815,7 @@ export default function Create() {
                 <div className="flex gap-2">
                   <Badge variant="outline" className="text-[10px] font-bold">PDF</Badge>
                   <Badge variant="outline" className="text-[10px] font-bold">DOCX</Badge>
-                  <Badge variant="outline" className="text-[10px] font-bold">IMAGES</Badge>
+                  <Badge variant="outline" className="text-[10px] font-bold">{t('common.images')}</Badge>
                 </div>
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                   {t('create.fileSizeLimit')}
@@ -974,13 +980,13 @@ export default function Create() {
                 <SheetTitle className="text-2xl font-black tracking-tight flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
-                      <Sparkles className="w-5 h-5" />
+                      <FileUp className="w-5 h-5" />
                     </div>
-                    Quiz Configuration
+                    {t("create.configuration")}
                   </div>
                 </SheetTitle>
                 <SheetDescription className="text-sm font-medium text-muted-foreground">
-                  Configure practice options and review added materials.
+                  {t("create.configurationDescription")}
                 </SheetDescription>
               </SheetHeader>
             </div>
@@ -991,31 +997,29 @@ export default function Create() {
               <div className="space-y-3">
                 {!isReady ? (
                   <div className="py-6 text-center space-y-2 rounded-2xl border border-dashed border-border/60 bg-muted/20">
-                    <p className="text-sm font-medium text-muted-foreground">No materials added yet.</p>
-                    <p className="text-xs text-muted-foreground/70">Upload a doc, paste text notes, or enter a prompt.</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t("create.noMaterials")}</p>
+                    <p className="text-xs text-muted-foreground/70">{t("create.noMaterialsHint")}</p>
                   </div>
                 ) : (
                   <div className="space-y-2.5">
                     {/* Documents - Display as separate cards */}
                     {hasUploadedSource && (
                       <div className="space-y-2">
-                        {activeJobs.length > 0 ? (
-                          activeJobs.map((job) => (
+                        {acceptedJobs.length > 0 ? (
+                          acceptedJobs.map((job) => (
                             <div key={job.jobId} className="p-3 rounded-xl bg-background/80 border border-border/60 shadow-sm flex items-center justify-between gap-3">
                               <div className="flex items-center gap-3 min-w-0 flex-1">
-                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
-                                  <FileText className="h-4.5 w-4.5" />
-                                </div>
+                                <FileTypeIcon fileName={job.fileName} mimeType={job.fileType} size="sm" />
                                 <div className="min-w-0 flex-1">
                                   <p className="text-xs font-bold text-foreground truncate">{job.fileName}</p>
-                                  <p className="text-[10px] font-medium text-muted-foreground">Uploaded document</p>
+                                  <p className="text-[10px] font-medium text-muted-foreground">{t("create.uploadedDocument")}</p>
                                 </div>
                               </div>
                               <Button
                                 size="icon"
                                 variant="ghost"
                                 onClick={() => handleRemoveUpload(job.jobId)}
-                                aria-label={`Remove ${job.fileName}`}
+                                aria-label={t('create.removeFile', { name: job.fileName })}
                                 className="h-7 w-7 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
                               >
                                 <X className="h-3.5 w-3.5" />
@@ -1025,12 +1029,10 @@ export default function Create() {
                         ) : (
                           <div className="p-3 rounded-xl bg-background/80 border border-border/60 shadow-sm flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 min-w-0 flex-1">
-                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
-                                <FileText className="h-4.5 w-4.5" />
-                              </div>
+                              <FileTypeIcon fileName="" mimeType={sourceMaterial.type === t("create.image") ? "image/*" : ""} size="sm" />
                               <div className="min-w-0 flex-1">
                                 <p className="text-xs font-bold text-foreground truncate">{t('create.document')}</p>
-                                <p className="text-[10px] font-medium text-muted-foreground">Uploaded document</p>
+                                <p className="text-[10px] font-medium text-muted-foreground">{t("create.uploadedDocument")}</p>
                               </div>
                             </div>
                             <Button
@@ -1050,11 +1052,9 @@ export default function Create() {
                     {hasManualSource && (
                       <div className="p-3 rounded-xl bg-background/80 border border-border/60 shadow-sm flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600">
-                            <Type className="h-4.5 w-4.5" />
-                          </div>
+                          <SourceTypeIcon type="text" size="sm" />
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-bold text-foreground truncate">Pasted text</p>
+                            <p className="text-xs font-bold text-foreground truncate">{t("create.pastedTextLabel")}</p>
                             <p className="text-[10px] text-muted-foreground truncate italic">
                               "{getPreviewText(sourceMaterial.manualText || "", 40)}"
                             </p>
@@ -1075,11 +1075,9 @@ export default function Create() {
                     {hasYoutubeSource && (
                       <div className="p-3 rounded-xl bg-background/80 border border-border/60 shadow-sm flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-500/10 text-red-600">
-                            <Youtube className="h-4.5 w-4.5" />
-                          </div>
+                          <SourceTypeIcon type="youtube" size="sm" />
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-bold text-foreground truncate">YouTube video link</p>
+                            <p className="text-xs font-bold text-foreground truncate">{t("create.youtubeLinkLabel")}</p>
                             <p className="text-[10px] text-muted-foreground truncate">
                               {sourceMaterial.youtubeUrl}
                             </p>
@@ -1100,11 +1098,9 @@ export default function Create() {
                     {hasPromptSource && (
                       <div className="p-3 rounded-xl bg-background/80 border border-border/60 shadow-sm flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-fuchsia-500/10 text-fuchsia-600">
-                            <Wand2 className="h-4.5 w-4.5" />
-                          </div>
+                          <SourceTypeIcon type="prompt" size="sm" />
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-bold text-foreground truncate">Prompt</p>
+                            <p className="text-xs font-bold text-foreground truncate">{t("create.promptLabel")}</p>
                             <p className="text-[10px] text-muted-foreground truncate italic">
                               "{getPreviewText(sourceMaterial.prompt || quizPrompt || "", 40)}"
                             </p>
@@ -1132,7 +1128,7 @@ export default function Create() {
                 onClick={() => setIsSourcesPanelOpen(false)}
                 className="rounded-xl font-bold"
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 onClick={() => {
@@ -1144,7 +1140,7 @@ export default function Create() {
                 className="gap-2 rounded-xl font-black bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/50 h-11 px-5"
               >
                 <ArrowRight className="h-4 w-4" />
-                Proceed
+                {t("common.proceed")}
               </Button>
             </div>
           </SheetContent>
@@ -1154,14 +1150,14 @@ export default function Create() {
         <Sheet open={isSettingsPanelOpen && isReady} onOpenChange={(open) => setIsSettingsPanelOpen(open && isReady)}>
           <SheetContent className="flex w-full flex-col overflow-hidden !max-w-none sm:w-[32rem] lg:w-1/3" side="right">
             <SheetHeader>
-              <SheetTitle className="text-2xl font-black">Quiz Settings</SheetTitle>
-              <SheetDescription>Configure your quiz generation preferences</SheetDescription>
+              <SheetTitle className="text-2xl font-black">{t("create.quizSettings")}</SheetTitle>
+              <SheetDescription>{t("create.quizSettingsDescription")}</SheetDescription>
             </SheetHeader>
 
             <div className="flex-1 overflow-y-auto space-y-6 py-4 px-2">
               {/* Practice Mode Options */}
               <div className="space-y-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Practice Mode</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("create.practiceMode")}</span>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div
                     onClick={() => setQuizMode("generate")}
@@ -1171,9 +1167,9 @@ export default function Create() {
                       <div className={`p-1.5 rounded-lg ${quizMode === "generate" ? "bg-violet-500 text-white" : "bg-muted text-muted-foreground"}`}>
                         <Sparkles className="w-4 h-4" />
                       </div>
-                      <span className="text-xs font-black text-foreground">Smart Practice</span>
+                      <span className="text-xs font-black text-foreground">{t("quizGenerator.smartPractice")}</span>
                     </div>
-                    <p className="text-[11px] text-muted-foreground leading-tight">AI creates original quiz questions from materials.</p>
+                    <p className="text-[11px] text-muted-foreground leading-tight">{t("create.originalQuestions")}</p>
                   </div>
 
                   {!hasPromptSource && (
@@ -1185,27 +1181,27 @@ export default function Create() {
                         <div className={`p-1.5 rounded-lg ${quizMode === "import" ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"}`}>
                           <Import className="w-4 h-4" />
                         </div>
-                        <span className="text-xs font-black text-foreground">Import Exam</span>
+                        <span className="text-xs font-black text-foreground">{t("create.importExam")}</span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground leading-tight">Import questions in their original exam formats.</p>
+                      <p className="text-[11px] text-muted-foreground leading-tight">{t("create.originalFormats")}</p>
                     </div>
                   )}
                 </div>
               </div>
 
-              {settingsError && <div role="alert" className="text-sm text-destructive">{settingsError} <Button variant="outline" size="sm" onClick={retrySettings}>Retry prompt settings</Button></div>}
-              {isDetectingSettings && <p role="status" className="text-sm text-muted-foreground">Reading count and difficulty from your prompt…</p>}
+              {settingsError && <div role="alert" className="text-sm text-destructive">{settingsError} <Button variant="outline" size="sm" onClick={retrySettings}>{t("create.retryPromptSettings")}</Button></div>}
+              {isDetectingSettings && <p role="status" className="text-sm text-muted-foreground">{t("create.detectingSettings")}</p>}
               {/* Quiz Options - Only show in Smart Practice mode */}
               {quizMode === "generate" && (
                 <div className="space-y-5 rounded-2xl border border-border/60 bg-background/50 p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Quiz Options</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("create.quizOptions")}</span>
                   </div>
 
                   {/* Number of Questions */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label className="text-xs font-bold text-foreground">Number of Questions</Label>
+                      <Label className="text-xs font-bold text-foreground">{t("quizGenerator.numQuestions")}</Label>
                       <span className="text-xs font-black text-primary bg-primary/10 px-2.5 py-0.5 rounded-full tabular-nums">
                         {questionCount}
                       </span>
@@ -1225,8 +1221,12 @@ export default function Create() {
                   </div>
 
                   {/* Difficulty Level */}
+                  <QuizLanguageSelect value={sourceMaterial.outputLanguage || "auto"}
+                    onChange={outputLanguage => setSourceMaterial({ ...sourceMaterial, outputLanguage })}
+                    disabled={isLoading} detectedLanguage={detectedLanguage} />
+
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold text-foreground">Difficulty Level</Label>
+                    <Label className="text-xs font-bold text-foreground">{t("quizGenerator.difficultyLevel")}</Label>
                     <div className="grid grid-cols-3 gap-2">
                       {(["easy", "medium", "hard"] as const).map((lvl) => (
                         <Button
@@ -1238,7 +1238,7 @@ export default function Create() {
                           className="capitalize font-bold text-xs h-9 rounded-xl gap-1"
                         >
                           <Gauge className="hidden h-3.5 w-3.5 sm:block" />
-                          {lvl}
+                          {t(`quizGenerator.${lvl}`)}
                         </Button>
                       ))}
                     </div>
@@ -1246,7 +1246,7 @@ export default function Create() {
 
                   {/* Question Types */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold text-foreground">Question Formats</Label>
+                    <Label className="text-xs font-bold text-foreground">{t("create.questionFormats")}</Label>
                     <div className="space-y-2">
                       <div
                         onClick={() => toggleQuestionType("multiple_choice")}
@@ -1255,9 +1255,9 @@ export default function Create() {
                         <div className="flex items-center gap-2">
                           <Checkbox checked={questionTypes.includes("multiple_choice")} className="pointer-events-none" />
                           <CheckSquare className="w-4 h-4 text-primary" />
-                          <span className="text-xs font-bold">Multiple Choice</span>
+                          <span className="text-xs font-bold">{t("home.howItWorks.steps.generate.mcq")}</span>
                         </div>
-                        <span className="text-[10px] text-muted-foreground font-medium">4 options</span>
+                        <span className="text-[10px] text-muted-foreground font-medium">{t("create.fourOptions")}</span>
                       </div>
 
                       <div
@@ -1267,9 +1267,9 @@ export default function Create() {
                         <div className="flex items-center gap-2">
                           <Checkbox checked={questionTypes.includes("selection")} className="pointer-events-none" />
                           <ListCheck className="w-4 h-4 text-green-500" />
-                          <span className="text-xs font-bold">Selection</span>
+                          <span className="text-xs font-bold">{t("study.selection")}</span>
                         </div>
-                        <span className="text-[10px] text-muted-foreground font-medium">Multi-selection</span>
+                        <span className="text-[10px] text-muted-foreground font-medium">{t("create.multiSelection")}</span>
                       </div>
                       <div
                         onClick={() => toggleQuestionType("true_false")}
@@ -1278,9 +1278,9 @@ export default function Create() {
                         <div className="flex items-center gap-2">
                           <Checkbox checked={questionTypes.includes("true_false")} className="pointer-events-none" />
                           <ToggleLeft className="w-4 h-4 text-violet-500" />
-                          <span className="text-xs font-bold">True / False</span>
+                          <span className="text-xs font-bold">{t("home.howItWorks.steps.generate.tf")}</span>
                         </div>
-                        <span className="text-[10px] text-muted-foreground font-medium">Binary</span>
+                        <span className="text-[10px] text-muted-foreground font-medium">{t("create.binary")}</span>
                       </div>
 
                       <div
@@ -1290,9 +1290,9 @@ export default function Create() {
                         <div className="flex items-center gap-2">
                           <Checkbox checked={questionTypes.includes("short_answer")} className="pointer-events-none" />
                           <MessageSquare className="w-4 h-4 text-amber-500" />
-                          <span className="text-xs font-bold">Short Answer</span>
+                          <span className="text-xs font-bold">{t("home.howItWorks.steps.generate.short")}</span>
                         </div>
-                        <span className="text-[10px] text-muted-foreground font-medium">Open recall</span>
+                        <span className="text-[10px] text-muted-foreground font-medium">{t("create.openRecall")}</span>
                       </div>
                     </div>
                   </div>
@@ -1306,36 +1306,36 @@ export default function Create() {
                     <div className="flex items-start gap-3">
                       <Import className="w-5 h-5 text-amber-500 shrink-0 mt-1" />
                       <div className="space-y-2">
-                        <h3 className="text-sm font-bold text-foreground">How Import Mode Works</h3>
+                        <h3 className="text-sm font-bold text-foreground">{t("create.howImportWorks")}</h3>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                          Upload or paste an existing exam. Import multiple-choice, selection, true/false, and short-answer questions. Grouped true/false statements become selection questions. Uncertain layouts or answers are flagged for review.
+                          {t("create.importHelp")}
                         </p>
                       </div>
                     </div>
                   </div>
 
                   <div className="rounded-2xl border border-border/60 bg-background/50 p-4 space-y-3">
-                    <h4 className="text-xs font-bold text-foreground">Supported Formats:</h4>
+                    <h4 className="text-xs font-bold text-foreground">{t("create.supportedFormats")}</h4>
                     <ul className="space-y-2">
                       <li className="flex items-center gap-2 text-xs text-muted-foreground">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        PDF documents
+                        {t("create.pdfDocuments")}
                       </li>
                       <li className="flex items-center gap-2 text-xs text-muted-foreground">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Word documents (.docx, .doc)
+                        {t("create.wordDocuments")}
                       </li>
                       <li className="flex items-center gap-2 text-xs text-muted-foreground">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        PowerPoint presentations (.pptx, .ppt)
+                        {t("create.presentations")}
                       </li>
                       <li className="flex items-center gap-2 text-xs text-muted-foreground">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Images (JPG, PNG)
+                        {t("create.imageFormats")}
                       </li>
                       <li className="flex items-center gap-2 text-xs text-muted-foreground">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Text notes
+                        {t("create.textNotes")}
                       </li>
                     </ul>
                   </div>
@@ -1353,14 +1353,14 @@ export default function Create() {
                 }}
                 className="w-full rounded-xl font-bold sm:w-auto"
               >
-                Back to Materials
+                {t("create.backToMaterials")}
               </Button>
               <Button
                 onClick={handleStartGeneration}
                 disabled={!isReady || isDetectingSettings}
                 className="w-full gap-2 rounded-xl font-black bg-primary hover:bg-primary/90 text-primary-foreground h-11 px-5 sm:w-auto"
               >
-                {isDetectingSettings ? "Reading prompt settings…" : "Start Generating Quiz"}
+                {isDetectingSettings ? t("create.readingSettings") : t("create.startGenerating")}
               </Button>
             </div>
           </SheetContent>
@@ -1370,13 +1370,13 @@ export default function Create() {
         <AlertDialog open={showUploadCloseWarning} onOpenChange={setShowUploadCloseWarning}>
           <AlertDialogContent className="rounded-2xl border-border/50 backdrop-blur-xl">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-2xl font-black tracking-tight">Close upload?</AlertDialogTitle>
+              <AlertDialogTitle className="text-2xl font-black tracking-tight">{t("create.closeUpload")}</AlertDialogTitle>
               <AlertDialogDescription className="text-base font-medium">
-                Your uploaded files are still in the list. Closing this dialog may disrupt their upload progress.
+                {t("create.closeUploadDescription")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="gap-2">
-              <AlertDialogCancel className="rounded-xl font-bold">Keep uploading</AlertDialogCancel>
+              <AlertDialogCancel className="rounded-xl font-bold">{t("create.keepUploading")}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={() => {
                   setShowUploadCloseWarning(false);
@@ -1384,7 +1384,7 @@ export default function Create() {
                 }}
                 className="rounded-xl font-bold"
               >
-                Close dialog
+                {t("create.closeDialog")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -1403,8 +1403,14 @@ export default function Create() {
             setLocation("/history");
           }}
         />
-        {/* Headless Quiz Generator for SSE Progress Dialog Overlay */}
-        <QuizGenerator headless={true} />
+        <QuizGenerationDialog
+          isOpen={isLoading}
+          progress={processingProgress}
+          currentStep={currentGenerationStep}
+          message={loadingMessage}
+          notice={quizMode === "generate" ? detectedLanguage : undefined}
+          mode={quizMode}
+        />
       </div>
     </div>
   );

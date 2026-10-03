@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-4dda15f2-ec42-4497-b4ef-507bf6c3c851",
+  "object": "chat.completion",
+  "created": 1791017603,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"targetLanguage\":\"vi\"}",
+        "reasoning": "We need to output JSON with targetLanguage determined per rules. Input mode: material-based. No explicit user quiz request language. So we look at primary instructional language of ORIGINAL MATERIAL or its visible text. The material is Vietnamese text (NGUỒN GIẢ LẬP etc). So primary instructional language is Vietnamese. Use BCP-47 tag, likely \"vi\". No regional variety indicated. So output {\"targetLanguage\":\"vi\"}.\n\nNeed compact JSON, parseable. Return only JSON."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.324037379,
+    "prompt_tokens": 1102,
+    "prompt_time": 0.048602756,
+    "completion_tokens": 116,
+    "completion_time": 0.240193262,
+    "total_tokens": 1218,
+    "total_time": 0.288796018,
+    "completion_tokens_details": {
+      "reasoning_tokens": 101
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_c800245357",
+  "x_groq": {
+    "id": "req_01m40ffkr3e90brhay3b78h7sr",
+    "seed": 911145140
+  },
+  "service_tier": "on_demand"
+}

@@ -12,6 +12,7 @@ export interface PdfExtractOptions {
   performOcr?: boolean;
   requireComplete?: boolean;
   transcribePage?: (imageUrl: string) => Promise<string>;
+  verifyTranscription?: (imageUrl: string, selectableText: string, transcription: string) => Promise<string>;
   onProgress?: (completedPages: number, totalPages: number) => void;
 }
 
@@ -34,11 +35,21 @@ export interface PdfRenderOptions {
 type PdfJsModule = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
 
 async function loadPdfJs(): Promise<PdfJsModule> {
+  // PDF.js and the rendering context must use the same native Path2D class.
+  // Initialize it here too, since extraction can run outside server/index.ts.
+  const canvas = await loadCanvas();
+  for (const name of ["Path2D", "DOMMatrix", "ImageData"] as const) {
+    if (canvas[name]) Object.defineProperty(globalThis, name, { value: canvas[name], configurable: true, writable: true });
+  }
   return await import("pdfjs-dist/legacy/build/pdf.mjs");
 }
 
 async function loadCanvas() {
-  return await import("@napi-rs/canvas");
+  // PDF.js creates internal image canvases with its own dependency. Mixing its
+  // 1.x native canvas objects with the app's 0.x context can crash the process.
+  const require = createRequire(import.meta.url);
+  const pdfRequire = createRequire(require.resolve("pdfjs-dist/package.json"));
+  return pdfRequire("@napi-rs/canvas") as typeof import("@napi-rs/canvas");
 }
 
 function normalizeText(text: string): string {
@@ -165,9 +176,12 @@ export async function extractTextFromPDFWithOCR(buffer: Buffer, opts: PdfExtract
           });
 
           pageResult.blank = !selectableText.trim() && await isBlankRenderedPage(imageBuffer);
-          const ocrText = pageResult.blank ? "" : normalizeText(opts.transcribePage
+          let ocrText = pageResult.blank ? "" : normalizeText(opts.transcribePage
             ? await opts.transcribePage(`data:image/png;base64,${imageBuffer.toString("base64")}`)
             : await ocrImageBuffer(imageBuffer, { languages: "eng+vie" }));
+          if (ocrText && opts.verifyTranscription) {
+            ocrText = normalizeText(await opts.verifyTranscription(`data:image/png;base64,${imageBuffer.toString("base64")}`, selectableText, ocrText));
+          }
           if (ocrText) {
             pageResult.transcription = ocrText;
             pagesOcred.push(pageNumber);

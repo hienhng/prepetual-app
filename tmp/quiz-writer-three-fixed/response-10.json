@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-675316ba-7f14-4262-9888-7c5b501fdbbc",
+  "object": "chat.completion",
+  "created": 1791016912,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"evaluations\":[{\"index\":0,\"sourceLanguage\":\"Vietnamese\",\"itemLanguage\":\"Vietnamese\",\"isConsistent\":true,\"reason\":\"All learner-facing text (title) is in Vietnamese, matching the resolved output language. No inconsistencies detected.\"}]}",
+        "reasoning": "We need to audit the item. The resolved QUIZ OUTPUT LANGUAGE is Vietnamese. The item is a title type with question \"Lựa chọn chu trình làm lạnh dưới ràng buộc thời gian và năng lượng\". That's Vietnamese. No other fields. So sourceLanguage? The source language is presumably Vietnamese as the text is Vietnamese. itemLanguage also Vietnamese. isConsistent true. Reason: all passed.\n\nWe must output JSON with evaluations array. Provide exactly one evaluation.\n\nMake sure JSON compact."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.424393317,
+    "prompt_tokens": 656,
+    "prompt_time": 0.061808683,
+    "completion_tokens": 162,
+    "completion_time": 0.335395697,
+    "total_tokens": 818,
+    "total_time": 0.39720438,
+    "completion_tokens_details": {
+      "reasoning_tokens": 100
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_e5b4e54fbb",
+  "x_groq": {
+    "id": "req_01m40etgfzeq9sekry6yt92htt",
+    "seed": 257006805
+  },
+  "service_tier": "on_demand"
+}

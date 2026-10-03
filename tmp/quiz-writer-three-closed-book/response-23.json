@@ -1,0 +1,40 @@
+{
+  "id": "chatcmpl-cbd487c6-0179-4f06-9323-05e19dd61c40",
+  "object": "chat.completion",
+  "created": 1791017747,
+  "model": "openai/gpt-oss-120b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"reviews\": [\n    {\n      \"id\": \"P8\",\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": false,\n      \"credibleDistractors\": false,\n      \"reasoningJustification\": \"The task only requires linear scaling of heat per cycle and taking the minimum of two simple bounds (time and electricity). This is a routine substitution problem, not a non‑routine inference.\",\n      \"reason\": \"Routine arithmetic; no interacting constraints or inverse reasoning.\"\n    },\n    {\n      \"id\": \"P9\",\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"The learner must evaluate separate feasibility limits for each mode, then allocate time between the two modes under both a time and an energy budget to maximise heat removal. This requires solving a small optimisation problem with interacting constraints, which goes beyond routine substitution.\",\n      \"reason\": \"Non‑routine optimisation of two coupled constraints.\"\n    },\n    {\n      \"id\": \"P10\",\n      \"selfContained\": true,\n      \"sourceSupported\": true,\n      \"hardReasoning\": true,\n      \"credibleDistractors\": true,\n      \"reasoningJustification\": \"The problem asks for the time‑allocation ratio that minimises total operation time while satisfying simultaneous heat‑load, energy‑budget, and COP constraints. Determining the optimal mix involves setting up and solving inequalities, a non‑trivial inference beyond simple arithmetic.\",\n      \"reason\": \"Requires interacting constraints and optimisation, not routine calculation.\"\n    }\n  ]\n}",
+        "reasoning": "We need to produce JSON reviews for each plan (P8, P9, P10). For each, assess selfContained, sourceSupported, hardReasoning, credibleDistractors (only for multiple_choice? but we still need boolean). Provide reasoningJustification and reason? The spec: Return JSON {\"reviews\":[{\"id\":\"assigned plan id\",\"selfContained\":true,\"sourceSupported\":true,\"hardReasoning\":true,\"reasoningJustification\":\"actual dependent inference beyond routine substitution\",\"reason\":\"specific feasibility/difficulty assessment\"}]}. It also mentions credibleDistractors for HARD multiple_choice/selection. So include credibleDistractors boolean.\n\nAlso need evidence array if sourceEvidence not provided. We have sourceEvidence in records: evidence field includes chunkId and quote. So we must include evidence array with those quotes for each cited chunk. The spec: \"When source grounding is enabled and no server-provided sourceEvidence is supplied, also return evidence:[{\"chunkId\":\"exact cited id\",\"quote\":\"verbatim relevant passage from that cited chunk\"}]. Include at least one relevant quote for EVERY cited chunk\". Here sourceEvidence is provided within records, but they are part of the plan data. The instruction: \"When server-provided sourceEvidence is supplied, independently assess those actual passages but do not regenerate their quotes.\" So we should not regenerate quotes; but we still need to include evidence? It says do not regenerate their quotes. So maybe we omit evidence field? The spec: Return evidence only when no server-provided sourceEvidence is supplied. Since we have sourceEvidence, we should not include evidence field. So output just reviews array.\n\nNow evaluate each plan.\n\nPlan P8: multiple_choice. Need to check selfContained: Does stem (not provided) but based on plan description, the question would ask \"Can mode A alone achieve heat load 2160 kJ within 200 s and 800 kJ electricity?\" All givens are in source: heat per cycle, work per cycle, cycle time, total time, budget, required heat. So selfContained true if question includes those. Since plan intends to use those, assume yes. So selfContained true.\n\nsourceSupported: The source provides those numbers. The reasoning uses them correctly. So sourceSupported true.\n\nhardReasoning: The reasoning involves computing max cycles limited by time and energy, then multiply by heat per cycle. That's a simple bound comparison, routine? The spec says routine linear scaling is routine even with several arithmetic steps. This is basically linear scaling and min of two constraints. That may be considered routine, not hard. So hardReasoning false.\n\ncredibleDistractors: For multiple_choice, need plausible distractors. The plan hasn't specified options. We need to assess if credible distractors can be generated. Since not provided, we cannot guarantee. But we evaluate the plan's ability to produce credible distractors. The plan likely would produce options like \"Yes, possible\", \"No, not possible\", maybe numeric values. Those may be too obvious. So likely not credible. So credibleDistractors false.\n\nProvide reasoningJustification: \"Task requires only linear scaling and min constraint, routine substitution.\"\n\nProvide reason field: maybe \"Routine arithmetic, no non‑routine inference.\"\n\nPlan P9: selection type (choose which case). SelfContained: Need to compare three cases. All data present. So true.\n\nsourceSupported: Yes.\n\nhardReasoning: Need to compute max heat for each mode, then optimize combination of time allocation under both constraints. That involves solving a linear programming type problem (max heat given time and energy). That's more complex than routine substitution, involves interacting constraints and optimization. So qualifies as hard. So hardReasoning true.\n\ncredibleDistractors: For selection, need plausible distractors (i.e., which case works). Options are the three cases. The correct answer is combination A+B. Distractors are the other two cases. Those are plausible. So credibleDistractors true.\n\nPlan P10: multiple_choice about minimizing total time while meeting constraints. This requires setting up inequality system and optimizing ratio of times, maybe solving linear programming to minimize total time given constraints. That's non‑routine, involves interacting constraints and optimization. So hardReasoning true.\n\nCredibleDistractors: Need plausible wrong options based on common mistakes (e.g., ignoring energy constraint, using only COP, etc.). Likely can be generated. So true.\n\nSelfContained: Yes.\n\nsourceSupported: Yes.\n\nNow produce JSON with each review.\n\nInclude fields: id, selfContained, sourceSupported, hardReasoning, credibleDistractors, reasoningJustification, reason.\n\nMake compact JSON.\n\n"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.213213411,
+    "prompt_tokens": 3765,
+    "prompt_time": 0.232769683,
+    "completion_tokens": 1283,
+    "completion_time": 2.93035032,
+    "total_tokens": 5048,
+    "total_time": 3.163120003,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 934
+    }
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_c3da0d4bb9",
+  "x_groq": {
+    "id": "req_01m40fkxpheqz9gvknf2nyr65x",
+    "seed": 1711507178
+  },
+  "service_tier": "on_demand"
+}
