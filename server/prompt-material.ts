@@ -1,4 +1,4 @@
-import type { DifficultyLevel, QuestionType } from "../shared/schema.js";
+import { MAX_QUIZ_QUESTION_COUNT, type DifficultyLevel, type QuestionType } from "../shared/schema.js";
 import { quizLanguageInstructions } from "../shared/quiz-language.js";
 
 export interface PromptMaterialInstructionsParams {
@@ -27,7 +27,7 @@ RULES:
 - Understand arbitrary phrasing, number words, translations, and explicit totals (for example, "five on forces and seven on motion" means 12 questions).
 - When the user corrects an earlier count or difficulty, use their final requested value.
 - Do not treat years, grade levels, ages, chapter numbers, model numbers, or numbers in the quiz subject (for example, "World War 2") as a question count.
-- Extract an explicitly requested question count even when it is above 20; the application will cap it at 20.
+- Extract an explicitly requested question count even when it is above ${MAX_QUIZ_QUESTION_COUNT}; the application will cap it at ${MAX_QUIZ_QUESTION_COUNT}.
 - If no question count is explicitly specified, use 10.
 - A difficulty is specified only when the request clearly describes the quiz as easy, medium, or hard, including an unambiguous equivalent such as beginner/basic, intermediate, advanced/challenging, or a translation in another language.
 - If difficulty is not explicitly specified, use "medium".
@@ -93,8 +93,8 @@ export function validateDetectedPromptSettings(candidate: unknown) {
     throw new Error("Invalid prompt count or difficulty");
   }
   return {
-    questionCount: Math.max(3, Math.min(questionCount, 20)),
+    questionCount: Math.max(3, Math.min(questionCount, MAX_QUIZ_QUESTION_COUNT)),
     difficulty,
-    ...(questionCount > 20 ? { questionCountCapped: true } : {}),
+    ...(questionCount > MAX_QUIZ_QUESTION_COUNT ? { questionCountCapped: true } : {}),
   };
 }

@@ -27,6 +27,7 @@ import { useLanguage } from "@/lib/language-context";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { describeQuizImport, getPendingImportQuestions } from "@shared/import-review";
+import { MAX_QUIZ_QUESTION_COUNT } from "@shared/schema";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -1210,13 +1211,13 @@ export default function Create() {
                       value={[questionCount]}
                       onValueChange={([val]) => setQuestionCount(val)}
                       min={3}
-                      max={20}
+                      max={MAX_QUIZ_QUESTION_COUNT}
                       step={1}
                       className="w-full"
                     />
                     <div className="flex justify-between text-[10px] text-muted-foreground font-bold">
                       <span>3</span>
-                      <span>20</span>
+                      <span>{MAX_QUIZ_QUESTION_COUNT}</span>
                     </div>
                   </div>
 

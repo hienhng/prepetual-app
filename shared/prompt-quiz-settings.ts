@@ -1,4 +1,4 @@
-import type { DifficultyLevel } from "./schema.js";
+import { MAX_QUIZ_QUESTION_COUNT, type DifficultyLevel } from "./schema.js";
 
 export interface PromptQuizSettings {
   questionCount: number;
@@ -15,7 +15,6 @@ interface PromptQuizSettingsCandidate {
 
 const DEFAULT_QUESTION_COUNT = 10;
 const MIN_QUESTION_COUNT = 3;
-const MAX_QUESTION_COUNT = 20;
 const DEFAULT_DIFFICULTY: DifficultyLevel = "medium";
 
 const findExplicitQuestionCount = (prompt: string): number | null => {
@@ -76,9 +75,9 @@ export function resolvePromptQuizSettings(
       ? candidateQuestionCount
       : null
   );
-  const questionCountCapped = requestedQuestionCount !== null && requestedQuestionCount > MAX_QUESTION_COUNT;
+  const questionCountCapped = requestedQuestionCount !== null && requestedQuestionCount > MAX_QUIZ_QUESTION_COUNT;
   const questionCount = requestedQuestionCount !== null && requestedQuestionCount >= MIN_QUESTION_COUNT
-    ? Math.min(requestedQuestionCount, MAX_QUESTION_COUNT)
+    ? Math.min(requestedQuestionCount, MAX_QUIZ_QUESTION_COUNT)
     : DEFAULT_QUESTION_COUNT;
 
   const explicitDifficulty = findExplicitDifficulty(prompt);

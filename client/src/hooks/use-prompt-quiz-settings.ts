@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { DifficultyLevel } from "@shared/schema";
+import { MAX_QUIZ_QUESTION_COUNT, type DifficultyLevel } from "@shared/schema";
 
 export function usePromptQuizSettings(prompt: string, enabled: boolean) {
   const normalizedPrompt = prompt.trim();
@@ -30,7 +30,7 @@ export function usePromptQuizSettings(prompt: string, enabled: boolean) {
           throw new Error(body?.message || `Could not read prompt settings (${response.status}). Please retry.`);
         }
         const settings = await response.json();
-        if (!Number.isInteger(settings.questionCount) || settings.questionCount < 3 || settings.questionCount > 20 ||
+        if (!Number.isInteger(settings.questionCount) || settings.questionCount < 3 || settings.questionCount > MAX_QUIZ_QUESTION_COUNT ||
             !["easy", "medium", "hard"].includes(settings.difficulty)) {
           throw new Error("The settings response was invalid. Please retry.");
         }

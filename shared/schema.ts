@@ -377,6 +377,7 @@ export const quizResultSchemaLegacy = z.object({
 export type QuizResultLegacy = z.infer<typeof quizResultSchemaLegacy>;
 
 // API request schemas
+export const MAX_QUIZ_QUESTION_COUNT = 40;
 export const MAX_SOURCE_TEXT_CHARS = 200_000;
 export const MAX_SOURCE_IMAGES = 5;
 export const MAX_SOURCE_IMAGE_CHARS = 14_000_000;
@@ -390,7 +391,7 @@ export const generateQuizRequestSchema = z.object({
   materialText: z.string().max(MAX_SOURCE_TEXT_CHARS, "Study material is too large").optional(),
   prompt: z.string().max(1000, "Prompt must be 1000 characters or fewer").optional(),
   sourceType: z.enum(["material", "prompt"]).default("material"),
-  questionCount: z.number().min(3).max(20).default(10),
+  questionCount: z.number().min(3).max(MAX_QUIZ_QUESTION_COUNT).default(10),
   questionTypes: z
     .array(z.enum(["multiple_choice", "selection", "true_false", "short_answer"]))
     .min(1)

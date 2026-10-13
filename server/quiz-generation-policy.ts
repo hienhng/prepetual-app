@@ -1,4 +1,5 @@
 import { encodeSelectionAnswer, parseSelectionAnswer, isValidSelectionQuestion } from "../shared/selection-answer.js";
+import { MAX_QUIZ_QUESTION_COUNT } from "../shared/schema.js";
 import { normalizeMultipleChoiceAnswerSet } from "./quiz-quality.js";
 
 export const QUIZ_VALIDATION_BATCH_SIZE = 5;
@@ -15,7 +16,7 @@ export type QuizRagBudget = {
 };
 
 export function getQuizRagBudget(questionCount: number): QuizRagBudget {
-  const count = Math.max(3, Math.min(20, Math.floor(questionCount)));
+  const count = Math.max(3, Math.min(MAX_QUIZ_QUESTION_COUNT, Math.floor(questionCount)));
   return {
     maxChunks: Math.min(20, Math.max(10, Math.ceil(count * 0.8))),
     maxChars: Math.min(30_000, Math.max(14_000, count * 1_200)),
@@ -23,7 +24,7 @@ export function getQuizRagBudget(questionCount: number): QuizRagBudget {
 }
 
 export function getInitialQuizCandidateCount(questionCount: number): number {
-  const count = Math.max(3, Math.min(20, Math.floor(questionCount)));
+  const count = Math.max(3, Math.min(MAX_QUIZ_QUESTION_COUNT, Math.floor(questionCount)));
   // A small reserve avoids a second generation round after an audit rejection.
   return count + Math.min(2, Math.ceil(count * 0.1));
 }

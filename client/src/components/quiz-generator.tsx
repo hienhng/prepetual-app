@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { QuizGenerationDialog } from "@/components/quiz-generation-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { describeQuizImport, getPendingImportQuestions } from "@shared/import-review";
+import { MAX_QUIZ_QUESTION_COUNT } from "@shared/schema";
 
 type QuizMode = "generate" | "import";
 const MAX_SOURCE_IMAGES = 5;
@@ -641,14 +642,14 @@ export function QuizGenerator({ headless = false }: QuizGeneratorProps = {}) {
                   value={[questionCount]}
                   onValueChange={([value]) => setQuestionCount(value)}
                   min={3}
-                  max={20}
+                  max={MAX_QUIZ_QUESTION_COUNT}
                   step={1}
                   className="w-full"
                   data-testid="slider-question-count"
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>3</span>
-                  <span>20</span>
+                  <span>{MAX_QUIZ_QUESTION_COUNT}</span>
                 </div>
               </div>
 
