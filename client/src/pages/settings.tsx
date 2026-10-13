@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLanguage, type AppLanguage } from "@/lib/language-context";
+import { AccountSecurityCard } from "@/components/account-security-card";
 
 type ThemeOption = "light" | "dark" | "system";
 
@@ -346,6 +347,8 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
+
+          <AccountSecurityCard hasUnsavedChanges={hasUnsavedChanges} />
 
           <Card>
             <CardHeader className="pb-3">

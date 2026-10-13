@@ -69,6 +69,7 @@ test("normalizes account subjects and prefers an authenticated session", () => {
 test("regenerates and saves a session before authenticating it", async () => {
   const events: string[] = [];
   const req = {
+    headers: { "user-agent": "browser-agent".repeat(60) },
     session: {
       userId: "attacker-controlled",
       regenerate(callback: (error?: Error) => void) {
@@ -87,6 +88,8 @@ test("regenerates and saves a session before authenticating it", async () => {
 
   assert.deepEqual(events, ["regenerate", "save:real-user"]);
   assert.equal(req.session.userId, "real-user");
+  assert.equal(req.session.userAgent.length, 512);
+  assert.equal(Number.isFinite(Date.parse(req.session.signedInAt)), true);
 });
 
 test("destroys the request session when credentials are reset", async () => {

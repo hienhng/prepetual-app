@@ -1,3 +1,5 @@
+import katex from "katex";
+
 export const KATEX_FORMATTING_RULES = String.raw`MATHEMATICAL CONTENT AND KATEX (MANDATORY):
 - Wrap every mathematical expression, formula, equation, variable used mathematically, and unit expression in $...$ for inline math or $$...$$ for display math.
 - Use KaTeX commands rather than Unicode lookalikes: $x^2$, $x_i$, $\sqrt{x}$, $\pi$, $\pm$, $\infty$, $\Delta T$, and $\rho = \frac{m}{V}$.
@@ -63,6 +65,14 @@ export function getKatexFormattingIssue(value: unknown): string | null {
   }
   if (parsed.math.some((expression) => BROKEN_COMMAND_INSIDE_MATH.test(expression))) {
     return "contains a LaTeX command whose backslash was lost";
+  }
+
+  for (const expression of parsed.math) {
+    try {
+      katex.renderToString(expression, { throwOnError: true, strict: "ignore" });
+    } catch {
+      return "contains an expression that cannot render in KaTeX";
+    }
   }
 
   return null;

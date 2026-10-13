@@ -187,7 +187,7 @@ test("formatting retries retain verification and independent factual review", as
       if (prompt.includes("RETRY REQUIREMENT")) return rejectedAt === "generation" ? { verified: false }
         : { verified: true, explanation: String.raw`Use $2 \times 1$.`, wrongExplanation: "", wrongOptionExplanations: {},
           optionExplanations: { "0": "Two is even." } };
-      return { answerCorrect: false, feedbackConsistent: false };
+      return { answerCorrect: false, feedbackConsistent: false, reason: "The saved key is factually incorrect." };
     });
     await assert.rejects(explain(question, "2"), UnverifiedAnswerError);
     await assert.rejects(explain(question, "2"), UnverifiedAnswerError);
@@ -336,7 +336,7 @@ test("derived wrong-option feedback must pass factual review and failed reviews 
     if (prompt.startsWith("Explain this submitted")) return { verified: true, explanation: "Two is even.", wrongExplanation: "Three is odd.",
       optionExplanations: { "0": "Two is even.", "1": "Three is even." } };
     assert.match(prompt, /"wrongAnswerExplanations":\{"3":"Three is even\."\}/);
-    return { answerCorrect: true, feedbackConsistent: false };
+    return { answerCorrect: true, feedbackConsistent: false, reason: "The explanation incorrectly says three is even." };
   });
   await assert.rejects(explain(question, "3"), /failed feedback review after retry/);
   await assert.rejects(explain(question, "3"), /failed feedback review after retry/);
@@ -366,7 +366,7 @@ test("review rejects wrong-language or cross-option feedback and does not cache 
     calls++;
     return prompt.startsWith("Explain this submitted")
       ? { verified: true, explanation: "English explanation for a Vietnamese quiz.", wrongExplanation: "", wrongOptionExplanations: {}, optionExplanations: { "0": "Two is even." } }
-      : { answerCorrect: true, feedbackConsistent: false };
+      : { answerCorrect: true, feedbackConsistent: false, reason: "The explanation uses the wrong instructional language." };
   });
   const vietnamese = { ...question, question: "Số nào là số chẵn?" };
   await assert.rejects(explain(vietnamese, "2"), /failed feedback review after retry/);
@@ -395,7 +395,7 @@ test("review rejects selection feedback that discusses another option", async t 
       wrongExplanation: "", wrongOptionExplanations: {}, optionExplanations: { "0": "Two and three are prime, unlike four.", "1": "Three is prime." } };
     assert.match(prompt, /Check every entry individually/);
     assert.match(prompt, /Two and three are prime, unlike four/);
-    return { answerCorrect: true, feedbackConsistent: false };
+    return { answerCorrect: true, feedbackConsistent: false, reason: "The option explanation discusses another option." };
   });
   await assert.rejects(explain(selection, '["2","3"]'), /failed feedback review after retry/);
 });
@@ -471,7 +471,7 @@ test("a retry cannot bypass rejection of the saved answer or the explanation rev
       if (calls === 1) return { verified: true, explanation: "" };
       if (calls === 2) return rejectedAt === "generation" ? { verified: false }
         : { verified: true, explanation: "Two is divisible by two.", wrongExplanation: "", wrongOptionExplanations: {}, optionExplanations: { "0": "Two is divisible by two." } };
-      return { answerCorrect: false, feedbackConsistent: false };
+      return { answerCorrect: false, feedbackConsistent: false, reason: "The saved key contradicts the evidence." };
     });
     await assert.rejects(explain(question, "2"), UnverifiedAnswerError);
     assert.equal(calls, rejectedAt === "generation" ? 2 : 3);
@@ -520,11 +520,45 @@ test("multiple choice and true/false reject missing per-option feedback and cros
       if (prompt.startsWith("Explain this submitted")) return { verified: true, explanation: "Two is even, unlike three.",
         wrongExplanation: "", wrongOptionExplanations: {}, optionExplanations: { "0": "Two is even, unlike the other option." } };
       reviewed = true;
-      return { answerCorrect: true, feedbackConsistent: false };
+      return { answerCorrect: true, feedbackConsistent: false, reason: "The option explanation compares other options." };
     });
     await assert.rejects(explain(item, item.correctAnswer), /failed feedback review after retry/);
     assert.equal(reviewed, true);
     const incomplete = createSubmittedAnswerExplainer(async () => ({ verified: true, explanation: "Two is even.", wrongExplanation: "", wrongOptionExplanations: {} }));
     await assert.rejects(incomplete(item, item.correctAnswer), /invalid individual option feedback after retry/);
   }
+});
+
+test("an unexplained rejection retries once while distinguishing a saved False key from a wrong submission", async t => {
+  t.mock.method(console, "warn", () => {});
+  let reviews = 0;
+  const item: Question = { id: "false-key", type: "true_false", question: "Two is odd.", correctAnswer: "False" };
+  const explain = createSubmittedAnswerExplainer(async prompt => {
+    if (prompt.startsWith("Explain this submitted")) return { verified: true, explanation: "Two is even, so the statement is false.",
+      wrongExplanation: "Two is even.", optionExplanations: { "0": "The statement is false because two is even.", "1": "Two is even." } };
+    reviews++;
+    assert.match(prompt, /a false statement correctly keyed "False" requires answerCorrect:true/);
+    assert.match(prompt, /Decimal commas inside dollar delimiters are valid KaTeX/);
+    if (reviews === 1) return { answerCorrect: false, feedbackConsistent: true, reason: "" };
+    assert.match(prompt, /rejected without explaining the substantive failure/);
+    return { answerCorrect: true, feedbackConsistent: true };
+  });
+  const result = await explain(item, "True");
+  assert.equal(result.question.correctAnswer, "False");
+  assert.equal(reviews, 2);
+  await explain(item, "True");
+  assert.equal(reviews, 2);
+});
+
+test("persistent unexplained reviewer rejection fails closed and is never cached", async t => {
+  t.mock.method(console, "warn", () => {});
+  let reviews = 0;
+  const explain = createSubmittedAnswerExplainer(async prompt => {
+    if (prompt.startsWith("Explain this submitted")) return { verified: true, explanation: "Two is even.", wrongExplanation: "",
+      optionExplanations: { "0": "Two is even." } };
+    reviews++;
+    return { answerCorrect: false, feedbackConsistent: true, reason: "" };
+  });
+  for (let attempt = 0; attempt < 2; attempt++) await assert.rejects(explain(question, "2"), /invalid verdict after retry/);
+  assert.equal(reviews, 4);
 });

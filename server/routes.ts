@@ -10,7 +10,9 @@ import { createServer, type Server } from "http";
 import { createGenerationTiming } from "./generation-timing.js";
 import { QuizImportError } from "./quiz-import.js";
 import { confirmImportedQuestion, getPendingImportQuestions } from "../shared/import-review.js";
-import { transcribeExamImage, verifyExamPageTranscription } from "./openai.js";
+import { transcribeExamImage, verifyExamPageTranscription, verifyExamImageTranscription } from "./openai.js";
+import { prepareExamImageSource } from "./exam-image-source.js";
+import type { ImportSourceCheck } from "./quiz-import.js";
 import { prepareQuizSource } from "./quiz-source-preparation.js";
 import { storage } from "./storage.js";
 import { setupAuth, isAuthenticated, populateUser } from "./auth.js";
@@ -67,7 +69,7 @@ const openaiClient = new OpenAI({
 });
 
 const textModel = process.env.AI_QUIZ_MODEL || "openai/gpt-oss-120b";
-const visionModel = process.env.AI_VISION_MODEL || "qwen/qwen3.6-27b";
+const visionModel = process.env.AI_VISION_MODEL || "qwen/qwen3.8-27b";
 const SHORT_ANSWER_GRADING_MAX_TOKENS = 1_200;
 const SHORT_ANSWER_GRADING_RETRY_MAX_TOKENS = 2_000;
 const completeQuizFeedback: import("./verified-feedback.js").FeedbackCompletion = async (prompt, images) => {
@@ -1147,10 +1149,15 @@ export async function registerRoutes(
       let textForImport = text;
       let sourceUsesVisionTranscription = false;
       const importImages = [...new Set([...(documentImages || []), ...(sourceImageUrl ? [sourceImageUrl] : [])])];
+      let sourceChecks: ImportSourceCheck[] | undefined;
       if (importImages.length > 0) {
         if (text === "[Images uploaded - AI will analyze visually]" || text.length < 50) {
-          const transcripts = await Promise.all(importImages.map(transcribeExamImage));
-          textForImport = transcripts.join("\n\n");
+          const source = await prepareExamImageSource(importImages, {
+            transcribe: transcribeExamImage,
+            verify: verifyExamImageTranscription,
+          });
+          textForImport = source.text;
+          sourceChecks = source.sourceChecks;
           sourceUsesVisionTranscription = true;
         }
       }
@@ -1164,6 +1171,7 @@ export async function registerRoutes(
       const { questions, title, category, importSummary } = await importExistingQuiz({
         text: textForImport,
         documentImages: importImages,
+        sourceChecks,
       });
 
 

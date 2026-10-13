@@ -361,7 +361,7 @@ function AuthenticatedLayout() {
 
   // Redirect to onboarding if not completed
   useEffect(() => {
-    if (user && !user.onboardingCompleted && location !== "/onboarding") {
+    if (user && !user.onboardingCompleted && location !== "/onboarding" && location !== "/settings") {
       setLocation("/onboarding");
     }
   }, [user, location, setLocation]);
@@ -400,7 +400,7 @@ function AuthenticatedLayout() {
           </SidebarInset>
         </div>
       </SidebarProvider>
-      {user && !user.emailVerified && (
+      {user && !user.emailVerified && location !== "/settings" && (
         <VerificationPrompt email={user.email} open={true} />
       )}
     </>

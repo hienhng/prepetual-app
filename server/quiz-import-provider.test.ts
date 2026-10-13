@@ -6,6 +6,7 @@ test("import provider retries truncated output and includes every supplied image
   process.env.GEMINI_API_KEY = "test-only";
   process.env.AI_INTEGRATIONS_OPENAI_BASE_URL = "http://test.invalid/v1";
   const originalFetch = globalThis.fetch;
+  let specificFetch: typeof fetch | undefined;
   let calls = 0;
   let auditCalls = 0;
   let requireRecovery = false;
@@ -15,11 +16,13 @@ test("import provider retries truncated output and includes every supplied image
   const imageCounts: number[] = [];
   const respond = (data: unknown, reason = "stop") => new Response(JSON.stringify({ choices: [{ finish_reason: reason, message: { content: JSON.stringify(data) } }] }), { headers: { "Content-Type": "application/json" } });
   globalThis.fetch = async (_url, init) => {
+    if (specificFetch) return specificFetch(_url, init);
     calls++;
     const body = JSON.parse(String(init?.body));
     const content = body.messages[0].content;
-    imageCounts.push(content.filter((part: any) => part.type === "image_url").length);
-    const prompt = content[0].text;
+    imageCounts.push(Array.isArray(content) ? content.filter((part: any) => part.type === "image_url").length : 0);
+    const prompt = typeof content === "string" ? content : content[0].text;
+    if (typeof content === "string") assert.equal(body.model, process.env.AI_QUIZ_MODEL || "openai/gpt-oss-120b");
     if (prompt.startsWith("EXAM PAGE TRANSCRIPTION REVIEW")) {
       assert.equal(content.filter((part: any) => part.type === "image_url").length, 1);
       return respond({ transcription: pageReviewText }, pageReviewTruncated ? "length" : "stop");
@@ -55,6 +58,60 @@ test("import provider retries truncated output and includes every supplied image
     assert.ok(quiz.questions.every(question => !question.importReview && question.correctAnswer === "Two"));
     assert.equal(calls, 4);
     assert.ok(imageCounts.every((count) => count === 5));
+    await t.test("visually verified source requires agreement between independent text and visual answer checks", async () => {
+      const before = calls;
+      const verified = await importExistingQuiz({
+        text: "Câu 1. Which is greater?\nA. One\nB. Two", documentImages: ["one", "two"],
+        sourceChecks: [{ label: "Câu 1.", type: "multiple_choice" }],
+      });
+      assert.equal(calls - before, 2);
+      assert.deepEqual(imageCounts.slice(-2), [0, 2]);
+      assert.equal(verified.questions[0].correctAnswer, "Two");
+      assert.equal(verified.questions[0].importReview, undefined);
+    });
+    await t.test("truncated answer batches retry only their missing channel one question at a time", async () => {
+      const requests: Array<{ ids: string[]; images: number }> = [];
+      specificFetch = async (_url, init) => {
+        const body = JSON.parse(String(init?.body));
+        const content = body.messages[0].content;
+        const prompt = typeof content === "string" ? content : content[0].text;
+        const items = JSON.parse(prompt.split("\nITEMS:\n")[1]);
+        requests.push({ ids: items.map((item: any) => item.sourceId), images: typeof content === "string" ? 0 : content.length - 1 });
+        if (requests.length === 1) return respond({ answers: [] }, "length");
+        return respond({ answers: items.map((item: any) => ({ sourceId: item.sourceId, solution: "Checked every choice.", correctOptionIndex: 1, verified: true })) });
+      };
+      try {
+        const result = await importExistingQuiz({
+          text: "Câu 1. Which?\nA. One\nB. Two\nCâu 2. Which?\nA. One\nB. Two",
+          documentImages: ["one", "two"], sourceChecks: [{ label: "Câu 1.", type: "multiple_choice" }, { label: "Câu 2.", type: "multiple_choice" }],
+        });
+        assert.deepEqual(requests, [{ ids: ["source-1", "source-2"], images: 0 }, { ids: ["source-1", "source-2"], images: 2 }, { ids: ["source-1"], images: 0 }, { ids: ["source-2"], images: 0 }]);
+        assert.ok(result.questions.every(q => q.correctAnswer === "Two" && !q.importReview));
+      } finally { specificFetch = undefined; }
+    });
+    await t.test("answer disagreement is rechecked but incomplete source questions remain locked", async () => {
+      let recheckCalls = 0;
+      specificFetch = async (_url, init) => {
+        const body = JSON.parse(String(init?.body));
+        const content = body.messages[0].content;
+        const prompt = typeof content === "string" ? content : content[0].text;
+        const items = JSON.parse(prompt.split("\nITEMS:\n")[1]);
+        assert.deepEqual(items.map((item: any) => item.sourceId), ["source-1"]);
+        recheckCalls++;
+        return respond({ answers: [{ sourceId: "source-1", solution: "Independently rechecked every choice.", correctOptionIndex: recheckCalls === 2 ? 0 : 1, verified: true }] });
+      };
+      try {
+        const result = await importExistingQuiz({
+          text: "Câu 1. Which?\nA. One\nB. Two\nCâu 2. Cropped question",
+          documentImages: ["one"], sourceChecks: [{ label: "Câu 1.", type: "multiple_choice" }, { label: "Câu 2.", type: "multiple_choice", reason: "The next page is missing." }],
+        });
+        assert.equal(recheckCalls, 4);
+        assert.equal(result.questions[0].correctAnswer, "Two");
+        assert.equal(result.questions[0].importReview, undefined);
+        assert.equal(result.questions[1].correctAnswer, "");
+        assert.equal(result.questions[1].importReview?.reason, "The next page is missing.");
+      } finally { specificFetch = undefined; }
+    });
     await t.test("flagged question recovery receives the original images and resolves layout and answer in one call", async () => {
       requireRecovery = true;
       const before = calls;

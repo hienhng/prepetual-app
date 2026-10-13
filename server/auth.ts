@@ -6,7 +6,7 @@ import cryptoRandomString from "crypto-random-string";
 import { OAuth2Client } from "google-auth-library";
 import { storage } from "./storage.js";
 import { sendVerificationEmail, sendPasswordResetEmail } from "./email.js";
-import { users, verificationTokens, registerSchema, loginSchema } from "../shared/schema.js";
+import { users, sessions, verificationTokens, registerSchema, loginSchema } from "../shared/schema.js";
 import { db } from "./db.js";
 import { and, eq, gt, sql } from "drizzle-orm";
 import {
@@ -22,6 +22,7 @@ import {
 } from "./auth-security.js";
 import { createRateLimitMiddleware, readPositiveIntegerEnv } from "./rate-limit.js";
 import { postgresRateLimitStore } from "./postgres-rate-limit-store.js";
+import { createAccountSecurityHandlers, summarizeActiveSession } from "./account-security.js";
 
 const PgSession = connectPgSimple(session);
 
@@ -65,6 +66,8 @@ export function setupAuth(app: Express): void {
   const googleRateLimit = createAuthLimiter("auth-google-ip", "AUTH_GOOGLE_RATE_LIMIT", 30, authWindowMs);
   const resendIpRateLimit = createAuthLimiter("auth-resend-ip", "AUTH_RESEND_IP_RATE_LIMIT", 10, emailWindowMs);
   const resendAccountRateLimit = createAuthLimiter("auth-resend-account", "AUTH_RESEND_ACCOUNT_RATE_LIMIT", 3, emailWindowMs, getEmailRateLimitSubject);
+  const changePasswordRateLimit = createAuthLimiter("auth-change-password", "AUTH_CHANGE_PASSWORD_RATE_LIMIT", 5, authWindowMs, getSessionRateLimitSubject);
+  const logoutAllRateLimit = createAuthLimiter("auth-logout-all", "AUTH_LOGOUT_ALL_RATE_LIMIT", 10, authWindowMs, getSessionRateLimitSubject);
 
   const sessionSettings: session.SessionOptions = {
     store: new PgSession({
@@ -86,6 +89,36 @@ export function setupAuth(app: Express): void {
 
   app.set("trust proxy", 1);
   app.use(session(sessionSettings));
+
+  const accountSecurity = createAccountSecurityHandlers({
+    getUser: (userId) => storage.getUser(userId),
+    getSessions: async (userId, currentSessionId) => {
+      const activeSessions = await db.select({ id: sessions.sid, data: sessions.sess, expiresAt: sessions.expire })
+        .from(sessions)
+        .where(and(sql`${sessions.sess} ->> 'userId' = ${userId}`, gt(sessions.expire, new Date())));
+      return activeSessions.map(row => summarizeActiveSession(row, currentSessionId))
+        .sort((a, b) => Number(b.current) - Number(a.current) || b.expiresAt.localeCompare(a.expiresAt));
+    },
+    changePassword: (userId, expectedHash, passwordHash) => db.transaction(async (tx) => {
+      const [updated] = await tx.update(users)
+        .set({ passwordHash, updatedAt: new Date() })
+        .where(and(eq(users.id, userId), eq(users.passwordHash, expectedHash)))
+        .returning({ id: users.id });
+      if (!updated) return false;
+      await tx.delete(verificationTokens).where(and(
+        eq(verificationTokens.userId, userId),
+        eq(verificationTokens.type, "password_reset"),
+      ));
+      await tx.execute(sql`DELETE FROM sessions WHERE sess ->> 'userId' = ${userId}`);
+      return true;
+    }),
+    revokeSessions: async (userId) => {
+      await db.execute(sql`DELETE FROM sessions WHERE sess ->> 'userId' = ${userId}`);
+    },
+  });
+  app.get("/api/auth/security", isAuthenticated, accountSecurity.getSecurity);
+  app.post("/api/auth/change-password", isAuthenticated, changePasswordRateLimit, accountSecurity.changePassword);
+  app.post("/api/auth/logout-all", isAuthenticated, logoutAllRateLimit, accountSecurity.logoutAll);
 
   app.post("/api/auth/register", registerRateLimit, async (req, res) => {
     try {

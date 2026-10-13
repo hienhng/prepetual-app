@@ -5,6 +5,13 @@ import { getRateLimitSubject } from "./rate-limit.js";
 
 const MIN_PRODUCTION_SESSION_SECRET_LENGTH = 32;
 
+declare module "express-session" {
+  interface SessionData {
+    userAgent?: string;
+    signedInAt?: string;
+  }
+}
+
 export function generateVerificationCode(): string {
   return crypto.randomInt(100_000, 1_000_000).toString();
 }
@@ -95,6 +102,9 @@ export async function establishAuthenticatedSession(
       }
 
       req.session.userId = userId;
+      const userAgent = req.headers?.["user-agent"];
+      req.session.userAgent = typeof userAgent === "string" ? userAgent.slice(0, 512) : undefined;
+      req.session.signedInAt = new Date().toISOString();
       req.session.save((saveError) => {
         if (saveError) reject(saveError);
         else resolve();

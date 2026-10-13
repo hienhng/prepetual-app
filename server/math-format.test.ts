@@ -32,3 +32,9 @@ test("does not flag ordinary non-mathematical prose", () => {
   assert.equal(getKatexFormattingIssue("Which process transfers thermal energy through a fluid?"), null);
   assert.equal(getKatexFormattingIssue("Compare the input/output behavior of the system."), null);
 });
+
+test("accepts decimal commas but rejects delimited math that KaTeX cannot render", () => {
+  assert.equal(getKatexFormattingIssue(String.raw`$3,34\times10^{5}\,\mathrm{J/kg}$`), null);
+  assert.match(getKatexFormattingIssue(String.raw`$\text{J/(kg\cdot K)}$`) ?? "", /cannot render/);
+  assert.match(getKatexFormattingIssue(String.raw`$\unknowncommand{2}$`) ?? "", /cannot render/);
+});
