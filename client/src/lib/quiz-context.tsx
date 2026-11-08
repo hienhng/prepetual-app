@@ -1,8 +1,10 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "./queryClient";
-import type { Quiz, QuizResult, Question, QuizProgress, ShortAnswerGradingResult } from "@shared/schema";
+import type { Quiz, QuizResult, Question, ShortAnswerGradingResult } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuizProgressSummaries, quizProgressSummaryKey, EMPTY_PROGRESS } from "@/hooks/use-quiz-progress";
+import type { QuizProgressSummary, QuizProgressDetail } from "@shared/quiz-progress";
 import { advanceQuizGenerationProgress } from "./quiz-generation-progress";
 
 const safeSessionStorageSet = (key: string, value: string) => {
@@ -55,18 +57,7 @@ export function composeSourceMaterialText(material: SourceMaterial, legacyText?:
   return "";
 }
 
-export interface SavedQuizProgress {
-  quizId: string;
-  quiz: Quiz;
-  answers: Record<string, string>;
-  checkedQuestions: string[];
-  currentIndex: number;
-  retryAnswers: Record<string, string>;
-  retryCheckedQuestions: string[];
-  shortAnswerGradingResults: Record<string, ShortAnswerGradingResult>;
-  timeTaken: number;
-  savedAt: string;
-}
+export type SavedQuizProgress = QuizProgressSummary;
 
 const writeQuizProgressSnapshot = (
   quiz: Quiz | null,
@@ -158,7 +149,7 @@ interface QuizContextType extends QuizState {
   setRetryCorrectCount: (count: number) => void;
   resetQuiz: () => void;
   saveCurrentProgress: (params?: SaveProgressParams) => void;
-  loadSavedProgress: (quizId: string) => void;
+  loadSavedProgress: (quizId: string, signal?: AbortSignal) => Promise<void>;
   removeSavedProgress: (quizId: string) => void;
   clearRestoredState: (quizId: string) => void;
   syncPlayerState: (currentIndex: number, retryAnswers: Record<string, string>, retryCheckedQuestions: string[], shortAnswerGradingResults: Record<string, ShortAnswerGradingResult>, timeTaken: number) => void;
@@ -168,21 +159,12 @@ interface QuizContextType extends QuizState {
 
 const QuizContext = createContext<QuizContextType | undefined>(undefined);
 
-// Type for API response - includes the full quiz object
-interface SavedProgressFromAPI extends QuizProgress {
-  quiz: Quiz;
-}
-
 export function QuizProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { user, isLoading: isAuthLoading } = useAuth();
 
-  // Fetch saved progresses from API
-  const { data: apiProgresses = [], isPending: isProgressPending, refetch: refetchProgresses } = useQuery<SavedProgressFromAPI[]>({
-    queryKey: ["/api/quiz-progress"],
-    staleTime: 0,
-    enabled: !!user,
-  });
+  // Summaries contain no source documents, images, or question bodies.
+  const { data: apiProgresses = EMPTY_PROGRESS, isPending: isProgressPending } = useQuizProgressSummaries();
 
   // Mutation to save progress
   const saveProgressMutation = useMutation({
@@ -200,7 +182,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/quiz-progress"] });
+      queryClient.invalidateQueries({ queryKey: quizProgressSummaryKey });
     },
   });
 
@@ -210,7 +192,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       await apiRequest("DELETE", `/api/quiz-progress/${quizId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/quiz-progress"] });
+      queryClient.invalidateQueries({ queryKey: quizProgressSummaryKey });
     },
   });
 
@@ -285,28 +267,13 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         : prev);
       return;
     }
-    if (isProgressPending) return;
-    const converted: SavedQuizProgress[] = apiProgresses
-      .filter((p) => !user || p.quiz.userId === user.id)
-      .map((p) => ({
-      quizId: p.quizId,
-      quiz: p.quiz,
-      answers: p.answers,
-      checkedQuestions: p.checkedQuestions || [],
-      currentIndex: p.currentIndex ?? 0,
-      retryAnswers: p.retryAnswers ?? {},
-      retryCheckedQuestions: p.retryCheckedQuestions ?? [],
-      shortAnswerGradingResults: p.shortAnswerGradingResults ?? {},
-      timeTaken: p.timeTaken ?? 0,
-      savedAt: p.savedAt instanceof Date ? p.savedAt.toISOString() : String(p.savedAt),
-    }));
-    setState((prev) => {
-      // Only update if data actually changed
-      if (prev.isLoadingSavedProgresses || JSON.stringify(prev.savedProgresses) !== JSON.stringify(converted)) {
-        return { ...prev, savedProgresses: converted, isLoadingSavedProgresses: false };
-      }
-      return prev;
-    });
+    if (isProgressPending) {
+      setState(prev => prev.isLoadingSavedProgresses && prev.savedProgresses.length === 0
+        ? prev : { ...prev, savedProgresses: [], isLoadingSavedProgresses: true });
+      return;
+    }
+    const converted = apiProgresses.filter(p => p.userId === user.id);
+    setState(prev => ({ ...prev, savedProgresses: converted, isLoadingSavedProgresses: false }));
   }, [apiProgresses, isProgressPending, isAuthLoading, user?.id]);
 
   useEffect(() => {
@@ -441,8 +408,8 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const completeQuiz = async (result: QuizResult) => {
     // The submission endpoint already removed persisted progress. Cancel older
     // reads before removing the cached copy so it cannot be restored on return.
-    await queryClient.cancelQueries({ queryKey: ["/api/quiz-progress"] });
-    queryClient.setQueryData<SavedProgressFromAPI[]>(["/api/quiz-progress"], (progresses) =>
+    await queryClient.cancelQueries({ queryKey: quizProgressSummaryKey });
+    queryClient.setQueryData<QuizProgressSummary[]>([...quizProgressSummaryKey, user?.id], (progresses) =>
       progresses?.filter((progress) => progress.quizId !== result.quizId)
     );
     setState((prev) => ({
@@ -652,45 +619,36 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     });
   }, [state.currentQuiz, state.userAnswers, state.checkedQuestions, state.playerShortAnswerGradingResults, getPlayerProgress, saveProgressMutation, user?.id]);
 
-  const loadSavedProgress = useCallback((quizId: string) => {
-    attemptCompletedRef.current = false;
-    setState((prev) => {
-      const progress = prev.savedProgresses.find(p => p.quizId === quizId);
-      if (!progress) return prev;
-      
-      const loadedCheckedQuestions = new Set(progress.checkedQuestions || []);
-      const answersCount = Object.keys(progress.answers).length;
-      
-      // Initialize refs with restored retry data
-      currentIndexRef.current = progress.currentIndex ?? 0;
-      retryAnswersRef.current = progress.retryAnswers ?? {};
-      retryCheckedQuestionsRef.current = progress.retryCheckedQuestions ?? [];
-      shortAnswerGradingResultsRef.current = progress.shortAnswerGradingResults ?? {};
-      timeTakenRef.current = progress.timeTaken ?? 0;
-      
-      // Set current quiz and answers from saved progress
-      writeQuizProgressSnapshot(
-        progress.quiz,
-        progress.answers,
-        progress.checkedQuestions || [],
-        progress.shortAnswerGradingResults || {}
-      );
-      
-      return {
-        ...prev,
-        currentQuiz: progress.quiz,
-        sourceMaterial: deriveSourceMaterialFromQuiz(progress.quiz),
-        userAnswers: progress.answers,
-        checkedQuestions: loadedCheckedQuestions,
-        lastSavedAnswersCount: answersCount,
-        restoredCurrentIndex: progress.currentIndex ?? 0,
-        restoredRetryAnswers: progress.retryAnswers ?? {},
-        restoredRetryCheckedQuestions: progress.retryCheckedQuestions ?? [],
-        restoredShortAnswerGradingResults: progress.shortAnswerGradingResults ?? {},
-        playerShortAnswerGradingResults: progress.shortAnswerGradingResults ?? {},
-        timeTaken: progress.timeTaken ?? 0,
-      };
+  const loadSavedProgress = useCallback(async (quizId: string, signal?: AbortSignal) => {
+    const response = await fetch(`/api/quiz-progress/${encodeURIComponent(quizId)}`, {
+      credentials: "include", signal,
     });
+    if (!response.ok) throw new Error("Failed to load saved progress");
+    const progress: QuizProgressDetail = await response.json();
+    if (signal?.aborted) return;
+    attemptCompletedRef.current = false;
+    currentIndexRef.current = progress.currentIndex ?? 0;
+    retryAnswersRef.current = progress.retryAnswers ?? {};
+    retryCheckedQuestionsRef.current = progress.retryCheckedQuestions ?? [];
+    shortAnswerGradingResultsRef.current = progress.shortAnswerGradingResults ?? {};
+    timeTakenRef.current = progress.timeTaken ?? 0;
+    writeQuizProgressSnapshot(progress.quiz, progress.answers,
+      progress.checkedQuestions || [], progress.shortAnswerGradingResults || {});
+    setState(prev => ({
+      ...prev,
+      currentQuiz: progress.quiz,
+      quizResult: null,
+      sourceMaterial: deriveSourceMaterialFromQuiz(progress.quiz),
+      userAnswers: progress.answers,
+      checkedQuestions: new Set(progress.checkedQuestions || []),
+      lastSavedAnswersCount: Object.keys(progress.answers).length,
+      restoredCurrentIndex: progress.currentIndex ?? 0,
+      restoredRetryAnswers: progress.retryAnswers ?? {},
+      restoredRetryCheckedQuestions: progress.retryCheckedQuestions ?? [],
+      restoredShortAnswerGradingResults: progress.shortAnswerGradingResults ?? {},
+      playerShortAnswerGradingResults: progress.shortAnswerGradingResults ?? {},
+      timeTaken: progress.timeTaken ?? 0,
+    }));
   }, []);
 
   const clearRestoredState = useCallback((quizId: string) => {

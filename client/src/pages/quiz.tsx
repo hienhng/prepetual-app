@@ -47,15 +47,18 @@ export default function Quiz() {
 
     if (isLoadingSavedProgresses) return;
 
-    if (savedProgress && restoredProgressIdRef.current !== quizId) {
-      restoredProgressIdRef.current = quizId;
-      setHasLoadError(false);
-      loadSavedProgress(quizId);
-      return;
-    }
-
     const controller = new AbortController();
     setHasLoadError(false);
+    if (savedProgress && restoredProgressIdRef.current !== quizId) {
+      void loadSavedProgress(quizId, controller.signal).then(() => {
+        if (!controller.signal.aborted) restoredProgressIdRef.current = quizId;
+      }).catch(error => {
+        if (controller.signal.aborted) return;
+        console.error("Failed to restore saved progress:", error);
+        setHasLoadError(true);
+      });
+      return () => controller.abort();
+    }
 
     const loadQuiz = async () => {
       try {
@@ -83,7 +86,7 @@ export default function Quiz() {
 
     loadQuiz();
     return () => controller.abort();
-  }, [currentQuiz?.id, isLoadingSavedProgresses, loadAttempt, quizId, savedProgress]);
+  }, [currentQuiz?.id, isLoadingSavedProgresses, loadAttempt, quizId, savedProgress, loadSavedProgress]);
 
   useEffect(() => {
     if (quizId) return;

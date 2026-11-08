@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuizProgressSummaries, EMPTY_PROGRESS } from "@/hooks/use-quiz-progress";
+import type { QuizProgressSummary, ProgressQuizSummary } from "@shared/quiz-progress";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import {
@@ -32,7 +33,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useQuiz } from "@/lib/quiz-context";
 import { useLanguage } from "@/lib/language-context";
-import type { Quiz } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 
@@ -85,7 +85,7 @@ function getCategoryValue(raw?: string | null) {
 interface InProgressItem {
   type: "saved";
   quizId: string;
-  quiz: Quiz;
+  quiz: ProgressQuizSummary;
   answers: Record<string, string>;
   checkedQuestions: string[];
   savedAt: string;
@@ -97,7 +97,7 @@ interface InProgressItem {
   timeTaken: number;
 }
 
-function buildInProgressItem(p: any): InProgressItem {
+function buildInProgressItem(p: QuizProgressSummary): InProgressItem {
   const mergedAnswers: Record<string, string> = { ...p.answers };
   if (p.retryAnswers) {
     Object.entries(p.retryAnswers).forEach(([k, v]) => {
@@ -108,16 +108,10 @@ function buildInProgressItem(p: any): InProgressItem {
   const answerKeys = Object.keys(mergedAnswers);
   const retryAnswerKeys = answerKeys.filter(k => k.startsWith("retry-"));
   const originalAnswerKeys = answerKeys.filter(k => !k.startsWith("retry-"));
-  const totalCount = p.quiz?.questions?.length || 0;
+  const totalCount = p.quiz.questionCount;
   const checkedCount = (p.checkedQuestions || []).length;
 
-  let wrongCount = 0;
-  if (p.quiz?.questions) {
-    wrongCount = (p.quiz.questions as any[]).filter(q => {
-      const ua = mergedAnswers[q.id];
-      return ua && ua.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
-    }).length;
-  }
+  const wrongCount = p.wrongQuestionCount;
 
   const hasCompletedFirst = checkedCount >= totalCount && totalCount > 0;
   const isRevising = (hasCompletedFirst && wrongCount > 0) || retryAnswerKeys.length > 0;
@@ -336,18 +330,14 @@ function InProgressCard({
 
 export default function InProgressPage() {
   const [, setLocation] = useLocation();
-  const { savedProgresses, loadSavedProgress, removeSavedProgress } = useQuiz();
+  const { removeSavedProgress } = useQuiz();
   const { t } = useLanguage();
   const [discardTarget, setDiscardTarget] = useState<InProgressItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
 
-  // Fetch ALL progress (no limit)
-  const { data: allProgress = [], isLoading } = useQuery<any[]>({
-    queryKey: ["/api/quiz-progress"],
-    staleTime: 0,
-  });
+  const { data: allProgress = EMPTY_PROGRESS, isLoading } = useQuizProgressSummaries();
 
   const items = useMemo(() => allProgress.map(buildInProgressItem), [allProgress]);
   const availableSubjects = useMemo(() => {
@@ -397,8 +387,7 @@ export default function InProgressPage() {
   };
 
   const handleContinue = (item: InProgressItem) => {
-    loadSavedProgress(item.quizId);
-    setLocation("/quiz");
+    setLocation(`/quiz?id=${encodeURIComponent(item.quizId)}`);
   };
 
   const handleConfirmDiscard = () => {

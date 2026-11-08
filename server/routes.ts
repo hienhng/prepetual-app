@@ -1,5 +1,6 @@
 import { createQuizChatHandler } from "./quiz-chat.js";
 import { createDailyRevisionHandler } from "./daily-revision.js";
+import { createProgressSummaryHandler, createProgressDetailHandler } from "./quiz-progress.js";
 import { answersMatch } from "../shared/answer-grading.js";
 import { signShortAnswerGrade, verifyShortAnswerGrade } from "./short-answer-grade.js";
 import { validatedQuestionSchema } from "../shared/schema.js";
@@ -2217,6 +2218,11 @@ IMPORTANT NOTE:
   });
 
   // Quiz Progress endpoints - saved in-progress quizzes (synced across sessions)
+  app.get("/api/quiz-progress/summaries", isAuthenticated,
+    createProgressSummaryHandler(userId => storage.getQuizProgressSummaries(userId)));
+  app.get("/api/quiz-progress/:quizId", isAuthenticated,
+    createProgressDetailHandler((userId, quizId) => storage.getQuizProgressDetail(userId, quizId)));
+
   app.get("/api/quiz-progress", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;

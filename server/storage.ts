@@ -1,8 +1,9 @@
-import { eq, desc, and, gt, inArray, count, sql } from "drizzle-orm";
+import { eq, desc, and, or, gt, inArray, count, sql } from "drizzle-orm";
 import { db } from "./db.js";
 import { serializeFeedback, type FeedbackEvidence } from "./verified-feedback.js";
 import { revisionDayNumber, selectRevisionQuestions } from "./daily-revision.js";
 import type { DailyRevision } from "../shared/daily-revision.js";
+import type { QuizProgressDetail, QuizProgressSummary } from "../shared/quiz-progress.js";
 import { 
   users, 
   quizzes, 
@@ -97,6 +98,8 @@ export interface IStorage {
   }>;
   // Quiz Progress (saved in-progress quizzes)
   getQuizProgressByUserId(userId: string): Promise<(QuizProgress & { quiz: Quiz })[]>;
+  getQuizProgressSummaries(userId: string): Promise<QuizProgressSummary[]>;
+  getQuizProgressDetail(userId: string, quizId: string): Promise<QuizProgressDetail | undefined>;
   saveQuizProgress(progress: InsertQuizProgress): Promise<QuizProgress & { quiz: Quiz }>;
   deleteQuizProgress(userId: string, quizId: string): Promise<boolean>;
   // Bug Reports
@@ -719,6 +722,39 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Quiz Progress methods
+  async getQuizProgressSummaries(userId: string): Promise<QuizProgressSummary[]> {
+    const rows = await db.select({
+      id: quizProgress.id, userId: quizProgress.userId, quizId: quizProgress.quizId,
+      answers: quizProgress.answers, checkedQuestions: quizProgress.checkedQuestions,
+      currentIndex: quizProgress.currentIndex, retryAnswers: quizProgress.retryAnswers,
+      retryCheckedQuestions: quizProgress.retryCheckedQuestions, timeTaken: quizProgress.timeTaken,
+      savedAt: quizProgress.savedAt,
+      quiz: {
+        id: quizzes.id, userId: quizzes.userId, title: quizzes.title,
+        difficulty: quizzes.difficulty, category: quizzes.category,
+        generationMode: quizzes.generationMode, isPublic: quizzes.isPublic,
+        questionCount: sql<number>`jsonb_array_length(${quizzes.questions})`,
+      },
+      wrongQuestionCount: sql<number>`(SELECT count(*)::integer
+        FROM jsonb_array_elements(${quizzes.questions}) AS items(question)
+        WHERE nullif(${quizProgress.answers}->>(question->>'id'), '') IS NOT NULL
+          AND lower(btrim(${quizProgress.answers}->>(question->>'id')))
+            <> lower(btrim(question->>'correctAnswer')))`,
+    }).from(quizProgress).innerJoin(quizzes, eq(quizProgress.quizId, quizzes.id))
+      .where(and(eq(quizProgress.userId, userId), or(eq(quizzes.userId, userId), eq(quizzes.isPublic, 1))))
+      .orderBy(desc(quizProgress.savedAt), quizProgress.id);
+    return rows.map(row => ({ ...row, savedAt: row.savedAt.toISOString() }));
+  }
+
+  async getQuizProgressDetail(userId: string, quizId: string): Promise<QuizProgressDetail | undefined> {
+    const [row] = await db.select({ progress: quizProgress, quiz: quizzes })
+      .from(quizProgress).innerJoin(quizzes, eq(quizProgress.quizId, quizzes.id))
+      .where(and(eq(quizProgress.userId, userId), eq(quizProgress.quizId, quizId),
+        or(eq(quizzes.userId, userId), eq(quizzes.isPublic, 1))))
+      .orderBy(desc(quizProgress.savedAt)).limit(1);
+    return row ? { ...row.progress, quiz: row.quiz } : undefined;
+  }
+
   async getQuizProgressByUserId(userId: string): Promise<(QuizProgress & { quiz: any })[]> {
     const results = await db
       .select({

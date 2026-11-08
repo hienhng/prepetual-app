@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useQuiz } from "@/lib/quiz-context";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuizProgressSummaries } from "@/hooks/use-quiz-progress";
+import type { ProgressQuizSummary } from "@shared/quiz-progress";
 import { useLanguage } from "@/lib/language-context";
 import { MathText } from "@/components/formatted-text";
 import { fetchVerifiedQuizFeedback, QuizFeedbackError } from "@/lib/verified-quiz-feedback";
@@ -68,13 +70,6 @@ const difficultyColors: Record<string, { border: string, from: string, via: stri
     btn: "bg-rose-500 hover:bg-rose-600 text-white",
   }
 };
-
-interface ResultHistoryItem {
-  quizId: string;
-  date: string;
-}
-
-
 
 interface DailyRevisionProgress {
   currentIndex: number;
@@ -433,7 +428,7 @@ function ContinueQuizCard({
   retryAnsweredCount = 0,
   retryTotalCount = 0,
 }: {
-  quiz: Quiz;
+  quiz: Pick<Quiz, "title" | "difficulty" | "category">;
   answeredCount: number;
   totalCount: number;
   onContinue: () => void;
@@ -951,8 +946,6 @@ export default function Dashboard() {
     resetQuiz,
     clearUserAnswers,
     clearRetryProgress,
-    savedProgresses,
-    loadSavedProgress,
     removeSavedProgress,
     clearRestoredState,
   } = useQuiz();
@@ -968,17 +961,7 @@ export default function Dashboard() {
     queryKey: ["/api/quizzes?limit=8"],
   });
 
-  const { data: progressItems, isLoading: isLoadingProgress } = useQuery<any[]>({
-    // Share the canonical progress query with QuizProvider and the In Progress page.
-    // Save/delete mutations invalidate this key, so the dashboard cannot retain a
-    // stale limited-query result after the user changes their progress.
-    queryKey: ["/api/quiz-progress"],
-    staleTime: 0,
-  });
-
-  const { data: resultHistory, isLoading: isLoadingResultHistory } = useQuery<ResultHistoryItem[]>({
-    queryKey: ["/api/user/result-history"],
-  });
+  const { data: progressItems, isLoading: isLoadingProgress } = useQuizProgressSummaries();
 
   const [dailyRevisionKey, setDailyRevisionKey] = useState(getDailyRevisionDateKey);
   const dailyRevisionSelectionKey = `${DAILY_REVISION_SELECTION_PREFIX}${user?.id || 'anonymous'}:${dailyRevisionKey}`;
@@ -1070,32 +1053,13 @@ export default function Dashboard() {
   };
 
   const handleContinueSavedQuiz = (quizId: string) => {
-    loadSavedProgress(quizId);
-    setLocation("/quiz");
+    setLocation(`/quiz?id=${encodeURIComponent(quizId)}`);
   };
 
   // Helper to check if a quiz item is in revision mode
-  const isQuizInRevisionMode = (item: { quiz: Quiz; answers: Record<string, string>; checkedQuestions: string[] }) => {
-    const answerKeys = Object.keys(item.answers);
-    const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
-    const totalQuestions = item.quiz.questions?.length || 0;
-    const checkedQuestionsCount = item.checkedQuestions?.length || 0;
-
-    // Calculate wrong answers from first attempt (case-insensitive comparison)
-    let wrongQuestionsCount = 0;
-    if (item.quiz.questions) {
-      const questions = item.quiz.questions as any[];
-      wrongQuestionsCount = questions.filter(q => {
-        const userAnswer = item.answers[q.id];
-        return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
-      }).length;
-    }
-
-    const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
-    const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
-    const hasRetryProgress = retryAnswerKeys.length > 0;
-
-    return (hasCompletedFirstAttempt && hasWrongAnswersToRetry) || hasRetryProgress;
+  const isQuizInRevisionMode = (item: { quiz: ProgressQuizSummary; answers: Record<string, string>; checkedQuestions: string[]; wrongQuestionCount: number }) => {
+    return (item.checkedQuestions.length >= item.quiz.questionCount && item.quiz.questionCount > 0 && item.wrongQuestionCount > 0)
+      || Object.keys(item.answers).some(key => key.startsWith('retry-'));
   };
 
   const handleDiscardProgress = () => {
@@ -1112,7 +1076,7 @@ export default function Dashboard() {
   };
 
   // Handle discard with revision warning
-  const handleAttemptDiscard = (item: { type: 'saved'; quizId: string; quiz: Quiz; answers: Record<string, string>; checkedQuestions: string[] }) => {
+  const handleAttemptDiscard = (item: { type: 'saved'; quizId: string; quiz: ProgressQuizSummary; answers: Record<string, string>; checkedQuestions: string[]; wrongQuestionCount: number }) => {
     const isRevising = isQuizInRevisionMode(item);
 
     if (isRevising) {
@@ -1153,6 +1117,7 @@ export default function Dashboard() {
     }
 
     return {
+      ...p,
       type: 'saved' as const,
       quizId: p.quizId,
       quiz: p.quiz,
@@ -1166,103 +1131,9 @@ export default function Dashboard() {
 
 
   const hasSavedQuizzes = !!latestSavedQuiz;
-  const shouldShowPageSkeleton = isLoadingQuizzes && !quizzes;
-
-  if (shouldShowPageSkeleton) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="space-y-8">
-          {/* Welcome header skeleton */}
-          <div className="space-y-3">
-            <Skeleton className="h-10 w-72" />
-            <Skeleton className="h-5 w-56" />
-          </div>
-
-          {/* Daily revision skeleton is shown before continue learning on mobile. */}
-          <div className="space-y-4 lg:hidden">
-            <div className="flex items-center gap-2">
-              <Skeleton className="h-5 w-5 rounded-md" />
-              <Skeleton className="h-6 w-40" />
-            </div>
-            <Skeleton className="h-48 w-full rounded-2xl" />
-          </div>
-
-          {/* Main grid skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left column — quiz list */}
-            <div className="lg:col-span-8 space-y-8">
-              {/* Continue learning section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-6 w-44" />
-                  <Skeleton className="h-8 w-28 rounded-lg" />
-                </div>
-                <Skeleton className="h-36 w-full rounded-2xl" />
-              </div>
-
-              {/* Recent quizzes section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-6 w-40" />
-                  <Skeleton className="h-8 w-20 rounded-lg" />
-                </div>
-                <div className="space-y-3">
-                  {[...Array(5)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 p-3 sm:gap-4 sm:p-4 rounded-2xl border border-border/50 bg-card/40"
-                    >
-                      <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex-shrink-0" />
-                      <div className="flex-1 space-y-2 min-w-0">
-                        <Skeleton className="h-4 w-3/4" />
-                        <div className="flex items-center gap-1.5 sm:gap-2">
-                          <Skeleton className="h-3.5 w-16 rounded-md" />
-                          <Skeleton className="h-3.5 w-14 rounded-md" />
-                          <Skeleton className="hidden sm:block h-3.5 w-20 rounded-md" />
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                        <Skeleton className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl" />
-                        <Skeleton className="h-9 w-9 sm:h-10 sm:w-20 rounded-xl" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Right sidebar */}
-            <div className="lg:col-span-4 space-y-8">
-              {/* Daily revision block */}
-              <div className="hidden space-y-4 lg:block">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-5 w-5 rounded-md" />
-                  <Skeleton className="h-6 w-40" />
-                </div>
-                <Skeleton className="h-48 w-full rounded-2xl" />
-              </div>
-
-              {/* Quick actions block */}
-              <div className="space-y-4">
-                <Skeleton className="h-6 w-36" />
-                <div className="flex flex-col gap-4">
-                  <Skeleton className="h-20 w-full rounded-xl" />
-                  <Skeleton className="h-20 w-full rounded-xl" />
-                </div>
-              </div>
-
-              {/* Learning tip block */}
-              <Skeleton className="h-24 w-full rounded-xl" />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const totalQuizzes = quizzes?.length || 0;
   const recentQuizzes = quizzes || [];
-  const hasQuizzes = totalQuizzes > 0;
+  const hasQuizzes = totalQuizzes > 0 || isLoadingQuizzes || isLoadingProgress || hasSavedQuizzes || !!dailyRevision;
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -1307,7 +1178,7 @@ export default function Dashboard() {
             </div>
             <DailyRevisionPanel
               revision={dailyRevision}
-              isLoading={isLoadingResultHistory || isLoadingDailyRevision}
+              isLoading={isLoadingDailyRevision}
               dayKey={dailyRevisionKey}
             />
           </motion.section>
@@ -1372,17 +1243,9 @@ export default function Dashboard() {
                       const answerKeys = Object.keys(item.answers);
                       const retryAnswerKeys = answerKeys.filter(k => k.startsWith('retry-'));
                       const originalAnswerKeys = answerKeys.filter(k => !k.startsWith('retry-'));
-                      const totalQuestions = item.quiz.questions?.length || 0;
+                      const totalQuestions = item.quiz.questionCount;
                       const checkedQuestionsCount = item.checkedQuestions?.length || 0;
-
-                      let wrongQuestionsCount = 0;
-                      if (item.quiz.questions) {
-                        const questions = item.quiz.questions as any[];
-                        wrongQuestionsCount = questions.filter(q => {
-                          const userAnswer = item.answers[q.id];
-                          return userAnswer && userAnswer.toLowerCase().trim() !== q.correctAnswer.toLowerCase().trim();
-                        }).length;
-                      }
+                      const wrongQuestionsCount = item.wrongQuestionCount;
 
                       const hasCompletedFirstAttempt = checkedQuestionsCount >= totalQuestions && totalQuestions > 0;
                       const hasWrongAnswersToRetry = wrongQuestionsCount > 0;
@@ -1396,7 +1259,7 @@ export default function Dashboard() {
                         <ContinueQuizCard
                           quiz={item.quiz}
                           answeredCount={originalAnswerKeys.length}
-                          totalCount={item.quiz.questions?.length || 0}
+                          totalCount={item.quiz.questionCount}
                           onContinue={() => handleContinueSavedQuiz(item.quizId)}
                           onDiscard={() => handleAttemptDiscard(item)}
                           isCurrent={false}
@@ -1431,7 +1294,9 @@ export default function Dashboard() {
                   </div>
 
                   <div className="space-y-3">
-                    {recentQuizzes.map((quiz, index) => (
+                    {isLoadingQuizzes ? Array.from({ length: 3 }, (_, index) => (
+                      <Skeleton key={index} className="h-24 w-full rounded-2xl" />
+                    )) : recentQuizzes.map((quiz, index) => (
                       <QuizCard
                         key={quiz.id}
                         quiz={quiz}
@@ -1456,7 +1321,7 @@ export default function Dashboard() {
                 <div className="lg:pt-1">
                   <DailyRevisionPanel
                     revision={dailyRevision}
-                    isLoading={isLoadingResultHistory || isLoadingDailyRevision}
+                    isLoading={isLoadingDailyRevision}
                     dayKey={dailyRevisionKey}
                   />
                 </div>
