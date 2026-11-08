@@ -1,6 +1,8 @@
 import { eq, desc, and, gt, inArray, count, sql } from "drizzle-orm";
 import { db } from "./db.js";
 import { serializeFeedback, type FeedbackEvidence } from "./verified-feedback.js";
+import { revisionDayNumber, selectRevisionQuestions } from "./daily-revision.js";
+import type { DailyRevision } from "../shared/daily-revision.js";
 import { 
   users, 
   quizzes, 
@@ -63,7 +65,8 @@ export interface IStorage {
   getQuiz(id: string): Promise<Quiz | undefined>;
   getAllQuizzes(): Promise<Quiz[]>;
   getQuizzesByUserId(userId: string): Promise<Quiz[]>;
-  getQuizzesByUserIdLight(userId: string): Promise<(Omit<Quiz, "questions" | "sourceText" | "sourceImages" | "lecture"> & { questionCount: number })[]>;
+  getQuizzesByUserIdLight(userId: string, limit?: number): Promise<(Omit<Quiz, "questions" | "sourceText" | "sourceImages" | "lecture"> & { questionCount: number })[]>;
+  getDailyRevision(userId: string, date: string): Promise<DailyRevision | null>;
   getPublicQuizzes(): Promise<PublicQuizSummary[]>;
   updateQuiz(id: string, updates: Partial<InsertQuiz>): Promise<Quiz | undefined>;
   updateVerifiedQuestion(quizId: string, original: Question, verified: Question, evidence: FeedbackEvidence): Promise<Quiz | undefined>;
@@ -235,8 +238,8 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(quizzes).where(eq(quizzes.userId, userId)).orderBy(desc(quizzes.createdAt));
   }
 
-  async getQuizzesByUserIdLight(userId: string): Promise<(Omit<Quiz, "questions" | "sourceText" | "sourceImages" | "lecture"> & { questionCount: number })[]> {
-    const rows = await db.select({
+  async getQuizzesByUserIdLight(userId: string, limit?: number): Promise<(Omit<Quiz, "questions" | "sourceText" | "sourceImages" | "lecture"> & { questionCount: number })[]> {
+    const query = db.select({
       id: quizzes.id,
       userId: quizzes.userId,
       folderId: quizzes.folderId,
@@ -254,7 +257,52 @@ export class DatabaseStorage implements IStorage {
     .where(eq(quizzes.userId, userId))
     .orderBy(desc(quizzes.createdAt));
     
-    return rows;
+    return await (limit === undefined ? query : query.limit(limit));
+  }
+
+  async getDailyRevision(userId: string, date: string): Promise<DailyRevision | null> {
+    // Select one eligible quiz in the database. Source documents, images, lectures,
+    // and questions from the other candidates never leave the database.
+    const result = await db.execute<{
+      id: string; title: string; category: string | null; questions: Question[];
+    }>(sql`
+      WITH recent_created AS (
+        SELECT id, created_at AS activity_at FROM quizzes
+        WHERE user_id = ${userId}
+        ORDER BY created_at DESC, id LIMIT 8
+      ), candidates AS (
+        SELECT id, min(priority) AS priority, max(activity_at) AS activity_at
+        FROM (
+          SELECT quiz_id AS id, 0 AS priority, max(completed_at) AS activity_at
+          FROM quiz_results WHERE user_id = ${userId} GROUP BY quiz_id
+          UNION ALL
+          SELECT id, 1 AS priority, activity_at FROM recent_created
+        ) activity
+        GROUP BY id ORDER BY priority, activity_at DESC, id LIMIT 12
+      ), eligible AS (
+        SELECT q.id, q.title, q.category, mc.questions
+        FROM quizzes q JOIN candidates c ON c.id = q.id
+        CROSS JOIN LATERAL (
+          SELECT jsonb_agg(question ORDER BY ordinal) AS questions
+          FROM jsonb_array_elements(q.questions) WITH ORDINALITY AS items(question, ordinal)
+          WHERE question->>'type' = 'multiple_choice'
+            AND CASE WHEN jsonb_typeof(question->'options') = 'array'
+              THEN jsonb_array_length(question->'options') >= 2 ELSE false END
+        ) mc
+        WHERE (q.user_id = ${userId} OR q.is_public = 1)
+          AND jsonb_array_length(mc.questions) >= 4
+      )
+      SELECT id, title, category, questions FROM eligible ORDER BY id LIMIT 1
+      OFFSET (SELECT CASE WHEN count(*) = 0 THEN 0
+        ELSE mod(mod(${revisionDayNumber(date)}::bigint, count(*)) + count(*), count(*)) END
+        FROM eligible)
+    `);
+    const quiz = result.rows[0];
+    if (!quiz) return null;
+    return {
+      quiz: { id: quiz.id, title: quiz.title, category: quiz.category || "Others/General" },
+      questions: selectRevisionQuestions(quiz.questions, quiz.id, date),
+    };
   }
 
   async getPublicQuizzes(): Promise<PublicQuizSummary[]> {

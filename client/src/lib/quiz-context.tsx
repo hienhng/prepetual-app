@@ -175,12 +175,13 @@ interface SavedProgressFromAPI extends QuizProgress {
 
 export function QuizProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
 
   // Fetch saved progresses from API
   const { data: apiProgresses = [], isPending: isProgressPending, refetch: refetchProgresses } = useQuery<SavedProgressFromAPI[]>({
     queryKey: ["/api/quiz-progress"],
     staleTime: 0,
+    enabled: !!user,
   });
 
   // Mutation to save progress
@@ -277,6 +278,13 @@ export function QuizProvider({ children }: { children: ReactNode }) {
 
   // Sync savedProgresses from API data
   useEffect(() => {
+    if (isAuthLoading) return;
+    if (!user) {
+      setState(prev => prev.savedProgresses.length || prev.isLoadingSavedProgresses
+        ? { ...prev, savedProgresses: [], isLoadingSavedProgresses: false }
+        : prev);
+      return;
+    }
     if (isProgressPending) return;
     const converted: SavedQuizProgress[] = apiProgresses
       .filter((p) => !user || p.quiz.userId === user.id)
@@ -299,7 +307,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       }
       return prev;
     });
-  }, [apiProgresses, isProgressPending, user?.id]);
+  }, [apiProgresses, isProgressPending, isAuthLoading, user?.id]);
 
   useEffect(() => {
     if (!state.currentQuiz) return;

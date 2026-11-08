@@ -31,6 +31,7 @@ import { useLanguage } from "@/lib/language-context";
 import { MathText } from "@/components/formatted-text";
 import { fetchVerifiedQuizFeedback, QuizFeedbackError } from "@/lib/verified-quiz-feedback";
 import type { Question, Quiz } from "@shared/schema";
+import type { DailyRevision } from "@shared/daily-revision";
 import { formatDistanceToNow } from "date-fns";
 
 
@@ -73,10 +74,7 @@ interface ResultHistoryItem {
   date: string;
 }
 
-interface DailyRevision {
-  quiz: Pick<Quiz, 'id' | 'title'> & { category: string };
-  questions: Question[];
-}
+
 
 interface DailyRevisionProgress {
   currentIndex: number;
@@ -982,12 +980,6 @@ export default function Dashboard() {
     queryKey: ["/api/user/result-history"],
   });
 
-  const revisionCandidateIds = useMemo(() => {
-    const recentlyUsedIds = resultHistory?.map((result) => result.quizId) || [];
-    const recentlyCreatedIds = quizzes?.map((quiz) => quiz.id) || [];
-    return Array.from(new Set([...recentlyUsedIds, ...recentlyCreatedIds])).slice(0, 12);
-  }, [quizzes, resultHistory]);
-
   const [dailyRevisionKey, setDailyRevisionKey] = useState(getDailyRevisionDateKey);
   const dailyRevisionSelectionKey = `${DAILY_REVISION_SELECTION_PREFIX}${user?.id || 'anonymous'}:${dailyRevisionKey}`;
 
@@ -1001,10 +993,9 @@ export default function Dashboard() {
   }, []);
 
   const { data: dailyRevision, isLoading: isLoadingDailyRevision } = useQuery<DailyRevision | null>({
-    // The candidate list deliberately is not part of this key. A revision is selected
-    // once per user/day and must not refetch merely because dashboard data changes.
+    // Select once per user/day, independently of the other dashboard requests.
     queryKey: ["dashboard-daily-revision", user?.id, dailyRevisionKey],
-    enabled: !!user && !isLoadingQuizzes && !isLoadingResultHistory,
+    enabled: !!user,
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     queryFn: async () => {
@@ -1019,49 +1010,13 @@ export default function Dashboard() {
         console.warn('Unable to restore the daily revision selection:', error);
       }
 
-      const candidates = await Promise.all(
-        revisionCandidateIds.map(async (quizId) => {
-          const response = await fetch(`/api/quiz/${quizId}`, { credentials: 'include' });
-          if (!response.ok) return null;
-          return await response.json() as Quiz;
-        }),
-      );
-
-      const eligibleCandidates = candidates.flatMap((quiz) => {
-        if (!quiz) return [];
-        const questions = quiz.questions.filter(
-          (question) => question.type === 'multiple_choice' && (question.options?.length || 0) >= 2,
-        );
-        return questions.length >= 4 ? [{ quiz, questions }] : [];
-      }).sort((first, second) => first.quiz.id.localeCompare(second.quiz.id));
-
-      if (eligibleCandidates.length === 0) return null;
-
-      // Cycle through eligible quizzes by calendar day. With multiple candidates,
-      // tomorrow's revision comes from a different quiz while remaining stable today.
-      const dayNumber = Math.floor(new Date(`${dailyRevisionKey}T00:00:00`).getTime() / 86_400_000);
-      const selectedCandidate = eligibleCandidates[dayNumber % eligibleCandidates.length];
-      const { quiz, questions: multipleChoiceQuestions } = selectedCandidate;
-
-      // Keep the four-question set stable for the day while rotating it day to day.
-      let seed = `${dailyRevisionKey}-${quiz.id}`
-        .split('')
-        .reduce((value, character) => ((value * 31) + character.charCodeAt(0)) >>> 0, 2166136261);
-      const shuffled = [...multipleChoiceQuestions];
-      for (let index = shuffled.length - 1; index > 0; index--) {
-        seed = (seed * 1664525 + 1013904223) >>> 0;
-        const swapIndex = seed % (index + 1);
-        [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-      }
-
-      const selectedRevision: DailyRevision = {
-        quiz: {
-          id: quiz.id,
-          title: quiz.title,
-          category: quiz.category || 'Others/General',
-        },
-        questions: shuffled.slice(0, 4),
-      };
+      const response = await fetch(`/api/user/daily-revision?date=${dailyRevisionKey}`, {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to load daily revision');
+      const selectedRevision: DailyRevision | null = await response.json();
+      if (!selectedRevision) return null;
+      if (!isDailyRevision(selectedRevision)) throw new Error('Invalid daily revision response');
 
       try {
         localStorage.setItem(dailyRevisionSelectionKey, JSON.stringify(selectedRevision));

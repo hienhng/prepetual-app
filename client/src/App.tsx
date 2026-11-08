@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { Switch, Route, useLocation, Link } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -26,55 +26,64 @@ import {
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { VerificationPrompt } from "@/components/verification-prompt";
-import OnboardingPage from "@/pages/onboarding";
-import Home from "@/pages/home";
-import Dashboard from "@/pages/dashboard";
-import Create from "@/pages/create";
-import Feed from "@/pages/feed";
-import Generate from "@/pages/generate";
-import Quiz from "@/pages/quiz";
-import QuizComplete from "@/pages/quiz-complete";
-import Results from "@/pages/results";
-import HistoryPage from "@/pages/history";
-import Study from "@/pages/study";
-import Share from "@/pages/share";
-import EditQuiz from "@/pages/edit-quiz";
-import VerifyEmailPage from "@/pages/verify-email";
-import ResetPasswordPage from "@/pages/reset-password";
-import ForgotPasswordPage from "@/pages/forgot-password";
-import TermsOfService from "@/pages/terms";
-import PrivacyPolicy from "@/pages/privacy";
-import About from "@/pages/about";
-import Contact from "@/pages/contact";
-import FAQ from "@/pages/faq";
-import HelpCenter from "@/pages/help-center";
-import RevisionSummary from "@/pages/revision-summary";
-import Settings from "@/pages/settings";
-import Blog from "@/pages/blog";
-import BlogPost from "@/pages/blog-post";
-import FolderPage from "@/pages/folder";
-import ProgressPage from "@/pages/progress";
-import InProgressPage from "@/pages/in-progress";
-import NotFound from "@/pages/not-found";
-import AuthPage from "@/pages/auth";
 import { Footer } from "@/components/footer";
 import { GoogleOneTap } from "@/components/google-one-tap";
 import { LanguageProvider, useLanguage } from "@/lib/language-context";
+
+const OnboardingPage = lazy(() => import("@/pages/onboarding"));
+const Home = lazy(() => import("@/pages/home"));
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const Create = lazy(() => import("@/pages/create"));
+const Feed = lazy(() => import("@/pages/feed"));
+const Generate = lazy(() => import("@/pages/generate"));
+const Quiz = lazy(() => import("@/pages/quiz"));
+const QuizComplete = lazy(() => import("@/pages/quiz-complete"));
+const Results = lazy(() => import("@/pages/results"));
+const HistoryPage = lazy(() => import("@/pages/history"));
+const Study = lazy(() => import("@/pages/study"));
+const Share = lazy(() => import("@/pages/share"));
+const EditQuiz = lazy(() => import("@/pages/edit-quiz"));
+const VerifyEmailPage = lazy(() => import("@/pages/verify-email"));
+const ResetPasswordPage = lazy(() => import("@/pages/reset-password"));
+const ForgotPasswordPage = lazy(() => import("@/pages/forgot-password"));
+const TermsOfService = lazy(() => import("@/pages/terms"));
+const PrivacyPolicy = lazy(() => import("@/pages/privacy"));
+const About = lazy(() => import("@/pages/about"));
+const Contact = lazy(() => import("@/pages/contact"));
+const FAQ = lazy(() => import("@/pages/faq"));
+const HelpCenter = lazy(() => import("@/pages/help-center"));
+const RevisionSummary = lazy(() => import("@/pages/revision-summary"));
+const Settings = lazy(() => import("@/pages/settings"));
+const Blog = lazy(() => import("@/pages/blog"));
+const BlogPost = lazy(() => import("@/pages/blog-post"));
+const FolderPage = lazy(() => import("@/pages/folder"));
+const ProgressPage = lazy(() => import("@/pages/progress"));
+const InProgressPage = lazy(() => import("@/pages/in-progress"));
+const NotFound = lazy(() => import("@/pages/not-found"));
+const AuthPage = lazy(() => import("@/pages/auth"));
+
+function PageLoading() {
+  const { t } = useLanguage();
+  return (
+    <div className="min-h-[50vh] flex items-center justify-center" role="status" aria-label={t("common.loading")}>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+    </div>
+  );
+}
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [location, setLocation] = useLocation();
 
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) setLocation("/auth");
+  }, [isLoading, isAuthenticated, setLocation]);
+
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <PageLoading />;
   }
 
   if (!isAuthenticated) {
-    setLocation("/auth");
     return null;
   }
 
@@ -83,6 +92,7 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
 
 function AuthenticatedRouter() {
   return (
+    <Suspense fallback={<PageLoading />}>
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/dashboard" component={Dashboard} />
@@ -115,11 +125,13 @@ function AuthenticatedRouter() {
       <Route path="/help" component={HelpCenter} />
       <Route component={NotFound} />
     </Switch>
+    </Suspense>
   );
 }
 
 function PublicRouter() {
   return (
+    <Suspense fallback={<PageLoading />}>
     <Switch>
       {/* Public pages accessible to guests */}
       <Route path="/" component={Home} />
@@ -157,6 +169,7 @@ function PublicRouter() {
       <Route path="/onboarding">{() => <ProtectedRoute component={OnboardingPage} />}</Route>
       <Route component={NotFound} />
     </Switch>
+    </Suspense>
   );
 }
 
@@ -408,6 +421,7 @@ function AuthenticatedLayout() {
 }
 
 function PublicLayout() {
+  const { isLoading } = useAuth();
   const [location] = useLocation();
   const showFooter = location === "/about" || location === "/terms" || location === "/privacy" || location === "/contact";
   const isAuthPage = location === "/auth";
@@ -419,7 +433,7 @@ function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {location === "/" && <GoogleOneTap />}
+      {location === "/" && !isLoading && <GoogleOneTap />}
       {!hidePublicHeader && <PublicHeader />}
       <main className="flex-1">
         <PublicRouter />
@@ -430,15 +444,7 @@ function PublicLayout() {
 }
 
 function AppContent() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  const { isAuthenticated } = useAuth();
 
   return isAuthenticated ? <AuthenticatedLayout /> : <PublicLayout />;
 }

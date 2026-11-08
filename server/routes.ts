@@ -1,4 +1,5 @@
 import { createQuizChatHandler } from "./quiz-chat.js";
+import { createDailyRevisionHandler } from "./daily-revision.js";
 import { answersMatch } from "../shared/answer-grading.js";
 import { signShortAnswerGrade, verifyShortAnswerGrade } from "./short-answer-grade.js";
 import { validatedQuestionSchema } from "../shared/schema.js";
@@ -1357,11 +1358,11 @@ IMPORTANT NOTE:
   app.get("/api/quizzes", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
-      const quizzes = await storage.getQuizzesByUserIdLight(userId);
-
-      // Storage already returns quizzes ordered by createdAt desc, but apply limit
-      const limitedQuizzes = limit ? quizzes.slice(0, limit) : quizzes;
+      const limit = req.query.limit === undefined ? undefined : Number(req.query.limit);
+      if (limit !== undefined && (!Number.isSafeInteger(limit) || limit < 1)) {
+        return res.status(400).json({ message: "Limit must be a positive integer" });
+      }
+      const limitedQuizzes = await storage.getQuizzesByUserIdLight(userId, limit);
 
       // Single GROUP BY query — replaces N+1 per-quiz DB round-trips
       const quizIds = limitedQuizzes.map(q => q.id);
@@ -1379,6 +1380,9 @@ IMPORTANT NOTE:
     }
   });
 
+
+  app.get("/api/user/daily-revision", isAuthenticated,
+    createDailyRevisionHandler((userId, date) => storage.getDailyRevision(userId, date)));
 
   app.get("/api/user/stats", isAuthenticated, async (req: any, res) => {
     try {
