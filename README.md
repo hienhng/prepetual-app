@@ -1,18 +1,85 @@
-# Prepetual
+<div align="center">
 
-Prepetual is an AI-powered study app that turns notes, documents, images, and YouTube transcripts into quizzes and guided study sessions. Generate practice questions, import an existing exam, review explanations, and track your learning progress in one place.
+  <img src="attached_assets/image_1765894870887.png" alt="Prepetual logo" width="88" height="88" />
+
+  <h1>Prepetual</h1>
+
+  <p><strong>Turn your study material into your next breakthrough.</strong></p>
+  <p>An AI-powered study space for quizzes, guided learning, and progress you can see.<br />Bring your notes, documents, images, or YouTube transcripts. Start learning.</p>
+
+  <p>
+    <img src="https://img.shields.io/badge/Node.js-22.13%2B-facc15?style=flat-square&amp;labelColor=18181b" alt="Node.js 22.13 or newer" />
+    <img src="https://img.shields.io/badge/React-18-facc15?style=flat-square&amp;labelColor=18181b" alt="React 18" />
+    <img src="https://img.shields.io/badge/TypeScript-5.6-facc15?style=flat-square&amp;labelColor=18181b" alt="TypeScript 5.6" />
+    <img src="https://img.shields.io/badge/PostgreSQL-pgvector-facc15?style=flat-square&amp;labelColor=18181b" alt="PostgreSQL with pgvector" />
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-facc15?style=flat-square&amp;labelColor=18181b" alt="MIT license" /></a>
+  </p>
+
+  <p>
+    <a href="#features">Explore features</a> &middot;
+    <a href="#run-locally">Get started</a> &middot;
+    <a href="#configuration-reference">Configuration</a> &middot;
+    <a href="#commands">Commands</a> &middot;
+    <a href="#contributing">Contribute</a>
+  </p>
+
+</div>
+
+---
+
+## From material to mastery
+
+| 01 &nbsp; Bring your material | 02 &nbsp; Build your practice | 03 &nbsp; Make it stick |
+| :--- | :--- | :--- |
+| Paste notes, upload documents or scans, or use a YouTube transcript. | Generate a quiz, import an exam, or create a guided study session. | Review explanations, revisit mistakes, and track your progress. |
+
+---
 
 ## Features
 
-- **Create quizzes from study material.** Paste text or upload PDFs, Word documents, PowerPoint presentations, Excel spreadsheets, and PNG/JPEG images. Choose multiple-choice, multiple-selection, true/false, or short-answer questions.
-- **Import existing exams.** Convert worksheets and exam scans into editable quizzes, with image transcription and answer verification.
-- **Study with AI.** Generate summaries and lecture slides, ask questions about a quiz, and revisit mistakes with targeted review.
-- **Use video transcripts.** Turn a YouTube video's available transcript into study material.
-- **Save and organize your work.** Group quizzes into folders, resume saved quiz progress, view attempt history, and recover incomplete quiz generation from saved drafts.
-- **Share and discover quizzes.** Share quiz links, browse the public feed, comment, vote, and export quizzes to PDF.
-- **Personalize the experience.** English and Vietnamese interfaces, light and dark themes, and configurable study preferences.
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🧠 Practice your way</h3>
+      <p>Create multiple-choice, multiple-selection, true/false, and short-answer quizzes from your study material.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>📄 Give your notes a second life</h3>
+      <p>Work with PDFs, Word documents, PowerPoint presentations, Excel spreadsheets, PNG/JPEG images, and available YouTube transcripts.</p>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h3>🔎 Turn exams into practice</h3>
+      <p>Convert worksheets and exam scans into editable quizzes with image transcription and answer verification.</p>
+    </td>
+    <td valign="top">
+      <h3>💡 Learn beyond the answer</h3>
+      <p>Generate summaries and lecture slides, ask questions about a quiz, and revisit mistakes with targeted review.</p>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h3>📈 Keep your momentum</h3>
+      <p>Organize quizzes into folders, resume saved progress, view attempt history, and recover incomplete generation from saved drafts.</p>
+    </td>
+    <td valign="top">
+      <h3>🤝 Share what you learn</h3>
+      <p>Share quiz links, discover the public feed, comment, vote, and export quizzes to PDF.</p>
+    </td>
+  </tr>
+</table>
+
+> **Your study space, your preferences.** English and Vietnamese interfaces, light and dark themes, and configurable study preferences.
+
+<details>
+<summary><strong>Behind the experience</strong> — processing and generation</summary>
 
 Uploads report background processing progress, and quiz generation streams progress through Server-Sent Events (SSE). Image processing combines AI transcription with English and Vietnamese OCR.
+
+</details>
+
+---
 
 ## Technology
 
@@ -28,6 +95,8 @@ Uploads report background processing progress, and quiz generation streams progr
 | Email | Nodemailer with Gmail transport |
 | Mobile | Capacitor with an Android project |
 
+---
+
 ## Run locally
 
 ### Requirements
@@ -37,7 +106,7 @@ Uploads report background processing progress, and quiz generation streams progr
 - An API key for an OpenAI-compatible chat provider. The example configuration uses Groq.
 - An embedding provider for source retrieval, configured to return **1,536-dimensional vectors**.
 
-### 1. Install dependencies
+### 01 · Install dependencies
 
 From the repository root:
 
@@ -45,7 +114,7 @@ From the repository root:
 npm ci
 ```
 
-### 2. Configure the environment
+### 02 · Configure the environment
 
 Copy the example configuration:
 
@@ -53,11 +122,14 @@ Copy the example configuration:
 cp .env.example .env
 ```
 
-On PowerShell:
+<details>
+<summary>Using PowerShell?</summary>
 
 ```powershell
 Copy-Item .env.example .env
 ```
+
+</details>
 
 Edit `.env` before starting the app:
 
@@ -69,9 +141,10 @@ Edit `.env` before starting the app:
 - Configure Gmail credentials, or remove both Gmail placeholder values to use development email logging.
 - Remove optional placeholder credentials for integrations you are not using.
 
-**Current startup requirement:** `server/openai.ts` initializes a Gemini SDK client when the module loads, even though that client is currently unused. The SDK requires `GEMINI_API_KEY` or its `OPENAI_API_KEY` fallback to be defined. This setting is missing from `.env.example`; setting only the main chat API key does not satisfy it.
+> [!IMPORTANT]
+> **One extra startup setting:** `server/openai.ts` initializes a Gemini SDK client when the module loads, even though that client is currently unused. The SDK requires `GEMINI_API_KEY` or its `OPENAI_API_KEY` fallback to be defined. This setting is missing from `.env.example`; add it alongside your main chat API key.
 
-### 3. Initialize the database
+### 03 · Initialize the database
 
 Create the database referenced by `DATABASE_URL`, then run:
 
@@ -81,7 +154,10 @@ npm run db:push
 
 This command enables the `vector` extension and pushes the schema in `shared/schema.ts`. The PostgreSQL server must already have pgvector installed. If your database user cannot create extensions, have the database administrator enable `vector` first.
 
-For an existing database that only needs the generation-draft migrations:
+<details>
+<summary>Updating generation drafts in an existing database?</summary>
+
+For a database that only needs the generation-draft migrations:
 
 ```sh
 npm run db:generation-drafts
@@ -89,7 +165,9 @@ npm run db:generation-drafts
 
 That command applies the two generation-draft SQL migrations; it does not initialize the rest of the schema.
 
-### 4. Start development
+</details>
+
+### 04 · Start development
 
 ```sh
 npm run dev
@@ -97,11 +175,17 @@ npm run dev
 
 Open [localhost:5000](http://localhost:5000). Express serves both the API and the Vite development frontend. Set `PORT` in `.env` to change the port, and update `APP_URL` accordingly.
 
-When Gmail credentials are absent in development, verification codes and password-reset links appear in the server console.
+> [!TIP]
+> When Gmail credentials are absent in development, verification codes and password-reset links appear in the server console.
+
+---
 
 ## Configuration reference
 
 [.env.example](.env.example) contains the main configuration and rate-limit defaults. The startup requirement for `GEMINI_API_KEY` is an additional setting noted above.
+
+<details>
+<summary><strong>Environment variables</strong> — database, AI, authentication, and integrations</summary>
 
 | Variable | Purpose |
 | --- | --- |
@@ -127,6 +211,10 @@ When Gmail credentials are absent in development, verification codes and passwor
 
 Authentication, email, and AI request limits are configurable through the `AUTH_*`, `CONTACT_RATE_LIMIT`, `PROVIDER_RATE_LIMIT_WINDOW_MS`, and feature-specific rate-limit settings in `.env.example`.
 
+</details>
+
+---
+
 ## Commands
 
 | Command | Purpose |
@@ -150,6 +238,8 @@ Other tests live alongside the code in `server/`, `shared/`, and `client/src/lib
 
 There are currently no `test` or `lint` scripts in `package.json`.
 
+---
+
 ## Production build
 
 Configure the production database, provider credentials, email credentials, a session secret of at least 32 characters, and an HTTPS `APP_URL`. Apply the database schema before serving requests, then run:
@@ -163,7 +253,12 @@ The production Express server serves the built frontend and API on the configure
 
 The repository also includes `api/index.ts` and `vercel.json` for Vercel hosting. In that configuration, Vercel serves the static frontend and routes `/api/*` to the API entry point.
 
+---
+
 ## Repository layout
+
+<details>
+<summary><strong>Explore the codebase</strong></summary>
 
 ```text
 client/
@@ -191,7 +286,11 @@ drizzle.config.ts     Database schema tooling configuration
 .env.example          Environment template
 ```
 
+</details>
+
 The Capacitor configuration currently points to a development server on a local network. Update its `server.url` for your environment before using the Android wrapper.
+
+---
 
 ## Contributing
 
@@ -199,4 +298,11 @@ Keep changes focused and follow the surrounding TypeScript and React conventions
 
 ## License
 
-[MIT](LICENSE).
+[MIT](LICENSE) — free to use, modify, and distribute under the license terms.
+
+---
+
+<div align="center">
+  <p><strong>Bring your curiosity. Build your understanding.</strong></p>
+  <p><a href="#prepetual">Back to top ↑</a></p>
+</div>
